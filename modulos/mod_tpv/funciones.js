@@ -1022,3 +1022,33 @@ function cambioCliente(idTicket){
 			
 	});
 }
+
+function cambioFormaPago(idTicket){
+    var formaPago=$('#modoPago').val();
+    alert(formaPago+' '+idTicket);
+    var parametros = {
+		"pulsado"    		: 'cambiarFormaPagoTicketGuardado',
+		"id_ticketst"		: idTicket,
+        "formaPago"            :formaPago
+
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  MOdificar datos cliente en el tickets seleccionado **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de modificar datos de clientes');
+				 var resultado = $.parseJSON(response);
+                alert(resultado.mensaje);
+			}
+			
+	});
+}
+
+function mostrarCambioFormaPago(){
+    // Mostramos en ticket cerrado la opcion cambiar forma pago
+    $('#cambioFormaPago').show();
+}

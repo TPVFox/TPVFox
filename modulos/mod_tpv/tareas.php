@@ -179,7 +179,11 @@ switch ($pulsado) {
             }
             $respuesta['mensaje']=$mensaje;
         break;
-		
+
+        case 'cambiarFormaPagoTicketGuardado' :
+            //~ $cambiarFormaPago = $CTickets->
+            $respuesta['mensaje']='Llegue';
+		break;
 		
 }
 echo json_encode($respuesta);

@@ -91,20 +91,14 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-            <?php
-              echo '<pre>';
-              print_r($Tienda);     
-              echo '</pre>'; 
-
-            ?>
-			<nav class="col-sm-2">
+			<div class="col-sm-2">
 				<?php echo $Controler->getHtmlLinkVolver();?>
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php
-                if($ClasePermisos->getAccion("verWebEnProducto")==1){
-                    // Solo mostramos btn de enviar a web si tiene permisos.
+                if($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto")==1){
+                    // Solo mostramos btn de enviar a web si existe web y tiene permisos.
                      if ($permitir_envio === 'Si'){?>
                         <li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
                      <?php }
@@ -113,151 +107,167 @@
                      
 				 	<li><a onclick="imprimirTicketCerrado(<?php echo $id;?>);">Imprimir</a></li>
                     <li><a id="cambioCliente" onclick="cambioCliente(<?php echo $id;?>);" style="display:none;">Cambio Cliente</a></li>
+                    <li><a id="cambioFormaPago" onclick="cambioFormaPago(<?php echo $id;?>);" style="display:none;" >Cambio Forma Pago</a></li>
 				</ul>
 				</div>	
-			</nav>
+			</div>
 			
 			
 			<div class="col-md-10">
-				<div class="col-md-12">
-					<div class="col-md-7">
-						<div class="col-md-6">
-							<strong>Fecha Inicio:</strong><br/>
-							<span id="Fecha"><?php echo $ticket['cabecera']['Fecha'];?></span><br/>
-						</div>
-						<div class="col-md-6">
-							<strong>Estado:</strong>
-							<span id="EstadoTicket"> <?php echo $ticket['cabecera']['estado'];?></span><br/>
-							<strong>NºTicket:</strong>
-							<span id="NTicket"><?php echo $ticket['cabecera']['Numticket'];?></span><br/>
-						</div>
-					</div>
-					<div class="col-md-5">
-						<label>Empleado:</label>
-						<span id="Usuario"><?php echo $ticket['cabecera']['username'];?></span><br/>
-					</div>
-				</div> 
-				<div class="form-group">
-					<label>Cliente:</label>
-					<?php 
-					echo '<input type="text" id="id_cliente" name="idCliente" value="'
-						.$ticket['cabecera']['idCliente'].'" size="2" readonly>';
-					echo '<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="'
-						.$ticket['cabecera']['Nombre'].' - '.$ticket['cabecera']['razonsocial'].'" size="60" readonly>';?>
-					<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('cobrados')"></a>
-				</div>
-			
-			</div>
-			<div class="col-md-10 col-md-offset-2 ">
-				<div class="col-md-12">	
-					<table id="tabla" class="table table-striped">
-						<thead>
-							<tr>
-								<th>L</th>
-								<th>Codbarras</th>
-								<th>Referencia</th>
-								<th>Descripcion</th>
-								<th>Unid</th>
-								<th>PVP</th>
-								<th>Iva</th>
-								<th>Importe</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php
-							$total = 0;
-							foreach ($ticket['lineas'] as $key =>$dato) {?>
-								<?php 
-								if ($dato['estadoLinea'] === 'Eliminado'){
-									$htmlEstado = '<span class="glyphicon glyphicon-trash"></span>';
-									$classRow = 'class="tachado"';
-								} else {
-									$htmlEstado='';
-									$classRow ='';
-								}
-								$nunidades = number_format($dato['nunidades'],3);
-								$precioCiva = number_format($dato['precioCiva'],2);
-								$importe = number_format($nunidades*$precioCiva,2);
-								if ($dato['estadoLinea'] !== 'Eliminado'){
-									// Solo sumo si estado es distinto Eliminado
-									$total = $total + $importe;
-								}
-								?> 
-								<tr <?php echo $classRow?>>
-									<td><?php echo $key+1; ?></td>
-									<td><?php echo $dato['ccodbar'];  ?></td>
-									<td><?php echo $dato['cref']; ?></td>
-									<td><?php echo $dato['cdetalle']; ?></td>
-									<td><?php echo $nunidades; ?></td>
-									<td><?php echo $precioCiva; ?></td>
-									<td><?php echo $dato['iva']; ?></td>
-									<td><?php echo $importe ?></td>
-									<td> <?php echo $htmlEstado; ?>	</td>
-								</tr>
-								<?php
-							}?>
-							
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="col-md-10 col-md-offset-2 pie-ticket">
-				<!-- TABLA IVAS BASES -->
-				<table id="tabla-pie" class="col-md-6">
-				<thead>
-					<tr>
-						<th>Tipo</th>
-						<th>Base</th>
-						<th>IVA</th>
-					</tr>
-				</thead>
-				<tbody>
-				<?php 
-			
-				foreach ( $ticket['basesYivas'] as $baseYiva){
-				?>
-				<tr>
-					<td  class="tipo_iva">
-						<?php echo $baseYiva['iva']."%";?>
-					</td>
-					<td class="base">
-						<?php echo $baseYiva['importeBase'];?>
-					</td>
-					<td class="importe_iva">
-						<?php echo $baseYiva['importeIva'];?>
-					</td>
-					
-				</tr>
-				<?php
-				}
-				?>
-				
-			</tbody>
-			</table>
-			<!--Fin tabla bases ivas-->
-			<div class="col-md-6">
-				<div class="col-md-4 text-right">
-					<h3>TOTAL</h3>
-					<p>Forma pago</p>
-					<p>Entregado</p>
-				</div>
-				<div class="col-md-8 text-right totalImporte" >
-					<?php
-					if ( strval($total) !=  $ticket['cabecera']['total']){
-						echo '<pre>';
-						print_r('Total no coincide, me da:'.$total);
-						echo '</pre>';
-					}
-					?>
-					<div style="font-size: 3em;"><?php echo  $ticket['cabecera']['total'];?></div>
-					<p><?php echo  $ticket['cabecera']['formaPago'];?></p>
-					<p><?php echo  $ticket['cabecera']['entregado'];?></p>
-				</div>
-				
-			</div>	
-			
-		</div>
+                    <div class="col-md-12">
+                        <div class="col-md-7">
+                            <div class="col-md-6">
+                                <strong>Fecha Inicio:</strong><br/>
+                                <span id="Fecha"><?php echo $ticket['cabecera']['Fecha'];?></span><br/>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Estado:</strong>
+                                <span id="EstadoTicket"> <?php echo $ticket['cabecera']['estado'];?></span><br/>
+                                <strong>NºTicket:</strong>
+                                <span id="NTicket"><?php echo $ticket['cabecera']['Numticket'];?></span><br/>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label>Empleado:</label>
+                            <span id="Usuario"><?php echo $ticket['cabecera']['username'];?></span><br/>
+                        </div>
+                    </div> 
+                    <div class="form-group">
+                        <label>Cliente:</label>
+                        <?php 
+                        echo '<input type="text" id="id_cliente" name="idCliente" value="'
+                            .$ticket['cabecera']['idCliente'].'" size="2" readonly>';
+                        echo '<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="'
+                            .$ticket['cabecera']['Nombre'].' - '.$ticket['cabecera']['razonsocial'].'" size="60" readonly>';?>
+                        <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('cobrados')"></a>
+                    </div>
+                <div class="col-md-10 col-md-offset-2 ">
+                    <div class="col-md-12">	
+                        <table id="tabla" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>L</th>
+                                    <th>Codbarras</th>
+                                    <th>Referencia</th>
+                                    <th>Descripcion</th>
+                                    <th>Unid</th>
+                                    <th>PVP</th>
+                                    <th>Iva</th>
+                                    <th>Importe</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $total = 0;
+                                foreach ($ticket['lineas'] as $key =>$dato) {?>
+                                    <?php 
+                                    if ($dato['estadoLinea'] === 'Eliminado'){
+                                        $htmlEstado = '<span class="glyphicon glyphicon-trash"></span>';
+                                        $classRow = 'class="tachado"';
+                                    } else {
+                                        $htmlEstado='';
+                                        $classRow ='';
+                                    }
+                                    $nunidades = number_format($dato['nunidades'],3);
+                                    $precioCiva = number_format($dato['precioCiva'],2);
+                                    $importe = number_format($nunidades*$precioCiva,2);
+                                    if ($dato['estadoLinea'] !== 'Eliminado'){
+                                        // Solo sumo si estado es distinto Eliminado
+                                        $total = $total + $importe;
+                                    }
+                                    ?> 
+                                    <tr <?php echo $classRow?>>
+                                        <td><?php echo $key+1; ?></td>
+                                        <td><?php echo $dato['ccodbar'];  ?></td>
+                                        <td><?php echo $dato['cref']; ?></td>
+                                        <td><?php echo $dato['cdetalle']; ?></td>
+                                        <td><?php echo $nunidades; ?></td>
+                                        <td><?php echo $precioCiva; ?></td>
+                                        <td><?php echo $dato['iva']; ?></td>
+                                        <td><?php echo $importe ?></td>
+                                        <td> <?php echo $htmlEstado; ?>	</td>
+                                    </tr>
+                                    <?php
+                                }?>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-10 col-md-offset-2 pie-ticket">
+                    <!-- TABLA IVAS BASES -->
+                    <table id="tabla-pie" class="col-md-6">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Base</th>
+                            <th>IVA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php 
+                
+                    foreach ( $ticket['basesYivas'] as $baseYiva){
+                    ?>
+                    <tr>
+                        <td  class="tipo_iva">
+                            <?php echo $baseYiva['iva']."%";?>
+                        </td>
+                        <td class="base">
+                            <?php echo $baseYiva['importeBase'];?>
+                        </td>
+                        <td class="importe_iva">
+                            <?php echo $baseYiva['importeIva'];?>
+                        </td>
+                        
+                    </tr>
+                    <?php
+                    }
+                    ?>
+                    
+                    </tbody>
+                    </table>
+                    <!--Fin tabla bases ivas-->
+                    <div class="col-md-6">
+                        <div class="col-md-4 text-right">
+                            <h3>TOTAL</h3>
+                            <p>Forma pago</p>
+                            <p>Entregado</p>
+                        </div>
+                        <div class="col-md-8 text-right totalImporte" >
+                            <?php
+                            if ( strval($total) !=  $ticket['cabecera']['total']){
+                                echo '<pre>';
+                                print_r('Total no coincide, me da:'.$total);
+                                echo '</pre>';
+                            }
+                            ?>
+                            <div style="font-size: 3em;"><?php echo  $ticket['cabecera']['total'];?></div>
+                            <select name="modoPago" id="modoPago" onchange="mostrarCambioFormaPago()">
+                                <?php
+                                    // Logica para poner la forma pago seleccionada en ticket
+                                    $formasPago = array(
+                                                        0 => array ( 'valor' => 'contado', 'descripcion' => 'Contado'),
+                                                        1 => array ( 'valor' => 'tarjeta', 'descripcion' => 'Tarjeta')
+                                                        );
+                                    foreach ($formasPago as $f){
+                                        $textselect ='';
+                                        if ( $ticket['cabecera']['formaPago'] == $f['valor']){
+                                            $textselect = 'selected="selected"';
+                                        }
+                                        echo '<option value="'.$f['valor'].'" '.$textselect.'>'.$f['descripcion'].'</option>';
+                                    }
+                                ?>
+                            </select>
+                            <p><?php echo  $ticket['cabecera']['entregado'];?></p>
+                        </div>
+                        
+                    </div>	
+                
+                </div>
+            </div>
+        </div>
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
