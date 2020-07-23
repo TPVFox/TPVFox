@@ -4,7 +4,9 @@
     <vista nombre="ListaTickets.php" descripcion="Listado tickets" permiso="1">
         <accion nombre="ver" descripcion="Ver ticket" permiso="1"></accion>
         <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>
-        <accion nombre="mostrarDescontadoStockWeb" descripcion="Mostrar descontar stock web" permiso="1"></accion>
+        <accion nombre="mostrarDescontadoStockWeb" descripcion="Mostrar descontar stock web" permiso="0"></accion>
+        <accion nombre="cambiarfechatickets" descripcion="Cambiar fecha tickets" permiso="0"></accion>
+
     </vista>
     <vista nombre="ticketCobrado.php" descripcion="Ticket Cobrado" permiso="1">
         <accion nombre="imprimir" descripcion="Imprimir" permiso="1"></accion>

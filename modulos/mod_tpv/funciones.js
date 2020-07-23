@@ -398,12 +398,12 @@ function cerrarTicket(){
 // ========== SWITCH ver Tickets Cerrados cobrados e IMPRIMIR ticket ========
 function metodoClick(pulsado){
 	console.log("Inicimos switch de control pulsar");
+    VerIdSeleccionado ();
 	switch(pulsado) {
 		case 'VerTicket':
 			console.log('Entro en Ver Ticket Cobrado');
 			// Cargamos variable global ar checkID = [];
 			//Funcion global en jquery
-			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
@@ -413,7 +413,6 @@ function metodoClick(pulsado){
 		
 		case 'imprimirTicket':
 			console.log('entro en imprimir ticket');
-			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
@@ -425,7 +424,12 @@ function metodoClick(pulsado){
 		
 		case 'descontarStockWeb':
 			alert('Ticket cerrado enviar Sctok a Web');
-		break;			
+            // Pediente por realizar
+		break;
+
+        case 'cambiarFechaItemsSeleccionado':
+            htmlFechaNueva(checkID);
+		break;	
 	 }
 } 
 function imprimirTicketCerrado(idTicketst){
@@ -443,13 +447,71 @@ function imprimirTicketCerrado(idTicketst){
 			console.log('******** Imprimiento ticket cerrado . Idticketst '+ idTicketst +'  ****************');
 		},
 		success    :  function (response) {
-			console.log(' Repsuesta de imprimit ticketst cerrados');
+			console.log(' Respuesta de imprimit ticketst cerrados');
 			var resultado =  $.parseJSON(response); 
 			console.log(resultado);
 		
 		}
 	});
 	
+}
+
+function htmlFechaNueva(tickets){
+    // Obtenemos el html de obtencion de fecha nueva para tickets.
+    var parametros = {
+		"pulsado"    : 'htmlFechaNueva',
+		"Tickets" : tickets
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Obteniendo html con formulario de fecha nueva para cambia a los siguiente tickets  ***********');
+		},
+		success    :  function (response) {
+			console.log(' Respuesta de htmlFechaNueva');
+			var resultado =  $.parseJSON(response); 
+            var HtmlFechaNueva=resultado.html;   //$resultado['html'] de montaje html
+			var titulo = 'Cambio de Fecha de tickets ';
+			abrirModal(titulo,HtmlFechaNueva);
+            console.log(HtmlFechaNueva);
+		}
+	});
+
+}
+
+function activar_btn_cambiar(){
+    // Activar el btn de cambiar fecha.
+    $("#btn_cambiar").prop('disabled', false);
+
+}
+
+function cambioFechaTickets(){
+    // Enviamos los tickets seleccionados y la fecha seleccionada para cambiar la fecha.
+    // la variable checkID es global por la que podemos obtenerla.
+     var fecha= $('#fechaNueva').val()
+    console.log(fecha);
+    // Obtenemos el html de obtencion de fecha nueva para tickets.
+    var parametros = {
+		"pulsado"    : 'cambiarFechaTicketsSeleccionados',
+		"Tickets" : checkID,
+        "FechaNueva": fecha
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Cambiamos las fechas de los tickets seleccionados. ***********');
+		},
+		success    :  function (response) {
+			console.log(' Respuesta de cambiarFechaTicketsSeleccionados');
+			var resultado =  $.parseJSON(response); 
+            console.log(resultado);
+		}
+	});
+
 }
 
 // =========================== OBJETOS  ===================================
@@ -1025,7 +1087,6 @@ function cambioCliente(idTicket){
 
 function cambioFormaPago(idTicket){
     var formaPago=$('#modoPago').val();
-    alert(formaPago+' '+idTicket);
     var parametros = {
 		"pulsado"    		: 'cambiarFormaPagoTicketGuardado',
 		"id_ticketst"		: idTicket,
@@ -1042,7 +1103,7 @@ function cambioFormaPago(idTicket){
 		success    :  function (response) {
 				console.log('Respuesta de modificar datos de clientes');
 				 var resultado = $.parseJSON(response);
-                alert(resultado.mensaje);
+                alert(resultado.mensaje);                
 			}
 			
 	});

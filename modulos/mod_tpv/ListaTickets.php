@@ -20,7 +20,6 @@
     include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
-    include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
     $Tickets = new ClaseTickets();
     $otrosParametros= '';
     if (isset($_GET['idCierre'])){
@@ -130,18 +129,19 @@
 				movil
 	        -->
 	       
-			<nav class="col-sm-2" id="myScrollspy">
+			<div class="col-sm-2" id="myScrollspy">
                 <?php echo $Controler->getHtmlLinkVolver('Volver');?>
                 <?php //echo $link_volver;?>
-				<div data-offset-top="505">
 				<h4> Tickets <?php echo $estado_ticket;?>s</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
-				 	<li><a href="#section1" onclick="metodoClick('VerTicket');";>Ver Ticket</a></li>
-				 	<li><a href="#section2" onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
+				 	<li><a onclick="metodoClick('VerTicket');";>Ver Ticket</a></li>
+				 	<li><a onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
+                <?php if ($ClasePermisos->getAccion("cambiarfechatickets")==1){?>
+                    <li><a onclick="metodoClick('cambiarFechaItemsSeleccionado');";>Cambiar Fecha Tickets</a></li>
+                <?php }?>
 				</ul>
-				</div>	
-			</nav>
+			</div>
 			<div class="col-md-10">
                     <?php
                     $texto_fechas = '';
@@ -223,6 +223,10 @@
 		</div>
 	</div>
     </div>
-		
+    <?php
+	// Añadimos JS necesario para modal.
+    echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+    include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+    ?>
 </body>
 </html>

@@ -808,6 +808,17 @@ function ObtenerEnvioIdTickets($BDTpv, $idTicketst) {
     return $resultado;
 }
 
+function htmlFechaNueva($tickets){
+    // @Objetivo :
+    // Es obtener html con formulario para cambiar la fecha de los tickets seleccionados.
+    $resultado = array();
+    if (count($tickets)>0){
+        $resultado['html'] = '<div>'.count($tickets).' ticket(s) seleccionados para cambiar la fecha:'
+                            .'<input type="date" name="fechaNueva" id="fechaNueva" size="8"  onchange="activar_btn_cambiar()" onkeydown="controlEventos(event)"/ ></div>'
+                            .'<button id="btn_cambiar" disabled class="btn btn-primary" onclick="cambioFechaTickets()">Cambiar</button>';
+    }
+    return $resultado;
+}
 /* * *****************************************************************************	
  *  			FUNCIONES REPETIDAS Y COMUNES EN OTROS MODULOS: CIERRES Y TPV	 		*
  * ****************************************************************************** */

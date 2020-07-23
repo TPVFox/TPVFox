@@ -422,6 +422,25 @@ class ClaseTickets extends ClaseSession {
         $resp = $this->consultaInsert($consulta);
         return $resp;
     }
+
+
+    public function cambiarFormaPagoTicket($idTicket, $formaPago){
+        $consulta = 'UPDATE `ticketst` SET formaPago="'.$formaPago.'" where id='.$idTicket;
+        $resp = $this->consultaInsert($consulta);
+        return $resp;
+
+    }
+
+    public function cambiarFechaTickets($Tickets, $fecha){
+        $respuesta = array();
+        foreach ($Tickets as $id){
+            $consulta = 'UPDATE `ticketst` SET Fecha="'.$fecha.'" where id='.$id;
+            $respuesta[] = $this->consultaInsert($consulta);
+            
+        }
+        return $respuesta;
+
+    }
 	// Fin de clase.
 }
 

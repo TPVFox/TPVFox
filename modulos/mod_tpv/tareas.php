@@ -55,136 +55,163 @@ switch ($pulsado) {
 		include ('tareas/grabarTicketTemporal.php');
 	break;
 		
-	case 'HtmlLineaTicket';
-		$respuesta = array();
-		$product 					=$_POST['producto'];
-		$num_item					=$_POST['num_item'];
-		$CONF_campoPeso		=$_POST['CONF_campoPeso'];
-		$res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
-		$respuesta['html'] =$res;
-		$respuesta['conf_peso'] =$CONF_campoPeso;
-		break;
-	case 'CerrarTicket';
-        include_once $URLCom.'/modulos/mod_tpv/tareas/CerrarTicket.php';
-		
-		break;
-	
-	case 'ImprimirTicketCerrados';
-		// Ahora debería imprimir el ticket cerrado.
-		$id					=$_POST['idTicketst'];
-		$ticket = $CTickets->obtenerUnTicket($id);
-		
-		$datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
-		$ruta_impresora = $configuracion['impresora_ticket'];
-		if (ComprobarImpresoraTickets($ruta_impresora) === true){;
-			include 'tareas/impresoraTicket.php';
-		} else {
-			$respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
-		}
-		// Pendiente de realizar.
-		$respuesta['idTicketST'] = $id;
-		$respuesta['datosImpresion'] = $datosImpresion;
-		break;
+    case 'HtmlLineaTicket';
+        $respuesta = array();
+        $product 					=$_POST['producto'];
+        $num_item					=$_POST['num_item'];
+        $CONF_campoPeso		=$_POST['CONF_campoPeso'];
+        $res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+        $respuesta['html'] =$res;
+        $respuesta['conf_peso'] =$CONF_campoPeso;
+    break;
 
-	case 'ObtenerRefTiendaWeb';
-		include ('tareas/PrepararEnviarStockWeb.php');
-		break;
-		
-	case 'RegistrarRestaStock':
-		$respuesta = array();
-		$id_ticketst    = $_POST['id_ticketst'];
+    case 'CerrarTicket';
+        include_once $URLCom.'/modulos/mod_tpv/tareas/CerrarTicket.php';
+        
+    break;
+
+    case 'ImprimirTicketCerrados';
+        // Ahora debería imprimir el ticket cerrado.
+        $id					=$_POST['idTicketst'];
+        $ticket = $CTickets->obtenerUnTicket($id);
+        
+        $datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
+        $ruta_impresora = $configuracion['impresora_ticket'];
+        if (ComprobarImpresoraTickets($ruta_impresora) === true){;
+            include 'tareas/impresoraTicket.php';
+        } else {
+            $respuesta['error_impresora'] = ' no existe la impresora asignada, hay un error';
+        }
+        // Pendiente de realizar.
+        $respuesta['idTicketST'] = $id;
+        $respuesta['datosImpresion'] = $datosImpresion;
+    break;
+
+    case 'ObtenerRefTiendaWeb';
+        include ('tareas/PrepararEnviarStockWeb.php');
+    break;
+    
+    case 'RegistrarRestaStock':
+        $respuesta = array();
+        $id_ticketst    = $_POST['id_ticketst'];
         $estado         = $_POST['estado'];
         $datos = $_POST['datos'];
-		$respuesta = RegistrarRestaStock($BDTpv,$id_ticketst, $estado,$datos);
-		break;
-	
-	case 'buscarClientes':
-		// Abrimos modal de clientes
-		$busqueda = $_POST['busqueda'];
-		$dedonde = $_POST['dedonde'];
-		$tabla='clientes';
-		//funcion de buscar clientes
-		//luego html mostrar modal 
-		if ($busqueda != ''){
-			$res = BusquedaClientes($busqueda,$BDTpv,$tabla);
-		} 
-		if (!isset($res['datos'])){
-			$res = array( 'datos' => array());
-		}
-		$respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
-		break;
-		
-	case 'Grabar_configuracion':
-		// Grabamos configuracion nueva configuracion
-		$configuracion = $_POST['configuracion'];
-		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
-		$nombre_modulo = $configuracion['nombre_modulo'];
-		$idUsuario = $configuracion['idUsuario'];
-		unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
-		
-		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
-		$respuesta['configuracion'] = $configuracion ; 
-		break;
-		
-	case 'abririncidencia':
-		$dedonde=$_POST['dedonde'];
-		$usuario=$_POST['usuario'];
-		$configuracion=$_POST['configuracion'];
-		$idReal=0;
-		if(isset($_POST['idReal'])){
-			$idReal=$_POST['idReal'];
-		}
-		$tipo="mod_tpv";
-		$numInicidencia=0;
-		$datos=array(
-		'vista'=>$dedonde,
-		'idReal'=>$idReal
-		);
-		$datos=json_encode($datos);
-		
-		$estado="No resuelto";
-		$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
-		$respuesta['html']=$html;
-		$respuesta['datos']=$datos;
-		break;
-		
-	case 'nuevaIncidencia':
-		$usuario= $_POST['usuario'];
-		$fecha= $_POST['fecha'];
-		$datos= $_POST['datos'];
-		$estado= $_POST['estado'];
-		$mensaje= $_POST['mensaje'];
-		$numInicidencia=0;
-		$usuarioSelect=0;
-		$dedonde="mod_tpv";
-		if(isset($_POST['usuarioSelec'])){
-		$usuarioSelect=$_POST['usuarioSelec'];
-		}
-		if($usuarioSelect>0){
-			$datos=json_decode($datos);
-			$datos->usuarioSelec=$usuarioSelect;
-			$datos=json_encode($datos);
-		}
-		if($mensaje){
-			$nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
-			$respuesta=$nuevo;
-		}
-		break;
-        case 'cambiarClienteTicketGuardado':
-            $modCliente=$CTickets->modificarClienteTicket($_POST['id_ticketst'], $_POST['idCliente']);
-            if(isset($modCliente['error'])){
-                $mensaje="Error al modificar el cliente";
-            }else{
-                $mensaje="Cliente Modificado con Éxito";
-            }
-            $respuesta['mensaje']=$mensaje;
-        break;
+        $respuesta = RegistrarRestaStock($BDTpv,$id_ticketst, $estado,$datos);
+    break;
 
-        case 'cambiarFormaPagoTicketGuardado' :
-            //~ $cambiarFormaPago = $CTickets->
-            $respuesta['mensaje']='Llegue';
-		break;
-		
+    case 'buscarClientes':
+        // Abrimos modal de clientes
+        $busqueda = $_POST['busqueda'];
+        $dedonde = $_POST['dedonde'];
+        $tabla='clientes';
+        //funcion de buscar clientes
+        //luego html mostrar modal 
+        if ($busqueda != ''){
+            $res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+        } 
+        if (!isset($res['datos'])){
+            $res = array( 'datos' => array());
+        }
+        $respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
+    break;
+    
+    case 'Grabar_configuracion':
+        // Grabamos configuracion nueva configuracion
+        $configuracion = $_POST['configuracion'];
+        // Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
+        $nombre_modulo = $configuracion['nombre_modulo'];
+        $idUsuario = $configuracion['idUsuario'];
+        unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
+        
+        $respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
+        $respuesta['configuracion'] = $configuracion ; 
+    break;
+    
+    case 'abririncidencia':
+        $dedonde=$_POST['dedonde'];
+        $usuario=$_POST['usuario'];
+        $configuracion=$_POST['configuracion'];
+        $idReal=0;
+        if(isset($_POST['idReal'])){
+            $idReal=$_POST['idReal'];
+        }
+        $tipo="mod_tpv";
+        $numInicidencia=0;
+        $datos=array(
+        'vista'=>$dedonde,
+        'idReal'=>$idReal
+        );
+        $datos=json_encode($datos);
+        
+        $estado="No resuelto";
+        $html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
+        $respuesta['html']=$html;
+        $respuesta['datos']=$datos;
+    break;
+    
+    case 'nuevaIncidencia':
+        $usuario= $_POST['usuario'];
+        $fecha= $_POST['fecha'];
+        $datos= $_POST['datos'];
+        $estado= $_POST['estado'];
+        $mensaje= $_POST['mensaje'];
+        $numInicidencia=0;
+        $usuarioSelect=0;
+        $dedonde="mod_tpv";
+        if(isset($_POST['usuarioSelec'])){
+        $usuarioSelect=$_POST['usuarioSelec'];
+        }
+        if($usuarioSelect>0){
+            $datos=json_decode($datos);
+            $datos->usuarioSelec=$usuarioSelect;
+            $datos=json_encode($datos);
+        }
+        if($mensaje){
+            $nuevo=$CIncidencia->addIncidencia($dedonde, $datos, $mensaje, $estado, $numInicidencia);
+            $respuesta=$nuevo;
+        }
+    break;
+    case 'cambiarClienteTicketGuardado':
+        $modCliente=$CTickets->modificarClienteTicket($_POST['id_ticketst'], $_POST['idCliente']);
+        if(isset($modCliente['error'])){
+            $mensaje="Error al modificar el cliente";
+        }else{
+            $mensaje="Cliente Modificado con Éxito";
+        }
+        $respuesta['mensaje']=$mensaje;
+    break;
+
+    case 'cambiarFormaPagoTicketGuardado' :
+        $cambiarFormaPago = $CTickets->cambiarFormaPagoTicket($_POST['id_ticketst'], $_POST['formaPago']);
+        if(isset($cambiarFormaPago['error'])){
+            $mensaje="Error al modificar la forma pago";
+        }else{
+            $mensaje="Forma pago modificada con éxito";
+        }
+        $respuesta['mensaje']=$mensaje;
+    break;
+
+    case 'htmlFechaNueva':
+        $htmlFechaNueva = htmlFechaNueva($_POST['Tickets']);
+        $respuesta =$htmlFechaNueva;
+    break;
+
+    case 'cambiarFechaTicketsSeleccionados':
+        $cambiarFechaTickets = $CTickets->cambiarFechaTickets($_POST['Tickets'], $_POST['FechaNueva']);
+        $c=0; // Contador de correctos
+        foreach ($cambiarFechaTickets as $res){
+            if ($res === true){
+                $c++;
+            }
+        }
+        if (count($_POST['Tickets']) !== $c){
+            $respuesta['error'] == 'Se envio '.count($_POST['Tickets']). 'ticket(s) , pero solo hubo '.$c.' cambios correctos.';
+        } else {
+            $respuesta['mensaje'] = 'Ok, todo';
+        }
+        
+    
+
 }
 echo json_encode($respuesta);
 /* ===============  CERRAMOS CONEXIONES  ===============*/
