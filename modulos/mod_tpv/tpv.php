@@ -238,27 +238,41 @@ if (count($Control_Error)>0){
 }
 ?>
 <div class="col-md-2">
-        <div class="row">
+    <div class="row">
             <h4 class="text-center"> Tickets</h4>
-            <button data-toggle="collapse" data-target="#opciones_ticket">Opciones</button>
+            <div class="col-xs-4 col-md-12">
+                <button class="btn btn-primary" onclick="buscarClientes('tpv')">Cliente</button>
+                <button class="btn btn-primary" onclick="cobrarF1()">Cobrar</button>
+            </div>
+
+            <button class="btn" data-toggle="collapse" data-target="#opciones_ticket">Otras opciones</button>
             <div id="opciones_ticket" class="collapse">
-            <div class="col-xs-3 col-md-12">
+            <div class="col-xs-4 col-md-12">
                     <div class="btn"><a href="tpv.php">Nuevo ticket</a></div>
                     <div class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></div>
                     <div class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></div>
-            </div>
-            </div>
-            <div class="col-xs-3 col-md-12">
-                <h5>Este ticket</h5>
-                    <div class="btn"><a onclick="buscarClientes('tpv')">Cliente</a></div>
-                    <div class="btn"><a href="#section3">Abrir Cajon</a></div>
-                    <div class="btn"><a onclick="cobrarF1()">Cobrar</a></div>
                     <div class="btn"><a onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></div>
             </div>
-
+            </div>
+        <button class="btn" data-toggle="collapse" data-target="#opciones_configuracion">
+            <span class="glyphicon glyphicon-cog" title="Configuracion de tpv"></span>
+            Configuracion
+        </button>
+        <div id="opciones_configuracion" class="collapse">
+            <div class="col-xs-3 col-md-12">
+                <div class="form-check">
+                    <label>
+                    <input type="checkbox" <?php echo $checkin[1];?>><span class="label-text">Imprimir Tickets</span>
+                    </label>
+                </div>
+                <span class="glyphicon glyphicon-cog" title="Escoje casilla por defecto busqueda (salto)"></span>
+                <?php echo $select_campos;?>
+            </div>
+        </div>
+       
         <?php //===== TICKETS ABIERTOS LATERAL
         if (isset($ticketsAbiertos['items'])){ ?>
-        <div class="col-xs-3 col-md-12">
+        <div class="col-xs-4 col-md-12">
             <h4 class="text-center"> Tickets Abiertos</h4>
             <table class="table table-striped">
                 <thead>
@@ -306,67 +320,53 @@ if (count($Control_Error)>0){
             <?php
         }// Cerramos if de mostrar tickets abiertos o no.
         ?>
-        <button data-toggle="collapse" data-target="#opciones_configuracion">
-            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-            Configuracion
-        </button>
-        <div id="opciones_configuracion" class="collapse">
-        <div class="col-xs-3 col-md-12">
-            <div class="form-check">
-                <label>
-                <input type="checkbox" <?php echo $checkin[1];?>><span class="label-text">Imprimir Tickets</span>
-                </label>
-            </div>
-            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-            <?php echo $select_campos;?>
-        </div>
-        </div>
-    </div>
+    </div> 
 </div>
 <div class="col-md-10" >
 	<div class="col-xs-8">
-		<div class="col-md-12">
-			<div class="col-xs-7">
-				<div class="col-xs-6">
-					<strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
-					<span id="Fecha"><?php echo $fechaInicio;?></span><br/>
-					<?php // NO se muestra si es un ticket nuevo
-					if ( $ticket_numero != 0){
-						?>
-						<div style="background-color:#f9f3f3;">
-						<strong><span class="glyphicon glyphicon-time"></span>:</strong>
-						<span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
-						</div>
-						<?php 
-					}
-					?>
-				</div>
-				<div class="col-xs-6">
-					<strong>Estado:</strong>
-					<span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
-					<strong>NºTemp:</strong>
-					<span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
-				</div>
-			</div>
-			<div class="col-md-5">
-				<label>Empleado:</label>
-				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="20" readonly>
-			</div>
+		<div>
+            <div class="col-xs-6">
+                <strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
+                <span id="Fecha"><?php echo $fechaInicio;?></span><br/>
+                <?php // NO se muestra si es un ticket nuevo
+                if ( $ticket_numero != 0){
+                    ?>
+                    <div style="background-color:#f9f3f3;">
+                    <strong><span class="glyphicon glyphicon-time"></span>:</strong>
+                    <span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
+                    </div>
+                    <?php 
+                }
+                ?>
+            </div>
+            <div class="col-xs-6">
+                <strong>Estado:</strong>
+                <span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
+                <strong>NºTemp:</strong>
+                <span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
+            </div>
+        
 		</div>
-		<div class="form-group">
+		<div>
 			<label>Cliente:</label>
 			<input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
 			<input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="50" readonly>
 			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
 		</div>
 	</div>
-	<div class="visor fondoNegro col-xs-4">
-		<div class="col-md-4">
-		<h3>TOTAL</h3>
-		</div>
-		<div class="col-md-8 totalImporte text-right" style="font-size: 3em;">
-		<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
-		</div>
+	
+    <div class="col-xs-4">
+		<label>Empleado:
+		<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="20" readonly>
+        </label>
+        <div class="visor fondoNegro">
+            <div class="col-md-4">
+            <h3>TOTAL</h3>
+            </div>
+            <div class="col-md-8 totalImporte text-right" style="font-size: 3em;">
+            <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+            </div>
+        </div>
 	</div>
 	<!-- Tabla de lineas de productos -->
 	<div>
