@@ -74,6 +74,8 @@ foreach ($codes as $table => $name){
 				$printer -> setJustification(Printer::JUSTIFY_CENTER);
 				$printer -> text($datosImpresion['pie-datos2']."\n");
 				$printer -> text(' '."\n"."\n");
-				$printer -> cut();
+                // Comentamos linea corte. (hay que crear un parametro para saber si corta)
+                // $printer -> cut();
+                
 				$printer -> close();
 				
