@@ -394,7 +394,11 @@ class ClaseTablaArticulos{
 		// Aqui podemos obtener varios registros.
 		if (isset($consulta['Items'])){
 			$this->familias = $consulta['Items'];
-		}
+		} else {
+            // Si no obtiene, tenemos poner valor familias array vacio, para que borre datos anteriores.
+            $this->familias= array();
+        }
+        
 	}
 	
     public function ObtenerHistoricoPrecio($id){
@@ -406,6 +410,8 @@ class ClaseTablaArticulos{
         $consulta = $this->Consulta($sql);
         if(isset($consulta['Items'])){
             $this->productos_historico=$consulta['Items'];
+        } else {
+            $this->productos_historico = array();
         }
         
     }
