@@ -144,29 +144,6 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda) {
         $resultado['html'] .= ' <th></th>';
         $resultado['html'] .= '</thead><tbody>';
         $resultado['html'] .= htmlTrProductosModal($productos,$id_input,20);
-        //~ $contad = 0;
-        //~ foreach ($productos as $producto) {
-            //~ $datos = "'" . $id_input . "'," .
-                    //~ "'" . addslashes(htmlspecialchars($producto['crefTienda'], ENT_COMPAT)) . "','"
-                    //~ . addslashes(htmlentities($producto['articulo_name'], ENT_COMPAT)) . "','"
-                    //~ . number_format($producto['iva'], 2) . "','" . $producto['codBarras'] . "',"
-                    //~ . number_format($producto['pvpCiva'], 2) . "," . $producto['idArticulo'];
-            //~ $Fila_N = 'Fila_' . $contad;
-            //~ $resultado['html'] .= '<tr class="FilaModal" id="' . $Fila_N . '"  onclick="escribirProductoSeleccionado('
-                    //~ . $datos . ');">';
-
-            //~ $resultado['html'] .= '<td id="C' . $contad . '_Lin">'
-                    //~ . '<input id="N_' . $contad . '" name="filaproducto"  data-obj="idN"  onkeydown="controlEventos(event)" type="image" alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-            //~ $resultado['html'] .= '<td>' . htmlspecialchars($producto['crefTienda'], ENT_QUOTES) . '</td>';
-            //~ $resultado['html'] .= '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>';
-            //~ $resultado['html'] .= '<td>' . number_format($producto['pvpCiva'], 2) . '</td>';
-
-            //~ $resultado['html'] .= '</tr>';
-            //~ $contad = $contad + 1;
-            //~ if ($contad === 15) {
-                //~ break;
-            //~ }
-        //~ }
         $resultado['html'] .= '</tbody></table>';
     }
     $resultado['campo'] = $campoAbuscar;
@@ -206,8 +183,11 @@ function htmlTrProductosModal($productos,$id_input,$max=15){
     foreach ($productos as $key =>$producto) {
         // Obtenemos el codigo barras
         $codbarras = '';
-        if ( is_array($producto['codBarras'])){
-            $codbarras = $producto['codBarras'][0]; // por defecto el primero.
+        if ( is_array($producto['codBarras'])  ){
+            // Es un array vacio, por lo que no ponemo valor
+            if ( count($producto['codBarras'])>0){
+                $codbarras = $producto['codBarras'][0]; // por defecto el primero.
+            } 
         } else {
             // Esto lo hago para funcion htmlProductos ahora..
             $codbarras = $producto['codBarras'];
