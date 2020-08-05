@@ -9,6 +9,8 @@
  * */
 include_once './../../inicial.php';
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
+include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+
 
 function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     // @ Objetivo:
@@ -141,35 +143,108 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda) {
         $resultado['html'] .= '<table class="table table-striped"><thead>';
         $resultado['html'] .= ' <th></th>';
         $resultado['html'] .= '</thead><tbody>';
+        $resultado['html'] .= htmlTrProductosModal($productos,$id_input,20);
+        //~ $contad = 0;
+        //~ foreach ($productos as $producto) {
+            //~ $datos = "'" . $id_input . "'," .
+                    //~ "'" . addslashes(htmlspecialchars($producto['crefTienda'], ENT_COMPAT)) . "','"
+                    //~ . addslashes(htmlentities($producto['articulo_name'], ENT_COMPAT)) . "','"
+                    //~ . number_format($producto['iva'], 2) . "','" . $producto['codBarras'] . "',"
+                    //~ . number_format($producto['pvpCiva'], 2) . "," . $producto['idArticulo'];
+            //~ $Fila_N = 'Fila_' . $contad;
+            //~ $resultado['html'] .= '<tr class="FilaModal" id="' . $Fila_N . '"  onclick="escribirProductoSeleccionado('
+                    //~ . $datos . ');">';
 
-        $contad = 0;
-        foreach ($productos as $producto) {
-            $datos = "'" . $id_input . "'," .
-                    "'" . addslashes(htmlspecialchars($producto['crefTienda'], ENT_COMPAT)) . "','"
-                    . addslashes(htmlentities($producto['articulo_name'], ENT_COMPAT)) . "','"
-                    . number_format($producto['iva'], 2) . "','" . $producto['codBarras'] . "',"
-                    . number_format($producto['pvpCiva'], 2) . "," . $producto['idArticulo'];
-            $Fila_N = 'Fila_' . $contad;
-            $resultado['html'] .= '<tr class="FilaModal" id="' . $Fila_N . '"  onclick="escribirProductoSeleccionado('
-                    . $datos . ');">';
+            //~ $resultado['html'] .= '<td id="C' . $contad . '_Lin">'
+                    //~ . '<input id="N_' . $contad . '" name="filaproducto"  data-obj="idN"  onkeydown="controlEventos(event)" type="image" alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+            //~ $resultado['html'] .= '<td>' . htmlspecialchars($producto['crefTienda'], ENT_QUOTES) . '</td>';
+            //~ $resultado['html'] .= '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>';
+            //~ $resultado['html'] .= '<td>' . number_format($producto['pvpCiva'], 2) . '</td>';
 
-            $resultado['html'] .= '<td id="C' . $contad . '_Lin">'
-                    . '<input id="N_' . $contad . '" name="filaproducto"  data-obj="idN"  onkeydown="controlEventos(event)" type="image" alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
-            $resultado['html'] .= '<td>' . htmlspecialchars($producto['crefTienda'], ENT_QUOTES) . '</td>';
-            $resultado['html'] .= '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>';
-            $resultado['html'] .= '<td>' . number_format($producto['pvpCiva'], 2) . '</td>';
-
-            $resultado['html'] .= '</tr>';
-            $contad = $contad + 1;
-            if ($contad === 10) {
-                break;
-            }
-        }
+            //~ $resultado['html'] .= '</tr>';
+            //~ $contad = $contad + 1;
+            //~ if ($contad === 15) {
+                //~ break;
+            //~ }
+        //~ }
         $resultado['html'] .= '</tbody></table>';
     }
     $resultado['campo'] = $campoAbuscar;
 
     return $resultado;
+}
+function htmlModalListadoPorFamilias($familias,$productos,$id_input){
+    // Objetivo
+    // Mostrar listado productos de una familia y familias hijas.
+     $btn_familias = [];
+    if (count($familias)>0){
+        foreach ($familias as $familia) {
+            $btn_familias[] =   '<button class="btn btn-warning" onclick="listadofamilia('.$familia['idFamilia'].')">'
+                                        .$familia['familiaNombre'].'</button>';
+        }
+    }
+    if (count($productos)>0){
+        $htmlTR = htmlTrProductosModal($productos,$id_input);
+    }
+    $resultado = '<div class="col-md-12">'.implode('',$btn_familias).'</div>';
+    $resultado .= '<table class="table table-striped"><thead>';
+    $resultado .= ' <th></th>';
+    $resultado .= '</thead><tbody>';
+    $resultado .= $htmlTR;
+    $resultado .= '</tbody></table>';
+
+    return $resultado;
+}
+
+function htmlTrProductosModal($productos,$id_input,$max=15){
+    // @ Objetivo
+    // Devolver html tr de cada producto para caja modal
+    // @ Parametros
+    // $productos = array de producos.
+    // $max = Maximo de producos a mostrar.
+    $htmlTr='';
+    foreach ($productos as $key =>$producto) {
+        // Obtenemos el codigo barras
+        $codbarras = '';
+        if ( is_array($producto['codBarras'])){
+            $codbarras = $producto['codBarras'][0]; // por defecto el primero.
+        } else {
+            // Esto lo hago para funcion htmlProductos ahora..
+            $codbarras = $producto['codBarras'];
+        }
+        $crefTienda = '';
+        if ( isset($producto['cref_tienda_principal'])){
+            $crefTienda = $producto['cref_tienda_principal']; // por defecto el primero.
+        } else {
+            // Esto lo hago para funcion htmlProductos ahora..
+            $crefTienda = $producto['crefTienda'];
+        }
+        
+        $datos = "'" . $id_input . "'," .
+                "'" . addslashes(htmlspecialchars($crefTienda, ENT_COMPAT)) . "','"
+                . addslashes(htmlentities($producto['articulo_name'], ENT_COMPAT)) . "','"
+                . number_format($producto['iva'], 2) . "','" . $codbarras . "',"
+                . number_format($producto['pvpCiva'], 2) . "," . $producto['idArticulo'];
+        $Fila_N = 'Fila_' . $key;
+        $htmlTr .= '<tr class="FilaModal" id="' . $Fila_N . '"  onclick="escribirProductoSeleccionado('
+                . $datos . ');">';
+
+        $htmlTr .= '<td id="C' . $key . '_Lin">'
+                . '<input id="N_' . $key . '" name="filaproducto"  data-obj="idN"  onkeydown="controlEventos(event)" type="image" alt=""><span class="glyphicon glyphicon-plus-sign agregar"></span></td>';
+        $htmlTr .= '<td>' . htmlspecialchars($crefTienda, ENT_QUOTES) . '</td>';
+        $htmlTr .= '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>';
+        $htmlTr .= '<td>' . number_format($producto['pvpCiva'], 2) . '</td>';
+
+        $htmlTr .= '</tr>';
+        if ($key === $max) {
+            break;
+        }
+    }
+    return $htmlTr;
+
+
+
+
 }
 
 function htmlCobrar($total, $configuracion) {

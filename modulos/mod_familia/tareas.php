@@ -44,14 +44,14 @@ switch ($pulsado) {
         $familiaNombre = $_POST['nombrefamilia'];
         $familiaPadre = $_POST['idpadre'];
         $beneficiomedio = $_POST['beneficiomedio'];
-
+        $mostrar_tpv =  $_POST['mostrar_tpv'];
 
 // COMPROBAR:
 // Que no estan vacios
 // que idpadre es >= 0 y un id existente
 // generar $resultado['error']
 
-        $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio');
+        $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio','mostrar_tpv');
         $resultado = [];
         if ($familiaPadre >= 0) {
             $familia = new ClaseFamilias($BDTpv);

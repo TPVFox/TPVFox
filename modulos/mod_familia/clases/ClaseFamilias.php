@@ -148,6 +148,17 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
+    public function buscarFamilisMostrarTpv($idFamilia = 0) {
+        // Objetivo obtener las familias para mostrar, de un familia padre o todos
+        $sql = 'SELECT * from familias where mostrar_tpv=1';
+        if ($idFamilia >0){
+            $sql .= ' and familiaPadre='.$idFamilia ;
+        }
+        $sql .= ' ORDER BY `familiaPadre` ASC ';
+        $resultado = $this->consulta($sql);
+        return $resultado;
+    }
+
     public function comprobarRegistro($idProducto, $idFamilia) {
         $sql = 'select idArticulo, idFamilia from articulosFamilias where idFamilia=' . $idFamilia . ' and idArticulo=' . $idProducto;
         $resultado = $this->consulta($sql);
@@ -203,8 +214,17 @@ class ClaseFamilias extends Modelo {
             return $this->consultaDML($sql);
     }
     
-    public function buscarProductosFamilias($idFamilia) {
-        $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia;
+    public function buscarProductosFamilias($idFamilia,$limite=0) {
+        // @Objetivo
+        // Buscar los productos de una familia determinada
+        // @Parametros
+        // $idFamilia = (int) que es la familia buscar
+        // $limite = 0 por defecto ( busca todos) , sino solo buscar el numero registros que indica
+        $sql_limite = ' ';
+        if ($limite >0 ){
+            $sql_limite = ' LIMIT 0 , 30 ';
+        }
+        $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia.$sql_limite;
         $resultado = $this->consulta($sql);
 
         return $resultado;
@@ -311,6 +331,7 @@ class ClaseFamilias extends Modelo {
         $datosFamilia['familiaNombre'] = $f['datos'][0]['familiaNombre'];
         $datosFamilia['familiaPadre'] = $f['datos'][0]['familiaPadre'];
         $datosFamilia['beneficiomedio'] = $f['datos'][0]['beneficiomedio'];
+        $datosFamilia['mostrar_tpv'] = $f['datos'][0]['mostrar_tpv'];
 
         $datosFamilia['productos'] = $this->contarProductos($idFamilia);
         $r= $this->regRelacionFamiliaTienda($idFamilia);

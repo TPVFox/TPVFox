@@ -68,7 +68,6 @@ foreach ($codes as $table => $name){
 
 				$printer -> text('Cambio:');
 				$printer -> text($datosImpresion['pie-cambio']."\n");
-				
 
 				$printer -> selectPrintMode(); // Reset
 				$printer -> setJustification(Printer::JUSTIFY_CENTER);
@@ -77,8 +76,9 @@ foreach ($codes as $table => $name){
                 $printer -> text(' '."\n"."\n");
 				$printer -> text(' '."\n"."\n");
 
-                // Comentamos linea corte. (hay que crear un parametro para saber si corta)
-                // $printer -> cut();
-                
+                // La opcion corte, solo es SI
+                if ($configuracion['corte_tickets']==='Si'){
+                    $printer -> cut();
+                }
 				$printer -> close();
 				

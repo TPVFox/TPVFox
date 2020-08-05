@@ -15,6 +15,7 @@ include_once './../../inicial.php';
 include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_tpv/funciones.php';
 include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 
 // Incluimos controlador.
 $Controler = new ControladorComun; 
@@ -209,8 +210,29 @@ switch ($pulsado) {
         } else {
             $respuesta['mensaje'] = 'Ok, todo';
         }
-        
-    
+    break;
+
+    case 'listadoFamilia':
+        $productos = array();
+        $familias = array();
+        $idFamilia = $_POST['idFamilia'];
+        $CTArticulos = new ClaseProductos($BDTpv);
+        $CFamilias = new ClaseFamilias($BDTpv);
+        $fam = $CFamilias->buscarFamilisMostrarTpv($idFamilia);
+        $pro = $CFamilias->buscarProductosFamilias($idFamilia,20);
+        if (isset($pro['datos'])){
+            foreach ($pro['datos'] as $p){
+                $productos[] = $CTArticulos->GetProducto($p['idArticulo']);
+            }
+        }
+        if (isset($fam['datos'])){
+            $familias = $fam['datos'];
+        }
+        $htmlModal = htmlModalListadoPorFamilias($familias,$productos,$configuracion['input_pordefecto']);
+        $respuesta['familias']= $familias;
+        $respuesta['productos'] = $productos;
+        $respuesta['html'] =$htmlModal;
+    break;
 
 }
 echo json_encode($respuesta);

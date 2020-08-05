@@ -822,6 +822,30 @@ function after_constructor(padre_caja,event){
 	return padre_caja;
 }
 
+function listadofamilia(idFamilia){
+    console.log('FUNCION listado familia JS-AJAX');
+    var parametros = {
+        "pulsado"    : 'listadoFamilia',
+        "idFamilia" : idFamilia,
+    };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('******** estoy en buscar clientes JS****************');
+        },
+        success    :  function (response) {
+            console.log('Ojo:Abrimos modal de Listado Familia.');
+            var resultado =  $.parseJSON(response); 
+            var HtmlListadoFamilia=resultado.html;   //$resultado['html'] de montaje html
+            var titulo = 'Listado por familia ';
+            abrirModal(titulo,HtmlListadoFamilia);
+        }
+    });
+    
+}
+
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
 
 
@@ -897,8 +921,6 @@ function PrepararEnviarStockWeb(idTicket){
 	//  Inicializamos Variables:
 	var tienda_web = [];	
     //  Obtenemos productos del ticket en cuestion.
-    
-    
 	var parametros = {
 		"pulsado" : 'ObtenerRefTiendaWeb',
 		"idTicket"    : idTicket,
@@ -977,17 +999,17 @@ function RegistrarRestarStockTicket(id_ticketst, estado,datos){
 	});
 }
 
-function CambiarEstadoImpresion(){
+function CambiarConfiguracion(e){
     // @ Objetivo:
     // Cambiar el valor configuracion de impresion.
-    console.log(configuracion);
-	if (configuracion.impresion_ticket==='Si'){
-		configuracion.impresion_ticket = 'No';
-	} else {
-		configuracion.impresion_ticket = 'Si';
-	}
-	console.log ('Despues de cambio');
-	console.log(configuracion);
+    console.log(e.name);
+    var name = e.name;
+    if (configuracion[name] ==='Si'){
+        configuracion[name] = 'No';
+    } else {
+        configuracion[name] = 'Si';
+
+    }
     GuardarConfiguracion();
 }
 

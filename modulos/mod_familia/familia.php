@@ -34,10 +34,14 @@
             $familia = array (  'familiaNombre' => '',
                                 'productos'     => 0,
                                 'familiaPadre'  => 0,
-                                'beneficiomedio'=> 25.00 // cuando haya configuración, que salga de la configuracion
+                                'beneficiomedio'=> 25.00 ,
+                                'mostrar_tpv'   => 0
                                 );
+            // El beneficio podría ser un parametro de configuracion para este modulo.
         }
-        
+        echo '<pre>';
+        print_r($familia['familiaTienda']);
+        echo '</pre>';
         // Montamos el combo 
         $combopadres = $Cfamilias->htmlComboFamilias($padres['datos'], $familia['familiaPadre']);
        
@@ -58,6 +62,10 @@
                 }
             }
         }
+        echo '<pre>';
+        echo ' EL problema esta aqui, debemos montar todasfamiliasweb igualmente aunque no tengamos relacion';
+        print_r($idsFamiliaTiendaWeb);
+        echo '</pre>';
         if (isset($idsFamiliaTiendaWeb['datos'])){
             // Solo ejecutamos si existe familia relacionada en tpv con la web
             if(isset($ObjVirtuemart->TiendaWeb) && count($errores) === 0){
@@ -71,7 +79,6 @@
                         // Comprobamos si existe relacion de todas las familias Web 
                         $existe = $Cfamilias->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
                         if (!isset($existe['datos'])){
-                            
                             // Si no existe relacion de esa familia web la eliminamos del array y mostramos un error.
                             $errores[] =  $Cfamilias->montarAdvertencia('warning',
                                             'No existe la relacion en tpv con la familia '
@@ -132,7 +139,7 @@
                                                  'id_padre_web' =>$id_padre_web
                                                 );
                     // Montamos  html de formulario de familia web
-                    $htmlFamiliasWeb = $ObjVirtuemart->htmlDatosFamiliaWeb($datos_familia_web, $combopadresWeb,'virtuemart_category_id');
+                    $htmlFamiliasWeb = $ObjVirtuemart->htmlDatosFamiliaWeb($datos_familia_web, $combopadresWeb);
                 }
                 // Si existe plugin de virtuemart  y tiene permisos montamos boton Subir hijos juntos.
                 if ($ClasePermisos->getAccion("SubirFamiliasHijasWeb") == 1){
@@ -167,6 +174,11 @@
         if (isset ($familia['hijos']) && count($familia['hijos'])>0){    
             $htmlFamiliasHijas = htmlTablaFamiliasHijas($familia['hijos'], $idTiendaWeb,$bottonSubirHijos);
         }
+        // Ahora montamos valorCheck de mostrar familia en tpv
+        $valor_check = 'value="0"';
+        if ($familia['mostrar_tpv'] === '1'){
+            $valor_check = 'value="1" checked';
+        }
         ?>
 
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
@@ -176,7 +188,6 @@
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <?php 
-     
         
         
         ?>
@@ -184,6 +195,9 @@
     <body>
         <?php
         include_once $URLCom . '/modulos/mod_menu/menu.php';
+        //~ echo '<pre>';
+        //~ print_r($familia);
+        //~ echo '</pre>';
         ?>
 
 
@@ -260,13 +274,20 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-label-group">
+                    <div class="col-md-6">
+                        <div class="form-label-group col-md-6">
                             <label for="inputProductos">Productos: </label>
                             <input type="text" name="productos" id="inputProductos" 
                                    value="<?php echo $familia['productos'] ?>"
                                    readonly="readonly"
                                    class="form-control" placeholder="productos con esta familia"  >
+                        </div>
+                        <div class="form-check col-md-6">
+                            <br/>
+                            <label>
+                            <input id="marcar_tpv" type="checkbox" name="mostrar_tpv" <?php echo $valor_check;?>>
+                            <span class="label-text">Mostrar en tpv</span>
+                            </label>
                         </div>
                     </div>
                 </div>

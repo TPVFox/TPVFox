@@ -2,9 +2,11 @@
 <parametros>
 	<configuracion>
 		<impresion_ticket>Si</impresion_ticket>
+        <corte_tickets>No</corte_tickets>
 		<campo_peso>no</campo_peso>
 		<impresora_ticket>/dev/usb/lp0</impresora_ticket>
         <input_pordefecto>Codbarras</input_pordefecto>
+        <btn_familias>No</btn_familias>
 		<incidencias descripcion="mostrar_Select">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto">1</incidencias>
 	</configuracion>

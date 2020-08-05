@@ -46,6 +46,11 @@ function guardarFamilia(){
         var idpadre = $('#inputidpadre').val();
         var nombrefamilia = $('#inputnombre').val();
         var beneficiomedio = $('#inputbeneficio').val();
+        var mostrar_tpv = 0;
+
+        if( $('#marcar_tpv').prop('checked') ) {
+            mostrar_tpv = 1;
+        } 
 
         var mensajes = [];
         if (idpadre == -1) {
@@ -63,7 +68,8 @@ function guardarFamilia(){
                 id: id,
                 nombrefamilia: nombrefamilia,
                 idpadre: idpadre,
-                beneficiomedio: beneficiomedio
+                beneficiomedio: beneficiomedio,
+                mostrar_tpv : mostrar_tpv
                 }, function (respuesta) {
                 var respuesta = JSON.parse(respuesta);
                 var error = respuesta.error;

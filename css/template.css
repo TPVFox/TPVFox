@@ -134,4 +134,5 @@ input[disabled],input[readonly] {
 }
 .btn {
     margin-bottom: 10px;
+    margin-right: 5px;
 }

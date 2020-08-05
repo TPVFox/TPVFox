@@ -38,16 +38,15 @@ include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
 $CFamilia=new ClaseFamilias($BDTpv);
 include_once $URLCom.'/clases/Proveedores.php';
 $CProveedor=new Proveedores($BDTpv);
+$respuesta = array();
 
 switch ($pulsado) {
 
 	case 'HtmlLineaCodigoBarras';
-		$respuesta = array();
 		$respuesta['html']	= HtmlLineaCodigoBarras($_POST['fila']);
-		break;
+    break;
 		
 	case 'Grabar_configuracion':
-		$respuesta = array();
 		// Grabamos configuracion
 		$configuracion = $_POST['configuracion'];
 		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
@@ -57,8 +56,7 @@ switch ($pulsado) {
 		
 		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
 		$respuesta['configuracion'] = $configuracion ; 
-		
-		break;
+	break;
 		
 	case 'retornarCoste':
 		$idArticulo=$_POST['idArticulo'];
@@ -67,16 +65,14 @@ switch ($pulsado) {
 		$tipo=$_POST['tipo'];
 		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, 'Pendiente');
 		$respuesta['sql']=$mod;
-		break;
+	break;
 		
 	case 'imprimir':
-		$respuesta = array();
 		// De momento no puedo pasar a tareas ya devuelve un fichero ... 
 		$id=$_POST['id'];
 		$dedonde="Recalculo";
 		$nombreTmp=$dedonde."recalculo.pdf";
-		
-		if ($_POST['bandera']==1){
+        if ($_POST['bandera']==1){
 			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
 		}else{
 			$dedonde="albaran";
@@ -88,22 +84,16 @@ switch ($pulsado) {
         //~ require_once $URLCom.'/lib/tcpdf/tcpdf.php';
 		include_once $URLCom.'/clases/imprimir.php';
         include_once $URLCom.'/controllers/planImprimirRe.php';
-		
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
 		$respuesta['fichero']=$ficheroCompleto;
-		
 	break;
 	
 	case 'ComprobarSiExisteCodbarras':
-		$respuesta = array();
 		$respuesta = $NCArticulo->GetProductosConCodbarras($_POST['codBarras']);
 	break;
 	
 	case 'productosSesion':
-		$respuesta=array();
-        
 		$respuesta=productosSesion($_POST['id'], $_POST['seleccionar']);
-		
 	break;
 	
 	case 'imprimirEtiquetas':
@@ -117,91 +107,90 @@ switch ($pulsado) {
 	case 'obtenerCostesProveedor':
         include_once $URLCom.'/modulos/mod_producto/tareas/obtenerCostesProveedor.php';
 	break;
+    
 	case 'comprobarReferencia':
 		$referencia=$_POST['referencia'];
 		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
 		$respuesta=$comprobacion;
 	break;
+    
     case 'modalFamiliaProducto':
         if($_POST['idProducto']==""){
             $idProducto=0;
         }else{
              $idProducto=$_POST['idProducto'];
         }
-       
         $familias=$CFamilia->todoslosPadres();
         $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;
+
     case 'modalEstadoProductos':
-     $productos=$_SESSION['productos_seleccionados'];
+        $productos=$_SESSION['productos_seleccionados'];
         $modal=modalAutocompleteEstadoProductos($productos);
         $respuesta['html']=$modal;
     break;
     
     case 'buscarNombreFammilia':
-    $idFamilia=$_POST['idfamilia'];
-    $idProducto=$_POST['idProducto'];
-    if($idProducto==0){
-        
-        $productosEnFamilia=array();
-        $productos=$_SESSION['productos_seleccionados'];
-        $respuesta['productos']=$productos;
-        $contadorProductos=0;
-        foreach ($productos as $idProducto){
-             $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
-             $respuesta['datos']=$comprobar['datos'];
+        $idFamilia=$_POST['idfamilia'];
+        $idProducto=$_POST['idProducto'];
+        if($idProducto==0){
+            $productosEnFamilia=array();
+            $productos=$_SESSION['productos_seleccionados'];
+            $respuesta['productos']=$productos;
+            $contadorProductos=0;
+            foreach ($productos as $idProducto){
+                 $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
+                 $respuesta['datos']=$comprobar['datos'];
+                if(isset($comprobar['datos'])){
+                   array_push($productosEnFamilia, $idProducto);
+                }else{
+                   $addFamilia=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
+                   if($addFamilia['error']){
+                        $respuesta['error']=$addFamilia;
+                   }else{
+                       $contadorProductos=$contadorProductos+1;
+                   }
+                }
+            }
+                $respuesta['contadorProductos']=$contadorProductos;
+                $respuesta['productosEnFamilia']=$productosEnFamilia;
+        }else{
+            $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
+            $respuesta['comprobar']=$comprobar;
             if(isset($comprobar['datos'])){
-               array_push($productosEnFamilia, $idProducto);
+                $respuesta['error']=1;
             }else{
-               $addFamilia=$CFamilia->guardarProductoFamilia($idProducto, $idFamilia);
-               if($addFamilia['error']){
-                    $respuesta['error']=$addFamilia;
-               }else{
-                   $contadorProductos=$contadorProductos+1;
-               }
+                $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
+                $nuevaFila = '<tr>'
+                        . '<td><input type="hidden" id="idFamilias_'.$idFamilia
+                        .'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
+                        .$idFamilia.'</td>'
+                        .'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
+                        .'<td><a id="eliminar_'.$idFamilia
+                        .'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
+                        .'</td>'.'</tr>';
+                $respuesta['html']=$nuevaFila;
+                $respuesta['nombre']=$nombreFamilia;
             }
         }
-            $respuesta['contadorProductos']=$contadorProductos;
-            $respuesta['productosEnFamilia']=$productosEnFamilia;
-    }else{
-        $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
-        $respuesta['comprobar']=$comprobar;
-        if(isset($comprobar['datos'])){
-            $respuesta['error']=1;
-        }else{
-            $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
-            $nuevaFila = '<tr>'
-                    . '<td><input type="hidden" id="idFamilias_'.$idFamilia
-                    .'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
-                    .$idFamilia.'</td>'
-                    .'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
-                    .'<td><a id="eliminar_'.$idFamilia
-                    .'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
-                    .'</td>'.'</tr>';
-            $respuesta['html']=$nuevaFila;
-            $respuesta['nombre']=$nombreFamilia;
-        }
-    }
-    
     break;
+
     case 'buscarProductosDeFamilia':
-        $respuesta=array();
         if($_POST['idfamilia']=="0"){
              $productos=$CFamilia->buscarProductosSinFamilias();
         }else{
             $productos=$CFamilia->buscarProductosFamilias($_POST['idfamilia']);
         }
-       
         $idsProductos=array();
         foreach ($productos['datos'] as $producto){
             array_push($idsProductos, $producto['idArticulo']);
         }
         $respuesta['Productos']=$idsProductos;
     break;
+
     case 'buscarProductosProveedor':
-        $respuesta=array();
         $productos=$CProveedor->buscarProductosProveedor($_POST['idProveedor']);
         $idsProductos=array();
         foreach ($productos as $producto){
@@ -210,6 +199,7 @@ switch ($pulsado) {
         }
         $respuesta['Productos']=$idsProductos;
     break;
+
     case 'eliminarCoste':
 		$respuesta = array();
 		$idArticulo=$_POST['idArticulo'];
@@ -230,19 +220,21 @@ switch ($pulsado) {
         $eliminar=$NCArticulo->EliminarHistorico($idHistorico);
         $respuesta=$eliminar;
     break;
+
     case 'eliminarReferenciaTienda':
         $idCruce=$_POST['idCruce'];
         $eliminar_cruce_tienda=$NCArticulo->EliminarCruceTienda($idCruce);
         $respuesta=$eliminar_cruce_tienda;
     break;
+
     case 'eliminarRefProveedor':
         $idProveedor=$_POST['idProveedor'];
         $idArticulo=$_POST['idArticulo'];
         $eliminar_ref_proveedor=$NCArticulo->EliminarRefProveedor($idArticulo,$idProveedor);
         $respuesta=$eliminar_ref_proveedor;
     break;
+
     case 'eliminarProductos':
-        $respuesta=array();
         $tiendaWeb=$_POST['idTiendaWeb'];
         $productos=$_SESSION['productos_seleccionados'];
         $productosNoEliminados=array();
@@ -274,13 +266,12 @@ switch ($pulsado) {
                 $respuesta['advertencia']='Revisa estado producto, tiene que esta baja'; 
                 array_push( $productosNoEliminados, $datos);
             }
-           
         }
         $respuesta['NoEliminados']= $productosNoEliminados;
         $respuesta['Eliminados']=$productosEliminados;
     break;
+
     case 'cambiarEstadoProductos':
-    $respuesta=array();
         $productos=$_POST['productos'];
         $estado=$_POST['estado'];
         $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
@@ -299,7 +290,6 @@ switch ($pulsado) {
         // @ Devolvemos:
         // array con los ids_productos y si estado
 		$ObjVirtuemart = $NCArticulo->SetPlugin('ClaseVirtuemart');         // Creo el objeto de plugin Virtuemart.
-        $respuesta = array();
         // Lo  ideal sería mandar solo una petición ya que así no saturamos la red...
         // pero de momento lo dejo..
         foreach ($ids_productos as $key=>$idProducto){
@@ -316,7 +306,6 @@ switch ($pulsado) {
             } else {
                     $datosWebCompletos = array ( 'datosWeb' => array('estado' =>'NoExiste') );
             }
-            
             $respuesta[$key]= array(
                     'estado'=>$datosWebCompletos['datosWeb']['estado'],
                     'idArticulo' => $idProducto
