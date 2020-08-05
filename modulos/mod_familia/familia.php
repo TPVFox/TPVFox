@@ -10,7 +10,7 @@
         $errores = array();
         $titulo = 'Familias:';
         $id = 0;
-        $idTiendaWeb= 0;
+        $idTiendaWeb = 0;
         $htmlProductos= '';
         $htmlFamiliasWeb='';
         $bottonSubirHijos = ' ';    //  Boton de subir hijos si hay web
@@ -39,16 +39,12 @@
                                 );
             // El beneficio podría ser un parametro de configuracion para este modulo.
         }
-        echo '<pre>';
-        print_r($familia['familiaTienda']);
-        echo '</pre>';
         // Montamos el combo 
         $combopadres = $Cfamilias->htmlComboFamilias($padres['datos'], $familia['familiaPadre']);
        
         // Cargamos la clase virtuemart plugin
         $ObjVirtuemart = $Cfamilias->SetPlugin('ClaseVirtuemartFamilia');
-              
-        if(isset($ObjVirtuemart->TiendaWeb)){
+        if(isset($ObjVirtuemart->TiendaWeb) && count($ObjVirtuemart->TiendaWeb)>0){
             // Obtenemos los datos de la tienda Web del plugin
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
             $idTiendaWeb=$tiendaWeb['idTienda'];
@@ -149,7 +145,7 @@
             }
         } else {
             // No esta creada familia web
-            if ($id > 0){
+            if ($id > 0 && $idTiendaWeb >0) {
                 // No es nuevo, pero no tiene relacion en la con la web.
                 $errores[] = $Cfamilias->montarAdvertencia('warning'
                                         ,'No esta creada esta familia en la web o no existe registro en tabla familiasTienda.'
