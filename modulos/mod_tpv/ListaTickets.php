@@ -72,8 +72,9 @@
     if (isset($_GET['idCierre'])){
         $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'],$_GET['idCierre'],$Tienda['idTienda']);
     } else {
-        $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
+            $Obtenertickets = $Tickets->obtenerTickets($estado_ticket ,$fechas,$filtro);
     }
+   
     if (isset($Obtenertickets['datos'])){
             $CantidadRegistros = count($Obtenertickets['datos']);
             if ($CantidadRegistros === 0){

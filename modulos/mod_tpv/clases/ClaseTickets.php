@@ -203,6 +203,7 @@ class ClaseTickets extends ClaseSession {
         //    $error -> En caso de error
 
         // Analizamos fechas para evitar error
+        $respuesta = array();
         if (count($fechas) === 0){
             $fechas =array( 'inicio' => new DateTime(date('Y-m-d')),
                            'final'  => new DateTime(date('Y-m-d').' 23:59:59')
@@ -219,34 +220,21 @@ class ClaseTickets extends ClaseSession {
         
         $filtro =$filtro. ' t.estado="'.$estado.'" AND t.fecha >="'. $fechas['inicio']->format('Y-m-d H:i:s')
                 . '" AND t.fecha <="'.$fechas['final']->format('Y-m-d H:i:s').'"';
-                
-        // Calculamos array de intervalo de tiempo.
-        $intervalo = date_diff($fechas['inicio'], $fechas['final']);
-        // Solo ejecutamos consulta si hay un intervalo de 5 dias, ya daría un error por exceso memoria.
-        if ($intervalo->d <5 and $intervalo->d >-1 ){
-            
-            $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
-                . 'LEFT JOIN `clientes` AS c '
-                . 'ON c.`idClientes` = t.`idCliente` ' . $filtro.' ORDER BY t.Fecha DESC'.$limite;
-            $consulta = $this->Consulta($sql);
-            if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
-                $respuesta['datos'] = $consulta['Items'];
-            } else {
-                if (isset($consulta['error'])){
-                    $respuesta['error'] = $consulta['error'];
-                } else {
-                    $respuesta['error'] = 'No se encontro ningun registro en el metodo obtenerTickets';
-                }
-                $respuesta['consulta']=$sql;
-
-            }
+        $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
+            . 'LEFT JOIN `clientes` AS c '
+            . 'ON c.`idClientes` = t.`idCliente` ' . $filtro.' ORDER BY t.Fecha DESC'.$limite;
+        $consulta = $this->Consulta($sql);
+        if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
+            $respuesta['datos'] = $consulta['Items'];
         } else {
-            // No permite obtener tantos tickets.
-            $respuesta['error'] = 'Hay mas cinco dias entre las fecha '.$fechas['inicio']->format('Y-m-d H:i:s').' y la ficha final:'.$fechas['final']->format('Y-m-d H:i:s');
-            $respuesta['filtro']= $filtro;
-            
-        }
+            if (isset($consulta['error'])){
+                $respuesta['error'] = $consulta['error'];
+            } else {
+                $respuesta['error'] = 'No se encontro ningun registro en el metodo obtenerTickets';
+            }
+            $respuesta['consulta']=$sql;
 
+        }
         return $respuesta;
     }
 	public function getPrimerTicket($estado_ticket) {
