@@ -437,15 +437,11 @@ function resumen(dedonde, idCliente){
 	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente;
 }
 function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
-		console.log(dedonde);
-		console.log(id);
-		console.log(fechaInicial);
-		console.log(fechaFinal);
 		  var parametros = {
 			'pulsado' : 'imprimirResumenTickets',
-            idCliente: id,
-            fechaInicial: fechaInicial,
-            fechaFinal: fechaFinal
+            'idCliente': id,
+            'fechaInicial': fechaInicial,
+            'fechaFinal': fechaFinal
            
         };
          $.ajax({

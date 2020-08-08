@@ -32,12 +32,10 @@ if(isset($idCliente)){
 		);
 		}
 if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
-	$fechaIni=$_POST['fechaInicial'];
-	$fechaFin=$_POST['fechaFinal'];
-	if($fechaIni<>"" & $fechaFin<>""){
-		$fechaInicial =date_format(date_create($fechaIni), 'Y-m-d');
-		$fechaFinal =date_format(date_create($fechaFin), 'Y-m-d');
-		$textoFechas= 'entre las fechas '.$fechaIni.' y '.$fechaFin;
+	$fechaInicial=$_POST['fechaInicial'];
+	$fechaFinal=$_POST['fechaFinal'];
+	if($fechaInicial<>"" & $fechaFinal<>""){
+		$textoFechas= 'Intervalo de fechas: '.date_format(date_create($fechaInicial), 'd-m-Y').' y '.date_format(date_create($fechaFinal), 'd-m-Y');
 	}
 	$resultado['post']=$fechaInicial;
 	$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaInicial, $fechaFinal);
@@ -49,66 +47,21 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 		 );
 	}else{
 		//~ $resultado['array']=$arrayNums;
-		$cabecera='<p></p><font size="20">Super Oliva </font><br>
+		$cabecera='<p></p>'.
+            '<table  WIDTH="100%"><tr><td WIDTH="50%"><font size="20">'.$Tienda['NombreComercial'].' </font><br>
 			<font size="12">'.$Tienda['razonsocial'].'</font><br>'.
-			'<font size="12">'.$Tienda['direccion'].'</font><br>'.
+			'<font size="9">'.$Tienda['direccion'].'</font><br>'.
 			'<font size="9"><b>NIF: </b>'.$Tienda['nif'].'</font><br>'.
 			'<font size="9"><b>Teléfono: </b>'.$Tienda['telefono'].'</font><br>'.
-			'<font size="15">Factura de Tickets '.$textoFechas.'</font>'.
-			'<hr>'.
-			'<font size="20">'.$datosCliente['Nombre'].'</font><br>'.
-			'<table><tr><td><font size="12">'.$datosCliente['razonsocial'].'</font></td>
-			<td><font>Dirección de entrega :</font></td></tr>'.
-			'<tr><td><font size="9"><b>NIF: </b>'.$datosCliente['nif'].'</font></td>
-			<td><font size="9">'.$datosCliente['direccion'].'</font></td></tr>'.
-			'<tr><td><font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font></td>
-			<td><font size="9">Código Postal: </font></td></tr>'.
-			'<tr><td><font size="9">email: '.$datosCliente['email'].'</font></td><td></td></tr></table>'.
-			'';
-						
-		$html='<table WIDTH="80%" border="1px"><tr>
-			<td WIDTH="50%">Descripción del producto</td>
-			<td>Cantidad</td>
-			<td>Precio</td>
-			<td>Importe</td>
-			</tr></table><table  WIDTH="80%" border="1px">';
-			foreach($arrayNums['productos'] as $producto){
-				$precio=$producto['totalUnidades']*$producto['precioCiva'];
-				$html.='<tr>'
-				. '<td WIDTH="50%"><font size="8">'.$producto['cdetalle'].'</font></td>'
-				.'<td style="text-align:center;"><font size="8">'. number_format ($producto['totalUnidades'],2).'</font></td>'
-				.'<td style="text-align:center;"><font size="8">'.number_format ($producto['precioCiva'],2).'</font></td>'
-				. '<td style="text-align:center;"><font size="8">'.number_format ($precio,2).'</font></td>'
-				.'</tr>';
-			}
-		$html.='</table>';
-		$html.='<table >'
-				.'<tr>
-				<th></th>
-				<th style="text-align:right;">Base</th>
-				<th style="text-align:right;">IVA</th>
-				<th style="text-align:right;">Total</th>
-				</tr>';
-		$totalLinea=0;
-		$totalDesglose=0;
-			foreach($arrayNums['desglose'] as $desglose){
-				$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
-				$totalDesglose=$totalDesglose+$totalLinea;
-				$html.='<tr>
-					<td style="text-align:right;">'.$desglose['iva'].'%</td>
-					<td style="text-align:right;">'.$desglose['sumBase'].'</td>
-					<td style="text-align:right;">'.$desglose['sumiva'].'</td>
-					<td style="text-align:right;">'.$totalLinea.'</td>
-					</tr>';
-			}
-		$html .='<tr>
-				<td></td>
-				<td></td>
-				<td>TOTAL:</td>
-				<td><b>'.$totalDesglose.'</b></td>
-				</tr>
-				</table>	
-				<h3>Facturas simplificadas (Tickets)</h3>
+            '</td><td >'.
+            '<font size="9"><b>CLIENTE CON NIF: </b>'.$datosCliente['nif'].'</font><br>'.
+
+			'<font size="12">'.$datosCliente['Nombre'].'</font><br>'.
+			'<font size="12">'.$datosCliente['razonsocial'].'</font><br>
+			<font size="9"><b>Dirección:</b>'.$datosCliente['direccion'].'</font><br>'.
+			'<font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font><br>
+			<font size="9">email: '.$datosCliente['email'].'</font></td></tr></table><br>'.$textoFechas;
+        $html = '<h3>Facturas simplificadas (Tickets)</h3>
 				<table  WIDTH="75%" border="1px">'.
 				'<tr>
 				<td  WIDTH="50%">Fecha</td>
@@ -126,15 +79,61 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				$html.= '<tr>
 					<td WIDTH="50%"><font size="8">'.$bases['fecha'].'</font></td>
 					<td><font size="8">'.$numTicket.'</font></td>
-					<td><font size="8">'.$bases['sumabase'].'</font></td>
-					<td><font size="8">'.$bases['sumarIva'].'</font></td>
-					<td><font size="8">'.$totalLinea.'</font></td>
+					<td style="text-align:right;"><font size="8">'.$bases['sumabase'].'€</font> </td>
+					<td style="text-align:right;"><font size="8">'.$bases['sumarIva'].'€</font> </td>
+					<td style="text-align:right;"><font size="8">'.number_format($totalLinea,2).'€ </font></td>
 					</tr>';
 			}
 		$html.='</table>';
+
+        $html.='<table >'
+				.'<tr>
+				<th></th>
+				<th style="text-align:right;">Base</th>
+				<th style="text-align:right;">IVA</th>
+				<th style="text-align:right;">Total</th>
+				</tr>';
+		$totalLinea=0;
+		$totalDesglose=0;
+			foreach($arrayNums['desglose'] as $desglose){
+				$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
+				$totalDesglose=$totalDesglose+$totalLinea;
+				$html.='<tr>
+					<td style="text-align:right;">'.$desglose['iva'].'%</td>
+					<td style="text-align:right;">'.$desglose['sumBase'].'</td>
+					<td style="text-align:right;">'.$desglose['sumiva'].'</td>
+					<td style="text-align:right;">'.number_format($totalLinea,2).'</td>
+					</tr>';
+			}
+		$html .='<tr>
+				<td></td>
+				<td></td>
+				<td>TOTAL:</td>
+				<td><b>'.$totalDesglose.'€</b></td>
+				</tr>
+				</table><br>';
+        
+		$html.='<h3>Desglose de productos de las facturas simplificadas (Tickets)</h3>
+            <table WIDTH="80%" border="1px"><tr>
+			<td WIDTH="50%">Descripción del producto</td>
+			<td>Cantidad</td>
+			<td>Precio</td>
+			<td>Importe</td>
+			</tr></table><table  WIDTH="80%" border="1px">';
+			foreach($arrayNums['productos'] as $producto){
+				$precio=$producto['totalUnidades']*$producto['precioCiva'];
+				$html.='<tr>'
+				. '<td WIDTH="50%"><font size="8">'.$producto['cdetalle'].'</font></td>'
+				.'<td style="text-align:center;"><font size="8">'. number_format ($producto['totalUnidades'],2).'</font></td>'
+				.'<td style="text-align:center;"><font size="8">'.number_format ($producto['precioCiva'],2).'</font></td>'
+				. '<td style="text-align:center;"><font size="8">'.number_format ($precio,2).'</font></td>'
+				.'</tr>';
+			}
+		$html.='</table>';
+		
 		$nombreTmp="Resumen.pdf";
 		//~ require_once($URLCom.'/lib/tcpdf/tcpdf.php');
-        $margen_top_caja_texto= 90;
+        $margen_top_caja_texto= 70;
 		require_once  ($URLCom.'/clases/imprimir.php');
 		require_once($URLCom.'/controllers/planImprimir.php');
 		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

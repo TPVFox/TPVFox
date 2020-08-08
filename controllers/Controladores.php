@@ -69,15 +69,15 @@ class ControladorComun
 	}
 	
 	
-	public function EliminarTabla($nombretabla, $BD) 
-	{
-		//Objetivo tener una funcion para eliminar contenido de una tabla.
-		$consulta = "Delete from " . $nombretabla;
-		$Queryinfo = $BD->query($consulta);
-		// Anotamos cuantos registros eliminamos. 
-		$NRegiEliminados = $BD->affected_rows   ;
-		return $NRegiEliminados;
-	}
+	//~ public function EliminarTabla($nombretabla, $BD) 
+	//~ {
+		//~ //Objetivo tener una funcion para eliminar contenido de una tabla.
+		//~ $consulta = "Delete from " . $nombretabla;
+		//~ $Queryinfo = $BD->query($consulta);
+		//~ // Anotamos cuantos registros eliminamos. 
+		//~ $NRegiEliminados = $BD->affected_rows   ;
+		//~ return $NRegiEliminados;
+	//~ }
 
 	public function contarRegistro($BD,$nombretabla,$whereC='') {
 		/* Esta funcio esta repetida en Consultas de modulo de importar

@@ -153,7 +153,8 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda) {
 function htmlModalListadoPorFamilias($familias,$productos,$id_input){
     // Objetivo
     // Mostrar listado productos de una familia y familias hijas.
-     $btn_familias = [];
+    $htmlTR='<tr></tr>';
+    $btn_familias = [];
     if (count($familias)>0){
         foreach ($familias as $familia) {
             $btn_familias[] =   '<button class="btn btn-warning" onclick="listadofamilia('.$familia['idFamilia'].')">'

@@ -7,96 +7,96 @@
 		include $URLCom.'/modulos/mod_cliente/funciones.php';
 		include $URLCom.'/controllers/Controladores.php';
         include_once ($URLCom.'/controllers/parametros.php');
-        $ClasesParametros = new ClaseParametros('../parametros.xml'); 
         include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
-        
+
+        $ClasesParametros = new ClaseParametros('../parametros.xml'); 
 		$Cliente= new ClaseCliente($BDTpv);
         $Controler = new ControladorComun; 
 		$Controler->loadDbtpv($BDTpv);
 		$errores=array();
-		$titulo="";
+		$titulo="Resumen tickets";
 		$fechaInicial="";
 		$fechaFinal="";
-		$style='style="display:none;"';
+        $redirect='';
 		if(isset($_GET['id'])){
 			//Se cargar los datos del cliente, se controlan los errores de que no reciba id de cliente 
 			//y si hay error en la consulta 
 			$id=$_GET['id'];
 			$datosCliente=$Cliente->getCliente($id);
 			if(isset($datosCliente['error'])){
-				 $errores[1]=array ( 'tipo'=>'DANGER!',
-								 'dato' => $datosCliente['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error en sql'
-								 );
-			}else{
-				$titulo='Resumen tickets';
-				
-			}
+                $errores[] = $Cliente->montarAdvertencia('danger','Error en sql:'.$datosCliente['consulta']);
+			} 
 		}else{
-			$errores[1]=array ( 'tipo'=>'DANGER!',
-								 'dato' => '',
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error no se ha enviado el id del cliente'
-								 );
+            $errores[] = $Cliente->montarAdvertencia('danger','Error no se ha enviado el id del cliente');
 		}
-		
-		if(isset($_POST['porfechas'])){
-			//Cuando se envia por fechas se comprueba que las fechas estan bien escritas y que están las dos
-			$comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFinal']);
-			if(isset($comprobarFechas['error'])){
-				$errores[8]=array ( 'tipo'=>'Info!',
-								 'dato' => $comprobarFechas['consulta'],
-								 'class'=>'alert alert-info',
-								 'mensaje' => ''
-								 );
-			 }else{
-				 header('Location: resumenTickets.php?fechaIni='.$comprobarFechas['fechaIni'].
-						'&fechaFin='.$comprobarFechas['fechaFin'].'&id='.$id);
-			 }
-		}
-		if(isset($_POST['portodo'])){
-			//Si buscamos todo recarga la página sin fechas
-			 header('Location: resumenTickets.php?fechaIni=&fechaFin=&id='.$id);
-		}
-		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
-			//Cuando recibimos los datos tenga fechas escritas o no buscamos los resumenes en la clase 
-			//MOstramos errores de sql;
-			$fechaIni=$_GET['fechaIni'];
-			$fechaFin=$_GET['fechaFin'];
-			$idCliente=$_GET['id'];
-			if($fechaIni<>"" & $fechaFin<>""){
-				$fechaInicial =date_format(date_create($fechaIni), 'd-m-Y');
-				$fechaFinal =date_format(date_create($fechaFin), 'd-m-Y');
+        if (count($_POST) > 0){
+            // Ya se envio post
+            $redirect ='Location: resumenTickets.php?hacerResumen=Si&id='.$id; 
+            if(isset($_POST['porfechas'])){
+                //Cuando se envia por fechas se comprueba que las fechas estan bien escritas 
+                $comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFinal']);
+                $redirect .='&fechaIni='.$comprobarFechas['fechaIni'].'&fechaFin='.$comprobarFechas['fechaFin']; 
+                if(isset($comprobarFechas['error'])){
+                    $errores[] = $Cliente->montarAdvertencia('warning',$comprobarFechas['consulta']);
+                }
+            }
+            if(isset($_POST['portodo'])){
+                //Si buscamos todo recarga la página sin fechas
+                 $redirect .='&todo=Si';
+            }
+            if (isset($_POST['mes_anterior'])){
+                $redirect .='&mes_anterior=Si';
+            }
+            if (count($errores) === 0 ){
+                // No hay errores, por lo que redireccionamos.
+                header($redirect);
+            }
+        }
+		if(isset($_GET['hacerResumen'])){
+            if (isset($_GET['todo'])){
+                // Todo , quiere decir ese ejercicio. (desde 01/01 de este año)
+				$fechaInicial = date('Y').'-01-01';
+                $fechaFinal   = date('Y-d-m');
+            } else {
+                if (isset($_GET['mes_anterior'])){
+                    $m= date('m')-1; // Numero mes anterior
+                    if ($m == 0) {
+                        $m= 1;
+                    }
+                    $fin_mes = cal_days_in_month(CAL_GREGORIAN, $m,2020);
+                    $f= date_create('2020-'.$m.'-'.$fin_mes);
+                    $fechaFinal= date_format($f, 'Y-m-d');
+                    $f= date_create('2020-'.$m.'-'.'01');
+                    $fechaInicial= date_format($f, 'Y-m-d');
+                } else {
+                    $fechaInicial =$_GET['fechaIni'];
+                    $fechaFinal =$_GET['fechaFin'];
+                }
+            }
+			//Queremos que haga el resumen
+            $arrayNums=$Cliente->ticketClienteFechas($id, $fechaInicial, $fechaFinal);
+            if(isset($arrayNums['error'])){
+                $errores[] = $Cliente->montarAdvertencia('danger','Error en sql:'.$arrayNums['consulta']);
 			}
-			$style="";
-			$arrayNums=$Cliente->ticketClienteFechas($idCliente, $fechaIni, $fechaFin);
-			if(isset($arrayNums['error'])){
-				$errores[1]=array ( 'tipo'=>'DANGER!',
-								 'dato' => $arrayNums['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error de sql'
-								 );
-			}
+
 		}
-		
 		?>
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 		<?php
-        //~ include_once  $URLCom.'/head.php';
-         include_once $URLCom.'/modulos/mod_menu/menu.php';
-				
-				if (isset($errores)){
-				foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
-				}
-				}
-				?>
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
+        if (count($errores)>0 ){
+            foreach($errores as $error){
+                echo '<div class="alert alert-' . $error['tipo'] . '">' . $error['mensaje'] . '</div>';
+                if ($error['tipo'] === 'danger') {
+                    // No permito continuar.
+                    exit();
+                }
+            }
+        }
+        ?>
 		
 		<div class="container">
 			<div class="col-md-12 text-center" >
@@ -115,17 +115,20 @@
 				</div>
 				<div class="col-md-4" >
 					<form method="post">
-					<label>Fecha Inicial</label>
-					<input type="date" id="fechaInicial" name="fechaInicial" value="<?php echo $fechaInicial;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
-					<label>Fecha Final</label>
-					<input type="date" id="fechaFinal" name="fechaFinal" value="<?php echo $fechaFinal;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
-					<br><br>
-					<input type="submit" name="porfechas" class="btn btn-info" value="Resumen fechas">
-					<input type="submit" name="portodo"class="btn btn-warning"  value="Todo">
-					
+                        <input type="submit" name="portodo"class="btn btn-warning"  value="Este año">
+                        <input type="submit" name="mes_anterior"class="btn btn-warning"  value="Mes anterior">
+                        <label>Fecha Inicial</label>
+                        <input type="date" id="fechaInicial" name="fechaInicial" value="<?php echo $fechaInicial;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+                        <label>Fecha Final</label>
+                        <input type="date" id="fechaFinal" name="fechaFinal" value="<?php echo $fechaFinal;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
+                        <br><br>
+                        <input type="submit" name="porfechas" class="btn btn-info" value="Resumen fechas">
 					</form>
 				</div>
-				<div class="col-md-5 " <?php echo $style;?>>
+                <?php
+                if(isset($_GET['hacerResumen'])){?>
+
+				<div class="col-md-5">
 					<h4 class="text-center" ><u>TOTALES</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -169,11 +172,16 @@
 					</div>
 				
 				</div>
+                <?php
+                }
+                ?>
 			</div>
 			
 			
-				
-			<div class="col-md-6"   <?php echo $style;?>>
+            <?php
+            if(isset($_GET['hacerResumen']))
+            {?>	
+			<div class="col-md-6">
 				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -219,7 +227,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-6 "   <?php echo $style;?>>
+				<div class="col-md-6 ">
 					<h4 class="text-center" ><u>TICKETS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -267,6 +275,9 @@
 					
 				</div>
 			</div>
+            <?php
+            }
+            ?>
 		</div>
 	</body>
 </html>
