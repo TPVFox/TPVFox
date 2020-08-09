@@ -98,6 +98,7 @@
                             if ($producto['tipo'] ==='peso'){   
                                 $e = 3;
                             }
+                            $tipo_doc= '';
                             $url = '';
                             $td_entrada = '<td></td>';
                             $td_salida = '<td></td>';
@@ -109,9 +110,12 @@
                                 $td_entrada = '<td>'.number_format(round($movimiento['entrega'],$e),$e).'</td>';
                                 $td_coste  = '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
                                 $entradas += $movimiento['entrega'];
-                                $comprado += $movimiento['entrega']*$movimiento['precioentrada'];
+                                if ( $movimiento['precioentrada'] !== 0){
+                                    $precio_coste_civa = $movimiento['precioentrada']+($movimiento['precioentrada']*$producto['iva'])/100;
+                                }
+                            
+                                $comprado += $movimiento['entrega']*$precio_coste_civa;
                             } else {
-                                
                                 if ($movimiento['tipodoc']=== 'T'){
                                     // Es un ticket
                                     $tipo_doc = 'mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
@@ -124,7 +128,6 @@
                                 $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
                                 $salidas += $movimiento['salida'];
                                 $vendido += $movimiento['salida']*$movimiento['preciosalida'];
-                                
                             }
                             $url= $HostNombre.'/modulos/'.$tipo_doc;
                             echo '<tr>';
@@ -141,8 +144,10 @@
                         }   
                     
                         // Calculo del beneficio.
-                        $beneficio = $vendido - $comprado +($comprado * $producto['iva'])/100;
-                        echo '<td><b>Total</b></td><td><b>'.$entradas.'</b></td>'.'<td><b>'.$salidas.'</b></td><td></td>'.'<td><b>'.$comprado.'</b></td>'
+                        $beneficio = $vendido - $comprado;
+                        echo '<td><b>Total</b></td><td><b>'.$entradas.'</b></td>'.'<td><b>'
+                             .number_format($salidas,2).'</b></td><td></td>'.'<td><b>'
+                             .number_format($comprado,2).'</b></td>'
                             .'<td><b>'.$vendido.'</b></td><td><b>Beneficio = </b>'.number_format($beneficio,2).' €</td>';
                     }
                     ?>
