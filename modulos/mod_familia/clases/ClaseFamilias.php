@@ -224,7 +224,8 @@ class ClaseFamilias extends Modelo {
         if ($limite >0 ){
             $sql_limite = ' LIMIT 0 , 30 ';
         }
-        $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia.$sql_limite;
+        //~ $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia.$sql_limite;
+        $sql = 'SELECT articulo_name, a.idArticulo as idArticulo, idFamilia FROM articulosFamilias as af left join articulos as a on a.idArticulo=af.idArticulo where idFamilia='.$idFamilia.' ORDER BY `a`.`articulo_name` ASC'. $sql_limite;
         $resultado = $this->consulta($sql);
 
         return $resultado;

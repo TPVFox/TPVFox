@@ -225,6 +225,7 @@ switch ($pulsado) {
                 $productos[] = $CTArticulos->GetProducto($p['idArticulo']);
             }
         }
+        $respuesta['sql'] =json_encode($pro);
         if (isset($fam['datos'])){
             $familias = $fam['datos'];
         }
