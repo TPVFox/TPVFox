@@ -347,7 +347,8 @@
                                     ?>
                                 </td>
                                 <td>
-                                    <?php echo $item['Nombre']; ?><span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>"></span>
+                                    <div class="hidden-md"><?php echo $item['Nombre'];?></div>
+                                    <span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>">&nbsp;</span>
                                 </td>
                                 <td class="text-right">
                                     <?php echo number_format ($item['total'],2); ?>
