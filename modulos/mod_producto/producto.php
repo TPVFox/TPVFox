@@ -111,6 +111,10 @@
 				
 		
 		// ==========		Montamos  html que mostramos. 			============ //
+            
+            if ($id == 0 ) {
+                $Producto['iva']=$conf_defecto['iva_predeterminado'];
+            }
             $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
             $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
             // Obtenemos si tiene permisopara eliminar registros.
@@ -192,19 +196,20 @@
 				</div>
 				<div class="col-md-6 Datos">
 					<?php // si es nuevo mostramos Nuevo ?>
-					<div class="col-md-6">
-						<h4>Datos del producto con ID:<?php echo $id?></h4>
+					<div class="col-md-4">
+						<label>ID Producto:</label>
+                            <?php echo $id?>
+                        <input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
 					</div>
-					<div class="col-md-3">
-					<label>Estado
-						<select id="idEstado" name="estado" onchange="">
-							<?php echo $htmlEstadosProducto; ?>
-						</select>
-					</label>
+					<div class="col-md-4">
+					<label>Estado</label>
+					<select id="idEstado" name="estado" onchange="">
+						<?php echo $htmlEstadosProducto; ?>
+					</select>
+    
                     
-					<input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
 					</div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="control-label " > Tipo:</label>
                         <?php 
                             echo $htmlTipo;
@@ -212,11 +217,11 @@
                     </div>
                  
 					<div class="col-md-12">
-						<div class="form-group col-md-3 ">	
+						<div class="form-group col-lg-3 ">	
 							<label class="control-label " > Referencia:</label>
 							<input type="text" id="referencia" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
 						</div>
-						<div class="form-group col-md-9 ">	
+						<div class="form-group col-lg-9 ">	
 							<label class="control-label " > Nombre producto:</label>
 							<input type="text" id="nombre" name="articulo_name" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" required>
 							 <div class="invalid-tooltip-articulo_name" display="none">
