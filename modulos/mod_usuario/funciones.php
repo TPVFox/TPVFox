@@ -239,24 +239,28 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios
     }
    
    if(count($permisosUsuario)>0){
-        foreach ($permisosUsuario as $permiso){ //Recorremos todos los permisos
+        $inicio_div = 'No';
+        foreach ($permisosUsuario as $i =>$permiso){ //Recorremos todos los permisos
+            $checked="";
             if($permiso['permiso']==1){ //Si el permiso es 1 es input está marcado
                 $checked="checked";
-            }else{
-                 $checked="";
             }
-            
             if($modulo<>$permiso['modulo']){
                 $modulo=$permiso['modulo'];
                 //De todos vamos obteniendo la descripción del acces
                 $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['modulo'], $permiso);
-                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
+                if ($inicio_div == 'Si'){
+                    $html .= '</div>';
+                }
+                $inicio_div = 'Si';
+                $html.= '<div class="col-md-12"><span class="lead">Modulo de '.$descripcion.'</span>';
+                $html.='<input type="checkbox" id="modulo_'.$i.'" value=1 class="permiso_'.$i.'" name="permiso_'.$i.'" '.$checked.' '
+                        .$bloquear.'><br>';
             }else{
                 if($vista<>$permiso['vista']){
-                   
-                $vista=$permiso['vista'];
-                $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['vista'], $permiso);
-                $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso_'.$i.'" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'>'.$descripcion.'<br>';
+                    $vista=$permiso['vista'];
+                    $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['vista'], $permiso);
+                    $html.='&nbsp;&nbsp;&nbsp;<input type="checkbox" value=1 class="permiso_'.$i.'" id="vista_'.$i.'" name="permiso_'.$i.'" '.$checked.' '.$bloquear.'><b>'.$descripcion.'</b><br>';
                 }else{
                     $accion=$permiso['accion'];
                     $descripcion=$ClasePermisos->ObtenerDescripcion($permiso['accion'], $permiso);
@@ -264,9 +268,6 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios
                 }
                
             }
-             
-             $i++;
-        
         }
     }else{
          $html='<div class="alert alert-info">Este Usuario no tiene permisos</div>';
