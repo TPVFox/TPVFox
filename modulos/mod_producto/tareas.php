@@ -42,96 +42,6 @@ $respuesta = array();
 
 switch ($pulsado) {
 
-	case 'HtmlLineaCodigoBarras';
-		$respuesta['html']	= HtmlLineaCodigoBarras($_POST['fila']);
-    break;
-		
-	case 'Grabar_configuracion':
-		// Grabamos configuracion
-		$configuracion = $_POST['configuracion'];
-		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
-		$nombre_modulo = $configuracion['nombre_modulo'];
-		$idUsuario = $configuracion['idUsuario'];
-		unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
-		
-		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
-		$respuesta['configuracion'] = $configuracion ; 
-	break;
-		
-	case 'retornarCoste':
-		$idArticulo=$_POST['idArticulo'];
-		$dedonde=$_POST['dedonde'];
-		$id=$_POST['id'];
-		$tipo=$_POST['tipo'];
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, 'Pendiente');
-		$respuesta['sql']=$mod;
-	break;
-		
-	case 'imprimir':
-		// De momento no puedo pasar a tareas ya devuelve un fichero ... 
-		$id=$_POST['id'];
-		$dedonde="Recalculo";
-		$nombreTmp=$dedonde."recalculo.pdf";
-        if ($_POST['bandera']==1){
-			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-		}else{
-			$dedonde="albaran";
-			$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-			
-		}
-		$cabecera=$htmlImprimir['cabecera'];
-		$html=$htmlImprimir['html'];
-        //~ require_once $URLCom.'/lib/tcpdf/tcpdf.php';
-		include_once $URLCom.'/clases/imprimir.php';
-        include_once $URLCom.'/controllers/planImprimirRe.php';
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		$respuesta['fichero']=$ficheroCompleto;
-	break;
-	
-	case 'ComprobarSiExisteCodbarras':
-		$respuesta = $NCArticulo->GetProductosConCodbarras($_POST['codBarras']);
-	break;
-	
-	case 'productosSesion':
-		$respuesta=productosSesion($_POST['id'], $_POST['seleccionar']);
-	break;
-	
-	case 'imprimirEtiquetas':
-        include_once $URLCom.'/modulos/mod_producto/tareas/imprimirEtiquetas.php';
-	break;
-	
-	case 'HtmlCajaBuscarProveedor':
-        include_once $URLCom.'/modulos/mod_producto/tareas/htmlCajaBuscarProveedor.php';
-	break;
-	
-	case 'obtenerCostesProveedor':
-        include_once $URLCom.'/modulos/mod_producto/tareas/obtenerCostesProveedor.php';
-	break;
-    
-	case 'comprobarReferencia':
-		$referencia=$_POST['referencia'];
-		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
-		$respuesta=$comprobacion;
-	break;
-    
-    case 'modalFamiliaProducto':
-        if($_POST['idProducto']==""){
-            $idProducto=0;
-        }else{
-             $idProducto=$_POST['idProducto'];
-        }
-        $familias=$CFamilia->todoslosPadres();
-        $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
-        $respuesta['familias']=$familias;
-        $respuesta['html']=$modal;
-    break;
-
-    case 'modalEstadoProductos':
-        $productos=$_SESSION['productos_seleccionados'];
-        $modal=modalAutocompleteEstadoProductos($productos);
-        $respuesta['html']=$modal;
-    break;
-    
     case 'buscarNombreFammilia':
         $idFamilia=$_POST['idfamilia'];
         $idProducto=$_POST['idProducto'];
@@ -199,6 +109,25 @@ switch ($pulsado) {
         }
         $respuesta['Productos']=$idsProductos;
     break;
+
+     case 'cambiarEstadoProductos':
+        $productos=$_POST['productos'];
+        $estado=$_POST['estado'];
+        $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
+        $respuesta['consulta']=$modEstado;
+        $respuesta['productos']=$productos;
+        $respuesta['estado']=$estado;
+    break;
+    
+    case 'comprobarReferencia':
+		$referencia=$_POST['referencia'];
+		$comprobacion=$NCArticulo->buscarReferenciaProductoTienda( $referencia);
+		$respuesta=$comprobacion;
+	break;
+	
+	case 'ComprobarSiExisteCodbarras':
+		$respuesta = $NCArticulo->GetProductosConCodbarras($_POST['codBarras']);
+	break;
 
     case 'eliminarCoste':
 		$respuesta = array();
@@ -271,14 +200,58 @@ switch ($pulsado) {
         $respuesta['Eliminados']=$productosEliminados;
     break;
 
-    case 'cambiarEstadoProductos':
-        $productos=$_POST['productos'];
-        $estado=$_POST['estado'];
-        $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
-        $respuesta['consulta']=$modEstado;
-        $respuesta['productos']=$productos;
-        $respuesta['estado']=$estado;
+    case 'Grabar_configuracion':
+		// Grabamos configuracion
+		$configuracion = $_POST['configuracion'];
+		// Ahora obtenemos nombre_modulo y usuario , lo ponermos en variable y quitamos array configuracion.
+		$nombre_modulo = $configuracion['nombre_modulo'];
+		$idUsuario = $configuracion['idUsuario'];
+		unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
+		
+		$respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
+		$respuesta['configuracion'] = $configuracion ; 
+	break;
+
+	case 'HtmlCajaBuscarProveedor':
+        include_once $URLCom.'/modulos/mod_producto/tareas/htmlCajaBuscarProveedor.php';
+	break;
+
+    case 'HtmlLineaCodigoBarras';
+		$respuesta['html']	= HtmlLineaCodigoBarras($_POST['fila']);
     break;
+
+    case 'imprimir':
+		// De momento no puedo pasar a tareas ya devuelve un fichero ... 
+		$id=$_POST['id'];
+		$dedonde="Recalculo";
+		$nombreTmp=$dedonde."recalculo.pdf";
+        if ($_POST['bandera']==1){
+			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+		}else{
+			$dedonde="albaran";
+			$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+			
+		}
+		$cabecera=$htmlImprimir['cabecera'];
+		$html=$htmlImprimir['html'];
+        //~ require_once $URLCom.'/lib/tcpdf/tcpdf.php';
+		include_once $URLCom.'/clases/imprimir.php';
+        include_once $URLCom.'/controllers/planImprimirRe.php';
+		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+		$respuesta['fichero']=$ficheroCompleto;
+	break;
+    
+	case 'imprimirEtiquetas':
+        include_once $URLCom.'/modulos/mod_producto/tareas/imprimirEtiquetas.php';
+	break;
+    
+	case 'obtenerCostesProveedor':
+        include_once $URLCom.'/modulos/mod_producto/tareas/obtenerCostesProveedor.php';
+	break;
+    
+	case 'productosSesion':
+		$respuesta=productosSesion($_POST['id'], $_POST['seleccionar']);
+	break;
 
     case 'obtenerEstadoProductoWeb';
         // Objetivo es obtener el estado de los productos que enviemos a la web.
@@ -312,6 +285,35 @@ switch ($pulsado) {
                     );
         }
     break;
+
+    case 'retornarCoste':
+		$idArticulo=$_POST['idArticulo'];
+		$dedonde=$_POST['dedonde'];
+		$id=$_POST['id'];
+		$tipo=$_POST['tipo'];
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, 'Pendiente');
+		$respuesta['sql']=$mod;
+	break;
+    
+    case 'modalFamiliaProducto':
+        if($_POST['idProducto']==""){
+            $idProducto=0;
+        }else{
+             $idProducto=$_POST['idProducto'];
+        }
+        $familias=$CFamilia->todoslosPadres();
+        $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
+        $respuesta['familias']=$familias;
+        $respuesta['html']=$modal;
+    break;
+
+    case 'modalEstadoProductos':
+        $productos=$_SESSION['productos_seleccionados'];
+        $modal=modalAutocompleteEstadoProductos($productos);
+        $respuesta['html']=$modal;
+    break;
+
+
 }
 echo json_encode($respuesta);
 ?>
