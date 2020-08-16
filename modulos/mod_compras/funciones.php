@@ -483,14 +483,11 @@ function modalSelectEstadoAlbaranes(){
      $html="";
     $html.=' <div>
             <label>Nuevo estado para albaranes: </label>
-            <select class="estados">
+            <select id="Nuevo_estado_albaranes" class="estados">
                 <option value="0"></option>
-                <option value="Activo">Activo</option>
-                <option value="Nuevo">Nuevo</option>
-                <option value="Temporal">Temporal</option>
-                <option value="Baja">Baja</option>
-                <option value="importado">importado</option>
+                <option value="Guardado">Guardado</option>
             </select>
+            <button class="btn btn-primary" onclick="cambiarEstadoVariosAlbaranes()">Cambiar</button>
             </div>';
         return $html;
 }

@@ -87,10 +87,10 @@ switch ($pulsado) {
 	break;
 
     case 'cancelarTemporal':
-        //@Objetivo: cancelar el archivo temporal , cuando cancelamos un temporal muestra de primeros una alert
+        // @Objetivo: cancelar el archivo temporal , cuando cancelamos un temporal muestra de primeros una alert
         //donde aceptamos en caso de querrer eliminar, a  continuación dependiendo de del archivo donde estemos
         //situados ejecuta su función 
-        //@Retorno: en principio devuelve un array vacio a no ser que se tenga un error en la función ejecutada
+        // @Retorno: en principio devuelve un array vacio a no ser que se tenga un error en la función ejecutada
         $idTemporal=$_POST['idTemporal'];
         $dedonde=$_POST['dedonde'];
         $respuesta=array();
@@ -109,6 +109,17 @@ switch ($pulsado) {
             break;
          }
         
+    break;
+
+    case 'cambiarEstadoVariosAlbaranes':
+        $idsAlbaranes = $_POST['ids'];
+        $estado = $_POST['estado'];
+        if (is_array($idsAlbaranes) && $estado !== '0'){
+            foreach ($idsAlbaranes as $id){
+                $respuesta[] = $CAlb->modEstadoAlbaran($id, $estado);
+            }
+        }
+
     break;
 
     case 'comprobarAdjunto':

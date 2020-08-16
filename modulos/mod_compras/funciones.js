@@ -174,8 +174,8 @@ function modalAlbaranesCambioEstado(){
     // @ Devuelve:
     // Modal con select de posibles estados.
     var parametros = {
-        pulsado: 'modalAlbaranesCambioEstado',
-    }
+        "pulsado": 'modalAlbaranesCambioEstado'
+    };
     $.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -188,11 +188,7 @@ function modalAlbaranesCambioEstado(){
 				var resultado = $.parseJSON(response);
 				var titulo = 'Cambiar estado Albaranes ';
                 abrirModal(titulo,resultado.html);
-                //~ $( ".custom-combobox-input" ).focus();
-				setTimeout(function(){
-                        $( ".custom-combobox-input" ).focus();
-                       
-                },3000);
+
 		}	
 	});
 }
@@ -710,6 +706,39 @@ function cambiarEstadoProductosAdjunto(dedonde,estado,numRegistro){
             cambioEstadoFila(productos[i],dedonde);
         }
     }
+}
+function cambiarEstadoVariosAlbaranes(){
+    // @ Objetivo:
+    // Cambiar estado de varios albaranes.
+    // @ Parametros :
+    // Array con uno o varios ids de albaranes a cambiar estado.
+    console.log('Entro en cambiar estado de varios albaranes');
+    var estado=$('select[id=Nuevo_estado_albaranes]').val();
+    VerIdSeleccionado (); // Cargamos array de id seleccionados ;
+    console.log(checkID);
+    var parametros = {
+		"pulsado"   : 'cambiarEstadoVariosAlbaranes',
+		"ids"       : checkID,
+        "estado"    : estado,
+		"dedonde"   : 'Albaranes'
+	};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+			console.log('******** Mando ids de albaranes para cambiar estado****************');
+		},
+		success    :  function (response) {
+			console.log('Respuesta despues de cambio estado de albaranes');
+			var resultado =  $.parseJSON(response);
+            console.log(' Si devuelve nulos es que fue ok');
+            console.log(resultado);
+            cerrarPopUp();
+            location.reload(); // recargo pagina.
+		}
+	});
+    console.log('et');
 }
 
 function recalculoImporte(cantidad, num_item, dedonde=""){
