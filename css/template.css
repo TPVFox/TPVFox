@@ -110,18 +110,18 @@ tbody tr.FilaModal:hover{
     from { -moz-transform: rotate(0deg);}
     to { -moz-transform: rotate(360deg);}
 }
+
 .piePagina {
     background-color: #616a6b ;
     color:  #fdfefe ;
     bottom: 0px !important;
     position: fixed;
     width: 100%;
-
 }
+
 .piePagina a{
 color:  #fdfefe ;
 }
-
 
 .icono_web.despublicado > a{
     color:#c6cbc6;
@@ -135,4 +135,8 @@ input[disabled],input[readonly] {
 .btn {
     margin-bottom: 10px;
     margin-right: 5px;
+}
+
+btn-default {
+    background-color: #f4f4f4;
 }

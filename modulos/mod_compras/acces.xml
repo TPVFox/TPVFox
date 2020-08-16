@@ -5,7 +5,7 @@
             <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
             <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
             <accion nombre="EliminarAlbaran" descripcion="Eliminar Albaran" permiso="1"></accion>
-
+            <accion nombre="CambiarEstadoAlbaran" descripcion="Cambiar Estado Albaran" permiso="0"></accion>
         </vista>
         <vista nombre="albaran.php" descripcion="Albarán" permiso="0"></vista>
         <vista nombre="facturasListado.php" descripcion="Listado facturas" permiso="0">
@@ -19,7 +19,6 @@
             <accion nombre="Modificar" descripcion="Modificar pedido" permiso="1"></accion>
             <accion nombre="Ver" descripcion="Ver pedido" permiso="1"></accion>
             <accion nombre="EliminarTemporal" descripcion="Eliminar Temporal" permiso="0"></accion>
-
         </vista>
         <vista nombre="pedido.php" descripcion="Pedido" permiso="0"></vista>
         

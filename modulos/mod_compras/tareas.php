@@ -193,7 +193,10 @@ switch ($pulsado) {
 
     case 'insertarImporte':
         include_once  $URLCom.'/modulos/mod_compras/tareas/insertarImporte.php';
-        
+    break;
+
+    case 'modalAlbaranesCambioEstado':
+        $respuesta['html'] = modalSelectEstadoAlbaranes();
     break;
     
     case 'modificarEstado':
@@ -202,7 +205,6 @@ switch ($pulsado) {
         //@Parámetros que recibe: 
         //id -> id que recibimos , puede ser id de pedido o id de albaran
         //dedonde->Para poder filtrar que función tenemos que ejecutar	
-        $respuesta=array();
         $estado=$_POST['estado'];
         if ($_POST['dedonde']=="albaran"){
             $modEstado=$CPed->modEstadoPedido($_POST['id'], $estado);
@@ -244,6 +246,11 @@ switch ($pulsado) {
             $respuesta=$nuevo;
         }
     break;
+
+    default :
+        // @ Objetivo:
+        // marcar posible error.
+        error_log( 'Tarea compras case no encontrado:'.$pulsado);
     
 }
  echo json_encode($respuesta);

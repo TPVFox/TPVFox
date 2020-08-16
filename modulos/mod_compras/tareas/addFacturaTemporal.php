@@ -19,6 +19,8 @@
     $idFactura=$_POST['idReal'];
     $fecha=$_POST['fecha'];
     $fecha = new DateTime($fecha);
+    // Se produce un error cuando la fecha por post, no viene correcta.
+    // no identifico cuando se produce ese error.
     $fecha = $fecha->format('Y-m-d');
     $productos=json_decode($_POST['productos']);
     if(isset ($_POST['albaranes'])){

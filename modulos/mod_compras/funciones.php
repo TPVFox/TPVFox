@@ -394,7 +394,7 @@ function modificarArrayProductos($productos){
         $pro = array(   'ccodbar'       =>$producto['ccodbar'],
                         'cdetalle'      =>$producto['cdetalle'],
                         'cref'          =>$producto['cref'],
-                        'ref_prov'       =>$producto['ref_prov'],
+                        'ref_prov'      =>$producto['ref_prov'],
                         'estado'        =>$producto['estadoLinea'],
                         'idArticulo'    =>$producto['idArticulo'],
                         'importe'       =>$producto['costeSiva']*$producto['nunidades'],
@@ -476,6 +476,26 @@ function modalAdjunto($adjuntos, $dedonde, $BDTpv){
 	$respuesta['html'].='</tbody></table>';
 	return $respuesta;
 }
+
+function modalSelectEstadoAlbaranes(){
+    // @Objetivo:
+    // Obtener los posibles estados de albaranes compra
+     $html="";
+    $html.=' <div>
+            <label>Nuevo estado para albaranes: </label>
+            <select class="estados">
+                <option value="0"></option>
+                <option value="Activo">Activo</option>
+                <option value="Nuevo">Nuevo</option>
+                <option value="Temporal">Temporal</option>
+                <option value="Baja">Baja</option>
+                <option value="importado">importado</option>
+            </select>
+            </div>';
+        return $html;
+}
+
+
 function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
 	//@Objetivo:
 	//Retornar el html de la linea de adjuntos(esto puede ser un pedido en albarán o un albarán en factura).

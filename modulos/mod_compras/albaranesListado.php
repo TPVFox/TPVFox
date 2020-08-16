@@ -65,6 +65,7 @@ $albaranesDef=$a['Items'];
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
    	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -80,10 +81,19 @@ $albaranesDef=$a['Items'];
             <h2>Albaranes de proveedores</h2>
         </div>
         <div class="col-sm-3">
-            <h4> Opción general</h4>
+            <h4> Opciones general</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarAlbaran'."'".')">Añadir</a>';
+                  echo '<button class="btn btn-default" onclick="metodoClick('."'".'AgregarAlbaran'."'".')">Añadir</button>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'albaran'."'".')">Ver</button>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'albaran'."'".')">Modificar</button>';
+                }
+                if($ClasePermisos->getAccion("CambiarEstadoAlbaran")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'albaranes'."'".')">Cambiar estado</button>';
                 }
             ?>
             <div class="col-md-12">
@@ -238,5 +248,9 @@ $albaranesDef=$a['Items'];
             </div>
         </div>
     </div>
+    <?php // Incluimos paginas modales
+    echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+    include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+    ?>
 </body>
 </html>

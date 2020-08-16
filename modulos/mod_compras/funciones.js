@@ -165,19 +165,63 @@ function modificarEstado(dedonde, estado, id=""){
 	});
 }
 
-function metodoClick(pulsado,adonde){
-	console.log("Inicimos switch de control pulsar");
+
+function modalAlbaranesCambioEstado(){
+    // @ Objetivo:
+    // Seleccionar el nuevo estado a poner
+    // @ Parametros:
+    // No hay
+    // @ Devuelve:
+    // Modal con select de posibles estados.
+    var parametros = {
+        pulsado: 'modalAlbaranesCambioEstado',
+    }
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('********* envio para mostrar el modal para  cambiar estado albaran **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de mostrar modal para cambiar estado albaran ');
+				var resultado = $.parseJSON(response);
+				var titulo = 'Cambiar estado Albaranes ';
+                abrirModal(titulo,resultado.html);
+                //~ $( ".custom-combobox-input" ).focus();
+				setTimeout(function(){
+                        $( ".custom-combobox-input" ).focus();
+                       
+                },3000);
+		}	
+	});
+}
+
+function metodoClick(pulsado,adonde=''){
+    // @ Objetivo:
+    // Metodo para saber que pulso y ver item tenemos seleccionado y saber que hacer.
+    // @ Parametro:
+    // Son string los dos parametros (pulsado,adonde)
+    // adonde si no viene esta vacio.
+    VerIdSeleccionado (); // Cargamos array de id seleccionados ;
+    
+	console.log("Inicimos switch de control tras pulsar:"+pulsado);
 	switch(pulsado) {
-		case 'Ver':
-			console.log('Entro en Ver'+adonde);
-			// Cargamos variable global ar checkID = [];
-			checkID = leerChecked('check_'+ adonde);
+		case 'Ver' :
+        case 'Modificar':
+            // ver la ayuda https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Sentencias/switch
+            // para entender case;
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
-			}
-			// Ahora Redirijo a  
-            window.location.href = './'+adonde+'.php?id='+$('#'+checkID[0]).val();
+			} 
+            var accion = '';
+            
+            if (pulsado == 'Ver'){
+                accion='&accion=ver';
+            }
+			// Ahora Redirijo a  (adonde) falta... ./albaran.php?id='.$albaran['id'].'&accion=ver
+            window.location.href = './'+adonde+'.php?id='+checkID[0]+accion;
 		break;
 
 		case 'AgregarPedido':
@@ -190,6 +234,17 @@ function metodoClick(pulsado,adonde){
 
 		case 'AgregarFactura':
 			window.location.href = './factura.php';
+        break;
+
+        case 'cambiarEstado':
+            console.log('Entro en cambio estado albaran');
+            if (checkID.length=== 0) {
+				alert ('No tienes items seleccionados');
+				return
+			}
+            //~ checkID = leerChecked('check_'+ adonde);
+            console.log(checkID);
+            modalAlbaranesCambioEstado(checkID);
         break;
 	 }
 }
