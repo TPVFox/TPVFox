@@ -91,13 +91,18 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
+            <?php
+                //~ echo '<pre>';
+                //~ print_r($ClasePermisos);
+                //~ echo '</pre>';
+            ?>
 			<div class="col-sm-2">
 				<?php echo $Controler->getHtmlLinkVolver();?>
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
 				<ul class="nav nav-pills nav-stacked"> 
 				<?php
-                if($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto")==1){
+                if($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("descontarStock")==1){
                     // Solo mostramos btn de enviar a web si existe web y tiene permisos.
                      if ($permitir_envio === 'Si'){?>
                         <li><button id="DescontarStock" type="button" class="btn btn-primary" onclick="PrepararEnviarStockWeb(<?php echo $id;?>);" >Descontar Stock en Web</button>
