@@ -544,8 +544,9 @@
                         // entonces debemos obtener linea de adjunto para poner en productos.
                         $numAdjunto=$numeroDoc;
                         echo $albaran_html_linea_producto[$numeroDoc];
-					}	
-					$html=htmlLineaProducto($producto, "factura");
+					}
+                    
+					$html=htmlLineaProducto($producto, "factura",$estilos['input_factur']);
 					echo $html['html'];
 				}
 			}
