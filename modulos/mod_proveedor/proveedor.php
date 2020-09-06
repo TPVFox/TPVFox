@@ -63,6 +63,11 @@
             $ProveedorUnico['idProveedor']  ='';
             $ProveedorUnico['fecha_creado'] ='';
         }
+        // Ahora $input_disabled
+        $input_disabled = '';
+        if(isset($_GET['estado']) && $_GET['estado']=="ver"){
+            $input_disabled= 'disabled';
+        }
 		?>
 		
 		
@@ -100,8 +105,14 @@
 			<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
-			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
-			<div class="col-md-12">
+            <?php
+            if(isset($_GET['estado']) && $_GET['estado']!=="ver"){
+            ?>
+                <input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
+            <?php
+            }
+            ?>
+            <div class="col-md-12">
 				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
 
 				<div class="col-md-1">
@@ -157,7 +168,7 @@
 						<div class="col-md-6 form-group">
 							<label for="sel1">Estado:</label>
                             <div class="col-md-6">
-                            <select class="form-control" name="estado" id="sel1">
+                            <select class="form-control" name="estado" <?php echo $input_disabled;?> id="sel1">
 								<?php 
 								foreach ($estados as $estado){
                                     $default ='';
@@ -179,7 +190,6 @@
 				</div>
 				<div class="col-md-4">
 					 <div class="panel-group">
-						
 						<?php 
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Facturas';
@@ -208,13 +218,10 @@
 		</div>
         <script type="text/javascript">
         <?php 
-        if(isset($_GET['estado'])){
-            if($_GET['estado']=="ver"){
+        if(isset($_GET['estado']) && $_GET['estado']=="ver"){
             ?>
                 $(".container").find('input').attr("disabled", "disabled");
-                $("#Guardar").css("display", "none");
             <?php
-            }
         }
         ?>
         

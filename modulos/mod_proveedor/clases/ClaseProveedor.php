@@ -104,7 +104,7 @@ class ClaseProveedor extends TFModelo{
 		//@Objetivo: cargar todos los pedidos de compras de un proveedor
 		//@Parametros:
 		//id: id del proveedor
-		$sql='SELECT Numpedpro as num, FechaPedido as fecha , total, id, idProveedor  FROM pedprot WHERE idProveedor='.$id.' order by Numpedpro desc limit 0,15';
+		$sql='SELECT Numpedpro as num, Fecha as fecha , total, id, idProveedor  FROM pedprot WHERE idProveedor='.$id.' order by Numpedpro desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function adjuntosProveedor($id){
