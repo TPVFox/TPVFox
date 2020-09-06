@@ -54,7 +54,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
             foreach($datos as $dato){
                 $html.='<tr>'.
                     '<td>'.$dato['fecha'].'</td>'.
-                    '<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
+                    '<td><a href="'.$url.$dato['id'].'&accion=ver">'.$dato['num'].'</a></td>'.
                     '<td>'.$dato['total'].'</td>'.
                 '</tr>';
             }
