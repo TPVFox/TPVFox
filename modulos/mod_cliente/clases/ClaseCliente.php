@@ -98,7 +98,7 @@ class ClaseCliente extends TFModelo{
 		//@Objetivo: Cargar los ultimos 15 tickets de un cliente en orden descendente
 		//@Parametros:
 		//id -> id del cliente
-		$sql='SELECT Numticket as num , Fecha as fecha , total ,id, idCliente , estado FROM ticketst WHERE idCliente= '.$id.' order by Numticket desc limit 0,15';
+		$sql='SELECT Numticket as num , Fecha as fecha , total ,id, idCliente , estado FROM ticketst WHERE idCliente= '.$id.' order by Fecha desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getFacturas($id){
@@ -106,7 +106,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todas las facturas de un cliente detrerminado en orden descendente
 		//@Parametros:
 		//id -> id del cliente
-		$sql='SELECT Numfaccli as num, Fecha as fecha, total, id , idCliente , estado FROM facclit WHERE idCliente='.$id.' order by Numfaccli desc limit 0,15';
+		$sql='SELECT Numfaccli as num, Fecha as fecha, total, id , idCliente , estado FROM facclit WHERE idCliente='.$id.' order by Fecha desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getAlbaranes($id){
@@ -114,7 +114,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todos los albaranes de clientes de un cliente determinado en ordes descendente
 		//@Parametros:
 		//id->id del cliente
-		$sql='SELECT Numalbcli as  num, Fecha as fecha, total, id , idCliente, estado FROM albclit WHERE idCliente='.$id.' order by Numalbcli desc limit 0,15';
+		$sql='SELECT Numalbcli as  num, Fecha as fecha, total, id , idCliente, estado FROM albclit WHERE idCliente='.$id.' order by Fecha desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function getPedidos($id){
@@ -122,7 +122,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todos los pedidos de clientes de un cliente determinado en orden descendente
 		//@Parametros:
 		//id-> id del cliente
-		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by Numpedcli desc limit 0,15';
+		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by FechaPedido desc limit 0,15';
 		return $this->consulta($sql);
 	}
 	public function adjuntosCliente($id){
