@@ -486,6 +486,7 @@ function modalSelectEstadoAlbaranes(){
             <select id="Nuevo_estado_albaranes" class="estados">
                 <option value="0"></option>
                 <option value="Guardado">Guardado</option>
+                <option value="Facturado">Facturado</option>
             </select>
             <button class="btn btn-primary" onclick="cambiarEstadoVariosAlbaranes()">Cambiar</button>
             </div>';
