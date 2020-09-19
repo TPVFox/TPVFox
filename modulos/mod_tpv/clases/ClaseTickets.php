@@ -330,7 +330,7 @@ class ClaseTickets extends ClaseSession {
 			// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 			if ( $product['estadoLinea'] === 'Activo'){
 				// No mostramos referencia, mostramos id producto
-				$lineas[$i]['1'] = ' (id:'.$product['id'].') '.substr($product['cdetalle'], 0, 36);//.substr($product->cref,0,10);
+				$lineas[$i]['1'] = ' (id:'.$product['idArticulo'].') '.substr($product['cdetalle'], 0, 36);//.substr($product->cref,0,10);
 				$importe = $product['ncant'] * $product['precioCiva'];
 				// Creamos un array con valores numericos para poder formatear correctamente los datos
 				$Numeros = array(
