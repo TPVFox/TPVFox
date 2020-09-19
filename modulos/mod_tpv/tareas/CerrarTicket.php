@@ -52,7 +52,9 @@ if (!isset($respuesta['error']) ){
 		$cabecera['NumTicket'] = $grabar['Numtickets']; // El numero con el grabamos el ticket.
 		$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
 		$DatosTienda = DatosTiendaID($BDTpv,$cabecera['idTienda']);
-		$datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
+		//~ $datosImpresion = ImprimirTicket($productos,$cabecera,$Datostotales['desglose'],$DatosTienda);
+        $datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
+
 		// Incluimos fichero para imprimir ticket, con los datosImpresion.
 		// Comprobamos si existe impresora.
 		if (ComprobarImpresoraTickets($ruta_impresora) === true){;
