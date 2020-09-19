@@ -333,6 +333,7 @@ class ClaseTickets extends ClaseSession {
 				$lineas[$i]['1'] = ' (id:'.$product['idArticulo'].') '.substr($product['cdetalle'], 0, 36);//.substr($product->cref,0,10);
 				$importe = $product['ncant'] * $product['precioCiva'];
 				// Creamos un array con valores numericos para poder formatear correctamente los datos
+                error_log(json_encode($product));
 				$Numeros = array(
 								0 => array(
 									'float'		 => $product['ncant'],

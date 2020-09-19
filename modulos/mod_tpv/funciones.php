@@ -710,7 +710,6 @@ function ImprimirTicket($productos, $cabecera, $desglose, $tienda) {
             // No mostramos referencia, mostramos id producto
             $lineas[$i]['1'] = ' (id:' . $product->id . ') ' . substr($product->cdetalle, 0, 36); //.substr($product->cref,0,10);
             $importe = $product->unidad * $product->pvpconiva;
-            error_log(json_encode($product));
             // Creamos un array con valores numericos para poder formatear correctamente los datos
             $Numeros = array(
                 0 => array(
