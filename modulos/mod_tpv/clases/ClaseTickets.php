@@ -307,6 +307,10 @@ class ClaseTickets extends ClaseSession {
 		$respuesta = array();
 		$tienda = $this->Tienda;
 		$cabecera = $ticket['cabecera'];
+        $DatosCliente = $this->DatosCliente($cabecera['idCliente']);
+        $cabecera['Nombre'] = $DatosCliente['items'][0]['Nombre'];
+        $cabecera['RazonSocial']= $DatosCliente['items'][0]['razonsocial'];
+        $cabecera['nif']= $DatosCliente['items'][0]['nif'];
 		$cabecera['Serie'] = $cabecera['idTienda'].'-'.$cabecera['idUsuario'];
 		$cabecera['cambio'] = $cabecera['entregado']- $cabecera['total'];
 		$desglose = $ticket['basesYivas'];
@@ -319,7 +323,13 @@ class ClaseTickets extends ClaseSession {
 		$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
 		$respuesta['cabecera2'] .="FACTURA  SIMPLIFICADA\n";
 		$respuesta['cabecera2'] .= str_repeat("=",24)."\n";
-		$respuesta['cabecera2-datos'] = 'Fecha:'.MaquetarFecha ($cabecera['Fecha'])
+        $respuesta['cabecera2-datos']='';
+        if ($cabecera['idCliente'] !== '1'){
+        $respuesta['cabecera2-datos'] =" id:".$cabecera['idCliente'].' '.$cabecera['Nombre']."\n"
+                                        .trim($cabecera['RazonSocial'])."\n"
+                                        ." NIF:".$cabecera['nif']."\n";
+        }
+		$respuesta['cabecera2-datos'] .= 'Fecha:'.MaquetarFecha ($cabecera['Fecha'])
 									.' Hora: '.MaquetarFecha ($cabecera['Fecha'],'HM')."\n"
 									.' Serie:'.$cabecera['Serie'].' Numero:'.$cabecera['Numticket']. "\n"
 									.str_repeat("-",42)."\n";
@@ -327,17 +337,31 @@ class ClaseTickets extends ClaseSession {
 		$lineas = array();
 		$i = 0;
 		foreach ($productos as $product) {
-			// Solo montamos lineas para imprimir aquellos que estado es 'Activo';
+            if (gettype($product) === 'object'){
+                // Parche si  viene de tpv, es un temporal y es un objeto, lo cambiamos array
+                $product = (array) $product;
+                $product['estadoLinea'] = $product['estado'];
+                $product['idArticulo'] = $product['id'];
+                $product['precioCiva'] = $product['pvpconiva'];
+                $product['iva'] = $product['ctipoiva'];
+                $product['ncant'] = $product['unidad'];
+            }
+            // Solo montamos lineas para imprimir aquellos que estado es 'Activo';
 			if ( $product['estadoLinea'] === 'Activo'){
 				// No mostramos referencia, mostramos id producto
 				$lineas[$i]['1'] = ' (id:'.$product['idArticulo'].') '.substr($product['cdetalle'], 0, 36);//.substr($product->cref,0,10);
 				$importe = $product['ncant'] * $product['precioCiva'];
+                $dec_cant = 0 ; // Por defecto cantidad mostramos entero solo..
+                $dif = intval($product['ncant']) - $product['ncant'];
+                if ($dif != 0){
+                    $dec_cant = 3;
+                }
+
 				// Creamos un array con valores numericos para poder formatear correctamente los datos
-                error_log(json_encode($product));
 				$Numeros = array(
 								0 => array(
 									'float'		 => $product['ncant'],
-									'decimales' => 3
+									'decimales' => $dec_cant
 									),
 								1 => array(
 									'float' 	=> $product['precioCiva'],
@@ -355,8 +379,8 @@ class ClaseTickets extends ClaseSession {
 				
 				$lineas[$i]['2'] = $Numeros[0]['string'].' X '.$Numeros[1]['string'].' = '.$Numeros[2]['string'].' ('.sprintf("%' 2d", $product['iva']).')';
 				$i++;
-				}
-			}
+            }
+        }
 		$body = '';
 		foreach ($lineas as $linea){
 			$body .=$linea['1']."\n";
@@ -364,10 +388,17 @@ class ClaseTickets extends ClaseSession {
 		}
 		$respuesta['body'] = $body;
 		// Fin del <<<  body   >>>  del ticket
-		
+
 		// Preparamos el <<<  pie   >>>  del ticket
 		$respuesta['pie-datos'] =str_repeat("-",42)."\n";
 		foreach ($desglose as $index=>$valor){
+            // Parche si  viene de tpv, es un temporal y cambia
+            if (!isset($valor['importeBase'])){
+                
+                $valor['importeBase'] = $valor['base'];
+                $valor['importeIva'] = $valor['iva'];
+                $valor['iva'] = $index;
+            }
 			$respuesta['pie-datos'] .= $valor['importeBase'].'  -> '.$valor['iva']. '%'.'  -> '.$valor['importeIva']."\n";
 		}
 		$respuesta['pie-datos'] .=str_repeat("-",42)."\n";
@@ -376,14 +407,10 @@ class ClaseTickets extends ClaseSession {
 		$respuesta['pie-entregado'] =number_format($cabecera['entregado'],2);
 		$respuesta['pie-cambio'] =number_format($cabecera['cambio'],2);
 
-		$respuesta['pie-datos2'] ="\n".$tienda['razonsocial']." - CIF: ".$tienda['nif']."\n";
-
-
+		$respuesta['pie-datos2'] ="\n".$tienda['razonsocial']." - CIF: ".$tienda['nif']."\n"."\n"."\n";
 
 		return $respuesta;	
-			
-			
-		}
+    }
 		
 	function MaquetarFecha ($fecha,$tipo='dmy'){
 		// @ Objetivo formatear una una fecha y obtener al tipo indicado
@@ -403,8 +430,25 @@ class ClaseTickets extends ClaseSession {
 		}
 		return $respuesta;
 	}
+    public function DatosCliente($id){
+        // @ Objetivo:
+        // Obtener el nombre del cliente.
+        $resultado = array();
+        $consulta = 'SELECT * FROM `clientes` WHERE `idClientes`='.$id;
+		$query = $this->Consulta($consulta);
+		if (!isset($query['error'])){
+			$resultado['items'] = $query['Items'];
+		} else {
+			$resultado['error'] = array( 'tipo'		=> 'warning',
+										'mensaje'	=> 'Error a la hora obtener lineas del ticket, registros: '.$query['NItems'],
+										 'dato'		=> $query
+										);
+		}
+		
+		return $resultado;
+    }
     
-    
+
     public function modificarClienteTicket($idTicket, $idCliente){
        
 		$consulta = 'UPDATE `ticketst` SET idCliente='.$idCliente.' where id='.$idTicket;
