@@ -13,17 +13,21 @@ $respuesta = array();
 		$dedonde="Etiqueta";
 		$nombreTmp=$dedonde."etiquetas.pdf";
 		switch ($tamano){
-			case 1:
+			case '1':
 				$imprimir=ImprimirA8($productos);
 			break;
-			case 2:
+			case '2':
 				$imprimir=ImprimirA5($productos);
 			break;
-			case 3:
+            case '2F':
+				$imprimir=ImprimirA5($productos);
+			break;
+			case '3':
 				$imprimir=ImprimirA7($productos);
 			break;
-			case 4:
+			case '4':
 				$imprimir=ImprimirA9($productos);
+            break;
 		}
 		
 		$cabecera=$imprimir['cabecera'];

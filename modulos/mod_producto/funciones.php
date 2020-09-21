@@ -689,7 +689,17 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	return $resultado;
 
 }
-
+function ImprimirLinea1($producto){
+    // Objetivo:
+    // Obtener la primera linea de cada etiqueta.
+    // Variable que puede no imprimirse:
+        $proveedor_principal = '';
+        if ($producto['proveedor_principal'] !== null){
+            $proveedor_principal = ' Prov:'.$producto['proveedor_principal']['idProveedor'];
+        }
+		$linea='<font size="7 em" align="center">  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'</font><br>';
+        return $linea;
+}
 
 function ImprimirA8($productos){
 	//@objetivo: imprimir las etiquetas de tamaño A8 , controlando que las etiquetas nuevas se 
@@ -716,8 +726,9 @@ function ImprimirA8($productos){
 			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td >';
-		$imprimir['html'].='<font size="6.5 em" align="center">  Fecha: '.date('Y-m-d').'</font>';
-		$imprimir['html'].='<font size="6.5 em" align="center">  Id: '.$producto['idArticulo'].'</font><br>';
+        // Obtenemos primera linea
+        $Linea1 = ImprimirLinea1($producto);
+		$imprimir['html'].= $Linea1;
 		$imprimir['html'].='<font size="9 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
 			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
@@ -790,8 +801,10 @@ function ImprimirA9($productos){
 			$imprimir['html'].='<tr>';
 		}
 		$imprimir['html'].='<td align="center">';
-		$imprimir['html'].='<font size="6.5 em">  Fecha: '.date('Y-m-d').'</font>';
-		$imprimir['html'].='<font size="6.5 em">  Id: '.$producto['idArticulo'].'</font><br>';
+        
+		 // Obtenemos primera linea
+        $Linea1 = ImprimirLinea1($producto);
+		$imprimir['html'].= $Linea1;
 			if(strlen ($producto['articulo_name'])<=30){
 			$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
 		}else{
@@ -861,10 +874,12 @@ $imprimir=array(
 			$i=0;
 			$imprimir['html'].='<tr>';
 		}
+        
 		$imprimir['html'].='<td   style="height:150px;" >';
 		
-		$imprimir['html'].='<font size="7 em" align="center">  Fecha: '.date('Y-m-d').'</font>';
-		$imprimir['html'].='<font size="7 em" align="center">  Id: '.$producto['idArticulo'].'</font><br>';
+		 // Obtenemos primera linea
+        $Linea1 = ImprimirLinea1($producto);
+		$imprimir['html'].= $Linea1;
 		$imprimir['html'].='<font size="15 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
 			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
@@ -924,8 +939,9 @@ function ImprimirA5($productos){
 		foreach ($productos as $producto){
 			$imprimir['html'].='<tr>';
 			$imprimir['html'].='<td align="center"  style="height:190px;" >';
-			$imprimir['html'].='<font size="12 em">  Fecha: '.date('Y-m-d').'</font>';
-			$imprimir['html'].='<font size="12 em">  Id: '.$producto['idArticulo'].'</font><br>';
+            // Obtenemos primera linea
+            $Linea1 = ImprimirLinea1($producto);
+            $imprimir['html'].= $Linea1;
 			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
 			$imprimir['html'].='<b><font size="35 em"> </font></b><br>';
 			$imprimir['html'].='<b><font size="200 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
