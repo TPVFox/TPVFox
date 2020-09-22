@@ -258,18 +258,24 @@ class ClasePermisos{
         return $sql;
     }
     
-    public function getAccion($accion){
-        //OBjetivo: comprobar que la acción que vamos a realizar tenemos permisos o no
+    public function getAccion($accion,$mod_vista=array()){
+        // @ Objetivo:
+        // Comprobar que la acción que vamos a realizar tenemos permisos o no
+        // @ Parametro:
+        //  $accion -> Accion a comprobar permiso.
+        //  $mod_vista -> array ('modulo' => mod_xxx, 'vista' => 'vista') asi indicamos que accion , de que vista y de modulo. Si lo mandamos vacio,
+        // ya obtiene modulo y vista que ejecutamos.
         $permisos=$this->permisos['resultado'];
-       
-        $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);//Ruta en la que estamos situados
-       
-        $vista=basename($ruta);//nos quedamos con la vista.php
-        
-        $rutas=explode('/', dirname($ruta));
-        
-        $modulo=end($rutas);//Nombre del modulo en el que estamos
-        
+        if (count($mod_vista) == 0){
+            $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);//Ruta en la que estamos situados
+            $vista=basename($ruta);//nos quedamos con la vista.php
+            $rutas=explode('/', dirname($ruta));
+            $modulo=end($rutas);//Nombre del modulo en el que estamos
+        } else {
+            $vista  = $mod_vista['vista'];
+            $modulo = $mod_vista['modulo'];
+
+        }
         $perm="";
         //recorremos los permisos y devolvemos el permiso que tenemos en el modulo, vista y accion
         foreach ($permisos as $permiso){
@@ -279,11 +285,24 @@ class ClasePermisos{
                 break;
             }
         }
-        
         return $perm;
-        
-        
     }
+
+    public function getModulo($modulo){
+        // @ Objetivo:
+        // Obtener el permiso para ese modulo en concreto
+        $permisos=$this->permisos['resultado'];
+         foreach ($permisos as $permiso){
+            if($permiso['modulo']==$modulo && $permiso['vista']=='' && $permiso['accion']==''){
+                $perm=$permiso['permiso'];
+                
+                break;
+            }
+        }
+        return $perm;
+    }
+
+    
     public function ObtenerDescripcion($nombre, $permiso){
         //@OBjetivo: Obtener la descripcion del nombre que estamos buscando en los acces
          if(is_file($this->RutaModulos.'/'.$permiso['modulo'].'/acces.xml')){//Comprobamos que en el modulo tenemos acces
