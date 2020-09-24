@@ -4,8 +4,22 @@ $respuesta = array();
 		$idTienda=$_POST['idTienda'];
 		$tamano=$_POST['tamano'];
 		$productos = array();
-		foreach ($IdsProductos as $id){
+		foreach ($IdsProductos as $key=>$id){
 			$productos[]= $NCArticulo->getProducto($id);
+            if ($balanza !==''){
+                 if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
+                    // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
+                    $relacion_balanza = $NCArticulo->obtenerTeclaBalanzas($id);
+                    if (!isset($relacion_balanza['error'])){
+                        // Quiere decir que se obtuvo algun registro.Array ['idBalanza']['plu']['tecla']
+                        // demomento tomamos solo plu y del primer item.
+                        $productos[$key]['plu'] = $relacion_balanza[0]['plu'];
+                    }
+                }
+            }
+
+
+            
 		}
         //~ echo '<pre>';
         //~ print_r($productos);
@@ -20,7 +34,7 @@ $respuesta = array();
 				$imprimir=ImprimirA5($productos);
 			break;
             case '2F':
-				$imprimir=ImprimirA5($productos);
+				$imprimir=ImprimirA5($productos,'fruteria');
 			break;
 			case '3':
 				$imprimir=ImprimirA7($productos);

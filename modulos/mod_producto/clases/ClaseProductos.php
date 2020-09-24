@@ -1272,7 +1272,23 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta;
     }
 
-    
+    public function obtenerTeclaBalanzas($idArticulo){
+        // @ Objetivo:
+        // Obtener las tecla de las balanzas en la que este añadido ese producto.
+        $sql = 'SELECT * FROM `modulo_balanza_plus` WHERE `idArticulo`='.$idArticulo;
+        $resp = $this->Consulta($sql);
+         if ($resp['NItems'] > 0){
+            $respuesta = $resp['Items']; 
+           }else {
+                $error = array ( 'tipo'=>'success',
+                                 'dato' => $sql,
+                                 'mensaje' => 'No se encontró ninguna tecla o plu en balanza para ese producto.'
+                                 );
+                $respuesta['error'] = $error;
+            }
+		return $respuesta;
+
+    }
 
 
     

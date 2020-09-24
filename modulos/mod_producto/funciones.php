@@ -114,6 +114,34 @@ function htmlLineaRefTienda($item,$crefTienda){
 	return $nuevaFila;
 }
 
+function  htmlTablaBalanza($relacion_balanza){
+	// @ Objetivo
+	// Montar la tabla html de codbarras
+	// @ Parametros
+	// 		$codBarras -> (array) con los codbarras del producto.
+	$html =	 '<table id="tbalanzas" class="table table-striped">'
+			.'		<thead>'
+			.'			<tr>'
+			.'				<th>Balanza</th>'
+            .'              <th>Plu</th>'
+            .'              <th>Tecla</th>'
+			.'			</tr>'
+			.'		</thead>'
+			.'		<tbody>';
+	if (count($relacion_balanza)>0){
+		foreach ($relacion_balanza as $item=>$balanza){
+			$html .=    '<tr><td>'.$balanza['idBalanza']
+                            .'<td>'.$balanza['plu'].'</td>'
+                            .'<td>'.$balanza['tecla'].'</td>'
+                            .'</td>'
+                        .'</tr>';
+		}
+	}
+			
+	$html .= '</tbody> </table>	';
+	return $html;
+} 
+
 function  htmlTablaCodBarras($codBarras){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
@@ -689,7 +717,7 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	return $resultado;
 
 }
-function ImprimirLinea1($producto){
+function htmlLinea1($producto,$plu){
     // Objetivo:
     // Obtener la primera linea de cada etiqueta.
     // Variable que puede no imprimirse:
@@ -697,7 +725,11 @@ function ImprimirLinea1($producto){
         if ($producto['proveedor_principal'] !== null){
             $proveedor_principal = ' Prov:'.$producto['proveedor_principal']['idProveedor'];
         }
-		$linea='<font size="7 em" align="center">  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'</font><br>';
+		$linea='';
+        if ($plu !==''){
+            $linea.= '<font size="20 em" align="left">Tecla:</font><font size="40 em" align="right"><b>'.$plu.'</b></font> ';
+        }
+        $linea.='<font size="7 em" align="center">  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'</font><br>';
         return $linea;
 }
 
@@ -922,29 +954,43 @@ $imprimir=array(
 	return $imprimir;
 
 }
-function ImprimirA5($productos){
+function ImprimirA5($productos,$balanza=''){
 	//@objetivo: imprimir las etiquetas de tamaño A5 
 	//@Parametros: 
-	//Productos: listado de productos que vamos a imprimir
+	//  $Productos: listado de productos que vamos a imprimir
+    //  $balanza: La balanza queremos que muestre tecla, el id
 	//@Return:
 	//html montado para imprimir
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
 	);
+    
+    
     $b=0;
     $t=0;
 	$imprimir['html'].="";
 	$imprimir['html'].='<table border="1px" height="527" style="table-layout: fixed;">';
 		foreach ($productos as $producto){
+            
+            
 			$imprimir['html'].='<tr>';
 			$imprimir['html'].='<td align="center"  style="height:190px;" >';
             // Obtenemos primera linea
-            $Linea1 = ImprimirLinea1($producto);
+            $plu = '';
+            $salto = '<br><br><br>';
+            if (isset($producto['plu'])){
+                $plu = $producto['plu'];
+                $salto= '';
+            }
+            $Linea1 = htmlLinea1($producto,$plu);
             $imprimir['html'].= $Linea1;
 			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-			$imprimir['html'].='<b><font size="35 em"> </font></b><br>';
+            if (strlen(trim($producto['articulo_name'])) <27){
+                $imprimir['html'].='<b><font size="35 em">- </font></b><br>';
+            }
 			$imprimir['html'].='<b><font size="200 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
+            
 			
 			$imprimir['html'].='<font size="12 em" >  Codbarras: ';
 			foreach($producto['codBarras'] as $codigo){
@@ -968,7 +1014,7 @@ function ImprimirA5($productos){
             $b++;
             $t++;
 		if($t==2){
-			$imprimir['html'].='</table><br><br><br><br><br><br><table border="1px">';
+			$imprimir['html'].='</table><br><br>'.$salto.'<table border="1px">';
 			$t=0;
 		}
 		}

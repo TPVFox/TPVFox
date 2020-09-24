@@ -108,26 +108,49 @@
                 }
             }
 		}
-				
-		
 		// ==========		Montamos  html que mostramos. 			============ //
-            
             if ($id == 0 ) {
                 $Producto['iva']=$conf_defecto['iva_predeterminado'];
             }
             $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-            $htmlCodBarras = htmlTablaCodBarras($Producto['codBarras']);
+            $htmlTipo=htmlTipoProducto($Producto['tipo']);
+            $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
+
+
             // Obtenemos si tiene permisopara eliminar registros.
             $borrar_ref_prov = 'Ok';
             if($ClasePermisos->getAccion("eliminarRefProveedores") == 0){
                 $borrar_ref_prov = 'KO';
             }
-            $htmlProveedoresCostes = htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov);
-            $htmlFamilias =  htmlTablaFamilias($Producto['familias'], $id);
-            $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
-            $htmlReferenciasTiendas = htmlTablaRefTiendas($Producto['ref_tiendas']);
-            $htmlHistoricoPrecios=htmlTablaHistoricoPrecios($Producto['productos_historico']);
-            $htmlTipo=htmlTipoProducto($Producto['tipo']);
+            $htmltabla = array();
+            if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
+                // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
+                $relacion_balanza = $CTArticulos->obtenerTeclaBalanzas($id);
+                if (!isset($relacion_balanza['error'])){
+                    // Quiere decir que se obtuvo algun registro.
+                    // Puede ser un array.
+                    $htmltabla[] = array (  'titulo' => 'Plu y Teclas en balanzas',
+                                            'html' => htmlTablaBalanza($relacion_balanza)
+                                        );
+                }
+            }
+            $htmltabla[] = array (  'titulo' => 'Códigos de Barras',
+                                            'html' => htmlTablaCodBarras($Producto['codBarras'])
+                                        );
+            $htmltabla[] = array (  'titulo' => 'Proveedores - Costes',
+                                            'html' => htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov)
+                                        );
+            $htmltabla[] = array (  'titulo' => 'Familias',
+                                            'html' => htmlTablaFamilias($Producto['familias'], $id)
+                                        );
+            $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
+                                            'html' => htmlTablaRefTiendas($Producto['ref_tiendas'])
+                                        );
+            $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
+                                            'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
+                                        );
+
+
     	?>
     
 		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
@@ -146,25 +169,12 @@
 		
 		<script type="text/javascript">
 		// Objetos cajas de tpv
-		<?php echo $VarJS;?>
-		<?php 
+		<?php
+            echo $VarJS;
 			echo  'var producto='.json_encode($Producto).';';
-		?>
-		<?php 
 			echo  'var ivas='.json_encode($ivas).';';
-		
-        if($ClasePermisos->getAccion("modificarStock")==1){ 
-            ?>
-            $("#stockmin").removeAttr("readonly");
-        <?php 
-        }
         ?>
-            
-   
 		</script>
-        
-
-
 
 	</head>
 	<body>
@@ -206,8 +216,6 @@
 					<select id="idEstado" name="estado" onchange="">
 						<?php echo $htmlEstadosProducto; ?>
 					</select>
-    
-                    
 					</div>
                     <div class="col-md-4">
                         <label class="control-label " > Tipo:</label>
@@ -319,29 +327,10 @@
 					 <div class="panel-group">
 						<!-- Inicio collapse de CobBarras --> 
 						<?php 
-                      
-                            $num = 1 ; // Numero collapse;
-                            $titulo = 'Códigos de Barras';
-                            echo htmlPanelDesplegable($num,$titulo,$htmlCodBarras);
-                     
-                            $num = 2 ; // Numero collapse;
-                            $titulo = 'Proveedores - Costes';
-                            echo htmlPanelDesplegable($num,$titulo,$htmlProveedoresCostes);
-                     
-                            $num = 3; // Numero collapse;
-                            $titulo = 'Familias';
-                            echo htmlPanelDesplegable($num,$titulo,$htmlFamilias);
-                       
-                            $num = 4; // Numero collapse;
-                            $titulo = 'Productos en otras tiendas.';
-                            echo htmlPanelDesplegable($num,$titulo,$htmlReferenciasTiendas);
-                      
-                            $num = 5; // Numero collapse;
-                            $titulo = 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>';
-                            echo htmlPanelDesplegable($num,$titulo,$htmlHistoricoPrecios);
-                       
-                    
-                    ?>
+                            foreach ($htmltabla as $i=>$h){
+                                echo htmlPanelDesplegable($i,$h['titulo'],$h['html']);
+                            }
+                         ?>
 						<!-- Inicio collapse de Referencias Tiendas --> 
 
 					<!-- Fin de panel-group -->

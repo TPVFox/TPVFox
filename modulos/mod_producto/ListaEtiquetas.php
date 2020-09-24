@@ -19,13 +19,12 @@
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-		</head>
+    </head>
 
 <body>
 		
         <?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
- 
         ?>
         <script type="text/javascript">
         <?php
@@ -48,7 +47,13 @@
 				<select  name="tamanhos">
 					<option value="1">A8</option>
 					<option value="2">A5</option>
-                    <option value="2F">A5-Fruteria</option>
+                    <?php
+                    if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
+                        ?>
+                        <option value="2F">A5-Fruteria</option>
+                    <?php
+                    }
+                    ?>
 					<option value="3">A7</option>
 					<option value="4">A9</option>
 				</select>
