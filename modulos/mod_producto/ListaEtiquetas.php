@@ -27,7 +27,7 @@
         include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
         <script type="text/javascript">
-        <?php
+        <?php 
         if(isset($_POST['Imprimir'])){
 			echo 'imprimirEtiquetas('."'".json_encode($_SESSION['productos_seleccionados'])."'".',"'.$dedonde.'","'
 									.$idTienda.'","'.$_POST['tamanhos'].'");';
@@ -45,16 +45,24 @@
 				<br><br>
 				Selecciona el tamaño: 
 				<select  name="tamanhos">
-					<option value="1">A8</option>
-					<option value="2">A5</option>
+					
+					<option value="1">A5</option>
                     <?php
                     if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
                         ?>
-                        <option value="2F">A5-Fruteria</option>
+                        <option value="1T">A5-Con Tecla</option>
                     <?php
                     }
                     ?>
-					<option value="3">A7</option>
+					<option value="2">A7</option>
+                    <?php
+                    if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
+                        ?>
+                        <option value="2T">A7-Con Tecla</option>
+                    <?php
+                    }
+                    ?>
+                    <option value="3">A8</option>
 					<option value="4">A9</option>
 				</select>
 				<br><br>

@@ -600,6 +600,7 @@ function montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbar
 	return $imprimir;
 	
 }
+
 function productosSesion($idProducto, $seleccionar){
 	// @ Objetivo
 	// Guardar en la session los productos seleccionados.
@@ -717,310 +718,180 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	return $resultado;
 
 }
-function htmlLinea1($producto,$plu=''){
+
+function htmlEtiquetaLinea1($producto,$medida){
     // Objetivo:
     // Obtener la primera linea de cada etiqueta.
     // Variable que puede no imprimirse:
-        $proveedor_principal = '';
-        if ($producto['proveedor_principal'] !== null){
-            $proveedor_principal = ' Prov:'.$producto['proveedor_principal']['idProveedor'];
-        }
-		$linea='';
-        if ($plu !==''){
-            $linea.= '<font size="20 em" align="left">Tecla:</font><font size="40 em" align="right"><b>'.$plu.'</b></font> ';
-        }
-        $linea.='<font size="7 em" align="center">  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'</font><br>';
-        return $linea;
+    $linea='';
+    $proveedor_principal = '';
+    if ($producto['proveedor_principal'] !== null){
+        $proveedor_principal = ' Prov:'.$producto['proveedor_principal']['idProveedor'];
+    }
+    $linea.='<font size="'.$medida['font_linea'].' em" align="center"><br>  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'<br></font>';
+    return $linea;
 }
 
-function ImprimirA8($productos){
-	//@objetivo: imprimir las etiquetas de tamaño A8 , controlando que las etiquetas nuevas se 
-	//cargue la imagen de nuevo
-	//@Parametros: 
-	//Productos: listado de productos que vamos a imprimir
-	//@Return:
-	//html montado para imprimir
-	$imprimir=array(
-		'html'=>'',
-		'cabecera'=>''
-	);
-	$i=0;
-	$t=0;
-    $b=0;
-	$imprimir['html'].="";
-	$imprimir['html'].='<table border="1px">';
-	$imprimir['html'].='<tr>';
-	
-	$imprimir['productos']=$productos;
-	foreach ($productos as $producto){
-		if($i==3){
-			$i=0;
-			$imprimir['html'].='<tr>';
-		}
-		$imprimir['html'].='<td >';
-        // Obtenemos primera linea
-        $Linea1 = htmlLinea1($producto);
-		$imprimir['html'].= $Linea1;
-		$imprimir['html'].='<font size="9 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
-		if($producto['estado']=="Nuevo"){
-			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
-		}
-		$imprimir['html'].='<font size="30 em" align="center"><b>'.number_format($producto['pvpCiva'],2,',','').'</b></font><font size="6.5 em" align="center">€</font><br>';
-		if(strlen ($producto['articulo_name'])<=31){
-			$imprimir['html'].='<br>';
-		}
-		
-		
-		$imprimir['html'].='<font size="6.5 em" align="center">  Codbarras: ';
-		foreach($producto['codBarras'] as $codigo){
-				$imprimir['html'].=$codigo.' ';
-		}
-		$imprimir['html'].='</font>';
-        if($b>0){
-             $indice=$b-1;
-            if($productos[$indice]['cref_tienda_principal'] == $producto['cref_tienda_principal']){
-                $imprimir['html'].='<font size="6.5 em" align="center">  Ref: </font>';
-            }else{
-            	$imprimir['html'].='<font size="6.5 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-            }
-        }else{
-            $imprimir['html'].='<font size="6.5 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-        }
-		$imprimir['html'].='</td>';
-		if($i==2){
-			$imprimir['html'].='</tr>';
-		}
-		
-		$i++;
-		
-		$t++;
-		if($t==24){
-			$imprimir['html'].='</table><br><br><br><table border="1px">';
-			$t=0;
-		}
-        $b++;
-	}
-	if($i<=2){
-		$rep=3-$i;
-		$imprimir['html'].= str_repeat("<td></td>", $rep);
-		$imprimir['html'].='</tr>';
-	}
-	
-	$imprimir['html'].='</table>';
-	return $imprimir;
-}
-function ImprimirA9($productos){
-	//@objetivo: imprimir las etiquetas de tamaño A9 
-	//@Parametros: 
-	//Productos: listado de productos que vamos a imprimir
-	//@Return:
-	//html montado para imprimir
-	$imprimir=array(
-		'html'=>'',
-		'cabecera'=>''
-	);
-	$i=0;
-    $b=0;
-    $t=0;
-	$imprimir['html'].="";
-	$imprimir['html'].='<table border="1px">';
-	$imprimir['html'].='<tr>';
-	
-	$imprimir['productos']=$productos;
-	foreach ($productos as $producto){
-		if($i==4){
-			$i=0;
-			$imprimir['html'].='<tr>';
-		}
-		$imprimir['html'].='<td align="center">';
-        
-		 // Obtenemos primera linea
-        $Linea1 = htmlLinea1($producto);
-		$imprimir['html'].= $Linea1;
-			if(strlen ($producto['articulo_name'])<=30){
-			$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
-		}else{
-			$imprimir['html'].='<font size="7 em"><b>'.$producto['articulo_name'].'</b></font><br>';
-		}
-		
-		$imprimir['html'].='<b><font size="25 em">'.number_format($producto['pvpCiva'],2,',','').'</font><font size="6 em" >€</font></b><br>';
-		
-		
-		$imprimir['html'].='<font size="6.5 em" >  Codbarras: ';
-		foreach($producto['codBarras'] as $codigo){
-				$imprimir['html'].=$codigo.' ';
-		}
-		$imprimir['html'].='</font>';
-         if($b>0){
-             $indice=$b-1;
-            if($productos[$indice]['cref_tienda_principal'] == $producto['cref_tienda_principal']){
-                $imprimir['html'].='<font size="6.5 em" align="center">  Ref: </font>';
-            }else{
-            	$imprimir['html'].='<font size="6.5 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-            }
-        }else{
-            $imprimir['html'].='<font size="6.5 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-        }
-		$imprimir['html'].='</td>';
-		if($i==3){
-			$imprimir['html'].='</tr>';
-		}
-		
-		$i++;
-        $b++;
-        $t++;
-		if($t==36){
-			$imprimir['html'].='</table><br><table border="1px">';
-			$t=0;
-		}
-	}
-	if($i<=3){
-		$rep=4-$i;
-		$imprimir['html'].= str_repeat("<td></td>", $rep);
-		$imprimir['html'].='</tr>';
-	}
-	
-	$imprimir['html'].='</table>';
-	return $imprimir;
-}
-function ImprimirA7($productos){
-	//@objetivo: imprimir las etiquetas de tamaño A7 , controlando que a las nuevas
-	//les cargue la imagen de producto nuevo
-	//@Parametros: 
-	//Productos: listado de productos que vamos a imprimir
-	
-	//@Return:
-	//html montado para imprimir
-$imprimir=array(
-		'html'=>'',
-		'cabecera'=>''
-	);
-	$imprimir['html'].="";
-	$imprimir['html'].='<table border="1px">';
-	$imprimir['html'].='<tr>';
-	$i=0;
-    $b=0;
-    $t=0;
-	foreach ($productos as $producto){
-		if($i==2){
-			$i=0;
-			$imprimir['html'].='<tr>';
-		}
-        
-		$imprimir['html'].='<td   style="height:150px;" >';
-		
-		 // Obtenemos primera linea
-        $Linea1 = htmlLinea1($producto);
-		$imprimir['html'].= $Linea1;
-		$imprimir['html'].='<font size="15 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
-		if($producto['estado']=="Nuevo"){
-			$imprimir['html'].='<img src="../../css/img/NUEVO.png"  width="70" style="float: left;">';
-		}
-		$imprimir['html'].='<font size="50 em" align="center"><b>'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br>';
-		
-		$imprimir['html'].='<font size="7 em" align="center">  Codbarras: ';
-		foreach($producto['codBarras'] as $codigo){
-				$imprimir['html'].=$codigo.' ';
-		}
-		$imprimir['html'].='</font>';
-         if($b>0){
-             $indice=$b-1;
-            if($productos[$indice]['cref_tienda_principal'] == $producto['cref_tienda_principal']){
-                $imprimir['html'].='<font size="7 em" align="center">  Ref: </font>';
-            }else{
-            	$imprimir['html'].='<font size="7 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-            }
-        }else{
-            $imprimir['html'].='<font size="7 em" align="center">  Ref: '.$producto['cref_tienda_principal'].'</font>';
-        }
-		$imprimir['html'].='</td>';
-		if($i==1){
-			$imprimir['html'].='</tr>';
-		}
-	$i++;
-    $b++;
-    $t++;
-		if($t==10){
-			$imprimir['html'].='</table><br><br><br><table border="1px">';
-			$t=0;
-		}
-	}
-	if($i<=1){
-		$rep=2-$i;
-		$imprimir['html'].= str_repeat("<td></td>", $rep);
-		$imprimir['html'].='</tr>';
-	}
-	$imprimir['html'].='</table>';
-	return $imprimir;
 
+function htmlEtiquetaLineaNombre($producto,$medida,$plu=''){
+    // Objetivo:
+    // Obtener la primera linea de cada etiqueta.
+    // Variable que puede no imprimirse:
+    $linea='';
+    $emNombre = $medida['font_nombre']; // Defecto A5
+    $emTecla  = $medida['font_tecla'];
+    if (strlen(trim($producto['articulo_name'])) >15 ){
+            $emNombre = $medida['font_nombre_largo'];
+    }
+    if ($plu !==''){
+        // Creamos tabla solo si tiene imprimir plu
+        $linea .='<table '.$medida['width'].'>'
+        .'<tr><td '.$medida['width_tecla'].'>'
+        .'<font size="10 em" align="left">Tecla:<br></font><font size="'.$emTecla.' em" align="left"><b>'
+        .$plu.'</b></font> '
+        .'</td><td>';
+    }
+    $linea.='<b><font size="'.$emNombre.' em">'.$producto['articulo_name'].'<br></font></b>';
+    if ($plu !=''){
+        $linea .='</td></tr></table>';
+    }
+    return $linea;
 }
-function ImprimirA5($productos,$balanza=''){
+
+function htmlEtiquetaLineaUltima($producto,$medida){
+    // @ Objetivo:
+    // Obtener la referencia nuestra y los codigos de barras. ( Ojo que puede tener muchos codbarras, por lo que hay que controlar cual se muestra)
+    // @ Parametros:
+    //   $productos -> Array del producto en cuestion.
+    //   $em -> String con la medida de la letra.
+    $em= $medida['font_linea'].' em';
+    $linea = '<font size="'.$em.'" >';
+    if ($producto['cref_tienda_principal'] !==''){
+        $linea .='Ref: '.$producto['cref_tienda_principal'];
+    }
+    if (count($producto['codBarras'])>0){
+        $linea.=' Codbarras: ';
+        $cod =array();
+        foreach($producto['codBarras'] as $codigo){
+            $cod[]=$codigo;
+        }
+        $linea.= implode(',',$cod);
+    }
+    $linea.='</font>';
+    
+    return $linea;
+}
+
+
+
+
+function ObtenerMedidasEtiquetas($tipo) {
+    // @ Objetivo:
+    // Imprimir etiquetas
+    $medidas = array(   'A5' => array ( 'etiquetas_hoja' => 2,
+                                        'etiquetas_columna' => 1,
+                                        'height' => 'height:375px;',
+                                        'width' => 'width="790px"',
+                                        'width_tecla' => 'width="100px"',
+                                        'font_precio' => 200,
+                                        'font_tecla' => 45,
+                                        'font_nombre' => 30,
+                                        'font_nombre_largo' => 20,
+                                        'font_linea' => 10
+                                    ),
+                        'A7' => array ( 'etiquetas_hoja' => 8,
+                                        'etiquetas_columna' => 2,
+                                        'height' => 'height:187px;',
+                                        'width' => 'width="360px"',
+                                        'width_tecla' => 'width="60px"',
+                                        'font_precio' => 80,
+                                        'font_tecla' => 20,
+                                        'font_nombre' => 12,
+                                        'font_nombre_largo' => 10,
+                                        'font_linea' => 7
+                                    ),
+                        'A8' => array ( 'etiquetas_hoja' => 24,
+                                        'etiquetas_columna' => 3,
+                                        'height' => 'height:94px;',
+                                        'width' => 'width="260px"',
+                                        'width_tecla' => 'width="30px"',
+                                        'font_precio' => 28,
+                                        'font_tecla' => 20,
+                                        'font_nombre' => 10,
+                                        'font_nombre_largo' => 8,
+                                        'font_linea' => 6
+                                    ),
+                        'A9' => array ( 'etiquetas_hoja' => 36,
+                                        'etiquetas_columna' => 4,
+                                        'height' => 'height:82px;',
+                                        'width' => 'width="195px"',
+                                        'width_tecla' => 'width="20px"',
+                                        'font_precio' => 25,
+                                        'font_tecla' => 14,
+                                        'font_nombre' => 9,
+                                        'font_nombre_largo' => 7,
+                                        'font_linea' => 5
+                                    )
+                    );
+     return $medidas[$tipo];
+    
+}
+
+function ImprimirEtiquetas($productos,$tipo,$balanza=''){
 	//@objetivo: imprimir las etiquetas de tamaño A5 
 	//@Parametros: 
 	//  $Productos: listado de productos que vamos a imprimir
     //  $balanza: La balanza queremos que muestre tecla, el id
 	//@Return:
 	//html montado para imprimir
+    $medida = ObtenerMedidasEtiquetas($tipo);
 	$imprimir=array(
 		'html'=>'',
 		'cabecera'=>''
 	);
-    
-    
-    $b=0;
-    $t=0;
+    $etiqueta_hoja=0;
+    $columna = 0;
 	$imprimir['html'].="";
-	$imprimir['html'].='<table border="1px" height="527" style="table-layout: fixed;">';
-		foreach ($productos as $producto){
-            
-            
-			$imprimir['html'].='<tr>';
-			$imprimir['html'].='<td align="center"  style="height:190px;" >';
-            // Obtenemos primera linea
-            $plu = '';
-            $salto = '<br><br><br><br>';
-            if ($balanza !==''){
-                if (isset($producto['plu'])){
-                    $plu = $producto['plu'];
-                    $salto= '';
-                }
-            }
-            $Linea1 = htmlLinea1($producto,$plu);
-            $imprimir['html'].= $Linea1;
-			$imprimir['html'].='<b><font size="30 em">'.$producto['articulo_name'].'</font></b><br><br><br>';
-            if (strlen(trim($producto['articulo_name'])) <27){
-                $imprimir['html'].='<b><font size="35 em">- </font></b><br>';
-            }
-			$imprimir['html'].='<b><font size="200 em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b><br><br><br><br>';
-            
-			
-			$imprimir['html'].='<font size="12 em" >  Codbarras: ';
-			foreach($producto['codBarras'] as $codigo){
-					$imprimir['html'].=$codigo.' ';
-			}
-			$imprimir['html'].='</font>';
-             if($b>0){
-             $indice=$b-1;
-            if($productos[$indice]['cref_tienda_principal'] == $producto['cref_tienda_principal']){
-                $imprimir['html'].='<font size="12 em" >  Ref: </font>';
-            }else{
-            	$imprimir['html'].='<font size="12 em" >  Ref: '.$producto['cref_tienda_principal'].'</font>';
-            }
-        }else{
-            $imprimir['html'].='<font size="12 em" >  Ref: '.$producto['cref_tienda_principal'].'</font>';
+	$imprimir['html'].='<table border="1px" style="table-layout: fixed;">';
+    foreach ($productos as $producto){
+        $columna++;
+        if ($columna === 1){
+            $imprimir['html'].='<tr>';
         }
-			
-			
-			$imprimir['html'].='</td>';
-			$imprimir['html'].='</tr>';
-            $b++;
-            $t++;
-		if($t==2){
-			$imprimir['html'].='</table><br><br>'.$salto.'<table border="1px">';
-			$t=0;
-		}
-		}
-		$imprimir['html'].='</table>';
+        $imprimir['html'].='<td align="center" style="'.$medida['height'].'" >';
+        // Obtenemos primera linea
+        $plu = '';
+        if ($balanza !==''){
+            if (isset($producto['plu'])){
+                $plu = $producto['plu'];
+            }
+        }
+        $Linea1 = htmlEtiquetaLinea1($producto,$medida);
+        $imprimir['html'].= '<font size="5em">'.$tipo.'</font>'.$Linea1;
+        $imprimir['html'].= htmlEtiquetaLineaNombre($producto,$medida,$plu);
+        $imprimir['html'].='<b><font size="'.$medida['font_precio'].' em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b>';
+        $imprimir['html'].='<font size="'.$medida['font_precio'].' em"><br></font>';
+        $imprimir['html'].= htmlEtiquetaLineaUltima($producto,$medida);
+        $imprimir['html'].=  '</td>';
+
+        if ($columna == $medida['etiquetas_columna']){
+            $imprimir['html'].='</tr>';
+            $columna = 0;
+        }
+        $etiqueta_hoja++;
+        if($etiqueta_hoja==$medida['etiquetas_hoja']){
+            // Volvemos abrir la tabla
+            $imprimir['html'].='</table><table border="1px">';
+            $etiqueta_hoja=0;
+        }
+    }
+    if($columna<$medida['etiquetas_columna'] && $columna !== 0){
+		$rep=$medida['etiquetas_columna']-$columna;
+        
+		$imprimir['html'].= str_repeat("<td></td>", $rep);
+		$imprimir['html'].='</tr>';
+	}
+    $imprimir['html'].='</table>';
 	return $imprimir;
 	
 }
