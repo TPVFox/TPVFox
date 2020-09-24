@@ -978,10 +978,12 @@ function ImprimirA5($productos,$balanza=''){
 			$imprimir['html'].='<td align="center"  style="height:190px;" >';
             // Obtenemos primera linea
             $plu = '';
-            $salto = '<br><br><br>';
-            if (isset($producto['plu'])){
-                $plu = $producto['plu'];
-                $salto= '';
+            $salto = '<br><br><br><br>';
+            if ($balanza !==''){
+                if (isset($producto['plu'])){
+                    $plu = $producto['plu'];
+                    $salto= '';
+                }
             }
             $Linea1 = htmlLinea1($producto,$plu);
             $imprimir['html'].= $Linea1;
