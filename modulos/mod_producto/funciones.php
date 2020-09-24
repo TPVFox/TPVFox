@@ -717,7 +717,7 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
 	return $resultado;
 
 }
-function htmlLinea1($producto,$plu){
+function htmlLinea1($producto,$plu=''){
     // Objetivo:
     // Obtener la primera linea de cada etiqueta.
     // Variable que puede no imprimirse:
@@ -759,7 +759,7 @@ function ImprimirA8($productos){
 		}
 		$imprimir['html'].='<td >';
         // Obtenemos primera linea
-        $Linea1 = ImprimirLinea1($producto);
+        $Linea1 = htmlLinea1($producto);
 		$imprimir['html'].= $Linea1;
 		$imprimir['html'].='<font size="9 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
@@ -835,7 +835,7 @@ function ImprimirA9($productos){
 		$imprimir['html'].='<td align="center">';
         
 		 // Obtenemos primera linea
-        $Linea1 = ImprimirLinea1($producto);
+        $Linea1 = htmlLinea1($producto);
 		$imprimir['html'].= $Linea1;
 			if(strlen ($producto['articulo_name'])<=30){
 			$imprimir['html'].='<font size="9 em"><b>'.$producto['articulo_name'].'</b></font><br>';
@@ -910,7 +910,7 @@ $imprimir=array(
 		$imprimir['html'].='<td   style="height:150px;" >';
 		
 		 // Obtenemos primera linea
-        $Linea1 = ImprimirLinea1($producto);
+        $Linea1 = htmlLinea1($producto);
 		$imprimir['html'].= $Linea1;
 		$imprimir['html'].='<font size="15 em" align="center"><b>'.$producto['articulo_name'].'</b></font><br>';
 		if($producto['estado']=="Nuevo"){
