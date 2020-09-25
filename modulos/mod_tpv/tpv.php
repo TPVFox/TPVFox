@@ -29,6 +29,8 @@
 	$ticket_estado = 'Nuevo'; 
 	$ticket_numero = 0;
 	$fechaInicio = date("d/m/Y");
+     $btn_familias = [];
+            $hijos = [];
 	$Control_Error = array(); // control de errores.
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.( Si hay usuario claro) 
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
@@ -92,8 +94,6 @@
             $familias = $fam['datos'];
             // Obtenemos los ids
             $idsFamilias = array_column($familias, 'idFamilia');
-            $btn_familias = [];
-            $hijos = [];
             foreach ($familias as $key=>$f){
                 $a = FALSE;
                 if ($f['familiaPadre'] > 0){
