@@ -13,7 +13,7 @@ function metodoClick(pulsado){
 			// Ahora redireccionamos 
 			// recambi.php?id=id
 				
-			window.location.href = './proveedor.php?id='+checkID[0];
+			window.location.href = './proveedor.php?id='+checkID[0]+'&accion=ver';
 			
 			
 			break;

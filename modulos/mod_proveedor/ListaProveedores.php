@@ -56,16 +56,12 @@
 					<li><a href="#section1" onclick="metodoClick('AgregarProveedor');";>Añadir</a></li>
                     <?php 
                     }
-                    if($ClasePermisos->getAccion("modificar")==1){
+                    if($ClasePermisos->getAccion("ver")==1){
                     ?>
-					<li><a href="#section2" onclick="metodoClick('VerProveedor');";>Modificar</a></li>
+					<li><a href="#section2" onclick="metodoClick('VerProveedor');";>Ver</a></li>
                     <?php 
                     }
                     ?>
-									<?php //metodoClick js case pulsado 
-									//agregarUsuario nos lleva a formulario usuario
-									//verUsuario si esta checkado nos lleva vista usuario de ese id
-												//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>
 				</div>	
 			</nav>		
@@ -123,7 +119,7 @@
                      <?php 
                     if($ClasePermisos->getAccion("modificar")==1){
                         ?>
-                        <a class="glyphicon glyphicon-pencil" href='./proveedor.php?id=<?php echo $proveedor['idProveedor'];?>'>
+                        <a class="glyphicon glyphicon-pencil" href='./proveedor.php?id=<?php echo $proveedor['idProveedor'];?>&accion=editar'>
                     <?php 
                     }
                         ?>
@@ -132,7 +128,7 @@
                     <?php 
                     if($ClasePermisos->getAccion("ver")==1){
                         ?>
-                        <a class="glyphicon glyphicon-eye-open" href='./proveedor.php?id=<?php echo $proveedor['idProveedor'];?>&estado=ver'>
+                        <a class="glyphicon glyphicon-eye-open" href='./proveedor.php?id=<?php echo $proveedor['idProveedor'];?>&accion=ver'>
                     <?php 
                     }
                         ?>
@@ -143,7 +139,15 @@
 					<td><?php echo $proveedor['razonsocial']; ?></td>
 					<td><?php echo $proveedor['nif']; ?></td>
                     <td><?php echo $proveedor['telefono']; ?></td>
-                    <td><?php echo $proveedor['movil']; ?></td>
+                    <td><?php
+                            if (trim($proveedor['movil']) !==''){
+                                echo $proveedor['movil']
+                                    .'<a href="https://web.whatsapp.com//send?phone=34+'.$proveedor['movil'].'">'
+                                    .'<span class="glyphicon glyphicon-comment"></span>'
+                                    .'</a>';
+                            }
+                            ?>
+                    </td>
                     <?php
                     // Mostrar email
                     

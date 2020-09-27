@@ -55,19 +55,26 @@
                 }
             }
         }
+        
+        // Ahora $input_disabled
+         $input_disabled= 'disabled'; // Por defecto solo dejo ver.
+        if (isset($_GET['accion'])) {
+            if ($_GET['accion']=="editar"){
+               $input_disabled='';
+               $titulo= "Modificar";
+            } else  {
+                $titulo= "Ver";
+            }
+        }
+
         // Montamos titulo y campos que no se cubren cuando es nuevo.
-        if ($id> 0){
-            $titulo= "Modificar";
-        } else {
+        if ($id == 0){
             $titulo= "Crear";
             $ProveedorUnico['idProveedor']  ='';
             $ProveedorUnico['fecha_creado'] ='';
+            $input_disabled='';
         }
-        // Ahora $input_disabled
-        $input_disabled = '';
-        if(isset($_GET['estado']) && $_GET['estado']=="ver"){
-            $input_disabled= 'disabled';
-        }
+        
 		?>
 		
 		
@@ -106,7 +113,7 @@
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
             <?php
-            if(isset($_GET['estado']) && $_GET['estado']!=="ver"){
+            if(isset($_GET['accion']) && $_GET['accion']=="editar"){
             ?>
                 <input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
             <?php
@@ -128,37 +135,37 @@
 						<div class="col-md-6 form-group">
 							
 							<label>Nombre comercial Proveedor:</label>
-							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $ProveedorUnico['nombrecomercial'];?> placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>" required  >
+							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $input_disabled;?> size="40" placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>" required  >
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>">
+							<input type="text" id="razonsocial" name="razonsocial" <?php echo $input_disabled;?> size="40" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>">
 							
 						</div>
 						<div class="col-md-6 form-group">
 							<label>NIF:</label>
-							<input type="text"	id="nif" name="nif" value="<?php echo $ProveedorUnico['nif'];?>">
+							<input type="text"	id="nif" name="nif" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['nif'];?>">
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
-							<input type="text" id="direccion" name="direccion" value="<?php echo $ProveedorUnico['direccion'];?>"   >
+							<input type="text" id="direccion" name="direccion" <?php echo $input_disabled;?> size="50" value="<?php echo $ProveedorUnico['direccion'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Telefono:</label>
-							<input type="text" id="telefono" name="telefono" value="<?php echo $ProveedorUnico['telefono'];?>"   >
+							<input type="text" id="telefono" name="telefono" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['telefono'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Movil:</label>
-							<input type="text" id="movil" name="movil" value="<?php echo $ProveedorUnico['movil'];?>"   >
+							<input type="text" id="movil" name="movil" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['movil'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Fax:</label>
-							<input type="text" id="fax" name="fax" value="<?php echo $ProveedorUnico['fax'];?>"   >
+							<input type="text" id="fax" name="fax" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['fax'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Email:</label>
-							<input type="text" id="email" name="email" value="<?php echo $ProveedorUnico['email'];?>"  >
+							<input type="text" id="email" name="email" <?php echo $input_disabled;?> size="40" value="<?php echo $ProveedorUnico['email'];?>"  >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Fecha alta:</label>
@@ -216,15 +223,5 @@
         // hacemos comprobaciones de estilos 
         ?>
 		</div>
-        <script type="text/javascript">
-        <?php 
-        if(isset($_GET['estado']) && $_GET['estado']=="ver"){
-            ?>
-                $(".container").find('input').attr("disabled", "disabled");
-            <?php
-        }
-        ?>
-        
-        </script>
 	</body>
 </html>
