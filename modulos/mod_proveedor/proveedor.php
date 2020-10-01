@@ -113,7 +113,7 @@
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
             <?php
-            if(isset($_GET['accion']) && $_GET['accion']=="editar"){
+            if ($input_disabled ==''){
             ?>
                 <input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
             <?php
