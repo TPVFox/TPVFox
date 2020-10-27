@@ -149,7 +149,7 @@ class AlbaranesVentas extends ClaseVentas {
                 $idArticulo = $linea['idArticulo'];
                 $idTienda = $albaran['idTienda'];
                 $cantidad = $linea['ncant'];
-                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
+                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_SUMA);
             }
         }
         

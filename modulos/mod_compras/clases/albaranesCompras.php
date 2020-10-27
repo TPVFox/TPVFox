@@ -182,7 +182,8 @@ class AlbaranesCompras extends ClaseCompras {
                 }
             }
             // Ahora elimino stock de las lineas eliminadas.
-            if (count($respuesta) === 0 ){
+           // if (count($respuesta) === 0 ){
+                
                 if($albaran && $lineasAlbaran ){
                     $stock = new alArticulosStocks();
                     foreach($lineasAlbaran as $linea){
@@ -192,7 +193,7 @@ class AlbaranesCompras extends ClaseCompras {
                         $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
                     }
                 }
-            }
+            //}
         }
         return $respuesta;
     }
