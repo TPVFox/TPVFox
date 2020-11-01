@@ -1,10 +1,5 @@
-
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 include_once './../../inicial.php';
-include_once $URLCom.'/head.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
@@ -58,6 +53,12 @@ $pedidosDef=$p['Items'];
 								 );
 	}
 	?>
+<!DOCTYPE html>
+<html>
+<head>
+<?php
+include_once $URLCom.'/head.php';
+?>
 </head>
 <body>
 	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 

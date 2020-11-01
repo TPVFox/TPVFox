@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_importar" descripcion="Importar tablas" permiso="0">
+    <vista nombre="Importar.php" descripcion="importar" permiso="0"></vista>
+</modulo>
