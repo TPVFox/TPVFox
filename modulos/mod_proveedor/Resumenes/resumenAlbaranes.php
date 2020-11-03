@@ -216,6 +216,8 @@
 							<tr>
 								<th>FECHA</th>
 								<th>ALBARÁN</th>
+                                <th>ESTADO</th>
+                                <th>LINK</th>
 								<th>BASE</th>
 								<th>IVA</th>
 								<th>TOTAL</th>
@@ -225,13 +227,17 @@
 						<?php 
 						$totalLinea=0;
 						$totalbases=0;
+                       
 						if(isset($arrayNums['resumenBases'])){
 							foreach($arrayNums['resumenBases'] as $bases){
 								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
 								$totalbases=$totalbases+$totalLinea;
 								echo '<tr>
+                               
 								<td>'.$bases['fecha'].'</td>
 								<td>'.$bases['Numalbpro'].'</td>
+                                 <td>'.$bases['estado'].'</td>
+                                 <td><a class="glyphicon glyphicon-pencil"  target="_blank" href="../../mod_compras/albaran.php?id='.$bases['Numalbpro'].'"></a></td>
 								<td>'.$bases['sumabase'].'</td>
 								<td>'.$bases['sumarIva'].'</td>
 								<td>'.$totalLinea.'</td>
