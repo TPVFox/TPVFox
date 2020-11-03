@@ -1481,13 +1481,17 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
 function seleccionarTodo(){
     console.log("entre en seleccionar todo");
    for (i=1;i<41;i++){
+       if($("#checkUsu"+i).val()>0){
         if( $("#checkUsuTodos").prop('checked') ) {
             $("#checkUsu"+i).prop( "checked", true );
-             selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "seleccionar");
+           
+           
+            selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "seleccionar");
         }else{
             selecionarItemProducto($("#checkUsu"+i).val(), "listaProductos", "NoSeleccionar");
             $("#checkUsu"+i).prop( "checked", false );
         }
+    }
    }
 } 
 
