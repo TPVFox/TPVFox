@@ -706,9 +706,9 @@ EOD;
 				}	
 			}
             $refPro="";
-          //  if ($producto['ref_prov']>0){
+           if (strlen($producto['ref_prov'])>0){
 				$refPro=$producto['ref_prov'];
-			//}
+			}
             $importe=$producto['ncant']*$producto['costeSiva'];
         
 			$imprimir['html'] .='<td ALIGN="center" WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
