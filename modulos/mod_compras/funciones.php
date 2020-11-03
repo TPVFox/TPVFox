@@ -671,6 +671,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 <table WIDTH="100%" border="1px" ALIGN="center">
 <tr>
 <td WIDTH="5%"><font size="9"><b>Linea</b></font></td>
+<td WIDTH="10%"><font size="9"><b>ID</b></font></td>
 <td WIDTH="17%"><font size="9"><b>Su Referencia</b></font></td>
 <td WIDTH="50%"><font size="9"><b>Descripción del producto</b></font></td>
 <td WIDTH="7%"><b><font size="9">Cant.</font></b></td>
@@ -705,12 +706,13 @@ EOD;
 				}	
 			}
             $refPro="";
-            if ($producto['ref_prov']>0){
+          //  if ($producto['ref_prov']>0){
 				$refPro=$producto['ref_prov'];
-			}
+			//}
             $importe=$producto['ncant']*$producto['costeSiva'];
         
 			$imprimir['html'] .='<td ALIGN="center" WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
+            .'<td WIDTH="10%"><font size="8"> &nbsp;'.$producto['idArticulo'].'</font></td>'
             .'<td WIDTH="17%"><font size="8"> &nbsp;'.$refPro.'</font></td>'
 			.'<td WIDTH="50%"><font size="8"> &nbsp;'.$producto['cdetalle'].'</font></td>'
 			.'<td ALIGN="right" WIDTH="7%"><font size="8">'.number_format($producto['ncant'],2).'  &nbsp;&nbsp;</font></td>'
