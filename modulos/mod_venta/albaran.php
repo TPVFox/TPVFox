@@ -30,6 +30,7 @@
 	$fecha=date('d-m-Y');
 	$dedonde="albaran";
 	$Datostotales=array();
+    $creado_por = array(); 
 	$textoNum="";
     $inciden= 0;
 	$parametros = $ClasesParametros->getRoot();
@@ -49,6 +50,8 @@
 		$idAlbaran=$_GET['id'];
 		$textoNum=$idAlbaran;
 		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
+        $creado_por = $Calbcli->obtenerDatosUsuario($datosAlbaran['idUsuario']);
+       
 		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
 		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
 		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
@@ -116,7 +119,7 @@
 				$pedidos=json_decode($datosAlbaran['Pedidos']);
 				
 			}
-		
+		$creado_por = $Usuario;
 	}
 	if(isset($albaran['Productos'])){
 			// Obtenemos los datos totales ( fin de ticket);
@@ -159,7 +162,7 @@ $titulo .= ' '.$textoNum.': '.$estado;
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idUsuario'] = <?php echo $creado_por['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
 		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
@@ -293,7 +296,7 @@ if (isset($_GET['tActual'])){
 			
 				<div class="col-md-3">
 					<strong>Empleado:</strong><br>
-					<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="10" readonly>
+					<input type="text" id="Usuario" name="Usuario" value="<?php echo $creado_por['nombre'];?>" size="10" readonly>
 				</div>
 		</div>
 		<div class="form-group">

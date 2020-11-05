@@ -55,6 +55,15 @@ class ClaseVentas{
 			return $resultadoPrincipal;
 		}
 	}
+     public function obtenerDatosUsuario($id){
+        // @ Objetivo:
+        // Obtener los datos de un usuario del id que recibe, es necesarios para obtener el nombre de
+        // creadores o quienes modificaron.
+        $tabla = 'usuarios';
+        $where = '`id`='.$id;
+        $datosUsuario = $this->SelectUnResult($tabla, $where);
+        return $datosUsuario;
+    }
 }
 
 ?>
