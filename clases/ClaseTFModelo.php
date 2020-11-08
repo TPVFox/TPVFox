@@ -59,4 +59,10 @@ class TFModelo extends ModeloP {
         return $this->getSQLConsulta();
     }
 
+    protected function setTabla($tabla){
+        $this->tabla = $tabla;
+    
+    }
+    
+
 }

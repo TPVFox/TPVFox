@@ -45,6 +45,11 @@ class ClaseConexion{
 		$this->contrasena = $passwordMysql;
 		return;
 	}
+
+    public function getRutaUpload(){
+        include ($this->ruta_proyecto.'/configuracion.php');
+        return $ruta_upload;
+    }
 }
  
 

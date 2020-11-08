@@ -17,7 +17,9 @@
 
      
     include_once './../../inicial.php';
-
+    include_once './clases/ClaseImportarDbf.php';
+    $importarDbf = new ImportarDbf();
+    
     
   
 ?>
@@ -26,29 +28,40 @@
 <head>
 <?php
     include_once $URLCom.'/head.php';
-	
 ?>
 
 </head>
 <body>
 <?php 
      include_once $URLCom.'/modulos/mod_menu/menu.php';
-	
 ?>
 
 
 
 <div class="container">
 	<div class="col-md-12">
-	<h2 class="center">Importación de datos a TPVFOX.</h2>
-	</div>
-	<div>
-    <?php
-        echo '<pre>';
-        print_r($thisTpv);
-        echo '</pre>';
-    ?>
-
+        <p>Subimos fichero dbf no puede exceder lo indica tu php.ini</p>
+        <form method="POST" action="upload.php" enctype="multipart/form-data" type="application/x-dbf"><p>Subir ficheros:
+        <input type="file" name="fichero" />
+        <input type="hidden" name="token" value="<?php echo $thisTpv->getTokenUsuario($Usuario);?>">
+        <?php
+        $dir_subida = $thisTpv->getRutaUpload();
+        
+        // Comprobamos si existe la ruta donde guardar el fichero subido.
+        if (file_exists($dir_subida)) {
+            // Solo muestro btn enviar si existe ruta upload
+            ?>
+            <input type="submit" name="uploadBtn" value="Enviar" />
+        <?php
+        } else {
+            ?>
+            <div class="alert alert-danger">
+                No existe ruta upload o no tengo acceso.
+            </div>
+        <?php    
+        }
+        ?>
+        </form>
 	</div>	
 </div>
 </body>

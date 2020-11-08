@@ -209,8 +209,6 @@ class ClaseSession extends ClaseConexion{
 		$control = $control + (isset($Estado['tienda']['idTienda']) ? 0 : 1);
 		if ( $control > 0){
 			// Algo no esta bien
-			
-			
 			return 'Erroneo'; // Aunque se puede gestionar distintos errores o situaciones.
 		}
 		// Devolvemos string si es correo o no.
@@ -225,8 +223,14 @@ class ClaseSession extends ClaseConexion{
 			// De momento no lo hago..
 			array_push($this->comprobaciones,$error);
 		}
-		
 	}
+    public function getTokenUsuario($usuario){
+        // Objetivo:
+        // Creamos un token con el usuario y el dia.
+        $inicio_unix = time();
+        $token = hash('sha256', $inicio_unix.$usuario['id']);
+        return $token;
+    }
 	
 	function cerrarSession(){
 		//~ session_start();
