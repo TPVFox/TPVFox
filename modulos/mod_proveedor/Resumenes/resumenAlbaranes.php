@@ -227,13 +227,11 @@
 						<?php 
 						$totalLinea=0;
 						$totalbases=0;
-                       
 						if(isset($arrayNums['resumenBases'])){
 							foreach($arrayNums['resumenBases'] as $bases){
 								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
 								$totalbases=$totalbases+$totalLinea;
 								echo '<tr>
-                               
 								<td>'.$bases['fecha'].'</td>
 								<td>'.$bases['Numalbpro'].'</td>
                                  <td>'.$bases['estado'].'</td>
