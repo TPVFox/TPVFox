@@ -61,9 +61,9 @@ Class ImportarDbf extends TFModelo {
             $this->campos =$respuesta['datos'];
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
-            $resultado = parent::consultaDML($sql);
+            $respuesta = parent::consultaDML($sql);
         }
-        return $resultado;
+        return $respuesta;
     }
 
     public function obtenerEstructuraDbf($fichero,$URLCom){

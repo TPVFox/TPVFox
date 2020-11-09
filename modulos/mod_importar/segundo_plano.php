@@ -1,7 +1,12 @@
 <?php
-include './clases/ClaseImportarDbf.php';
+include_once './../../inicial.php';
+include_once './clases/ClaseImportarDbf.php';
 $importarDbf = new ImportarDbf();
-$datos_registro = $importarDbf->ultimoRegistro();
+$dregistro = $importarDbf->ultimoRegistro();
+$datos_registro =$dregistro['datos'][0];
+$dir_subida = $thisTpv->getRutaUpload();
+$fichero = $dir_subida.'/'.$datos_registro['name'];
+
 // ========= Configuracion particular =============== //
 /* La configuracion deberíamos obtenerla y el usuario debría poder configurarla.*/
 // Campo delete es array donde indicamos campo_nulo aquel que indica que esa linea no se añade y el valor que tienes tener para no  añadirlo
@@ -17,12 +22,12 @@ $registro_error = array('nulo'  => 'Si', // Los codigos nulos
                         'error' => 'Si', // Los codigos errores
                         'sql'   => 'No'  // Sql generamos que produce error
                         );
-$fichero = './../ficheros_dbf/ARTICULO.dbf'; // Ruta del fichero dbf
+//~ $fichero = '/home/ricardo/vmfiles/ficheros_dbf/ARTICULO.dbf'; // Ruta del fichero dbf
 
 //  ========   Fin de configuracion  ================= //
 $resultado = array();
 error_log('Empezo');
-$instruccion = "python ./py/leerDbf1.py 2>&1 -f ".$fichero." -i 1 -e 16059";
+$instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 1 -e '.$datos_registro['Registros_originales'];
 exec($instruccion, $output,$entero);
 // Recuerda que $output es un array de todas las lineas obtenidad en .py
 	// tambien recuerad que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py

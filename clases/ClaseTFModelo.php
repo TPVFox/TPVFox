@@ -48,9 +48,9 @@ class TFModelo extends ModeloP {
 
     protected function insert($datos, $soloSQL = false) {
 
-        parent::_insert($this->tabla, $datos, $soloSQL);
+        $respuesta = parent::_insert($this->tabla, $datos, $soloSQL);
 
-        return $this->getSQLConsulta();
+        return $respuesta;
     }
 
     protected function update($datos, $condicion, $soloSQL = false) {

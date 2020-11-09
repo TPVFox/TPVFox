@@ -44,9 +44,6 @@ if (isset($_POST['uploadBtn']) && $_POST['uploadBtn'] == 'Enviar')
                                                 'campos' => json_encode($importarDbf->campos)
                                             );
                                 $id = $importarDbf->registroImportar($datos);
-                                echo '<pre>';
-                                print_r($id);
-                                echo '</pre>';
                                 if (gettype($id) === 'integer'){
                                     $mensajes[] = $importarDbf->getAvisosHtml(12,'info',array($id));
                                 } else {

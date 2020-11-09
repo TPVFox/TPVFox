@@ -14,7 +14,7 @@ $passwordMysql='bd_tpv';
 
 //Carpeta con los archivos temporales que se generan
 $rutatmp=''; // Ruta relativa desde el servidor.
-$ruta_upload='/home/solucion40/www/beta/ficheros_dbf/'; // Ruta absoluta donde guardar los ficheros subidos validos.
+$ruta_upload=''; // Ruta absoluta donde guardar los ficheros subidos validos.
 
 // Datos para importacion de DBF ( Para inicializacion )
 
