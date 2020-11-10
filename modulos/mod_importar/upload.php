@@ -45,15 +45,15 @@ if (isset($_POST['uploadBtn']) && $_POST['uploadBtn'] == 'Enviar')
                                             );
                                 $id = $importarDbf->registroImportar($datos);
                                 if (gettype($id) === 'integer'){
-                                    $mensajes[] = $importarDbf->getAvisosHtml(12,'info',array($id));
+                                    $mensajes[] = $importarDbf->getAvisosHtml(12,'info','Insertado(s) '.$id.' registros');
                                 } else {
                                     // Hubo un error al insertar
-                                     $mensajes[] = $importarDbf->getAvisosHtml(14,'danger',array($id['Error'],$id['mensaje']));
+                                     $mensajes[] = $importarDbf->getAvisosHtml(14,'danger',$id['descripcion']);
                                      $estado = 'Error';
     
                                 }
                             } else {
-                                $mensajes[] =  $importarDbf->getAvisosHtml(13,'danger',array($respuesta['error']));
+                                $mensajes[] =  $importarDbf->getAvisosHtml(13,'danger',$respuesta['error']);
                             }
                             
                         } else {

@@ -3,12 +3,13 @@ include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
 $importarDbf = new ImportarDbf();
 $mensajes=array();
-$estado = '';
+$estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fusionado', aqui solo debería llegar cuano este en alguno de esos estados.
 // Obtenemos el ultimo registro
     $dregistro = $importarDbf->ultimoRegistro();
     $datos_registro =$dregistro['datos'][0];
+    $estado = $datos_registro['estado'];
     echo '<pre>';
-    print_r($dregistro);
+    print_r($estado);
     echo '</pre>';
 // Ahora compruebo si ya se esta ejecuntado el fichero segundo plano
 $command = 'ps aux | grep "[p]hp.*segundo_plano"';
@@ -53,8 +54,10 @@ if (count($ejecutando) >0){
 
     <div class="col-md-12">
 		<?php
+
+        
         echo '<pre>';
-            print_r('No es la misma session');
+            print_r('comprobar con javascript periodicamente');
             echo '</pre>';
         ?>
     </div>

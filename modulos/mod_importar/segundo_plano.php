@@ -26,7 +26,7 @@ $registro_error = array('nulo'  => 'Si', // Los codigos nulos
 
 //  ========   Fin de configuracion  ================= //
 $resultado = array();
-error_log('Empezo');
+error_log('====== Empezo a importar ======= ');
 $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 1 -e '.$datos_registro['Registros_originales'];
 exec($instruccion, $output,$entero);
 // Recuerda que $output es un array de todas las lineas obtenidad en .py
@@ -59,13 +59,14 @@ exec($instruccion, $output,$entero);
                 } else {
                     $l['ENVASES'] = 0;
                 }
-                $r = $importarDbf->insertarDbf('ARTICULO',$l); // Obtenemos array con datos y campos.
-                if (isset($r['Error'])){
+                $r = $importarDbf->insertarDbf('modulo_importar_ARTICULO',$l);
+                if (gettype($r) === 'boolean'){
                     $errores++;
                     if ($registro_error['error'] === 'Si'){
-                        error_log('Error linea:'.$i.' Campo Principal:'.$l[$campo_principal]);
+                        error_log('Error linea:'.$i.' Campo Principal:'.$l[$campo_principal].':'.$importarDbf->getError());
                     }
                     if ($registro_error['sql'] === 'Si'){
+                        // Volvemos ejecutar insertar para obtener el sql.
                         $sql= $importarDbf->insertarDbf('ARTICULO',$l,'Sql');
                         error_log('SQL:'.$sql);
                         error_log('Contiene la linea:'.$linea);
@@ -79,13 +80,45 @@ exec($instruccion, $output,$entero);
             }
             $i++;
         }
-        error_log('Errores:'.$errores);
-        error_log('Nulos:'.$nulos);
 	} else {
 		$resultado['Estado'] = 'Error-obtener ';
 		$resultado['Errores'] = $output;
-        error_log('NO Entro entero');
-		// Recuerda que esto lo mostramos gracias a que ponemos parametro 2>&1 en exec... 
-		// No permitimos continuar.
-		// nos imprime en pantalla (tabla) el error
+        error_log('============= Error  1.0 al obtener datos - PARAMOS PROCESO segundo_plano ===============');
+        exit();
 	}
+    // Ahora registramos nulos y errores
+    $e = $importarDbf->anhadirNulosErrores($datos_registro['id'],$nulos,$errores);
+    if ($e === false ){
+        // Hubo un error al cambiar el estado, por lo que no podemos continuar.
+        error_log('Hubo un error al registrar los nulos y errores:'.json_encode($importarDbf->getFallo()));
+        error_log('===========  Error 1.1 al registrar nulos y errores - PARAMOS PROCESO segundo_plano ============');
+        exit();
+    }
+    error_log('Registramos '.$nulos.' nulos y '.$errores.' errores');
+    // Ahora cambiamos estado de registro a importado, para empezar con la fussion.
+    $e = $importarDbf->CambioEstado($datos_registro['id'],'Importado');
+    if ($e === false ){
+        // Hubo un error al cambiar el estado, por lo que no podemos continuar.
+        error_log('Hubo un error:'.json_encode($importarDbf->getFallo()));
+        error_log('===========  NO CONTINUAMOS POR ERROR 1.2 EN segundo_plano ============'.json_encode($importarDbf->getFallo()));
+        exit();
+    }
+    error_log('==========================   Empezamos la fusion =====================');
+    $codigos_principales = $importarDbf->leerTodos('modulo_importar_ARTICULO','id_tpvfox IS NULL',array('CODIGO'));
+
+    if ($codigos_principales === false){
+        // Hubo un error al obtener los codigo de la tabla para fusionar.
+        error_log('Hubo un error:'.json_encode($importarDbf->getFallo()));
+        error_log('===========  NO CONTINUAMOS POR ERROR 1.3 EN segundo_plano ============'.json_encode($importarDbf->getFallo()));
+        exit();
+    }
+    foreach ($codigos_principales as $valor){
+        $consulta = $importarDbf->consultaExiste($valor['CODIGO']);
+        error_log(json_encode($consulta));
+    }
+    //~ error_log(json_encode($codigos_principales));
+    
+    
+
+    
+    

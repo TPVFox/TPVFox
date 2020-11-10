@@ -14,7 +14,16 @@ Class ImportarDbf extends TFModelo {
         $tabla = 'modulo_importar_registro';
         parent::setTabla($tabla);
         $id = parent::insert($datos);
-        return $id;
+        if ($id === false){
+            // Algo fall
+            $respuesta = $this->getFallo();
+            error_log('Tipo respuesta'.gettype($respuesta).'valor:'.json_encode($respuesta));
+
+        } else {
+            $respuesta = $id;
+        }
+        
+        return $respuesta;
     }
     public function ultimoRegistro(){
         $sql = 'SELECT * FROM `modulo_importar_registro` order by id desc limit 1';
@@ -58,6 +67,8 @@ Class ImportarDbf extends TFModelo {
                     $i++;
                 } 
             }
+            // Ahora añadimos el campo id_Tpvfox para poder luego fusionarlos.
+            $strCampos[] = 'id_tpvfox int(11)';
             $this->campos =$respuesta['datos'];
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
@@ -93,7 +104,7 @@ Class ImportarDbf extends TFModelo {
 
     }
 
-    public function getAvisosHtml($id,$tipo,$parametro=array()){
+    public function getAvisosHtml($id,$tipo,$parametro=''){
         //@ Objetivo
         // Obtener los mensajes maquetados bootstrap.
         //@ Parametros
@@ -102,7 +113,6 @@ Class ImportarDbf extends TFModelo {
         // $parametros  -> (array) Podemos mandar los parametros que necesite el mensaje.
 
         // Array de mensajes
-
         $mensaje = array(
                         0  =>'Su fichero es válido y se subió con éxito.',
                         1  =>'Error a la hora mover el fichero.',
@@ -117,9 +127,9 @@ Class ImportarDbf extends TFModelo {
                         9  => 'Falta la carpeta temporal',
                         10 => 'No se pudo escribir el fichero en el disco',
                         11 => 'PHP detuvo la subida de ficheros',
-                        12 => 'Se creo tabla SQL y registro correctamente el inicio del proceso, con el id:'.$parametro[0],
-                        13 => 'No se pudo crear la tabla ,por nos dio el siguiente error:'.$parametro[0]
-                   
+                        12 => 'Se creo tabla SQL y registro correctamente el inicio del proceso, con el id:'.$parametro,
+                        13 => 'No se pudo crear la tabla ,por nos dio el siguiente error:'.$parametro,
+                        14 => 'Error al registrar el fichero.Error:'.$parametro
                     );
         
         $html = '<div class="alert alert-'.$tipo.'">'
@@ -164,8 +174,53 @@ Class ImportarDbf extends TFModelo {
 
     public function insertarDbf($tabla,$datos,$soloSQL = false){
         parent::setTabla($tabla);
-        $id = parent::insert($tabla, $datos,$soloSQL);
+        $id = parent::insert($datos,$soloSQL);
         return $id;
+    }
+
+    public function getError(){
+        return parent::getErrorConsulta();
+    }
+
+    public function cambioEstado($id,$estado){
+        parent::setTabla('modulo_importar_registro');
+        $estado = 'estado ="'.$estado.'"';
+        $condicion = 'id ="'.$id.'"';
+        $respuesta = parent::update($estado, $condicion) ;
+        return $respuesta;
+
+    }
+
+    public function anhadirNulosErrores($id,$nulos,$errores){
+        // @ Objetivo:
+        // Registrar en modulo_importar_registros cuantos registros fueron errores y nulos. Estos ultimos es una configuracion que se puede cambiar.
+        parent::setTabla('modulo_importar_registro');
+        $datos =array(  'nulos'     =>$nulos,
+                        'errores'   =>$errores
+                    );
+        $condicion = 'id ="'.$id.'"';
+        $respuesta = parent::update($datos, $condicion) ;
+        return $respuesta;
+
+    }
+
+    public function leerTodos($tabla,$condiciones,$columnas=[],$limit=0,$offset=0) {
+        // @ Objetivo:
+        // Obtener todo los registros con un limite y desde.
+        $join = array();
+        $columnasSql = count($columnas) > 0 ? implode(',', $columnas): '*';
+        return parent::_leer($tabla, $condiciones, $columnas, 
+                $join, $limit, $offset);
+    }
+
+    public function consultaExiste($codigo){
+        $sql =  'SELECT `idArticulo` FROM `articulosTiendas` WHERE `crefTienda`="'.$codigo.'" AND `idTienda`=1';
+        $smt=parent::consulta($sql);
+        return $smt;
+
+       
+
+
     }
 
 }
