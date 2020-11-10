@@ -1,5 +1,6 @@
 <?php
-include_once ($RutaServidor.$HostNombre.'/clases/ClaseTFModelo.php');
+include_once $URLCom.'/clases/ClaseTFModelo.php';
+
 Class ImportarDbf extends TFModelo {
 
    
@@ -15,7 +16,7 @@ Class ImportarDbf extends TFModelo {
         parent::setTabla($tabla);
         $id = parent::insert($datos);
         if ($id === false){
-            // Algo fall
+            // Algo fallo
             $respuesta = $this->getFallo();
             error_log('Tipo respuesta'.gettype($respuesta).'valor:'.json_encode($respuesta));
 
@@ -69,6 +70,8 @@ Class ImportarDbf extends TFModelo {
             }
             // Ahora añadimos el campo id_Tpvfox para poder luego fusionarlos.
             $strCampos[] = 'id_tpvfox int(11)';
+            $strCampos[] = 'estado_tpvfox varchar(8)';
+
             $this->campos =$respuesta['datos'];
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
@@ -204,21 +207,80 @@ Class ImportarDbf extends TFModelo {
 
     }
 
-    public function leerTodos($tabla,$condiciones,$columnas=[],$limit=0,$offset=0) {
+    public function leerTodos_mod_articulo() {
         // @ Objetivo:
         // Obtener todo los registros con un limite y desde.
+        $tabla ='modulo_importar_ARTICULO';
+        $condiciones ='id_tpvfox IS NULL';
+        $columnas = array('CODIGO','NOMBRE','STOCK','CODE_BAR','PCOSTE','PVENTA','PVP','BENEFICIO','IVA' );
+        // Creo defecto para variables que necesita metodo _leer
+        $limit = 0;
+        $offset = 0;
         $join = array();
         $columnasSql = count($columnas) > 0 ? implode(',', $columnas): '*';
         return parent::_leer($tabla, $condiciones, $columnas, 
                 $join, $limit, $offset);
     }
 
+    public function ControllerNewUpdate($producto){
+        //@Objetivo:
+        // Es el controlador para :
+        // Consultamos si existe (consultaExiste) y
+        //          - Si no existe, lo creamos.
+        //          - Si existe, comprobamos si son los datos iguales o no.
+        // Una vez se comprueba si Nuevo,Actualizado o esta igual, se crea o cambia en tablas tpvfox, luego se registra estado en tabla_modulo.
+        //@Parametros:
+        //  $producto : Array con los campos necesarios para crear o actualizar un articulo en tpvfox campos:
+        //              'CODIGO','NOMBRE','STOCK','CODE_BAR','PCOSTE','PVENTA','PVP','BENEFICIO','IVA'
+        $estado ='';
+        // Los posibles estado del registro mod_articulo son (error,nuevo,actualizado,igual,null)
+        // Obtenemos idArticulo si existe con ese Codigo.
+        $A = $this->consultaExiste($producto['CODIGO']);
+        if (isset($A['datos'])){
+            // Existe articulos con ese CODIGO
+            if (count($A['datos']) === 1){
+                $estado = 'actualizado';
+                // Obtenemos idArticulo para poder comprobar si cambio algo.
+                $idArticulo = $A['datos'][0]['idArticulo'];
+                // Obtenemos datos de Articulo de tpvfox:
+                $Sql = 'SELECT a.*, prec.pvpCiva, pvpSiva FROM articulos as a '
+				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
+				.'  WHERE a.idArticulo ='.$idArticulo.' AND '
+				.'  prec.idArticulo='.$idArticulo.' AND prec.idTienda=1 ';
+                $consulta = parent::consulta($Sql);
+                if (isset($consulta['datos'])){
+                    // Fue correcta la consulta y montamos el array de Articulo
+                    $articulo = $consulta['datos'];
+                    error_log(gettype($articulo).json_encode($articulo));
+                } else {
+                    error_log('=================Error en consulta :'.$consulta['datos']);
+                    $estado = 'error';
+                }
+            } else {
+                // Quiere decir que hay mas de un producto o 0 con ese CODIGO,  marcamos error.
+                error_log( ' El CODIGO:'.$producto['CODIGO'].' se encontraron '.count($A['datos']).' no voy comprobar nada, lo marco estado ERROR');
+                $estado = 'error';
+            }
+        } else {
+            // No existe articulos con ese CODIGO, por lo que es NUEVO
+            $estado = 'nuevo';
+        }
+
+        return $estado;
+    }
+
     public function consultaExiste($codigo){
+        // @ Objetivo:
+        // Obtener registros de un articulo en tpvFox con un CODIGO
         $sql =  'SELECT `idArticulo` FROM `articulosTiendas` WHERE `crefTienda`="'.$codigo.'" AND `idTienda`=1';
         $smt=parent::consulta($sql);
         return $smt;
+    }
 
-       
+    
+
+    public function insertarNuevo($datos){
+
 
 
     }

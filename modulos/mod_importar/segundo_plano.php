@@ -26,7 +26,7 @@ $registro_error = array('nulo'  => 'Si', // Los codigos nulos
 
 //  ========   Fin de configuracion  ================= //
 $resultado = array();
-error_log('====== Empezo a importar ======= ');
+error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
 $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 1 -e '.$datos_registro['Registros_originales'];
 exec($instruccion, $output,$entero);
 // Recuerda que $output es un array de todas las lineas obtenidad en .py
@@ -104,7 +104,7 @@ exec($instruccion, $output,$entero);
         exit();
     }
     error_log('==========================   Empezamos la fusion =====================');
-    $codigos_principales = $importarDbf->leerTodos('modulo_importar_ARTICULO','id_tpvfox IS NULL',array('CODIGO'));
+    $codigos_principales = $importarDbf->leerTodos_mod_articulo();
 
     if ($codigos_principales === false){
         // Hubo un error al obtener los codigo de la tabla para fusionar.
@@ -112,9 +112,9 @@ exec($instruccion, $output,$entero);
         error_log('===========  NO CONTINUAMOS POR ERROR 1.3 EN segundo_plano ============'.json_encode($importarDbf->getFallo()));
         exit();
     }
-    foreach ($codigos_principales as $valor){
-        $consulta = $importarDbf->consultaExiste($valor['CODIGO']);
-        error_log(json_encode($consulta));
+    foreach ($codigos_principales as $producto){
+        $estado = $importarDbf->ControllerNewUpdate($producto);
+        error_log('CODIGO:'.$producto['CODIGO'].' es '.$estado);
     }
     //~ error_log(json_encode($codigos_principales));
     
