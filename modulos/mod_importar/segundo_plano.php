@@ -27,7 +27,7 @@ $registro_error = array('nulo'  => 'Si', // Los codigos nulos
 //  ========   Fin de configuracion  ================= //
 $resultado = array();
 error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
-$instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 1 -e '.$datos_registro['Registros_originales'];
+$instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 14000 -e '.$datos_registro['Registros_originales'];
 exec($instruccion, $output,$entero);
 // Recuerda que $output es un array de todas las lineas obtenidad en .py
 	// tambien recuerad que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py
@@ -114,7 +114,7 @@ exec($instruccion, $output,$entero);
     }
     foreach ($codigos_principales as $producto){
         $estado = $importarDbf->ControllerNewUpdate($producto);
-        error_log('CODIGO:'.$producto['CODIGO'].' es '.$estado);
+        //~ error_log('CODIGO:'.$producto['CODIGO'].' es '.$estado);
     }
     //~ error_log(json_encode($codigos_principales));
     

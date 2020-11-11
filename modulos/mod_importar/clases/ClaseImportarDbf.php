@@ -52,7 +52,7 @@ Class ImportarDbf extends TFModelo {
                     $tipo = '';
                     switch ($campo->tipo){
                         case 'C':
-                            $tipo = 'varchar('.$campo->longitud.')';
+                            $tipo = 'varchar('.$campo->longitud.') COLLATE utf8_general_ci';
                             break;
                         case 'N':
                             $tipo = 'decimal('.$campo->longitud.','.$campo->decimal.')';
@@ -75,6 +75,7 @@ Class ImportarDbf extends TFModelo {
             $this->campos =$respuesta['datos'];
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
+            error_log($sql);
             $respuesta = parent::consultaDML($sql);
         }
         return $respuesta;
@@ -194,6 +195,16 @@ Class ImportarDbf extends TFModelo {
 
     }
 
+    public function cambioArticulo($producto,$id){
+        // Modificamos datos tabla
+        parent::setTabla('articulo');
+        $estado = 'estado ="'.$estado.'"';
+        $condicion = 'id ="'.$id.'"';
+        $respuesta = parent::update($estado, $condicion) ;
+        return $respuesta;
+
+    }
+
     public function anhadirNulosErrores($id,$nulos,$errores){
         // @ Objetivo:
         // Registrar en modulo_importar_registros cuantos registros fueron errores y nulos. Estos ultimos es una configuracion que se puede cambiar.
@@ -243,15 +254,43 @@ Class ImportarDbf extends TFModelo {
                 // Obtenemos idArticulo para poder comprobar si cambio algo.
                 $idArticulo = $A['datos'][0]['idArticulo'];
                 // Obtenemos datos de Articulo de tpvfox:
-                $Sql = 'SELECT a.*, prec.pvpCiva, pvpSiva FROM articulos as a '
+                $Sql = 'SELECT'
+                .' a.idArticulo,a.articulo_name, prec.pvpCiva, pvpSiva,  s.stockOn as stock '
+                .' FROM articulos as a '
 				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
+                .' LEFT JOIN articulosStocks AS s ON a.idArticulo = s.idArticulo '
 				.'  WHERE a.idArticulo ='.$idArticulo.' AND '
 				.'  prec.idArticulo='.$idArticulo.' AND prec.idTienda=1 ';
                 $consulta = parent::consulta($Sql);
                 if (isset($consulta['datos'])){
                     // Fue correcta la consulta y montamos el array de Articulo
-                    $articulo = $consulta['datos'];
-                    error_log(gettype($articulo).json_encode($articulo));
+                    if ( count($consulta['datos']) === 1){
+                        $articulo = $consulta['datos'][0];
+                        // Ahora cambio formato de numero para coincida.
+                        $articulo['pvpCiva'] = number_format($articulo['pvpCiva'],2);
+                        $articulo['pvpSiva'] = number_format($articulo['pvpSiva'],2);
+                        $articulo['stock'] = number_format($articulo['stock'],3);
+
+
+                        // Comparamos producto con articulo.
+                       
+
+                        $p = array ('idArticulo' => $articulo['idArticulo'],
+                                    'articulo_name' => $producto['NOMBRE'],
+                                    'pvpCiva'    => number_format($producto['PVP'],2),
+                                    'pvpSiva'   => number_format($producto['PVENTA'],2),
+                                    'stock'         => $producto['STOCK']
+                                    );
+                        if ($p === $articulo){
+                            $estado = 'igual';
+                        } else {
+                            error_log('Linea:'.$producto['CODIGO'].' =>'.json_encode($articulo));
+                            error_log(json_encode($p));
+                        }
+                    } else {
+                        error_log('============ Se optuvo mas de un producto con ese codigo ');
+
+                    }
                 } else {
                     error_log('=================Error en consulta :'.$consulta['datos']);
                     $estado = 'error';
