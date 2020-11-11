@@ -197,10 +197,29 @@ Class ImportarDbf extends TFModelo {
 
     public function cambioArticulo($producto,$id){
         // Modificamos datos tabla
-        parent::setTabla('articulo');
-        $estado = 'estado ="'.$estado.'"';
-        $condicion = 'id ="'.$id.'"';
-        $respuesta = parent::update($estado, $condicion) ;
+        parent::setTabla('articulos');
+        $campos = array('articulo_name' => $producto['articulo_name'],'fecha_modificado' => date("Y-m-d H:i:s"));
+        $condicion = 'idArticulo ="'.$id.'"';
+        $respuesta = parent::update($campos, $condicion) ;
+        if ($respuesta !== false) {
+            // Fue correcta modificacion tabla anterior
+            parent::setTabla('articulosPrecios');
+            $campos = array('pvpCiva' => $producto['pvpCiva'],'pvpSiva' => $producto['pvpSiva']);
+            $condicion = 'idArticulo ="'.$id.'" and idTienda=1';
+            $respuesta = parent::update($campos, $condicion) ;
+            if ($respuesta !==false){
+                // Fue correcta modificacion tabla anterior
+                parent::setTabla('articulosStocks');
+                $campos ='stockOn = '.$producto['stockOn'];
+                $condicion = 'idArticulo ="'.$id.'" and idTienda=1';
+                $respuesta = parent::update($campos, $condicion) ;
+            }
+        }
+
+        if ($respuesta === false){
+            error_log( 'Hubo un error en metodo cambioArticulo');
+        }
+        
         return $respuesta;
 
     }
@@ -255,7 +274,7 @@ Class ImportarDbf extends TFModelo {
                 $idArticulo = $A['datos'][0]['idArticulo'];
                 // Obtenemos datos de Articulo de tpvfox:
                 $Sql = 'SELECT'
-                .' a.idArticulo,a.articulo_name, prec.pvpCiva, pvpSiva,  s.stockOn as stock '
+                .' a.idArticulo,a.articulo_name, prec.pvpCiva, pvpSiva,  s.stockOn '
                 .' FROM articulos as a '
 				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
                 .' LEFT JOIN articulosStocks AS s ON a.idArticulo = s.idArticulo '
@@ -269,23 +288,24 @@ Class ImportarDbf extends TFModelo {
                         // Ahora cambio formato de numero para coincida.
                         $articulo['pvpCiva'] = number_format($articulo['pvpCiva'],2);
                         $articulo['pvpSiva'] = number_format($articulo['pvpSiva'],2);
-                        $articulo['stock'] = number_format($articulo['stock'],3);
+                        $articulo['stockOn'] = number_format($articulo['stockOn'],3);
 
 
                         // Comparamos producto con articulo.
                        
 
                         $p = array ('idArticulo' => $articulo['idArticulo'],
-                                    'articulo_name' => $producto['NOMBRE'],
+                                    'articulo_name' => trim($producto['NOMBRE']),
                                     'pvpCiva'    => number_format($producto['PVP'],2),
                                     'pvpSiva'   => number_format($producto['PVENTA'],2),
-                                    'stock'         => $producto['STOCK']
+                                    'stockOn'         => $producto['STOCK']
                                     );
                         if ($p === $articulo){
                             $estado = 'igual';
                         } else {
                             error_log('Linea:'.$producto['CODIGO'].' =>'.json_encode($articulo));
                             error_log(json_encode($p));
+                            $respuesta = $this->cambioArticulo($p,$idArticulo);
                         }
                     } else {
                         error_log('============ Se optuvo mas de un producto con ese codigo ');
