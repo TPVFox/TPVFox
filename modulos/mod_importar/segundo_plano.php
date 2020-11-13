@@ -18,27 +18,30 @@ $campos_sindatos = array ( 'VACIOS'    => 'None',
                         'FECHA_UL'  => 'None'
                     );
 // Registrar en error_log
-$registro_error = array('nulo'  => 'Si', // Los codigos nulos
-                        'error' => 'Si', // Los codigos errores
+$registro_error = array('nulo'  => 'Si', // Mostramos codigos nulos, si tenmos un campo Nulo ,sino no habría.
+                        'error' => 'Si', // Mostramos codigos errores
                         'sql'   => 'No'  // Sql generamos que produce error
                         );
-//~ $fichero = '/home/ricardo/vmfiles/ficheros_dbf/ARTICULO.dbf'; // Ruta del fichero dbf
 
 //  ========   Fin de configuracion  ================= //
-$resultado = array();
-error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
-$instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i 14000 -e '.$datos_registro['Registros_originales'];
-exec($instruccion, $output,$entero);
-// Recuerda que $output es un array de todas las lineas obtenidad en .py
-	// tambien recuerad que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py
-	if ($entero === 0) {
-		//$resultado['campos'] = $campos;
-		$resultado['Estado'] = 'Correcto';
-		// pasamos array asociativo.
+
+
+//  =======   Inicio  importacion    ================= //
+// Compruebo si el estado del ultimo registro esta Creado , sino no hacemos nada...
+if ($datos_registro['estado'] === 'Creado'){
+    error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
+    // En DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
+    $registro_inicial = 15500;
+    $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i '.$registro_inicial.' -e '.$datos_registro['Registros_originales'];
+    exec($instruccion, $output,$entero);
+    // Recuerda que $output es un array de todas las lineas obtenidad en .py
+    // tambien recuerda que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py
+    if ($entero === 0) {
+        // pasamos array asociativo.
         $i=1;// Lineas
         $nulos = 0;
         $errores = 0;
-		foreach ($output as $linea) {
+        foreach ($output as $linea) {
             $l= json_decode($linea,true);
             $l['LINEA'] = $i;
             // Analizamos los campos:
@@ -67,7 +70,7 @@ exec($instruccion, $output,$entero);
                     }
                     if ($registro_error['sql'] === 'Si'){
                         // Volvemos ejecutar insertar para obtener el sql.
-                        $sql= $importarDbf->insertarDbf('ARTICULO',$l,'Sql');
+                        $sql= $importarDbf->insertarDbf('modulo_importar_ARTICULO',$l,'Sql');
                         error_log('SQL:'.$sql);
                         error_log('Contiene la linea:'.$linea);
                     }
@@ -80,12 +83,10 @@ exec($instruccion, $output,$entero);
             }
             $i++;
         }
-	} else {
-		$resultado['Estado'] = 'Error-obtener ';
-		$resultado['Errores'] = $output;
+    } else {
         error_log('============= Error  1.0 al obtener datos - PARAMOS PROCESO segundo_plano ===============');
         exit();
-	}
+    }
     // Ahora registramos nulos y errores
     $e = $importarDbf->anhadirNulosErrores($datos_registro['id'],$nulos,$errores);
     if ($e === false ){
@@ -100,9 +101,17 @@ exec($instruccion, $output,$entero);
     if ($e === false ){
         // Hubo un error al cambiar el estado, por lo que no podemos continuar.
         error_log('Hubo un error:'.json_encode($importarDbf->getFallo()));
-        error_log('===========  NO CONTINUAMOS POR ERROR 1.2 EN segundo_plano ============'.json_encode($importarDbf->getFallo()));
+        error_log('ERROR 1.2 EN segundo_plano  al cambiar estado a Importado :'.json_encode($importarDbf->getFallo()));
         exit();
+    } else {
+        // Cambiamos estado variable para continue fusionando, sino no entra.
+        $datos_registro['estado'] ='Importado';
     }
+}
+//  =======   Fin  importacion    ================= //
+
+//  =======     Inicio Fusion     ================= //
+if ($datos_registro['estado'] === 'Importado'){
     error_log('==========================   Empezamos la fusion =====================');
     $codigos_principales = $importarDbf->leerTodos_mod_articulo();
 
@@ -112,12 +121,27 @@ exec($instruccion, $output,$entero);
         error_log('===========  NO CONTINUAMOS POR ERROR 1.3 EN segundo_plano ============'.json_encode($importarDbf->getFallo()));
         exit();
     }
+    // Contamos cuantos productos vamos analizar.
+    error_log('=== Añalizamos '.count($codigos_principales).' productos, si son nuevos,actualizado... ===');
     foreach ($codigos_principales as $producto){
         $estado = $importarDbf->ControllerNewUpdate($producto);
-        //~ error_log('CODIGO:'.$producto['CODIGO'].' es '.$estado);
+        $cambioEstadoImport = $importarDbf->cambioEstadoImportado($producto['CODIGO'],$estado);
+        if ($cambioEstadoImport === false){
+            // Hubo un error al cambiar el estado en tabla importada, no bloqueo el continuar ya que no tiene sentido.
+            $sql = $importarDbf->getFallo();
+            error_log(' ERROR 1.4 EN segundo_plano en codigo:'.$producto['CODIGO'].'consulta:'.$sql['consulta']);
+        }
     }
-    //~ error_log(json_encode($codigos_principales));
-    
+    $e = $importarDbf->CambioEstado($datos_registro['id'],'Fusionado');
+    if ($e === false ){
+        // Hubo un error al cambiar el estado, por lo que no podemos continuar.
+        error_log('Hubo un error:'.json_encode($importarDbf->getFallo()));
+        error_log('ERROR 1.5 EN segundo_plano  al cambiar estado a fusionado :'.json_encode($importarDbf->getFallo()));
+        exit();
+    }
+}
+    error_log('===============   Terminamos '.date("Y-m-d H:i:s").' ======= ');
+
     
 
     

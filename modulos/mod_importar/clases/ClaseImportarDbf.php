@@ -70,12 +70,11 @@ Class ImportarDbf extends TFModelo {
             }
             // Ahora añadimos el campo id_Tpvfox para poder luego fusionarlos.
             $strCampos[] = 'id_tpvfox int(11)';
-            $strCampos[] = 'estado_tpvfox varchar(8)';
+            $strCampos[] = 'estado_tpvfox varchar(11)';
 
             $this->campos =$respuesta['datos'];
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
-            error_log($sql);
             $respuesta = parent::consultaDML($sql);
         }
         return $respuesta;
@@ -187,6 +186,9 @@ Class ImportarDbf extends TFModelo {
     }
 
     public function cambioEstado($id,$estado){
+        // @ Objetivo :
+        // Cambiar el estado de la tabla de importar registro
+        // Los posibles estado : 'Creado','Importado' y 'Fusionado'
         parent::setTabla('modulo_importar_registro');
         $estado = 'estado ="'.$estado.'"';
         $condicion = 'id ="'.$id.'"';
@@ -195,10 +197,30 @@ Class ImportarDbf extends TFModelo {
 
     }
 
-    public function cambioArticulo($producto,$id){
-        // Modificamos datos tabla
+    public function cambioEstadoImportado($codigo_principal,$estado){
+        parent::setTabla('modulo_importar_ARTICULO');
+        $estado = 'estado_tpvfox="'.$estado.'"';
+        $condicion = 'CODIGO ="'.$codigo_principal.'"';
+        $respuesta = parent::update($estado, $condicion) ;
+        return $respuesta;
+
+    }
+
+    public function actualizarArticuloTpvfox($producto,$id){
+        // @Objetivo:
+        // Modificamos datos de articulos de las tablas:
+        //          articulos
+        //          articulosPrecios
+        //          articulosStocks
+        // @Parametros:
+        // $producto -> Los datos productos nuevos de dbf , los que vamos poner en tpvfox.
+        // $id -> El id de Articulo a cambiar.
+        
         parent::setTabla('articulos');
-        $campos = array('articulo_name' => $producto['articulo_name'],'fecha_modificado' => date("Y-m-d H:i:s"));
+        $campos = array('articulo_name' => $producto['articulo_name']
+                        ,'fecha_modificado' => date("Y-m-d H:i:s")
+                        ,'estado' => 'actualizado'
+                        );
         $condicion = 'idArticulo ="'.$id.'"';
         $respuesta = parent::update($campos, $condicion) ;
         if ($respuesta !== false) {
@@ -217,7 +239,7 @@ Class ImportarDbf extends TFModelo {
         }
 
         if ($respuesta === false){
-            error_log( 'Hubo un error en metodo cambioArticulo');
+            error_log( 'Hubo un error en metodo actualizarArticuloTpvfox');
         }
         
         return $respuesta;
@@ -241,7 +263,7 @@ Class ImportarDbf extends TFModelo {
         // @ Objetivo:
         // Obtener todo los registros con un limite y desde.
         $tabla ='modulo_importar_ARTICULO';
-        $condiciones ='id_tpvfox IS NULL';
+        $condiciones ='estado_tpvfox IS NULL';
         $columnas = array('CODIGO','NOMBRE','STOCK','CODE_BAR','PCOSTE','PVENTA','PVP','BENEFICIO','IVA' );
         // Creo defecto para variables que necesita metodo _leer
         $limit = 0;
@@ -266,12 +288,18 @@ Class ImportarDbf extends TFModelo {
         // Los posibles estado del registro mod_articulo son (error,nuevo,actualizado,igual,null)
         // Obtenemos idArticulo si existe con ese Codigo.
         $A = $this->consultaExiste($producto['CODIGO']);
+        $p = array ('articulo_name' => trim($producto['NOMBRE']),
+                    'pvpCiva'       => number_format($producto['PVP'],2),
+                    'pvpSiva'       => number_format($producto['PVENTA'],2),
+                    'stockOn'       => $producto['STOCK']
+                    );
         if (isset($A['datos'])){
             // Existe articulos con ese CODIGO
             if (count($A['datos']) === 1){
-                $estado = 'actualizado';
+                $estado = 'error';
                 // Obtenemos idArticulo para poder comprobar si cambio algo.
                 $idArticulo = $A['datos'][0]['idArticulo'];
+                $p['idArticulo'] =  $idArticulo;
                 // Obtenemos datos de Articulo de tpvfox:
                 $Sql = 'SELECT'
                 .' a.idArticulo,a.articulo_name, prec.pvpCiva, pvpSiva,  s.stockOn '
@@ -284,45 +312,67 @@ Class ImportarDbf extends TFModelo {
                 if (isset($consulta['datos'])){
                     // Fue correcta la consulta y montamos el array de Articulo
                     if ( count($consulta['datos']) === 1){
+                        $estado = 'actualizado';
                         $articulo = $consulta['datos'][0];
                         // Ahora cambio formato de numero para coincida.
                         $articulo['pvpCiva'] = number_format($articulo['pvpCiva'],2);
                         $articulo['pvpSiva'] = number_format($articulo['pvpSiva'],2);
                         $articulo['stockOn'] = number_format($articulo['stockOn'],3);
-
-
                         // Comparamos producto con articulo.
-                       
-
-                        $p = array ('idArticulo' => $articulo['idArticulo'],
-                                    'articulo_name' => trim($producto['NOMBRE']),
-                                    'pvpCiva'    => number_format($producto['PVP'],2),
-                                    'pvpSiva'   => number_format($producto['PVENTA'],2),
-                                    'stockOn'         => $producto['STOCK']
-                                    );
                         if ($p === $articulo){
                             $estado = 'igual';
                         } else {
-                            error_log('Linea:'.$producto['CODIGO'].' =>'.json_encode($articulo));
-                            error_log(json_encode($p));
-                            $respuesta = $this->cambioArticulo($p,$idArticulo);
+                            // Hay que hacer update ya que no estan iguales: Actualizado
+                            $respuesta = $this->actualizarArticuloTpvfox($p,$idArticulo);
+                            if ($respuesta ===false){
+                                // Algo fallo a la hora update.
+                                error_log('Error en actualizacion:'.json_encode(parent::getFallo()));
+                                $estado = 'error'; // Ya que lo había cambiado antes.
+                            }
                         }
                     } else {
-                        error_log('============ Se optuvo mas de un producto con ese codigo ');
-
+                        error_log('============ Se obtuvo mas de un producto con ese codigo en tpvfox ');
+                        // Aquí realmente no es un error de consulta por lo que metodo getFallo no funcionaria.. por lo auq e
                     }
                 } else {
                     error_log('=================Error en consulta :'.$consulta['datos']);
-                    $estado = 'error';
                 }
             } else {
                 // Quiere decir que hay mas de un producto o 0 con ese CODIGO,  marcamos error.
                 error_log( ' El CODIGO:'.$producto['CODIGO'].' se encontraron '.count($A['datos']).' no voy comprobar nada, lo marco estado ERROR');
-                $estado = 'error';
             }
         } else {
             // No existe articulos con ese CODIGO, por lo que es NUEVO
             $estado = 'nuevo';
+            // Ahora añadimos a $p los campos que necesitamos para cuando es nuevo.
+            $p['crefTienda']    = $producto['CODIGO'];
+            $p['codBarras']     = $producto['CODE_BAR'];
+            $p['iva']           = $producto['IVA'];
+            $p['beneficio']     = $producto['BENEFICIO'];
+            $p['ultimoCoste']   = $producto['PCOSTE'];
+            $p['costepromedio'] = $producto['PCOSTE'];
+            $p['tipo']          = 'unidad';
+            $p['fecha_creado']  = date("Y-m-d H:i:s");
+            // Ahora comprobamos datos necesarios para permitir crear uno NUEVO.
+            $error = array();
+            if (trim($p['articulo_name']) ===''){
+                $error[] = 'No tiene datos en articulo_name';
+            }
+            if (abs($p['pvpSiva']) == 0){
+                $error[] = 'No tiene precio sin iva';
+            }
+            if (abs($p['pvpCiva']) == 0){
+                $error[] = 'No tiene precio con iva';
+            }
+            // Faltaría comprobar el iva... tambien....
+            if (count($error) === 0){
+                $iN = $this->insertarNuevo($p);
+            } else {
+                // Hubo algun error, por lo que no creamos y ponemos como error.
+                $estado = 'error';
+                error_log('Hubo un error al comprobar un producto nuevo antes de crear:'. implode(',',$error));
+            }
+            
         }
 
         return $estado;
@@ -338,10 +388,92 @@ Class ImportarDbf extends TFModelo {
 
     
 
-    public function insertarNuevo($datos){
-
-
-
+    public function insertarNuevo($producto){
+        /* @ Objetivo :
+         *   Añadir un producto nuevo a tpvfox con los datos que importamos.
+         *   el estado del producto 'importado'
+         *   El insert se tiene hacer en varias tablas (articulos,articulosTiendas,articulosCodigoBarras,articulosPrecios,articulosStocks)
+         * @ Devolvemos:
+         *   $respuesta = array ( idArticulo = El id articulo que acabamos de crear.
+         *                        tablas_afectadas = (int) Cantidad de tablas que se añadio correctamente.
+         *                        error = (string) o null , con el error si se produce.
+         *                      )
+         * */
+        $respuesta = array();
+        // Insertamos primero tabla articulos y obtenemos idArticulo Nuevo.
+        // tengo que montar $datos con los campos queremos para esa tabla.
+        $datos = array ( 'articulo_name'=> $producto['articulo_name'],
+                         'iva'          => $producto['iva'],
+                         'ultimoCoste'  => $producto['ultimoCoste'],
+                         'costepromedio'=> $producto['costepromedio'],
+                         'fecha_creado' => date("Y-m-d H:i:s"),
+                         'tipo'         => 'unidad',
+                         'beneficio'    => $producto['beneficio'],
+                         'estado'       => 'importado'
+                        );
+        parent::setTabla('articulos');
+        $id = parent::insert($datos);
+        if (gettype($id) === 'boolean'){
+            // Hubo un error al añadir el producto a articulos.
+            $respuesta['error']='Al añadir codigo:'.$producto['CODIGO'].' en tabla articulos:---> ERROR:'.$this->getError();
+        } else  {
+            $respuesta['tablas_afectadas'] = 1;
+            $respuesta['idArticulo'] = $id;
+            // Ahora añadimos tabla articulosCodigoBarras, pero antes montamos datos.
+            $datos = array ( 'idArticulo'   => $respuesta['idArticulo'],
+                             'codBarras'    => $productos['codBarras']
+                            );
+            parent::setTabla('articulosCodigoBarras');
+            $id = parent::insert($datos);
+            if (gettype($id) === 'boolean'){
+                // Hubo un error al añadir el producto a articulosCodigoBarras.
+                $respuesta['error']='Al añadir codigo:'.$producto['CODIGO'].' en tabla articulosCodigoBarras:---> ERROR:'.$this->getError();
+            } else  {
+                $respuesta['tablas_afectadas'] = 2;
+                // Ahora añadimos tabla articulosPrecios, pero antes montamos datos.
+                $datos = array ( 'idArticulo'   => $respuesta['idArticulo'],
+                                 'pvpCiva'    => $productos['pvpCiva'],
+                                 'pvpSiva'    => $productos['pvpSiva'],
+                                 'idTienda'    => 1
+                                );
+                parent::setTabla('articulosPrecios');
+                $id = parent::insert($datos);
+                if (gettype($id) === 'boolean'){
+                    // Hubo un error al añadir el producto a articulos.
+                    $respuesta['error']='Al añadir codigo:'.$producto['CODIGO'].' en tabla articulosPrecios:---> ERROR:'.$this->getError();
+                } else  {
+                    $respuesta['tablas_afectadas'] = 3;
+                    // Ahora añadimos tabla articulosTiendas, pero antes montamos datos.
+                    $datos = array ( 'idArticulo'   => $respuesta['idArticulo'],
+                                     'crefTienda'    => $productos['crefTienda'],
+                                     'estado'    => 'importado',
+                                     'idTienda'    => 1
+                                    );
+                    parent::setTabla('articulosTiendas');
+                    $id = parent::insert($datos);
+                    if (gettype($id) === 'boolean'){
+                        // Hubo un error al añadir el producto a articulos.
+                        $respuesta['error']='Al añadir codigo:'.$producto['CODIGO'].' en tabla articulosTiendas:---> ERROR:'.$this->getError();
+                    } else  {
+                        $respuesta['tablas_afectadas'] = 4;
+                        // Ahora añadimos tabla articulosStocks, pero antes montamos datos.
+                        $datos = array ( 'idArticulo'       => $respuesta['idArticulo'],
+                                         'stockOn'          => $productos['stockOn'],
+                                         'idTienda'         => 1,
+                                         'fecha_modificado' => date("Y-m-d H:i:s")
+                                        );
+                        parent::setTabla('articulosStocks');
+                        $id = parent::insert($datos);
+                        if (gettype($id) === 'boolean'){
+                            // Hubo un error al añadir el producto a articulos.
+                            $respuesta['error']='Al añadir codigo:'.$producto['CODIGO'].' en tabla articulosStocks:---> ERROR:'.$this->getError();
+                        } else  {
+                            $respuesta['tablas_afectadas'] = 5;
+                        }
+                    }
+                }
+            }
+        }      
     }
 
 }

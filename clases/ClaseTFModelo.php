@@ -14,7 +14,7 @@ require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
 class TFModelo extends ModeloP {
 
     protected $tabla; // La tabla tenemos asignarla con setTabla
-    protected $fallo = ['descripcion' => 0, 'consulta' => '', 'time' => '']; // error = 0 que no hubo.
+    protected $fallo = ['descripcion' => 0, 'consulta' => '', 'time_error' => '']; // error = 0 que no hubo.
 
 
     protected function consulta($sql) {
@@ -62,7 +62,7 @@ class TFModelo extends ModeloP {
                     . ' SET '. $insertString;
         
         if ($soloSQL) {
-            $respuesta = true;
+            $respuesta = $sql;
         } else {
             $respuesta = self::consultaDML($sql);
         }
@@ -89,7 +89,7 @@ class TFModelo extends ModeloP {
                 . ' WHERE ' . $updateWhere;
 
         if ($soloSQL) {
-            $respuesta = true;
+            $respuesta = $sql;
         } else {
             $respuesta = self::consultaDML($sql);
         }
@@ -105,7 +105,7 @@ class TFModelo extends ModeloP {
     protected function setFallo($sql, $code) {
         $this->fallo['consulta'] = $sql;
         $this->fallo['descripcion'] = $code;
-        $this->fallo['time'] = time();
+        $this->fallo['time_error'] = time();
 
     }
 
