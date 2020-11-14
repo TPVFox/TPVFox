@@ -263,6 +263,7 @@ Class ImportarDbf extends TFModelo {
         // @ Objetivo:
         // Obtener todo los registros con un limite y desde.
         $tabla ='modulo_importar_ARTICULO';
+        // La primera condicion es filtrar los registros que no se procesaron, ya que este proceso puede ser recurrente.
         $condiciones ='estado_tpvfox IS NULL';
         $columnas = array('CODIGO','NOMBRE','STOCK','CODE_BAR','PCOSTE','PVENTA','PVP','BENEFICIO','IVA' );
         // Creo defecto para variables que necesita metodo _leer
@@ -274,7 +275,7 @@ Class ImportarDbf extends TFModelo {
                 $join, $limit, $offset);
     }
 
-    public function ControllerNewUpdate($producto){
+    public function ControllerNewUpdate($producto,$reg_log_dif ='No'){
         //@Objetivo:
         // Es el controlador para :
         // Consultamos si existe (consultaExiste) y
@@ -284,13 +285,14 @@ Class ImportarDbf extends TFModelo {
         //@Parametros:
         //  $producto : Array con los campos necesarios para crear o actualizar un articulo en tpvfox campos:
         //              'CODIGO','NOMBRE','STOCK','CODE_BAR','PCOSTE','PVENTA','PVP','BENEFICIO','IVA'
+        //  $ref_log_dif : Si o No , null.. si queremos mostrar los array de la comparacion.
         $estado ='';
-        // Los posibles estado del registro mod_articulo son (error,nuevo,actualizado,igual,null)
+        // Los posibles estado del registro mod_articulo son (error,nuevo,actualizado,igual,filtrado,null)
         // Obtenemos idArticulo si existe con ese Codigo.
         $A = $this->consultaExiste($producto['CODIGO']);
         $p = array ('articulo_name' => trim($producto['NOMBRE']),
                     'pvpCiva'       => number_format($producto['PVP'],2),
-                    'pvpSiva'       => number_format($producto['PVENTA'],2),
+                    'pvpSiva'       => number_format($producto['PVENTA'],2),// para comparar...
                     'stockOn'       => $producto['STOCK']
                     );
         if (isset($A['datos'])){
@@ -316,13 +318,19 @@ Class ImportarDbf extends TFModelo {
                         $articulo = $consulta['datos'][0];
                         // Ahora cambio formato de numero para coincida.
                         $articulo['pvpCiva'] = number_format($articulo['pvpCiva'],2);
-                        $articulo['pvpSiva'] = number_format($articulo['pvpSiva'],2);
+                        $articulo['pvpSiva'] = number_format($articulo['pvpSiva'],2); // para comparar...
                         $articulo['stockOn'] = number_format($articulo['stockOn'],3);
+                        if ($reg_log_dif === 'Si'){
+                            // Registramos error_log la comparacion.
+                            error_log('Producto:'.json_encode($p));
+                            error_log('Articulo tpvfox:'.json_encode($articulo));
+                        }
                         // Comparamos producto con articulo.
                         if ($p === $articulo){
                             $estado = 'igual';
                         } else {
                             // Hay que hacer update ya que no estan iguales: Actualizado
+                            $p['pvpSiva'] = number_format($producto['PVENTA'],4); // Para meter costes en milesima centimos.
                             $respuesta = $this->actualizarArticuloTpvfox($p,$idArticulo);
                             if ($respuesta ===false){
                                 // Algo fallo a la hora update.
@@ -370,7 +378,7 @@ Class ImportarDbf extends TFModelo {
             } else {
                 // Hubo algun error, por lo que no creamos y ponemos como error.
                 $estado = 'error';
-                error_log('Hubo un error al comprobar un producto nuevo antes de crear:'. implode(',',$error));
+                error_log('Hubo un error al comprobar un producto nuevo con el CODIGO: '.$producto['CODIGO'].'       ERRORES:'. implode(',',$error));
             }
             
         }

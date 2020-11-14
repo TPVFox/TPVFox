@@ -8,20 +8,32 @@ $dir_subida = $thisTpv->getRutaUpload();
 $fichero = $dir_subida.'/'.$datos_registro['name'];
 
 // ========= Configuracion particular =============== //
-/* La configuracion deberíamos obtenerla y el usuario debría poder configurarla.*/
-// Campo delete es array donde indicamos campo_nulo aquel que indica que esa linea no se añade y el valor que tienes tener para no  añadirlo
-$campo_delete = array ( 'nombre_campo' => 'NULO',
-                      'valor' => ''); // Valor que quieres que NO exporte a Mysql.
+/* La configuracion deberíamos obtenerla y el usuario debería poder configurarla.*/
+// Filtros es un array donde tendremos:
+//          importar -> array ( nombre_campo,valor) donde nos indicar si queremos que lo importemos o no a Msyql.
+//          fusionar -> array ( nombre_campo,valor,accion) donde nos va indicar que si queremos actualizar o crear ese registro.
+
+//En filtros sin valor tanto en importar como fusionar no filtra nada.
+$filtros = array ('importar' => array ( 'nombre_campo' => 'NULO',
+                                           'valor' => '' // Nos indica cuales NO quieres importar a Mysql. 
+                                        ),
+                'fusionar' => array ( 'nombre_campo' => 'NULO',
+                                      'valor' => '', // Nos indica cuales NO quieres actualizar,crear o ambas.
+                                      'accion' => 'actualizar' // (actualizar,crear,ambas) valores que podemos tener.
+                                        );
 $campo_principal = 'CODIGO'; // El nombre del campo que debe ser unico y referencia de cruce
 // Campos que no añadimos a SQL si tiene valor indicado.
 $campos_sindatos = array ( 'VACIOS'    => 'None',
                         'FECHA_UL'  => 'None'
                     );
 // Registrar en error_log
-$registro_error = array('nulo'  => 'Si', // Mostramos codigos nulos, si tenmos un campo Nulo ,sino no habría.
-                        'error' => 'Si', // Mostramos codigos errores
-                        'sql'   => 'No'  // Sql generamos que produce error
-                        );
+$reg_log = array( 'importar' => array('nulo'  => 'Si', // Mostramos codigos nulos, si tenmos un campo Nulo ,sino no habra
+                                    'error' => 'Si', // Mostramos codigos errores
+                                    'sql'   => 'No'  // Sql generamos que produce error
+                                     ),
+                 'fusionar' => array ('Codigo_y_estado' =>'Si', // Mostramos CODIGO y estados dos array 
+                                      'diferencia_array' => 'Si' // Muestra los arrays de tabla modulo_importar_articulo y tpvfox
+                                    );
 
 //  ========   Fin de configuracion  ================= //
 
@@ -31,7 +43,7 @@ $registro_error = array('nulo'  => 'Si', // Mostramos codigos nulos, si tenmos u
 if ($datos_registro['estado'] === 'Creado'){
     error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
     // En DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
-    $registro_inicial = 15500;
+    $registro_inicial = 15000;
     $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i '.$registro_inicial.' -e '.$datos_registro['Registros_originales'];
     exec($instruccion, $output,$entero);
     // Recuerda que $output es un array de todas las lineas obtenidad en .py
@@ -45,8 +57,8 @@ if ($datos_registro['estado'] === 'Creado'){
             $l= json_decode($linea,true);
             $l['LINEA'] = $i;
             // Analizamos los campos:
-            $delete = $campo_delete['nombre_campo'];
-            if ($l[$delete] !== $campo_delete['valor']){
+            $delete = $filtros['importar']['nombre_campo'];
+            if ($l[$delete] !== $filtros['importar']['valor']){
                 if ($l['NULO'] === 'True'){
                     $l['NULO'] = 1;
                 } else {
@@ -65,10 +77,10 @@ if ($datos_registro['estado'] === 'Creado'){
                 $r = $importarDbf->insertarDbf('modulo_importar_ARTICULO',$l);
                 if (gettype($r) === 'boolean'){
                     $errores++;
-                    if ($registro_error['error'] === 'Si'){
+                    if ($reg_log['importar']['error'] === 'Si'){
                         error_log('Error linea:'.$i.' Campo Principal:'.$l[$campo_principal].':'.$importarDbf->getError());
                     }
-                    if ($registro_error['sql'] === 'Si'){
+                    if ($reg_log['importar']['sql'] === 'Si'){
                         // Volvemos ejecutar insertar para obtener el sql.
                         $sql= $importarDbf->insertarDbf('modulo_importar_ARTICULO',$l,'Sql');
                         error_log('SQL:'.$sql);
@@ -77,7 +89,7 @@ if ($datos_registro['estado'] === 'Creado'){
                 }
             } else {
                 $nulos++;
-                if ($registro_error['nulo'] ==='Si'){
+                if ($reg_log['importar']['nulo'] ==='Si'){
                     error_log('Nulo linea:'.$i.' Campo Principal:'.$l[$campo_principal]);
                 }
             }
@@ -122,15 +134,34 @@ if ($datos_registro['estado'] === 'Importado'){
         exit();
     }
     // Contamos cuantos productos vamos analizar.
-    error_log('=== Añalizamos '.count($codigos_principales).' productos, si son nuevos,actualizado... ===');
+    error_log('Añalizamos '.count($codigos_principales).' productos, si son nuevos,actualizado... ===');
+    
     foreach ($codigos_principales as $producto){
-        $estado = $importarDbf->ControllerNewUpdate($producto);
+        $estado =''; // Estados posibles de registros modulo_importar_ARTICULO son:(error,nuevo,actualizado,igual,filtrado,null)
+        // Comprobamos si tenemos filtrar o no este registro.
+        if ($filtros['fusionar']['valor'] !==''){
+            $f_fusionar = $filtros['fusionar'];
+            if ($f_fusionar['accion'] === 'ambos'){
+                $campo = $f_fusionar['nombre_campo'];
+                if ($producto[$campo]=== $f_fusionar['valor']){
+                    $estado = 'filtrado'; // Si entra, este registro ya no vamos comprobar nada.
+                }
+            }
+        }
+        // Actualizamos o nuevo, dejamos igual.
+        if ($estado === ''){
+            $estado = $importarDbf->ControllerNewUpdate($producto,$reg_log['fusionar']['diferencia_array']);
+        }
+        if ($reg_log['fusionar']['Codigo_y_estado'] === 'Si'){
+            error_log('codigo:'.$producto['CODIGO'].' estado:'.$estado);
+        }
         $cambioEstadoImport = $importarDbf->cambioEstadoImportado($producto['CODIGO'],$estado);
         if ($cambioEstadoImport === false){
             // Hubo un error al cambiar el estado en tabla importada, no bloqueo el continuar ya que no tiene sentido.
             $sql = $importarDbf->getFallo();
             error_log(' ERROR 1.4 EN segundo_plano en codigo:'.$producto['CODIGO'].'consulta:'.$sql['consulta']);
         }
+        
     }
     $e = $importarDbf->CambioEstado($datos_registro['id'],'Fusionado');
     if ($e === false ){
