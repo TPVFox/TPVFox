@@ -504,15 +504,14 @@ Class ImportarDbf extends TFModelo {
         $conf = $this->configImportar;
         $respuesta = '';
         $filtros = $conf->filtros;
-        if ($filtros['fusionar']['valor'] !==''){
-            $f_fusionar = $filtros['fusionar'];
-            if ($f_fusionar['accion'] === $accion){
-                $campo = $f_fusionar['nombre_campo'];
-                if ($registro[$campo]=== $f_fusionar['valor']){
-                    $respuesta = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
-                }
-            }
-        }
+        $valor = $filtros['fusionar'][$accion]['valor'];
+        if ( $valor !==''){
+		$campo = $filtros['fusionar'][$accion]['nombre_campo'];
+			if ($registro[$campo]=== $valor){
+				$respuesta = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
+			}
+		}
+        
         return $respuesta;
 
 

@@ -13,14 +13,17 @@ Class ConfigImportar {
     public $filtros = array ('importar' => array ( 'nombre_campo' => 'NULO',
                                                'valor' => '' // Nos indica cuales NO quieres importar a Mysql. 
                                         ),
-                            'fusionar' => array ( 'nombre_campo' => 'NULO',
-                                                  'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
-                                                  'accion' => 'actualizar' // (actualizar,crear,ambas) valores que podemos tener.
-                                                ),
-                                          array ( 'nombre_campo' => 'NULO',
-                                                  'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
-                                                  'accion' => 'crear' // (actualizar,crear,ambas) valores que podemos tener.
-                                                )
+                            'fusionar' => array(
+												'actualizar' =>array ( 'nombre_campo' => 'NULO',
+															'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
+														),
+												'crear' => 	array ( 'nombre_campo' => 'NULO',
+															'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
+														),
+												'ambos' =>array ( 'nombre_campo' => 'NULO',
+															'valor' => '', // Nos indica cuales NO quieres actualizar,crear o ambas.
+														),
+											)
                             );
     // Campos que no añadimos a SQL si tiene valor indicado.
     public $campos_sindatos = array ( 'VACIOS'    => 'None',
