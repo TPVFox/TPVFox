@@ -1,4 +1,5 @@
-
+ALTER TABLE `articulosStocks` CHANGE `stockMax` `stockMax` DECIMAL(17,6) NULL DEFAULT NULL;
+ALTER TABLE `articulosStocks` CHANGE `stockMin` `stockMin` DECIMAL(17,6) NULL DEFAULT NULL;
 --
 -- Estructura de tabla para la tabla `modulo_importar_registro`
 --

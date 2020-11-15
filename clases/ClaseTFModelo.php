@@ -33,8 +33,14 @@ class TFModelo extends ModeloP {
     }
 
     protected function consultaDML($sql) {
-        // Las consultas SQL de tipo DML son las que permiten visualizar y modificar los datos de las tablas (INSERT, UPDATE, DELETE)
-        // No incluyo los select
+        // @ Objetivo:
+        // Hacer consultas SQL de tipo DML son las que permiten visualizar y modificar los datos de las tablas (INSERT, UPDATE, DELETE)
+        // sin incluir los select
+        // @ Parametro:
+        // $sql = La consulta.
+        // @ Devolvemos:
+        // $ respuesta  = false si hubo error, que podemos recuperar con $this->getFallo.
+        //               array() con affected_rows y insert_id
         $db = parent::getDbo();
 
         $smt = $db->query($sql);
@@ -46,8 +52,9 @@ class TFModelo extends ModeloP {
             $respuesta = false; // Devolvemos falso.
 
         } else {
-            $respuesta =$db->affected_rows; // devolvemos cuantos fueron afectados
-
+            $respuesta = array();
+            $respuesta['affected_rows']  =$db->affected_rows; // devolvemos cuantos fueron afectados
+            $respuesta['insert_id'] =$db->insert_id;
         }
         
         return $respuesta;
@@ -64,12 +71,14 @@ class TFModelo extends ModeloP {
         if ($soloSQL) {
             $respuesta = $sql;
         } else {
-            $respuesta = self::consultaDML($sql);
+            $r = self::consultaDML($sql);
+            if ($r !== false){
+                $respuesta = $r['insert_id'];
+            }
         }
         return $respuesta;
     }
-    // Paso directamente MODELOP en los siguiente metodo.
-    // Poco a poco eliminare MODELOP
+
 
     protected function update($datos, $condicion, $soloSQL = false) {
         // @Objetivo
@@ -91,7 +100,10 @@ class TFModelo extends ModeloP {
         if ($soloSQL) {
             $respuesta = $sql;
         } else {
-            $respuesta = self::consultaDML($sql);
+            $r = self::consultaDML($sql);
+            if ($r !== false){
+                $respuesta = $r['affected_rows'];
+            }
         }
         return $respuesta;
 
