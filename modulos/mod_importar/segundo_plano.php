@@ -23,7 +23,7 @@ $reg_log = $configImportar->reg_log;
 if ($datos_registro['estado'] === 'Creado'){
     error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
     // En DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
-    $registro_inicial = 1;
+    $registro_inicial = 15000;
     $registro_final = $datos_registro['Registros_originales'];
 
     $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i '.$registro_inicial.' -e '.$registro_final;
@@ -123,16 +123,6 @@ if ($datos_registro['estado'] === 'Importado'){
         $estado =''; // Estados posibles de registros modulo_importar_ARTICULO son:(error,nuevo,actualizado,igual,filtrado,null)
         // Comprobamos si tenemos filtrar este registro.
         $estado = $importarDbf->ComprobarFiltroRegistro($producto,'ambos');
-        
-        //~ if ($filtros['fusionar']['valor'] !==''){
-            //~ $f_fusionar = $filtros['fusionar'];
-            //~ if ($f_fusionar['accion'] === 'ambos'){
-                //~ $campo = $f_fusionar['nombre_campo'];
-                //~ if ($producto[$campo]=== $f_fusionar['valor']){
-                    //~ $estado = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
-                //~ }
-            //~ }
-        //~ }
         // Actualizamos o nuevo, dejamos igual.
         if ($estado === ''){
             $estado = $importarDbf->ControllerNewUpdate($producto);
