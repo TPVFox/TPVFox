@@ -85,6 +85,8 @@ if ($estado === 'Fusionado' || $estado==='Nuevo')
                                         } 
                                     }
                                     $mensajes[] =  $importarDbf->getAvisosHtml(13,'warning',$respuesta['descripcion']);
+                                    $btn_eliminar ='<input onclick="name="ELiminarTabla" value="Borrar tabla" />';
+                                    //DROP TABLE modulo_importar_ARTICULO
                                 }
                                 
                             } else {
@@ -94,6 +96,8 @@ if ($estado === 'Fusionado' || $estado==='Nuevo')
                         } else {
                             // Ya existe el fichero por lo que no movemos ( lo ideal seria generar un numero al final nombre... )
                             $mensajes[] = $importarDbf->getAvisosHtml(2,'danger');
+                            $btn_eliminar ='<input type="submit" name="EliminarFichero" value="Eliminar Fichero" />';
+
                         }
                     } else {
                         // NO existe ruta donde subir.
@@ -142,6 +146,7 @@ if ($estado === 'Fusionado' || $estado==='Nuevo')
             foreach ($mensajes as $mensaje){
                 echo $mensaje;
             }
+        echo $btn_eliminar;
         if ($estado=== 'Creado') {
             $btn =   ' <input type="submit" name="importarBtn" value="Empezar" />'
                     .' <input type="hidden" name="token" value="'.$thisTpv->getTokenUsuario($Usuario).'" />';

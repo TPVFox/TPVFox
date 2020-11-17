@@ -23,7 +23,7 @@ $reg_log = $configImportar->reg_log;
 if ($datos_registro['estado'] === 'Creado'){
     error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= ');
     // En DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
-    $registro_inicial = 15000;
+    $registro_inicial = 10000;
     $registro_final = $datos_registro['Registros_originales'];
 
     $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i '.$registro_inicial.' -e '.$registro_final;
