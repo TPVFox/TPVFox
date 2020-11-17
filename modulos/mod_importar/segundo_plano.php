@@ -156,8 +156,10 @@ if ($datos_registro['estado'] === 'Importado'){
         exit();
     }
 }
-    error_log('Eliminadmos fichero subido:'.$fichero);
-    unlink($fichero);
+    if (file_exists($fichero)) {
+        error_log('Eliminadmos fichero subido:'.$fichero);
+        unlink($fichero);
+    }
     error_log('===============   Terminamos '.date("Y-m-d H:i:s").' ======= ');
 
     
