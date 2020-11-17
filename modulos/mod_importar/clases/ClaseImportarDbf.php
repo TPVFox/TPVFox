@@ -78,6 +78,13 @@ Class ImportarDbf extends TFModelo {
             $strSql = implode(",",$strCampos);
             $sql = 'CREATE TABLE modulo_importar_'.$nombreTabla.' ('.$strSql.')';
             $respuesta = parent::consultaDML($sql);
+            if ($respuesta === false){
+                $respuesta = parent::getFallo();
+            } else {
+                // Su fue correcto obtenemos array (insert_id = 0 ,affected_rows = 0), ya que se creo una tabla.
+                $respuesta = 0;
+
+            }
         }
         return $respuesta;
     }
@@ -134,7 +141,8 @@ Class ImportarDbf extends TFModelo {
                         11 => 'PHP detuvo la subida de ficheros',
                         12 => 'Se creo tabla SQL y registro correctamente el inicio del proceso, con el id:'.$parametro,
                         13 => 'No se pudo crear la tabla ,por nos dio el siguiente error:'.$parametro,
-                        14 => 'Error al registrar el fichero.Error:'.$parametro
+                        14 => 'Error al registrar el fichero.Error:'.$parametro,
+                        15 => 'El ultimos registro de tabla mod_importar_registro su estado NO ESTA FUSIONADO.'
                     );
         
         $html = '<div class="alert alert-'.$tipo.'">'
@@ -326,15 +334,17 @@ Class ImportarDbf extends TFModelo {
                             $articulo['stockOn'] = number_format($articulo['stockOn'],3);
                             $r = $conf->reg_log;
                             $reg_log_dif = $r['fusionar']['diferencia_array'];
-                            if ($reg_log_dif === 'Si'){
-                                // Registramos error_log la comparacion.
-                                error_log('Producto:'.json_encode($p));
-                                error_log('Articulo tpvfox:'.json_encode($articulo));
-                            }
-                            // Comparamos array de producto con articulo,
+                            // Comparamos array de producto con articulo, pero hay que tene en cuenta los campos que indicamos en configuracion.
                             if ( count(array_diff($articulo,$p)) === 0 ){
                                 $estado = 'igual';
                             } else {
+                                if ($reg_log_dif === 'Si'){
+                                    // Registramos error_log la comparacion.
+                                    error_log('Producto:'.json_encode($p));
+                                    error_log('Articulo tpvfox:'.json_encode($articulo));
+                                    $d = array_diff($articulo,$p);
+                                    error_log('Differencia.'.json_encode($d));
+                                }
                                 // Hay que hacer update ya que no estan iguales: Actualizado
                                 $p['pvpSiva'] = number_format($producto['PVENTA'],4); // Para meter costes en milesima centimos.
                                 $respuesta = $this->actualizarArticuloTpvfox($p,$idArticulo);
@@ -497,9 +507,9 @@ Class ImportarDbf extends TFModelo {
     }
 
     public function ComprobarFiltroRegistro($registro,$accion){
-        // @Objetivo:
+        // @ Objetivo:
         // Comprobar si ese regitros se tiene filtrar o no.
-        // @Respuesta:
+        // @ Respuesta:
         //  $respuesta = (string) con 'filtrado' o vacio '';
         $conf = $this->configImportar;
         $respuesta = '';
@@ -511,11 +521,32 @@ Class ImportarDbf extends TFModelo {
 				$respuesta = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
 			}
 		}
-        
         return $respuesta;
+    }
 
+    public function contarRegistrosPorEstado(){
+        // @ Objetivo:
+        // Contar la cantida de registros en modulo_importar_tabla de cada estado.
+        // @ Respuesta :
+        //    Array con los estados que hay y cuantos.
+        parent::setTabla('modulo_importar_ARTICULO');
+        $estados = array( 'error'       => 0,
+                          'nuevo'       => 0,
+                          'actualizado' => 0,
+                          'igual'       => 0,
+                          'filtrado'    => 0 
+                        );
+        foreach ( $estados as $estado => $valor){
+            $sql =  'SELECT count(*) as sum FROM `modulo_importar_ARTICULO` WHERE `estado_tpvfox`="'.$estado.'"';
+            $smt=parent::consulta($sql);
+            $estados[$estado] = $smt['datos'][0]['sum'];
+        }
+        // Ahora buscamos nulos o que no se ninguno de los los anteriores.
+        $sql =  'SELECT count(*) as sum FROM `modulo_importar_ARTICULO` WHERE `estado_tpvfox` is NULL';
+        $smt=parent::consulta($sql);
+        $estados['NULL'] = $smt['datos'][0]['sum'];
 
-
+        return $estados;
 
     }
     

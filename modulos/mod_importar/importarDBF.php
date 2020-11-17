@@ -11,6 +11,15 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     echo '<pre>';
     print_r($estado);
     echo '</pre>';
+     $Num_registros_estado = $importarDbf->contarRegistrosPorEstado();
+     echo '<pre>';
+     echo '=========== Datos Importar =============<br/>';
+     echo 'Registros originales:'.$datos_registro['Registros_originales'].'<br/>';
+     echo 'Registros nulo:'.$datos_registro['nulos'].'<br/>';
+     echo 'Registros errores:'.$datos_registro['errores'].'<br/>';
+     echo '========== Datos fusionar =============<br/>';
+     print_r($Num_registros_estado);
+     echo '</pre>';
 // Ahora compruebo si ya se esta ejecuntado el fichero segundo plano
 $command = 'ps aux | grep "[p]hp.*segundo_plano"';
 exec($command ,$ejecutando); // Compruebo si se esta ejecutando fusionar_eelectronica.php

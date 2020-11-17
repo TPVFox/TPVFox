@@ -162,6 +162,51 @@ class TFModelo extends ModeloP {
         }
         return $stringCondicion;
     }
+
+    public function InfoTabla ($tabla,$tipo_campo = 'si'){
+		// Funcion que nos proporciona informacion de la tabla que le indicamos
+		/* Nos proporciona informacion como nombre tabla, filas, cuando fue creada, ultima actualizacion .. y mas campos interesantes:
+		 * Ejemplo de print_r de virtuemart_products 
+		 * 		[Name] => virtuemart_products  // Normal ya que el prefijo ....
+		 *    	[Rows] => Numero registros  // ESTE ES IMPORTANTE, el que analizamos inicialmente.
+		 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
+		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
+		*/
+        $Bd = parent::getDbo();
+		$fila = array();
+		$consulta = 'SHOW TABLE STATUS WHERE `name`="'.$tabla.'"';
+		$Queryinfo = $Bd->query($consulta);
+		// Hay que tener en cuenta que no produce ningún error... 
+		$Ntablas = $Bd->affected_rows   ;
+		if ($Ntablas == 0) {
+			$fila ['error'] = 'Error tabla no encontrada - '.$tabla;
+		} else {
+			$fila['info'] = $Queryinfo->fetch_assoc();
+		}
+		if (!isset($fila['error'])){
+			$campos = array();
+			$sqlShow = 'SHOW COLUMNS FROM '.$tabla;
+			$fila['consulta_campos'] = $sqlShow;
+			if ($res=$Bd->query($sqlShow)) {
+				while ($dato_campo = $res->fetch_row()) {
+					if ($tipo_campo ==='si'){
+						// Obtenemos nombre campo y tipo de campo.
+						$campos[] = $dato_campo[0].' '.$dato_campo[1];
+					} else {
+						$campos[] = $dato_campo[0];
+					}
+				}
+				$fila['campos'] = $campos;
+			} else{
+				// Si NO existe o no sale mal enviamos un error.
+				$fila['campos'] = $Bd->error;
+			} 
+		}
+		$fila['consulta_info'] = $consulta;
+			
+		return $fila ;
+		
+	}
     
     
 

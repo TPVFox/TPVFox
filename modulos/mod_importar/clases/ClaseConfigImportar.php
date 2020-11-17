@@ -15,7 +15,7 @@ Class ConfigImportar {
                                         ),
                             'fusionar' => array(
 												'actualizar' =>array ( 'nombre_campo' => 'NULO',
-															'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
+															'valor' => '', // Nos indica cuales NO quieres actualizar,crear o ambas.
 														),
 												'crear' => 	array ( 'nombre_campo' => 'NULO',
 															'valor' => '1', // Nos indica cuales NO quieres actualizar,crear o ambas.
@@ -34,8 +34,8 @@ Class ConfigImportar {
                                     'error' => 'Si', // Mostramos codigos errores
                                     'sql'   => 'No'  // Sql generamos que produce error
                                      ),
-                 'fusionar' => array ('Codigo_y_estado' =>'No', // Mostramos CODIGO y estados dos array 
-                                      'diferencia_array' => 'No' // Muestra los arrays de tabla modulo_importar_articulo y tpvfox
+                 'fusionar' => array ('Codigo_y_estado' =>'Si', // Mostramos CODIGO y estados dos array 
+                                      'diferencia_array' => 'Si' // Muestra los arrays de tabla modulo_importar_articulo y tpvfox
                                     )
                 );
 }
