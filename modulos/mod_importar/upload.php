@@ -12,8 +12,8 @@ $btn_eliminar= '';
     $dregistro = $importarDbf->ultimoRegistro();
     $datos_registro =$dregistro['datos'][0];
     $estado = $datos_registro['estado'];
-if ($estado === 'Fusionado')
-{
+//~ if ($estado === 'Fusionado')
+//~ {
     // Entonces continuamos 
     $estado = '';
     if (isset($_POST['uploadBtn']) && $_POST['uploadBtn'] == 'Enviar')
@@ -106,15 +106,15 @@ if ($estado === 'Fusionado')
        // Aquí redireccionamos a index.php vino directamente y no envio nada.
        header("Location: index.php");
     }
-} else {
-    // El ultimo registro no esta fusionado , por lo que puede que se este ejecutando,
-    // no continuamos.
-    if ($estado === 'Importado'){
-        echo '<a href ="importarDBF.php">Continuar</a>';
-    }
-    $mensajes[] = $importarDbf->getAvisosHtml(15,'warning');
+//~ } else {
+    //~ // El ultimo registro no esta fusionado , por lo que puede que se este ejecutando,
+    //~ // no continuamos.
+    //~ if ($estado === 'Importado'){
+        //~ echo '<a href ="importarDBF.php">Continuar</a>';
+    //~ }
+    //~ $mensajes[] = $importarDbf->getAvisosHtml(15,'warning');
 
-}
+//~ }
 ?>
 <!DOCTYPE html>
 <html>
