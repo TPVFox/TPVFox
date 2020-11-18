@@ -88,6 +88,7 @@ if ($datos_registro['estado'] === 'Creado'){
         }
     } else {
         error_log('============= Error  1.0 al obtener datos - PARAMOS PROCESO segundo_plano ==============='." \n\r",3,$fichero_registro);
+        error_log('Instruccion:'.$instruccion);
         exit();
     }
     // Ahora registramos nulos y errores
