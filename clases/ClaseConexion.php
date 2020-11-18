@@ -50,6 +50,11 @@ class ClaseConexion{
         include ($this->ruta_proyecto.'/configuracion.php');
         return $ruta_upload;
     }
+
+    public function getRutaSegura(){
+        include ($this->ruta_proyecto.'/configuracion.php');
+        return $ruta_segura;
+    }
 }
  
 

@@ -15,7 +15,7 @@ $passwordMysql='bd_tpv';
 //Carpeta con los archivos temporales que se generan
 $rutatmp=''; // Ruta relativa desde el servidor.
 $ruta_upload=''; // Ruta absoluta donde guardar los ficheros subidos validos.
-
+$ruta_segura = '': // Ruta absoluta donde queremos tener documentacion segura, por eso tiene que se debajo public.
 // Datos para importacion de DBF ( Para inicializacion )
 
 

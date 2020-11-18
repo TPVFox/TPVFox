@@ -142,7 +142,12 @@ Class ImportarDbf extends TFModelo {
                         12 => 'Se creo tabla SQL y registro correctamente el inicio del proceso, con el id:'.$parametro,
                         13 => 'No se pudo crear la tabla ,por nos dio el siguiente error:'.$parametro,
                         14 => 'Error al registrar el fichero.Error:'.$parametro,
-                        15 => 'El ultimos registro de tabla mod_importar_registro su estado NO ESTA FUSIONADO.'
+                        15 => 'NO SE ESTA EJECUTANDO y el ultimos registro de tabla mod_importar_registro su estado es '.$parametro,
+                        16 => 'Se esta ejecutando SEGUNDO PLANO, POR LO NO TERMINO PROCESAR, su estado es '.$parametro,
+                        17 => 'La Tabla modulos_importar_registro no tienes registros',
+                        18 => 'El tipo fichero subido, no DBF',
+                        19 => 'Error al consultar tabla registro.ERROR:'.$parametro,
+                        20 => 'Existe tabla modulo_importar_ARTICULOS'
                     );
         
         $html = '<div class="alert alert-'.$tipo.'">'
@@ -549,6 +554,78 @@ Class ImportarDbf extends TFModelo {
         return $estados;
 
     }
-    
+
+    public function EliminarTabla(){
+
+        $sql = 'DROP TABLE modulo_importar_ARTICULO';
+        $respuesta = parent::consultaDML($sql);
+        if ($respuesta === false){
+            $respuesta = parent::getFallo();
+        } else {
+            // Su fue correcto obtenemos array (insert_id = 0 ,affected_rows = 0), ya que se creo una tabla.
+            $respuesta = 0;
+
+        }
+        return $respuesta;
+    }
+
+
+    public function comprobarSiEjecutaSegundoplano(){
+        // @ Objetivo:
+        // Compruebo si se esta ejecutando segundo_plano.php
+        // @ Repuesta:
+        // Numero de procesos que hay abiertos con ese nombre.
+        
+        $command = 'ps aux | grep "[p]hp.*segundo_plano"';
+        exec($command ,$ejecutando); 
+        return count($ejecutando);
+
+    }
+
+    public function comprobarSiExisteFichero($fichero){
+        // @ Objetivo:
+        // Compruebo si se esta ejecutando segundo_plano.php
+        // @ Repuesta:
+        // Numero de procesos que hay abiertos con ese nombre.
+        
+
+    }
+
+    public function EliminarRegistroTabla($id){
+        $sql = 'DELETE FROM `modulo_importar_registro` WHERE `id`='.$id;
+        $respuesta = parent::consultaDML($sql);
+        if ($respuesta === false){
+            $respuesta = parent::getFallo();
+        } else {
+            // Su fue correcto obtenemos array (insert_id = 0 ,affected_rows = 0), ya que se creo una tabla.
+            $respuesta = $repuesta['affected_rows'];
+
+        }
+        return $respuesta;
+
+    }
+
+    public function nombreFicheroRegistro($ruta_segura){
+        // @ Objetivo:
+        // Crear fichero con la ruta completa para registrar log.
+        $dregistro = $this->ultimoRegistro();
+        $datos_registro =$dregistro['datos'][0];
+        $c = strlen($datos_registro['name'])-4;
+        $e = array(":", "-", " ");
+        $dtime = str_replace($e,"",$datos_registro['fecha_inicio']);
+        $fichero_registro = $ruta_segura.'/'.mb_strcut($datos_registro['name'],0,$c).'_'.$dtime.'.log';
+        return $fichero_registro;
+    }
+
+    public function htmlBtnEliminarUltimoRegistro($id){
+        $mClick = "metodoClick('EliminarUltimoRegistro','".$id."')";
+        $btn_eliminar_registro ='<button class="btn btn-danger" onclick="'.$mClick.'">Borrar ultimo registro</button>';
+        return $btn_eliminar_registro;
+    }
+
+    public function htmlBtnImportarDBF($texto,$tipo){
+        return '<a href="importarDBF.php" class="btn btn-'.$tipo.'">'.$texto.'</a>';
+
+    }
 
 }

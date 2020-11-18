@@ -10,9 +10,6 @@
 
 $pulsado = $_POST['pulsado'];
 include_once ("./../../inicial.php");
-include_once $URLCom.'/configuracion.php';
-
-// Crealizamos conexion a la BD Datos
 
 $rutaCompleta = $RutaServidor.$HostNombre;
 include_once($rutaCompleta.'/clases/ClaseSession.php');

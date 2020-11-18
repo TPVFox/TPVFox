@@ -199,7 +199,7 @@ class TFModelo extends ModeloP {
 				$fila['campos'] = $campos;
 			} else{
 				// Si NO existe o no sale mal enviamos un error.
-				$fila['campos'] = $Bd->error;
+				$fila['error'] = $Bd->error;
 			} 
 		}
 		$fila['consulta_info'] = $consulta;

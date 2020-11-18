@@ -16,12 +16,16 @@
         //              - Stock
 
      
-    include_once './../../inicial.php';
-    include_once './clases/ClaseImportarDbf.php';
-    $importarDbf = new ImportarDbf();
-    
-    
-  
+include_once './../../inicial.php';
+include_once './clases/ClaseImportarDbf.php';
+$importarDbf = new ImportarDbf();
+$link = '';
+// Ultimo registro
+$dregistro = $importarDbf->ultimoRegistro();
+$datos_registro =$dregistro['datos'][0];
+if ($datos_registro['id'] >0){
+    $link = '<a href="importarDBF.php">Ir ver información importar</a>';
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -40,6 +44,8 @@
 
 <div class="container">
 	<div class="col-md-12">
+        <?php echo $link; ?>
+        <h1>Subir fichero de articulos</h1>
         <p>Subimos fichero dbf no puede exceder lo indica tu php.ini</p>
         <form method="POST" action="upload.php" enctype="multipart/form-data" type="application/x-dbf"><p>Subir ficheros:
         <input type="file" name="fichero" />
