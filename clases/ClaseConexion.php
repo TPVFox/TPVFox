@@ -55,6 +55,16 @@ class ClaseConexion{
         include ($this->ruta_proyecto.'/configuracion.php');
         return $ruta_segura;
     }
+
+    public function getNombreFichero($ruta){
+        //@ Objetivo
+        // Obtener de string del el ultimo / y le quitamos extension.
+        $array = explode("/", $ruta);
+        $i = count($array);
+        $nombre_extension = $array[$i-1];
+        $desglose_nombre = explode(".",$nombre_extension);
+        return $desglose_nombre[0];
+    }
 }
  
 
