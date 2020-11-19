@@ -49,17 +49,12 @@ if (isset($_FILES['fichero']['error']) && $_FILES['fichero']['error'] >0){
     $errores['fichero_subido']['indice'] = $_FILES['fichero']['error']+4;
 } else {
     $errores['fichero_subido']['indice'] = 0;
-    if ($_FILES['fichero']['type'] !=="application/x-dbf"){
-        // Solo permitimos de momento fichero dbf
-        $errores['fichero_subido']['indice']  = 18 ;
-    } else {
-        // Se subio fichero sin errores y es dbf
-        $dir_subida = $thisTpv->getRutaUpload();
-        $fichero_subido = $dir_subida .'/'. basename($_FILES['fichero']['name']);
-        // Ahora comprobamos que no existe el fichero que acabos de subir en directorio Upload de configuracion
-        if (file_exists($fichero_subido)){
-            $errores['existe_fichero']['indice'] = 2;
-        }
+    // Se subio fichero sin errores y es dbf
+    $dir_subida = $thisTpv->getRutaUpload();
+    $fichero_subido = $dir_subida .'/'. basename($_FILES['fichero']['name']);
+    // Ahora comprobamos que no existe el fichero que acabos de subir en directorio Upload de configuracion
+    if (file_exists($fichero_subido)){
+        $errores['existe_fichero']['indice'] = 2;
     }
 }
 // Obtengo ultimo registro y su estado.
