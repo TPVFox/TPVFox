@@ -147,9 +147,6 @@
 	
 	
 		<div class="container">
-			<div class="col-md-8">
-				<h1>TPVfox</h1>
-			</div>
 			<div class="col-md-12 row">
 				<h2 class="text-center">Accesos Directos</h2>
 				<?php 
@@ -207,17 +204,11 @@
 				</div>
 				</div>
 				
-			</div>
-<!--
-			<div id="col-md-12">
-				<p>Está aplicación es OPEN SOURCE, con ello queremos decir que puedes utilizar este código en otras aplicaciones y modificarlo sin problemas.</p>
-			</div>
--->
-			
+			</div>		
 		</div>
         
 	</div>
-
+    <div class="text-center"><img src="./css/img/ImagotipoTpvFox.png"></div>
     <?php 
     include_once $URLCom.'/pie.php';
     ?>

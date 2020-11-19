@@ -194,12 +194,13 @@ function getHtmlOptions($datos,$valor=0){
     // @Objetivo:
     // Crear el html de opciones para mostrar en select y si hay alguno por defecto la ponemos como predeterminada.
     // @Parametro:
-    //   $datos -> Array (  id => Es el valor que vamos poner, puede ser tanto int como string
-    //                      descripcion=> string es el texto que muestra el select
-    //                   )
+    //   $datos -> Array o boreanos (FALSE)
+    //              Ejemplo Array (  id => Es el valor que vamos poner, puede ser tanto int como string
+    //                      descripcion=> string es el texto que muestra el select)
     //   $valor (varchar/int)-> funciona tanto con varchar como con int , es el pondría por defecto.
    
     $html_options = '<option value="0">	Seleccione opción </option>';
+    if (is_array($datos)){
         foreach ($datos as $dato){
             $es_seleccionado = '';
             if ($valor === $dato['id']){
@@ -207,6 +208,7 @@ function getHtmlOptions($datos,$valor=0){
             }
             $html_options .='<option value="'.$dato['id'].'"'.$es_seleccionado.'>'.$dato['descripcion'].'</option>';
         }
+    }
     return $html_options;
 }
 

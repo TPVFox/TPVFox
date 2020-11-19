@@ -69,8 +69,7 @@
             } else {
                 $DefaultVenci = json_decode($ClienteUnico['formasVenci']); // obtenemos un objeto con vencimiento y formapago
             }
-            $vencimientos = $Cliente->getVencimientos();
-            $html_optionVenci =  getHtmlOptions($vencimientos['datos'],$DefaultVenci->vencimiento);
+            $html_optionVenci =  getHtmlOptions($Cliente->getVencimientos(),$DefaultVenci->vencimiento);
             $formasPago = $Cliente->getFormasPago();
             $html_optionPago = getHtmlOptions($formasPago,$DefaultVenci->formapago);
             $html_optionEstado= '';

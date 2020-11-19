@@ -259,14 +259,19 @@ class ClaseCliente extends TFModelo{
 	}
 
     public function getVencimientos(){
-        // @Objetivo:
-        // Crear el objeto de vencimientos y poder:
+        // @ Objetivo:
         // - Obtener todos los tipos vencimiento que tenemos.
-        // @Notas:
-        // Creo que lo ideal sería que fuera una propiedad
+        // @ Respuesta
+        // Devolvemos los row completos de los vencimientos.
+        // Si esta vacio devolvemos false.
+        $respuesta = FALSE;
         $CtiposVen=new TiposVencimientos();
-        $tiposVen=$CtiposVen->todos();
-        return $tiposVen;
+        $t=$CtiposVen->todos();
+            
+        if (isset($t['datos'])){
+            $respuesta = $t['datos'];
+        }
+        return $respuesta;
 
     }
 
