@@ -113,7 +113,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
                         echo $htmlBarra[1];
                         ?>
                         Creados nuevos:<?php echo $Num_registros_estado['nuevo'];?><br/>
-                        Actualizados:<?php echo $Num_registros_estado['actualizdo'];?><br/>
+                        Actualizados:<?php echo $Num_registros_estado['actualizado'];?><br/>
                         Errores:<?php echo  $Num_registros_estado['error'];?><br/>
                         Pedientes por procesar: <?php echo  $Num_registros_estado['NULL'];?>
                     </td>
