@@ -128,6 +128,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
         // Calculo los importados.
         $num_importados = $datos_registro['Registros_originales']-$pendiente_importar;
     ?>
+    var estado = '<?php echo $estado;?>';
     var inicio = <?php echo $num_importados;?> ;
     var total = <?php echo $datos_registro['Registros_originales']; ?>;
     var idBar = '1';
@@ -136,14 +137,16 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     var total = <?php echo $tabla_info['info']['Rows']; ?>;
     var idBar = '2';
     BarraProceso(inicio,total,idBar);
-    $(document).ready(function(){
-        //Cada 10 segundos se ejecutará la función refrescar
-        setTimeout(refrescar, 30000);
-    });
-    function refrescar(){
-        //Actualiza la el div con los datos de imagenes.php
-        location.reload();
-      }
+    if (estado !== 'Fusionado'){
+        $(document).ready(function(){
+            //Cada 10 segundos se ejecutará la función refrescar
+            setTimeout(refrescar, 30000);
+        });
+        function refrescar(){
+            //Actualiza la el div con los datos de imagenes.php
+            location.reload();
+          }
+    }
 </script>
  </body>
 </html>
