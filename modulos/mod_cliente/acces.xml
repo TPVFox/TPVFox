@@ -6,6 +6,8 @@
 	<accion nombre="ver" descripcion="Ver Cliente" permiso="0"></accion>
 	<accion nombre="tarifa" descripcion="Ver Tarifas" permiso="0"></accion>
     </vista>
-    <vista nombre="cliente.php" descripcion="Cliente" permiso="0"></vista>
+    <vista nombre="cliente.php" descripcion="Cliente" permiso="0">
+        <accion nombre="resumen_ticket" descripcion="Resumen Tickets" permiso="0"></accion>
+    </vista>
 
 </modulo>

@@ -212,6 +212,96 @@ function getHtmlOptions($datos,$valor=0){
     return $html_options;
 }
 
+function getHtmlTdProducto($producto,$tipo){
+    // @ Objetivo:
+    // Obtener html de con los td de producto de los campos para resumen
+    // @ Parametros:
+    // $producto:
+    // @ Respuesta:
+    // String con html montado.
+    $calculado_precio_medio = (isset($producto['pm']) ? $producto['pm'] :'');
+     $html = '';
+    if ($tipo === 'pdf'){
+        $abrir_td = '<td><font size="8">';
+        $cerrar_td = '</font></td>';
+    } else {
+        $abrir_td = '<td>';
+        $cerrar_td = '</td>';
+        // En pdf no ponemos el codbarras.
+        $html .=$abrir_td.htmlspecialchars($producto['ccodbar'], ENT_QUOTES).$cerrar_td;
+    }
+    $html .=$abrir_td.htmlspecialchars($producto['cdetalle'], ENT_QUOTES).$cerrar_td.
+            $abrir_td.number_format($producto['totalUnidades'],2).$cerrar_td.
+            $abrir_td.number_format($producto['precioCiva'],2).$calculado_precio_medio.$cerrar_td.
+            $abrir_td.number_format($producto['total_linea'],2).$cerrar_td;
+    
+    return $html;
+
+}
+
+function getHmtlTrProductos($productos,$tipo){
+    // @ Objetivo
+    // Obtener html de las filas de los productos del resumen.
+    // @ Parametros
+    // $productos: Array de array de productos.
+    // $tipo : Indicando si es para pantalla o para pdf.
+    // @ Respuesta:
+    // Devolvemos array con html y total de lineas.
+    $respuesta = array ('html'=> '',
+                        'totalLineas' => 0);
+    $totalProductos=0;
+    $totalLineas = 0;
+    if(isset($productos)){
+        foreach ($productos as $row) {
+            $aux[] = $row['cdetalle'];
+        }
+        array_multisort($aux, SORT_ASC, $productos);
+        $idArticulo_anterior = 0;
+        foreach($productos as $producto){
+            // Calculamos el total de la linea actual.
+            $producto['total_linea'] =$producto['totalUnidades']*$producto['precioCiva'];
+            // Ahora compruebo si es el mismo producto.
+            if ($idArticulo_anterior !== 0 && $idArticulo_anterior !== $producto['idArticulo']){
+                // Es un producto distinto y no es el primer registro.
+                // ================== Imprimos linea   =============== //
+                // Ahora obtenemos html td del anterior producto
+                $html_td= getHtmlTdProducto($P_anterior,$tipo);
+                $totalLineas += $P_anterior['total_linea'];
+                $respuesta['html'] .= '<tr>'.$html_td.'</tr>';
+                // ================== Fin imprimir linea   =============== //
+                // Sumamos las lineas todas para obtener total lineas.
+                
+                // Guardo datos en $producto_anterior ya es distinto.
+                $P_anterior = $producto;
+                $P_anterior['total_linea'] = $producto['total_linea'];
+            } else {
+                // Es el primer producto o esta repetido
+                if ($idArticulo_anterior !== 0 ){
+                    // repetido
+                    $P_anterior['total_linea'] = $P_anterior['total_linea'] + $producto['total_linea'];
+                    $P_anterior['totalUnidades'] = number_format($P_anterior['totalUnidades'],3) + number_format($producto['totalUnidades'],3);
+                    // Calculamos el precio medio.
+                    if (number_format($P_anterior['precioCiva'],2) !== number_format($producto['precioCiva'],2)){
+                        // Calculamos precio medio, por lo que lo marcamos.
+                        if ($tipo === 'pdf'){
+                            $P_anterior['pm'] = '<span>*</span>';
+                        } else {
+                            $P_anterior['pm'] = '<span title="Calculado precio medio">*</span>';
+                        }
+                        $P_anterior['precioCiva'] = $P_anterior['total_linea'] / $P_anterior['totalUnidades'];
+                    }
+                } else  {
+                    // Guardo datos en $producto_anterior ya que esta vacio, por ser primer registro.
+                    $P_anterior = $producto;
+                }
+            }
+            $idArticulo_anterior = $producto['idArticulo'];
+        }
+    }
+    $respuesta['totalLineas'] = $totalLineas;
+    return $respuesta;
+}
+
 
 
 

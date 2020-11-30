@@ -116,7 +116,19 @@
 				<?php
 				$checkUser = 0;
 				foreach ($clientes as $cliente){ 
-					$checkUser = $checkUser + 1; 
+					$checkUser = $checkUser + 1;
+                    if (trim($cliente['movil']) !==''){
+                        $cliente['movil'] = $cliente['movil'].'<a href="https://web.whatsapp.com/send?phone=34+'.$cliente['movil'].'">'
+                                        .'<span class="glyphicon glyphicon-comment"></span>'
+                                        .'</a>';
+                    }
+                    // Mostrar email
+                    
+                    if ($cliente['email']<>''){
+                        $email ='<a href="mailto:'.$cliente['email'].'"><span class="glyphicon glyphicon-envelope"></span><a>';
+                    } else {
+                        $email = '';
+                    }
 					?>
 					<tr>
 						<td class="rowUsuario">
@@ -126,7 +138,7 @@
                         <?php 
                         if($ClasePermisos->getAccion("modificar")==1){
                         ?>
-                            <a class="glyphicon glyphicon-pencil" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>'>
+                            <a class="glyphicon glyphicon-pencil" href='./cliente.php?id=<?php echo $cliente['idClientes'].'&accion=editar';?>'>
                         <?php 
                         }
                         ?>
@@ -135,7 +147,7 @@
                         <?php 
                         if($ClasePermisos->getAccion("ver")==1){
                         ?>
-                        <a class="glyphicon glyphicon-eye-open" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>&estado=ver'>
+                        <a class="glyphicon glyphicon-eye-open" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>&accion=ver'>
                         <?php 
                         }
                         ?>
@@ -146,15 +158,7 @@
 						<td><?php echo $cliente['nif']; ?></td>
 						<td><?php echo $cliente['telefono']; ?></td>
                         <td><?php echo $cliente['movil']; ?></td>
-                        <?php
-                            // Mostrar email
                             
-                            if ($cliente['email']<>''){
-                                $email ='<a href="mailto:'.$cliente['email'].'"><span class="glyphicon glyphicon-envelope"></span><a>';
-                            } else {
-                                $email = '';
-                            }
-                        ?>
                         <td><?php echo $email; ?></td>
 						<td><?php echo $cliente['estado']; ?></td>
 						<?php

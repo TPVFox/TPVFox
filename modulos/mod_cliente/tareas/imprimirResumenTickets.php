@@ -114,25 +114,18 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 				</table><br>';
         
 		$html.='<h3>Desglose de productos de las facturas simplificadas (Tickets)</h3>
-            <table WIDTH="80%" border="1px"><tr>
+            <p>(*) Precios medios de venta, ya que hubo varios precios del mismo producto en ese periodo de tiempo</p>
+            <table WIDTH="80%" style="padding: 2px 15px 2px 2px;" border="1px"><tr>
 			<td WIDTH="50%">Descripción del producto</td>
 			<td>Cantidad</td>
 			<td>Precio</td>
 			<td>Importe</td>
-			</tr></table><table  WIDTH="80%" border="1px">';
-			foreach($arrayNums['productos'] as $producto){
-				$precio=$producto['totalUnidades']*$producto['precioCiva'];
-				$html.='<tr>'
-				. '<td WIDTH="50%"><font size="8">'.$producto['cdetalle'].'</font></td>'
-				.'<td style="text-align:center;"><font size="8">'. number_format ($producto['totalUnidades'],2).'</font></td>'
-				.'<td style="text-align:center;"><font size="8">'.number_format ($producto['precioCiva'],2).'</font></td>'
-				. '<td style="text-align:center;"><font size="8">'.number_format ($precio,2).'</font></td>'
-				.'</tr>';
-			}
+			</tr>';
+        $lineas =  getHmtlTrProductos($arrayNums['productos'],'pdf');
+        $html .= $lineas['html'];
 		$html.='</table>';
 		
 		$nombreTmp="Resumen.pdf";
-		//~ require_once($URLCom.'/lib/tcpdf/tcpdf.php');
         $margen_top_caja_texto= 70;
 		require_once  ($URLCom.'/clases/imprimir.php');
 		require_once($URLCom.'/controllers/planImprimir.php');

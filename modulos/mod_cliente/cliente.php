@@ -18,12 +18,19 @@
         $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
-		$configuracion=$configuracion['incidencias']; 
-		$estados = array ('Activo','inactivo');
-		if (isset($_GET['id'])) {
+		$configuracion=$configuracion['incidencias'];
+        $titulo= "Crear"; 
+		$estados_cliente = array ('Activo','inactivo');
+        // [Get_accion] -> editar,ver,Nuevo
+        // Si existe accion, variable es $accion , sino es "editar"
+        $Get_accion = (isset($_GET['accion']))? $_GET['accion'] : 'ver';
+        $solo_lectura = '';
+        if ($Get_accion === 'ver'){
+            $solo_lectura = ' readonly';
+        }
+        if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
         }
-        $titulo= "Crear";
         if ($id> 0){
             $titulo= "Modificar";
         }
@@ -73,31 +80,28 @@
             $formasPago = $Cliente->getFormasPago();
             $html_optionPago = getHtmlOptions($formasPago,$DefaultVenci->formapago);
             $html_optionEstado= '';
-            foreach ($estados as $i=>$estado){
+            foreach ($estados_cliente as $i=>$estado_cliente){
                 $es_seleccionado = '';
                 if (isset($ClienteUnico['estado'])){
-                    if($ClienteUnico['estado'] === $estado){
+                    if($ClienteUnico['estado'] === $estado_cliente){
                         $es_seleccionado = ' selected';
                     }
                 } 
-                $html_optionEstado .='<option value="'.$estado.'"'.$es_seleccionado.'>'.$estado.'</option>';
+                $html_optionEstado .='<option value="'.$estado_cliente.'"'.$es_seleccionado.'>'.$estado_cliente.'</option>';
             }
-            
 		?>
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-		 <script type="text/javascript" >
-			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+		<script type="text/javascript" >
+        <?php echo 'var configuracion='.json_encode($configuracion).';';?>	
 		</script>
 		<?php
          include_once $URLCom.'/modulos/mod_menu/menu.php';
 		?>
-     
 		<div class="container">
             <?php
-            
             if (isset($errores) && count($errores)>0){
                 foreach($errores as $error){
                     echo '<div class="alert alert-'.$error['tipo'].'">'
@@ -118,7 +122,12 @@
 					
 			<a class="text-ritght" href="./ListaClientes.php">Volver Atrás</a>
             <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
-			<input type="submit" class="btn btn-primary" value="Guardar" name="Guardar" id="Guardar">
+            <?php
+            if ($Get_accion !== 'ver'){ ?>
+                <input type="submit" class="btn btn-primary" value="Guardar" name="Guardar" id="Guardar">
+            <?php
+            }
+            ?>
 			
 			<div class="col-md-12">
 				
@@ -131,56 +140,54 @@
 					?>
 					<img src="<?php echo $img;?>" style="width:100%;">
 				</div>
-
-			
 				<div class="col-md-7">
 					<div class="Datos">
 						<div class="col-md-6 form-group">
 							<label>Nombre Cliente:</label>
-							<input type="text" id="nombre"  name="Nombre" <?php echo $ClienteUnico['Nombre'];?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"  required >
+							<input type="text" id="nombre"  name="Nombre" <?php echo $solo_lectura;?> placeholder="nombre" value="<?php echo $ClienteUnico['Nombre'];?>"  required >
 							 <div class="invalid-tooltip-nombre" display="none">
 								No permitimos la doble comilla (") 
 							</div>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input  type="text" id="razonsocial" name="razonsocial" placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>">
+							<input  type="text" id="razonsocial" name="razonsocial" <?php echo $solo_lectura;?> placeholder="razon social" value="<?php echo $ClienteUnico['razonsocial'];?>">
 							 <div class="invalid-tooltip-nombre" display="none">
 								No permitimos la doble comilla (") 
 							</div>
 						</div>
                         <div class="col-md-6 form-group">
 							<label>NIF:</label>
-							<input type="text"	id="nif" name="nif" value="<?php echo $ClienteUnico['nif'];?>">
+							<input type="text"	id="nif" name="nif" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['nif'];?>">
 						</div>
                         <div class="col-md-6 form-group">
 							<label>Codigo Postal:</label>
-							<input type="text" id="codigo_postal" name="codpostal" value="<?php echo $ClienteUnico['codpostal'];?>"   >
+							<input type="text" id="codigo_postal" name="codpostal" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['codpostal'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Direccion:</label>
-							<textarea id="direccion" name="direccion"><?php echo $ClienteUnico['direccion'];?> </textarea>
+							<textarea id="direccion" name="direccion" <?php echo $solo_lectura;?>><?php echo $ClienteUnico['direccion'];?> </textarea>
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Telefono:</label>
-							<input type="text" id="telefono" name="telefono" value="<?php echo $ClienteUnico['telefono'];?>"   >
+							<input type="text" id="telefono" name="telefono" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['telefono'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Movil:</label>
-							<input type="text" id="movil" name="movil" value="<?php echo $ClienteUnico['movil'];?>"   >
+							<input type="text" id="movil" name="movil" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['movil'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Fax:</label>
-							<input type="text" id="fax" name="fax" value="<?php echo $ClienteUnico['fax'];?>"   >
+							<input type="text" id="fax" name="fax" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['fax'];?>"   >
 						</div>
 						<div class="col-md-6 form-group">
 							<label>Email:</label>
-							<input type="text" id="email" name="email" value="<?php echo $ClienteUnico['email'];?>"  >
+							<input type="text" id="email" name="email" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['email'];?>"  >
 						</div>
 						
 						<div class="col-md-6 form-group">
 							<label for="sel1">Forma de pago por defecto: </label>
-							<select class="form-control" name="formapago" id="sel1" style="width: 15em;">
+							<select class="form-control" name="formapago" id="sel1" <?php echo $solo_lectura;?> style="width: 15em;">
 								<?php 
 								echo $html_optionPago;
 								?>
@@ -188,10 +195,9 @@
 							</select>
 							
 						</div>
-						
 						<div class="col-md-6 form-group">
 							<label for="sel1">Estado:</label>
-							<select class="form-control" name="estado" id="sel1" style="width: 14em;">
+							<select class="form-control" name="estado" <?php echo $solo_lectura;?> id="sel1" style="width: 14em;">
 								<?php 
 								echo $html_optionEstado;
 								?>
@@ -200,14 +206,12 @@
 						</div>
 						<div class="col-md-6 form-group">
 							<label for="sel1">Vencimiento por defecto:</label>
-							<select class="form-control" name="vencimiento" id="sel1" style="width: 15em;">
+							<select class="form-control" name="vencimiento" <?php echo $solo_lectura;?> id="sel1" style="width: 15em;">
 								<?php
                                 echo $html_optionVenci;
 								?>
 							</select>
 						</div>
-						
-						
 					</div>
 					
 				</div>
@@ -246,20 +250,5 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
 
 include_once $URLCom.'/pie.php';
 ?>
- <script type="text/javascript">
-        <?php 
-        if(isset($_GET['estado'])){
-            if($_GET['estado']=="ver"){
-                ?>
-                $(".container").find('input').attr("disabled", "disabled");
-                $(".container").find('select').attr("disabled", "disabled");
-                 $("#Guardar").css("display", "none");
-                <?php
-            }
-        }
-        
-        ?>
-        
-        </script>
 	</body>
 </html>
