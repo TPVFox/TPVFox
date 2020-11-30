@@ -142,7 +142,7 @@
                     <td><?php
                             if (trim($proveedor['movil']) !==''){
                                 echo $proveedor['movil']
-                                    .'<a href="https://web.whatsapp.com//send?phone=34+'.$proveedor['movil'].'">'
+                                    .'<a href="https://web.whatsapp.com/send?phone=34+'.$proveedor['movil'].'">'
                                     .'<span class="glyphicon glyphicon-comment"></span>'
                                     .'</a>';
                             }
