@@ -52,7 +52,7 @@ function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$
 				.'</thead><tbody>';
 		
 		$contad = 0;
-		foreach ($productos as $producto){
+        foreach ($productos as $producto){
 				$datos = 	"'".addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['pvpSiva']."','"
 						.number_format($producto['pvpCiva'],2)."',".$producto['idArticulo'];
@@ -217,8 +217,9 @@ function getHtmlTdProducto($producto,$tipo){
     // Obtener html de con los td de producto de los campos para resumen
     // @ Parametros:
     // $producto:
+    // $tipo: (String) que nos indica que es para pantalla o para pdf
     // @ Respuesta:
-    // String con html montado.
+    // String con html de td montado.
     $calculado_precio_medio = (isset($producto['pm']) ? $producto['pm'] :'');
      $html = '';
     if ($tipo === 'pdf'){
@@ -227,8 +228,9 @@ function getHtmlTdProducto($producto,$tipo){
     } else {
         $abrir_td = '<td>';
         $cerrar_td = '</td>';
-        // En pdf no ponemos el codbarras.
-        $html .=$abrir_td.htmlspecialchars($producto['ccodbar'], ENT_QUOTES).$cerrar_td;
+        // En pdf no ponemos el codbarras, ni idArticulo
+        $html .=$abrir_td.htmlspecialchars($producto['idArticulo'], ENT_QUOTES).$cerrar_td.
+                $abrir_td.htmlspecialchars($producto['ccodbar'], ENT_QUOTES).$cerrar_td;
     }
     $html .=$abrir_td.htmlspecialchars($producto['cdetalle'], ENT_QUOTES).$cerrar_td.
             $abrir_td.number_format($producto['totalUnidades'],2).$cerrar_td.

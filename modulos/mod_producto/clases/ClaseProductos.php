@@ -112,16 +112,18 @@ class ClaseProductos extends ClaseTablaArticulos{
         } else {
             $respuesta['error'] = 'Error en campo';
             $respuesta['consulta'] = ' No se realizo consulta, ya que el campo: '.$campo. '<br/> El campo selecionado y puesto en parametros no es correcto. Recuerda borrar la configuracion de modulo de productos en cada usuario para que vaya correcto.';
+        }
+
+        if (!isset($respuesta['error'])){
+            // Si no hay error
+            if ($respuesta['NItems'] === 0){
+                // Si no hay productos.
+                $respuesta['Items'] = array();
+            }
+            $respuesta = $respuesta['Items'];
         } 
         
-		if (isset($respuesta['error'])){
-			// Si existe error devolvemos todo el array
-			return $respuesta;
-		}
-		if ($respuesta['NItems'] === 0){
-			$respuesta['Items'] = array();
-		}
-		return $respuesta['Items'];
+		return $respuesta;
 
 	}
 	public function buscarReferenciaProductoTienda($referencia){

@@ -181,11 +181,13 @@
             <?php
             if(isset($_GET['hacerResumen']))
             {?>	
-			<div class="col-md-6">
+			<div class="col-md-8">
 				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
+                                <th>ID</th>
+
                                 <th>CODBARRAS</th>
                                 <th>PRODUCTO</th>
 								<th>CANTIDAD</th>
@@ -212,7 +214,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-6 ">
+				<div class="col-md-4 ">
 					<h4 class="text-center" ><u>TICKETS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
