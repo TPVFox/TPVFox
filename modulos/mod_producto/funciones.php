@@ -27,7 +27,7 @@ function htmlLineaCodigoBarras($item,$codBarras=''){
 	return $nuevaFila;
 }
 
-function htmlLineaProveedorCoste($proveedor,$borrar_ref_prov){
+function htmlLineaProveedorCoste($proveedor,$borrar_ref_prov='KO'){
 	// @ Objetivo:
 	// Montar linea de proveedores_coste, para añadir o para modificar.
 	// @ Parametros :

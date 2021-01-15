@@ -2,10 +2,10 @@
 $respuesta 		= array();
 		$dedonde 		= 'producto';
 		$busqueda =  $_POST['busqueda']; // Este valor puede venir vacio , por lo que...
-		$DescartIdsProv = $_POST['idsProveedores']; // Descartamos los ids de los proveedores que ya tiene el producto.
-													// para que no pueda seleccionadlor.
+        $DescartIdsProv = isset($_POST['idsProveedores'])? $_POST['idsProveedores'] : array(); // Descartamos los ids de los proveedores que ya tiene
+                                                                                               // el producto, para que no pueda seleccionarlo.
 		$descartados = array();
-		if ($busqueda !==''){
+		if ($busqueda !==''){ 
 			// Realizamos la busqueda todos los proveedores menos los que tiene añadidos en el producto..
 			$proveedores = $CProveedor->buscarProveedorNombre($busqueda);
 			// Ahora tengo que quitar del array proveedores[datos], aquellos que no ya estan añadidos para que no se muestre.
