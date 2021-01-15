@@ -63,6 +63,7 @@ class Proveedores {
 			$respuesta['datos']=$proveedorPrincipal;
 			//~ $respuesta['sql']=$sql;
 		}
+
         return $respuesta;
 	}
 
@@ -90,7 +91,7 @@ class Proveedores {
     public function buscarProductosProveedor($idProveedor){
         $sql='SELECT * from articulosProveedores where idProveedor='.$idProveedor;
         $smt=$this->consulta($sql);
-        if ($smt->fetch_assoc()) {
+		if (gettype($smt) == 'object') {
             while ($fila = $smt->fetch_assoc()){
 				$productos_provedor[] = $fila;
 			}
@@ -98,6 +99,8 @@ class Proveedores {
             $productos_provedor['error']=$smt['error'];
 			$productos_provedor['consulta']=$smt['consulta'];
         }
+        //~ error_log('En mod_productos/tareas-> buscarProductosProveedor:'.json_encode($productos_provedor));
+
         return $productos_provedor;
     }
 	
