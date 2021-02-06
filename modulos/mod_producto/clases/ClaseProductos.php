@@ -1050,22 +1050,25 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
     
     public function ComprobarEliminar($id, $idTienda){
+
+		error_log('paso por aqui 2');
+		
         //Comprobar que el id del producto no este en ninguna linea de albaranes
         $sql=array();
-        $sql[1]='select count(id) as cant from albprolinea where idArticulo='.$id;
-        $sql[2]='select count(id) as cant from pedprolinea where idArticulo='.$id;
-        $sql[3]='select count(id) as cant from facprolinea where idArticulo='.$id;
-        $sql[4]='select count(id) as cant from ticketslinea where idArticulo='.$id;
-        $sql[5]='select count(id) as cant from albclilinea where idArticulo='.$id;
-        $sql[6]='select count(id) as cant from pedclilinea where idArticulo='.$id;
-        $sql[7]='select count(id) as cant from facclilinea where idArticulo='.$id;
-        $sql[8]='select count(idArticulo) as cant from articulosTiendas where idArticulo='.$id.' and idTienda='.$idTienda;
+        $sql[1]=['select count(id) as cant from albprolinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[2]=['select count(id) as cant from pedprolinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[3]=['select count(id) as cant from facprolinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[4]=['select count(id) as cant from ticketslinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[5]=['select count(id) as cant from albclilinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[6]=['select count(id) as cant from pedclilinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[7]=['select count(id) as cant from facclilinea where idArticulo='.$id,'Albaranes de proveedores'];
+        $sql[8]=['select count(idArticulo) as cant from articulosTiendas where idArticulo='.$id.' and idTienda='.$idTienda,'Albaranes de proveedores'];
         $bandera=0;
         foreach ($sql as $consulta){
-             $items = parent::Consulta($consulta);
+             $items = parent::Consulta($consulta['consulta']);
              if($items['Items'][0]['cant']>0){
                  $bandera=1;
-                 $resultado['consulta']=$consulta;
+                 $resultado['consulta']= $consulta['mensaje'].': '.$items['Items'][0]['cant'];
                  $resultado['haydatos']=$items['Items'][0]['cant'];
                  break;
              }
