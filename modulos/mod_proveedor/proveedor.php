@@ -1,92 +1,83 @@
 
-<?php
-    include_once './../../inicial.php';
-    include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
-    include_once $URLCom.'/controllers/Controladores.php';
-    include_once $URLCom.'/controllers/parametros.php';
-    include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
-    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
-    $ClasesParametros = new ClaseParametros('parametros.xml');  
-    $Controler = new ControladorComun; 
-    $Controler->loadDbtpv($BDTpv);
-    $CProveedor= new ClaseProveedor();
-    $NCArticulo = new ClaseProductos($BDTpv);
-    $dedonde="proveedor";
-    $id=0;
-    $errores = array();
-    $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
-    $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-    $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
-    $configuracion=$configuracion['incidencias'];
-    $estados = array('Activo','inactivo');
-    if (isset($_GET['id'])) {
-        $id=$_GET['id']; // Obtenemos id para modificar.
-    }
-    $ProveedorUnico=$CProveedor->getProveedorCompleto($id);
-    foreach($ProveedorUnico['adjuntos'] as $key =>$adjunto){
-        if (isset($adjunto['error'])){
-            $errores[]=array ( 'tipo'=>'danger',
-                         'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
-                         );
-        } else {
-            $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+        <?php
+        include_once './../../inicial.php';
+        include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
+        include_once $URLCom.'/controllers/Controladores.php';
+        include_once $URLCom.'/controllers/parametros.php';
+        include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+        $ClasesParametros = new ClaseParametros('parametros.xml');  
+		$Controler = new ControladorComun; 
+		$Controler->loadDbtpv($BDTpv);
+		$CProveedor= new ClaseProveedor();
+		$dedonde="proveedor";
+		$id=0;
+		$errores = array();
+        $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
+		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
+		$configuracion=$configuracion['incidencias'];
+        $estados = array('Activo','inactivo');
+		if (isset($_GET['id'])) {
+			$id=$_GET['id']; // Obtenemos id para modificar.
         }
-    }
-    if ($id > 0 ) {
-        // Obtenemos productos de ese proveedor, solo si id > 0
-        //~ $producto_proveedor = $CProveedor->
-
-    }
-
-    // Solo permitimos guardar si realmente no hay errores.
-    // ya que consideramos que son graves y no podemos continuar. ( bueno a lo mejor.. :-)
-    if (count($errores) === 0){
-        if(isset($_POST['Guardar'])){
-            $guardar=$CProveedor->guardarProveedor($_POST);
-            $ProveedorUnico=$guardar['datos'];
-            if($guardar['estado'] === 'OK'){
-                    // Todo fue bien , volvemos a listado.
-                    // Dos posibles opciones deberíamos tener un parametro configuracion.
-                    // 1.- Redirecionar
-                    // header('Location: ListaProveedores.php');
-                    // 2.- Recargar datos modificados.
-                    $mensaje = 'Fue guardo correctamente';
-                    $errores[]=$CProveedor->montarAdvertencia('info',$mensaje);
+		$ProveedorUnico=$CProveedor->getProveedorCompleto($id);
+        foreach($ProveedorUnico['adjuntos'] as $key =>$adjunto){
+            if (isset($adjunto['error'])){
+                $errores[]=array ( 'tipo'=>'danger',
+                             'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
+                             );
             } else {
-                // Hubo error grave, estado = KO
-                $errores[] = $CProveedor->montarAdvertencia('danger','No se grabo por un error grave');
-                $errores[] = $CProveedor->montarAdvertencia('danger',$guardar['error']);
+                $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
             }
         }
-    }
-    
-    // Ahora $input_disabled
-     $input_disabled= 'disabled'; // Por defecto solo dejo ver.
-    if (isset($_GET['accion'])) {
-        if ($_GET['accion']=="editar"){
-           $input_disabled='';
-           $titulo= "Modificar";
-        } else  {
-            $titulo= "Ver";
-        }
-    }
 
-    // Montamos titulo y campos que no se cubren cuando es nuevo.
-    if ($id == 0){
-        $titulo= "Crear";
-        $ProveedorUnico['idProveedor']  ='';
-        $ProveedorUnico['fecha_creado'] ='';
-        $input_disabled='';
-    }
-    
-?>
-<!DOCTYPE html>
+        // Solo permitimos guarfar si realmente no hay errores.
+        // ya que consideramos que son graves y no podemos continuar. ( bueno a lo mejor.. :-)
+        if (count($errores) === 0){
+            if(isset($_POST['Guardar'])){
+                $guardar=$CProveedor->guardarProveedor($_POST);
+                $ProveedorUnico=$guardar['datos'];
+                if($guardar['estado'] === 'OK'){
+                        // Todo fue bien , volvemos a listado.
+                        // Dos posibles opciones deberíamos tener un parametro configuracion.
+                        // 1.- Redirecionar
+                        // header('Location: ListaProveedores.php');
+                        // 2.- Recargar datos modificados.
+                        $mensaje = 'Fue guardo correctamente';
+                        $errores[]=$CProveedor->montarAdvertencia('info',$mensaje);
+                } else {
+                    // Hubo error grave, estado = KO
+                    $errores[] = $CProveedor->montarAdvertencia('danger','No se grabo por un error grave');
+                    $errores[] = $CProveedor->montarAdvertencia('danger',$guardar['error']);
+                }
+            }
+        }
+        
+        // Ahora $input_disabled
+         $input_disabled= 'disabled'; // Por defecto solo dejo ver.
+        if (isset($_GET['accion'])) {
+            if ($_GET['accion']=="editar"){
+               $input_disabled='';
+               $titulo= "Modificar";
+            } else  {
+                $titulo= "Ver";
+            }
+        }
+
+        // Montamos titulo y campos que no se cubren cuando es nuevo.
+        if ($id == 0){
+            $titulo= "Crear";
+            $ProveedorUnico['idProveedor']  ='';
+            $ProveedorUnico['fecha_creado'] ='';
+            $input_disabled='';
+        }
+        
+		?>
+	<!DOCTYPE html>
 <html>
-    <head>
-    <?php
-         include_once $URLCom.'/head.php';
-    ?>
-		
+    <head>	
+        <?php include_once $URLCom.'/head.php';?>
+
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
@@ -205,7 +196,7 @@
 					
 				</div>
 				<div class="col-md-4">
-					<div class="panel-group">
+					 <div class="panel-group">
 						<?php 
 						$num = 1 ; // Numero collapse;
 						$titulo = 'Facturas';
@@ -221,11 +212,11 @@
 						$titulo = 'Pedidos';
 						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[2]);
 						?>
-                    </div>
+						 </div>
 				</div>
-            </div>
-        </form>
-
+				
+				</form>
+			</div>
 		<?php // Incluimos paginas modales
         echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
         include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
