@@ -1052,48 +1052,61 @@ class ClaseProductos extends ClaseTablaArticulos{
     public function ComprobarEliminar($id, $idTienda){
 
 		error_log('paso por aqui 2');
-		
+		$resultado = [];
         //Comprobar que el id del producto no este en ninguna linea de albaranes
         $sql=array();
-        $sql[1]=['select count(id) as cant from albprolinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[2]=['select count(id) as cant from pedprolinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[3]=['select count(id) as cant from facprolinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[4]=['select count(id) as cant from ticketslinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[5]=['select count(id) as cant from albclilinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[6]=['select count(id) as cant from pedclilinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[7]=['select count(id) as cant from facclilinea where idArticulo='.$id,'Albaranes de proveedores'];
-        $sql[8]=['select count(idArticulo) as cant from articulosTiendas where idArticulo='.$id.' and idTienda='.$idTienda,'Albaranes de proveedores'];
-        $bandera=0;
+        $sql[1]=['select count(id) as cant from albprolinea where idArticulo='.$id,'Albaranes de proveedores',];
+        $sql[2]=['select count(id) as cant from pedprolinea where idArticulo='.$id,'Pedidos a proveedor pedprolinea',];
+        $sql[3]=['select count(id) as cant from facprolinea where idArticulo='.$id,'Facturas de proveedor facprolinea',];
+        $sql[4]=['select count(id) as cant from ticketslinea where idArticulo='.$id,'Tickets ticketslinea',];
+        $sql[5]=['select count(id) as cant from albclilinea where idArticulo='.$id,'Albaranes de cliente albclilinea',];
+        $sql[6]=['select count(id) as cant from pedclilinea where idArticulo='.$id,'Pedidos de cliente pedclilinea',];
+        $sql[7]=['select count(id) as cant from facclilinea where idArticulo='.$id,'Facturas de clientefacclilinea',];
+		$sql[8]=['select count(idArticulo) as cant from articulosTiendas where idArticulo='.$id.' and idTienda='.$idTienda,
+		'articulosTiendas. Tienda:'.$idTienda,];
+        $bandera=false;
         foreach ($sql as $consulta){
-             $items = parent::Consulta($consulta['consulta']);
-             if($items['Items'][0]['cant']>0){
-                 $bandera=1;
-                 $resultado['consulta']= $consulta['mensaje'].': '.$items['Items'][0]['cant'];
-                 $resultado['haydatos']=$items['Items'][0]['cant'];
-                 break;
-             }
+             $items = parent::Consulta($consulta[0]);
+             if(isset($items['Items']) && ($items['Items'][0]['cant']>0)){
+                $bandera = true;
+                $resultado[] = [
+					'mensaje'=> $consulta[1].': '.$items['Items'][0]['cant'],
+					'contador'=>$items['Items'][0]['cant'],
+					];
+//                break;
+             } elseif(isset($items['error'])){
+				$bandera = true;
+				$resultado[] = [
+					'mensaje'=> 'error: '.$items['error'],
+					'consulta'=>$items['consulta'],
+					];
+                break;				
+			 }
         }
-        if($bandera==0){
+        if(!$bandera){
             $sql=array();
             $sql[1]='delete from articulos where idArticulo='.$id;
             $sql[2]='delete from articulosTiendas where idArticulo='.$id;
             $sql[3]='delete from articulosClientes where idArticulo='.$id;
             $sql[4]='delete from articulosCodigoBarras where idArticulo='.$id;
-            $sql[5]='delete from articulosFamilias where idArticulo='.$id;
+            $sql[5]='delete kfrom articulosFamilias where idArticulo='.$id;
             $sql[6]='delete from articulosPrecios where idArticulo='.$id;
             $sql[7]='delete from articulosProveedores where idArticulo='.$id;
             $sql[8]='delete from articulosStocks where idArticulo='.$id;
             foreach ($sql as $consulta){
-                $eliminar =$this->Consulta_insert_update($consulta);
+				$eliminar =$this->Consulta_insert_update($consulta);
+				error_log('consulta delete: '.$consulta);
                 if(isset($eliminar['error'])){
-                    $resultado['consulta']=$eliminar['consulta'];
-                    $resultado['error']=$eliminar['error'];
+					$resultado[]= $eliminar;
+
+// No funciona el error. Da error=0 a pesar de que hay un error en la sentencia 5
+					error_log('error: '.$eliminar['error']);
                 }
             }
         }
-        $resultado['bandera']=$bandera;
         
-        return $resultado;
+        
+        return ['bandera'=>$bandera ? 1 : 0, 'resultado'=>$resultado];
         
        
     }

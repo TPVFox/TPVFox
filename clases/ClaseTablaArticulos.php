@@ -13,7 +13,7 @@ class ClaseTablaArticulos{
 	private $db; // (Objeto) Conexion
 	private $idTienda; // (int) Id de la tienda , por defecto es la principal, pero se podrá cambiar.
 	// Propiedades particulares de tabla articulos.
-	private $num_rows; // (int) Numero de registros.
+	private $num_rows; // (int) Numero de registros.	
 	public $idArticulo;
 	public $iva= '0.00'; // String ya que obtenemos decimales... 
 	public $articulo_name = '';
@@ -57,12 +57,13 @@ class ClaseTablaArticulos{
 		// [NOTA]
 		// Solo valido para SELECT
 		// No debería se funcion publica.
+
 		// Habría que hacer algo como :
 		// http://php.net/manual/es/mysqli-stmt.bind-param.php
 		$respuesta = array();
 		$db = $this->db;
 		$smt = $db->query($sql);
-		if ($db->query($sql)) {
+		if ($smt) {    
 			$respuesta['NItems'] = $smt->num_rows;
 			// Hubo resultados
 			while ($fila = $smt->fetch_assoc()){

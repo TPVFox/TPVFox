@@ -158,7 +158,6 @@
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
         }
 
-        
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
         // Añadimos a JS la configuracion
@@ -166,7 +165,7 @@
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
-      
+                
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>   
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
@@ -291,6 +290,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         echo $htmlConfiguracion['htmlCheck'];
                         ?>
                     </div>
+<!-- Provisionalmente resultado de borrar productos -->
+                    <div id="resultado">Resultado</div>
+<!-- ------------------------------------------     -->
                 </div>
 
                 <div class="col-sm-10 col-xs-12">

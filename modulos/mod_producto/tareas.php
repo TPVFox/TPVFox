@@ -168,33 +168,42 @@ switch ($pulsado) {
         foreach ($productos as $idProducto){
             $carga=$NCArticulo->GetProducto($idProducto);
             $datosProducto=$NCArticulo->ArrayPropiedades();
-            $datos=array(
+            $datos=[
                 'nombre'=>$datosProducto['articulo_name'],
-                'id'=>$idProducto
-                );
+                'id'=>$idProducto,
+                'comprobaciones'=> '',
+            ];
+
             if($datosProducto['estado']=="Baja"){
                 $comprobacionesEliminar=$NCArticulo->ComprobarEliminar($idProducto, $tiendaWeb);
                 if($comprobacionesEliminar['bandera']==1){
-                    array_push( $productosNoEliminados, $datos);
-                    $respuesta['consulta_con_datos'] = $comprobacionesEliminar['consulta'];
-                    $respuesta['haydatos'] = $comprobacionesEliminar['haydatos'];
-
-                }else{
-                    
-                    array_push( $productosEliminados, $datos);
+                    $datos['comprobaciones'] = $comprobacionesEliminar['resultado'];
+                    $productosNoEliminados[] = $datos;
+                    // $respuesta[] = [
+                    //     'consulta_con_datos' => $comprobacionesEliminar['resultado']['consulta'],
+                    //     'haydatos' => $comprobacionesEliminar['resultado']['haydatos'],
+                    // ];
+                }else{                    
+                    $productosEliminados[] = $datos;
                     productosSesion($idProducto,'NoSeleccionar');
                 }
-                if(isset($comprobacionesEliminar['error'])){
-                    $respuesta['error']=$comprobacionesEliminar['consulta'];
+
+                if(isset($comprobacionesEliminar['resultado']['error'])){
+                    $respuesta['errores']=['datos'=>$datos,
+                    'consulta'=> $comprobacionesEliminar['consulta'],
+                    ];
                 }
                 
             }else{
-                $respuesta['advertencia']='Revisa estado producto, tiene que esta baja'; 
+//                $respuesta['advertencia']='Revisa estado producto, tiene que estar: baja'; 
+                $datos['comprobaciones'] = ['mensaje' =>'XRevisa estado producto, tiene que estar: baja',];
                 array_push( $productosNoEliminados, $datos);
             }
         }
-        $respuesta['NoEliminados']= $productosNoEliminados;
+        $respuesta['NoEliminados']= $productosNoEliminados;        
         $respuesta['Eliminados']=$productosEliminados;
+
+        $respuesta['html'] = construirHTMLEliminarProductos($productosEliminados, $productosNoEliminados);
     break;
 
     case 'Grabar_configuracion':
