@@ -1,38 +1,39 @@
 <?php 
+include_once $URLCom.'/clases/ClaseTFModelo.php';
 
-class Proveedores {
-	private $idProveedor;
-	private $nombreComercial;
-	private $razonSocial;
-	private $nif;
-	private $direccion;
-	private $telefono;
-	private $fax;
-	private $movil;
-	private $email;
-	private $fecha_creado;
-	private $estado;
+class Proveedores extends TFModelo {
+	//~ private $idProveedor;
+	//~ private $nombreComercial;
+	//~ private $razonSocial;
+	//~ private $nif;
+	//~ private $direccion;
+	//~ private $telefono;
+	//~ private $fax;
+	//~ private $movil;
+	//~ private $email;
+	//~ private $fecha_creado;
+	//~ private $estado;
 	
-	public function __construct($conexion){
-		$this->db = $conexion;
-		// Obtenemos el numero registros.
-		$sql = 'SELECT count(*) as num_reg FROM proveedores';
-		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
-		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
-	}
-	public function consulta($sql){
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
-		}
-	}
+	//~ public function __construct($conexion){
+		//~ $this->db = $conexion;
+		//~ // Obtenemos el numero registros.
+		//~ $sql = 'SELECT count(*) as num_reg FROM proveedores';
+		//~ $respuesta = $this->consulta($sql);
+		//~ $this->num_rows = $respuesta->fetch_object()->num_reg;
+		//~ // Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
+	//~ }
+	//~ public function consulta($sql){
+		//~ $db = $this->db;
+		//~ $smt = $db->query($sql);
+		//~ if ($smt) {
+			//~ return $smt;
+		//~ } else {
+			//~ $respuesta = array();
+			//~ $respuesta['consulta'] = $sql;
+			//~ $respuesta['error'] = $db->error;
+			//~ return $respuesta;
+		//~ }
+	//~ }
 	
 	public function buscarProveedorId($idProveedor){
 		$db = $this->db;
@@ -77,10 +78,8 @@ class Proveedores {
         $proveedores = array();
         $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial FROM proveedores';
         $smt=$this->consulta($sql);
-		if (gettype($smt) == 'object') {
-            while ($fila = $smt->fetch_assoc()){
-				$proveedores[] = $fila;
-			}
+		if (isset($smt['datos'])){
+				$proveedores = $smt['datos'];
 		} else {
             $proveedores['error']=$smt['error'];
 			$proveedores['consulta']=$smt['consulta'];
