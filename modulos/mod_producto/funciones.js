@@ -1420,8 +1420,10 @@ function eliminarProductos(idTiendaWeb=0){
                    
                     var resultado = $.parseJSON(response);
                     console.log (resultado);
-                    $('.loader').hide();
+					$('.loader').hide();
+					$('#resultado').html(resultado.html);
                    if(resultado.Eliminados.length>0){
+					   
                        alert("Se han eliminado: "+JSON.stringify(resultado.Eliminados));
                    }
                    if(resultado.NoEliminados.length>0){
@@ -1430,7 +1432,7 @@ function eliminarProductos(idTiendaWeb=0){
                    if(resultado.error){
                        alert("Error de sql: "+resultado.error);
                    }else{
-                       location.reload(true);
+//                       location.reload();
                    }
             }
         });

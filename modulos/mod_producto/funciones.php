@@ -1048,4 +1048,31 @@ function htmlTipoProducto($tipo){
 }
 
 
-?>
+function construirHTMLEliminarProductos($productosEliminados, $productosNoEliminados){
+	$miHtml = '<table>';
+	if(count($productosEliminados) == 0){
+		$miHtml .= '<tr><td> Productos eliminados: 0</td></tr>';
+	} else {
+		$miHtml .= '<tr><th>id</th><th>nombre</td></tr>';
+		foreach($productosEliminados as $productoEliminado){
+			$miHtml .= '<tr><td>'. $productoEliminado['id'].'</td><td>'. $productoEliminado['nombre'].'</td></tr>';
+		}
+	}
+	$miHtml .= '</table>';
+	$miHtml .= '<table>';
+	if(count($productosNoEliminados) > 0){
+		$miHtml .= '<tr><th>id - nombre</td><td>mensaje/s - relación/es</td></tr>';
+		foreach($productosNoEliminados as $noEliminado){
+			$miHtml .= '<tr><td>'. $noEliminado['id'].' - '. $noEliminado['nombre'].'</td></tr>';
+			$miHtml .='<tr><td> <ul>';
+			
+			foreach($noEliminado['comprobaciones'] as $comprobacion){
+				$miHtml.='<li>'.$comprobacion['mensaje'].'</li>';
+			}
+			$miHtml .='</ul></td></tr>';
+		}
+	}
+	$miHtml .= '</table>';
+return $miHtml;    
+}
+

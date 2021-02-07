@@ -167,7 +167,7 @@ function marcarFamiliaEliminar(productos, idfamilia){
                     }
                 }
             } else {
-                alert('Si quieres dejar huerfanos ' + productos + ' productos, pídele permiso al Riiichard');
+                alert('Si borras esta familia dejarías huerfanos ' + productos + ' productos.');
             }
     
 }
