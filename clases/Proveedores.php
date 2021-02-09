@@ -36,33 +36,27 @@ class Proveedores extends TFModelo {
 	//~ }
 	
 	public function buscarProveedorId($idProveedor){
-		$db = $this->db;
+		//~ $db = parent::db;
 		$sql='SELECT * from proveedores where idProveedor='.$idProveedor;
 		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
+		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-			if ($result = $smt->fetch_assoc () ){
-				$respuesta = $result;
-			}
+            error_log(count($smt['datos']));
+            $respuesta = $smt['datos'][0];
 		}
 		return $respuesta;
 	}
 	public function buscarProveedorNombre($nombre){
-		$db = $this->db;
+		//~ $db = $this->db;
 		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
 		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
+		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$proveedorPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($proveedorPrincipal, $result);
-			}
-			$respuesta['datos']=$proveedorPrincipal;
-			//~ $respuesta['sql']=$sql;
+			$proveedorPrincipal=$smt['datos'];
 		}
 
         return $respuesta;
