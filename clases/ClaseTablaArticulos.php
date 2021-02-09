@@ -13,7 +13,7 @@ class ClaseTablaArticulos{
 	private $db; // (Objeto) Conexion
 	private $idTienda; // (int) Id de la tienda , por defecto es la principal, pero se podrá cambiar.
 	// Propiedades particulares de tabla articulos.
-	private $num_rows; // (int) Numero de registros.	
+	private $num_rows; // (int) Numero de registros.
 	public $idArticulo;
 	public $iva= '0.00'; // String ya que obtenemos decimales... 
 	public $articulo_name = '';
