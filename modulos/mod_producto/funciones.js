@@ -1009,13 +1009,11 @@ function comprobarReferencia(){
 					if(resultado!=""){
 						alert("Ojo Esa referencia de producto ya está registrada");
                     }
-
 				}
 				 
 		}	
 	});
     console.log('Fin de comprobarReferencia');
-		
 }
 
 function RegularizarStock(idarticulo) {

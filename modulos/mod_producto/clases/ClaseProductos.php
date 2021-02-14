@@ -1050,8 +1050,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 	}
     
     public function ComprobarEliminar($id, $idTienda){
-
-		error_log('paso por aqui 2');
 		$resultado = [];
         //Comprobar que el id del producto no este en ninguna linea de albaranes
         $sql=array();
@@ -1089,18 +1087,15 @@ class ClaseProductos extends ClaseTablaArticulos{
             $sql[2]='delete from articulosTiendas where idArticulo='.$id;
             $sql[3]='delete from articulosClientes where idArticulo='.$id;
             $sql[4]='delete from articulosCodigoBarras where idArticulo='.$id;
-            $sql[5]='delete kfrom articulosFamilias where idArticulo='.$id;
+            $sql[5]='delete from articulosFamilias where idArticulo='.$id;
             $sql[6]='delete from articulosPrecios where idArticulo='.$id;
             $sql[7]='delete from articulosProveedores where idArticulo='.$id;
             $sql[8]='delete from articulosStocks where idArticulo='.$id;
             foreach ($sql as $consulta){
 				$eliminar =$this->Consulta_insert_update($consulta);
-				error_log('consulta delete: '.$consulta);
                 if(isset($eliminar['error'])){
+                    // Si existe error es porque no pudo eliminar ningun registro.
 					$resultado[]= $eliminar;
-
-// No funciona el error. Da error=0 a pesar de que hay un error en la sentencia 5
-					error_log('error: '.$eliminar['error']);
                 }
             }
         }

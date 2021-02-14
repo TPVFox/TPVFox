@@ -1049,7 +1049,8 @@ function htmlTipoProducto($tipo){
 
 
 function construirHTMLEliminarProductos($productosEliminados, $productosNoEliminados){
-	$miHtml = '<table>';
+    $miHtml = '<h4>Productos Eliminados</h4>';
+    $miHtml .= '<table>';
 	if(count($productosEliminados) == 0){
 		$miHtml .= '<tr><td> Productos eliminados: 0</td></tr>';
 	} else {
@@ -1059,13 +1060,13 @@ function construirHTMLEliminarProductos($productosEliminados, $productosNoElimin
 		}
 	}
 	$miHtml .= '</table>';
+    $miHtml = '<h4>Productos NO Eliminados</h4>';
 	$miHtml .= '<table>';
 	if(count($productosNoEliminados) > 0){
 		$miHtml .= '<tr><th>id - nombre</td><td>mensaje/s - relación/es</td></tr>';
 		foreach($productosNoEliminados as $noEliminado){
 			$miHtml .= '<tr><td>'. $noEliminado['id'].' - '. $noEliminado['nombre'].'</td></tr>';
 			$miHtml .='<tr><td> <ul>';
-			
 			foreach($noEliminado['comprobaciones'] as $comprobacion){
 				$miHtml.='<li>'.$comprobacion['mensaje'].'</li>';
 			}
