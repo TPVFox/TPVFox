@@ -290,9 +290,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         echo $htmlConfiguracion['htmlCheck'];
                         ?>
                     </div>
-<!-- Provisionalmente resultado de borrar productos -->
-                    <div id="resultado">Resultado</div>
-<!-- ------------------------------------------     -->
+
                 </div>
 
                 <div class="col-sm-10 col-xs-12">
@@ -303,6 +301,9 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                       }
                       ?>  
                     </div>
+                    <!-- Provisionalmente resultado de borrar productos -->
+                    <div id="resultado">Resultado</div>
+<!--                                               -->
                     <div>
                     <p>
                         -Productos encontrados BD local filtrados:

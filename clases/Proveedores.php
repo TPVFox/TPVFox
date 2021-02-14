@@ -2,63 +2,27 @@
 include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 class Proveedores extends TFModelo {
-	//~ private $idProveedor;
-	//~ private $nombreComercial;
-	//~ private $razonSocial;
-	//~ private $nif;
-	//~ private $direccion;
-	//~ private $telefono;
-	//~ private $fax;
-	//~ private $movil;
-	//~ private $email;
-	//~ private $fecha_creado;
-	//~ private $estado;
-	
-	//~ public function __construct($conexion){
-		//~ $this->db = $conexion;
-		//~ // Obtenemos el numero registros.
-		//~ $sql = 'SELECT count(*) as num_reg FROM proveedores';
-		//~ $respuesta = $this->consulta($sql);
-		//~ $this->num_rows = $respuesta->fetch_object()->num_reg;
-		//~ // Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
-	//~ }
-	//~ public function consulta($sql){
-		//~ $db = $this->db;
-		//~ $smt = $db->query($sql);
-		//~ if ($smt) {
-			//~ return $smt;
-		//~ } else {
-			//~ $respuesta = array();
-			//~ $respuesta['consulta'] = $sql;
-			//~ $respuesta['error'] = $db->error;
-			//~ return $respuesta;
-		//~ }
-	//~ }
 	
 	public function buscarProveedorId($idProveedor){
-		//~ $db = parent::db;
 		$sql='SELECT * from proveedores where idProveedor='.$idProveedor;
 		$smt=$this->consulta($sql);
 		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-            error_log(count($smt['datos']));
             $respuesta = $smt['datos'][0];
 		}
 		return $respuesta;
 	}
 	public function buscarProveedorNombre($nombre){
-		//~ $db = $this->db;
 		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
 		$smt=$this->consulta($sql);
 		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
 			$respuesta['consulta']=$smt['consulta'];
 		}else{
-			$proveedorPrincipal=$smt['datos'];
+			$respuesta=$smt;
 		}
-
         return $respuesta;
 	}
 
@@ -84,16 +48,12 @@ class Proveedores extends TFModelo {
     public function buscarProductosProveedor($idProveedor){
         $sql='SELECT * from articulosProveedores where idProveedor='.$idProveedor;
         $smt=$this->consulta($sql);
-		if (gettype($smt) == 'object') {
-            while ($fila = $smt->fetch_assoc()){
-				$productos_provedor[] = $fila;
-			}
+		if (isset($smt['datos'])){
+				$productos_provedor =$smt['datos'];
 		} else {
             $productos_provedor['error']=$smt['error'];
 			$productos_provedor['consulta']=$smt['consulta'];
         }
-        //~ error_log('En mod_productos/tareas-> buscarProductosProveedor:'.json_encode($productos_provedor));
-
         return $productos_provedor;
     }
 	
