@@ -203,7 +203,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
         <!-- Modal -->
         <?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 		?>
 
     </body>
