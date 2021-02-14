@@ -425,7 +425,7 @@ if (isset($_GET['tActual'])){
 </div>
 <?php // Incluimos paginas modales
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-include $RutaServidor.'/'.$HostNombre.'/plugins/modal/busquedaModal.php';
+include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 ?>
 <script type="text/javascript">
 	$('#fecha').focus();

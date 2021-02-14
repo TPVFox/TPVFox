@@ -28,7 +28,7 @@ function enviarIncidencia(){
 			if(resultado.error){
 				alert(resultado.mensaje);
 			}else{
-				$('#busquedaModal').modal('hide');
+				$('#ventanaModal').modal('hide');
 				if(dedonde=="incidencia"){
 					location.reload(true);
 				}

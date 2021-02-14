@@ -17,7 +17,7 @@
 
 
 <!-- Modal -->
-<div id="busquedaModal" class="modal fade" role="dialog">
+<div id="ventanaModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
     <div class="modal-content">

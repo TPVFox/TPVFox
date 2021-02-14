@@ -227,9 +227,9 @@ function abrirModal(titulo,tabla){
 	console.log(' ========  ABRIMOS MODAL ==============');
 	$('.modal-body > p').html(tabla);
 	$('.modal-title').html(titulo);
-	$('#busquedaModal').modal('show');
+	$('#ventanaModal').modal('show');
 	//Se lanza este evento cuando se ha hecho visible el modal al usuario (se espera que concluyan las transiciones de CSS).
-	$('#busquedaModal').on('shown.bs.modal', function() {
+	$('#ventanaModal').on('shown.bs.modal', function() {
 	$('#cajaBusquedacliente').focus(); //foco en input caja busqueda del cliente
 	});
 
@@ -245,7 +245,7 @@ function cerrarModalClientes(id,nombre,dedonde=''){
 	// mostrarlos en tpv
 	
 	//cerrar modal busqueda
-	$('#busquedaModal').modal('hide');
+	$('#ventanaModal').modal('hide');
 	
 	//agregar datos funcion js
 	$('#id_cliente').val(id);
