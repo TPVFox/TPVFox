@@ -148,12 +148,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
     $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
                                 );
-
-
-?>
-
-<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+ // -------------- Obtenemos de parametros cajas con sus acciones en JS ---------------  //
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
 ?>
 
@@ -171,7 +166,9 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
 		// Objetos cajas de tpv
 		<?php
             echo $VarJS;
-			echo  'var producto='.json_encode($Producto).';';
+			//~ echo  'var producto='.json_encode($Producto).';'; // PELIGRO DE SEGURIDAD, MUESTRA HTML PASSWORD DE PLUGIN
+            echo 'var producto = new Object();';
+            echo 'producto.idArticulo = '.$Producto['idArticulo'].';';
 			echo  'var ivas='.json_encode($ivas).';';
         ?>
 		</script>

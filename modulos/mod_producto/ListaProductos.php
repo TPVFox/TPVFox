@@ -574,13 +574,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
         
         </div>
         <div class="loader"></div>
-        <div>
-            <?php
-            echo '<pre>';
-            print_r($CTArticulos);
-            echo '</pre>';
-            ?>
-        </div>
         <script>
         <?php 
         if($botonSeleccion==1){
