@@ -1,172 +1,172 @@
+<?php
+include_once './../../inicial.php';
+include_once $URLCom.'/modulos/mod_producto/funciones.php';
+include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+$OtrosVarJS ='';
+// Creo objeto de controlador comun.
+$Controler = new ControladorComun; 
+// Añado la conexion
+$Controler->loadDbtpv($BDTpv);
+// Cargamos los fichero parametros y creamos objeto parametros..
+include_once ($URLCom.'/controllers/parametros.php');
+$ClasesParametros = new ClaseParametros('parametros.xml');
+$parametros = $ClasesParametros->getRoot();
+// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+// Creamos objeto de productos		
+$CTArticulos = new ClaseProductos($BDTpv);
+
+$id = 0 ; // Por  defecto el id a buscar es 0
+
+$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
+
+$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
+
+$titulo = 'Productos:';
+if (isset($_GET['id'])) {
+    // Modificar Ficha Producto
+    $id=$_GET['id']; // Obtenemos id producto para modificar.
+    $titulo .= "Modificar";
+} else {
+    // Quiere decir que no hay id, por lo que es nuevo
+    $titulo .= "Crear";
+}
+if ($_POST){
+    include_once ('./tareas/reciboPostProducto.php');
+}
+// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
+$Producto = $CTArticulos->GetProducto($id);
+
+
+$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
+
+// Antes de montar html de proveedores añado array de proveedores cual es principal
+if ( !isset($Producto['proveedores_costes'])) {
+    // No existe costes..
+    $Producto['proveedores_costes']= array();
+} else {
+    if ( gettype($Producto['proveedor_principal']) == 'array') {
+        foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
+            if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
+                // Indicamos que es le principal
+                $Producto['proveedores_costes'][$key]['principal'] = 'Si';
+            }
+        }
+    }
+} 
+// ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
+$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
+
+// Ahora comprobamos si el coste ultimo es correcto.
+if (number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
+    $success = array ( 'tipo'=>'warning',
+                         'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
+                         .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
+                         'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
+                        );
+    $Producto['comprobaciones'][] = $success;
+    // Ahora cambiamos el coste_ultimo
+    $Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
+}
+
+// Cargamos el plugin que nos interesa.
+$idVirtuemart = 0;
+if( isset($Producto['ref_tiendas'])){
+    // Esto no es del todo correcto... ?
+    foreach ($Producto['ref_tiendas'] as $ref){
+        // Debemos comprobar que es la referencia de la tienda web.. FALTA
+        if ($ref['idVirtuemart'] >0){
+            $idVirtuemart = $ref['idVirtuemart'];
+        }
+    }
+  
+}  
+if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto") == 1){
+    // Sino tiene permisos ya no hacemos consulta a la web.
+    $datosWebCompletos=array();
+    // Creo el objeto de plugin Virtuemart.
+    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+    // Cargo caja_input de parametros de plugin de virtuemart.
+    $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+    $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+    $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+    // Obtengo el id de la tienda Web
+    $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+    if (count($tiendaWeb) >0){
+        // Se conecta a la web y obtiene los datos de producto cruzado.
+        $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
+
+        // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+        if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+            $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+        }
+        
+        if ($idVirtuemart>0 ) { 
+           $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+        }
+    }
+}
+// ==========		Montamos  html que mostramos. 			============ //
+    if ($id == 0 ) {
+        $Producto['iva']=$conf_defecto['iva_predeterminado'];
+    }
+    $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
+    $htmlTipo=htmlTipoProducto($Producto['tipo']);
+    $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
+
+
+    // Obtenemos si tiene permisopara eliminar registros.
+    $borrar_ref_prov = 'Ok';
+    if($ClasePermisos->getAccion("eliminarRefProveedores") == 0){
+        $borrar_ref_prov = 'KO';
+    }
+    $htmltabla = array();
+    if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
+        // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
+        $relacion_balanza = $CTArticulos->obtenerTeclaBalanzas($id);
+        if (!isset($relacion_balanza['error'])){
+            // Quiere decir que se obtuvo algun registro.
+            // Puede ser un array.
+            $htmltabla[] = array (  'titulo' => 'Plu y Teclas en balanzas',
+                                    'html' => htmlTablaBalanza($relacion_balanza)
+                                );
+        }
+    }
+    $htmltabla[] = array (  'titulo' => 'Códigos de Barras',
+                                    'html' => htmlTablaCodBarras($Producto['codBarras'])
+                                );
+    $htmltabla[] = array (  'titulo' => 'Proveedores - Costes',
+                                    'html' => htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov)
+                                );
+    $htmltabla[] = array (  'titulo' => 'Familias',
+                                    'html' => htmlTablaFamilias($Producto['familias'], $id)
+                                );
+    $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
+                                    'html' => htmlTablaRefTiendas($Producto['ref_tiendas'])
+                                );
+    $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
+                                    'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
+                                );
+
+
+?>
+
+<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
-        include_once './../../inicial.php';
-        include_once $URLCom.'/head.php';
-        include_once $URLCom.'/modulos/mod_producto/funciones.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-        include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
-        $OtrosVarJS ='';
-        // Creo objeto de controlador comun.
-		$Controler = new ControladorComun; 
-		// Añado la conexion
-		$Controler->loadDbtpv($BDTpv);
-		// Cargamos los fichero parametros y creamos objeto parametros..
-		include_once ($URLCom.'/controllers/parametros.php');
-		$ClasesParametros = new ClaseParametros('parametros.xml');
-		$parametros = $ClasesParametros->getRoot();
-		// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
-		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		// Creamos objeto de productos		
-		$CTArticulos = new ClaseProductos($BDTpv);
-		
-		$id = 0 ; // Por  defecto el id a buscar es 0
-       
-		$ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
-     
-		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
-        
-		$titulo = 'Productos:';
-		if (isset($_GET['id'])) {
-			// Modificar Ficha Producto
-			$id=$_GET['id']; // Obtenemos id producto para modificar.
-			$titulo .= "Modificar";
-		} else {
-			// Quiere decir que no hay id, por lo que es nuevo
-			$titulo .= "Crear";
-		}
-		if ($_POST){
-			include_once ('./tareas/reciboPostProducto.php');
-		}
-		// Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
-		$Producto = $CTArticulos->GetProducto($id);
-		
-		
-		$Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
-		
-		// Antes de montar html de proveedores añado array de proveedores cual es pricipal
-        if ( isset($Producto['proveedores_costes'])){
-            foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
-                if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
-                    // Indicamos que es le principal
-                    $Producto['proveedores_costes'][$key]['principal'] = 'Si';
-                }
-            }
-        } else {
-            $Producto['proveedores_costes']= array();
-        }
-        // ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
-		$proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
-		
-		// Ahora comprobamos si el coste ultimo es correcto.
-		if (number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
-			$success = array ( 'tipo'=>'warning',
-								 'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
-								 .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
-								 'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
-								);
-			$Producto['comprobaciones'][] = $success;
-			// Ahora cambiamos el coste_ultimo
-			$Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
-		}
-        
-		// Cargamos el plugin que nos interesa.
-        $idVirtuemart = 0;
-        if( isset($Producto['ref_tiendas'])){
-            // Esto no es del todo correcto... ?
-            foreach ($Producto['ref_tiendas'] as $ref){
-                // Debemos comprobar que es la referencia de la tienda web.. FALTA
-                if ($ref['idVirtuemart'] >0){
-                    $idVirtuemart = $ref['idVirtuemart'];
-                }
-            }
-          
-		}  
-		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto") == 1){
-            // Sino tiene permisos ya no hacemos consulta a la web.
-            $datosWebCompletos=array();
-			// Creo el objeto de plugin Virtuemart.
-			$ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-			// Cargo caja_input de parametros de plugin de virtuemart.
-			$ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
-			$parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-			$OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-            // Obtengo el id de la tienda Web
-            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-            if (count($tiendaWeb) >0){
-                // Se conecta a la web y obtiene los datos de producto cruzado.
-                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
-
-                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-                if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                    $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-                }
-                
-                if ($idVirtuemart>0 ) { 
-                   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
-                }
-            }
-		}
-		// ==========		Montamos  html que mostramos. 			============ //
-            if ($id == 0 ) {
-                $Producto['iva']=$conf_defecto['iva_predeterminado'];
-            }
-            $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
-            $htmlTipo=htmlTipoProducto($Producto['tipo']);
-            $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
-
-
-            // Obtenemos si tiene permisopara eliminar registros.
-            $borrar_ref_prov = 'Ok';
-            if($ClasePermisos->getAccion("eliminarRefProveedores") == 0){
-                $borrar_ref_prov = 'KO';
-            }
-            $htmltabla = array();
-            if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
-                // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
-                $relacion_balanza = $CTArticulos->obtenerTeclaBalanzas($id);
-                if (!isset($relacion_balanza['error'])){
-                    // Quiere decir que se obtuvo algun registro.
-                    // Puede ser un array.
-                    $htmltabla[] = array (  'titulo' => 'Plu y Teclas en balanzas',
-                                            'html' => htmlTablaBalanza($relacion_balanza)
-                                        );
-                }
-            }
-            $htmltabla[] = array (  'titulo' => 'Códigos de Barras',
-                                            'html' => htmlTablaCodBarras($Producto['codBarras'])
-                                        );
-            $htmltabla[] = array (  'titulo' => 'Proveedores - Costes',
-                                            'html' => htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov)
-                                        );
-            $htmltabla[] = array (  'titulo' => 'Familias',
-                                            'html' => htmlTablaFamilias($Producto['familias'], $id)
-                                        );
-            $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
-                                            'html' => htmlTablaRefTiendas($Producto['ref_tiendas'])
-                                        );
-            $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
-                                            'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
-                                        );
-
-
-    	?>
-    
-		<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-		<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-            $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
-		?>
-         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
-       
+        <?php include_once $URLCom.'/head.php'; ?>
+        <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-
-          
-		
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php
