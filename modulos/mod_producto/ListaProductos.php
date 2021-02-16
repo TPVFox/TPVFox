@@ -533,44 +533,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 		?>
-        <div id="regularizaStockModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header btn-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title text-center">Titulo configurable</h3>
-                    </div>
-                    <form id="fregulariza" action="javascript:grabarRegularizacion();">
-                        <div class="modal-body">
-                            <table>
-                                <tr>
-                                    <td colspan="3">
-                                        <h5>Articulo a regularizar:<p id="nombre" > </p> </h5></td>                                    
-                                </tr>
-                                <tr>
-                                    <td>Stock Actual</td>
-                                    <td>Stock a colocar</td>
-                                    <td>SUMAR al stock</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="text" id="stockactual" value="000" readonly="readonly"/></td>
-                                    <td><input type="text" id="stockcolocar" value="000" /></td>
-                                    <td><input type="text" id="stocksumar" value="000" /></td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-default" >Guardar</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                        </div>
-                        <input type="hidden" id="articuloid" value="000" />
-                    </form>
-                </div>
-                
-            </div>
-            	
-        </div>
         
         </div>
         <div class="loader"></div>
