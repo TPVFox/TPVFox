@@ -107,7 +107,7 @@ switch ($pulsado) {
         $respuesta['Productos']=$idsProductos;
     break;
 
-     case 'cambiarEstadoProductos':
+    case 'cambiarEstadoProductos':
         $productos=$_POST['productos'];
         $estado=$_POST['estado'];
         $modEstado=$NCArticulo->modificarVariosEstados($estado, $productos);
@@ -125,6 +125,10 @@ switch ($pulsado) {
 	case 'ComprobarSiExisteCodbarras':
 		$respuesta = $NCArticulo->GetProductosConCodbarras($_POST['codBarras']);
 	break;
+
+    case 'datosRegularizar':
+        include_once $URLCom.'/modulos/mod_producto/tareas/htmlModalRegularizacionStock.php';
+    break;
 
     case 'eliminarCoste':
 		$respuesta = array();
@@ -195,8 +199,7 @@ switch ($pulsado) {
                 }
                 
             }else{
-//                $respuesta['advertencia']='Revisa estado producto, tiene que estar: baja'; 
-                $datos['comprobaciones'] = array(0=>['mensaje' =>'XRevisa estado producto, tiene que estar: baja']);
+                $datos['comprobaciones'] = array(0=>['mensaje' =>'Revisa estado producto, tiene que estar: baja']);
                 array_push( $productosNoEliminados, $datos);
             }
         }
@@ -204,6 +207,27 @@ switch ($pulsado) {
         $respuesta['Eliminados']=$productosEliminados;
 
         $respuesta['html'] = construirHTMLEliminarProductos($productosEliminados, $productosNoEliminados);
+    break;
+
+    case 'grabarRegularizacion':
+        $idArticulo = $_POST['idarticulo'];
+        $stockReal = $_POST['stockReal'];
+        $Producto = $NCArticulo->GetProducto($idArticulo);
+        $stocksumar =  floatval($stockReal) - $Producto['stocks']['stockOn'];
+        $idTienda = isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']['idTienda'] : 1;
+        $idUsuario = isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv']['id'] : 0;
+        // Ahora cambiamos el stock
+        $respuesta = alArticulosStocks::regularizaStock($idArticulo, $idTienda, $stocksumar, K_STOCKARTICULO_SUMA);
+        // Ahora grabamos el registro de stock en tabla stocksRegularizacion
+        //~ alArticulosRegularizacion::grabar([
+            //~ 'idArticulo' => $idArticulo,
+            //~ 'idTienda' => $idTienda,
+            //~ 'stockActual' => $stockinicial['stockOn'],
+            //~ 'stockModif' => $stocksumar,
+            //~ 'stockFinal' => $stockfinal['stockOn'],
+            //~ 'stockOperacion' => K_STOCKARTICULO_SUMA,
+            //~ 'idUsuario' => $idUsuario
+        //~ ]);
     break;
 
     case 'Grabar_configuracion':

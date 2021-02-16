@@ -1010,56 +1010,75 @@ function comprobarReferencia(){
 						alert("Ojo Esa referencia de producto ya está registrada");
                     }
 				}
-				 
 		}	
 	});
     console.log('Fin de comprobarReferencia');
 }
 
 function RegularizarStock(idarticulo) {
-    ajaxRegularizar({
-        'pulsado': 'leerarticulo',
-        'idarticulo': idarticulo
-    }, function (response) {
-        var resultado = JSON.parse(response);
-        $('#articuloid').val(resultado.idarticulo);
-        $('#nombre')[0].innerHTML = resultado.nombreArticulo + '(' + resultado.idarticulo + ')';
-        $('#stockactual').val(resultado.stock);
-        $('#stockcolocar').val(resultado.stock);
-        $('#stocksumar').val(0);
-        abrirDivModal('regularizaStockModal', 'Regularización de Stock');
-        SelectAlLanzarModal('regularizaStockModal', 'stockcolocar');
+    var parametros = {
+		"pulsado"    	: 'datosRegularizar',
+		"idarticulo"	: idarticulo
+		};
+    $.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Envio para obtener html para modal de regularizacion  **************');
+		},
+        success    :  function (response) {
+				console.log('Respuesta de obtner html formulario de regularizacion ');
+				var resultado = JSON.parse(response);
+				if(resultado.error){
+					alert("Error fue imposible obtener html para mostral modal");
+				}else{
+                    var titulo = 'Regularizacion de Stock ';
+                    abrirModal(titulo,resultado.html);
+				}
+		}	
     });
-
 }
 
 function grabarRegularizacion() {
+    // Cerrar modal
     var parametros = {
-        pulsado: 'grabar',
-        idarticulo: $('#articuloid').val(),
-        stocksumar: $('#stocksumar').val()
-    }
-    ajaxRegularizar(parametros, function (response) {
-        var resultado = JSON.parse(response);
-        if(!resultado){
-            alert('error al grabar');
-        } else 
-        cerrarDivPopUp('regularizaStockModal');
-    })
-}
-
-function ajaxRegularizar(parametros, callback) {
-
+		"pulsado"    	: 'grabarRegularizacion',
+		"idarticulo"	: $('#articuloid').val(),
+        "stockReal"     : $('#stockcolocar').val()
+		};
     $.ajax({
-        data: parametros,
-        url: './tareasregularizar.php',
-        type: 'post',
-        success: callback,
-        error: function (request, textStatus, error) {
-            console.log(textStatus);
-        }
+		data       : parametros,
+		url        : 'tareas.php',
+        type       : 'post',
+		beforeSend : function () {
+            console.log('*********  Envio para grabar regularizacion  **************');
+		},
+        success    :  function (response) {
+			console.log('Respuesta de comprobar la referencia escrita en el producto ');
+			var resultado = JSON.parse(response);
+			if(resultado.error){
+				alert("Error al grabar regularizacion");
+			}else{
+                var titulo = 'Respuesta grabar regularizacion';
+                //~ abrirModal(titulo,resultado.html);
+			}
+		}
     });
 }
+
+//~ function ajaxRegularizar(parametros, callback) {
+
+    //~ $.ajax({
+        //~ data: parametros,
+        //~ url: './tareasregularizar.php',
+        //~ type: 'post',
+        //~ success: callback,
+        //~ error: function (request, textStatus, error) {
+            //~ console.log(textStatus);
+        //~ }
+    //~ });
+//~ }
 function modalFamiliaProducto(idProducto=""){
     var parametros = {
         pulsado: 'modalFamiliaProducto',
