@@ -198,7 +198,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
 				<div class="col-md-12 ">
-					<a class="text-ritght" href="./ListaProductos.php">Volver Atrás</a>
+                    <?php echo $Controler->getHtmlLinkVolver('Volver ');?>
 					<input type="submit" value="Guardar" class="btn btn-primary">
 				</div>
 				<div class="col-md-6 Datos">

@@ -2,7 +2,7 @@
 $idArticulo = $_POST['idarticulo'];
 $Producto = $NCArticulo->GetProducto($idArticulo);
 
-$html = '<form id="fregulariza" action="javascript:grabarRegularizacion();">
+$html = '
     <table>
         <tr>
             <td colspan="2">
@@ -18,10 +18,9 @@ $html = '<form id="fregulariza" action="javascript:grabarRegularizacion();">
             <td><input type="text" id="stockcolocar" value="'.number_format($Producto['stocks']['stockOn'], 2, '.', '').'" /></td>
         </tr>
     </table>
-    <button type="submit" class="btn btn-default" >Guardar</button>
+    <button type="submit" class="btn btn-default" onclick="grabarRegularizacion();" >Guardar</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-    <input type="hidden" id="articuloid" value="'.$idArticulo.'" />
-</form>';
+    <input type="hidden" id="articuloid" value="'.$idArticulo.'" />';
 
 $respuesta['html'] =$html;
            
