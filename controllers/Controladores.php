@@ -305,8 +305,14 @@ class ControladorComun
         // Le falta logica a este metodo, ya si lo queremos ejecutar siempre, falla:
         //    Cuando la ruta es directa.
         //    Cuando pulsamos en guardar, ya tiene como HTTP_REFER la misma ruta.
-        $Link_volver =  $_SERVER['HTTP_REFERER'];
-        $html =  '<a class="glyphicon glyphicon-circle-arrow-left" href="'.$Link_volver.'">';
+        $Link_volver = $_SERVER['HTTP_REFERER'];
+        $ruta_actual = $_SERVER['REQUEST_URI'];
+        $valor = '-1';
+        if ($this->getNombreFichero($Link_volver) === $this->getNombreFichero($ruta_actual)){
+            // Si es el mismo ,volvemos dos atras.
+            $valor = '-2';
+        }
+        $html = '<a class="glyphicon glyphicon-circle-arrow-left" onClick="history.go('.$valor.');">';
         if ($anchor <> ''){
            $html .= $anchor.'</a>';
         } else {
