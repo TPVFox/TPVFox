@@ -144,7 +144,7 @@ class alArticulosStocks extends ModeloP
         return $resultado;
     }
 
-    public function grabarRegularizacion($datos){
+    public static function grabarRegularizacion($datos){
         $tabla = 'stocksRegularizacion';
         if(!isset($datos['fechaRegularizacion'])){
             $datos['fechaRegularizacion'] = date(FORMATO_FECHA_MYSQL);

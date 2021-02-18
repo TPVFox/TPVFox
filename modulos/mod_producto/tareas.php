@@ -217,17 +217,18 @@ switch ($pulsado) {
         $idTienda = isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']['idTienda'] : 1;
         $idUsuario = isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv']['id'] : 0;
         // Ahora cambiamos el stock
-        $respuesta = alArticulosStocks::regularizaStock($idArticulo, $idTienda, $stocksumar, K_STOCKARTICULO_SUMA);
-        // Ahora grabamos el registro de stock en tabla stocksRegularizacion
-        //~ alArticulosRegularizacion::grabar([
-            //~ 'idArticulo' => $idArticulo,
-            //~ 'idTienda' => $idTienda,
-            //~ 'stockActual' => $stockinicial['stockOn'],
-            //~ 'stockModif' => $stocksumar,
-            //~ 'stockFinal' => $stockfinal['stockOn'],
-            //~ 'stockOperacion' => K_STOCKARTICULO_SUMA,
-            //~ 'idUsuario' => $idUsuario
-        //~ ]);
+        $respuesta['cambioStock'] = alArticulosStocks::regularizaStock($idArticulo, $idTienda, $stocksumar, K_STOCKARTICULO_SUMA);
+        // Montamos array para grabar en tabla stocksRegularizacion
+        $datos = array ('idArticulo' => $idArticulo,
+                        'idTienda' => $idTienda,
+                        'stockActual' => $Producto['stocks']['stockOn'],
+                        'stockModif' => $stocksumar,
+                        'stockFinal' => $stockReal,
+                        'stockOperacion' => K_STOCKARTICULO_SUMA,
+                        'idUsuario' => $idUsuario
+                        );
+        $respuesta['registroRegularizacionStock'] = alArticulosStocks::grabarRegularizacion($datos);
+        
     break;
 
     case 'Grabar_configuracion':
