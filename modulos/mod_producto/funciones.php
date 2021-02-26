@@ -1060,9 +1060,9 @@ function construirHTMLEliminarProductos($productosEliminados, $productosNoElimin
 		}
 	}
 	$miHtml .= '</table>';
-    $miHtml = '<h4>Productos NO Eliminados</h4>';
-	$miHtml .= '<table>';
 	if(count($productosNoEliminados) > 0){
+        $miHtml .= '<h4>Productos NO Eliminados</h4>';
+        $miHtml .= '<table>';
 		$miHtml .= '<tr><th>id - nombre</td><td>mensaje/s - relación/es</td></tr>';
 		foreach($productosNoEliminados as $noEliminado){
 			$miHtml .= '<tr><td>'. $noEliminado['id'].' - '. $noEliminado['nombre'].'</td></tr>';
@@ -1072,8 +1072,9 @@ function construirHTMLEliminarProductos($productosEliminados, $productosNoElimin
 			}
 			$miHtml .='</ul></td></tr>';
 		}
+        $miHtml .= '</table>';
 	}
-	$miHtml .= '</table>';
+	
 return $miHtml;    
 }
 

@@ -183,10 +183,6 @@ switch ($pulsado) {
                 if($comprobacionesEliminar['bandera']==1){
                     $datos['comprobaciones'] = $comprobacionesEliminar['resultado'];
                     $productosNoEliminados[] = $datos;
-                    // $respuesta[] = [
-                    //     'consulta_con_datos' => $comprobacionesEliminar['resultado']['consulta'],
-                    //     'haydatos' => $comprobacionesEliminar['resultado']['haydatos'],
-                    // ];
                 }else{                    
                     $productosEliminados[] = $datos;
                     productosSesion($idProducto,'NoSeleccionar');

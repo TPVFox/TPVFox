@@ -1,29 +1,73 @@
-$(function () {
-    $(".boton-regularizar").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        var data = $(event.currentTarget).data();
-        RegularizarStock(data.idarticulo);
-    });
-    $("#stockcolocar").keyup(function (event) {
-        var stock = $("#stockactual").val();
-        var colocar = $("#stockcolocar").val();
-        if (!isNaN(colocar)) {
-            var final = parseFloat(colocar) - parseFloat(stock);
-            $("#stocksumar").val(final);
+$(function ()
+    {
+        $(".boton-regularizar").on("click", function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var data = $(event.currentTarget).data();
+            RegularizarStock(data.idarticulo);
+        });
+        $("#stockcolocar").keyup(function (event) {
+            var stock = $("#stockactual").val();
+            var colocar = $("#stockcolocar").val();
+            if (!isNaN(colocar)) {
+                var final = parseFloat(colocar) - parseFloat(stock);
+                $("#stocksumar").val(final);
+            }
+        });
+        $("#stocksumar").keyup(function (event) {
+            event.preventDefault();
+            var stock = $("#stockactual").val();
+            var sumar = $("#stocksumar").val();
+            if (!isNaN(sumar)) {
+                var final = parseFloat(sumar) + parseFloat(stock);
+                $("#stockcolocar").val(final);
+            }
+        });
+        $('#ventanaModal').on('shown.bs.modal', function() {
+              //@Objetivo: llamar a la librería autocomplete 
+            $( ".familias" ).combobox({
+                select : function(event, ui){ 
+                    var idProducto= $( "#idProductoModal" ).val();
+                      
+                    var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
+                    if(idProducto==0){
+                        $('#botonEnviar2').html(botonhtml);  
+                    }else{
+                         $('#botonEnviar').html(botonhtml);  
+                    }
+                },
+            });
+            $( ".estados" ).combobox({
+                select : function(event, ui){ 
+                    var idProductos= $( "#idProductosModal" ).val();  
+                    var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+"'"+ui.item.value+"'"+', '+"'"+idProductos+"'"+')">Guardar</button>';
+                    $('#botonEnviarEstados').html(botonhtml);  
+                },
+            });
+        });
+        //@Objetivo: llamar a la librería autocomplete 
+        if( $("select").hasClass("familiasLista")){
+            $( ".familiasLista" ).combobox({
+                select : function(event, ui){ 
+                    //~ var idProducto= $( "#idProductoModal" ).val();
+                     var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
+                   $('#botonEnviar').html(botonhtml);   
+                },
+            });
+            $( ".proveedoresLista" ).combobox({
+                select : function(event, ui){ 
+                    //~ var idProducto= $( "#idProductoModal" ).val();
+                     var botonhtml='<a class="btn btn-primary" onclick="buscarProductosProveedor('+ui.item.value+')">Buscar</a>';
+                   $('#botonEnviarPro').html(botonhtml);   
+                },
+            });
         }
-    });
-    $("#stocksumar").keyup(function (event) {
-        event.preventDefault();
-        var stock = $("#stockactual").val();
-        var sumar = $("#stocksumar").val();
-        if (!isNaN(sumar)) {
-            var final = parseFloat(sumar) + parseFloat(stock);
-            $("#stockcolocar").val(final);
-        }
-    });
-});
+        $( "#toggle" ).on( "click", function()
+        {
+            $( "#combobox" ).toggle();
+        });
+    }
+);
 
 //recogemos valor de la caja de busqueda que tenemos en Listado tickets o productos
 function BuscarProducto (){
@@ -69,7 +113,6 @@ function BuscarProveedor (dedonde,busqueda=''){
 		},
 		success    :  function (response) {
 			console.log('Repuesta de Obtener HTML de cajabuscarproveedor');
-			
 			var resultado =  $.parseJSON(response);
 			var titulo = 'Buscar Proveedor Nuevo para este producto'
 			var contenido = resultado['html'];
@@ -77,10 +120,6 @@ function BuscarProveedor (dedonde,busqueda=''){
 			focusAlLanzarModal('cajaBusquedaproveedor');
 		}
 	});
-	
-	
-	
-	
 }
 
 
@@ -101,8 +140,8 @@ function metodoClick(pulsado,adonde){
 			}
 			// Ahora redireccionamos 
 			window.location.href = './'+adonde+'.php?id='+checkID[0];			
-			
-			break;
+        break;
+        
 		case 'EtiquetasCodBarras':
 			console.log('Entro en etiquetas codigo de barras');
 			// Cargamos variable global ar checkID = [];
@@ -113,14 +152,12 @@ function metodoClick(pulsado,adonde){
 			}
 			// Ahora redireccionamos 
 			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];			
-			
-			break;
+        break;
 		
 		case 'AgregarProducto':
 			console.log('entro en agregar producto');
 			window.location.href = './producto.php';
-			
-			break;
+        break;
 		
 		case 'NuevaBusqueda':
 			// Obtenemos puesto en input de Buscar
@@ -132,10 +169,7 @@ function metodoClick(pulsado,adonde){
 				// volvemos sin mas..
 				return;
 			}
-			console.log('Resultado Buscar:'+BProductos);
-			break;
-		
-		
+        break;
 	 }
 } 
 
@@ -159,26 +193,20 @@ function agregoCodBarrasVacio(contNuevo){
 		},
 		success    :  function (response) {
 			console.log('Repuesta de Obtener HTML linea de FUNCION -> agregoCodBarrasVacio');
-			
 			var resultado =  $.parseJSON(response);
 			var nuevafila = resultado['html'];
-			console.log(nuevafila);
-			
 			$("#tcodigo").prepend(nuevafila);
-			
 		}
 	});
-	
 }
+
 function controlCodBarras(caja){
 	// Objetivo
 	// Controlar si el codigo de barras es correcto.
 	// De momento solo controlo que si existe hace una advertencia.
-
 	validarEntradaNombre(caja); // Limpiamos codigo de "
 	var codb = caja.darValor();
 	// Ahora debería comprobar si existe este codigo barras en este producto.
-	 
 	 $('#tcodigo').find(':input').each(function (id){
 		var stringId='codBarras_'+id; 
 		if ( stringId !== caja.id_input){
@@ -191,7 +219,6 @@ function controlCodBarras(caja){
 			}
 		}
 	});
-		
 	var parametros = {
 		"pulsado"    : 'ComprobarSiExisteCodbarras',
 		"codBarras": codb
@@ -205,32 +232,26 @@ function controlCodBarras(caja){
 		},
 		success    :  function (response) {
 			console.log('Respuesta de comprobación si existe ese codbarras');
-			
 			var resultado =  $.parseJSON(response);
-			console.log(resultado);
 			var msj='';
 			resultado.Items.forEach(function (item){
 				if (item.idArticulo !== producto.idArticulo){
 					msj = 'Existe este codbarras en ';
 				}
-				console.log(item.idArticulo);
 			});
 			if  (msj !==''){
 				alert(msj+resultado.NItems+ " productos. \n Estas segura que quiere añadirlo.")	;
 			}
-			
 		}
-	});
-	
+	});	
 }
+
 function eliminarFamiliaProducto(e){
     var padre=e.parentNode; 
 	var abuelo=padre.parentNode; 
 	var bisa=abuelo.parentNode; 
 	bisa.removeChild(abuelo);
 }
-
-
 
 function anular(e) {
     // Objetivo:
@@ -240,25 +261,23 @@ function anular(e) {
     tecla = (document.all) ? e.keyCode : e.which;
     return (tecla != 13);
 }
-//Función para eliminar el código de barras . Busca los elementos a eliminar mediante DOM
-//Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
+
  function eliminarCodBarras(e){
+    // @ Objetivo :
+    // Eliminar el código de barras . Busca los elementos a eliminar mediante DOM
+    // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
 	var padre=e.parentNode; 
 	var abuelo=padre.parentNode; 
 	var bisa=abuelo.parentNode; 
 	bisa.removeChild(abuelo);
  }
-	 
-
 
 function recalcularPrecioSegunCosteBeneficio (caja){
 	// @ Objetivo
 	// Recalcular precio de PVP sin iva y con iva, segun ultimo coste y beneficio.
-	
 	// Obtenemos el iva que selecciono.
 	console.log('RecalculoPreciosSegunCosteBeneficio');
 	var iva = obtenerIva();
-
 	var coste = parseFloat($( "#coste" ).val());
 	var beneficio = parseFloat($( "#beneficio" ).val());
 	if (beneficio >0 ){
@@ -270,15 +289,8 @@ function recalcularPrecioSegunCosteBeneficio (caja){
 	// Ahora cambiamos los datos en input.
 	destacarCambioCaja('pvpSiva');
 	destacarCambioCaja('pvpCiva');
-
 	$('#pvpSiva').val(precioSiva.toFixed(2));
 	$('#pvpCiva').val(precioCiva.toFixed(2));
-	
-	
-	
-	
-
-
 }
 
 function destacarCambioCaja(idcaja){
@@ -288,8 +300,8 @@ function destacarCambioCaja(idcaja){
 			"opacity": "0.3"
 		 },2000);
 	t = setTimeout(volverMostrar,2000,idcaja);
-	
 }
+
 function volverMostrar(idcaja){
 	console.log('Entro volver mostrar');
 	$("#"+idcaja).animate({
@@ -305,7 +317,6 @@ function recalcularPvp(dedonde){
 	//  dedonde = (string) id_input.
 	// Obtenemos iva ( deberías ser funcion)
 	var iva = obtenerIva();
-	console.log('De donde:'+dedonde);
 	if (dedonde === 'pvpSiva'){
 		var precioSiva = parseFloat($('#pvpSiva').val(),2);
 		var precioCiva = precioSiva+(precioSiva*iva);
@@ -314,17 +325,13 @@ function recalcularPvp(dedonde){
 	} else {
 		var precioCiva = parseFloat($('#pvpCiva').val(),2);
 		iva = iva +1;
-		console.log(iva);
 		var precioSiva = precioCiva/iva;
 		// Ahora destacamos los input que cambiamos		
 		destacarCambioCaja('pvpSiva');
 	}
-
 	//~ // Ahora cambiamos los datos en input.
 	$('#pvpSiva').val(precioSiva.toFixed(2));
 	$('#pvpCiva').val(precioCiva.toFixed(2));
-	
-	
 }
 
 function obtenerIva(){
@@ -335,8 +342,6 @@ function obtenerIva(){
 	ivas.forEach(function(element){
 		if (element.idIva === id_iva){
 			iva = parseFloat(element.iva,2);
-			console.log('id:'+element.idIva+ ' Busco:'+ id_iva + ' Iva:'+element.iva);
-			console.log('Iva encontrado.'+iva);
 		}
 	});
 	if (iva >0){
@@ -344,9 +349,7 @@ function obtenerIva(){
 		iva = iva/100;
 	}
 	return iva;
-	
 }
-
 
 function obtenerIdsProveedores(){
 	// Objetivo:
@@ -356,16 +359,12 @@ function obtenerIdsProveedores(){
 	$('.idProveedor').each(function(){
 		idsProveedores.push($(this).val());
 	});
-	console.log(idsProveedores);
-	
 	return idsProveedores;
-	
 }
 
 function AnhadirCodbarras(){
 	// @ Objetivo
 	// Añadir una caja de codbarras, pero solo si las que hay tiene valor, sino no añade.
-	
 	// Contamos los tr que hay body tcodigo
 	var num_tr = $('#tcodigo>tbody>tr').length; 
 	var vacio = 'No';
@@ -397,29 +396,22 @@ function AnhadirCodbarras(){
 				console.log('******  Respuesta de html lineas de codBarras *********');
 				var resultado =  $.parseJSON(response);
 				var nuevafila = resultado['html'];
-				console.log(nuevafila);
 				$("#tcodigo>tbody").prepend(nuevafila);
-				
 			}
 		});
-		
 	}
-	
 }
 
 function GuardarConfiguracion(obj){
 	// Si llega aquí es porque cambio el valor de check impresion...
 	// tenemos que tomar los valores configuracion para enviarlos y cambiarlos.
-	console.log('Grabar configuracion');
 	if ($(obj).val() === 'Si'){
 		$(obj).val('No');
 	} else {
 		$(obj).val('Si');
-		
 	}
 	var valor= $(obj).val();
 	var nombre = $(obj).attr("name");
-
 	CambiarConfiguracionMostrarLista(valor,nombre); // Cambiamos el valor de la configuracion
 	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionMostrarListado.
 	setTimeout(AjaxGuardarConfiguracion,500);
@@ -446,20 +438,16 @@ function AjaxGuardarConfiguracion(){
 				var resultado = response;
 				return resultado ;
 			}
-			
-	});
-	
-	
+    });
 }
+
 function CambiarConfiguracionMostrarLista(valor,nombre){
 	// Ahora cambiamos el valor configuracion.
 	configuracion.mostrar_lista.forEach(function(element) {
 		if (element.nombre === nombre){
 			element.valor=valor;
-
 		}
 	});
-
 }
 
 function CambiarConfiguracionBuscar_default(nombre){
@@ -473,7 +461,6 @@ function CambiarConfiguracionBuscar_default(nombre){
 			delete element.buscar_default;
 		}
 	});
-
 }
 
 
@@ -482,14 +469,12 @@ function GuardarBusqueda(event){
 	// Guardar el campo el que se busca en la configuracion del usuario y del modulo.
 	// @ Parametro:
 	// 		event-> Es select....
-	console.log("GuardarBusqeuda");
 	var campo =  event.target.value;
 	CambiarConfiguracionBuscar_default(campo);
 	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionBuscar_default.
 	var respuesta = setTimeout(AjaxGuardarConfiguracion,500);
 	// Limpiamo la cja de busqueda, ya que cambiamos la  busqueda.
 	$('input:text[name=buscar]').val("");
-	
 }
 
 function GuardarFiltroEstado(event){
@@ -525,7 +510,6 @@ function desActivarCoste(event){
 function desActivarCajasProveedor(obj){
 	// Objetivo:
 	// Activar o Desactivar cjas de input proveedores coste.
-	
 	// Obtenemos el id del proveedor.
 	var idInput= obj.id;
 	var id_prov = idInput.substr(15, 4);
@@ -537,15 +521,11 @@ function desActivarCajasProveedor(obj){
 	$('#check_pro_'+ id_prov).removeAttr('disabled', '');
 	$('#check_pro_'+ id_prov).removeAttr('readonly', '');
 	$('#check_pro_'+ id_prov).attr('onclick', "cambioEstadoProvPrincipal(this)");
-
-
 }
 function bloquearCajaProveedor(caja){
 	// Objetivo es poner solo lecturar la cja input
 	console.log('Poner solo lectura '+caja.name_cja);
 	$('#'+ caja.name_cja).attr('readonly', "true");
-
-	
 }
 
 function cambioEstadoProvPrincipal(obj){
@@ -564,9 +544,7 @@ function cambioEstadoProvPrincipal(obj){
 				$('#'+checks_pro[i].id).removeAttr('checked', '');
 			}
 		}
-		
 	}
-	
 }
 
 // ---------------------------------  Funciones control de teclado ----------------------------------------------- //
@@ -578,7 +556,6 @@ function after_constructor(padre_caja,event){
 	//		(objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
 	console.log("entre aqui");
-	console.log(event);
 	if (padre_caja.id_input.indexOf('pvpRecomendado') >-1){
 		padre_caja.id_input = event.originalTarget.id;
 	}
@@ -596,10 +573,7 @@ function before_constructor(caja){
     return caja;	
 }
 
-
-
 function controladorAcciones(caja,accion, tecla){
-	console.log('Entro en controlador de acciones');
 	switch(accion) {
 		case 'revisar_contenido':
 			validarEntradaNombre(caja);
@@ -615,7 +589,6 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 		
 		case 'salto_recalcular':
-			
 			var re= comprobarNumero(caja.darValor());
 			if ( re === true){
 				recalcularPrecioSegunCosteBeneficio(caja);
@@ -651,7 +624,6 @@ function controladorAcciones(caja,accion, tecla){
 			}
 		break;
 		
-		
 		case 'buscarProveedor':
 			// Solo venimos a esta accion cuando pulsamos intro cajaBusquedaproveedor
 			// entonce enviamos dedonde=popup, el buscar=Valor cja... que puede ser vacio.. 
@@ -659,6 +631,7 @@ function controladorAcciones(caja,accion, tecla){
 			var dedonde = 'popup';
 			BuscarProveedor (dedonde,buscar)
 		break;
+
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
 			console.log(caja);
@@ -668,8 +641,8 @@ function controladorAcciones(caja,accion, tecla){
 			} 
 			console.log('mover_down:'+nueva_fila);
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
-			
 		break;
+
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
 			var nueva_fila = 0;
@@ -685,9 +658,7 @@ function controladorAcciones(caja,accion, tecla){
             console.log( ' No hubo accion a realizar,accion pedida '+accion);
         break;
 	}
-		
 }
-
 
 function comprobarNumero(valor){
 	// Objetivo validar un numero decimal tanto positivo , como negativo.
@@ -697,9 +668,7 @@ function comprobarNumero(valor){
     } else {
         return false;
     }
-	
 }
-
 
 function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 	
@@ -720,17 +689,12 @@ function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
-				 var resultado = $.parseJSON(response);
-				//var resultado = response;
-				
-				//~ lin="#Row" + fila;
-				//~ alert(lin);
+                var resultado = $.parseJSON(response);
 				$('#Row'+ fila).addClass("tachado");
 				$("#Row" + fila +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
 				//return resultado;
 		}	
 	});
-	
 }
 function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 	var parametros = {
@@ -750,12 +714,8 @@ function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
-				 var resultado = $.parseJSON(response);
-				//var resultado = response;
-				
-				//~ lin="#Row" + fila;
-				//~ alert(lin);
-				 $("#Row" + fila).removeClass('tachado');
+                var resultado = $.parseJSON(response);
+                $("#Row" + fila).removeClass('tachado');
 				$("#Row" + fila +"> .eliminar").html('<a onclick="eliminarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-trash"></span></a>');
 				//return resultado;
 		}	
@@ -766,15 +726,11 @@ function mensajeImprimir(id, dedonde){
 	if (mensaje) {
 		var bandera=1;
 		imprimir(id, dedonde, bandera);
-
     } else {
-		//~ alert("¡Has denegado imprimir!");
 		location.href="../mod_compras/albaranesListado.php";
-		}
-
+    }
 }
 function imprimir(id, dedonde, bandera=""){
-	console.log("estoy en la función imprimir el listado");
 	var parametros = {
 		"pulsado"    		: 'imprimir',
 		"dedonde"			:dedonde,
@@ -800,6 +756,7 @@ function imprimir(id, dedonde, bandera=""){
 		}	
 	});
 }
+
 function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 	console.log(productos);
 	var parametros = {
@@ -810,7 +767,6 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		"productos"			:productos
 		
 	};
-	console.log(tamano);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -827,15 +783,13 @@ function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
 		}	
 	});
 }
+
 function validarEntradaNombre(caja){
 	// Objetivo:
 	// Eliminar caracteres extraños para evitar errores
-	console.log(caja)
 	cadena = caja.darValor();
 	cadena = cadena.replace('"', '');
-	console.log(cadena);
 	$('#'+caja.id_input).val(cadena);
-	
 }
 
 function seleccionProveedor(dedonde,idproveedor){
@@ -860,14 +814,11 @@ function seleccionProveedor(dedonde,idproveedor){
 				if (resultado.error){
 					alert (' Hubo un error al obtener los datos del proveedor ');
 				} else {
-					console.log(resultado);
 					var nuevo_proveedor = resultado.htmlFilaProveedor;
 					$("#tproveedor").prepend(nuevo_proveedor);
 				} 
 		}	
 	});
-
-
 }
 
 function selecionarItemProducto(id, dedonde="", seleccionar=""){
@@ -878,17 +829,13 @@ function selecionarItemProducto(id, dedonde="", seleccionar=""){
 	// @ Parametros:
 	// 		id -> (int) Id producto
 	//		dedonde-> la vista Listaproductos o Lista etiquetas.
-	//
 	// @ Devuelve:
 	// 		El numero de productos que tiene seleccionados
 	// En la vista LISTAETIQUETAS sino quedan productos seleccionado , lleva LISTAPRODUCTOS.
-	
-	console.log('Selecciono Item de producto, lo añadimos a session');
 	var parametros = {
 		"pulsado"    	: 'productosSesion',
 		"id"			:id,
         "seleccionar": seleccionar
-		
 	};
 	$.ajax({
 		data       : parametros,
@@ -899,16 +846,13 @@ function selecionarItemProducto(id, dedonde="", seleccionar=""){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de añadir o eliminad productos seleccionados');
-				
 				var resultado = $.parseJSON(response);
-				console.log(resultado);
 				if(resultado.Nitems===0){
 					if(dedonde=="listaProductos"){
 						$(".productos_seleccionados").css("display", "none");
 						location.href="ListaProductos.php";
 					}
-					
-				}else{
+                }else{
 					if(dedonde=="listaProductos"){
 						$(".productos_seleccionados").css("display", "block");
 						$(".textoCantidad").html(resultado.Nitems);
@@ -916,22 +860,19 @@ function selecionarItemProducto(id, dedonde="", seleccionar=""){
                         if(seleccionar==""){
                             location.href=dedonde+".php";
                         }
-						
 					}
-					
 				}
-                  $("#checkSeleccion").prop( "checked", false );
-				 
-		}	
+                $("#checkSeleccion").prop( "checked", false );
+        }
 	});
 }
+
 function eliminarSeleccionProductos(){
 	// @ Objetivo :
 	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
 	console.log(configuracion);
 		var parametros = {
 		"pulsado"    	: 'eliminarSeleccion'
-		
 		};
 	$.ajax({
 		data       : parametros,
@@ -946,17 +887,14 @@ function eliminarSeleccionProductos(){
 				configuracion.filtro.valor='No';
 				AjaxGuardarConfiguracion();
 				location.href="ListaProductos.php";
-				 
-		}	
+        }
 	});
 }
-
 
 function UnProductoClick(id){
 	// @ Objetivo:
 	// Hizo click en id o Nombre de producto, por lo que lo mostramos.
 	window.location.href = './producto.php?id='+id;
-	
 }
 
 function filtrarSeleccionProductos(){
@@ -966,25 +904,24 @@ function filtrarSeleccionProductos(){
 	AjaxGuardarConfiguracion();
 	location.href="ListaProductos.php";
 }
+
 function mover_up(fila,prefijo){
 	var d_focus = prefijo+fila;
 	ponerSelect(d_focus);
-	
 }
+
 function mover_down(fila,prefijo){
 	var d_focus = prefijo+fila;
 	ponerSelect(d_focus);
 }
+
 function ponerSelect (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Entro en ponerselects de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
-
 }
-
 
 function comprobarReferencia(){
 		var referencia=$("#referencia").val();
@@ -992,7 +929,6 @@ function comprobarReferencia(){
 		"pulsado"    	: 'comprobarReferencia',
 		"referencia"	: referencia
 		};
-
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -1012,7 +948,6 @@ function comprobarReferencia(){
 				}
 		}	
 	});
-    console.log('Fin de comprobarReferencia');
 }
 
 function RegularizarStock(idarticulo) {
@@ -1067,18 +1002,6 @@ function grabarRegularizacion() {
     });
 }
 
-//~ function ajaxRegularizar(parametros, callback) {
-
-    //~ $.ajax({
-        //~ data: parametros,
-        //~ url: './tareasregularizar.php',
-        //~ type: 'post',
-        //~ success: callback,
-        //~ error: function (request, textStatus, error) {
-            //~ console.log(textStatus);
-        //~ }
-    //~ });
-//~ }
 function modalFamiliaProducto(idProducto=""){
     var parametros = {
         pulsado: 'modalFamiliaProducto',
@@ -1096,7 +1019,6 @@ function modalFamiliaProducto(idProducto=""){
 				var resultado = $.parseJSON(response);
 				var titulo = 'Añadir familia '+idProducto;
                 abrirModal(titulo,resultado.html);
-                //~ $( ".custom-combobox-input" ).focus();
 				setTimeout(function(){
                         $( ".custom-combobox-input" ).focus();
                        
@@ -1120,75 +1042,10 @@ function modalEstadoProductos(){
 				var resultado = $.parseJSON(response);
 				var titulo = 'Modificar Producto ';
                 abrirModal(titulo,resultado.html);
-               
-                        $( ".custom-combobox-input" ).focus();
-                       
+                $( ".custom-combobox-input" ).focus();
 		}	
 	});
 }
-
-$( function() {
-     $('#ventanaModal').on('shown.bs.modal', function() {
-      //@Objetivo: llamar a la librería autocomplete 
-    $( ".familias" ).combobox({
-        select : function(event, ui){ 
-            
-        var idProducto= $( "#idProductoModal" ).val();
-          
-        var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
-         if(idProducto==0){
-            $('#botonEnviar2').html(botonhtml);  
-         }else{
-             $('#botonEnviar').html(botonhtml);  
-         }
-          
-          
-         
-        },
-       
-       
-    });
-     $( ".estados" ).combobox({
-        select : function(event, ui){ 
-        var idProductos= $( "#idProductosModal" ).val();  
-        var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+"'"+ui.item.value+"'"+', '+"'"+idProductos+"'"+')">Guardar</button>';
-         
-            $('#botonEnviarEstados').html(botonhtml);  
-         
-          
-          
-         
-        },
-       
-       
-    });
-});
-
-      //@Objetivo: llamar a la librería autocomplete 
-     if( $("select").hasClass("familiasLista")){
-        $( ".familiasLista" ).combobox({
-            select : function(event, ui){ 
-                //~ var idProducto= $( "#idProductoModal" ).val();
-                 var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
-               $('#botonEnviar').html(botonhtml);   
-            },
-           
-           
-        });
-     $( ".proveedoresLista" ).combobox({
-            select : function(event, ui){ 
-                //~ var idProducto= $( "#idProductoModal" ).val();
-                 var botonhtml='<a class="btn btn-primary" onclick="buscarProductosProveedor('+ui.item.value+')">Buscar</a>';
-               $('#botonEnviarPro').html(botonhtml);   
-            },
-           
-           
-        });
-    }
-     $( "#toggle" ).on( "click", function() {
-        $( "#combobox" ).toggle();
-    });
-  } );
   
 function modificarEstadoProductos(estado, productos){
     var parametros = {
@@ -1216,6 +1073,7 @@ function modificarEstadoProductos(estado, productos){
 		}	
 	});
 }
+
 function guardarProductoFamilia(idfamilia, idProducto){
     var parametros = {
         pulsado: 'buscarNombreFammilia',
@@ -1254,7 +1112,6 @@ function guardarProductoFamilia(idfamilia, idProducto){
                 }
 		}	
 	});
-    
 }
 function buscarProductosFamilia(idFamilia){
    
@@ -1271,7 +1128,6 @@ function buscarProductosFamilia(idFamilia){
             },
             success    :  function (response) {
                     console.log('Respuesta de buscar productos de la familia');
-                   
                     var resultado = $.parseJSON(response);
                     productos=resultado['Productos'];
                        for(i=0;i<productos.length; i++){
@@ -1281,6 +1137,7 @@ function buscarProductosFamilia(idFamilia){
             }	
         });
 }
+
 function buscarProductosProveedor(idProveedor){
       var parametros = {
             pulsado: 'buscarProductosProveedor',
@@ -1295,11 +1152,9 @@ function buscarProductosProveedor(idProveedor){
             },
             success    :  function (response) {
                     console.log('Respuesta de buscar productos de un proveedor');
-                   
                     var resultado = $.parseJSON(response);
                     productos=resultado['Productos'];
                        for(i=0;i<productos.length; i++){
-                          
                            selecionarItemProducto(productos[i], "listaProductos");
                        }
             }
@@ -1309,23 +1164,23 @@ function buscarProductosProveedor(idProveedor){
 function EliminarHistorico(idHistorico, e){
    var mensaje = confirm("¿Estás seguro que quieres eliminar este registro de historico?");
 	if (mensaje) {
-    
-    var parametros = {
-        pulsado: 'eliminarHistorico',
-        idHistorico:idHistorico
-    }
-     $.ajax({
-            data       : parametros,
-            url        : 'tareas.php',
-            type       : 'post',
-            beforeSend : function () {
-            console.log('********* eliminar registro indicado de historico precio **************');
-            },
-            success    :  function (response) {
-                    console.log('Respuesta de eliminar historico precio');
+        var parametros = {
+            pulsado: 'eliminarHistorico',
+            idHistorico:idHistorico
+        }
+        $.ajax({
+                data       : parametros,
+                url        : 'tareas.php',
+                type       : 'post',
+                beforeSend : function () {
+                   console.log('********* eliminar registro indicado de historico precio **************');
+                },
+                success    :  function (response)
+                {
+                   console.log('Respuesta de eliminar historico precio');
                    
-                    var resultado = $.parseJSON(response);
-                    console.log (resultado);
+                   var resultado = $.parseJSON(response);
+                   console.log (resultado);
                    //QUEDA ELIMINAR LINEA
                    if(resultado.error==0){
                        alert("Error de sql: "+resultado.consulta);
@@ -1336,8 +1191,8 @@ function EliminarHistorico(idHistorico, e){
                         var bisa=abuelo.parentNode; 
                         bisa.removeChild(abuelo);
                    }
-            }
-        });
+                }
+            });
     }
 }
 function EliminarRefProveedor(e){
@@ -1373,7 +1228,6 @@ function EliminarRefProveedor(e){
                }
             }
         });
-
 	} 
 }
 
@@ -1393,9 +1247,7 @@ function EliminarReferenciaTienda(idCruce,e){
             },
             success    :  function (response) {
                     console.log('Respuesta de eliminar historico precio');
-                   
                     var resultado = $.parseJSON(response);
-                    console.log (resultado);
                    //QUEDA ELIMINAR LINEA
                    if(resultado.error==0){
                        alert("Error de sql: "+resultado.consulta);
@@ -1409,15 +1261,11 @@ function EliminarReferenciaTienda(idCruce,e){
             }
         });
     }
-
 }
 
-
-
-
-
-
 function eliminarProductos(idTiendaWeb=0){
+    // @ Objetivo:
+    // Eliminar los productos seleccionados.
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
 	if (mensaje) {
         $('.loader').show();
@@ -1437,20 +1285,11 @@ function eliminarProductos(idTiendaWeb=0){
                    
                     var resultado = $.parseJSON(response);
                     console.log (resultado);
-					$('.loader').hide();
-					$('#resultado').html(resultado.html);
-                   if(resultado.Eliminados.length>0){
-					   
-                       alert("Se han eliminado: "+JSON.stringify(resultado.Eliminados));
-                   }
-                   if(resultado.NoEliminados.length>0){
-                       alert("No se han eliminado: "+ JSON.stringify(resultado.NoEliminados));
-                   }
-                   if(resultado.error){
-                       alert("Error de sql: "+resultado.error);
-                   }else{
-//                       location.reload();
-                   }
+                    $('.loader').hide();
+                    titulo = 'Resultado de eliminar productos';
+                    abrirModal(titulo,resultado.html);
+                    // Falta controlar el cierre de modal y refrescar.
+                    //   location.reload();
             }
         });
     }
@@ -1461,8 +1300,6 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
     // @ Parametros:
     //      ids_productos = (array) ids de la los productos de tpv.
     //      id_web = (int) con el id de la tienda web.
-
-	
 	var parametros = {
 		"pulsado"       : 'obtenerEstadoProductoWeb',
 		"ids_productos" : ids_productos,
@@ -1477,25 +1314,17 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
 		},
 		success    :  function (response) {
 			console.log('Respuesta de Obtener Estado de productos de la web');
-			
 			var resultado =  $.parseJSON(response);
 			resultado.forEach(function(producto) {
                 // Los estado 0 son sin publicar.
                 if (producto.estado === "0"){
-
                     $("#idProducto_estadoWeb_"+producto.idArticulo).addClass( "icono_web despublicado" );
                     //~ console.log(producto.idArticulo);
                 }
             });
-			
-			
 		}
 	});
-	
 }
-
-
-
 
 function seleccionarTodo(){
     console.log("entre en seleccionar todo");
@@ -1522,6 +1351,7 @@ function seleccionProductos(){
         $("#checkSeleccion").prop( "checked", false );
     }
 }
+
 function busquedaSinCheck(){
     configuracion.filtro.valor='No';
     AjaxGuardarConfiguracion();
@@ -1545,7 +1375,6 @@ function obtenerFechas(){
 function redirecionarMayor(idArticulo,adonde){
     // Objetivo:
     // El objetivo es redireccionar a la vista de Mayor o generar el informe
-
     // Obtenemos Fechas de cajas:
     Fechas = obtenerFechas();
     if (adonde === 'DetalleMayor'){
