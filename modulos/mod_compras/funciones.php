@@ -974,7 +974,12 @@ function htmlFormasVenci($formaVenci, $BDTpv){
 	$html="";
 	$formasPago=new FormasPago($BDTpv);
 	$principal=$formasPago->datosPrincipal(intval ($formaVenci));
-	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
+    if ( gettype($principal) ==='array') {
+        $html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
+    } else {
+      	$html.='<option value=""></option>';
+    }
+    
 	$otras=$formasPago->formadePagoSinPrincipal(intval ($formaVenci));
 	foreach ($otras as $otra){
 		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
