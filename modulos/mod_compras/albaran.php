@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
+
 <?php
 	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
-    include_once $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_compras/funciones.php';
     include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/clases/Proveedores.php';
@@ -293,6 +290,11 @@
         // Una vez se cree temporal, con javascript se quita style
     }
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <?php  include_once $URLCom.'/head.php'; ?>
+
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
