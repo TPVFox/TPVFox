@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html>
-    <head>
-          
-        <?php
+<?php
         include_once './../../inicial.php';
-        include_once $URLCom.'/head.php';
         include_once $URLCom.'/modulos/mod_producto/funciones.php';
         include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
         include_once $URLCom.'/controllers/Controladores.php';
@@ -151,17 +146,23 @@
             );
             $CTArticulos->SetComprobaciones($error);
         }
-         
+        $script_ObjVirtuemart = '';
         if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
-            echo $ObjVirtuemart->htmlJava();
+            $script_ObjVirtuemart = $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
         }
 
         // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
+    ?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <?php
+        include_once $URLCom.'/head.php';
         // Añadimos a JS la configuracion
-        echo '<script type="application/javascript"> '
+        echo $script_ObjVirtuemart.'<script type="application/javascript"> '
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
