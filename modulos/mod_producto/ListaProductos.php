@@ -166,13 +166,11 @@
         . 'var configuracion = ' . json_encode($configuracion);
         echo '</script>';
         ?>
-                
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>   
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/plugins/modal/func_modal_reutilizables.js"></script>
-         
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script type="text/javascript">
             // Declaramos variables globales
@@ -180,18 +178,16 @@
         <?php echo $VarJS;?>
         </script>
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-        
     </head>
 
     <body>
 		<script type="text/javascript">
-			setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-		jQuery('#buscar').focus(); 
-	}, 50);
+			setTimeout(function()
+            {   //pongo un tiempo de focus ya que sino no funciona correctamente
+                jQuery('#buscar').focus(); 
+            }, 50);
 		</script>
-<?php
-include_once $URLCom.'/modulos/mod_menu/menu.php';
-?>
+        <?php include_once $URLCom.'/modulos/mod_menu/menu.php'; ?>
 
         <div class="container">
             <?php
@@ -212,7 +208,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                 <div class="col-sm-12 text-center">
                     <h2> Productos: Editar y Añadir Productos </h2>
                 </div>
-                
                 <div class="col-sm-2 col-xs-12">
                     <div>
                         <h4> Productos</h4>
@@ -291,7 +286,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         echo $htmlConfiguracion['htmlCheck'];
                         ?>
                     </div>
-
                 </div>
 
                 <div class="col-sm-10 col-xs-12">
@@ -302,10 +296,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                       }
                       ?>  
                     </div>
-                    <!-- Provisionalmente resultado de borrar productos -->
-                    <div id="resultado">Resultado</div>
-<!--                                               -->
-                    <div>
                     <p>
                         -Productos encontrados BD local filtrados:
                         <?php echo $CantidadRegistros; ?>
@@ -365,17 +355,12 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
                                 if (isset($productos)) {
-                            // Si existen productos.
+                                // Si existen productos.
                                 $ids= array_column($productos, 'idArticulo')
-                                ?>
-                                <script type="text/javascript">
-                                    <?php
-                                    echo 'var ids_productos='.json_encode($ids).';';
-                                    echo 'var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
-                                    ?>
-                                
-                                </script>
-                            <?php
+                                echo '<script type="text/javascript">
+                                            var ids_productos='.json_encode($ids).';
+                                            var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
+                                echo '</script>';
                                 }
                             }
                         }
@@ -394,7 +379,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         echo '<th>REFERENCIA</th>';
                                     }
                                     ?>
-
                                     <th>COSTE <br/> ULTIMO</th>
                                     <th><span title="Beneficio que tiene ficha">%</span> </th>
                                     <th>Precio<br/>Sin Iva</th>
@@ -405,9 +389,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                     <?php 
                                     if(isset($tiendaWeb)){
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
-                                        ?>
-                                        <th>WEB</th>
-                                        <?php
+                                            echo'<th>WEB</th>';
                                         }
                                     }
                                     ?>
@@ -430,8 +412,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                     }
                                     $textoFamilia="";
-                    
-                                   
                                     if(is_array($producto['familias'])){
                                         $familias=$producto['familias'];
                                         foreach ($familias as $familia){
@@ -439,9 +419,7 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                         }
                                     }
                                     ?>
-                                    
                                     <tr>
-
                                         <td class="rowUsuario"><input type="checkbox" id="checkUsu<?php echo $checkUser; ?>" name="checkUsu<?php echo $checkUser; ?>" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'listaProductos')" value="<?php echo $producto['idArticulo']; ?>" <?php echo $checked; ?>>
                                         </td>
                                         <?php
@@ -457,8 +435,6 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
                                             }
                                             echo '</td>';
                                         }
-                                        ?>
-                                        <?php
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.crefTienda') === 'Si') {
                                             echo '<td>';
                                             if (count($producto['ref_tiendas'])>0) {
