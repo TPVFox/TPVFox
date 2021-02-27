@@ -1,56 +1,50 @@
+<?php 
+    include_once './../../inicial.php';
+    include_once $URLCom.'/modulos/mod_producto/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';   
+    include_once ($URLCom.'/controllers/parametros.php');
+    include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulos.php';
+    $Controler = new ControladorComun; 
+    $Controler->loadDbtpv($BDTpv);
+    $ClasesParametros = new ClaseParametros('parametros.xml');
+    $parametros = $ClasesParametros->getRoot();
+    $ClassProductos = new ClaseProductos($BDTpv);
+    $CArticulo =  new alArticulos();
+    $ruta_volver= $HostNombre.'/modulos/mod_producto/ListaMayor.php'; // De momento este, pero tiene que se dinamico.
+    $titulo="Listado de mayor de ";
+    if (isset($_GET['idArticulo'])){
+        $idArticulo = $_GET['idArticulo'];
+        // Por get debo recibir
+        //   idArticulo
+        //   FechaInicio y FechaFinal ( opcional)
+        //   StockInicial (opcional) 
+        // Nota: Normalmente venimos de vista ListaMayor y este nos envia Fecha Inicio y Fecha Final
+        //      si no viniera fecha o no fuera correcta, obtenemos la fecha por defecto que debería
+        //      ser un parametro configuracion. ( ahora e fija )
+        if (isset($_GET['fecha_inicial'])){
+            $fecha_inicial = $_GET['fecha_inicial'];
+        }
+        if (isset($_GET['fecha_final'])){
+            $fecha_final = $_GET['fecha_final'];
+        }
+    }
+    $producto = $ClassProductos->GetProducto($idArticulo);
+    $idTienda = $Tienda['idTienda'];
+    $idUsuario = $Usuario['id'];
+    $datos = compact("fecha_inicial","fecha_final","idArticulo","idTienda","idUsuario");
+    $movimientos  = $CArticulo->calculaMayor($datos);
+?>
 <!DOCTYPE html>
 <html>
 	<head>
-		<?php 
-        include_once './../../inicial.php';
-        include_once $URLCom.'/head.php';
-        include_once $URLCom.'/modulos/mod_producto/funciones.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-       	include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';   
-		include_once ($URLCom.'/controllers/parametros.php');
-        include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulos.php';
-        $Controler = new ControladorComun; 
-		$Controler->loadDbtpv($BDTpv);
-		$ClasesParametros = new ClaseParametros('parametros.xml');
-		$parametros = $ClasesParametros->getRoot();
-        $ClassProductos = new ClaseProductos($BDTpv);
-        $CArticulo =  new alArticulos();
-        $ruta_volver= $HostNombre.'/modulos/mod_producto/ListaMayor.php'; // De momento este, pero tiene que se dinamico.
-		$titulo="Listado de mayor de ";
-      
-        if (isset($_GET['idArticulo'])){
-            $idArticulo = $_GET['idArticulo'];
-            // Por get debo recibir
-            //   idArticulo
-            //   FechaInicio y FechaFinal ( opcional)
-            //   StockInicial (opcional) 
-            // Nota: Normalmente venimos de vista ListaMayor y este nos envia Fecha Inicio y Fecha Final
-            //      si no viniera fecha o no fuera correcta, obtenemos la fecha por defecto que debería
-            //      ser un parametro configuracion. ( ahora e fija )
-            if (isset($_GET['fecha_inicial'])){
-                $fecha_inicial = $_GET['fecha_inicial'];
-            }
-            if (isset($_GET['fecha_final'])){
-                $fecha_final = $_GET['fecha_final'];
-            }
-		}
-		$producto = $ClassProductos->GetProducto($idArticulo);
-        $idTienda = $Tienda['idTienda'];
-        $idUsuario = $Usuario['id'];
-        $datos = compact("fecha_inicial","fecha_final","idArticulo","idTienda","idUsuario");
-        $movimientos  = $CArticulo->calculaMayor($datos);
-		?>
+        <?php include_once $URLCom.'/head.php'; ?>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
 	</head>
 	<body>
 	<?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
-     //~ echo '<pre>';
-     //~ print_r($producto);
-     //~ echo '</pre>';
 	?>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
-	<script type="text/javascript">
-    </script>
 	<div class="container">
 		<h2 class="text-center"><?php echo $titulo.' '.$producto['articulo_name'];?></h2>
 		<div class="col-md-2">
@@ -142,7 +136,6 @@
                                 echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
                             echo '</tr>';
                         }   
-                    
                         // Calculo del beneficio.
                         $beneficio = $vendido - $comprado;
                         echo '<td><b>Total</b></td><td><b>'.$entradas.'</b></td>'.'<td><b>'
