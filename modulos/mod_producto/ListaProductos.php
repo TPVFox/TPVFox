@@ -354,7 +354,7 @@
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
                                 if (isset($productos)) {
                                 // Si existen productos.
-                                $ids= array_column($productos, 'idArticulo')
+                                $ids= array_column($productos, 'idArticulo');
                                 echo '<script type="text/javascript">
                                             var ids_productos='.json_encode($ids).';
                                             var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
