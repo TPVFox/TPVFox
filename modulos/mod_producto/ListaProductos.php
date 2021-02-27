@@ -1,161 +1,159 @@
 <?php
-        include_once './../../inicial.php';
-        include_once $URLCom.'/modulos/mod_producto/funciones.php';
-        include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-        include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
-        include_once ($URLCom .'/controllers/parametros.php');
-        include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
-        include_once $URLCom.'/clases/Proveedores.php';
-        $OtrosVarJS ='';
-        $htmlplugins = array();
-        $CTArticulos = new ClaseProductos($BDTpv);
-        $CFamilia=new ClaseFamilias($BDTpv);
-        $CProveedor=new Proveedores($BDTpv);
-        $Controler = new ControladorComun; // Controlado comun..
-        // Añado la conexion
-        $Controler->loadDbtpv($BDTpv);
-        $id_tienda_principal = $Tienda['idTienda'];
-        // Cargamos el plugin que nos interesa.
+    include_once './../../inicial.php';
+    include_once $URLCom.'/modulos/mod_producto/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+    include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+    include_once ($URLCom .'/controllers/parametros.php');
+    include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
+    include_once $URLCom.'/clases/Proveedores.php';
+    $OtrosVarJS ='';
+    $htmlplugins = array();
+    $CTArticulos = new ClaseProductos($BDTpv);
+    $CFamilia=new ClaseFamilias($BDTpv);
+    $CProveedor=new Proveedores($BDTpv);
+    $Controler = new ControladorComun; // Controlado comun..
+    // Añado la conexion
+    $Controler->loadDbtpv($BDTpv);
+    $id_tienda_principal = $Tienda['idTienda'];
+    // Cargamos el plugin que nos interesa.
 
-        //  Fin de carga de plugins.
+    //  Fin de carga de plugins.
 
-        // Inicializo varibles por defecto.
-       
-        $ClasesParametros = new ClaseParametros('parametros.xml');
-        $parametros = $ClasesParametros->getRoot();
-        // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
-        $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-        // Parametro de configuracion para indicar que por defecto no filtramos los productos seleccionados.
-        $conf_defecto['filtro']->valor = 'No';
+    // Inicializo varibles por defecto.
+   
+    $ClasesParametros = new ClaseParametros('parametros.xml');
+    $parametros = $ClasesParametros->getRoot();
+    // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+    $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+    // Parametro de configuracion para indicar que por defecto no filtramos los productos seleccionados.
+    $conf_defecto['filtro']->valor = 'No';
 
-        // Ahora compruebo productos_seleccion:
-        $botonSeleccion=0;
-        $prod_seleccion = array('NItems' => 0, 'display' => '');
-        if (isset($_SESSION['productos_seleccionados'])) {
-            $prod_seleccion['Items'] = $_SESSION['productos_seleccionados'];
-            $prod_seleccion['NItems'] = count($prod_seleccion['Items']);
-            
-        }
-        if ($prod_seleccion['NItems'] === 0) {
-            // No hay productos seleccionados, display none y No en parametro filtro.
-            $prod_seleccion['display'] = 'style="display:none"';
-            
-        }
-        
-        // Obtenemos la configuracion del usuario o la por defecto
-        $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
-       
-        // Compruebo que solo halla un campo por el que buscar por defecto.
-        if (!isset($configuracion['tipo_configuracion'])) {
-            // Hubo un error en la carga de configuracion.
-            $error = array('tipo' => 'danger',
-                'dato' => 'Fichero Parametros.xml',
-                'mensaje' => 'Error al cargar configuracion, puede ser en el fichero como en tablas modulo_configuracion.'
-            );
-            $CTArticulos->SetComprobaciones($error);
-        }
-        $htmlConfiguracion = HtmlListadoCheckMostrar($configuracion['mostrar_lista']);
-        if (isset($htmlConfiguracion['error'])) {
-            // quiere decir que hubo error en la configuracion.
-            $error = array('tipo' => 'danger',
-                'dato' => 'Fichero Parametros.xml',
-                'mensaje' => $htmlConfiguracion['error']
-            );
-            $CTArticulos->SetComprobaciones($error);
-        }
+    // Ahora compruebo productos_seleccion:
+    $botonSeleccion=0;
+    $prod_seleccion = array('NItems' => 0, 'display' => '');
+    if (isset($_SESSION['productos_seleccionados'])) {
+        $prod_seleccion['Items'] = $_SESSION['productos_seleccionados'];
+        $prod_seleccion['NItems'] = count($prod_seleccion['Items']);
+    }
+    if ($prod_seleccion['NItems'] === 0) {
+        // No hay productos seleccionados, display none y No en parametro filtro.
+        $prod_seleccion['display'] = 'style="display:none"';
+    }
+    
+    // Obtenemos la configuracion del usuario o la por defecto
+    $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
+   
+    // Compruebo que solo halla un campo por el que buscar por defecto.
+    if (!isset($configuracion['tipo_configuracion'])) {
+        // Hubo un error en la carga de configuracion.
+        $error = array('tipo' => 'danger',
+            'dato' => 'Fichero Parametros.xml',
+            'mensaje' => 'Error al cargar configuracion, puede ser en el fichero como en tablas modulo_configuracion.'
+        );
+        $CTArticulos->SetComprobaciones($error);
+    }
+    $htmlConfiguracion = HtmlListadoCheckMostrar($configuracion['mostrar_lista']);
+    if (isset($htmlConfiguracion['error'])) {
+        // quiere decir que hubo error en la configuracion.
+        $error = array('tipo' => 'danger',
+            'dato' => 'Fichero Parametros.xml',
+            'mensaje' => $htmlConfiguracion['error']
+        );
+        $CTArticulos->SetComprobaciones($error);
+    }
 
-        // Montar select Estado y añadir a configuracion seleccion estado.
-        $option_sinFiltrar = '<option value="Sin Filtrar">Sin Filtrar</option>';
-        if (!isset($configuracion['estado_filtro'])){
-            // No existe estado_filtro por lo que ponemos por defecto
-            $configuracion['estado_filtro'] ='';
-            $option_sinFiltrar = '<option value="Sin Filtrar" selected>Sin Filtrar</option>';
+    // Montar select Estado y añadir a configuracion seleccion estado.
+    $option_sinFiltrar = '<option value="Sin Filtrar">Sin Filtrar</option>';
+    if (!isset($configuracion['estado_filtro'])){
+        // No existe estado_filtro por lo que ponemos por defecto
+        $configuracion['estado_filtro'] ='';
+        $option_sinFiltrar = '<option value="Sin Filtrar" selected>Sin Filtrar</option>';
 
-        }
-   		$posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
-        $htmlEstadosProducto =  $option_sinFiltrar;
-        $htmlEstadosProducto .= htmlOptionEstados($posibles_estados_producto,$configuracion['estado_filtro']);
-        $filtro_estado = '';
-        if ($configuracion['estado_filtro'] !==''){
-            $filtro_estado = 'a.estado="'.$configuracion['estado_filtro'].'"';
-        }
+    }
+    $posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
+    $htmlEstadosProducto =  $option_sinFiltrar;
+    $htmlEstadosProducto .= htmlOptionEstados($posibles_estados_producto,$configuracion['estado_filtro']);
+    $filtro_estado = '';
+    if ($configuracion['estado_filtro'] !==''){
+        $filtro_estado = 'a.estado="'.$configuracion['estado_filtro'].'"';
+    }
 
-        // --- Inicializamos objeto de Paginado --- //
-        $NPaginado = new PluginClasePaginacion(__FILE__);
-        $campos = array($htmlConfiguracion['campo_defecto']);
-        $NPaginado->SetCamposControler($campos);
-        // --- Ahora contamos registro que hay para es filtro --- //
-        $filtro = $NPaginado->GetFiltroWhere();
-        $CantidadRegistros = 0;
-        if (trim($filtro)!== '') {
-            // Solo contamos si tenemos filtro.
-            if ($filtro_estado !== ''){
-                $filtro = $filtro.' AND '.$filtro_estado;
-            }
-            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],compact("filtro")));
+    // --- Inicializamos objeto de Paginado --- //
+    $NPaginado = new PluginClasePaginacion(__FILE__);
+    $campos = array($htmlConfiguracion['campo_defecto']);
+    $NPaginado->SetCamposControler($campos);
+    // --- Ahora contamos registro que hay para es filtro --- //
+    $filtro = $NPaginado->GetFiltroWhere();
+    $CantidadRegistros = 0;
+    if (trim($filtro)!== '') {
+        // Solo contamos si tenemos filtro.
+        if ($filtro_estado !== ''){
+            $filtro = $filtro.' AND '.$filtro_estado;
+        }
+        $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],compact("filtro")));
+    } else {
+        if ($filtro_estado !== ''){
+            // Si filtramos por estado.
+            $filtro = 'WHERE '.$filtro_estado;
+            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro")));
         } else {
-            if ($filtro_estado !== ''){
-                // Si filtramos por estado.
-                $filtro = 'WHERE '.$filtro_estado;
-                $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro")));
-            } else {
-                $CantidadRegistros = $CTArticulos->GetNumRows();
-            }
+            $CantidadRegistros = $CTArticulos->GetNumRows();
         }
-        // --- Ahora envio a NPaginado la cantidad registros --- //
-        
-        if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
-            $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
-        } else {
-            $NPaginado->SetCantidadRegistros($CantidadRegistros);
-        }
-      
-        $htmlPG = '';
-        if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
-            $htmlPG = $NPaginado->htmlPaginado();
-            // Queremos filtrar o no. 
-            if ($configuracion['filtro']->valor === 'Si') {
-                if ($prod_seleccion['NItems'] > 0) {
-                    $botonSeleccion=1;
-                    if (trim($filtro) !== '') {
-                        $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
-                    } else {
-                        $filtro = ' WHERE (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
-                    }
+    }
+    // --- Ahora envio a NPaginado la cantidad registros --- //
+    
+    if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
+        $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
+    } else {
+        $NPaginado->SetCantidadRegistros($CantidadRegistros);
+    }
+  
+    $htmlPG = '';
+    if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
+        $htmlPG = $NPaginado->htmlPaginado();
+        // Queremos filtrar o no. 
+        if ($configuracion['filtro']->valor === 'Si') {
+            if ($prod_seleccion['NItems'] > 0) {
+                $botonSeleccion=1;
+                if (trim($filtro) !== '') {
+                    $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
+                } else {
+                    $filtro = ' WHERE (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
                 }
             }
-            $limite = $NPaginado->GetLimitConsulta();
-            $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
         }
-        if (isset($productos['error'])){
-            //Hubo un error a la ahora obtener los datos de los productos.
-            $error = array('tipo' => 'danger',
-                'dato' => $productos['error'],
-                'mensaje' => $productos['consulta']
-            );
-            $CTArticulos->SetComprobaciones($error);
-        }
-        // Obtenemos todos los proveedores para realizar la busqueda producto por proveedores.
-        $todosProveedores= $CProveedor->todosProveedores();
-        if (isset( $todosProveedores['error'])){
-            //Hubo un error a la ahora obtener los datos de los productos.
-            $error = array('tipo' =>'warning',
-                'dato' => $todosProveedores['error'],
-                'mensaje' => $todosProveedores['error'].' :'.$todosProveedores['consulta']
-            );
-            $CTArticulos->SetComprobaciones($error);
-        }
-        $script_ObjVirtuemart = '';
-        if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
-            $script_ObjVirtuemart = $ObjVirtuemart->htmlJava();
-            $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-        }
+        $limite = $NPaginado->GetLimitConsulta();
+        $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
+    }
+    if (isset($productos['error'])){
+        //Hubo un error a la ahora obtener los datos de los productos.
+        $error = array('tipo' => 'danger',
+            'dato' => $productos['error'],
+            'mensaje' => $productos['consulta']
+        );
+        $CTArticulos->SetComprobaciones($error);
+    }
+    // Obtenemos todos los proveedores para realizar la busqueda producto por proveedores.
+    $todosProveedores= $CProveedor->todosProveedores();
+    if (isset( $todosProveedores['error'])){
+        //Hubo un error a la ahora obtener los datos de los productos.
+        $error = array('tipo' =>'warning',
+            'dato' => $todosProveedores['error'],
+            'mensaje' => $todosProveedores['error'].' :'.$todosProveedores['consulta']
+        );
+        $CTArticulos->SetComprobaciones($error);
+    }
+    $script_ObjVirtuemart = '';
+    if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
+        $script_ObjVirtuemart = $ObjVirtuemart->htmlJava();
+        $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+    }
 
-        // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
-    ?>
+    // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
+?>
 <!DOCTYPE html>
 <html>
     <head>

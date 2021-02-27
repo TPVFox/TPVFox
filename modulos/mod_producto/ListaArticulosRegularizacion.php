@@ -1,6 +1,6 @@
 <?php
-        include './../../inicial.php';
-        include './funciones.php';
+        include_once './../../inicial.php';
+        include_once $URLCom.'/modulos/mod_producto/funciones.php';
         include './clases/ClaseRegularizaciones.php';
         $alArticulo = new alArticulosRegularizacion();
         $Productos = $alArticulo->leerTodos(['regu.estado=' . K_STOCKREGULARIZACION_ESTADO_ACTIVO], ['regu.*', 'arts.articulo_name']);
