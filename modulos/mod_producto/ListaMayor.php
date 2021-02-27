@@ -1,46 +1,35 @@
+<?php
+    include_once './../../inicial.php';
+    include_once $URLCom.'/modulos/mod_producto/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+    include_once $URLCom.'/clases/articulos.php';
+    $ClassProductos = new ClaseProductos($BDTpv);
+    $CArticulos = new Articulos($BDTpv);
+    $idTienda = $Tienda['idTienda'];
+    $Nproductos = array();
+    foreach ($_SESSION['productos_seleccionados'] as $key =>$producto) {
+        $articulo = $ClassProductos->GetProducto($producto);
+        $Nproductos[$key]['idArticulo']     = $articulo['idArticulo'];
+        $Nproductos[$key]['pvpCiva']        = $articulo['pvpCiva'];
+        $Nproductos[$key]['ultimoCoste']        = $articulo['ultimoCoste'];
+        $Nproductos[$key]['estado']         = $articulo['estado'];
+        $Nproductos[$key]['articulo_name']  = $articulo['articulo_name'];
+        $Nproductos[$key]['stock']  = $articulo['stocks']['stockOn'];
+        $Nproductos[$key]['tipo']  = $articulo['tipo'];
+    }
+    $fecha = date('Y-m-d');
+    $fecha_inicial = strtotime ( '- 15 days' , strtotime ( $fecha ) ) ;
+    $fecha_inicial = date ( 'Y-m-d' , $fecha_inicial );
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <?php
-        include_once './../../inicial.php';
-        include_once $URLCom.'/head.php';
-        include_once $URLCom.'/modulos/mod_producto/funciones.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-      	include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
-        include_once $URLCom.'/clases/articulos.php';
-        $ClassProductos = new ClaseProductos($BDTpv);
-        $CArticulos = new Articulos($BDTpv);
-        $idTienda = $Tienda['idTienda'];
-        ?>
+        <?php include_once $URLCom.'/head.php'; ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-        <?php 
-        $Nproductos = array();
-        foreach ($_SESSION['productos_seleccionados'] as $key =>$producto) {
-            $articulo = $ClassProductos->GetProducto($producto);
-            //~ $precio = $CArticulos->articulosPrecio($producto);
-            $Nproductos[$key]['idArticulo']     = $articulo['idArticulo'];
-            $Nproductos[$key]['pvpCiva']        = $articulo['pvpCiva'];
-            $Nproductos[$key]['ultimoCoste']        = $articulo['ultimoCoste'];
-            $Nproductos[$key]['estado']         = $articulo['estado'];
-            $Nproductos[$key]['articulo_name']  = $articulo['articulo_name'];
-            $Nproductos[$key]['stock']  = $articulo['stocks']['stockOn'];
-            $Nproductos[$key]['tipo']  = $articulo['tipo'];
-
-        }
-        $fecha = date('Y-m-d');
-        $fecha_inicial = strtotime ( '- 15 days' , strtotime ( $fecha ) ) ;
-        $fecha_inicial = date ( 'Y-m-d' , $fecha_inicial );
-
-
-        ?>
-        
-
-        
     </head>
-
     <body>
-
         <?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
@@ -96,7 +85,6 @@
                                             $redondeo = 3;
                                         }
                                          echo number_format(round($producto['stock'],3),$redondeo);
-                                         //~ echo $producto['stock'];
                                          ?>
                                     </td>
                                     <td>
@@ -122,10 +110,8 @@
                     </table>
                 </div>
                 <div id="tablamayor" class="col-10" style="display: none">
-
                 </div>
             </div>
         </div>
-
     </body>
 </html>
