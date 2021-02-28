@@ -854,35 +854,38 @@ function ImprimirEtiquetas($productos,$tipo,$balanza=''){
 	$imprimir['html'].="";
 	$imprimir['html'].='<table border="1px" style="table-layout: fixed;">';
     foreach ($productos as $producto){
-        $columna++;
-        if ($columna === 1){
-            $imprimir['html'].='<tr>';
-        }
-        $imprimir['html'].='<td align="center" style="'.$medida['height'].'" >';
-        // Obtenemos primera linea
-        $plu = '';
-        if ($balanza !==''){
-            if (isset($producto['plu'])){
-                $plu = $producto['plu'];
+        // La etiqueta puede pidamos mas una para algun producto
+        for ($i = 1; $i <= $producto['numEtiquetas']; $i++) {
+            $columna++;
+            if ($columna === 1){
+                $imprimir['html'].='<tr>';
             }
-        }
-        $Linea1 = htmlEtiquetaLinea1($producto,$medida);
-        $imprimir['html'].= '<font size="5em">'.$tipo.'</font>'.$Linea1;
-        $imprimir['html'].= htmlEtiquetaLineaNombre($producto,$medida,$plu);
-        $imprimir['html'].='<b><font size="'.$medida['font_precio'].' em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b>';
-        $imprimir['html'].='<font size="'.$medida['font_precio'].' em"><br></font>';
-        $imprimir['html'].= htmlEtiquetaLineaUltima($producto,$medida);
-        $imprimir['html'].=  '</td>';
+            $imprimir['html'].='<td align="center" style="'.$medida['height'].'" >';
+            // Obtenemos primera linea
+            $plu = '';
+            if ($balanza !==''){
+                if (isset($producto['plu'])){
+                    $plu = $producto['plu'];
+                }
+            }
+            $Linea1 = htmlEtiquetaLinea1($producto,$medida);
+            $imprimir['html'].= '<font size="5em">'.$tipo.'</font>'.$Linea1;
+            $imprimir['html'].= htmlEtiquetaLineaNombre($producto,$medida,$plu);
+            $imprimir['html'].='<b><font size="'.$medida['font_precio'].' em">'.number_format($producto['pvpCiva'],2,',','').'</font>€</b>';
+            $imprimir['html'].='<font size="'.$medida['font_precio'].' em"><br></font>';
+            $imprimir['html'].= htmlEtiquetaLineaUltima($producto,$medida);
+            $imprimir['html'].=  '</td>';
 
-        if ($columna == $medida['etiquetas_columna']){
-            $imprimir['html'].='</tr>';
-            $columna = 0;
-        }
-        $etiqueta_hoja++;
-        if($etiqueta_hoja==$medida['etiquetas_hoja']){
-            // Volvemos abrir la tabla
-            $imprimir['html'].='</table><table border="1px">';
-            $etiqueta_hoja=0;
+            if ($columna == $medida['etiquetas_columna']){
+                $imprimir['html'].='</tr>';
+                $columna = 0;
+            }
+            $etiqueta_hoja++;
+            if($etiqueta_hoja==$medida['etiquetas_hoja']){
+                // Volvemos abrir la tabla
+                $imprimir['html'].='</table><table border="1px">';
+                $etiqueta_hoja=0;
+            }
         }
     }
     if($columna<$medida['etiquetas_columna'] && $columna !== 0){

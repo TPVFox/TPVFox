@@ -1,14 +1,14 @@
 <?php 
 $respuesta = array();
-		$IdsProductos=json_decode($_POST['productos']);
-		$idTienda=$_POST['idTienda'];
+		$articulos=json_decode($_POST['productos'],true);
 		$tamano=$_POST['tamano'];
 		$productos = array();
-		foreach ($IdsProductos as $key=>$id){
-			$productos[]= $NCArticulo->getProducto($id);
+		foreach ($articulos as $key=>$articulo){
+			$productos[]= $NCArticulo->getProducto($articulo['idArticulo']);
+            $productos[$key]['numEtiquetas'] = $articulo['numEtiquetas'];
             if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
                 // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
-                $relacion_balanza = $NCArticulo->obtenerTeclaBalanzas($id);
+                $relacion_balanza = $NCArticulo->obtenerTeclaBalanzas($articulo['idArticulo']);
                 if (!isset($relacion_balanza['error'])){
                     // Quiere decir que se obtuvo algun registro.Array ['idBalanza']['plu']['tecla']
                     // demomento tomamos solo plu y del primer item.

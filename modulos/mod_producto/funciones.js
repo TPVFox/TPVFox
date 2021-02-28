@@ -757,15 +757,31 @@ function imprimir(id, dedonde, bandera=""){
 	});
 }
 
-function imprimirEtiquetas(productos, dedonde, idTienda, tamano){
-	console.log(productos);
+function imprimirEtiquetas(dedonde){
+	var idProductos =TfObtenerCheck('checkSelect'); // funcion de lib/js/tpvfox.js
+    var tamano=$("#tamanhos option:selected").val();
+    var inputs_cantidades = TfObtenerObjetos('cantidadEtiquetas');
+    var productos = [];
+    // Ahora mostamos productos con id y valores de cantidad de etiquetas.
+    inputs_cantidades.each(function(){
+        var idArticulo = this.dataset.idarticulo;
+        var index = idProductos.findIndex(id => id === idArticulo);
+        if (index >=0 ){
+            // Es que existe ese idArticulo en idProductos (esta seleccionado), por lo que montamos array
+            console.log(idArticulo+' '+this.value);
+            var producto = new Object();
+            producto.idArticulo = idArticulo;
+            producto.numEtiquetas =this.value;
+            productos.push(producto);
+        }
+    });
+    console.log(productos);
+
 	var parametros = {
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
-		"idTienda"			:idTienda,
 		"tamano"			:tamano,
-		"productos"			:productos
-		
+		"productos"			:JSON.stringify(productos)
 	};
 	$.ajax({
 		data       : parametros,
