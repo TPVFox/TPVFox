@@ -8,13 +8,7 @@
             <th>COSTE</th>
             <th>Tipo</th>
             <th>Stock<br/> ACTUAL</th>
-            <th>Acciones<br/>
-            <span class="glyphicon glyphicon-trash" title="Eliminamos listado etiquetas"></span>
-            <span class="glyphicon glyphicon-eye-open" title="Ver por pantalla mayor"></span>
-            <span class="glyphicon glyphicon-print" title="Crear pdf para imprimir Mayor"></span>
-            <th>Stock<br>INICIAL<span class="glyphicon glyphicon-info-sign" title="Indicamos con cuanto stock quieres que empiece el mayor"></span></th>
-            
-            </th>
+            <?php echo $Tpl['th_columnas_mayores'];?>
         </tr>
     </thead>
     <tbody>
@@ -40,16 +34,11 @@
                      ?>
                 </td>
                 <td>
-                    <a class="btn" onclick="selecionarItemProducto(<?php echo $producto['idArticulo']; ?>, 'ListaMayor')">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </a>
-                
-                    <a class="btn" onclick="redirecionarMayor(<?php echo $producto['idArticulo']; ?>,'DetalleMayor')">
-                        <span class="glyphicon glyphicon-eye-open"></span>
-                    </a>
-                    <span class="glyphicon glyphicon-print"></span>
+                    <?php echo $producto['td_acciones'];?>
                 </td>
-                <td><input type="text" size="6" value="0" style="text-align: right" id="<?php echo 'stkini' . $producto['idArticulo']; ?>"></td>
+                <td>
+                    <?php echo $producto['input'];?>
+                </td>
                 
             </tr>
             <?php
