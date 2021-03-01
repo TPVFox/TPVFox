@@ -168,7 +168,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
             echo $VarJS;
 			//~ echo  'var producto='.json_encode($Producto).';'; // PELIGRO DE SEGURIDAD, MUESTRA HTML PASSWORD DE PLUGIN
             echo 'var producto = new Object();';
-            echo 'producto.idArticulo = '.$Producto['idArticulo'].';';
+            echo 'producto.idArticulo = '.$id.';';
 			echo  'var ivas='.json_encode($ivas).';';
         ?>
 		</script>
