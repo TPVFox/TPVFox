@@ -1284,6 +1284,7 @@ function eliminarProductos(idTiendaWeb=0){
     // Eliminar los productos seleccionados.
      var mensaje = confirm("¿Estás seguro que quieres eliminar los productos seleccionado?");
 	if (mensaje) {
+        // Muestra icono de mostrar rueda giratoria.
         $('.loader').show();
          var parametros = {
              idTiendaWeb: idTiendaWeb,
@@ -1300,12 +1301,15 @@ function eliminarProductos(idTiendaWeb=0){
                     console.log('Respuesta de eliminar productos');
                    
                     var resultado = $.parseJSON(response);
-                    console.log (resultado);
+                    // Oculta icono de mostrar rueda giratoria.
                     $('.loader').hide();
                     titulo = 'Resultado de eliminar productos';
                     abrirModal(titulo,resultado.html);
-                    // Falta controlar el cierre de modal y refrescar.
-                    //   location.reload();
+                    // En https://getbootstrap.com/docs/4.0/components/modal/#events
+                    // indica que este evento se activa cuando el modal ha terminado de ocultarse al usuario
+                    $('#ventanaModal').on('hidden.bs.modal', function (e) {
+                      location.reload();
+                    })
             }
         });
     }
