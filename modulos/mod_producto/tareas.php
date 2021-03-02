@@ -39,10 +39,11 @@ $respuesta = array();
 
 switch ($pulsado) {
 
-    case 'buscarNombreFammilia':
+    case 'guardarFamiliaProductos':
         $idFamilia=$_POST['idfamilia'];
         $idProducto=$_POST['idProducto'];
         if($idProducto==0){
+            // Añadimos familia a varios productos.
             $productosEnFamilia=array();
             $productos=$_SESSION['productos_seleccionados'];
             $respuesta['productos']=$productos;
@@ -323,9 +324,8 @@ switch ($pulsado) {
 	break;
     
     case 'modalFamiliaProducto':
-        if($_POST['idProducto']==""){
-            $idProducto=0;
-        }else{
+        $idProducto=0; // Si es cero el POST, se pone valor 0 para obtenga los idsProductos session.
+        if($_POST['idProducto'] !==""){
              $idProducto=$_POST['idProducto'];
         }
         $familias=$CFamilia->todoslosPadres();

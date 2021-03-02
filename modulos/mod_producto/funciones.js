@@ -1012,13 +1012,23 @@ function grabarRegularizacion() {
 				alert("Error al grabar regularizacion");
 			}else{
                 var titulo = 'Respuesta grabar regularizacion';
-                //~ abrirModal(titulo,resultado.html);
+                abrirModal(titulo,resultado.html);
+                // Al cerrar ventana, recargamos.
+                $('#ventanaModal').on('hidden.bs.modal', function (e) {
+                      location.reload();
+                    })
 			}
 		}
     });
 }
 
 function modalFamiliaProducto(idProducto=""){
+    // @ Objetivo:
+    // Abril modal con combox autocomplete para seleccionar familia y luego poder guardar esa familia
+    // en producto.
+    // @ parametros:
+    // Si viene vacio, luego al pulsar guardar, va intentar añadir la familia a todos los producto que tengamos
+    // seleccionado en Session.
     var parametros = {
         pulsado: 'modalFamiliaProducto',
         idProducto: idProducto
@@ -1092,7 +1102,7 @@ function modificarEstadoProductos(estado, productos){
 
 function guardarProductoFamilia(idfamilia, idProducto){
     var parametros = {
-        pulsado: 'buscarNombreFammilia',
+        pulsado: 'guardarFamiliaProductos',
         idfamilia:idfamilia,
         idProducto:idProducto
     }
