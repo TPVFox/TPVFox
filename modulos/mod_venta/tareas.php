@@ -12,14 +12,12 @@ include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_venta/funciones.php';
 include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
-include_once $URLCom.'/clases/producto.php';
 include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
 include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
 include_once $URLCom.'/clases/cliente.php';
 
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $CcliPed=new PedidosVentas($BDTpv);
-$Cprod=new Producto($BDTpv);
 $CalbAl=new AlbaranesVentas($BDTpv);
 $Ccliente=new Cliente($BDTpv);
 $CFac=new FacturasVentas($BDTpv);
