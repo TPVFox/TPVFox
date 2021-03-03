@@ -131,7 +131,6 @@ function metodoClick(pulsado,adonde){
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
 		case 'VerProducto':
-			console.log('Entro en Ver producto');
 			// Cargamos variable global ar checkID = [];
 			VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
@@ -143,7 +142,6 @@ function metodoClick(pulsado,adonde){
         break;
         
 		case 'EtiquetasCodBarras':
-			console.log('Entro en etiquetas codigo de barras');
 			// Cargamos variable global ar checkID = [];
 			 VerIdSeleccionado ();
 			if (checkID.length >1 || checkID.length=== 0) {
@@ -1115,9 +1113,7 @@ function guardarProductoFamilia(idfamilia, idProducto){
 		},
 		success    :  function (response) {
 				console.log('Respuesta de guardar el registro de productos familia');
-              
                 var resultado = $.parseJSON(response);
-                console.log(resultado);
                 if(idProducto==0){
                     if(resultado.productosEnFamilia.length>0){
                        alert("Producto que YA ESTABAN : "+JSON.stringify(resultado.productosEnFamilia));
@@ -1126,7 +1122,9 @@ function guardarProductoFamilia(idfamilia, idProducto){
                         alert(resultado.error);
                     }
                     alert("Productos guardados en familia: "+resultado.contadorProductos );
-                     cerrarPopUp();
+                    cerrarPopUp();
+                    // No hace falta que utilicemos evento modal para recargar.
+                    location.reload();
                 }else{
                     if(resultado.error==1){
                         alert("No puedes añadir esa familia al producto ya que ya está añadida");
