@@ -9,13 +9,8 @@
  * */
 ?>
 
-
-<!DOCTYPE html>
-<html>
-    <head>
     <?php
     include_once './../../inicial.php';
-	include_once $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_tpv/funciones.php';
     include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
@@ -105,16 +100,21 @@
         $tickets = $Obtenertickets['datos'];
     } 
 	?>
-	<script>
-	// Declaramos variables globales
-	var checkID = [];
-	</script> 
-    <!-- Cargamos fuciones de modulo.
-    Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
-    caja de busqueda en listado 
-     -->
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<!DOCTYPE html>
+<html>
+    <head>
+        <?php include_once $URLCom.'/head.php';?>
+
+        <script>
+        // Declaramos variables globales
+        var checkID = [];
+        </script> 
+        <!-- Cargamos fuciones de modulo.
+        Cargamos JS del modulo de productos para no repetir funciones: BuscarProducto, metodoClick (pulsado, adonde)
+        caja de busqueda en listado 
+         -->
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     </head>
 <body>
         <?php
@@ -122,27 +122,19 @@
         ?>
 	<div class="container">
 		<div class="row">
-			<div class="col-md-12 text-center">
-					<h2> Tickets <?php echo $estado_ticket;?>s</h2>
-				</div>
-	        <!--=================  Sidebar -- Menu y filtro =============== 
-				Efecto de que permanezca fixo con Scroll , el problema es en
-				movil
-	        -->
+
+            <h2 class="text-center"> Tickets <?php echo $estado_ticket;?>s</h2>
 	       
-			<div class="col-sm-2" id="myScrollspy">
+			<div class="col-md-2" >
                 <?php echo $Controler->getHtmlLinkVolver('Volver');?>
-                <?php //echo $link_volver;?>
 				<h4> Tickets <?php echo $estado_ticket;?>s</h4>
 				<h5> Opciones para una selección</h5>
-				<ul class="nav nav-pills nav-stacked"> 
-				 	<li><a onclick="metodoClick('VerTicket');";>Ver Ticket</a></li>
-				 	<li><a onclick="metodoClick('imprimirTicket');";>Imprimir</a></li>
+					<p><a class="btn" onclick="metodoClick('VerTicket');">Ver Ticket</a></p>
+				 	<p><a class="btn" onclick="metodoClick('imprimirTicket');">Imprimir</a></p>
                 <?php if ($ClasePermisos->getAccion("cambiarfechatickets")==1){?>
-                    <li><a onclick="metodoClick('cambiarFechaItemsSeleccionado');";>Cambiar Fecha Tickets</a></li>
+                    <p><a class="btn" onclick="metodoClick('cambiarFechaItemsSeleccionado');">Cambiar Fecha Tickets</a></p>
                 <?php }?>
-				</ul>
-			</div>
+            </div>
 			<div class="col-md-10">
                     <?php
                     $texto_fechas = '';

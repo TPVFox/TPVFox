@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-    <head>
+
         <?php
         include_once './../../inicial.php';
-        include_once $URLCom.'/head.php';
         include_once $URLCom.'/modulos/mod_tpv/funciones.php';
 		include_once $URLCom.'/controllers/Controladores.php';
        	include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
@@ -53,11 +50,15 @@
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
 		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <?php include_once $URLCom.'/head.php';?>
+
 		<script type="text/javascript">
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
 		</script>
-		
 
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
@@ -66,9 +67,7 @@
 	</head>
 	<body>
 		<?php
-        //~ include_once $URLCom.'/header.php';
          include_once $URLCom.'/modulos/mod_menu/menu.php';
-       
 		?>
 		
      
@@ -91,16 +90,11 @@
 			}
 			?>
 			<h1 class="text-center"> <?php echo $titulo;?></h1>
-            <?php
-                //~ echo '<pre>';
-                //~ print_r($ClasePermisos);
-                //~ echo '</pre>';
-            ?>
-			<div class="col-sm-2">
+			<div class="col-md-2">
 				<?php echo $Controler->getHtmlLinkVolver();?>
 				<div class="col-md-12">
 				<h4> Opciones de Ticket</h4>
-				<ul class="nav nav-pills nav-stacked"> 
+				<ul class="nav nav-pills"> 
 				<?php
                 if($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("descontarStock")==1){
                     // Solo mostramos btn de enviar a web si existe web y tiene permisos.
