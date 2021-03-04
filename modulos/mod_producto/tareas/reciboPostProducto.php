@@ -3,7 +3,6 @@
  *  Preparar y GRABAR dando la informacion de lo que hizo o los errores posibles
  * 
  * */
- 
 $preparados = array();
 
 if (isset($_POST['id'])){
@@ -109,7 +108,6 @@ if ($id >0 ){
 		$comprobaciones= $CTArticulos->ComprobarReferenciaProductoTienda($id, $DatosPostProducto['refProducto']);
 } else {
 		// ----------------------------  			NUEVO 				  ------------------------  //
-        
 		$comprobaciones = $CTArticulos->comprobacionCamposObligatoriosProducto($DatosPostProducto);
        
 		if (count($comprobaciones)=== 0){

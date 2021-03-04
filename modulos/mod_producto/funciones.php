@@ -43,7 +43,7 @@ function htmlLineaProveedorCoste($proveedor,$borrar_ref_prov='KO'){
 	} else {
 		$nom_proveedor .= $proveedor['razonsocial'];
 	}
-	$atributos = ' name="check_pro"'; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
+	$atributos = ' name="check_pro" '; // Los check ponemos el mismo nombre ya solo podemos devolver uno como principal
 	
 	if (isset($proveedor['principal'])){
 		if ($proveedor['principal'] ==='Si'){
@@ -133,7 +133,6 @@ function  htmlTablaBalanza($relacion_balanza){
 			$html .=    '<tr><td>'.$balanza['idBalanza']
                             .'<td>'.$balanza['plu'].'</td>'
                             .'<td>'.$balanza['tecla'].'</td>'
-                            .'</td>'
                         .'</tr>';
 		}
 	}

@@ -305,18 +305,41 @@ class ControladorComun
         // Le falta logica a este metodo, ya si lo queremos ejecutar siempre, falla:
         //    Cuando la ruta es directa.
         //    Cuando pulsamos en guardar, ya tiene como HTTP_REFER la misma ruta.
-        $Link_volver = $_SERVER['HTTP_REFERER'];
-        $ruta_actual = $_SERVER['REQUEST_URI'];
-        $valor = '-1';
-        if ($this->getNombreFichero($Link_volver) === $this->getNombreFichero($ruta_actual)){
-            // Si es el mismo ,volvemos dos atras.
-            $valor = '-2';
+        $Link_volver = parse_url($_SERVER['HTTP_REFERER']);
+        $ruta_actual = parse_url($_SERVER['REQUEST_URI']);
+        // ver lo que hace parse_url, que devuelve la url en partes, path y query...
+        $valor = 1;
+        $script_history ='';
+        $parametros = '';
+        if ($this->getNombreFichero($Link_volver['path']) === $this->getNombreFichero($ruta_actual['path'])){
+            // Si es el mismo ,volvemos dos atras o mas
+            $valor = $valor + 1 ;
+            if (isset($_GET['historyJS'])){
+                $_GET['historyJS'] = $_GET['historyJS']+1;
+                $valor = $_GET['historyJS'];
+            } else {
+                $_GET['historyJS'] =$valor;
+            }
+           
+            // Creamos script para que creo o cambio parametro get history
+            //montamos link nuevo 
+            $parametros = '';
+            $prefijo = '?';
+            foreach ($_GET as $key=>$v){
+                $parametros .=$prefijo.$key.'='.$v;
+                $prefijo = '&';
+            }
+            
+            $l = $ruta_actual['path'].$parametros;
+            // Creamos script para que replace la url y pongo el nuevo valor parametro history
+            $script_history= "<script>history.replaceState(null,'','".$l."');</script>";
         }
-        $html = '<a class="glyphicon glyphicon-circle-arrow-left" onClick="history.go('.$valor.');">';
+        
+        $html = '<a class="glyphicon glyphicon-circle-arrow-left" onClick="history.go(-'.$valor.');">'.$script_history;
         if ($anchor <> ''){
            $html .= $anchor.'</a>';
         } else {
-           $nombre = $this->getNombreFichero($Link_volver);
+           $nombre = $this->getNombreFichero($Link_volver['path']);
            $html .= 'Volver a:'.$nombre.'</a>';
         }
         return $html;

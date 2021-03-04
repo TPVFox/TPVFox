@@ -22,7 +22,7 @@ $id = 0 ; // Por  defecto el id a buscar es 0
 $ivas = $CTArticulos->getTodosIvas(); // Obtenemos todos los ivas.
 
 $posibles_estados_producto = $CTArticulos->posiblesEstados('articulos');
-
+$Link_volver = $Controler->getHtmlLinkVolver('Volver ');
 $titulo = 'Productos:';
 if (isset($_GET['id'])) {
     // Modificar Ficha Producto
@@ -166,7 +166,6 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
 		// Objetos cajas de tpv
 		<?php
             echo $VarJS;
-			//~ echo  'var producto='.json_encode($Producto).';'; // PELIGRO DE SEGURIDAD, MUESTRA HTML PASSWORD DE PLUGIN
             echo 'var producto = new Object();';
             echo 'producto.idArticulo = '.$id.';';
 			echo  'var ivas='.json_encode($ivas).';';
@@ -195,10 +194,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
 			}
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
-			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+			<form method="post" name="formProducto" onkeypress="return anular(event)">
 			<div class="col-md-12">
 				<div class="col-md-12 ">
-                    <?php echo $Controler->getHtmlLinkVolver('Volver ');?>
+                    <?php echo $Link_volver;?>
 					<input type="submit" value="Guardar" class="btn btn-primary">
 				</div>
 				<div class="col-md-6 Datos">
