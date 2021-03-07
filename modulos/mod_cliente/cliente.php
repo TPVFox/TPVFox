@@ -1,95 +1,94 @@
+<?php
+include_once './../../inicial.php';
+include_once $URLCom.'/modulos/mod_cliente/funciones.php';
+include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom.'/controllers/parametros.php';
+include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
+$ClasesParametros = new ClaseParametros('parametros.xml');  
+$Controler = new ControladorComun; 
+$Controler->loadDbtpv($BDTpv);      
+$Cliente=new ClaseCliente();		
+$dedonde="cliente";
+$id=0;
+$errores = array();
+$tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
+$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
+$configuracion=$configuracion['incidencias'];
+$titulo= "Crear"; 
+$estados_cliente = array ('Activo','inactivo');
+if (isset($_GET['id'])) {
+    $id=$_GET['id']; // Obtenemos id para modificar.
+} else {
+    $_GET['accion'] = 'Nuevo';
+}
+// [Get_accion] -> editar,ver,Nuevo
+// Si existe accion, variable es $accion , sino es "editar"
+$Get_accion = (isset($_GET['accion']))? $_GET['accion'] : 'ver';
+$solo_lectura = '';
+if ($Get_accion === 'ver'){
+    $solo_lectura = ' readonly';
+}
 
-        <?php
-        include_once './../../inicial.php';
-        include_once $URLCom.'/modulos/mod_cliente/funciones.php';
-        include_once $URLCom.'/controllers/Controladores.php';
-        include_once $URLCom.'/controllers/parametros.php';
-        include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
-        $ClasesParametros = new ClaseParametros('parametros.xml');  
-        $Controler = new ControladorComun; 
-		$Controler->loadDbtpv($BDTpv);      
-		$Cliente=new ClaseCliente();		
-		$dedonde="cliente";
-		$id=0;
-        $errores = array();
-        $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
-		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
-		$configuracion=$configuracion['incidencias'];
-        $titulo= "Crear"; 
-		$estados_cliente = array ('Activo','inactivo');
-        if (isset($_GET['id'])) {
-			$id=$_GET['id']; // Obtenemos id para modificar.
+if ($id> 0){
+    $titulo= "Modificar";
+}
+$ClienteUnico=$Cliente->getClienteCompleto($id);        
+foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
+    if (isset($adjunto['error'])){
+        $errores[]=array ( 'tipo'=>'danger',
+                     'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
+                     );
+    } else {
+        $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+    }
+}
+
+// Solo permitimos guarfar si realmente no hay errores.
+// ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
+if (count($errores) === 0){
+    if(isset($_POST['Guardar'])){
+        $guardar=$Cliente->guardarCliente($_POST);
+        $ClienteUnico = $guardar['datos'];
+        if($guardar['estado'] === 'OK'){
+                // Todo fue bien , volvemos a listado.
+                // Dos posibles opciones deberíamos tener un parametro configuracion.
+                // 1.- Redirecionar
+                // header('Location: ListaProveedores.php');
+                // 2.- Recargar datos modificados.
+                $mensaje = 'Fue guardo correctamente';
+                $errores[]=$Cliente->montarAdvertencia('info',$mensaje);
         } else {
-            $_GET['accion'] = 'Nuevo';
+            // Hubo error grave, estado = KO
+            $errores[] = $Cliente->montarAdvertencia('danger','No se grabo por un error grave');
+            $errores[] = $Cliente->montarAdvertencia('danger',$guardar['error']);
         }
-        // [Get_accion] -> editar,ver,Nuevo
-        // Si existe accion, variable es $accion , sino es "editar"
-        $Get_accion = (isset($_GET['accion']))? $_GET['accion'] : 'ver';
-        $solo_lectura = '';
-        if ($Get_accion === 'ver'){
-            $solo_lectura = ' readonly';
-        }
-        
-        if ($id> 0){
-            $titulo= "Modificar";
-        }
-        $ClienteUnico=$Cliente->getClienteCompleto($id);        
-        foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
-            if (isset($adjunto['error'])){
-                $errores[]=array ( 'tipo'=>'danger',
-                             'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:'. $adjunto['consulta']
-                             );
-            } else {
-                $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
-            }
-        }
-        
-        // Solo permitimos guarfar si realmente no hay errores.
-        // ya que consideramos que son grabes y no podermo continuar. ( bueno a lo mejor.. :-)
-        if (count($errores) === 0){
-            if(isset($_POST['Guardar'])){
-                $guardar=$Cliente->guardarCliente($_POST);
-                $ClienteUnico = $guardar['datos'];
-                if($guardar['estado'] === 'OK'){
-                        // Todo fue bien , volvemos a listado.
-                        // Dos posibles opciones deberíamos tener un parametro configuracion.
-                        // 1.- Redirecionar
-                        // header('Location: ListaProveedores.php');
-                        // 2.- Recargar datos modificados.
-                        $mensaje = 'Fue guardo correctamente';
-                        $errores[]=$Cliente->montarAdvertencia('info',$mensaje);
-                } else {
-                    // Hubo error grave, estado = KO
-                    $errores[] = $Cliente->montarAdvertencia('danger','No se grabo por un error grave');
-                    $errores[] = $Cliente->montarAdvertencia('danger',$guardar['error']);
-                }
-            }
-        }
+    }
+}
 
-        // Montamos html Option de forma de pago,vencimiento y estado con el valor por default
-                    
-            if (!isset($Defaultvenci)){ 
-                // No se obtuvo formas vencimiento y de pago
-                // Creamos objeto con valores por defecto, necesario mostrar formulario.
-                $DefaultVenci =(object) array('vencimiento' => '0','formapago' => '0');
-            } else {
-                $DefaultVenci = json_decode($ClienteUnico['formasVenci']); // obtenemos un objeto con vencimiento y formapago
+// Montamos html Option de forma de pago,vencimiento y estado con el valor por default
+            
+    if (!isset($Defaultvenci)){ 
+        // No se obtuvo formas vencimiento y de pago
+        // Creamos objeto con valores por defecto, necesario mostrar formulario.
+        $DefaultVenci =(object) array('vencimiento' => '0','formapago' => '0');
+    } else {
+        $DefaultVenci = json_decode($ClienteUnico['formasVenci']); // obtenemos un objeto con vencimiento y formapago
+    }
+    $html_optionVenci =  getHtmlOptions($Cliente->getVencimientos(),$DefaultVenci->vencimiento);
+    $formasPago = $Cliente->getFormasPago();
+    $html_optionPago = getHtmlOptions($formasPago,$DefaultVenci->formapago);
+    $html_optionEstado= '';
+    foreach ($estados_cliente as $i=>$estado_cliente){
+        $es_seleccionado = '';
+        if (isset($ClienteUnico['estado'])){
+            if($ClienteUnico['estado'] === $estado_cliente){
+                $es_seleccionado = ' selected';
             }
-            $html_optionVenci =  getHtmlOptions($Cliente->getVencimientos(),$DefaultVenci->vencimiento);
-            $formasPago = $Cliente->getFormasPago();
-            $html_optionPago = getHtmlOptions($formasPago,$DefaultVenci->formapago);
-            $html_optionEstado= '';
-            foreach ($estados_cliente as $i=>$estado_cliente){
-                $es_seleccionado = '';
-                if (isset($ClienteUnico['estado'])){
-                    if($ClienteUnico['estado'] === $estado_cliente){
-                        $es_seleccionado = ' selected';
-                    }
-                } 
-                $html_optionEstado .='<option value="'.$estado_cliente.'"'.$es_seleccionado.'>'.$estado_cliente.'</option>';
-            }
-		?>
+        } 
+        $html_optionEstado .='<option value="'.$estado_cliente.'"'.$es_seleccionado.'>'.$estado_cliente.'</option>';
+    }
+?>
 <!DOCTYPE html>
 <html>
     <head>

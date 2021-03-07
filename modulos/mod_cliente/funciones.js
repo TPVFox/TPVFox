@@ -434,7 +434,7 @@ function ponerFocus (destino_focus){
 function resumen(dedonde, idCliente){
 	console.log(dedonde);
 	console.log(idCliente);
-	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente;
+	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente+'&historyJS=1';
 }
 function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
 		  var parametros = {
