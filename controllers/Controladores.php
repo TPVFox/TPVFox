@@ -320,8 +320,8 @@ class ControladorComun
             } else {
                 $_GET['historyJS'] =$valor;
             }
-           
-            // Creamos script para que creo o cambio parametro get history
+
+            // Creamos logica para que cree o cambie parametro get history
             //montamos link nuevo 
             $parametros = '';
             $prefijo = '?';

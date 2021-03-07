@@ -41,21 +41,22 @@
 		}
 			
 		$titulo = 'Ticket '.$ticket['cabecera']['estado'];
-		if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+        $VarScriptPlugin= '';
+        if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
             $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
-            echo $ObjVirtuemart->htmlJava();
+            $VarScriptPlugin= $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
          }
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+		$VarJS .= $Controler->ObtenerCajasInputParametros($parametros);
 		?>
 <!DOCTYPE html>
 <html>
     <head>
         <?php include_once $URLCom.'/head.php';?>
 
-		<script type="text/javascript">
+		<script>
 		// Objetos cajas de tpv
 		<?php echo $VarJS;?>
 		</script>
@@ -63,6 +64,7 @@
 		<!-- Cargamos libreria control de teclado -->
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <?php echo $VarScriptPlugin;?>
 				
 	</head>
 	<body>
