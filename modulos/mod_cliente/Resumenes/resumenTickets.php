@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-    <head>
 		 <?php
 		include_once './../../../inicial.php';
-		include $URLCom.'/head.php';
+
 		include $URLCom.'/modulos/mod_cliente/funciones.php';
 		include $URLCom.'/controllers/Controladores.php';
         include_once ($URLCom.'/controllers/parametros.php');
@@ -63,10 +60,11 @@
                     if ($m == 0) {
                         $m= 1;
                     }
-                    $fin_mes = cal_days_in_month(CAL_GREGORIAN, $m,2020);
-                    $f= date_create('2020-'.$m.'-'.$fin_mes);
+                    $y = date('Y');
+                    $fin_mes = cal_days_in_month(CAL_GREGORIAN, $m,$y);
+                    $f= date_create($y.'-'.$m.'-'.$fin_mes);
                     $fechaFinal= date_format($f, 'Y-m-d');
-                    $f= date_create('2020-'.$m.'-'.'01');
+                    $f= date_create($y.'-'.$m.'-'.'01');
                     $fechaInicial= date_format($f, 'Y-m-d');
                 } else {
                     $fechaInicial =$_GET['fechaIni'];
@@ -80,7 +78,11 @@
 			}
 
 		}
-		?>
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <?php  include $URLCom.'/head.php';?>
 	</head>
 	<body>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
@@ -105,18 +107,18 @@
 		
 			<div class="col-md-12" >
 				<div class="col-md-3 " >
-					<a href="<?php echo $HostNombre.'/modulos/mod_cliente/cliente.php?id='.$id;?>">Volver Atrás</a>
+					<?php echo $Controler->getHtmlLinkVolver('Volver ');?>
 					<a class="btn btn-primary" onclick="imprimirResumen('ticket', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
 					<h4><u>DATOS DEL CLIENTE</u></h4>
-					<b>ID: </b><?php echo $id;?></br>
-					<b>Nombre: </b><?php echo $datosCliente['datos'][0]['Nombre'];?></br>
-					<b>Razón social: </b><?php echo $datosCliente['datos'][0]['razonsocial'];?></br>
-					<b>NIF:</b><?php echo $datosCliente['datos'][0]['nif'];?></br>
+					<b>ID: </b><?php echo $id;?><br/>
+					<b>Nombre: </b><?php echo $datosCliente['datos'][0]['Nombre'];?><br/>
+					<b>Razón social: </b><?php echo $datosCliente['datos'][0]['razonsocial'];?><br/>
+					<b>NIF:</b><?php echo $datosCliente['datos'][0]['nif'];?><br/>
 				</div>
 				<div class="col-md-4" >
 					<form method="post">
-                        <input type="submit" name="portodo"class="btn btn-warning"  value="Este año">
-                        <input type="submit" name="mes_anterior"class="btn btn-warning"  value="Mes anterior">
+                        <input type="submit" name="portodo" class="btn btn-warning"  value="Este año">
+                        <input type="submit" name="mes_anterior" class="btn btn-warning"  value="Mes anterior">
                         <label>Fecha Inicial</label>
                         <input type="date" id="fechaInicial" name="fechaInicial" value="<?php echo $fechaInicial;?>" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
                         <label>Fecha Final</label>
@@ -176,44 +178,42 @@
                 }
                 ?>
 			</div>
-			
-			
+            <!-- Mostramos si tenemos $_GET de hacer resumen -->
             <?php
             if(isset($_GET['hacerResumen']))
-            {?>	
-			<div class="col-md-8">
-				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
-					<table class="table table-striped table-bordered table-hover">
-						<thead>
-							<tr>
+            {?>
+            <div class="col-md-12">
+                <div class="col-md-8">
+                    <h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
                                 <th>ID</th>
 
                                 <th>CODBARRAS</th>
                                 <th>PRODUCTO</th>
-								<th>CANTIDAD</th>
-								<th>PRECIO</th>
-								<th>IMPORTE</th>
-							</tr>
-						</thead>
-						<tbody>
-						<?php 
+                                <th>CANTIDAD</th>
+                                <th>PRECIO</th>
+                                <th>IMPORTE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php 
                         $lineas = getHmtlTrProductos($arrayNums['productos'],'pantalla');
                         echo $lineas['html'];
-						?>
-						</tbody>
-					</table>
-					<div class="col-md-12">
-						<div class="col-md-7">
-						</div>
-						<div class="col-md-5">
-							<div class="panel panel-success">
-								<div class="panel-heading">
-									<h3 class="panel-title">TOTAL: <?php echo number_format($lineas['totalLineas'],2);?></h3>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                        ?>
+                        </tbody>
+                    </table>
+                    <div class="col-md-12">
+                        <div class="col-md-5 col-md-offset-7">
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">TOTAL: <?php echo number_format($lineas['totalLineas'],2);?></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 				<div class="col-md-4 ">
 					<h4 class="text-center" ><u>TICKETS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
@@ -259,9 +259,8 @@
 							</div>
 						</div>
 					</div>
-					
 				</div>
-			</div>
+            </div>
             <?php
             }
             ?>
