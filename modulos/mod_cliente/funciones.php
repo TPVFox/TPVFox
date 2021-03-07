@@ -134,8 +134,8 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
                 break;
                 case 'albaranes':
                     $url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
-                    $resumen="";
-                break;
+                    $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
+                 break;
                 case 'pedidos':
                     $url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
                     $resumen="";

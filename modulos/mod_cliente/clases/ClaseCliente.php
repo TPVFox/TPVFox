@@ -258,6 +258,66 @@ class ClaseCliente extends TFModelo{
 		return $respuesta;
 	}
 
+    public function albaranClienteFechas($idCliente, $fechaIni, $fechaFin){
+		//@Objetivo:
+		//MOstrar los datos para el resumen tanto si tienen fechas como si selecciona todos
+		//@Parametros:
+		//idCliente: id del cliente
+		//fechaInicio: fecha de inicio del resumen
+		//fechaFin: fecha de fin de resumen
+		//COnsultas:
+		//1º Busca el numero de tickets e id de tickets de un cliente
+		//2º Busca los productos sumando la cantidad y el importe (los productos que tienen precio de venta distinto los
+		// cuenta como productos individuales).
+		//3º Suma todas las bases y todos los ivas , los agrupa por iva
+		//4º Muestra el número del ticket con el total de bases y el total de ivas de cada ticket
+		$respuesta=array();
+		$productos=array();
+		$resumenBases=array();
+        $sql='SELECT `Numalbcli`, id FROM `albclit` WHERE `idCliente`='.$idCliente;
+		if (!$fechaIni=="" & !$fechaFin==""){
+			$sql .=' and `Fecha` BETWEEN "'.$fechaIni.'" and  "'.$fechaFin.' 23:00:00"';
+		}
+		//~ error_log($sql);
+		$albaranes=$this->consulta($sql);
+		if(isset($albaranes['error'])){
+			$respuesta=$albaranes;
+		}else{
+			$ids=implode(', ', array_column($albaranes['datos'], 'id'));
+            if($ids==0){
+                $respuesta['error']=1;
+                $respuesta['consulta']='No existen ids entre estas fechas';
+            }else{
+                $sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albclilinea`	WHERE`idalbcli` IN('.$ids.') GROUP BY idArticulo + `pvpSiva`';
+                $productos=$this->consulta($sql);
+                if(isset($tickets['error'])){
+                    $respuesta=$productos;
+                }else{
+                    $respuesta['productos']=$productos['datos'];
+                }
+                $sql='SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
+                as sumarIva, t.Fecha as fecha   from albcliIva as i  
+                left JOIN albclit as t on t.id=i.idalbcli  where idalbcli 
+                in ('.$ids.')  GROUP BY idalbcli;';
+                $resumenBases=$this->consulta($sql);
+                if(isset($resumenBases['error'])){
+                    $respuesta=$resumenBases;
+                }else{
+                    $respuesta['resumenBases']=$resumenBases['datos'];
+                }
+                $sql='SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from albcliIva where idalbcli 
+                in ('.$ids.')  GROUP BY iva;';
+                $desglose=$this->consulta($sql);
+                if(isset($desglose['error'])){
+                    $respuesta=$desglose;
+                }else{
+                    $respuesta['desglose']=$desglose['datos'];
+                }
+            }
+		}
+		return $respuesta;
+	}
+
     public function getVencimientos(){
         // @ Objetivo:
         // - Obtener todos los tipos vencimiento que tenemos.

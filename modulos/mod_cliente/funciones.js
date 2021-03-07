@@ -5,11 +5,6 @@
  * @Descripción	
  */
 
-// variable que es Funcion de respuesta 
-
-
-
-
 function metodoClick(pulsado) {
 	    console.log("Inicimos switch de control pulsar");
    switch (pulsado) {
@@ -59,7 +54,6 @@ function controladorAcciones(caja, accion) {
             // Esta funcion necesita el valor.
             if (caja.darValor()!==''){           
 				var idcaja = caja.name_cja
-				console.log(caja.dedonde);
 				leerArticulo({dedonde: caja.dedonde,idcliente: cliente.idClientes, caja: idcaja, valor: caja.darValor()});
 			} else {
 				// quiere decir que no tiene valor cja saltamos. .
@@ -68,8 +62,6 @@ function controladorAcciones(caja, accion) {
 					ponerFocusCajasEntradas(caja.name_cja);
 				} 
 			}
-			
-			
             break;
 
         case 'Ayuda':
@@ -137,18 +129,14 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('N_') >-1){
 		padre_caja.id_input = event.target.id;
 	}
-	
 	if (padre_caja.id_input.indexOf('btn_modificar_') >-1){
 		// Ponemos como id realmente el de evento no el caja xml.
 		padre_caja.id_input = event.target.id;
 	}
-	
 	if (padre_caja.id_input.indexOf('btn_cancelar_') >-1){
 		// Ponemos como id realmente el de evento no el caja xml.
 		padre_caja.id_input = event.target.id;
 	}
-	
-	
 	return padre_caja;
 }
 function before_constructor(caja){
@@ -171,14 +159,10 @@ function before_constructor(caja){
 	if  (caja.id_input === 'cajaBusqueda'){
 		caja.dedonde = caja.darParametro('dedonde');
 	}
-	
 	return caja;
 }
 
 function leerArticulo(parametros) {
-    //~ $('#campoabuscar').val(parametros.caja);
-    //~ $('#cajaBusqueda').val(parametros.valor);
-//    $('#inputPaginaModal').val(1);
     borrarInputsFiltro();
 	parametros['pulsado']='leerArticulo';
 	
@@ -208,13 +192,11 @@ function leerArticulo(parametros) {
 						console.log(obj);
 						// Ponemos focus en el primer item encontrado.
 						$('#N_0').focus();
-						//~ focusAlLanzarModal('N_0');  // No funciona no es porque... 
 					}
 				} else {
 					focusAlLanzarModal('cajaBusqueda');
 				}
 			}
-			
 		}
         //~ error: function (request, textStatus, error) {
             //~ console.log(textStatus);
@@ -235,15 +217,6 @@ function borrarArticulo(idarticulo) {
 				console.log('Respuesta despues de eliminar producto de tarifa.');
 				var resultado = $.parseJSON(response);
                 console.log('--- Pendiente solucionar para devolver resultado --- ');
-                //~ var resultado = response;
-				//~ if (resultado.error === "0" ){
-					//quiere decir que elimino correctamente
-	                window.location.href = './tarifaCliente.php?id=' + cliente.idClientes;
-				//~ } else {
-					//~ alert( ' Hubo un error al eliminarlo ');
-					//~ console.log(resultado);
-
-				//~ }
 			}
     });
 }
@@ -256,7 +229,6 @@ function escribirProductoSeleccionado(name,iva,pvpSiva,pvpCiva,idArticulo){
 	producto['pvpCiva'] = pvpCiva;
 	producto['iva'] = iva;
 	mostrarLineaEntradaPrecios(producto);
-
 } 
 
 function mostrarLineaEntradaPrecios(response){
@@ -268,12 +240,10 @@ function mostrarLineaEntradaPrecios(response){
 	$('#inputPrecioSin').val(parseFloat(response['pvpSiva']).toFixed(2));
 	$('#inputIVA').val(response['iva']);
 	$('#inputPrecioCon').val(parseFloat(response['pvpCiva']).toFixed(2));
-	//~ $('#idcliente').val(idCliente);
 	$('#formulario').show();
 	$('#inputPrecioSin').select();
 	
 }
-
 
 
 function borrarInputsFiltro() {
@@ -292,8 +262,6 @@ function grabarArticulo(event){
             pvpCiva: parseFloat($('#inputPrecioCon').val()).toFixed(2),
             idcliente: $('#id_cliente').val()
         };
-        console.log(parametros);
-
         $.ajax({
             data: parametros,
             url: './tareas.php',
@@ -317,12 +285,10 @@ function recalcularPvp(dedonde){
 	// @ Parametros:
 	//  dedonde = (string) id_input.
 	// Obtenemos iva ( deberías ser funcion)
-	var iva = $('#inputIVA').val();
 	console.log('De donde:'+dedonde);
 	if (dedonde === 'inputPrecioSin'){
 		var precioSiva = parseFloat($('#inputPrecioSin').val(),2);
 		var precioCiva = precioSiva+((precioSiva*iva)/100);
-		console.log(precioCiva.toFixed(2));
 		$('#inputPrecioCon').val(precioCiva.toFixed(2));
 		// Ahora destacamos los input que cambiamos.		
 		destacarCambioCaja('inputPrecioCon');
@@ -330,11 +296,7 @@ function recalcularPvp(dedonde){
 		console.log('Entro');
 		var precioCiva = parseFloat($('#inputPrecioCon').val(),2);
 		var precioSiva = precioCiva/(1+((iva)/100));
-		console.log(iva);
-		console.log(precioCiva);
-
 		$('#inputPrecioSin').val(precioSiva.toFixed(2));
-
 		// Ahora destacamos los input que cambiamos		
 		destacarCambioCaja('inputPrecioSin');
 	}
@@ -351,7 +313,6 @@ function destacarCambioCaja(idcaja){
 	
 }
 
-
 function volverMostrar(idcaja){
 	console.log('Entro volver mostrar');
 	$("#"+idcaja).animate({
@@ -359,8 +320,6 @@ function volverMostrar(idcaja){
 		 },1000);
 	$("#"+idcaja).css("outline-color","transparent")
 }
-
-
 
 function ponerFocusCajasEntradas(caja_name){
 	// @ Objetivo:
@@ -385,9 +344,6 @@ function ponerFocusCajasEntradas(caja_name){
 		break;
 	
 	}
-	
-		
-	console.log(caja_name);
 }
 
 function cancelarAnhadir(){
@@ -396,7 +352,6 @@ function cancelarAnhadir(){
     $('#inputPrecioCon').val('');
     $('#formulario').hide();
 	$('#idArticulo').focus();
-	
 }
 
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
@@ -425,24 +380,25 @@ function mover_up(fila,prefijo){
 function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Entro en enviar focus de :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
-
 }
 function resumen(dedonde, idCliente){
 	console.log(dedonde);
-	console.log(idCliente);
-	window.location.href = './Resumenes/resumenTickets.php?id='+idCliente+'&historyJS=1';
+    if (dedonde === 'tickets'){
+        window.location.href = './Resumenes/resumenTickets.php?id='+idCliente+'&historyJS=1';
+    }
+    if (dedonde === 'albaranes'){
+        window.location.href = './Resumenes/resumenAlbaranes.php?id='+idCliente+'&historyJS=1';
+    }
 }
 function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
-		  var parametros = {
+		var parametros = {
 			'pulsado' : 'imprimirResumenTickets',
             'idCliente': id,
             'fechaInicial': fechaInicial,
             'fechaFinal': fechaFinal
-           
         };
          $.ajax({
             data: parametros,
@@ -453,7 +409,6 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
 				console.log(resultado);
 				 window.open(resultado);
             },
-           
         });
 }
 function imprimirTarifa(idCliente){
@@ -473,8 +428,6 @@ function imprimirTarifa(idCliente){
 				  window.open(resultado);
 				  //~ console.log(resultado);
 			  }
-				
-				 
             },
            
         });
@@ -482,12 +435,9 @@ function imprimirTarifa(idCliente){
 
 
 function imprimirFicha(idCliente){
-	console.log(idCliente);
-	
 	var parametros = {
 		"pulsado"   : 'imprimirFichaCliente',
 		"idCliente"        : idCliente
-		
 	};
 	$.ajax({
 			data       : parametros,
@@ -501,8 +451,5 @@ function imprimirFicha(idCliente){
 				
 				 window.open(resultado);// Abre una nueva pestaña con el documento pdf que se generó anteriormente
 		}
-		
 	});
-	
-	
-	}
+}
