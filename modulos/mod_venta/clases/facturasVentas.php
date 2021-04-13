@@ -151,13 +151,14 @@ class FacturasVentas extends ClaseVentas{
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario
-		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio='
-		.$fecha.' , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
+		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio="'
+		.$fecha.'" , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
 		.' " WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
+                error_log('Error mod_ventas/clases/facturasVentas en modificarDatosFacturaTemporal:'.$smt['error'].$smt['consulta']);
 				return $respuesta;
 		}else{
 			$respuesta['idTemporal']=$idTemporal;
