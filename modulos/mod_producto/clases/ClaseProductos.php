@@ -250,7 +250,15 @@ class ClaseProductos extends ClaseTablaArticulos{
                                     '6' =>  array(
 											'estado'      =>'actualizado',
 											'Descripcion' =>'Producto que actualizado a traves de una importación.'
-											)
+											),
+                                    '7' => array(
+                                            'estado'      =>'Por encargo',
+                                            'Descripcion' =>'Producto que solo se compra por encargo'
+                                            ),
+                                    '8' => array(
+                                            'estado'      =>'Corte Stock',
+                                            'Descripcion' => 'Proveedor sin stock, buscando alternativas'
+                                            )
 									);
 		// Añado en todas la tablas menos en la articulos ya que son los por defecto.
 		switch ($tabla) {
