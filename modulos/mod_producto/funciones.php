@@ -976,7 +976,9 @@ function modalAutocompleteFamilias($familias, $idProducto){
     return $html;
 }
 
-function modalAutocompleteEstadoProductos($productos){
+function modalAutocompleteEstadoProductos($productos,$posibles_estados){
+    // @ Objetivo
+    // Montar inpurt y select para autocompleto de posibles estados.
     $stringProductos=implode(",", $productos);
     
      $html="";
@@ -984,14 +986,11 @@ function modalAutocompleteEstadoProductos($productos){
             <div class="ui-widget" id="divEstados">
             <label for="tags">Estados: </label>
             <select id="combobox" class="estados">
-                <option value="0"></option>
-                <option value="Activo">Activo</option>
-                <option value="Nuevo">Nuevo</option>
-                <option value="Temporal">Temporal</option>
-                <option value="Baja">Baja</option>
-                <option value="importado">importado</option>
-            </select>
-            ';
+                <option value="0"></option>';
+    foreach ($posibles_estados as $e){
+            $html.= '<option value="'.$e['estado'].'">'.$e['estado'].'</option>';
+    }
+     $html.= ' </select>';
         $html.='<p id="botonEnviarEstados"></p>';
         return $html;
 }

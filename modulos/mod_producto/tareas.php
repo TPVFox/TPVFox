@@ -336,7 +336,8 @@ switch ($pulsado) {
 
     case 'modalEstadoProductos':
         $productos=$_SESSION['productos_seleccionados'];
-        $modal=modalAutocompleteEstadoProductos($productos);
+        $posibles_estados = $NCArticulo->posiblesEstados('articulos');
+        $modal=modalAutocompleteEstadoProductos($productos,$posibles_estados);
         $respuesta['html']=$modal;
     break;
 

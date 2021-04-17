@@ -263,11 +263,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// Añado en todas la tablas menos en la articulos ya que son los por defecto.
 		switch ($tabla) {
 			case 'articulosTiendas':
-				$array = array( '6' => array(
+				$array = array( '9' => array(
 									'estado' =>'NoPublicado',
 									'Descripcion'=>'Que existe en la tienda web pero no está publicado para la venta.'
 									),
-								'7' => array(
+								'10' => array(
 									'estado' =>'Publicado',
 									'Descripcion'=>'Si esta creado y la venta en la tienda web'
 									)
@@ -275,15 +275,10 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$posibles_estados= $posibles_estados +$array;
 				break;
 			case 'articulosProveedores':
-				$array = array( '8' => array(
-									'estado' =>'SinStock',
-									'Descripcion'=>'El proveedor en estos momento no tiene Stock de producto.'
-									),
-								'9' => array(
+				$array = array( '11' => array(
 									'estado' =>'Tarifa',
 									'Descripcion'=>'Precio propuesto por el proveedor pero aun no se compro.'
 									),
-									
 								);
 				$posibles_estados= $posibles_estados +$array;
 				break;

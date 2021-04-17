@@ -258,23 +258,25 @@
                                 <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
                             <?php 
                             }
-                             if($ClasePermisos->getAccion("eliminarProductos")==1){
+                            if($ClasePermisos->getAccion("cambiarEstado")==1){
+                            ?> 
+                                <li><a onclick="modalEstadoProductos();">Cambiar estado productos</a></li>   
+                            <?php 
+                            }
+                            ?>             
+                        </ul>
+                        <?php
+                        if($ClasePermisos->getAccion("eliminarProductos")==1){
                                 $id_ti = 0;
                                 if( isset($tiendaWeb['idTienda'])){
                                     // Si existe ponemos valor
                                     $id_ti = $tiendaWeb['idTienda'];
                                 }
                              ?>     
-                                <li><a onclick="eliminarProductos(<?php echo $id_ti;?>);">Eliminar Productos</a></li>        
-                            <?php 
-                            }
-                             if($ClasePermisos->getAccion("cambiarEstado")==1){
-                            ?> 
-                            <li><a onclick="modalEstadoProductos();">Cambiar estado productos</a></li>   
-                            <?php 
-                            }
-                            ?>             
-                        </ul>
+                                <div><a class="btn btn-danger" onclick="eliminarProductos(<?php echo $id_ti;?>);">Eliminar Productos</a></div>        
+                            <?php
+                        }
+                        ?>
                     </div>
                     <div class ="nav_configuracion">
                         <h4>Configuracion de usuario</h4>
