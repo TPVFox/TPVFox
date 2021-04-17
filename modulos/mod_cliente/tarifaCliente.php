@@ -159,7 +159,7 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 										   />
 								</td>
 								<td>
-									<button id="btn-grabar-tc" data-obj="btn_grabar_tc" onclick="controlEventos(event)" class="btn btn-primary btn-sm">
+									<button id="btn-grabar-tc" data-obj="btn_grabar_tc" onclick="grabarArticulo(event)" class="btn btn-primary btn-sm">
 										<span class="glyphicon glyphicon-ok"></span> grabar
 									</button> 
 									<button id="btn-cancelar-tc" data-obj="btn_cancelar_tc" onclick="controlEventos(event)"class="btn btn-danger btn-sm">
