@@ -49,7 +49,7 @@
          }
 		// Añadimos productos a JS
 		// -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-		$VarJS .= $Controler->ObtenerCajasInputParametros($parametros);
+		$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 		?>
 <!DOCTYPE html>
 <html>

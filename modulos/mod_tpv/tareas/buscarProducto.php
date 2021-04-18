@@ -30,14 +30,13 @@ if ($id_input === "Codbarras") {
 }
 
 $respuesta = BuscarProductos($id_input,$campoAbuscar,$busqueda,$BDTpv);
-if ($respuesta['Estado'] !='Correcto' ){
-	// Al ser incorrecta entramos aquí.
-	// Mostramos popUp tanto si encontro varios como si no encontro ninguno.
-
-	if (!isset($respuesta['datos'])){
+if (!isset($respuesta['datos'])){
 		// Para evitar error envio, lo generamos vacio..
 		$respuesta['datos']= array();
 	}
+if ($respuesta['Estado'] !='Correcto' ){
+	// Al ser incorrecta entramos aquí.
+	// Mostramos popUp tanto si encontro varios como si no encontro ninguno.
 	$respuesta['listado']= htmlProductos($respuesta['datos'],$id_input,$campoAbuscar,$busqueda);
 }
 if ($respuesta['Estado'] === 'Correcto' && $deDonde === 'popup'){
@@ -50,7 +49,7 @@ if ( isset($codBarrasPropio)){
 	if (count($codBarrasPropio)>0){
 		// Si hay datos , nos enviamos referencia y (precio o peso) obtenidos.
 		$respuesta['codBarrasPropio'] = $codBarrasPropio;
-		if (count($respuesta['datos']=== 1)){
+		if (count($respuesta['datos'])=== 1){
 			// Solo permito cambiar datos si hay un solo resultado.
 			$respuesta['datos'][0]['codBarras'] = $codBarrasPropio['codbarras_leido'];
 			$respuesta['datos'][0]['crefTienda'] = $codBarrasPropio['referencia'];

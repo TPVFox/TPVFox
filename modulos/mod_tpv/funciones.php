@@ -585,7 +585,12 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose) {
     // Solo falta obtener el numticket que tiene en indice es usuario para esa tienda.
     $campo = 'numticket';
     // Obtenemos el numero ticket para grabar y ya cambiado en indice... por si somos muy rápidos.. :-)
-    $numticket = ObtenerNumIndices($BDTpv, $campo, $cabecera['idUsuario'], $cabecera['idTienda'], true); // Lo incrementamos 
+    $numticket = ObtenerNumIndices($BDTpv, $campo, $cabecera['idUsuario'], $cabecera['idTienda'], true); // Lo incrementamos
+    // Comprobamos que el dato entregado sea un numero.
+    if (is_numeric($cabecera['entregado']) == false ){
+        // No es un numero por lo que ponemos que entrego la misma cantidad 0
+        $cabecera['entregado'] = 0;
+    }
     // Creamos la consulta para graba en
     // Preparamos SQl para Consulta en tickest
     $SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`'
