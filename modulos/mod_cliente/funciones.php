@@ -25,14 +25,14 @@ function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$
 			.'<input id="cajaBusqueda" name="'
 			.$campoAbuscar.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
 			.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
-	if (count($productos)>10){
+	if (count($productos)>20){
 		if ($total_producto ===-1){
 			// Quiere decir que no se sabe realmente cuantos pueden ser la busqeuda completa.
 			$tproductos = '* ';
 		} else {
 			$tproductos = $total_productos;
 		}
-		$html .= '<span>10 productos de '.$tproductos.'</span>';
+		$html .= '<span>20 productos de '.$tproductos.'</span>';
 	}
 	if ($total_productos === 0){
 			// Hay que tener en cuenta tambien si la caja tiene datos ya que sino no es lo mismo.
@@ -67,11 +67,11 @@ function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$
 			}
 			$html .=' <td>'.$c_m.'</td>'
 					. '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-					.' <td>'.number_format($producto['pvpCiva'],2).'</td>'
 					.' <td>'.number_format($producto['pvpSiva'],2).'</td>'
+                    .' <td>'.number_format($producto['pvpCiva'],2).'</td>'
 					.'</tr>';
 			$contad = $contad +1;
-			if ($contad === 10){
+			if ($contad === 20){
 				break;
 			}
 			

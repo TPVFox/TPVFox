@@ -174,7 +174,7 @@ function leerArticulo(parametros) {
 			var obj = JSON.parse(respuesta);
 			var response = obj.datos;
 			var idCliente = $('#id_cliente').val();
-			console.log(parametros.caja);
+			console.log(obj);
 			if (obj.NItems === 1 && parametros.dedonde !=='popup') {
 				// Mostrar linea de entrada precio sin iva y con iva.
 				mostrarLineaEntradaPrecios(response[0]);
@@ -198,9 +198,6 @@ function leerArticulo(parametros) {
 				}
 			}
 		}
-        //~ error: function (request, textStatus, error) {
-            //~ console.log(textStatus);
-        //~ }
     });
 }
 

@@ -1,0 +1,1 @@
+ALTER TABLE `modulo_balanza_plus` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
