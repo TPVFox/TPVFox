@@ -51,7 +51,7 @@
                                     <th>idUsuario</th>
                                     <th>idAlbaran</th>
                                     <th>Estado</th>
-                                    <th>botón alguna acción</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <?php
@@ -69,7 +69,7 @@
                                         <td><?php echo $producto['idUsuario']; ?></td>
                                         <td><?php echo $producto['idAlbaran']; ?></td>
                                         <td><?php echo $producto['estado']; ?></td>
-                                        <td><button class="btn btn-sm boton-albaran" data-idarticulo="<?php echo $producto['idArticulo']; ?>">Albarán</button></td>
+                                        <td><button class="btn btn-sm boton-mayor" data-idarticulo="<?php echo $producto['idArticulo']; ?>">Listado Mayor</button></td>
                                     </tr>
                                     <?php
                                 }
