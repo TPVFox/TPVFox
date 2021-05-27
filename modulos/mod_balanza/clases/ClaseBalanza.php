@@ -104,7 +104,9 @@ class ClaseBalanza  extends Modelo  {
         return $resultado;
     }
     public function addPlu($plu, $idBalanza, $tecla, $idArticulo){
-        //#Objetivo: añadir plu 
+        //#Objetivo: añadir plu
+        // Evitar error tecla:
+        $tecla = intval($tecla);
         $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`)
          VALUES ('.$idBalanza.', "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
         $consulta = $this->consultaDML($sql);
