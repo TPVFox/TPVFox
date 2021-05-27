@@ -88,9 +88,9 @@ TRUNCATE indices;
 INSERT INTO `indices`(`id`, `idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES (1,1,1,1,1);
 
 
-# Reinicio de usuarios
+# Reinicio de usuarios admin y password admin
 TRUNCATE usuarios;
-INSERT INTO usuarios (id,username,password,fecha,group_id,estado,nombre) VALUES (1,'admin','ea6b2efbdd4255a9f1b3bbc6399b58f4',NOW(),9,'activo','admin');
+INSERT INTO usuarios (id,username,password,fecha,group_id,estado,nombre) VALUES (1,'admin','21232f297a57a5a743894a0e4a801fc3',NOW(),9,'activo','admin');
 
 # Reinicio de tiendas
 TRUNCATE tiendas;

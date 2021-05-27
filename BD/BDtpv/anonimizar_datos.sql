@@ -49,3 +49,16 @@ UPDATE `proveedores` SET movil = REPLACE(movil,@NumeroBuscarDos,@NumeroCambiarDo
 
 UPDATE `proveedores` SET email = REPLACE(email,@LetraBuscar,@LetraCambiar);
 UPDATE `proveedores` SET email = REPLACE(email,@LetraBuscarTres,@LetraCambiarTres);
+
+
+UPDATE `tiendas` SET nif = REPLACE(nif,@NumeroBuscar,@NumeroCambiar);
+UPDATE `tiendas` SET nif = REPLACE(nif,@NumeroBuscar,@NumeroCambiar);
+
+UPDATE `tiendas` SET telefono = REPLACE(telefono,@NumeroBuscar,@NumeroCambiar);
+UPDATE `tiendas` SET telefono = REPLACE(telefono,@NumeroBuscarDos,@NumeroCambiarDos);
+
+UPDATE `tiendas` SET key_api= "0000";
+
+# Reseteamos contraseña admin
+UPDATE `usuarios` SET password = '21232f297a57a5a743894a0e4a801fc3'; 
+
