@@ -89,9 +89,9 @@ foreach ($errores as $error){
 // ====================== Fin montar array de posibles errores ========================== //
 
 // ====== Empezasmos mover fichero y crear tabla ========= //
-//~ echo '<pre>';
-//~ print_r($errores);
-//~ echo '</pre>';
+echo '<pre>';
+print_r($_FILES);
+echo '</pre>';
 if ($sum_errores === 0 )
 {
     $estado = 'Error'; // Por defecto indico que el estado es error.
@@ -100,6 +100,9 @@ if ($sum_errores === 0 )
         // Se movio y subio correctamente , por lo que  creamos y registramos.
         $mensajes[]=$importarDbf->getAvisosHtml(0,'info');
         $respuesta = $importarDbf->crearEstructura($fichero_subido,$URLCom);
+        echo '<pre>';
+        print_r($respuesta);
+        echo '</pre>';
         if (gettype($respuesta) === 'integer'){
             // Ahora registramos... fichero y estado .
             $datos = array( 'datos_fichero' =>json_encode($_FILES['fichero']),

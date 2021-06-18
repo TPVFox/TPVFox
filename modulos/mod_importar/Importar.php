@@ -17,12 +17,23 @@
 
      
 include_once './../../inicial.php';
-include_once './clases/ClaseImportarDbf.php';
-$importarDbf = new ImportarDbf();
+include_once './clases/ClaseImportar.php';
+$Importar = new Importar();
 $link = '';
 // Ultimo registro
-$dregistro = $importarDbf->ultimoRegistro();
-$datos_registro =$dregistro['datos'][0];
+$dregistro = $Importar->ultimoRegistro();
+$datos_registro= 0; // No hay registro , valor por defecto.
+if (empty($dregistro['datos'])) {
+    // No existe ultimo Registro, puede ser porque esta vacia la tabla, sea la primera importacion
+    // o puede ser porque haya un error
+    if ( !empty($dregistro['error'])){
+        // Hubo un error
+        die('Error: '. $dregistro['error']);
+        // No continua
+    }
+} else  {
+    $datos_registro =$dregistro['datos'][0];
+}
 if ($datos_registro['id'] >0){
     $link = '<a href="importarDBF.php">Ir ver información importar</a>';
 }
@@ -52,7 +63,6 @@ if ($datos_registro['id'] >0){
         <input type="hidden" name="token" value="<?php echo $thisTpv->getTokenUsuario($Usuario);?>">
         <?php
         $dir_subida = $thisTpv->getRutaUpload();
-        
         // Comprobamos si existe la ruta donde guardar el fichero subido.
         if (file_exists($dir_subida)) {
             // Solo muestro btn enviar si existe ruta upload
@@ -62,7 +72,8 @@ if ($datos_registro['id'] >0){
         } else {
             ?>
             <div class="alert alert-danger">
-                No existe ruta upload o no tengo acceso.
+                No existe ruta upload o no tengo acceso.<br/>
+                Ruta upload: <?php echo $dir_subida ?>;
             </div>
         <?php    
         }
