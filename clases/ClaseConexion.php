@@ -26,15 +26,14 @@ class ClaseConexion{
 	}
 	
 	public function conectar(){
-		
-		try{
-			$db= new mysqli($this->server, $this->usuario,$this->contrasena, $this->base);
-			return $db;
-		}  catch (PDOException $e){
-			echo "ERROR: No puedes conectarte a la base de datos";
-	
-		}
-	
+        $db= new mysqli($this->server, $this->usuario,$this->contrasena, $this->base);
+        if ($db->connect_error) {
+            die('Error de Conexión (' . $mysqli->connect_errno . ') '
+            . $mysqli->connect_error);
+        } else {
+            return $db;
+
+        }
 	}
 	
 	public function cargarConfiguracion(){
