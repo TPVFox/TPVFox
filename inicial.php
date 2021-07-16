@@ -11,20 +11,25 @@ define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
 define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 
 $Ruta = __DIR__.'/';
-	
+$error_conf = '';
 	if (file_exists($Ruta.'configuracion.php')){
 		include_once ($Ruta.'configuracion.php');
 		if (file_exists($RutaServidor . $HostNombre)){
 			$URLCom = $RutaServidor . $HostNombre;
-		}
-   	}
+		} else {
+            $error_conf = 'Error en ruta completa URLCom : '.$RutaServidor . $HostNombre;
+        }
+   	} 
    	if (!isset($URLCom)) {
-		echo '<pre>';
-			print_r('No se encuentra o esta mal el fichero de configuracion.php');
+        $error_conf = 'No se encuentra o esta mal el fichero de configuracion. En la ruta:'.$URLCom;
+	}
+    if ($error_conf !== ''){
+        // hubo un error
+        echo '<pre>';
+			print_r($error_conf);
 		echo '</pre>';
 		exit();
-		
-	}
+    }
 	
     include_once ($URLCom. "/clases/ClaseSession.php");
 
