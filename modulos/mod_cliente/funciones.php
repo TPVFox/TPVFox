@@ -1,6 +1,17 @@
 <?php 
 
 
+function dump($variable){
+	echo '<pre>';
+	print_r($variable);
+	echo '</pre>';
+}
+
+function dd($variable){
+	dump($variable);
+	die();
+}
+
 function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$busqueda){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
@@ -258,48 +269,37 @@ function getHmtlTrProductos($productos,$tipo){
             $aux[] = $row['cdetalle'];
         }
         array_multisort($aux, SORT_ASC, $productos);
-        $idArticulo_anterior = 0;
-        foreach($productos as $producto){
-            // Calculamos el total de la linea actual.
-            $producto['total_linea'] =$producto['totalUnidades']*$producto['precioCiva'];
-            // Ahora compruebo si es el mismo producto.
-            if ($idArticulo_anterior !== 0 && $idArticulo_anterior !== $producto['idArticulo']){
-                // Es un producto distinto y no es el primer registro.
-                // ================== Imprimos linea   =============== //
-                // Ahora obtenemos html td del anterior producto
-                $html_td= getHtmlTdProducto($P_anterior,$tipo);
-                $totalLineas += $P_anterior['total_linea'];
-                $respuesta['html'] .= '<tr>'.$html_td.'</tr>';
-                // ================== Fin imprimir linea   =============== //
-                // Sumamos las lineas todas para obtener total lineas.
-                
-                // Guardo datos en $producto_anterior ya es distinto.
-                $P_anterior = $producto;
-                $P_anterior['total_linea'] = $producto['total_linea'];
-            } else {
-                // Es el primer producto o esta repetido
-                if ($idArticulo_anterior !== 0 ){
-                    // repetido
-                    $P_anterior['total_linea'] = $P_anterior['total_linea'] + $producto['total_linea'];
-                    $P_anterior['totalUnidades'] = number_format($P_anterior['totalUnidades'],3) + number_format($producto['totalUnidades'],3);
-                    // Calculamos el precio medio.
-                    if (number_format($P_anterior['precioCiva'],2) !== number_format($producto['precioCiva'],2)){
-                        // Calculamos precio medio, por lo que lo marcamos.
-                        if ($tipo === 'pdf'){
-                            $P_anterior['pm'] = '<span>*</span>';
-                        } else {
-                            $P_anterior['pm'] = '<span title="Calculado precio medio">*</span>';
-                        }
-                        $P_anterior['precioCiva'] = $P_anterior['total_linea'] / $P_anterior['totalUnidades'];
-                    }
-                } else  {
-                    // Guardo datos en $producto_anterior ya que esta vacio, por ser primer registro.
-                    $P_anterior = $producto;
-                }
-            }
-            $idArticulo_anterior = $producto['idArticulo'];
+
+		$resumen_productos = []; // inicializa tabla que aparece como resumen productos
+        foreach ($productos as $producto) {			
+			if(!array_key_exists($producto['idArticulo'], $resumen_productos)){ // busca el indice. Si no existe lo crea con $producto
+			  $resumen_productos[$producto['idArticulo']] = $producto;
+			  $resumen_productos[$producto['idArticulo']]['precioCiva'] = $producto['precioCiva'];
+			  $resumen_productos[$producto['idArticulo']]['precio_medio'] = 0;
+			  $resumen_productos[$producto['idArticulo']]['totalUnidades'] = $producto['totalUnidades'];
+			} else {  // Si ya existe suma las unidades y calcula el precio medio
+				$total_producto = $producto['totalUnidades'] * $producto['precioCiva'];  
+				if($resumen_productos[$producto['idArticulo']]['precioCiva'] !== $producto['precioCiva']){
+					$resumen_productos[$producto['idArticulo']]['precio_medio'] = 1;
+					$resumen_productos[$producto['idArticulo']]['pm'] = $tipo === 'pdf' ? '<span>*</span>' : '<span title="Calculado precio medio">*</span>';
+					$resumen_productos[$producto['idArticulo']]['precioCiva'] = 
+					       ($resumen_productos[$producto['idArticulo']]['total_linea'] + $total_producto) / 
+						          ($resumen_productos[$producto['idArticulo']]['totalUnidades'] + $producto['totalUnidades']);					
+				}				
+				$resumen_productos[$producto['idArticulo']]['totalUnidades'] += $producto['totalUnidades'];
+			}
+			$resumen_productos[$producto['idArticulo']]['total_linea'] = $resumen_productos[$producto['idArticulo']]['totalUnidades'] * $resumen_productos[$producto['idArticulo']]['precioCiva'];
         }
+
+		$totalLineas = 0; 
+		foreach($resumen_productos as $producto){  // genera la tabla html para mostrar, con el resumen de productos
+			$html_td = getHtmlTdProducto($producto, $tipo);
+			$respuesta['html'] .= '<tr>' . $html_td . '</tr>';
+			$totalLineas += $producto['total_linea'];
+		}
     }
+
+	
     $respuesta['totalLineas'] = $totalLineas;
     return $respuesta;
 }
@@ -307,4 +307,4 @@ function getHmtlTrProductos($productos,$tipo){
 
 
 
-?>
+
