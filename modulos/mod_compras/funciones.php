@@ -5,6 +5,19 @@ include_once $URLCom.'/clases/FormasPago.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/clases/ClaseTablaTienda.php';
 
+function dump($variable){
+	echo '<pre>';
+	print_r($variable);
+	echo '</pre>';
+}
+
+function dd($variable){
+	dump($variable);
+	die();
+}
+
+
+
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:
 	// Montar el hmtl para mostrar con los proveeodr si los hubiera.

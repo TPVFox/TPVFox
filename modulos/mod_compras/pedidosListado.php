@@ -26,6 +26,7 @@ if (isset($todoTemporal['error'])){
                              );
 }
 $todoTemporal=array_reverse($todoTemporal);
+
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array( 'a.Numpedpro','b.nombrecomercial');
@@ -63,8 +64,9 @@ $pedidosDef=$p['Items'];
 	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>    
 <?php
+
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
 		foreach($errores as $error){
@@ -167,6 +169,7 @@ $pedidosDef=$p['Items'];
                         <th>IVA</th>
                         <th>TOTAL</th>
                         <th>ESTADO</th>
+                        <th>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -220,7 +223,8 @@ $pedidosDef=$p['Items'];
                             $clas_estado = ' class="alert-danger"';
                             $linkImprimir= '';
                         }
-                        echo '<td'.$clas_estado.'>'.$pedido['estado'].$linkImprimir.'</td>';
+                        echo '<td'.$clas_estado.'>'.$pedido['estado'].'</td>';
+                        echo '<td'.$clas_estado.'>'.$linkImprimir.$pedido['email'].'</td>';
                         ?>
                     </tr>
                 <?php

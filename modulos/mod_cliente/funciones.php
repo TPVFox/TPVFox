@@ -1,17 +1,5 @@
 <?php 
 
-
-function dump($variable){
-	echo '<pre>';
-	print_r($variable);
-	echo '</pre>';
-}
-
-function dd($variable){
-	dump($variable);
-	die();
-}
-
 function htmlProductos($total_productos,$productos,$busqueda_por,$campoAbuscar,$busqueda){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.

@@ -408,7 +408,7 @@ class PedidosCompras extends ClaseCompras{
 	
 	public function TodosPedidosLimite($limite = ''){
 		//MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
-		$sql = 'SELECT a.id , a.Numpedpro , a.Fecha, b.nombrecomercial, 
+		$sql = 'SELECT a.id , a.Numpedpro , a.Fecha, b.nombrecomercial, b.email,
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on 
 		a.idProveedor=b.idProveedor   '. $limite ;
 		$smt=parent::consulta($sql);
