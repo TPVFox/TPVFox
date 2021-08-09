@@ -4,6 +4,8 @@ include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/clases/FormasPago.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/clases/ClaseTablaTienda.php';
+include_once $URLCom.'/clases/imprimir.php';
+
 
 function dump($variable){
 	echo '<pre>';
@@ -597,6 +599,21 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde){
 	return $respuesta;
 }
 
+function generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom){
+
+	$nombreTmp=$dedonde."compras.pdf";
+	$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
+	$cabecera=$htmlImprimir['cabecera'];
+	$margen_top_caja_texto= 56;
+	$html=$htmlImprimir['html'];
+
+	include_once $URLCom.'/controllers/planImprimir.php';
+	
+	$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+
+	return $ficheroCompleto;
+}
+
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	//@Objetivo:
 	//Función que monta el html del pdf, primero se carga los datos dependiendo de donde venga 
@@ -1085,4 +1102,5 @@ EOD;
 	}
 	return $html;
 }
+
 ?>

@@ -218,13 +218,21 @@ $pedidosDef=$p['Items'];
                             $linkImprimir = ' <a class="glyphicon glyphicon-print" '.
                                     "onclick='imprimir(".$pedido['id'].
                                     ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
+                            $linkEmail = $pedido['email'] ? ' <a class="glyphicon glyphicon-envelope" '.
+                                    "onclick='enviarXCorreo(".$pedido['id'].
+                                    ' , "pedido" , '.$Tienda['idTienda'].")'></a>" : '';
+                            // $linkEmail = $pedido['email'] ? ' <a class="glyphicon glyphicon-envelope" '.
+                            //         '"onclick=\'enviarXCorreo("'.$pedido['id'].
+                            //         ' , "pedido" , '.$Tienda['idTienda'].', '.$pedido['email'].")' ></a>" : '';
                         } else {
                             // Color danger cuando es Sin Guardar
                             $clas_estado = ' class="alert-danger"';
                             $linkImprimir= '';
+                            $linkEmail = '';
                         }
+                        
                         echo '<td'.$clas_estado.'>'.$pedido['estado'].'</td>';
-                        echo '<td'.$clas_estado.'>'.$linkImprimir.$pedido['email'].'</td>';
+                        echo '<td'.$clas_estado.'>'.$linkImprimir.'&nbsp'.$linkEmail.'</td>';
                         ?>
                     </tr>
                 <?php

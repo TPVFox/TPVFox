@@ -271,6 +271,36 @@ function imprimir(id, dedonde, idTienda){
 	});
 }
 
+function enviarXCorreo(id, dedonde, idTienda, destinatario){
+	// @Objetivo: Imprimir el documento que se ha seleccionado
+	// @parametros: 
+    // id: id del documento
+    // dedonde: de donde es para poder filtrar
+    // idTienda : id de la tienda 
+	var parametros = {
+		"pulsado"   : 'enviarXCorreo',
+		"dedonde"   : dedonde,
+		"id"        : id,
+		"idTienda"  : idTienda,
+        "destinatario" : destinatario
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos enviarXCorreo JS****************');
+			},
+            success    :  function (resultado) {                
+				alert(resultado);// Abre una ventana y muestra el texto
+            },
+            error    :  function (request) {
+				console.log(request);
+            }
+            
+	});
+}
+
 function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	// @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
 	// @parametros: 

@@ -20,5 +20,12 @@ $rutatmp='/../datostpvfox/tmp';
 // Otras configuraciones
 $CONF_campoPeso = 'no';  //para ocultar columna peso en el tvp ( tickets) 
 
+$PHPMAILER_CONF = [
+    'host' => 'smtp.mailtrap.io',
+    'SMTPAuth' => true,
+    'Port' => 2525,
+    'Username' => '2f117f32afaa38',
+    'Password' => 'cfeadb433cb791',
+];
 
 ?>

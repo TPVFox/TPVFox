@@ -11,6 +11,10 @@ include_once $URLCom.'/clases/Proveedores.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 include_once $URLCom.'/controllers/Controladores.php';
+
+include_once $URLCom.'/clases/CorreoElectronico.php';
+
+
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $CProveedores=new Proveedores($BDTpv);
 $CPed=new PedidosCompras($BDTpv);
@@ -136,15 +140,47 @@ switch ($pulsado) {
         $id=$_POST['id'];
         $dedonde=$_POST['dedonde'];
         $idTienda=$_POST['idTienda'];
-        $nombreTmp=$dedonde."compras.pdf";
-        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
-        $cabecera=$htmlImprimir['cabecera'];
-        $margen_top_caja_texto= 56;
-        $html=$htmlImprimir['html'];
-        include_once $URLCom.'/clases/imprimir.php';
-        include_once $URLCom.'/controllers/planImprimir.php';
-        $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-        $respuesta=$ficheroCompleto;
+//        $respuesta = generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom);
+$nombreTmp=$dedonde."compras.pdf";
+$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
+$cabecera=$htmlImprimir['cabecera'];
+$margen_top_caja_texto= 56;
+$html=$htmlImprimir['html'];
+
+include_once $URLCom.'/controllers/planImprimir.php';
+
+$respuesta=$rutatmp.'/'.$nombreTmp;
+
+    break;
+
+    case 'enviarXCorreo':
+        //@Objetivo:
+        //Imprimir un documento , dependiendo de donde venga se pone el nombre y envía todos los datos  
+        //a la función montarHTMLimprimir que lo que realiza es simplemente montar el html una parte copn la cabecera y 
+        //otra con el cuerpo del documento
+        //debajo cargamos las clases de imprimir y la plantilla una vez generada y lista la plantilla devolvemos la ruta
+        //para así desde javascript poder abrirla
+        $id=$_POST['id'];
+        $dedonde=$_POST['dedonde'];
+        $idTienda=$_POST['idTienda'];
+        $destinatario=$_POST['destinatario'] ?? '';
+
+//        $fichero = generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom);
+
+$nombreTmp=$dedonde."compras.pdf";
+$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
+$cabecera=$htmlImprimir['cabecera'];
+$margen_top_caja_texto= 56;
+$html=$htmlImprimir['html'];
+
+include_once $URLCom.'/controllers/planImprimir.php';
+
+$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+
+
+
+
+        $respuesta = CorreoElectronico_enviar('lamadrequetepario@gmail.com', 'mensaje del correo', 'asunto importante, seguro!', $ficheroCompleto);
     break;
 
     case 'eliminarTemporal':
