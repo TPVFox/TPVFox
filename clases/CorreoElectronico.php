@@ -1,13 +1,20 @@
 
 <?php
-include_once './../../inicial.php';
-include_once $URLCom.'/configuracion.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 require_once '/var/www/tpvfox/lib/PHPMailer/src/PHPMailer.php';
 require_once '/var/www/tpvfox/lib/PHPMailer/src/Exception.php';
+require_once '/var/www/tpvfox/lib/PHPMailer/src/SMTP.php';
 
-//class CorreoElectronico {
+class CorreoElectronico {
 
-    function CorreoElectronico_enviar($destinatario, $mensaje, $asunto, $adjunto){
+
+
+    static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
+        include_once '/var/www/tpvfox/configuracion.php';
 
         $mail =  new PHPMailer(true);
         try {
@@ -46,4 +53,4 @@ require_once '/var/www/tpvfox/lib/PHPMailer/src/Exception.php';
         }        
         return $respuesta;
     }
-//}
+}
