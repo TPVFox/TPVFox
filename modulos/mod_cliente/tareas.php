@@ -8,6 +8,7 @@ include_once $URLCom."/modulos/mod_cliente/clases/ClaseCliente.php";
 include_once $URLCom."/modulos/mod_incidencias/clases/ClaseIncidencia.php";
 require_once ($URLCom.'/modulos/mod_producto/clases/ClaseProductos.php');
 require_once ($URLCom.'/controllers/Controladores.php');
+
 switch ($pulsado) {
 	case 'abririncidencia':
 		include_once $URLCom.'/modulos/mod_cliente/tareas/incidencias_popup.php';
@@ -43,7 +44,10 @@ switch ($pulsado) {
         include_once $URLCom.'/modulos/mod_cliente/tareas/imprimirFichaCliente.php';
         $respuesta=$resultado;
 		break;
-
+	case 'generarResumenTicketsClientes':
+		include_once $URLCom.'/modulos/mod_cliente/tareas/ResumenMensualVentaClientes.php';
+		$respuesta=$resultado;
+		break;
 }
 echo json_encode($respuesta);
 return $respuesta;

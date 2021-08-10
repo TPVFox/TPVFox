@@ -1,9 +1,19 @@
 /* 
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
- * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
+ * @Autor Alberto Lago Rodríguez. Alagoro. informatica arroba alagoro punto com
  * @Descripción	
  */
+
+
+	$('#closebutton').on('click', function() {
+		$('#closeX').toggle();		
+	});
+
+
+
+
+
 
 function metodoClick(pulsado) {
 	    console.log("Inicimos switch de control pulsar");
@@ -451,3 +461,37 @@ function imprimirFicha(idCliente){
 		}
 	});
 }
+
+function abrirModalInforme(titulo, contenido){
+	abrirModal(titulo, contenido);
+	$('#closebutton').hide();
+	$('#closeX').hide();
+
+	var parametros = {
+		"pulsado"   : 'generarResumenTicketsClientes',
+	};
+	$.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos Imprimir JS****************');
+			},
+			success    :  function (response) {
+				var resultado =  $.parseJSON(response); 
+				$('#modalbody').html(resultado);
+				$('#closebutton').show();
+				$('#closeX').show();
+//				cerrarModalInforme();
+//				abrirModal('Resumen tickets mensual', 'Generado informes mensual de descuentos de tickets de cliente.<br>'+resultado);
+		}
+	});
+}
+
+function cerrarModalInforme(){
+	cerrarPopUp()
+}
+
+
+
+

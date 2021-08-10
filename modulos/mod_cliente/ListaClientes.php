@@ -74,6 +74,7 @@
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
 												//si NO nos indica que tenemos que elegir uno de la lista ?>
 				<li><a href="#" onclick="imprimirFicha('0');">Imprimir ficha</a></li>
+				<li><a href="#" onclick="abrirModalInforme('titulo','contenido');">Generar informe mensual descuentos tickets</a></li>
 				</ul>
 				</div>	
 			</nav>		
@@ -176,6 +177,9 @@
     </div>
 	<?php 
     include_once $URLCom.'/pie.php';
-    ?>	
+	echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+	include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+
+    ?>		
 </body>
 </html>

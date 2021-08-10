@@ -22,14 +22,14 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header btn-primary">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <button type="button" id="closeX" class="close" data-dismiss="modal">&times;</button>
         <h3 class="modal-title text-center">	Titulo Provisorio...</h3>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" id="modalbody">
 		  <?php // Ahora dentro cargamos otro fichero , segun el titulo ?>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" id="closebutton" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
