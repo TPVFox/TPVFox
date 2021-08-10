@@ -606,7 +606,6 @@ function generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom)
 	$cabecera=$htmlImprimir['cabecera'];
 	$margen_top_caja_texto= 56;
 	$html=$htmlImprimir['html'];
-
 	include_once $URLCom.'/controllers/planImprimir.php';
 	
 	$ficheroCompleto=$rutatmp.'/'.$nombreTmp;

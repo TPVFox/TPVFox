@@ -291,7 +291,8 @@ function enviarXCorreo(id, dedonde, idTienda, destinatario){
 			beforeSend : function () {
 				console.log('******** estoy en datos enviarXCorreo JS****************');
 			},
-            success    :  function (resultado) {                
+            success    :  function (response) {
+                var resultado =  $.parseJSON(response); 
 				alert(resultado);// Abre una ventana y muestra el texto
             },
             error    :  function (request) {

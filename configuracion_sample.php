@@ -22,5 +22,14 @@ $ruta_segura = ''; // Ruta absoluta donde queremos tener documentacion segura, p
 // Otras configuraciones
 $CONF_campoPeso = 'no';  //para ocultar columna peso en el tvp ( tickets) 
 
+$email_direccion_origen = 'sinrespuesta@tpvfox.com';
+$email_usuario_origen = 'correo automático TPVFox';
 
+$PHPMAILER_CONF = [
+    'host' => 'smtp.mailtrap.io',
+    'SMTPAuth' => true,
+    'Port' => 2525,
+    'Username' => '2f117f32afaa38',
+    'Password' => 'cfeadb433cb791',
+];
 ?>
