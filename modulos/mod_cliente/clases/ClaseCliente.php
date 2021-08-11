@@ -569,58 +569,24 @@ class ClaseCliente extends TFModelo
 
     public function ticketsClienteDesglose($idCliente, $fechaIni, $fechaFin)
     {
-        //@Objetivo:
-        //MOstrar los datos para el resumen tanto si tienen fechas como si selecciona todos
-        //@Parametros:
-        //idCliente: id del cliente
-        //fechaInicio: fecha de inicio del resumen
-        //fechaFin: fecha de fin de resumen
-        //COnsultas:
-        //1º Busca el numero de tickets e id de tickets de un cliente
-        //2º Busca los productos sumando la cantidad y el importe (los productos que tienen precio de venta distinto los
-        // cuenta como productos individuales).
-        //3º Suma todas las bases y todos los ivas , los agrupa por iva
-        //4º Muestra el número del ticket con el total de bases y el total de ivas de cada ticket
         $respuesta = array();
         $resumen = [];
-        $sql = 'SELECT `Numticket`, id FROM `ticketst` WHERE `idCliente`=' . $idCliente;
+        $sql1 = 'SELECT id FROM `ticketst` WHERE `idCliente`=' . $idCliente;
         if ($fechaIni !== "" && $fechaFin !== "") {
-            $sql .= ' and `Fecha` BETWEEN "' . $fechaIni . '" and  "' . $fechaFin . ' 23:00:00"';
+            $sql1 .= ' and `Fecha` BETWEEN "' . $fechaIni . '" and  "' . $fechaFin . ' 23:00:00"';
         }
         //~ error_log($sql);
-        $tickets = $this->consulta($sql);
-        if (isset($tickets['error'])) {
-            $respuesta = $tickets;
-        } else {
-            if (isset($tickets['datos']) && count($tickets['datos'])> 0) {
-                $ids = implode(', ', array_column($tickets['datos'], 'id'));
-                if ($ids == 0) {
-                    $respuesta['error'] = 1;
-                    $respuesta['consulta'] = 'No existen ids entre estas fechas';
-                    $respuesta['desglose'] = [];
-                } else {
-                    $sql = 'SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva)
+        $sql = 'SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva)
                     as sumarIva, t.Fecha as fecha   from ticketstIva as i
-                    left JOIN ticketst as t on t.id=i.idticketst  where idticketst
-                    in (' . $ids . ')  GROUP BY idticketst;';
-                    $resumenBases = $this->consulta($sql);
+                    LEFT JOIN ticketst as t on t.id=i.idticketst  where idticketst
+                    in (' . $sql1 . ')  GROUP BY idticketst;';
+        $resumenBases = $this->consulta($sql);
 
-                    if (isset($resumenBases['error'])) {
-                        $respuesta = $resumenBases;
-                    } else {
-                        $respuesta['resumenBases'] = $resumenBases['datos'];
-                        $resumen[$idCliente]=$resumenBases['datos'];
-                        
-                    }
-
-                }
-            }
-
-
-
-
-        }
-        $respuesta = '';
-        return $resumen;
+        // if (isset($resumenBases['error'])) {
+        //     $respuesta = $resumenBases;
+        // } else {
+            $respuesta = isset($resumenBases['datos']) ? $resumenBases['datos'] : [];
+//        }
+        return $respuesta;
     }
 }

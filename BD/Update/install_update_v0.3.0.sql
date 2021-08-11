@@ -14,7 +14,7 @@ CREATE TABLE `tpvfox`.`descuentos_tickets` (
     `importeDescuento` decimal(17,2) NOT NULL , 
     `idTicket` INT NULL , 
     `idUsuario` INT NOT NULL , 
-    `fechaCreacion` INT NOT NULL , 
+    `fechaCreacion` DATETIME NOT NULL DEFAULT NOW(), 
     `estado` varchar(12) NOT NULL DEFAULT 'Pendiente' , 
     PRIMARY KEY (`id`)
     ) ENGINE = InnoDB DEFAULT CHARSET=utf8mb4;

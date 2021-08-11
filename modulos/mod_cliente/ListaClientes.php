@@ -56,8 +56,7 @@
                     ?>
 					<li><a href="#section1" onclick="metodoClick('AgregarCliente');">Añadir</a></li>
                     <?php 
-                    }
-                    
+                    }                    
                     if($ClasePermisos->getAccion("modificar")==1){
                         ?>
 					<li><a href="#section2" onclick="metodoClick('VerCliente');">Modificar</a></li>
@@ -72,9 +71,30 @@
 									<?php //metodoClick js case pulsado 
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
-												//si NO nos indica que tenemos que elegir uno de la lista ?>
+									//si NO nos indica que tenemos que elegir uno de la lista 
+									$fecha = date_create(date('Y-m-01'));
+									date_sub($fecha, date_interval_create_from_date_string('1 month'));
+									$fechainicio = date_format($fecha, 'Y-m-d');
+									
+									$fecha = date_create(date('Y-m').'-01');
+									date_sub($fecha, date_interval_create_from_date_string('1 day'));
+									$fechafin = date_format($fecha, 'Y-m-d 23:59:59');
+
+									$titulo = "Descuentos de tickets de cliente";
+									$contenido = 'Mes de '.date_format($fecha, 'F Y').'<br/><br/> Intervalo de fechas:'.
+									date_format(date_create($fechainicio),'d-m-Y').' a '.date_format(date_create($fechafin), 'd-m-Y');									
+									?>
+
 				<li><a href="#" onclick="imprimirFicha('0');">Imprimir ficha</a></li>
-				<li><a href="#" onclick="abrirModalInforme('titulo','contenido');">Generar informe mensual descuentos tickets</a></li>
+				<?php if($ClasePermisos->getAccion("descuento_ticket")==1){				?>
+				<li><a href="#" 
+				onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>', '<?php echo $fechainicio ?>', '<?php echo $fechafin ?>')">Informe mensual descuentos tickets</a></li>
+				<?php } ?>
+				<?php if($ClasePermisos->getAccion("descuento_ticket_update")!==1){				?>
+				<li><a href="#" 
+				onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>', 
+				'<?php echo $fechainicio ?>', '<?php echo $fechafin ?>' , 1)">Actualizar Informe descuentos tickets</a></li>
+				<?php } ?>
 				</ul>
 				</div>	
 			</nav>		

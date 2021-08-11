@@ -17,13 +17,7 @@ class ClaseDescuentosTicket extends modelo
 
     public function leer($id)
     {
-        //Objetivo: buscar todos los datos de las tarifas que tiene un cliente
-        //Parametros:
-        //-idCliente: id del cliente
-        $sql = 'SELECT *'
-            . 'FROM ' . $tabla
-            . ' WHERE id=' . $id;
-        return $this->consulta($sql);
+        return parent::_leer('id='.$id);
     }
 
     public function leerCliente($idcliente, $filtros = [])
@@ -31,18 +25,11 @@ class ClaseDescuentosTicket extends modelo
         //Objetivo: leer los descuentos mensuales de un cliente
         //Parametros:
         //-idcliente: id del cliente
-        //-idarticulo: id del articulo
-        $sql = 'SELECT *'
-            . 'FROM ' . $tabla
-            . 'WHERE idCliente= '.$idcliente;
 
-        if (count($filtros) > 0) {
-            $indice = 0;
-            foreach ($filtros as $columna => $valor) {
-                $filtro .= ' AND '. $columna . ' = "' . $valor . '"';
-            }
-        }
-        return $this->consulta($sql);
+        $filtros[]='idCliente='.$idcliente;
+        return $this->_leer($this->tabla, $filtros); //, [], [], 0, 0, true);
+        //return $this->getSQLConsulta();
+
     }
 
 

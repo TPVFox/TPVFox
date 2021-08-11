@@ -462,24 +462,26 @@ function imprimirFicha(idCliente){
 	});
 }
 
-function abrirModalInforme(titulo, contenido){
+function abrirModalInforme(titulo, contenido, fechainicio, fechafin, actualizar=0){	
 	abrirModal(titulo, contenido);
 	$('#closebutton').hide();
 	$('#closeX').hide();
-
-	var parametros = {
+	var parametros = {		
 		"pulsado"   : 'generarResumenTicketsClientes',
+		"fechainicio"	: fechainicio,
+		"fechafin"		: fechafin,
+		"actualizar"	: actualizar
 	};
 	$.ajax({
 			data       : parametros,
 			url        : 'tareas.php',
 			type       : 'post',
 			beforeSend : function () {
-				console.log('******** estoy en datos Imprimir JS****************');
+				console.log('******** estoy en abrirModalInforme JS****************');
 			},
 			success    :  function (response) {
 				var resultado =  $.parseJSON(response); 
-				$('#modalbody').html(resultado);
+				$('#modalbody').html($('#modalbody').html()+'<br/><br/>'+resultado);
 				$('#closebutton').show();
 				$('#closeX').show();
 //				cerrarModalInforme();
