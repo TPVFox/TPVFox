@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
 $Get_accion = (isset($_GET['accion']))? $_GET['accion'] : 'ver';
 $solo_lectura = '';
 if ($Get_accion === 'ver'){
-    $solo_lectura = ' readonly';
+    $solo_lectura = ' readonly';    
 }
 
 if ($id> 0){
@@ -68,7 +68,7 @@ if (count($errores) === 0){
 
 // Montamos html Option de forma de pago,vencimiento y estado con el valor por default
             
-    if (!isset($Defaultvenci)){ 
+    if (!isset($ClienteUnico['formasVenci'])){ 
         // No se obtuvo formas vencimiento y de pago
         // Creamos objeto con valores por defecto, necesario mostrar formulario.
         $DefaultVenci =(object) array('vencimiento' => '0','formapago' => '0');
@@ -200,17 +200,34 @@ if (count($errores) === 0){
                                 <label>Email:</label>
                                 <input type="text" id="email" name="email" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['email'];?>"  >
                             </div>
-                            
+                            <div class="col-md-6 form-group">
+                                <label>Descuento tickets:</label>  
+                                <input type="text" id="descuentotickets" name="descuento_ticket" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['descuento_ticket'];?>"  >
+                            </div>
+
+                            <div class="col-md-6 form-group">
+                            <input type="hidden" name="requiere_factura" value="0" />
+                                <input type="checkbox" id="requiere_factura" name="requiere_factura" <?php echo $solo_lectura ? 'disabled' : '';?> value="1" <?php echo $ClienteUnico['requiere_factura']==1 ? 'checked' : ''; ?>  >                                
+                                <span style="font-weight:bold">Requiere factura</span>
+                            </div>
+                            <div class="col-md-6 form-group">                                
+                            <input type="hidden" name="recargo_equivalencia" value="0" />
+                            <input type="checkbox" id="recargo_equivalencia" name="recargo_equivalencia" <?php echo $solo_lectura ? 'disabled' : '';?> value="1" <?php echo $ClienteUnico['recargo_equivalencia']==1 ? 'checked' : '' ?>  >                                
+                                <span style="font-weight:bold">Aplicar recargo equivalencia</span>
+                            </div>
+
+                        
+
                             <div class="col-md-6 form-group">
                                 <label for="sel1">Forma de pago por defecto: </label>
                                 <select class="form-control" name="formapago" id="sel1" <?php echo $solo_lectura;?> style="width: 15em;">
                                     <?php 
                                     echo $html_optionPago;
-                                    ?>
-                                    
+                                    ?>                                    
                                 </select>
                                 
                             </div>
+
                             <div class="col-md-6 form-group">
                                 <label for="sel1">Estado:</label>
                                 <select class="form-control" name="estado" <?php echo $solo_lectura;?> id="sel2" style="width: 14em;">
@@ -221,7 +238,7 @@ if (count($errores) === 0){
                                 </select>
                             </div>
                             <div class="col-md-6 form-group">
-                                <label for="sel1">Vencimiento por defecto:</label>
+                                <label for="sel3">Vencimiento por defecto:</label>
                                 <select class="form-control" name="vencimiento" <?php echo $solo_lectura;?> id="sel3" style="width: 15em;">
                                     <?php
                                     echo $html_optionVenci;

@@ -169,8 +169,12 @@ class ClaseCliente extends TFModelo
         $sql = 'UPDATE `clientes` SET Nombre="' . $datos['Nombre'] . '" , razonsocial="' . $datos['razonsocial'] . '" ,
 		nif="' . $datos['nif'] . '" , direccion="' . $datos['direccion'] . '" , codpostal="' . $datos['codpostal'] . '" , telefono="' . $datos['telefono']
             . '" , movil="' . $datos['movil'] . '" , fax="' . $datos['fax'] . '" , email="' . $datos['email'] . '" , estado="' . $datos['estado'] . '" ,
-		formasVenci=' . "'" . $datos['formasVenci'] . "'" . ' WHERE idClientes=' . $datos['idClientes'];
-        $consulta = $this->consultaDML($sql);
+		formasVenci=' . "'" . $datos['formasVenci'] . "', descuento_cliente='".$datos['descuento_cliente']."' " . ' WHERE idClientes=' . $datos['idClientes'];
+        //$consulta = $this->consultaDML($sql);
+        unset($datos['vencimiento']);
+        unset($datos['formapago']);
+        $consulta = $this->update($datos, 'idClientes=' . $datos['idClientes']);
+        
         if (isset($consulta['error'])) {
             $respuesta['error'] = $consulta;
         } else {
@@ -188,14 +192,16 @@ class ClaseCliente extends TFModelo
         //@Parametros:
         //datos-> todos los datos que se recogen de la ficha de clientes
         $respuesta = array();
+
         $sql = 'INSERT INTO `clientes`( `Nombre`, `razonsocial`,
 		`nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`,
-		`estado`, `formasVenci`, `fecha_creado`) VALUES ("' . $datos['Nombre'] . '", "' . $datos['razonsocial'] . '",
+		`estado`, `formasVenci`, `fecha_creado`, `descuento_ticket`,`requiere_factura`,`recargo_equivalencia`) VALUES ("' . $datos['Nombre'] . '", "' . $datos['razonsocial'] . '",
 		"' . $datos['nif'] . '", "' . $datos['direccion'] . '", "' . $datos['codpostal'] . '", "' . $datos['telefono'] . '",
-		 "' . $datos['movil'] . '", "' . $datos['fax'] . '", "' . $datos['email'] . '", "' . $datos['estado'] . '", ' . "'" . $datos['formasVenci'] . "'" . ', NOW())';
+		 "' . $datos['movil'] . '", "' . $datos['fax'] . '", "' . $datos['email'] . '", "' . $datos['estado'] . '", ' . "'" . $datos['formasVenci'] . "'" 
+         . ', NOW(), "'.$datos['descuento_ticket'].'", "'.$datos['requiere_factura'].'", "'.$datos['recargo_equivalencia'].'" )';
         $consulta = $this->consultaDML($sql);
 
-        if (isset($consulta['error'])) {
+         if (isset($consulta['error'])) {
             $respuesta['error'] = $consulta;
         } else {
             // Fue bien , devolvemos el id insertado.
