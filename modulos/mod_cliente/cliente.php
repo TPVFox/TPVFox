@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
 $Get_accion = (isset($_GET['accion']))? $_GET['accion'] : 'ver';
 $solo_lectura = '';
 if ($Get_accion === 'ver'){
-    $solo_lectura = ' readonly';    
+    $solo_lectura = ' readonly';
 }
 
 if ($id> 0){
@@ -223,7 +223,7 @@ if (count($errores) === 0){
                                 <select class="form-control" name="formapago" id="sel1" <?php echo $solo_lectura;?> style="width: 15em;">
                                     <?php 
                                     echo $html_optionPago;
-                                    ?>                                    
+                                    ?>
                                 </select>
                                 
                             </div>
