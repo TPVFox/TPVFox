@@ -270,6 +270,11 @@ if (count($errores) === 0){
                             $titulo = 'Pedidos';
                             echo htmlPanelDesplegable($num,$titulo,$tablaHtml[3]);
                             ?>
+                            <?php 
+                            $num = 5 ; // Numero collapse;
+                            $titulo = 'Descuentos Tickets';
+                            echo htmlPanelDesplegable($num,$titulo,$tablaHtml[4]);
+                            ?>
                         </div>
                         <!-- Aquí irá el código de los grupos-->
                     </div>

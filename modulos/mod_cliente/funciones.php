@@ -121,25 +121,33 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 		//-Facturas
 		//-Albaranes
 		//-Pedidos
+        //-Descuentos tickets : Aunque está tabla tendrái ser distinta a las demas , pero la adaptamos ahora.
     $resumen= '';
+    $alt= '';
 	if(count($datos)>0){
         switch($dedonde){
                 case 'tickets':
                     $url=$HostNombre.'/modulos/mod_tpv/ticketCobrado.php?id=';
                     $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
                 break;
+
                 case 'facturas':
                     $url=$HostNombre.'/modulos/mod_venta/factura.php?id=';
-                    $resumen="";
                 break;
+
                 case 'albaranes':
                     $url=$HostNombre.'/modulos/mod_venta/albaran.php?id=';
                     $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idCliente'].')" value="Resumen" name="Resumen" ></td>';
-                 break;
+                break;
+
                 case 'pedidos':
                     $url=$HostNombre.'/modulos/mod_venta/pedido.php?id=';
-                    $resumen="";
                 break;
+
+                case 'desc_tickets':
+                    $url='';
+                break;
+                
         }
 	$html=$resumen.'	<table class="table table-striped">
 		<thead>
@@ -151,15 +159,21 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
 			</tr>
 		</thead>
 		<tbody>';
-	$i=0;
-		foreach($datos as $dato){
-			$html.='<tr>'.
-				'<td>'.$dato['fecha'].'</td>'.
-				'<td><a href="'.$url.$dato['id'].'">'.$dato['num'].'</a></td>'.
+	
+		foreach($datos as $i =>$dato){
+			$html.='<tr>'.'<td>'.$dato['fecha'].'</td>';
+            $href ='';
+            $title='';
+            if ($url !== ''){
+                $href= 'href="'.$url.$dato['id'].'" ';
+            }
+            if ($dedonde === 'desc_tickets') {
+                $title = ' title="Comprado '.$dato['importeTickets'].'€ en estos tickets"';
+            }
+			$html.='<td><a '.$href.$title.'>'.$dato['num'].'</a></td>'.
 				'<td>'.$dato['total'].'</td>'.
 				'<td>'.$dato['estado'].'</td>'.
 			'</tr>';
-			$i++;
 			if($i==10){
 				break;
 			}

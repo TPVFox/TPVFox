@@ -60,6 +60,7 @@ class ClaseCliente extends TFModelo{
         //          -Albaranes
         //          -Facturas
         //          -Pedidos.
+        //          -Descuentos
         if ($id > 0) {
             $ClienteUnico =$this->getCliente($id);
             if (!isset($ClienteUnico['error'])){
@@ -125,6 +126,16 @@ class ClaseCliente extends TFModelo{
 		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by FechaPedido desc limit 0,15';
 		return $this->consulta($sql);
 	}
+
+    public function getDescuentosTickets($id){
+        //@Objetivo:
+        //Cargar todos los descuentos del cliente realizados.
+        //@Parametros:
+        //id -> id del clietne
+        $sql='SELECT descuentoCliente as descuento, fechaInicio, fechaFin as fecha, numTickets as num,importeTickets,importeDescuento as total,idTicket as ticketPago, id , idCliente , estado FROM descuentos_tickets WHERE idCliente='.$id.' order by fechaFin desc limit 0,15';
+		return $this->consulta($sql);
+
+    }
 	public function adjuntosCliente($id){
 		//@Objetivo: 
 		//Cargar todos los adjunto de un cliente , tickets, facturas, albaranes y pedidos
@@ -133,10 +144,11 @@ class ClaseCliente extends TFModelo{
 
         // Obtenemos los adjuntos, si hay error devuelve array[error] ,si tene datos array['datos']
 
-		$adjuntos=array( 'tickets'  => $this->getTicket($id),
-                         'facturas' => $this->getFacturas($id),
-                         'albaranes'=> $this->getAlbaranes($id),
-                         'pedidos'  => $this->getPedidos($id)
+		$adjuntos=array( 'tickets'      => $this->getTicket($id),
+                         'facturas'     => $this->getFacturas($id),
+                         'albaranes'    => $this->getAlbaranes($id),
+                         'pedidos'      => $this->getPedidos($id),
+                         'desc_tickets' => $this->getDescuentosTickets($id)
                          );
         foreach ($adjuntos as $key=>$adjunto){
             if (isset($adjunto['error'])){
