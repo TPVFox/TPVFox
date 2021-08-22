@@ -286,23 +286,26 @@ function getHmtlTrProductos($productos,$tipo){
 
 		$resumen_productos = []; // inicializa tabla que aparece como resumen productos
         foreach ($productos as $producto) {			
-			if(!array_key_exists($producto['idArticulo'], $resumen_productos)){ // busca el indice. Si no existe lo crea con $producto
-			  $resumen_productos[$producto['idArticulo']] = $producto;
-			  $resumen_productos[$producto['idArticulo']]['precioCiva'] = $producto['precioCiva'];
-			  $resumen_productos[$producto['idArticulo']]['precio_medio'] = 0;
-			  $resumen_productos[$producto['idArticulo']]['totalUnidades'] = $producto['totalUnidades'];
+            $id_producto = $producto['idArticulo'];
+            if(!array_key_exists($id_producto, $resumen_productos)){ // busca el indice. Si no existe lo crea con $producto
+			  $resumen_productos[$id_producto] = $producto;
+			  $resumen_productos[$id_producto]['precioCiva'] = $producto['precioCiva'];
+			  $resumen_productos[$id_producto]['precio_medio'] = 0;
+			  $resumen_productos[$id_producto]['totalUnidades'] = $producto['totalUnidades'];
 			} else {  // Si ya existe suma las unidades y calcula el precio medio
 				$total_producto = $producto['totalUnidades'] * $producto['precioCiva'];  
-				if($resumen_productos[$producto['idArticulo']]['precioCiva'] !== $producto['precioCiva']){
-					$resumen_productos[$producto['idArticulo']]['precio_medio'] = 1;
-					$resumen_productos[$producto['idArticulo']]['pm'] = $tipo === 'pdf' ? '<span>*</span>' : '<span title="Calculado precio medio">*</span>';
-					$resumen_productos[$producto['idArticulo']]['precioCiva'] = 
-					       ($resumen_productos[$producto['idArticulo']]['total_linea'] + $total_producto) / 
-						          ($resumen_productos[$producto['idArticulo']]['totalUnidades'] + $producto['totalUnidades']);					
+				if($resumen_productos[$id_producto]['precioCiva'] !== $producto['precioCiva']){
+					$resumen_productos[$id_producto]['precio_medio'] = 1;
+					$resumen_productos[$id_producto]['pm'] = $tipo === 'pdf' ? '<span>*</span>' : '<span title="Precio medio">*</span>';
+                    // Si la suma unidades es 0 , el precio medio se deja tal cual..
+                    $suma = $resumen_productos[$id_producto]['totalUnidades'] + $producto['totalUnidades'];
+                    if ( $suma != 0){
+                        $resumen_productos[$id_producto]['precioCiva'] = ($resumen_productos[$id_producto]['total_linea'] + $total_producto) / $suma;
+                    }
 				}				
-				$resumen_productos[$producto['idArticulo']]['totalUnidades'] += $producto['totalUnidades'];
+				$resumen_productos[$id_producto]['totalUnidades'] += $producto['totalUnidades'];
 			}
-			$resumen_productos[$producto['idArticulo']]['total_linea'] = $resumen_productos[$producto['idArticulo']]['totalUnidades'] * $resumen_productos[$producto['idArticulo']]['precioCiva'];
+			$resumen_productos[$id_producto]['total_linea'] = $resumen_productos[$id_producto]['totalUnidades'] * $resumen_productos[$id_producto]['precioCiva'];
         }
 
 		$totalLineas = 0; 

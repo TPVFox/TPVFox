@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modulo nombre="mod_familia" descripcion="Familias" permiso="1">
-    <vista nombre="ListaFamilias.php" descripcion="Listado Familias" permiso="0">
-        <accion nombre="crear" descripcion="Añadir Familia" permiso="1"></accion>
-        <accion nombre="modificar" descripcion="Modificar Familia" permiso="1"></accion>
-        <accion nombre="eliminar" descripcion="Eliminar Familia" permiso="1"></accion>
+    <vista nombre="ListaFamilias.php" descripcion="Listado Familias" permiso="1">
+        <accion nombre="crear" descripcion="Añadir Familia" permiso="0"></accion>
+        <accion nombre="modificar" descripcion="Modificar Familia" permiso="0"></accion>
+        <accion nombre="eliminar" descripcion="Eliminar Familia" permiso="0"></accion>
     </vista>
     <vista nombre="familia.php" descripcion="Familia" permiso="0">
         <accion nombre="CrearFamiliaWeb" descripcion="Crear Familia Web" permiso="0"></accion>

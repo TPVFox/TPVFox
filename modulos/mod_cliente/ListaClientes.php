@@ -90,7 +90,7 @@
 				<li><a href="#" 
 				onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>', '<?php echo $fechainicio ?>', '<?php echo $fechafin ?>')">Informe mensual descuentos tickets</a></li>
 				<?php } ?>
-				<?php if($ClasePermisos->getAccion("descuento_ticket_update")!==1){				?>
+				<?php if($ClasePermisos->getAccion("descuento_ticket_update")==1){				?>
 				<li><a href="#" 
 				onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>', 
 				'<?php echo $fechainicio ?>', '<?php echo $fechafin ?>' , 1)">Actualizar Informe descuentos tickets</a></li>

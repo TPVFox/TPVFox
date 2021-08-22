@@ -53,7 +53,7 @@
             if (isset($_GET['todo'])){
                 // Todo , quiere decir ese ejercicio. (desde 01/01 de este año)
 				$fechaInicial = date('Y').'-01-01';
-                $fechaFinal   = date('Y-d-m');
+                $fechaFinal   = date('Y-m-d');
             } else {
                 if (isset($_GET['mes_anterior'])){
                     $m= date('m')-1; // Numero mes anterior
