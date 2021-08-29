@@ -109,13 +109,21 @@ function limpiarPermisosModulos() {
         pulsado : 'limpiarPermisosModulos',
     };
     ajaxStock(parametros, function (response) {
-        
         var obj = JSON.parse(response);
-        var n_elementos = Object.keys(obj.eliminado);
         console.log(obj);
         $("#boton_limpiar_permisos").prop("disabled",false);
-        alert ( 'Eliminamos '+ n_elementos.length + ' modulos \n'+  'Pendiente continuar maquetando resultado');
-        
+        texto_respuesta = 'No se ha elimando nada.'
+        if (obj.length >0){
+            if (typeof(obj.eliminado) !== 'string'){
+                var n_elementos = Object.keys(obj.eliminado);
+                // Montamos la respuesta de los modulos que eliminamos
+                var texto_respuesta = 'MODULOS ELIMINADO   -> NUMERO REGISTROS ELIMINADOS \n ---------------------------------------'
+                for (const property in obj.eliminado) {
+                    texto_respuesta += '\n'+property+'  ->  '+obj.eliminado[property]; 
+                }
+            }
+        }
+        alert (texto_respuesta);
      });
 
 }

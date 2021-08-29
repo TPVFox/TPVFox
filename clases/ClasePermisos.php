@@ -53,7 +53,7 @@ class ClasePermisos{
                 $xml=simplexml_load_file($this->RutaModulos.'/'.$modulo.'/acces.xml');//lo cargamos
                 if(isset($this->usuario['group_id'])){
                     if($this->usuario['group_id']==9){
-                        //Si el usuario es del grupo 9 moficamos el xml para que todos los permisos 
+                        //Si el usuario es del grupo 9 modificamos el xml para que todos los permisos 
                         //sean 1
                         $xml=$this->ModificarPermisos($xml);
                     }
@@ -70,7 +70,7 @@ class ClasePermisos{
                    
                          if(isset($this->usuario['group_id'])){
                                 if($this->usuario['group_id']==9){
-                                    //Si el usuario es del grupo 9 moficamos el xml para que todos los permisos sean 1
+                                    //Si el usuario es del grupo 9 modificamos el xml para que todos los permisos sean 1
                                     $xml=$this->ModificarPermisos($xml);
                                 }
                         }
@@ -91,7 +91,7 @@ class ClasePermisos{
                    $accion['permiso']=1;
                }
            }
-       return $xml; //Devolvemos el xml con los permisos cambiados
+       return $xml; //Devolvemos el xml con los permisos 1
       
    }
    public function insertarPermisos($xml){
@@ -385,13 +385,14 @@ class ClasePermisos{
         // Obtenemos array con los modulos que existen tabla permiso , no existen el codigo.
         $no_existe = array_diff($modulos_tabla,$modulos);
         $respuesta = array();
-        foreach ($no_existe as $m){
-            // Eliminamos registros para esos modulos.
-            $sql = 'DELETE FROM permisos WHERE modulo="'.$m.'"';
-            $res = $BDTpv->query($sql);
-            $respuesta['eliminado'][$m] = $BDTpv->affected_rows;
-        }
-        
+        if (count($no_existe) > 0){
+            foreach ($no_existe as $m){
+                // Eliminamos registros para esos modulos.
+                $sql = 'DELETE FROM permisos WHERE modulo="'.$m.'"';
+                $res = $BDTpv->query($sql);
+                $respuesta['eliminado'][$m] = $BDTpv->affected_rows;
+            }
+        } 
         return $respuesta;
 
     }
