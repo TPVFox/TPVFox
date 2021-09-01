@@ -102,24 +102,25 @@ class ClasePermisos{
         $respuesta=array();
         $insert = array();
         $BDTpv = $this->BDTpv;
-        $sql='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
+        $usuario = $this->usuario['id'];
+        $sql='SELECT id FROM permisos WHERE idUsuario='.$usuario.' and modulo="'.$xml['nombre'].'" and vista IS NULL and accion IS NULL';
         $res = $BDTpv->query($sql);  
         if(!isset($res->num_rows) || $res->num_rows == 0){ 
-            $insert[]='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'",'.$xml['permiso'].')';
+            $insert[]='INSERT INTO permisos (idUsuario, modulo, permiso) VALUES ('.$usuario.', "'.$xml['nombre'].'",'.$xml['permiso'].')';
         }
         foreach ($xml->vista as $vista){
-            $sql2='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
+            $sql2='SELECT id FROM permisos WHERE idUsuario='.$usuario.' and modulo="'.$xml['nombre'].'" and vista ="'.$vista['nombre'].'" and accion IS NULL';
             $res = $BDTpv->query($sql2);
             // Si no existe , lo creamos...
             if(!isset($res->num_rows) || $res->num_rows == 0){ 
-                $insert[]='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$this->usuario['id']
+                $insert[]='INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES ('.$usuario
                     .', "'.$xml['nombre'].'", "'.$vista['nombre'].'", '.$vista['permiso'].')';                       
             }
              foreach($vista->accion as $accion){
-                 $sql3='SELECT id FROM permisos WHERE idUsuario='.$this->usuario['id'].' and modulo="'.$xml['nombre'].'"  and vista ="'.$vista['nombre'].'" and accion ="'.$accion['nombre'].'"' ;
+                 $sql3='SELECT id FROM permisos WHERE idUsuario='.$usuario.' and modulo="'.$xml['nombre'].'"  and vista ="'.$vista['nombre'].'" and accion ="'.$accion['nombre'].'"' ;
                    if(!isset($res->num_rows) || $res->num_rows== 0){ 
                            
-                    $insert[]='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$this->usuario['id'].', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
+                    $insert[]='INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES ('.$usuario.', "'.$xml['nombre'].'", "'.$vista['nombre'].'", "'.$accion['nombre'].'", '.$accion['permiso'].')';
                 }
              }
         }
@@ -301,6 +302,29 @@ class ClasePermisos{
         }
         return $perm;
     }
+    public function getVista($vista,$modulo =''){
+        // @ Objetivo:
+        // Obtener el permiso para una vista en concreto
+        // @ Parametro:
+        //  $vista = string ( nombre la vista)
+        //  $modulo = string ( nombre del modulo ) y si viene vacío o no viene, se busca en modulo actual.
+        $permisos=$this->permisos['resultado'];
+
+        if (count($mod_modulo) == ''){
+            $ruta=str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);//Ruta en la que estamos situados
+            $vista=basename($ruta);//nos quedamos con la vista.php
+            $rutas=explode('/', dirname($ruta));
+            $modulo=end($rutas);//Nombre del modulo en el que estamos
+        } 
+        foreach ($permisos as $permiso){
+            if($permiso['modulo']==$modulo && $permiso['vista']==$vista){
+                $perm=$permiso['permiso'];
+                
+                break;
+            }
+        }
+        return $perm;
+    }
 
     
     public function ObtenerDescripcion($nombre, $permiso){
@@ -362,39 +386,77 @@ class ClasePermisos{
          
     }
 
-    public function limpiarPermisosModulosInexistentes() {
-        // Objetivo:
-        // Limpiar registros de la tabla , aquellos permisos de modulos que no existen en el proyecto.
-        // Se limpian a todos los usuarios.
-        // Se ejecuta en reorganizacion.
-               
-        $this->obtenerRutaProyecto();
-        $this->ObtenerDir(); // Obtenemos los modulos que existen $this->modulos
-        $modulos=$this->modulos;
-        
-        // Obtenemos los distintos modulos que hay creados en la tabla permisos
-        $BDTpv = $this->BDTpv;
-        $sql='SELECT DISTINCT modulo FROM permisos ';
-     
-        $res = $BDTpv->query($sql);
-        $modulos_tabla=array();
-        
-        while ( $result = $res->fetch_assoc () ) {
-            array_push($modulos_tabla,$result['modulo']);
-        }
-        // Obtenemos array con los modulos que existen tabla permiso , no existen el codigo.
-        $no_existe = array_diff($modulos_tabla,$modulos);
+    public function reorganizarPermisosModulosInexistentes() {
+        // @ Objetivo:
+        // Eliminar los registros del usuario 0
+        // Limpiar los permisos de la tabla permisos que no sean validos y añadir los nuevos.
+        // @ Devolvemos
+        // array con:
+        //   - Numero resgistro eliminados del usuario 0
         $respuesta = array();
-        if (count($no_existe) > 0){
-            foreach ($no_existe as $m){
-                // Eliminamos registros para esos modulos.
-                $sql = 'DELETE FROM permisos WHERE modulo="'.$m.'"';
-                $res = $BDTpv->query($sql);
-                $respuesta['eliminado'][$m] = $BDTpv->affected_rows;
-            }
-        } 
+        $BDTpv = $this->BDTpv;
+        // Eliminamos permisos de usuario 0
+        $respuesta['eliminado']['usuario0'] = $this->borrarPermisosUsuario(0);
+        $usuario_actual = $this->usuario;
+        $this->usuario = array( 'id' => '0','group_id' =>'0'); // GCreamos permisos usuario 0
+        $permisos_defecto = $this->getPermisosUsuario($this->usuario); // Agray con todos los permisos.
+        $this->usuario = $usuario_actual; // Volvemos a poner usuario actual en atributo.
+        // Ahora recorremos los permisos obtenidos buscando los que tenemos en cada usuario.
+        $CUsuario=new ClaseUsuarios($BDTpv);
+        $usuarios=$CUsuario->todosUsuarios();
+        $todos_usuarios = $usuarios['datos'];
+        // Ahora tenmos que obtener los permisos usuario por usuario y luego hacer merge array para obtener la diferencia.
+        foreach ($todos_usuarios as $u) {
+            $permisos_usuario = $this->getPermisosUsuario($u);
+            // Ahora buscamos los permiso
+            
+            
+        }
+        //
+
+
         return $respuesta;
 
+    }
+
+    public function borrarPermisosUsuario($idUsuario,$permiso = 0) {
+        // @ Objetivo:
+        // Eliminar los permisos de un usuario o un permiso determinado
+        // @ Parametros:
+        //  $idUsuario = int -> id del usuario para eliminar permiso(s)
+        //  $permiso = id del permiso a eliminar, si es 0 , se elimina todos.
+        
+        $and = '';
+        if ( $permiso > 0 ){
+            $and = ' AND id='.$permiso;
+        }
+        $BDTpv = $this->BDTpv;
+        $sql='DELETE FROM permisos WHERE idUsuario='.$idUsuario.$and;
+        $res = $BDTpv->query($sql);
+        $respuesta = $BDTpv->affected_rows;
+        return $respuesta;
+        
+    }
+
+     public function crearUnPermisoUsuario($permiso) {
+        // @ Objetivo:
+        // Crear un permiso a un usuario en Base de datos
+        // @ Parametros:
+        //  $permiso = array {"idUsuario"=>(int),"modulo"=>(string),"vista"=>(string),"accion"=>(string),"permiso"=>(int)}
+        $campos = array();
+        $valores = array();
+        foreach ($permiso as $campo =>$valor){
+            if ($valor !==''){
+                $campos[]= $campo;
+                $valores[] ='"'.$valor.'"';
+            }
+        }
+        $sql ='INSERT INTO permisos('.implode(',',$campos).') VALUES ('.implode(',',$valores).');';
+        $BDTpv = $this->BDTpv;
+        $res = $BDTpv->query($sql);
+        $respuesta = $BDTpv->affected_rows;
+        return $respuesta;
+        
     }
     
 	

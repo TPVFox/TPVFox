@@ -2,6 +2,8 @@
 
 include_once $RutaServidor.$HostNombre.'/clases/ClaseTFModelo.php';
 require_once ($RutaServidor.$HostNombre.'/plugins/plugins.php');
+include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
+
 class ClaseReorganizar extends TFModelo  {
     public $plugins; // (array) de objectos que son los plugins que vamos tener para este modulo.
     public $idTiendaWeb =0;
@@ -64,6 +66,17 @@ class ClaseReorganizar extends TFModelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
 
+
+    }
+    public function obtenerUsuarios(){
+        // @ Objetivo:
+        // Obtener todos los usuarios
+        $BDTpv = parent::getDbo();
+        $CUsuario=new ClaseUsuarios($BDTpv);
+        $usuarios=$CUsuario->todosUsuarios();
+        $respuesta = array();
+        $respuesta = $usuarios['datos']; // array con los datos usuario.
+        return $respuesta;
 
     }
     

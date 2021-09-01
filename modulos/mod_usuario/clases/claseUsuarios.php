@@ -22,9 +22,10 @@ class ClaseUsuarios extends modelo{
 		}
 	}
     public function todosUsuarios(){
-        $sql='SELECT id, username FROM usuarios';
+        $sql='SELECT id, username, `group_id`, `estado`, `nombre` FROM usuarios';
         return $this->consulta($sql);
     }
+
 	
 }
 

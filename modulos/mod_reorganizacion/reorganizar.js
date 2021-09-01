@@ -104,33 +104,27 @@ function SubirStockWeb(inicio, cantidad, total,idBar) {
 
 
 
-function limpiarPermisosModulos() {
+function reorganizarPermisosModulos(inicial,total) {
     var parametros = {
-        pulsado : 'limpiarPermisosModulos',
+        pulsado : 'reorganizarPermisosModulos',
+        inicial : inicial,
+        total: total
     };
+    console.log('inicial:'+inicial);
+    $("#boton_limpiar_permisos").prop("disabled",false);
+    BarraProceso(inicial,total,2);
     ajaxStock(parametros, function (response) {
         var obj = JSON.parse(response);
         console.log(obj);
-        $("#boton_limpiar_permisos").prop("disabled",false);
-        texto_respuesta = 'No se ha elimando nada.'
-        if (obj.length >0){
-            if (typeof(obj.eliminado) !== 'string'){
-                var n_elementos = Object.keys(obj.eliminado);
-                // Montamos la respuesta de los modulos que eliminamos
-                var texto_respuesta = 'MODULOS ELIMINADO   -> NUMERO REGISTROS ELIMINADOS \n ---------------------------------------'
-                for (const property in obj.eliminado) {
-                    texto_respuesta += '\n'+property+'  ->  '+obj.eliminado[property]; 
-                }
-            }
+        inicial = inicial+1;
+        if (inicial < total) {
+            reorganizarPermisosModulos(inicial,total);
+        } else {
+            BarraProceso(inicial,total,2);
         }
-        alert (texto_respuesta);
      });
 
 }
-
-
-
-
 
 
 

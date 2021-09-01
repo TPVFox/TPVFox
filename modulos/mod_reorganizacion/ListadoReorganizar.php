@@ -7,7 +7,7 @@
         $CReorganizar = new ClaseReorganizar;
         $Tienda = $_SESSION['tiendaTpv'];
         $idTienda = $Tienda['idTienda'];
-        
+        $total_usuarios = count($CReorganizar->obtenerUsuarios());
         ?>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/reorganizar.js"></script> 
@@ -65,11 +65,11 @@
                             </tr>
 
                             <tr>
-                                <td><button id="boton_limpiar_permisos" class="btn"  >
-                                        <span class="glyphicon glyphicon-save"> </span>Limpiar permisos</button></td>
-                                <td>Limpiar permisos de modulos inexistentes</td>
+                                <td><button onclick= reorganizarPermisosModulos(0,<?php echo $total_usuarios ;?>) class="btn"  >
+                                        <span class="glyphicon glyphicon-save"> </span>Reorganizar permisos</button></td>
+                                <td>Limpiar y crea permisos de modulos inexistentes</td>
                                 <td><div class="progress" style="margin:0 100px">
-                                        <div id="bar1" class="progress-bar progress-bar-info" 
+                                        <div id="bar2" class="progress-bar progress-bar-info" 
                                              role="progressbar" aria-valuenow="0" 
                                              aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                                             0 % completado
@@ -114,27 +114,9 @@ $(function () {
             var obj = JSON.parse(respuesta);
             if (obj.totalProductos > 0) {
                 var totalProductos = obj.totalProductos;
-                $("#bar0").show();
-                $("#boton-stock").prop("disabled",true);
-                SubirStockWeb(0, 100, totalProductos,'0');
-            }
-
-        });
-    });
-
-    $("#boton_limpiar_permisos").on("click", function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        // La idea es subir fichero con todos los productos y su stock.
-        // una vez subido en la web ejecutar en segundo plano.
-        
-        limpiarPermisosModulos(function (respuesta) {
-            var obj = JSON.parse(respuesta);
-            if (obj.totalProductos > 0) {
-                var totalProductos = obj.totalProductos;
-                $("#bar0").show();
-                $("#boton-stock").prop("disabled",true);
-                SubirStockWeb(0, 100, totalProductos,'0');
+                $("#bar1").show();
+                $("#boton_subir_stock").prop("disabled",true);
+                SubirStockWeb(0, 100, totalProductos,'1');
             }
 
         });
