@@ -6,9 +6,9 @@
  */
 
 
-	$('#closebutton').on('click', function() {
-		$('#closeX').toggle();		
-	});
+	//~ $('#closebutton').on('click', function() {
+		//~ $('#closeX').toggle();		
+	//~ });
 
 
 
@@ -464,8 +464,6 @@ function imprimirFicha(idCliente){
 
 function abrirModalInforme(titulo, contenido, fechainicio, fechafin, actualizar=0){	
 	abrirModal(titulo, contenido);
-	$('#closebutton').hide();
-	$('#closeX').hide();
 	var parametros = {		
 		"pulsado"   : 'generarResumenTicketsClientes',
 		"fechainicio"	: fechainicio,
@@ -480,12 +478,9 @@ function abrirModalInforme(titulo, contenido, fechainicio, fechafin, actualizar=
 				console.log('******** estoy en abrirModalInforme JS****************');
 			},
 			success    :  function (response) {
-				var resultado =  $.parseJSON(response); 
-				$('#modalbody').html($('#modalbody').html()+'<br/><br/>'+resultado);
-				$('#closebutton').show();
-				$('#closeX').show();
-//				cerrarModalInforme();
-//				abrirModal('Resumen tickets mensual', 'Generado informes mensual de descuentos de tickets de cliente.<br>'+resultado);
+				var resultado =  $.parseJSON(response);
+                alert(resultado);
+				$('.modal-body').html($('.modal-body').html()+'<br/><br/>'+resultado);
 		}
 	});
 }

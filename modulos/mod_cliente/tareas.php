@@ -46,7 +46,6 @@ switch ($pulsado) {
         $respuesta=$resultado;
 		break;
 	case 'generarResumenTicketsClientes':
-		error_log($ClasePermisos->getAccion('descuento_ticket_update'));
 		include_once $URLCom.'/modulos/mod_cliente/tareas/ResumenMensualVentaClientes.php';
 		$respuesta=$resultado;
 		break;

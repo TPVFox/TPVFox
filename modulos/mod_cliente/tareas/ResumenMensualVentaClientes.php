@@ -8,16 +8,13 @@ $contador = 0;
 $now = (new \DateTime())->format('Y-m-d H:i:s');
 $fechainicio = isset($_POST['fechainicio']) ? $_POST['fechainicio'] : '2021-01-01';
 $fechafin = isset($_POST['fechafin']) ? $_POST['fechafin'] : $now;
-$actualizar = isset($_POST['actualizar']) && ($ClasePermisos->getAccion("descuento_ticket_update") == 1) ? $_POST['actualizar'] : 0;
-error_log($_POST['actualizar']);
-error_log($ClasePermisos->getAccion('descuento_ticket'));
+$actualizar = isset($_POST['actualizar']) && ($ClasePermisos->getAccion("descuento_ticket_update",array('modulo'=>'mod_cliente','vista'=>'ListaClientes.php')) == 1) ? $_POST['actualizar'] : 0;
 $resumen = [];
 $resultado = [];
 $registros_insertados = 0;
 $registros_actualizados = 0;
 $registros_ignorados = 0;
 $registros_sintickets = 0;
-$resultado[] = '<table>';
 foreach ($clientes as $cliente) {
     $tickets = $Cliente->ticketsClienteDesglose($cliente['idClientes'], $fechainicio, $fechafin);
     if (count($tickets) > 0) {
@@ -43,8 +40,9 @@ foreach ($clientes as $cliente) {
             'idUsuario' => $Usuario['id'],
         ];
         if (count($descuentosCliente) > 0) {
-            if ($actualizar===1) {
+            if ($actualizar==1 && round($importeDescuento,2) != floatval($descuentosCliente[0]['importeDescuento'])) {
                 $registros_actualizados++;
+                error_log('Entro-actualizar el id cliente:'.$cliente['idClientes']);
                 $DescuentosTicket->update($registro,['idCliente='.$cliente['idClientes']]);
             } else {
                 $registros_ignorados++;
@@ -53,29 +51,21 @@ foreach ($clientes as $cliente) {
             $registros_insertados++;
             $DescuentosTicket->insert($registro);
         }
-        // $resultado[] = '<tr>' .
-        //     '<td>' . $cliente['idClientes'] . '</td>' .
-        //     '<td>' . $cliente['descuento_ticket'] . '% </td>' .
-        //     '<td>' . $fechainicio . ' / ' . $fechafin . '</td>' .
-        //     '<td>' . $contaTicket . '</td>' .
-        //     '<td>' . $totalTickets . '</td>' .
-        //     '<td>' . $importeDescuento . '</td>' .
-        //     '</tr>';
     } else {
         $registros_sintickets++;
     }
 
     $contador++;
 }
-$resultado[] = '<tr><td>' . 'Clientes procesados: '.$contador . '</td></tr>' .
+
+$resultado[] = '<table><tr><td>' . 'Clientes procesados: '.$contador . '</td></tr>' .
 '<tr><td>' . 'Clientes sin tickets: '.$registros_sintickets . '</td></tr>' .
 '<tr><td>' . 'Descuentos insertados: '.$registros_insertados . '</td></tr>' .
 '<tr><td>' . 'Descuentos actualizados: '.$registros_actualizados . '</td></tr>' .
 '<tr><td>' . 'Descuentos ignorados: '.$registros_ignorados . '</td></tr>' .
-'<tr><td>' . 'Actualizar si existe: <b>'.($actualizar ? 'Si' : 'No') . '</b></td></tr>';
+'<tr><td>' . 'Actualizar si existe: <b>'.($actualizar ? 'Si' : 'No') . '</b></td></tr>'.
+'</table';
 
-$resultado[] = '</table>';
 
-$resultado = implode(" ", $resultado);
-
+// SELECT id,fechaInicio,fechaFin,idCliente,C.Nombre,descuentoCliente,numTickets,importeTickets,importeDescuento FROM `descuentos_tickets` as D LEFT JOIN clientes as C on D.idCliente=C.idClientes
 //$resultado = $resumen; //'insertados: '.$contador;

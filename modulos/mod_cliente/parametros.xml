@@ -3,6 +3,7 @@
 	<configuracion>
 		<incidencias descripcion="mostrar_Select" dedonde="cliente">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="cliente">1</incidencias>
+        <campos_defecto descripcion="descuento_tickets" dedonde="cliente">3</campos_defecto>
 	</configuracion>
 	<cajas_input data-obj="id_input">
 		<caja_input>

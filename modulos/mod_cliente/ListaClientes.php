@@ -20,7 +20,17 @@
     $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
     // Obtenemos clientes con filtro busqueda y la pagina que estamos.	
 	$clientes = $Cliente->obtenerClientes($filtro . $NPaginado->GetLimitConsulta());
-	
+    // Fechas para montar contenido MODAL de descuentos tickets.
+    $fecha = date_create(date('Y-m-01'));
+    date_sub($fecha, date_interval_create_from_date_string('1 month'));
+    $fechainicio = date_format($fecha, 'Y-m-d');
+    $fecha = date_create(date('Y-m').'-01');
+    date_sub($fecha, date_interval_create_from_date_string('1 day'));
+    $fechafin = date_format($fecha, 'Y-m-d 23:59:59');
+
+    $titulo = "Descuentos de tickets de cliente";
+    $contenido = 'Mes de '.date_format($fecha, 'F Y').'<br/><br/> Intervalo de fechas:'.
+    date_format(date_create($fechainicio),'d-m-Y').' a '.date_format(date_create($fechafin), 'd-m-Y');									
 	?>
 	<script>
 	// Declaramos variables globales
@@ -59,33 +69,21 @@
                     }                    
                     if($ClasePermisos->getAccion("modificar")==1){
                         ?>
-					<li><a href="#section2" onclick="metodoClick('VerCliente');">Modificar</a></li>
+                        <li><a href="#section2" onclick="metodoClick('VerCliente');">Modificar</a></li>
                     <?php 
-                }
+                    }
                 if($ClasePermisos->getAccion("tarifa")==1){
                     ?>
 					<li><a href="#" onclick="metodoClick('TarificarCliente');">Tarifa</a></li>
                     <?php 
                 }
                     ?>
-									<?php //metodoClick js case pulsado 
-									//agregarUsuario nos lleva a formulario usuario
-									//verUsuario si esta checkado nos lleva vista usuario de ese id
-									//si NO nos indica que tenemos que elegir uno de la lista 
-									$fecha = date_create(date('Y-m-01'));
-									date_sub($fecha, date_interval_create_from_date_string('1 month'));
-									$fechainicio = date_format($fecha, 'Y-m-d');
 									
-									$fecha = date_create(date('Y-m').'-01');
-									date_sub($fecha, date_interval_create_from_date_string('1 day'));
-									$fechafin = date_format($fecha, 'Y-m-d 23:59:59');
-
-									$titulo = "Descuentos de tickets de cliente";
-									$contenido = 'Mes de '.date_format($fecha, 'F Y').'<br/><br/> Intervalo de fechas:'.
-									date_format(date_create($fechainicio),'d-m-Y').' a '.date_format(date_create($fechafin), 'd-m-Y');									
-									?>
 
 				<li><a href="#" onclick="imprimirFicha('0');">Imprimir ficha</a></li>
+                </ul>
+ 				<h5> Opciones para todos los clientes</h5>
+                <ul class="nav nav-pills nav-stacked">
 				<?php if($ClasePermisos->getAccion("descuento_ticket")==1){				?>
 				<li><a href="#" 
 				onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>', '<?php echo $fechainicio ?>', '<?php echo $fechafin ?>')">Informe mensual descuentos tickets</a></li>
@@ -159,7 +157,7 @@
                         <?php 
                         if($ClasePermisos->getAccion("modificar")==1){
                         ?>
-                            <a class="glyphicon glyphicon-pencil" href='./cliente.php?id=<?php echo $cliente['idClientes'].'&accion=editar';?>'>
+                            <a class="glyphicon glyphicon-pencil" href="./cliente.php?id=<?php echo $cliente['idClientes'].'&accion=editar';?>"></a>
                         <?php 
                         }
                         ?>
@@ -168,7 +166,7 @@
                         <?php 
                         if($ClasePermisos->getAccion("ver")==1){
                         ?>
-                        <a class="glyphicon glyphicon-eye-open" href='./cliente.php?id=<?php echo $cliente['idClientes'];?>&accion=ver'>
+                        <a class="glyphicon glyphicon-eye-open" href="./cliente.php?id=<?php echo $cliente['idClientes'];?>&accion=ver"></a>
                         <?php 
                         }
                         ?>

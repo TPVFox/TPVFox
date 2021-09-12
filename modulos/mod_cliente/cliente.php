@@ -14,7 +14,18 @@ $errores = array();
 $tablaHtml= array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
 $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_cliente',$Usuario['id']);
-$configuracion=$configuracion['incidencias'];
+$conf_javascript_json = $configuracion['incidencias'];
+// Añadimos los campos personalizado variable json
+if (is_array($configuracion['campos_defecto'])){
+    // Si es un array es que hay mas de un campo.
+    foreach ($configuracion['campos_defecto'] as $config){
+        if(get_object_vars($configuracion['dedonde'])==$dedonde){
+            array_push($conf_javascript_json, $config);
+        }
+    }
+    } else {
+        array_push($conf_javascript_json, $configuracion['campos_defecto']);
+}
 $titulo= "Crear"; 
 $estados_cliente = array ('Activo','inactivo');
 if (isset($_GET['id'])) {
@@ -33,7 +44,11 @@ if ($Get_accion === 'ver'){
 if ($id> 0){
     $titulo= "Modificar";
 }
-$ClienteUnico=$Cliente->getClienteCompleto($id);        
+$ClienteUnico=$Cliente->getClienteCompleto($id);
+// Añadimos valor campo descuento tickets, solo en caso de que no exista
+if (!isset($ClienteUnico['descuento_ticket'])){
+    $ClienteUnico['descuento_ticket'] = $configuracion['campos_defecto']->valor;
+}
 foreach($ClienteUnico['adjuntos'] as $key =>$adjunto){
     if (isset($adjunto['error'])){
         $errores[]=array ( 'tipo'=>'danger',
@@ -96,7 +111,7 @@ if (count($errores) === 0){
         <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 		<script>
-        <?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+        <?php echo 'var configuracion='.json_encode($conf_javascript_json).';';?>	
 		</script>
         <?php
         if ($Get_accion ==='Nuevo'){
@@ -201,8 +216,17 @@ if (count($errores) === 0){
                                 <input type="text" id="email" name="email" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['email'];?>"  >
                             </div>
                             <div class="col-md-6 form-group">
+                                <?php // Permitimos editar si tiene permisos hacer resumenes, sino no ...
+                                    if($ClasePermisos->getAccion("descuento_ticket_update",array('modulo'=>'mod_cliente','vista'=>'ListaClientes.php')) ==0){
+                                        // NO permito
+                                        $s =  ' readonly';
+                                    } else  {
+                                        $s = $solo_lectura ;
+                                    }
+                                    ?>
+
                                 <label>Descuento tickets:</label>  
-                                <input type="text" id="descuentotickets" name="descuento_ticket" <?php echo $solo_lectura;?> value="<?php echo $ClienteUnico['descuento_ticket'];?>"  >
+                                <input type="text" id="descuentotickets" name="descuento_ticket" <?php echo $s;?> value="<?php echo $ClienteUnico['descuento_ticket'];?>"  >
                             </div>
 
                             <div class="col-md-6 form-group">
