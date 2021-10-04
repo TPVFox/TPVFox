@@ -79,7 +79,7 @@
                                 ,'KO')
                         );
             }
-	}
+        }
     }
     if (isset($productos) && count($errores)===0){
         $CalculoTotales = $CAlb->recalculoTotales($productos);

@@ -271,7 +271,7 @@ class AlbaranesCompras extends ClaseCompras {
                     $refProveedor =(isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
                     $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
-                            . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
+                            . number_format($prod['ultimoCoste'], 2, '.', '') . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
                             . $refProveedor . "'" . ', ' . $idPed . ')';
                             
                     
@@ -570,7 +570,7 @@ class AlbaranesCompras extends ClaseCompras {
     }
 
     public function modFechaNumero($id, $suNumero, $fecha, $formaPago, $fechaVencimiento) {
-        $respuesta = arrya();
+        $respuesta = array();
         $sql = 'UPDATE albprot set Su_numero="' . $suNumero . '" , Fecha="' . $fecha . '", formaPago="' . $formaPago . '", FechaVencimiento="' . $fechaVencimiento . '" where id=' . $id;
         $smt = parent::consulta($sql);
          if (gettype($smt)==='array') {
