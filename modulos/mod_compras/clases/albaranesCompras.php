@@ -269,9 +269,14 @@ class AlbaranesCompras extends ClaseCompras {
                     $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
                     $idPed = (isset($prod['idpedpro']))? $prod['idpedpro'] : 0;
                     $refProveedor =(isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
+                    //~ $ultimoCoste = floatnumber_format($prod['ultimoCoste'], 2, '.', '');
+                    //~ if ($ultimoCoste == NULL){
+                        //~ // Si viene mal el dato
+                        //~ $ultimoCoste = '0';
+                    //~ }
                     $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                             . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
-                            . number_format($prod['ultimoCoste'], 2, '.', '') . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
+                            . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
                             . $refProveedor . "'" . ', ' . $idPed . ')';
                             
                     

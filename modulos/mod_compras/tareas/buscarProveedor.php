@@ -9,7 +9,7 @@
     // Saber si el valor de busqueda esta vacio.
     $buscar= array();
     $respuesta['Nitems']= 0; // por defecto
-    
+    $respuesta['id'] = 0; 
         // Tiene valor para buscar proveedor o proveedores.
         if ( $_POST['idcaja'] === "id_proveedor"){
             // Buscamos por id, pero el resultado siempre es uno..por lo que
@@ -31,10 +31,14 @@
                 $respuesta['nombre']=$buscar['nombrecomercial'];
                 $respuesta['Nitems']=1;
             } else {
-                // Obtuvo varios resultados.
+                // Obtuvo varios resultados o ninguno
+                if (!isset($buscar['datos'])){
+                    // No obtuvo resultados.
+                    $respuesta['datos'] = '';
+                    $buscar['datos'] = array();
+                } else {
                 $respuesta['Nitems'] = count($buscar['datos']);
-                if (count($buscar) > 0){
-                    $respuesta['datos']=$buscar['datos'];
+                $respuesta['datos']=$buscar['datos'];
                 }
             }
         }
@@ -42,47 +46,11 @@
         // Buscamos los datos de todos los proveedores ya que no tiene valor busqueda.
         $buscar['datos'] = $CProveedores->todosProveedores();
         $respuesta['Nitems'] = count( $buscar['datos']);
-    } 
-    $obtener_html  = 0 ;
-    if  ( $respuesta['Nitems'] == 0 ){
-        // Sino obtuvo resultado mostramos html, para indicar que no fue correcto y que permitir buscar.
-        $obtener_html = 1 ;
     }
-    if ( $_POST['idcaja'] == 'Proveedor' || $_POST['idcaja'] == 'cajaBusquedaproveedor' ){
-        // Si venimos de la caja proveedor o cajaBusquedaproveedor, siempre se muestra html
-        $obtener_html = 1 ;
-
-    }
-    if ( $obtener_html == 1){
+    if ($_POST['idcaja']!=='id_proveedor'){
         $respuesta['html']=htmlProveedores($_POST['busqueda'],$_POST['dedonde'], $_POST['idcaja'], $buscar['datos']);
     }
-    
-//~ if (isset($_POST['idcaja']) && $_POST['idcaja'] =="id_proveedor"){
-    
-    //~ $buscarId=$CProveedores->buscarProveedorId($_POST['busqueda']);
-    //~ if (isset($buscarId['error'])){
-        //~ $respuesta['error']=$buscarId['error'];
-        //~ $respuesta['consulta']=$buscarId['consulta'];
-    //~ }else{
-        //~ if (isset($buscarId['idProveedor'])){
-            //~ $respuesta['id']=$buscarId['idProveedor'];
-            //~ $respuesta['nombre']=$buscarId['nombrecomercial'];
-            //~ $respuesta['Nitems']=1;
-        //~ }else{
-            //~ $respuesta['Nitems']=2;
-        //~ }
-    //~ }
-//~ }else{
-    //~ $buscarTodo=$CProveedores->buscarProveedorNombre($_POST['busqueda']);
-    //~ if (isset($buscarTodo['error'])){
-        //~ $respuesta['error']=$buscarTodo['error'];
-        //~ $respuesta['consulta']=$buscarTodo['consulta'];
-    //~ }else{
-        //~ $respuesta['html']=htmlProveedores($_POST['busqueda'],$_POST['dedonde'], $_POST['idcaja'], $buscarTodo['datos']);
-        //~ $respuesta['datos']=$buscarTodo['datos'];
-    //~ }
-    
-//~ }
+
 
 
 ?>

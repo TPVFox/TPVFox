@@ -108,7 +108,7 @@ class ClaseCompras
                 $iva_decimal = $product->iva/100; // No hace falta para operar.
                 if (!isset($product->importe)){
                     // Por comtabilidad con versiones anterires.
-                    $importe = $product->ncant*$product->ultimoCoste;
+                    $importe = $product->ncant*floatval($product->ultimoCoste);
                 } else {
                     $importe = $product->importe;
                 }

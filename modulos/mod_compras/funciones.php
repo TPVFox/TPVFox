@@ -272,9 +272,10 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         $respuesta=array('html'=>'');
         if(!is_array($producto)) {
             // Comprobamos si product es objeto lo convertimos en array.
-            $producto = (array)$producto;		
+            $producto = (array)$producto;
         } 
         // Valores por defecto o calculo.
+        $producto['ultimoCoste'] = floatval($producto['ultimoCoste']);
         $codBarra="";
         $cant=number_format($producto['nunidades'],2);
         $importe=$producto['ultimoCoste']*$producto['nunidades'];	
@@ -284,7 +285,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
         $iconE_R = '<span class="glyphicon glyphicon-trash"></span>';
         $html_numeroDoc=''; // Valor por defecto.
-        $coste= number_format($producto['ultimoCoste'], 4); // Pedidos no se permite modificar.
+        $coste= number_format($producto['ultimoCoste'], 4); 
         $html_coste = $coste;
         // Si hay valor de ccodbar lo ponemos en variable.
         if (isset ($producto['ccodbar'])){

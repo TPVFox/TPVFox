@@ -93,7 +93,6 @@
                                 ,'KO')
                         );
         }
-        $respuesta['sqlmodtotal']=$modTotal['sql'];
         $htmlTotales=htmlTotales($CalculoTotales);
         $respuesta['htmlTabla']=$htmlTotales['html'];
         
