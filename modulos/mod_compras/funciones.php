@@ -651,8 +651,8 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
                     'html'=>''
             );
 	$imprimir['cabecera']=<<<EOD
-<table><tr><td><font size="20">$texto</font></td><td><font size="9"><b>Número:</b>$numero<b><br>Fecha:</b>$fecha</font></td></tr></table>
-<hr>
+<table><tr><td><font size="20">$texto</font></td><td><font size="9"><b>Número:</b>$numero<br><b>Fecha:</b>$fecha</font></td></tr></table>
+<hr style="color:black ; cap:0;join:0;dash:1;phase:0;"/>
 <table><tr><td>
 <font size="12">Super Oliva </font><br>
 <font size="9">$datosTienda[razonsocial]</font><br>
@@ -699,20 +699,19 @@ EOD;
 			$i++;
 		}
 		if ($producto['estadoLinea']=='Activo'){
-			$imprimir['html'] .='<tr>';
-			$bandera="";
-			if (isset($producto['idalbpro'])){
-				if ($producto['idalbpro']!==0){
-					$bandera=$producto['idalbpro'];	
-				}	
-			}
+			//~ $bandera="";
+			//~ if (isset($producto['idalbpro'])){
+				//~ if ($producto['idalbpro']!==0){
+					//~ $bandera=$producto['idalbpro'];	
+				//~ }	
+			//~ }
             $refPro="";
            if (strlen($producto['ref_prov'])>0){
 				$refPro=$producto['ref_prov'];
 			}
             $importe=$producto['ncant']*$producto['costeSiva'];
         
-			$imprimir['html'] .='<td ALIGN="center" WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
+			$imprimir['html'] .='<tr><td ALIGN="center" WIDTH="5%"><font size="8">'.$producto['nfila'].'</font></td>'
             .'<td WIDTH="10%"><font size="8"> &nbsp;'.$producto['idArticulo'].'</font></td>'
             .'<td WIDTH="17%"><font size="8"> &nbsp;'.$refPro.'</font></td>'
 			.'<td WIDTH="50%"><font size="8"> &nbsp;'.$producto['cdetalle'].'</font></td>'
@@ -725,7 +724,7 @@ EOD;
 	}
     
 	$imprimir['html'] .=<<<EOD
-</table><br><br><hr/><hr/>
+</table><br><br><br><br>
 <table WIDTH="70%" border="1px"><tr><th>Tipo</th><th>Base</th><th>IVA</th></tr>
 EOD;
 	if (isset($Datostotales)){

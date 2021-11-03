@@ -725,6 +725,7 @@ function mensajeImprimir(id, dedonde){
 		var bandera=1;
 		imprimir(id, dedonde, bandera);
     } else {
+        // Volvemos a albaranes,ya que se ejecuto desde ahi.
 		location.href="../mod_compras/albaranesListado.php";
     }
 }
@@ -748,6 +749,7 @@ function imprimir(id, dedonde, bandera=""){
 				 var resultado = $.parseJSON(response);
 				 window.open(resultado.fichero);
 				 if (bandera==1){
+                    // Volvemos a albaranes ya que se ejecuto desde ahi.
 					location.href="../mod_compras/albaranesListado.php";
 				}
 				 
