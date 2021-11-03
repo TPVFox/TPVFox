@@ -111,4 +111,94 @@ function comprobarFechas($fechaIni, $fechaFin){
 	}
 	return $resultado;
 }
+
+function getHtmlTdProducto($producto,$tipo){
+    // @ Objetivo:
+    // Obtener html de con los td de producto de los campos para resumen
+    // @ Parametros:
+    // $producto:
+    // $tipo: (String) que nos indica que es para pantalla o para pdf
+    // @ Respuesta:
+    // String con html de td montado.
+    $calculado_precio_medio = (isset($producto['pm']) ? $producto['pm'] :'');
+     $html = '';
+    if ($tipo === 'pdf'){
+        $abrir_td = '<td><font size="8">';
+        $cerrar_td = '</font></td>';
+    } else {
+        $abrir_td = '<td>';
+        $cerrar_td = '</td>';
+        // En pdf no ponemos el codbarras, ni idArticulo
+        $html .=$abrir_td.htmlspecialchars($producto['idArticulo'], ENT_QUOTES).$cerrar_td.
+                $abrir_td.htmlspecialchars($producto['ccodbar'], ENT_QUOTES).$cerrar_td;
+    }
+    $html .=$abrir_td.htmlspecialchars($producto['cdetalle'], ENT_QUOTES).$cerrar_td.
+            $abrir_td.number_format($producto['totalUnidades'],2).$cerrar_td.
+            $abrir_td.number_format($producto['CosteSiva'],2).$calculado_precio_medio.$cerrar_td.
+            $abrir_td.number_format($producto['total_linea'],2).$cerrar_td;
+    
+    return $html;
+
+}
+
+
+
+function getHmtlTrProductos($productos,$tipo){
+    // @ Objetivo
+    // Obtener html de las filas de los productos del resumen.
+    // @ Parametros
+    // $productos: Array de array de productos.
+    // $tipo : Indicando si es para pantalla o para pdf.
+    // @ Respuesta:
+    // Devolvemos array con html y total de lineas.
+    $respuesta = array ('html'=> '',
+                        'totalLineas' => 0);
+    $totalProductos=0;
+    $totalLineas = 0;
+    if(isset($productos)){
+        foreach ($productos as $row) {
+            $aux[] = $row['cdetalle'];
+        }
+        array_multisort($aux, SORT_ASC, $productos);
+
+		$resumen_productos = []; // inicializa tabla que aparece como resumen productos
+        foreach ($productos as $producto) {			
+            $id_producto = $producto['idArticulo'];
+            if(!array_key_exists($id_producto, $resumen_productos)){ // busca el indice. Si no existe lo crea con $producto
+			  $resumen_productos[$id_producto] = $producto;
+			  $resumen_productos[$id_producto]['CosteSiva'] = $producto['costeSiva'];
+			  $resumen_productos[$id_producto]['precio_medio'] = 0;
+			  $resumen_productos[$id_producto]['totalUnidades'] = $producto['totalUnidades'];
+			} else {  // Si ya existe suma las unidades y calcula el precio medio
+				$total_producto = $producto['totalUnidades'] * $producto['costeSiva'];  
+				if($resumen_productos[$id_producto]['costeSiva'] !== $producto['costeSiva']){
+					$resumen_productos[$id_producto]['precio_medio'] = 1;
+					$resumen_productos[$id_producto]['pm'] = $tipo === 'pdf' ? '<span>*</span>' : '<span title="Precio medio">*</span>';
+                    // Si la suma unidades es 0 , el precio medio se deja tal cual..
+                    $suma = $resumen_productos[$id_producto]['totalUnidades'] + $producto['totalUnidades'];
+                    if ( $suma != 0){
+                        $resumen_productos[$id_producto]['costeSiva'] = ($resumen_productos[$id_producto]['total_linea'] + $total_producto) / $suma;
+                    }
+				}				
+				$resumen_productos[$id_producto]['totalUnidades'] += $producto['totalUnidades'];
+			}
+			$resumen_productos[$id_producto]['total_linea'] = $resumen_productos[$id_producto]['totalUnidades'] * $resumen_productos[$id_producto]['costeSiva'];
+        }
+
+		$totalLineas = 0; 
+		foreach($resumen_productos as $producto){  // genera la tabla html para mostrar, con el resumen de productos
+			$html_td = getHtmlTdProducto($producto, $tipo);
+			$respuesta['html'] .= '<tr>' . $html_td . '</tr>';
+			$totalLineas += $producto['total_linea'];
+		}
+    }
+
+	
+    $respuesta['totalLineas'] = $totalLineas;
+    return $respuesta;
+}
+
+
+
+
 ?>

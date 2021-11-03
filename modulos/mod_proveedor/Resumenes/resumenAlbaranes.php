@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html>
-    <head>
+
 		 <?php
         include_once './../../../inicial.php';
-        include_once $URLCom.'/head.php';
         include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
         include_once ($URLCom.'/controllers/parametros.php');
-        $ClasesParametros = new ClaseParametros('../parametros.xml');  
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
+        $ClasesParametros = new ClaseParametros('../parametros.xml');  
         
 		$CProveedor= new ClaseProveedor($BDTpv);
         $fechaInicial="";
@@ -74,11 +71,21 @@
 		}
 		
 		?>
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <?php
+        include_once $URLCom.'/head.php';
+    ?>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
+
 	</head>
 	<body>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
 	<?php
-        //~ include $URLCom.'/header.php';
+    //~ echo '<pre>';
+    //~ print_r($arrayNums);
+    //~ echo '</pre>';
        include_once $URLCom.'/modulos/mod_menu/menu.php';
 				
 				if (isset($errores)){
@@ -169,7 +176,9 @@
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
-								<th>PRODUCTO</th>
+                                <th>ID</th>
+                                <th>CODBARRAS</th>
+                                <th>PRODUCTO</th>
 								<th>CANTIDAD</th>
 								<th>COSTE</th>
 								<th>IMPORTE</th>
@@ -177,37 +186,20 @@
 						</thead>
 						<tbody>
 					<?php 
-						$totalProductos=0;
-						if(isset($arrayNums['productos'])){
-                            foreach ($arrayNums['productos'] as $key => $row) {
-                                    $aux[$key] = $row['cdetalle'];
-                                }
-                                array_multisort($aux, SORT_ASC, $arrayNums['productos']);
-							foreach($arrayNums['productos'] as $producto){
-								$precio=$producto['totalUnidades']*$producto['costeSiva'];
-								echo '<tr>'
-								. '<td>'.$producto['cdetalle'].'</td>'
-								.'<td>'. number_format ($producto['totalUnidades'],2).'</td>'
-								.'<td>'.number_format ($producto['costeSiva'],2).'</td>'
-								. '<td>'.number_format ($precio,2).'</td>'
-								. '</tr>';
-								$totalProductos=$totalProductos+number_format ($precio,2);
-							}
-						}
-						?>
+                        $lineas = getHmtlTrProductos($arrayNums['productos'],'pantalla');
+                        echo $lineas['html'];
+                    ?>
 						</tbody>
 					</table>
 					<div class="col-md-12">
-						<div class="col-md-7">
-						</div>
-						<div class="col-md-5">
-							<div class="panel panel-success">
-								<div class="panel-heading">
-									<h3 class="panel-title">TOTAL: <?php echo $totalProductos;?></h3>
-								</div>
-							</div>
-						</div>
-					</div>
+                        <div class="col-md-5 col-md-offset-7">
+                            <div class="panel panel-success">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">TOTAL: <?php echo number_format($lineas['totalLineas'],2);?></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 				</div>
 				<div class="col-md-6 "   <?php echo $style;?>>
 					<h4 class="text-center" ><u>ALBARANES</u></h4>
