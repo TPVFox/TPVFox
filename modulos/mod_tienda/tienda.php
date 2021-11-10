@@ -24,7 +24,7 @@
             }
         }
         $montar_radio = 'Si';
-        if (isset($_GET['id']){
+        if (isset($_GET['id'])){
             if (isset($tiendas['principal']) && $_GET['id'] === $tiendas['principal']['idTienda']){
                 // Si existe tienda principal en BD y estamos modificandola no permitimos cambiarla.
                 $montar_radio = 'No' ;
@@ -98,7 +98,7 @@
 			if (intval($_POST['idtienda']) > 0){
 				// Entramos si ya existe tienda, porque tiene id, por lo que modificamos.
 				// Comprobamos: 
-				$resp = modificarDatos($datos,$BDTpv,$tabla,$_POST['idtienda']);
+				$resp = $ClaseTienda->modificarTienda($_POST);
 				if (isset($resp['error'])){
 					$tipomensaje= "danger";
 					$mensaje = "Error a la hora modificar datos de la tienda!";
@@ -108,7 +108,6 @@
 				}
 			} else {
 				// Entramos si es uno nuevo y se va añadir
-				//~ $resp = insertarDatos($datos,$BDTpv,$tabla,$campos_enviar);
                 $resp = $ClaseTienda->addTienda($_POST);
 				if (isset($resp['error'])){
 					$tipomensaje= "danger";
