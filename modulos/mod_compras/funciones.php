@@ -7,18 +7,6 @@ include_once $URLCom.'/clases/ClaseTablaTienda.php';
 include_once $URLCom.'/clases/imprimir.php';
 
 
-function dump($variable){
-	echo '<pre>';
-	print_r($variable);
-	echo '</pre>';
-}
-
-function dd($variable){
-	dump($variable);
-	die();
-}
-
-
 
 function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	// @ Objetivo:

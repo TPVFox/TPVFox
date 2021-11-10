@@ -5,17 +5,20 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require_once '/var/www/tpvfox/lib/PHPMailer/src/PHPMailer.php';
-require_once '/var/www/tpvfox/lib/PHPMailer/src/Exception.php';
-require_once '/var/www/tpvfox/lib/PHPMailer/src/SMTP.php';
+require_once $URLCom.'/lib/PHPMailer/src/PHPMailer.php';
+require_once $URLCom.'/lib/PHPMailer/src/Exception.php';
+require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
+
 
 class CorreoElectronico {
 
 
 
     static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
-        include_once '/var/www/tpvfox/configuracion.php';
-
+        
+        //~ parent::__construct();
+        //~ $ruta =  $this->ruta_proyecto;
+        include __DIR__.'/../configuracion.php';
         $mail =  new PHPMailer(true);
         try {
             //Server settings
@@ -25,9 +28,10 @@ class CorreoElectronico {
             $mail->SMTPAuth   = $PHPMAILER_CONF['SMTPAuth'];            //Enable SMTP authentication
             $mail->Username   = $PHPMAILER_CONF['Username'];            //SMTP username
             $mail->Password   = $PHPMAILER_CONF['Password'];            //SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+            //~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = $PHPMAILER_CONF['Port'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-        
+            
             //Recipients
             $mail->setFrom($email_direccion_origen, $email_usuario_origen);
             $mail->addAddress($destinatario);     //Add a recipient

@@ -1,31 +1,23 @@
+<?php
+    include_once './../../inicial.php';
+    include_once $URLCom.'/modulos/mod_tienda/funciones.php';
+    include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
+    $ClaseTienda = new ClaseTienda();
+	$tiendas = $ClaseTienda->obtenerTiendas();
+?>
 <!DOCTYPE html>
 <html>
-    <head>
-        <?php
-        include_once './../../inicial.php';
-		
-        include_once $URLCom.'/head.php';
-        include_once $URLCom.'/modulos/mod_tienda/funciones.php';
-	$tiendas = obtenerTiendas($BDTpv);
-	
-	?>
+<head>
+    <?php include_once $URLCom.'/head.php';?>
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_tienda/funciones.js"></script>
-    
-    <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
-  
-	
-	
-    </head>
 
 <body>
         <?php
-       //~ include_once $URLCom.'/header.php';
         include_once $URLCom.'/modulos/mod_menu/menu.php';
         ?>
        
@@ -74,7 +66,7 @@
 	
 				<?php
 				$checkUser = 0;
-				foreach ($tiendas['items'] as $tienda){ 
+				foreach ($tiendas['datos'] as $tienda){ 
 					$checkUser = $checkUser + 1; 
 				?>
 

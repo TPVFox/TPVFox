@@ -220,7 +220,7 @@ $pedidosDef=$p['Items'];
                                     ' , "pedido" , '.$Tienda['idTienda'].")'></a>";
                             $linkEmail = $pedido['email'] ? ' <a class="glyphicon glyphicon-envelope" '.
                                     "onclick='enviarXCorreo(".$pedido['id'].
-                                    ' , "pedido" , '.$Tienda['idTienda'].")'></a>" : '';
+                                    ' , "pedido" , '.$Tienda['idTienda'].',"'.$pedido['email'].'"'.")'></a>" : '';
                             // $linkEmail = $pedido['email'] ? ' <a class="glyphicon glyphicon-envelope" '.
                             //         '"onclick=\'enviarXCorreo("'.$pedido['id'].
                             //         ' , "pedido" , '.$Tienda['idTienda'].', '.$pedido['email'].")' ></a>" : '';
