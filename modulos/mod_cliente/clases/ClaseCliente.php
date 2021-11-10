@@ -171,11 +171,7 @@ class ClaseCliente extends TFModelo{
         //Datos-> array con todos los datos del cliente
         //id-> id del cliente que se va a modificar
         $respuesta = array();
-        $sql = 'UPDATE `clientes` SET Nombre="' . $datos['Nombre'] . '" , razonsocial="' . $datos['razonsocial'] . '" ,
-		nif="' . $datos['nif'] . '" , direccion="' . $datos['direccion'] . '" , codpostal="' . $datos['codpostal'] . '" , telefono="' . $datos['telefono']
-            . '" , movil="' . $datos['movil'] . '" , fax="' . $datos['fax'] . '" , email="' . $datos['email'] . '" , estado="' . $datos['estado'] . '" ,
-		formasVenci=' . "'" . $datos['formasVenci'] . "', descuento_cliente='".$datos['descuento_cliente']."' " . ' WHERE idClientes=' . $datos['idClientes'];
-        //$consulta = $this->consultaDML($sql);
+        // Eliminamos matriz vencimiento y formapago, ya que viene otra que es formasVenci => array("formapago":"1","vencimiento":"1"}
         unset($datos['vencimiento']);
         unset($datos['formapago']);
         $consulta = $this->update($datos, 'idClientes=' . $datos['idClientes']);
