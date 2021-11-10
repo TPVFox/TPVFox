@@ -1,14 +1,6 @@
 <?php 
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-
-
-
 include_once './../../inicial.php';
-$pulsado = $_POST['pulsado'];
 include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/modulos/mod_compras/tareas.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
@@ -20,10 +12,8 @@ include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 include_once $URLCom.'/controllers/Controladores.php';
 
-//include_once $URLCom.'/clases/CorreoElectronico.php';
-require_once $URLCom.'/lib/PHPMailer/src/PHPMailer.php';
-require_once $URLCom.'/lib/PHPMailer/src/Exception.php';
-require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
+$pulsado = $_POST['pulsado'];
+
 
 $CIncidencia=new ClaseIncidencia($BDTpv);
 $CProveedores=new Proveedores($BDTpv);
@@ -150,16 +140,13 @@ switch ($pulsado) {
         $id=$_POST['id'];
         $dedonde=$_POST['dedonde'];
         $idTienda=$_POST['idTienda'];
-        error_log('Ruta:'.$URLCom);
-//        $respuesta = generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom);
-$nombreTmp=$dedonde."compras.pdf";
-$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
-$cabecera=$htmlImprimir['cabecera'];
-$margen_top_caja_texto= 56;
-$html=$htmlImprimir['html'];
-include_once $URLCom.'/controllers/planImprimir.php';
-
-$respuesta=$rutatmp.'/'.$nombreTmp;
+        $nombreTmp=$dedonde."compras.pdf";
+        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
+        $cabecera=$htmlImprimir['cabecera'];
+        $margen_top_caja_texto= 56;
+        $html=$htmlImprimir['html'];
+        include_once $URLCom.'/controllers/planImprimir.php';
+        $respuesta=$rutatmp.'/'.$nombreTmp;
     break;
 
     case 'enviarXCorreo':
@@ -177,62 +164,24 @@ $respuesta=$rutatmp.'/'.$nombreTmp;
 
         $mensaje='';
         $asunto='';
-    
-//        $fichero = generarPDFTemporal($dedonde, $id, $BDTpv, $idTienda, $rutatmp, $URLCom);
-$nombreTmp=$dedonde."compras.pdf";
-$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
-$cabecera=$htmlImprimir['cabecera'];
-$margen_top_caja_texto= 56;
-$html=$htmlImprimir['html'];
- 
-include_once $URLCom.'/controllers/planImprimir.php';
+        $nombreTmp=$dedonde."compras.pdf";
+        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
+        $cabecera=$htmlImprimir['cabecera'];
+        $margen_top_caja_texto= 56;
+        $html=$htmlImprimir['html'];
+         
+        include_once $URLCom.'/controllers/planImprimir.php';
 
-$fichero = $RutaServidor.$rutatmp.'/'.$nombreTmp;
-include_once $URLCom.'/clases/CorreoElectronico.php';
-$respuesta = CorreoElectronico::enviar($destinatario,'mensaje del correo','asunto importante',$fichero);
-//        $respuesta = CorreoElectronico_enviar('lamadrequetepario@gmail.com', 'mensaje del correo', 'asunto importante, seguro!', $fichero);
-
-//~ $mail =  new PHPMailer(true);
-
-//~ try {
-    
-    //~ //Server settings
-    //~ echo json_encode($PHPMAILER_CONF);
-    //~ $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-    //~ $mail->isSMTP();                                            //Send using SMTP
-    //~ $mail->Host       = $PHPMAILER_CONF['host'];                //Set the SMTP server to send through    
-    //~ $mail->SMTPAuth   = true; //$PHPMAILER_CONF['SMTPAuth'];            //Enable SMTP authentication
-    //~ $mail->Username   = $PHPMAILER_CONF['Username'];            //SMTP username
-    //~ $mail->Password   = $PHPMAILER_CONF['Password'];            //SMTP password
-    //~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption
-//~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    //~ $mail->Port       = $PHPMAILER_CONF['Port'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-
-    //~ //Recipients
-    //~ $mail->setFrom($email_direccion_origen, $email_usuario_origen);
-    //~ $mail->addAddress('solucionesvigo@gmail.com');     //Add a recipient
-                                          //~ //Name is optional
-    //~ // $mail->addReplyTo('info@example.com', 'Information');
-    //~ //$mail->addCC('cc@example.com');
-    //~ //$mail->addBCC('bcc@example.com');
-
-    //~ //Attachments
-    //~ $mail->addAttachment($fichero);         //Add attachments
-    //~ //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
-
-    //~ //Content
-    //~ $mail->isHTML(true);                                  //Set email format to HTML
-    //~ $mail->Subject = 'asunto importante, seguro!';               //'Here is the subject';
-    //~ $mail->Body    = 'mensaje del correo';              // 'This is the HTML message body <b>in bold!</b>';
-    //~ //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-
-    //~ $respuesta = $mail->send() ? 'es truese': 'false';
-    
-    //~ $respuesta = 'Message has been sent';
-//~ } catch (Exception $e) {
-    //~ $respuesta = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-    //~ $respuesta = 'Algo';
-//~ }        
+        $fichero = $RutaServidor.$rutatmp.'/'.$nombreTmp;
+        include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
+        $CTienda = new ClaseTienda();
+        $res = $CTienda->tiendaPrincipal();
+        $tiendaPrincipal=$res['datos'][0];
+        $origen = array( 'email'    => $tiendaPrincipal['emailTienda'],
+                         'nombre'   => $tiendaPrincipal['nombreEmail']
+                         );
+        include_once $URLCom.'/clases/CorreoElectronico.php';
+        $respuesta = CorreoElectronico::enviar($destinatario,'mensaje del correo','asunto importante',$fichero,$origen);
 
     break;
 

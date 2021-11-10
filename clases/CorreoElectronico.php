@@ -14,11 +14,9 @@ class CorreoElectronico {
 
 
 
-    static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
+    static public function enviar($destinatario, $mensaje, $asunto, $adjunto,$origen){
         
-        //~ parent::__construct();
-        //~ $ruta =  $this->ruta_proyecto;
-        include __DIR__.'/../configuracion.php';
+        include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
         $mail =  new PHPMailer(true);
         try {
             //Server settings
@@ -28,12 +26,12 @@ class CorreoElectronico {
             $mail->SMTPAuth   = $PHPMAILER_CONF['SMTPAuth'];            //Enable SMTP authentication
             $mail->Username   = $PHPMAILER_CONF['Username'];            //SMTP username
             $mail->Password   = $PHPMAILER_CONF['Password'];            //SMTP password
-            //~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption
+            //~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = $PHPMAILER_CONF['Port'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
             
             //Recipients
-            $mail->setFrom($email_direccion_origen, $email_usuario_origen);
+            $mail->setFrom($origen['email'], $origen['nombre']);
             $mail->addAddress($destinatario);     //Add a recipient
                                                   //Name is optional
             // $mail->addReplyTo('info@example.com', 'Information');

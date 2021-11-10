@@ -58,36 +58,7 @@
 		);
         
         
-        // Si tiene GET id cargamos datos tiendaUnica
-		if (isset($_GET['id'])){
-            $titulo = "Modificar Tienda:";
-            $T = $ClaseTienda->obtenerUnaTienda($_GET['id']);
-            if (isset($T['error'])){
-                echo '<pre>';
-                    print_r($T);
-                echo '</pre>';
-                exit();
-            } else {
-                $TiendaUnica= $T['datos']['0'];
-            }
-        } else {
-            $titulo = "Crear Tienda";
-            $TiendaUnica = array(
-                        'idTienda'          => '',
-                        'tipoTienda'        => 'fisica',
-                        'razonsocial'       => '',
-                        'nif'               => '',
-                        'telefono'          => '',
-                        'estado'            => '',
-                        'NombreComercial'   => '',
-                        'direccion'         => '',
-                        'emailTienda'       => '',
-                        'nombreEmail'       => '',
-                        'ano'               => '',
-                        'dominio'           => '', 
-                        'key_api'           => ''
-                        );
-        }
+        
 		// Ahora comprobamos si tenemos POST. Es decir se envio ya el formulario
 		if(count($_POST)>0){
 			// Venimos de vuelta debemos tener los campos obligatorios cubiertos por lo menos.
@@ -130,6 +101,47 @@
 				}
 			}
 		};
+        // Si tiene GET id cargamos datos tiendaUnica
+		if (isset($_GET['id'])){
+            $titulo = "Modificar Tienda:";
+            $T = $ClaseTienda->obtenerUnaTienda($_GET['id']);
+            if (isset($T['error'])){
+                echo '<pre>';
+                    print_r($T);
+                echo '</pre>';
+                exit();
+            } else {
+                $TiendaUnica= $T['datos']['0'];
+            }
+        } else {
+            $titulo = "Crear Tienda";
+            $TiendaUnica = array(
+                        'idTienda'          => '',
+                        'tipoTienda'        => 'fisica',
+                        'razonsocial'       => '',
+                        'nif'               => '',
+                        'telefono'          => '',
+                        'estado'            => '',
+                        'NombreComercial'   => '',
+                        'direccion'         => '',
+                        'emailTienda'       => '',
+                        'nombreEmail'       => '',
+                        'ano'               => '',
+                        'dominio'           => '', 
+                        'key_api'           => ''
+                        );
+        }
+        $Tipo = $TiendaUnica['tipoTienda'];
+        $display = 'style="display:none;"';
+        if ($Tipo === 'fisica' || $Tipo === 'principal' ){
+               $display = '';
+            if ($Tipo === 'principal'){
+                $tiposTiendas['principal']['display'] = '';
+            }
+        };
+        echo '<pre>';
+        print_r($T);
+        echo '</pre>';
 ?>
 <!DOCTYPE html>
 <html>
@@ -197,12 +209,6 @@
                     <div class="col-md-6">
                          <!-- Solo debería mostrar uno según tipo tienda-->
                          <?php
-                            $Tipo = $TiendaUnica['tipoTienda'];
-                            if ($Tipo === 'fisica' || $Tipo === 'principal' ){
-                                $display = '';
-                            } else{
-                                $display = 'style="display:none;"';
-                            }
                             echo '<h3> Datos '.$tiposTiendas[$Tipo]['title'].'</h3>';
                          ?>
                         <div class="mostrar_fisica_y_principal" <?php echo $display; ?>>
@@ -218,7 +224,7 @@
                         <div class="mostrar_principal" <?php echo $tiposTiendas['principal']['display']; ?>>
                             <div class="form-group">
                                 <label>Email:</label>
-                                <input type="text"  id="emailTienda" name="emailTienda" placeholder="Email de tienda" value="<?php echo $TiendaUnica['nombreEmail'];?>" >
+                                <input type="text"  id="emailTienda" name="emailTienda" placeholder="Email de tienda" value="<?php echo $TiendaUnica['emailTienda'];?>" >
                             </div>
                             <div class="form-group">
                                 <label>Nombre usuario email:</label>
