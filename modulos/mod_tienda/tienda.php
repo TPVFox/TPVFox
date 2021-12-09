@@ -10,19 +10,36 @@
         include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
         $ClaseTienda = new ClaseTienda();
 		// Variables por defecto:
-        $tabla= 'tiendas'; // Tabla que vamos utilizar.
         $errores= array();    
-		$nuevo_creado = '';
+		$nuevo_creado = ''; // Variable bandera que utilizamos para indicar que se acaba de crear la tienda
 		// Definimos posibles tipos de tiendas y estado por defecto.
-        // Obtenmos las tiendas principal y  web si hay, para no permitir crear.
-        $tiendas =array();
-        $t = $ClaseTienda->obtenerTiendas();
-        foreach ($t['datos'] as $key=> $tienda){
-            if ($tienda['tipoTienda'] == 'principal' || $tienda['tipoTienda'] == 'web' ){
-                $tipo = $tienda['tipoTienda'];
-                $tiendas[$tipo] = $tienda;
-            }
-        }
+        
+        
+        $titulo = "Crear Tienda";
+        $servidor_email = array ( 'host'        => '',
+                                'SMTPAuth'      => 'true',
+                                'Port'          => '465',
+                                'Username'      => '',
+                                'emailTienda'   => '',
+                                'nombreEmail'   => ''
+                            );
+        $TiendaUnica = array(
+                    'idTienda'          => '',
+                    'tipoTienda'        => 'fisica',
+                    'razonsocial'       => '',
+                    'nif'               => '',
+                    'telefono'          => '',
+                    'estado'            => '',
+                    'NombreComercial'   => '',
+                    'direccion'         => '',
+                    'ano'               => '',
+                    'dominio'           => '', 
+                    'key_api'           => '',
+                    'servidor_email'    => $servidor_email
+                    );
+
+        // Obtenemos la tiendas principal y  web si hay, para no permitir crear una mas.
+        $tiendas = obtenerTiendaPrincipalYWeb($ClaseTienda);
         $montar_radio = 'Si';
         if (isset($_GET['id'])){
             if (isset($tiendas['principal']) && $_GET['id'] === $tiendas['principal']['idTienda']){
@@ -30,7 +47,7 @@
                 $montar_radio = 'No' ;
             }
         }
-		$tiposTiendas = array(
+        $tiposTiendas = array( 
 			'fisica' => array (
 					'title' 	    => "Tienda fisica",
                     'texto_title'   => "Puede haber varias",
@@ -41,7 +58,7 @@
 					),
 			'web' =>  array (
 					'title' 	    => "Tienda Web",
-                    'texto_title'   => isset($tiendas['web']) ? 'Existe id:'.$tiendas['web']['idTienda'] :"No hay, solo puede haber una",
+                    'texto_title'   => isset($tiendas['web']) ? 'Existe id:'.$tiendas['web']['idTienda'] :"Se puede crear una",
                     'checked'	    => "",
 					'display'	    => 'style="display:none;"',                 // Indicamos NO se campos tienda web por defecto
 					'disabled' 	    => isset($tiendas['web'])? 'disabled':'',    // por defecto esta desactivado el cambio tipo tienda.
@@ -49,7 +66,7 @@
                     ),
 			'principal' =>  array (
 					'title' 	    => "Tienda Principal",
-                    'texto_title'   => isset($tiendas['principal']) ? 'Existe id:'.$tiendas['principal']['idTienda'] :"No hay, solo puede haber una",
+                    'texto_title'   => isset($tiendas['principal']) ? 'Existe id:'.$tiendas['principal']['idTienda'] :"Se puede crear una",
 					'checked'	    => "",
 					'display'	    => 'style="display:none;"',                     // Indicamos por defecto que si muestra campos tienda fisica
 					'disabled' 	    => isset($tiendas['principal'])?'disabled':'',  // por defecto esta desactivado el cambio tipo tienda.
@@ -62,30 +79,29 @@
 		// Ahora comprobamos si tenemos POST. Es decir se envio ya el formulario
 		if(count($_POST)>0){
 			// Venimos de vuelta debemos tener los campos obligatorios cubiertos por lo menos.
-			// [CREAMOS LOS CAMPOS COMPROBAR];
-			$campos_comprobar= array('razonsocial','nif','telefono','tipoTienda','estado');
+            if (isset($_POST['servidor_email'])){
+                $errores = errorConfiguracionEmail();
+                // De momento ignoramos los posibles errores.
+                $_POST['servidor_email'] =json_encode($_POST['servidor_email']);
+
+            }
             // Ahora insertamos o modificamos
-            $resp = FALSE;
 			if (intval($_POST['idtienda']) > 0){
 				// Entramos si ya existe tienda, porque tiene id, por lo que modificamos.
 				// Comprobamos: 
 				$resp = $ClaseTienda->modificarTienda($_POST);
 				if (isset($resp['error'])){
-					$tipomensaje= "danger";
-					$mensaje = "Error a la hora modificar datos de la tienda!";
+                    $errores[] = matrizError('danger','Error a la hora modificar datos de la tienda!');
 				} else {
-					$tipomensaje= "info";
-					$mensaje = "Modificada correctamente la tienda.";
+                    $errores[] = matrizError('info','Modificada correctamente la tienda.');
 				}
 			} else {
 				// Entramos si es uno nuevo y se va añadir
                 $resp = $ClaseTienda->addTienda($_POST);
 				if (isset($resp['error'])){
-					$tipomensaje= "danger";
-					$mensaje = $resp['error'];
+                    $errores[] = matrizError('danger',$resp['error']);
 				} else {
-					$tipomensaje= "info";
-					$mensaje = "Nueva tienda creada con id.".$resp;
+                    $errores[] = matrizError('danger','Nueva tienda creada con id.'.$resp);
                     $titulo = "Nueva Tienda Creada";
                     $T = $ClaseTienda->obtenerUnaTienda($resp);
                     if (isset($T['error'])){
@@ -103,7 +119,7 @@
 		};
         // Si tiene GET id cargamos datos tiendaUnica
 		if (isset($_GET['id'])){
-            $titulo = "Modificar Tienda:";
+            $titulo = "Modificar Tienda";
             $T = $ClaseTienda->obtenerUnaTienda($_GET['id']);
             if (isset($T['error'])){
                 echo '<pre>';
@@ -113,35 +129,21 @@
             } else {
                 $TiendaUnica= $T['datos']['0'];
             }
-        } else {
-            $titulo = "Crear Tienda";
-            $TiendaUnica = array(
-                        'idTienda'          => '',
-                        'tipoTienda'        => 'fisica',
-                        'razonsocial'       => '',
-                        'nif'               => '',
-                        'telefono'          => '',
-                        'estado'            => '',
-                        'NombreComercial'   => '',
-                        'direccion'         => '',
-                        'emailTienda'       => '',
-                        'nombreEmail'       => '',
-                        'ano'               => '',
-                        'dominio'           => '', 
-                        'key_api'           => ''
-                        );
-        }
+        } 
         $Tipo = $TiendaUnica['tipoTienda'];
         $display = 'style="display:none;"';
         if ($Tipo === 'fisica' || $Tipo === 'principal' ){
                $display = '';
             if ($Tipo === 'principal'){
                 $tiposTiendas['principal']['display'] = '';
+                // Decodificamos el json de servidor_email
+                $TiendaUnica['servidor_email'] = json_decode($TiendaUnica['servidor_email']);
+                if ( $TiendaUnica['servidor_email'] == null) {
+                     $errores[] = matrizError('danger','No se cargo correctamente datos servidor email');
+                     $TiendaUnica['servidor_email'] = $servidor_email ; // Pongo datos por defecto.
+                }
             }
         };
-        echo '<pre>';
-        print_r($T);
-        echo '</pre>';
 ?>
 <!DOCTYPE html>
 <html>
@@ -155,10 +157,8 @@
          include_once $URLCom.'/modulos/mod_menu/menu.php';
 		?>
 		<div class="container">
-			<?php if (isset($mensaje)){   ?> 
-			<div class="alert alert-<?php echo $tipomensaje; ?>"><?php echo $mensaje ;?></div>
-			<?php }?>
-			<h1 class="text-center"> <?php echo $titulo.':'. $TiendaUnica['NombreComercial'];?></h1>
+            <?php echo htmlAdvertencias($errores);?>
+			<h2 class="text-center"> <?php echo $titulo.':'.$TiendaUnica['NombreComercial'].' - '.$TiendaUnica['razonsocial'];?></h2>
 			<a class="text-ritght" href="./ListaTiendas.php">Volver Atrás</a>
 
 			<div class="col-md-12">
@@ -207,9 +207,8 @@
 
                     </div>
                     <div class="col-md-6">
-                         <!-- Solo debería mostrar uno según tipo tienda-->
                          <?php
-                            echo '<h3> Datos '.$tiposTiendas[$Tipo]['title'].'</h3>';
+                            echo '<h3 class="titulo_campos"> Datos '.$tiposTiendas[$Tipo]['title'].'</h3>';
                          ?>
                         <div class="mostrar_fisica_y_principal" <?php echo $display; ?>>
                             <div class="form-group">
@@ -221,29 +220,55 @@
                                 <input type="text" id="telefono" name="telefono" placeholder="986 22 22 22"  value="<?php echo $TiendaUnica['telefono'];?>"  required >
                             </div>  
                         </div>
-                        <div class="mostrar_principal" <?php echo $tiposTiendas['principal']['display']; ?>>
+                       
+                        <div class="mostrar_principal">
+                         <?php if ($TiendaUnica['tipoTienda'] === 'principal'){ ?>
+                            <!-- Solo debería mostrar uno según tipo tienda principal y si seleccionamos debemos cargarlo por Ajax -->
                             <div class="form-group">
                                 <label>Email:</label>
-                                <input type="text"  id="emailTienda" name="emailTienda" placeholder="Email de tienda" value="<?php echo $TiendaUnica['emailTienda'];?>" >
+                                <input type="text"  id="emailTienda" name="servidor_email[][emailTienda]" placeholder="Email de tienda" value="<?php echo $TiendaUnica['servidor_email']['emailTienda'];?>" >
                             </div>
                             <div class="form-group">
                                 <label>Nombre usuario email:</label>
-                                <input type="text"  id="nombreEmail" name="nombreEmail" placeholder="Nombre mostrar email" value="<?php echo $TiendaUnica['nombreEmail'];?>" >
+                                <input type="text"  id="nombreEmail" name="servidor_email[][nombreEmail]" placeholder="Nombre mostrar email" value="<?php echo $TiendaUnica['servidor_email']['nombreEmail'];?>" >
                             </div>
+                            <div class="form-group">
+                                <label>Servidor de email:</label>
+                                <input type="text"  id="servidorEmail" name="servidor_email[][host]" placeholder="Host Email" value="<?php echo $TiendaUnica['servidor_email']['host'];?>" >
+                            </div>
+                            <div class="form-group">
+                                <label>Puerto de email:</label>
+                                <input type="text"  id="puertoEmail" name="servidor_email[][Port]" placeholder="465" value="<?php echo $TiendaUnica['servidor_email']['Port'];?>" >
+                            </div>
+                            <div class="form-group">
+                                <?php $opciones = array('0' =>array('valor'=>'true','texto'=>'Si'),
+                                                        '1' =>array('valor'=>'false','texto'=>'No')
+                                                        );
+                                     $atributos = array('label'=>'Autentificación SMTP','id'=>'sel2','name'=>'servidor_email[][SMTPAuth]');
+                                echo htmlSelect($opciones,$atributos,$TiendaUnica['servidor_email']['Port']);
+                                ?>
+                            </div>
+                            <?php
+                            }
+                            ?>
                         </div>
-                        <!-- Solo debería mostrar uno según tipo tienda-->
-                        <div class="mostrar_web" <?php echo $tiposTiendas['web']['display'] ?>>
-                            <div class="form-group">
-                                <label>Dominio:(<span title="Sin http, ni www">*</span>)</label>
-                                <input type="text"  id="dominio" name="dominio" placeholder="dominio.com" value="<?php echo $TiendaUnica['dominio'];?>" >
-                            </div>
-                            <div class="form-group">
-                                <label>Key Api:(<span title="Key Api Plugin Joomla">*</span>)</label>
-                                <input type="text" id="key_api" name="key_api" value="<?php echo $TiendaUnica['key_api'];?>" >
-                            </div>
+                                              
+                        <div class="mostrar_web">
+                            <?php if ($TiendaUnica['tipoTienda'] === 'web'){ ?>
+                                <!-- Solo debería mostrar uno según tipo tienda web y si seleccionamos debemos cargarlo por Ajax -->
+                                <div class="form-group">
+                                    <label>Dominio:(<span title="Sin http, ni www">*</span>)</label>
+                                    <input type="text"  id="dominio" name="dominio" placeholder="dominio.com" value="<?php echo $TiendaUnica['dominio'];?>" >
+                                </div>
+                                <div class="form-group">
+                                    <label>Key Api:(<span title="Key Api Plugin Joomla">*</span>)</label>
+                                    <input type="text" id="key_api" name="key_api" value="<?php echo $TiendaUnica['key_api'];?>" >
+                                </div>
+                            <?php
+                            }
+                            ?>
                         </div>
                     </div>
-
                 </div>
                 <div class="col-md-12 text-right">
                     <input class="btn btn-primary" type="submit" value="Guardar">
