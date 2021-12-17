@@ -90,6 +90,9 @@
 				// Entramos si ya existe tienda, porque tiene id, por lo que modificamos.
 				// Comprobamos: 
 				$resp = $ClaseTienda->modificarTienda($_POST);
+                echo '<pre>';
+                print_r($resp);
+                echo '</pre>';
 				if (isset($resp['error'])){
                     $errores[] = matrizError('danger','Error a la hora modificar datos de la tienda!');
 				} else {
@@ -137,7 +140,12 @@
             if ($Tipo === 'principal'){
                 $tiposTiendas['principal']['display'] = '';
                 // Decodificamos el json de servidor_email
-                $TiendaUnica['servidor_email'] = json_decode($TiendaUnica['servidor_email']);
+                $a = json_decode($TiendaUnica['servidor_email'],true) ;
+                $b = [] ;
+                foreach ($a as $v){
+                    $b= $b+ $v;
+                }
+                $TiendaUnica['servidor_email'] = $b;
                 if ( $TiendaUnica['servidor_email'] == null) {
                      $errores[] = matrizError('danger','No se cargo correctamente datos servidor email');
                      $TiendaUnica['servidor_email'] = $servidor_email ; // Pongo datos por defecto.
