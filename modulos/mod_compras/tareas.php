@@ -177,8 +177,9 @@ switch ($pulsado) {
         $CTienda = new ClaseTienda();
         $res = $CTienda->tiendaPrincipal();
         $tiendaPrincipal=$res['datos'][0];
-        $origen = array( 'email'    => $tiendaPrincipal['emailTienda'],
-                         'nombre'   => $tiendaPrincipal['nombreEmail']
+        $datosServidor = $CTienda->obtenerArrayDatosServidor($tiendaPrincipal['servidor_email']);
+        $origen = array( 'email'    => $datosServidor['emailTienda'],
+                         'nombre'   => $datosServidor['nombreEmail']
                          );
         include_once $URLCom.'/clases/CorreoElectronico.php';
         $respuesta = CorreoElectronico::enviar($destinatario,'mensaje del correo','asunto importante',$fichero,$origen);

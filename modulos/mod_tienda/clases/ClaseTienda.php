@@ -81,7 +81,16 @@ class ClaseTienda extends TFModelo  {
         return $respuesta;
     }
 
-    
+    public function obtenerArrayDatosServidor($servidor_email){
+        // Objetivo:
+        // Es devolver array con los datos de servidor que viene en JSON de ObtenerUnaTienda:wq
+        $s = json_decode($servidor_email,true) ;
+                $respuesta = [] ;
+                foreach ($s as $v){
+                    $respuesta= $respuesta+ $v;
+                }
+        return $respuesta;
+    }
 }
 
 ?>
