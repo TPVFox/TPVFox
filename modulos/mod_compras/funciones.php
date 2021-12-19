@@ -3,7 +3,8 @@ include_once './../../inicial.php';
 include_once $URLCom.'/configuracion.php';
 include_once $URLCom.'/clases/FormasPago.php';
 include_once $URLCom.'/clases/articulos.php';
-include_once $URLCom.'/clases/ClaseTablaTienda.php';
+//~ include_once $URLCom.'/clases/ClaseTablaTienda.php';
+include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
 include_once $URLCom.'/clases/imprimir.php';
 
 
@@ -609,8 +610,12 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	//				- otro es el cuerpo 
 	//No hayq eu preocuparse si es mucho contenido ya que la librería pasa automaticamente a la siguiente hoja
 	$CProv= new Proveedores($BDTpv);
-	$Ctienda=new ClaseTablaTienda($BDTpv);
-	$datosTienda=$Ctienda->DatosTienda($idTienda);
+	//~ $Ctienda=new ClaseTablaTienda($BDTpv);
+	//~ $datosTienda=$Ctienda->DatosTienda($idTienda);
+    $Ctienda=new ClaseTienda();
+    $d=$Ctienda->obtenerUnaTienda($idTienda);
+    $datosTienda = $d['datos']['0'];
+    
 	if ($dedonde=="factura"){
 		$CFac=new FacturasCompras($BDTpv);
 		$datos=$CFac->datosFactura($id);
@@ -667,38 +672,39 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $idTienda){
 	$imprimir=array('cabecera'=>'',
                     'html'=>''
             );
-	$imprimir['cabecera']=<<<EOD
-<table><tr><td><font size="20">$texto</font></td><td><font size="9"><b>Número:</b>$numero<br><b>Fecha:</b>$fecha</font></td></tr></table>
-<hr style="color:black ; cap:0;join:0;dash:1;phase:0;"/>
-<table><tr><td>
-<font size="12">Super Oliva </font><br>
-<font size="9">$datosTienda[razonsocial]</font><br>
-<font size="9"><b>Direccion:</b>$datosTienda[direccion]</font><br>
-<font size="9"><b>NIF: </b>$datosTienda[nif]</font><br>
-<font size="9"><b>Teléfono: </b>$datosTienda[telefono]</font><br>
-</td>
-<td>
-<font size="9"><b>Datos de Proveedor:</b></font><br>
-<font size="12">$datosProveedor[nombrecomercial]</font><br>
-<font size="9">$datosProveedor[razonsocial]</font><br>
-<font size="9"><b>Direccion:</b>$datosProveedor[direccion]</font><br>
-<font size="9"><b>NIF: </b>$datosProveedor[nif]</font><br>
-<font size="9"><b>Teléfono: </b>$datosProveedor[telefono]</font><br>
-</td></tr>
-</table>
-<table WIDTH="100%" border="1px" ALIGN="center">
-<tr>
-<td WIDTH="5%"><font size="9"><b>Linea</b></font></td>
-<td WIDTH="10%"><font size="9"><b>ID</b></font></td>
-<td WIDTH="17%"><font size="9"><b>Su Referencia</b></font></td>
-<td WIDTH="50%"><font size="9"><b>Descripción del producto</b></font></td>
-<td WIDTH="7%"><b><font size="9">Cant.</font></b></td>
-<td WIDTH="8%"><b><font size="9">Precio</font></b></td>
-<td WIDTH="8%"><b><font size="9">Importe</font></b></td>
-<td WIDTH="5%"><b><font size="9">IVA</font></b></td>
-</tr>
-</table>
-EOD;
+	$imprimir['cabecera']='<table><tr><td><font size="20">'.$texto.'</font></td>'.
+                          '<td><font size="9"><b>Número:</b>'.$numero.'<br><b>Fecha:</b>'.$fecha.'</font></td>'.
+                          '</tr></table>'.
+                          '<hr style="color:black ; cap:0;join:0;dash:1;phase:0;"/>'.
+                          '<table><tr><td>'.
+                            '<font size="12">'.$datosTienda['NombreComercial'].'</font><br>'.
+                            '<font size="9">'.$datosTienda['razonsocial'].'</font><br>'.
+                            '<font size="9"><b>Direccion:</b>'.$datosTienda['direccion'].'</font><br>'.
+                            '<font size="9"><b>NIF: </b>'.$datosTienda['nif'].'</font><br>'.
+                            '<font size="9"><b>Teléfono: </b>'.$datosTienda['telefono'].'</font><br>'.
+                          '</td>'.
+                          '<td>'.
+                            '<font size="9"><b>Datos de Proveedor:</b></font><br>'.
+                            '<font size="12">'.$datosProveedor['nombrecomercial'].'</font><br>'.
+                            '<font size="9">'.$datosProveedor['razonsocial'].'</font><br>'.
+                            '<font size="9"><b>Direccion:</b>'.$datosProveedor['direccion'].'</font><br>'.
+                            '<font size="9"><b>NIF: </b>'.$datosProveedor['nif'].'</font><br>'.
+                            '<font size="9"><b>Teléfono: </b>'.$datosProveedor['telefono'].'</font><br>'.
+                          '</td>'.
+                          '</tr>'.
+                          '</table>'.
+                          '<table WIDTH="100%" border="1px" ALIGN="center">'.
+                          '<tr>'.
+                          '<td WIDTH="5%"><font size="9"><b>Linea</b></font></td>'.
+                          '<td WIDTH="10%"><font size="9"><b>ID</b></font></td>'.
+                          '<td WIDTH="17%"><font size="9"><b>Su Referencia</b></font></td>'.
+                          '<td WIDTH="50%"><font size="9"><b>Descripción del producto</b></font></td>'.
+                          '<td WIDTH="7%"><b><font size="9">Cant.</font></b></td>'.
+                          '<td WIDTH="8%"><b><font size="9">Precio</font></b></td>'.
+                          '<td WIDTH="8%"><b><font size="9">Importe</font></b></td>'.
+                          '<td WIDTH="5%"><b><font size="9">IVA</font></b></td>'.
+                          '</tr>'.
+                          '</table>';
 	$imprimir['html'] .='<table WIDTH="100%" border="1px">';
 	$i=0;
 	$numAdjunto=0;
@@ -760,6 +766,50 @@ EOD;
 	$imprimir['html'] .='</p>';
 	
 	return $imprimir;
+}
+
+
+function htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda){
+    $html = '   <div class="row">'.
+            '        <div class="col-md-12">'.
+            '            <div class="well well-sm">'.
+            '                 <form class="form-horizontal" target="_blank" action="tareas.php" method="post">'.
+            '                    <fieldset>'.
+            '                        <div class="form-group">'.
+            '                            <span class="col-md-1 col-md-offset-2 text-center"><i class="glyphicon glyphicon-user"></i></span>'.
+            '                            <div class="col-md-8">'.
+            '                                <input id="email" name="destinatario" type="text" class="form-control" value ="'.$destinatario.'" readonly>'.
+            '                            </div>'.
+            '                        </div>'.
+            '                        <div class="form-group">'.
+            '                            <span class="col-md-1 col-md-offset-2 text-center"><i class="glyphicon glyphicon-pencil"></i></span>'.
+            '                            <div class="col-md-12">'.
+            '                                <input id="asunto" name="asunto" type="text"  class="form-control" value="'.$conf_email['asunto'].'">'.
+            '                            </div>'.
+            '                        </div>'.
+            '                        <div class="form-group">'.
+            '                            <span class="col-md-1 col-md-offset-2 text-center"><i class="glyphicon glyphicon-pencil"></i></span>'.
+            '                            <div class="col-md-12">'.
+            '                                <textarea class="form-control" id="message" name="message" placeholder="Enter your massage for us here. We will get back to you within 2 business days." rows="7">'.$conf_email['body'].'</textarea>'.
+            '                            </div>'.
+            '                       </div>'.
+            '                        <div class="form-group">'.
+            '                            <div class="col-md-12 text-center">'.
+            '                               <input name="id" type="hidden" value="'.$id.'">'.
+            '                               <input name="dedonde" type="hidden" value="'.$dedonde.'">'.
+            '                               <input name="idTienda" type="hidden" value="'.$idTienda.'">'.
+            '                               <input name="pulsado" type="hidden" value="enviarXCorreo">'.
+            '                                <button type="submit" class="btn btn-primary btn-lg">Enviar</button>'.
+            '                            </div>'.
+            '                        </div>'.
+            '                    </fieldset>'.
+            '                </form>'.
+            '            </div>'.
+            '        </div>'.
+            '   </div>';
+    return $html;
+
+
 }
 
 function comprobarAlbaran($idProveedor, $BDTpv){

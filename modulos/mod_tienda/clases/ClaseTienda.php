@@ -1,5 +1,4 @@
 <?php 
-
 //~ include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 include_once $URLCom.'/clases/ClaseTFModelo.php';
 

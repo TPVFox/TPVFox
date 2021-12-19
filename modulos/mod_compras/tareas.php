@@ -10,6 +10,7 @@ include_once $URLCom.'/modulos/mod_compras/clases/facturasCompras.php';
 include_once $URLCom.'/clases/Proveedores.php';
 include_once $URLCom.'/clases/articulos.php';
 include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+include_once $URLCom.'/controllers/parametros.php';
 include_once $URLCom.'/controllers/Controladores.php';
 
 $pulsado = $_POST['pulsado'];
@@ -148,41 +149,28 @@ switch ($pulsado) {
         include_once $URLCom.'/controllers/planImprimir.php';
         $respuesta=$rutatmp.'/'.$nombreTmp;
     break;
-
-    case 'enviarXCorreo':
-       
-        //@Objetivo:
-        //Imprimir un documento , dependiendo de donde venga se pone el nombre y envía todos los datos  
-        //a la función montarHTMLimprimir que lo que realiza es simplemente montar el html una parte copn la cabecera y 
-        //otra con el cuerpo del documento
-        //debajo cargamos las clases de imprimir y la plantilla una vez generada y lista la plantilla devolvemos la ruta
-        //para así desde javascript poder abrirla
+    case 'obtenerFormularioEmail':
+        // ===========    Configuracion =================== //
+        $ClasesParametros = new ClaseParametros('parametros.xml');
+        $parametros = $ClasesParametros->getRoot();
+        $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+        $conf_email = array( 'asunto' =>$conf_defecto['email']['0']->valor,
+                             'body'   =>$conf_defecto['email']['1']->valor
+                             );
+        // === FIN CARGA CONFIGURACION === //
+	
+        $htmlFormulario = array();
         $id=$_POST['id'];
         $dedonde=$_POST['dedonde'];
         $idTienda=$_POST['idTienda'];
         $destinatario=$_POST['destinatario'] ;
+        $htmlFormulario['html'] = htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda);
+        $respuesta= $htmlFormulario;
+        
+    break; 
 
-        $mensaje='';
-        $asunto='';
-        $nombreTmp=$dedonde."compras.pdf";
-        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
-        $cabecera=$htmlImprimir['cabecera'];
-        $margen_top_caja_texto= 56;
-        $html=$htmlImprimir['html'];
-         
-        include_once $URLCom.'/controllers/planImprimir.php';
-
-        $fichero = $RutaServidor.$rutatmp.'/'.$nombreTmp;
-        include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
-        $CTienda = new ClaseTienda();
-        $res = $CTienda->tiendaPrincipal();
-        $tiendaPrincipal=$res['datos'][0];
-        $datosServidor = $CTienda->obtenerArrayDatosServidor($tiendaPrincipal['servidor_email']);
-        $origen = array( 'email'    => $datosServidor['emailTienda'],
-                         'nombre'   => $datosServidor['nombreEmail']
-                         );
-        include_once $URLCom.'/clases/CorreoElectronico.php';
-        $respuesta = CorreoElectronico::enviar($destinatario,'mensaje del correo','asunto importante',$fichero,$origen);
+    case 'enviarXCorreo':
+        include_once  $URLCom.'/modulos/mod_compras/tareas/enviarEmail.php';
 
     break;
 

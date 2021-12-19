@@ -270,6 +270,34 @@ function imprimir(id, dedonde, idTienda){
 		}
 	});
 }
+function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
+    var parametros = {
+		"pulsado"   : 'obtenerFormularioEmail',
+		"idTienda"  : idTienda,
+        "dedonde"   : dedonde,
+		"id"        : id,
+        "destinatario" : destinatario
+	};
+    $.ajax({
+			data       : parametros,
+			url        : 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('******** estoy en datos obtenerFormularioEmail JS****************');
+			},
+            success    :  function (response) {
+                var resultado =  $.parseJSON(response); 
+				abrirModal('Enviar por email pedido',resultado.html);// Abre una ventana y muestra el texto
+            },
+            error    :  function (request) {
+				console.log(request);
+            }
+            
+	});
+
+}
+
+
 
 function enviarXCorreo(id, dedonde, idTienda, destinatario){
 	// @Objetivo: Imprimir el documento que se ha seleccionado

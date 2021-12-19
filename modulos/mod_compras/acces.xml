@@ -19,6 +19,7 @@
             <accion nombre="Modificar" descripcion="Modificar pedido" permiso="0"></accion>
             <accion nombre="Ver" descripcion="Ver pedido" permiso="1"></accion>
             <accion nombre="EliminarTemporal" descripcion="Eliminar Temporal" permiso="0"></accion>
+            <accion nombre="EnviarPedidoEmail" descripcion="Enviar pedido Email" permiso="0"></accion>
         </vista>
         <vista nombre="pedido.php" descripcion="Pedido" permiso="0"></vista>
         
