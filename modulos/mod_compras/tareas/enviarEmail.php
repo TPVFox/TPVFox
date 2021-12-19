@@ -14,7 +14,7 @@
         $mensaje='';
         $asunto='';
         $nombreTmp=$dedonde."compras.pdf";
-        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $id, $dedonde, $idTienda);
+        $htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $idTienda);
         $cabecera=$htmlImprimir['cabecera'];
         $margen_top_caja_texto= 56;
         $html=$htmlImprimir['html'];
