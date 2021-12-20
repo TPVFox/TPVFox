@@ -9,15 +9,53 @@ require_once $URLCom.'/lib/PHPMailer/src/PHPMailer.php';
 require_once $URLCom.'/lib/PHPMailer/src/Exception.php';
 require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
 
+class Mailer extends PHPMailer {
 
+    /**
+     * Save email to a folder (via IMAP)
+     *
+     * This function will open an IMAP stream using the email
+     * credentials previously specified, and will save the email
+     * to a specified folder. Parameter is the folder name (ie, Sent)
+     * if nothing was specified it will be saved in the inbox.
+     *
+     * @author David Tkachuk <http://davidrockin.com/>
+     * 
+     * mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
+     */
+    public function copyToFolder($folderPath = null) {
+        $message = $this->MIMEHeader . $this->MIMEBody;
+        $path = "INBOX" . (isset($folderPath) && !is_null($folderPath) ? ".".$folderPath : ""); // Location to save the email
+        $imapStream = imap_open("{" . $this->Host . "}" . $path , $this->Username, $this->Password);
+        imap_append($imapStream, "{" . $this->Host . "}" . $path, $message);
+        imap_close($imapStream);
+    }
+
+}
 class CorreoElectronico {
 
 
+    // static public function leerConfiguracion(){
+    //     include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
+    //     $CTienda = new ClaseTienda();
+       
+    //     $res = $CTienda->tiendaPrincipal();
+    //     $tiendaPrincipal=$res['datos'][0];
+    //     $datosServidor = $CTienda->obtenerArrayDatosServidor($tiendaPrincipal['servidor_email']);
+    //     $origen = array( 'email'    => $datosServidor['emailTienda'],
+    //                      'nombre'   => $datosServidor['nombreEmail']
+    //                      );
+
+    //     return $origen;
+    // }
 
     static public function enviar($destinatario, $mensaje, $asunto, $adjunto,$origen){
         
         include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
-        $mail =  new PHPMailer(true);
+
+//        $configuracion = CorreoElectronico::leerConfiguracion();
+
+        $mail =  new Mailer(true);
         try {
             //Server settings
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
@@ -26,7 +64,7 @@ class CorreoElectronico {
             $mail->SMTPAuth   = $PHPMAILER_CONF['SMTPAuth'];            //Enable SMTP authentication
             $mail->Username   = $PHPMAILER_CONF['Username'];            //SMTP username
             $mail->Password   = $PHPMAILER_CONF['Password'];            //SMTP password
-            //~ $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
+            //$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = $PHPMAILER_CONF['Port'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
             
@@ -49,6 +87,7 @@ class CorreoElectronico {
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         
             $mail->send();
+            $mail->copyToFolder("Sent");
             $respuesta = 'Message has been sent';
         } catch (Exception $e) {
             $respuesta = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
