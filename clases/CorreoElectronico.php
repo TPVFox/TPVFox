@@ -9,7 +9,7 @@ require_once $URLCom.'/lib/PHPMailer/src/PHPMailer.php';
 require_once $URLCom.'/lib/PHPMailer/src/Exception.php';
 require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
 
-class Mailer extends PHPMailer {
+//~ class Mailer extends PHPMailer {
 
     /**
      * Save email to a folder (via IMAP)
@@ -22,16 +22,18 @@ class Mailer extends PHPMailer {
      * @author David Tkachuk <http://davidrockin.com/>
      * 
      * mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
+     * https://www.rfc-es.org/rfc/rfc2060-es.txt
      */
-    public function copyToFolder($folderPath = null) {
-        $message = $this->MIMEHeader . $this->MIMEBody;
-        $path = "INBOX" . (isset($folderPath) && !is_null($folderPath) ? ".".$folderPath : ""); // Location to save the email
-        $imapStream = imap_open("{" . $this->Host . "}" . $path , $this->Username, $this->Password);
-        imap_append($imapStream, "{" . $this->Host . "}" . $path, $message);
-        imap_close($imapStream);
-    }
+    //~ public function copyToFolder($folderPath = null) {
+        // $message = $this->MIMEHeader . $this->MIMEBody;
+        //~ $message = $this->getSentMIMEMessage();
+        //~ $path = "INBOX" . (isset($folderPath) && !is_null($folderPath) ? ".".$folderPath : ""); // Location to save the email
+        //~ $imapStream = imap_open("{" . $this->Host . "}" . $path , $this->Username, $this->Password);
+        //~ imap_append($imapStream, "{" . $this->Host . "}" . $path, $message);
+        //~ imap_close($imapStream);
+    //~ }
 
-}
+//~ }
 class CorreoElectronico {
 
 
@@ -54,8 +56,8 @@ class CorreoElectronico {
         include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
 
 //        $configuracion = CorreoElectronico::leerConfiguracion();
-
-        $mail =  new Mailer(true);
+        
+        $mail =  new PHPMailer(true);
         try {
             //Server settings
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
@@ -86,8 +88,23 @@ class CorreoElectronico {
             $mail->Body    = $mensaje;              // 'This is the HTML message body <b>in bold!</b>';
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         
-            $mail->send();
-            $mail->copyToFolder("Sent");
+            //~ $mail->send();
+            error_log($origen['email'].','.$origen['nombre'].','.$destinatario);
+            $result = $mail->send();
+            error_log(json_encode($result ));
+
+           
+            //~ if ($result) {
+              //~ $mail_string = $mail->getSentMIMEMessage();
+              //~ //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
+              //~ //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
+              //~ // https://www.rfc-es.org/rfc/rfc2060-es.txt
+              //~ $path = "INBOX.Sent" ; // Location to save the email
+              //~ $imapStream = imap_open("{" . $mail->Host . "}" . $path , $mail->Username, $mail->Password);
+              //~ imap_append($ImapStream, $folder, $mail_string, "\\Seen");
+              //~ imap_close($imapStream);
+            //~ }
+            //~ $mail->copyToFolder("Sent");
             $respuesta = 'Message has been sent';
         } catch (Exception $e) {
             $respuesta = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
