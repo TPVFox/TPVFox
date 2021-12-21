@@ -30,6 +30,7 @@
         $origen = array( 'email'    => $datosServidor['emailTienda'],
                          'nombre'   => $datosServidor['nombreEmail']
                          );
+
         include_once $URLCom.'/clases/CorreoElectronico.php';
         $respuesta = CorreoElectronico::enviar($destinatario,'mensaje del correo','asunto importante',$fichero,$origen);
     ?>
