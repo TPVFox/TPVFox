@@ -16,12 +16,12 @@
         
         
         $titulo = "Crear Tienda";
-        $servidor_email = array ( 'host'        => '',
-                                'SMTPAuth'      => 'true',
-                                'Port'          => '465',
-                                'Username'      => '',
-                                'emailTienda'   => '',
-                                'nombreEmail'   => ''
+        $servidor_email = array ( 'host'            => '',
+                                'SMTPAuth'          => 'true',
+                                'SMTPPort'          => '465',
+                                'Username'          => '',
+                                'emailTienda'       => '',
+                                'nombreRemitente'   => ''
                             );
         $TiendaUnica = array(
                     'idTienda'          => '',
@@ -80,8 +80,6 @@
 		if(count($_POST)>0){
 			// Venimos de vuelta debemos tener los campos obligatorios cubiertos por lo menos.
             if (isset($_POST['servidor_email'])){
-                $errores = errorConfiguracionEmail();
-                // De momento ignoramos los posibles errores.
                 $_POST['servidor_email'] =json_encode($_POST['servidor_email']);
 
             }
@@ -90,9 +88,6 @@
 				// Entramos si ya existe tienda, porque tiene id, por lo que modificamos.
 				// Comprobamos: 
 				$resp = $ClaseTienda->modificarTienda($_POST);
-                echo '<pre>';
-                print_r($resp);
-                echo '</pre>';
 				if (isset($resp['error'])){
                     $errores[] = matrizError('danger','Error a la hora modificar datos de la tienda!');
 				} else {
@@ -237,24 +232,35 @@
                                 <input type="text"  id="emailTienda" name="servidor_email[][emailTienda]" placeholder="Email de tienda" value="<?php echo $TiendaUnica['servidor_email']['emailTienda'];?>" >
                             </div>
                             <div class="form-group">
-                                <label>Nombre usuario email:</label>
-                                <input type="text"  id="nombreEmail" name="servidor_email[][nombreEmail]" placeholder="Nombre mostrar email" value="<?php echo $TiendaUnica['servidor_email']['nombreEmail'];?>" >
+                                <label>Nombre Remitente de email:</label>
+                                <input type="text"  id="nombreRemitente" name="servidor_email[][nombreRemitente]" placeholder="Nombre remitenteemail" value="<?php echo $TiendaUnica['servidor_email']['nombreRemitente'];?>" >
                             </div>
+                             <h3>Datos Servidor Email</h3>
                             <div class="form-group">
                                 <label>Servidor de email:</label>
-                                <input type="text"  id="servidorEmail" name="servidor_email[][host]" placeholder="Host Email" value="<?php echo $TiendaUnica['servidor_email']['host'];?>" >
+                                <input type="text"  id="host" name="servidor_email[][host]" placeholder="Host Email" value="<?php echo $TiendaUnica['servidor_email']['host'];?>" >
                             </div>
                             <div class="form-group">
-                                <label>Puerto de email:</label>
-                                <input type="text"  id="puertoEmail" name="servidor_email[][Port]" placeholder="465" value="<?php echo $TiendaUnica['servidor_email']['Port'];?>" >
+                                <label>SMTP Puerto:</label>
+                                <input type="text"  id="SMPTPort" name="servidor_email[][SMTPPort]" placeholder="465" value="<?php echo $TiendaUnica['servidor_email']['SMTPPort'];?>" >
                             </div>
                             <div class="form-group">
                                 <?php $opciones = array('0' =>array('valor'=>'true','texto'=>'Si'),
                                                         '1' =>array('valor'=>'false','texto'=>'No')
                                                         );
                                      $atributos = array('label'=>'Autentificación SMTP','id'=>'sel2','name'=>'servidor_email[][SMTPAuth]');
-                                echo htmlSelect($opciones,$atributos,$TiendaUnica['servidor_email']['Port']);
+                                echo htmlSelect($opciones,$atributos,$TiendaUnica['servidor_email']['SMTPAuth']);
                                 ?>
+                            </div>
+                             <div class="form-group">
+                                <label>SMTP Usuario:</label>
+                                <input type="text"  id="SMPTUsuario" name="servidor_email[][SMTPUsuario]" placeholder="usuario de smtp" value="<?php echo $TiendaUnica['servidor_email']['SMTPUsuario'];?>" >
+
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP Contraseña:</label>
+                                <input type="password"  id="SMTPPassword" name="servidor_email[][SMTPPassword]" placeholder="*********" value="<?php echo $TiendaUnica['servidor_email']['SMTPPassword'];?>" >
+                               
                             </div>
                             <?php
                             }

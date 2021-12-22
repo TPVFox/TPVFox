@@ -150,6 +150,10 @@ switch ($pulsado) {
         $respuesta=$rutatmp.'/'.$nombreTmp;
     break;
     case 'obtenerFormularioEmail':
+        $id=$_POST['id'];
+        $dedonde=$_POST['dedonde'];
+        $idTienda=$_POST['idTienda'];
+        $destinatario=$_POST['destinatario'] ;
         // ===========    Configuracion =================== //
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $parametros = $ClasesParametros->getRoot();
@@ -157,13 +161,11 @@ switch ($pulsado) {
         $conf_email = array( 'asunto' =>$conf_defecto['email']['0']->valor,
                              'body'   =>$conf_defecto['email']['1']->valor
                              );
+        $conf_email['asunto'] = str_replace('%',$id,$conf_email['asunto']);
         // === FIN CARGA CONFIGURACION === //
 	
         $htmlFormulario = array();
-        $id=$_POST['id'];
-        $dedonde=$_POST['dedonde'];
-        $idTienda=$_POST['idTienda'];
-        $destinatario=$_POST['destinatario'] ;
+        
         $htmlFormulario['html'] = htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda);
         $respuesta= $htmlFormulario;
         
