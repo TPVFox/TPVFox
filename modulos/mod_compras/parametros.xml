@@ -7,8 +7,8 @@
 		<incidencias descripcion="usuario_Defecto" dedonde="albaran">1</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="factura">1</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="pedido">1</incidencias>
-		<email descripcion="asunto">Pedido automatico de  </email>
-        <email descripcion="body_email"> Por favor confirma este pedido ya que es enviado de forma automatica y
+		<email descripcion="asunto">Pedido % automatico</email>
+        <email descripcion="body_email"> Hola, por favor confirme este pedido ya que es enviado de forma automatica y
     necesitamos saber si la recepción fue correcta.</email>
 
 	</configuracion>

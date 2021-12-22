@@ -37,41 +37,38 @@ require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
 class CorreoElectronico {
 
 
-    // static public function leerConfiguracion(){
-    //     include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
-    //     $CTienda = new ClaseTienda();
+    static public function leerConfiguracion(){
+        include_once __DIR__.'/../modulos/mod_tienda/clases/ClaseTienda.php';
+        $CTienda = new ClaseTienda();
        
-    //     $res = $CTienda->tiendaPrincipal();
-    //     $tiendaPrincipal=$res['datos'][0];
-    //     $datosServidor = $CTienda->obtenerArrayDatosServidor($tiendaPrincipal['servidor_email']);
-    //     $origen = array( 'email'    => $datosServidor['emailTienda'],
-    //                      'nombre'   => $datosServidor['nombreEmail']
-    //                      );
-
-    //     return $origen;
-    // }
-
-    static public function enviar($destinatario, $mensaje, $asunto, $adjunto,$origen){
+        $res = $CTienda->tiendaPrincipal();
+        $tiendaPrincipal=$res['datos'][0];
+        $datosServidor = $CTienda->obtenerArrayDatosServidor($tiendaPrincipal['servidor_email']);
         
-        include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
+        return $datosServidor;
+    }
 
-//        $configuracion = CorreoElectronico::leerConfiguracion();
+    static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
+        
+        //~ include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
+        
+        $configuracion = CorreoElectronico::leerConfiguracion();
         
         $mail =  new PHPMailer(true);
         try {
             //Server settings
             $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
             $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = $PHPMAILER_CONF['host'];                //Set the SMTP server to send through
-            $mail->SMTPAuth   = $PHPMAILER_CONF['SMTPAuth'];            //Enable SMTP authentication
-            $mail->Username   = $PHPMAILER_CONF['Username'];            //SMTP username
-            $mail->Password   = $PHPMAILER_CONF['Password'];            //SMTP password
+            $mail->Host       = $configuracion['host'];                //Set the SMTP server to send through
+            $mail->SMTPAuth   = $configuracion['SMTPAuth'];            //Enable SMTP authentication
+            $mail->Username   = $configuracion['SMTPUsuario'];            //SMTP username
+            $mail->Password   = $configuracion['SMTPPassword'];            //SMTP password
             //$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = $PHPMAILER_CONF['Port'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            $mail->Port       = $configuracion['SMTPPort'];                //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
             
             //Recipients
-            $mail->setFrom($origen['email'], $origen['nombre']);
+            $mail->setFrom($configuracion['emailTienda'], $configuracion['nombreRemitente']);
             $mail->addAddress($destinatario);     //Add a recipient
                                                   //Name is optional
             // $mail->addReplyTo('info@example.com', 'Information');
@@ -85,26 +82,27 @@ class CorreoElectronico {
             //Content
             $mail->isHTML(true);                                  //Set email format to HTML
             $mail->Subject = $asunto;               //'Here is the subject';
+            $mensaje = $mensaje.'<br/><br/><br/>'.$configuracion['nombreRemitente'];
             $mail->Body    = $mensaje;              // 'This is the HTML message body <b>in bold!</b>';
             //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         
             //~ $mail->send();
-            error_log($origen['email'].','.$origen['nombre'].','.$destinatario);
+            error_log($configuracion['emailTienda'].','.$configuracion['nombreRemitente'].','.$destinatario);
             $result = $mail->send();
-            error_log(json_encode($result ));
 
            
-            //~ if ($result) {
-              //~ $mail_string = $mail->getSentMIMEMessage();
-              //~ //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
-              //~ //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
-              //~ // https://www.rfc-es.org/rfc/rfc2060-es.txt
-              //~ $path = "INBOX.Sent" ; // Location to save the email
-              //~ $imapStream = imap_open("{" . $mail->Host . "}" . $path , $mail->Username, $mail->Password);
-              //~ imap_append($ImapStream, $folder, $mail_string, "\\Seen");
-              //~ imap_close($imapStream);
-            //~ }
-            //~ $mail->copyToFolder("Sent");
+            if ($result) {
+              $mail_string = $mail->getSentMIMEMessage();
+              //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
+              //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
+              $folder = "INBOX.Sent" ; // Location to save the email
+              $imapStream = imap_open("{" . $mail->Host . ":993/imap/ssl}".$folder, $mail->Username, $mail->Password);
+              imap_append($imapStream, "{" . $mail->Host . ":993}" . $folder, $mail_string);
+              // En instruccion anterior con un parametro mas podemos controlar si esta LEIDO , IMPORTANTE O MAS..
+              // 2.3.2. Atributo de mensaje Banderas en  https://www.rfc-es.org/rfc/rfc2060-es.txt
+              imap_close($imapStream);
+            }
+            // $mail->copyToFolder("Sent");
             $respuesta = 'Message has been sent';
         } catch (Exception $e) {
             $respuesta = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";

@@ -127,30 +127,6 @@ function htmlSelect($opciones,$atributos = array(),$valor_select =''){
     return $html;
 }
 
-function errorConfiguracionEmail(){
-    // Comprobamos si la configuracion Email esta bien.
-    // @ Devolvemos:
-    // Devolvemos array con los posibles errores.
-    $errores = array();
-    if ($_POST['tipoTienda'] === 'principal'){
-        // [Comprobamos que todos los datos de servidor emial esta cubierto]
-        if (isset($_POST['servidor_email'])) {
-            if (strlen(trim($_POST['servidor_email']['host'])) == 0 ){
-               $errores[] = matrizError('info','No es correcto el campo host');
-            }
-            if (isset($_POST['Port'])) {
-                if ($_POST['Port'] == 0 ){
-               $errores[] = matrizError('info','No es correcto el campo Port');
-                }
-            }
-            if ($_POST['SMTPAuth'] !=='true' && $_POST['SMTPAuth'] !=='false'){
-               $errores[] = matrizError('info','No es correcto el campo SMTPAuth');
-            }
-        }
-    }
-    return $errores;
-    
-}
 
 function matrizError($tipo,$mensaje){
     $error = array ('tipo'     => $tipo,
