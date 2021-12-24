@@ -773,7 +773,7 @@ function htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda){
     $html = '   <div class="row">'.
             '        <div class="col-md-12">'.
             '            <div class="well well-sm">'.
-            '                 <form class="form-horizontal" target="_blank" action="tareas.php" method="post">'.
+            '                 <form class="form-horizontal" id="FormEmail"  method="post">'.
             '                    <fieldset>'.
             '                        <div class="form-group">'.
             '                            <span class="col-md-1 col-md-offset-2 text-center"><i class="glyphicon glyphicon-user"></i></span>'.
@@ -799,7 +799,7 @@ function htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda){
             '                               <input name="dedonde" type="hidden" value="'.$dedonde.'">'.
             '                               <input name="idTienda" type="hidden" value="'.$idTienda.'">'.
             '                               <input name="pulsado" type="hidden" value="enviarXCorreo">'.
-            '                                <button type="submit" class="btn btn-primary btn-lg">Enviar</button>'.
+            '                               <input type="button" class="btn btn-primary btn-lg" id="botonenviar" onclick="enviarCorreo(this)"  value="Enviar">'.
             '                            </div>'.
             '                        </div>'.
             '                    </fieldset>'.

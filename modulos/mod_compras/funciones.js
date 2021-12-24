@@ -297,7 +297,18 @@ function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
 
 }
 
-
+function enviarCorreo( f){
+    console.log($("#FormEmail"));
+    $.post("tareas.php",$("#FormEmail").serialize(),function(res){
+        var resultado =  $.parseJSON(res);
+        if (resultado.envio_destinatario === 'OK' && resultado.subido_enviados=='OK'){
+            // Debemos cambiar el estado pedido y cerrar ventanama
+        } else {
+            // Hay que ver que fallo y informar del fallo.
+        }
+         console.log(resultado);
+    });
+}
 
 function enviarXCorreo(id, dedonde, idTienda, destinatario){
 	// @Objetivo: Imprimir el documento que se ha seleccionado

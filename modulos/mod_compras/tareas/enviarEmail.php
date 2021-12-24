@@ -32,5 +32,7 @@
         //~ echo '</pre>';
       
         $respuesta = CorreoElectronico::enviar($destinatario,$mensaje,$asunto,$fichero);
-
+        //~ echo '<pre>';
+        //~ print_r($respuesta);
+        //~ echo '</pre>';
     ?>
