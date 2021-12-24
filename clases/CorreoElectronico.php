@@ -49,15 +49,21 @@ class CorreoElectronico {
     }
 
     static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
+        // @ Objetivo:
+        // Envia email desde el correo que indicamos en configuracion de tienda (a nivel Base datos)
+        // Ademas de enviar email destinatario, se sube a la bandeja enviado del correo de la tienda.
+        // @ Devolvemos:
+        // respuesta = array( envio_destinatario => OK o KO,
+        //                    subido_enviados => OK o KO ) si hay un KO mandamos error_envio y error_subida
         
-        //~ include __DIR__.'/../configuracion.php'; // Para cargar configuraciond de $PHPMAILER_CONF
+        $respuesta = array();
         
         $configuracion = CorreoElectronico::leerConfiguracion();
         
         $mail =  new PHPMailer(true);
         try {
             //Server settings
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+            $mail->SMTPDebug = SMTP::DEBUG_OFF;  //SMTP::DEBUG_SERVER;   Asi muestra respuesta.                  
             $mail->isSMTP();                                            //Send using SMTP
             $mail->Host       = $configuracion['host'];                //Set the SMTP server to send through
             $mail->SMTPAuth   = $configuracion['SMTPAuth'];            //Enable SMTP authentication
@@ -71,9 +77,7 @@ class CorreoElectronico {
             $mail->setFrom($configuracion['emailTienda'], $configuracion['nombreRemitente']);
             $mail->addAddress($destinatario);     //Add a recipient
                                                   //Name is optional
-            // $mail->addReplyTo('info@example.com', 'Information');
-            //$mail->addCC('cc@example.com');
-            //$mail->addBCC('bcc@example.com');
+            
         
             //Attachments
             $mail->addAttachment($adjunto);         //Add attachments
@@ -84,28 +88,36 @@ class CorreoElectronico {
             $mail->Subject = $asunto;               //'Here is the subject';
             $mensaje = $mensaje.'<br/><br/><br/>'.$configuracion['nombreRemitente'];
             $mail->Body    = $mensaje;              // 'This is the HTML message body <b>in bold!</b>';
-            //$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
         
-            //~ $mail->send();
-            error_log($configuracion['emailTienda'].','.$configuracion['nombreRemitente'].','.$destinatario);
             $result = $mail->send();
 
            
             if ($result) {
-              $mail_string = $mail->getSentMIMEMessage();
-              //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
-              //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
-              $folder = "INBOX.Sent" ; // Location to save the email
-              $imapStream = imap_open("{" . $mail->Host . ":993/imap/ssl}".$folder, $mail->Username, $mail->Password);
-              imap_append($imapStream, "{" . $mail->Host . ":993}" . $folder, $mail_string);
-              // En instruccion anterior con un parametro mas podemos controlar si esta LEIDO , IMPORTANTE O MAS..
-              // 2.3.2. Atributo de mensaje Banderas en  https://www.rfc-es.org/rfc/rfc2060-es.txt
-              imap_close($imapStream);
+                  // Fue correcto el envio.
+                  $respuesta['envio_destinatario'] = 'OK';
+                  $mail_string = $mail->getSentMIMEMessage();
+                  //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
+                  //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
+                  $folder = "INBOX.Sent" ; // Location to save the email
+                  $imapStream = imap_open("{" . $mail->Host . ":993/imap/ssl}".$folder, $mail->Username, $mail->Password);
+                  $respuesta_imap = imap_append($imapStream, "{" . $mail->Host . ":993}" . $folder, $mail_string);
+                  // En instruccion anterior con un parametro mas podemos controlar si esta LEIDO , IMPORTANTE O MAS..
+                  // 2.3.2. Atributo de mensaje Banderas en  https://www.rfc-es.org/rfc/rfc2060-es.txt
+                  imap_close($imapStream);
+                  $respuesta['subido_enviados'] = 'OK';
+                  if ($respuesta_imap !== true){
+                        $respuesta['subido_enviados'] = 'KO';
+                        $respuesta['error_subida'] = 'Error en $mail->send():'.json_encode(imap_errors());
+                  } 
+                  
+            } else {
+                  $respuesta['envio_destinatario'] = 'KO';
+                  $respuesta['error_envio'] = 'Error en $mail->send():'.json_encode($result);
             }
-            // $mail->copyToFolder("Sent");
-            $respuesta = 'Message has been sent';
+           
         } catch (Exception $e) {
-            $respuesta = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            $respuesta['envio_destinatario'] = 'KO';
+            $respuesta['error_envio'] = 'Error en Mailer (Exception=Respuesta de $mail->send():'.$mail->ErrorInfo;
         }        
         return $respuesta;
     }
