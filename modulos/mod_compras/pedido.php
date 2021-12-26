@@ -47,13 +47,13 @@
 	}
     // Por GET recibimos uno o varios parametros:
     //  [id] cuando editamos o vemos un pedido pulsando en listado.
-    //  [tActual] cuando pulsamos en cuadro pedidos temporales.
+    //  [temporal] cuando pulsamos en cuadro pedidos temporales.
     //  [accion] cuando indicamos que accion vamos hacer.
     if (isset($_GET['id'])){
         $idPedido=$_GET['id'];  // Id real de pedido
     }
-    if (isset($_GET['tActual'])){
-        $idPedidoTemporal=$_GET['tActual']; // Id de pedido temporal
+    if (isset($_GET['temporal'])){
+        $idPedidoTemporal=$_GET['temporal']; // Id de pedido temporal
     }
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idPedido > 0){
@@ -63,7 +63,7 @@
             // Existe un temporal de este pedido por lo que cargo ese temporal.
             $idPedidoTemporal = $c['idTemporal'];
             $idPedido = 0 ; // Lo pongo en 0 para ejecute la parte temporal
-            $_GET['tActual'] = $idPedidoTemporal;
+            $_GET['temporal'] = $idPedidoTemporal;
             if ($accion !== 'temporal' && $accion !=='ver'){
                 // Si entro sin accion temporal, NO PERMITO EDITAR.
                 // YA PROVABLEMENTE ESTAN EDITANDO.
@@ -193,7 +193,7 @@
     $htmlIvas=htmlTotales($Datostotales);
     // ============          Otros controles posibles errores               ==================== //
     // Controlamos que el estado sea uno de los tres posibles.
-    $posibles_estados = array ('Sin Guardar','Guardado','Nuevo','Facturado');
+    $posibles_estados = array ('Sin Guardar','Guardado','Nuevo','Enviado','Facturado');
     if (!in_array($estado, $posibles_estados)){
         // No existe ese estado.
         array_push($errores,$Cpedido->montarAdvertencia('warning',
@@ -223,7 +223,7 @@
                        'select_factur'  => '',
                        'evento_cambio'  => ''
                     );
-    if (isset ($_GET['id']) || isset ($_GET['tActual'])){
+    if (isset ($_GET['id']) || isset ($_GET['temporal'])){
         // Quiere decir que ya inicio , ya tuvo que meter proveedor.
         // no se permite cambiar proveedor.
         $estilos['pro_readonly']   = ' readonly';
@@ -342,7 +342,11 @@
                    onclick="abrirIncidenciasAdjuntas('.$idPedido.', '."'".'mod_compras'."'".', '."'".'pedido'."'".')"
                    value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                 }
-                if ($estado != "Facturado" && $accion != "ver"){
+                // Si estado es Facturado o Enviado no se puede ver
+                if ($estado =='Facturado' || $estado == 'Enviado'){
+                    $accion ='ver';
+                }
+                if ($accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                     echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';

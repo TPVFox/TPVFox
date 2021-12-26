@@ -46,7 +46,6 @@
             $idPedidoTemporal=$rest['id'];
         }
     }
-    $pro=$rest['productos'];
     if ($idPedido>0 && count($errores)===0){
         // Agregamos el numero de la pedido si ya existe y no hubo errores
         $modId=$CPed->addNumRealTemporal($idPedidoTemporal, $idPedido);
@@ -66,7 +65,7 @@
                                 ,'KO')
                         );
             }
-	}
+        }
     }
     if (isset($productos) && count($errores)===0){
     //Recalcula el valor de los productos
