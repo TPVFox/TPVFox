@@ -1,10 +1,6 @@
 
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 include_once './../../inicial.php';
-include_once $URLCom.'/head.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
@@ -63,14 +59,17 @@ $pedidosDef=$p['Items'];
 								 );
 	}
 	?>
-</head>
-<body>
-	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+<!DOCTYPE html>
+<html>
+<head>
+ <?php include_once $URLCom.'/head.php';?>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>    
+</head>
+<body>
 <?php
-
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
 		foreach($errores as $error){
@@ -113,7 +112,7 @@ $pedidosDef=$p['Items'];
                                 if ($temporal['idPedpro']){
                                     $numTemporal=$temporal['Numpedpro'];
                                  }
-                                $url = 'pedido.php?tActual='.$temporal['id'];
+                                $url = 'pedido.php?temporal='.$temporal['id'];
                                 $tdl = '<td style="cursor:pointer" onclick="redireccionA('
                                         ."'".$url."'".')" title="Pedido con numero temporal:'
                                         .$temporal['id'].'">';
@@ -192,12 +191,14 @@ $pedidosDef=$p['Items'];
                         </td>
                         <td>
                             <?php 
-                            if($ClasePermisos->getAccion("Modificar")==1 && $pedido['estado']!=='Facturado' && $pedido['estado']!=='Enviado'){
+                            if($ClasePermisos->getAccion("Modificar")==1 && $pedido['estado']=='Guardado' ){
                                 $accion='';
                                 if ($pedido['estado']==="Sin Guardar"){
                                     $accion ='&accion=temporal';
+                                } else {
+                                    // Solo muestro si esta Guardado 
+                                    echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'"></a>';
                                 }
-                                echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'"></a>';
                             }
                             ?>
                          </td>
