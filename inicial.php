@@ -19,9 +19,8 @@ $error_conf = '';
 		} else {
             $error_conf = 'Error en ruta completa URLCom : '.$RutaServidor . $HostNombre;
         }
-   	} 
-   	if (!isset($URLCom)) {
-        $error_conf = 'No se encuentra o esta mal el fichero de configuracion. En la ruta:'.$URLCom;
+   	} else {
+   	    $error_conf = 'No existe fichero de configuracion:'.$Ruta.'configuracion.php';
 	}
     if ($error_conf !== ''){
         // hubo un error
