@@ -70,7 +70,8 @@ class PedidosCompras extends ClaseCompras{
 		// @estado :
 			//-Facturado: que ese pedido ya está en el albarán
 			//-Guardado: que el pedido no tiene ninguna modificación pendiente
-			//- Sin guardar : que el pedido tiene un pedido temporal
+			//-Sin guardar : que el pedido tiene un pedido temporal
+            //-Enviado : que el pedido ya envio al proveedor.
 		//@Parametros : 
 		// $idPedido-> id del pedio real
 		// $estado-> string del estado
@@ -597,9 +598,9 @@ class PedidosCompras extends ClaseCompras{
                                     )
                         );
         }
-        if (isset($_GET['tActual']) && isset($_POST['idTemporal'])){
+        if (isset($_GET['temporal']) && isset($_POST['idTemporal'])){
             // Tiene que existir los dos valores.
-            if ($_GET['tActual'] !== $_POST['idTemporal']){
+            if ($_GET['temporal'] !== $_POST['idTemporal']){
                 // Los idtemporales algo esta mal.
                 array_push($errores,$this->montarAdvertencia('warning',
                                     'Algo salio mal con el ID de temporal, ya que no coincide get con post !!'
