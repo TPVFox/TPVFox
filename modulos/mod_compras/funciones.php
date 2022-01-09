@@ -798,7 +798,7 @@ function htmlFormularioEmail($destinatario,$conf_email,$id,$dedonde,$idTienda){
             '                               <input name="id" type="hidden" value="'.$id.'">'.
             '                               <input name="dedonde" type="hidden" value="'.$dedonde.'">'.
             '                               <input name="idTienda" type="hidden" value="'.$idTienda.'">'.
-            '                               <input name="pulsado" type="hidden" value="enviarXCorreo">'.
+            '                               <input name="pulsado" type="hidden" value="enviarEmail">'.
             '                               <input type="button" class="btn btn-primary btn-lg" id="botonenviar" onclick="enviarCorreo(this)"  value="Enviar">'.
             '                            </div>'.
             '                        </div>'.
@@ -966,7 +966,6 @@ function cancelarAlbaran( $idTemporal, $BDTpv){
 	$error=array();
 	$idAlbaran=0;
 	if ($idTemporal>0){
-		//~ $idTemporal=$datosGet['tActual'];
 		$datosAlbaran=$CAlb->buscarAlbaranTemporal($idTemporal);
 		if (isset($datosAlbaran['error'])){
 			$error =array ( 'tipo'=>'Danger!',

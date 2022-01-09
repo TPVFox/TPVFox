@@ -171,7 +171,7 @@ switch ($pulsado) {
         
     break; 
 
-    case 'enviarXCorreo':
+    case 'enviarEmail':
         include_once  $URLCom.'/modulos/mod_compras/tareas/enviarEmail.php';
 
     break;

@@ -299,46 +299,31 @@ function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
 
 function enviarCorreo( f){
     console.log($("#FormEmail"));
-    $.post("tareas.php",$("#FormEmail").serialize(),function(res){
+    datos = $("#FormEmail").serialize();
+    cerrarPopUp();
+    $.post("tareas.php",datos,function(res){
         var resultado =  $.parseJSON(res);
+        // cerramos modal.
+       
+        titulo = 'Envio de email';
         if (resultado.envio_destinatario === 'OK' && resultado.subido_enviados=='OK'){
+            contenido = '<div class="alert alert-info">Fue enviado correctame y subido como enviado nuestro email correctamente</div>' 
             // Debemos cambiar el estado pedido y cerrar ventanama
         } else {
+            contenido_inicio = '<div class="alert alert-warning">Hubo en error al enviarlo<br/>';
+            contenido_enviado = ' Envio destino:'+resultado.envio_destinatario+'<br/>';
+            contenido_subido = 'Subida a nuestro email:'+resultado.subido_enviados+'<br/>';
+            contenido_final = '</div>';
+            contenido = contenido_inicial+contenido_enviado+contenido_subido+contenido_final;
             // Hay que ver que fallo y informar del fallo.
         }
-         console.log(resultado);
+        console.log(resultado);
+        respuesta_email(titulo,contenido); 
     });
 }
 
-function enviarXCorreo(id, dedonde, idTienda, destinatario){
-	// @Objetivo: Imprimir el documento que se ha seleccionado
-	// @parametros: 
-    // id: id del documento
-    // dedonde: de donde es para poder filtrar
-    // idTienda : id de la tienda 
-	var parametros = {
-		"pulsado"   : 'enviarXCorreo',
-		"dedonde"   : dedonde,
-		"id"        : id,
-		"idTienda"  : idTienda,
-        "destinatario" : destinatario
-	};
-	$.ajax({
-			data       : parametros,
-			url        : 'tareas.php',
-			type       : 'post',
-			beforeSend : function () {
-				console.log('******** estoy en datos enviarXCorreo JS****************');
-			},
-            success    :  function (response) {
-                var resultado =  $.parseJSON(response); 
-				alert(resultado);// Abre una ventana y muestra el texto
-            },
-            error    :  function (request) {
-				console.log(request);
-            }
-            
-	});
+function respuesta_email(titulo,contenido) {
+    abrirModal(titulo,contenido);
 }
 
 function buscarProveedor(dedonde, idcaja, valor='', popup=''){
@@ -537,7 +522,15 @@ function addTemporal(dedonde=""){
 				console.log(resultado);
 				if (resultado.existe == 0){
                     console.log('Voy poner tActual y idtemporal');
-					history.pushState(null,'','?tActual='+resultado.id);
+                    // Este codigo será comun pero de momento lo diferencio pedido.
+                    if (dedonde=="pedido"){
+                        history.pushState(null,'','?temporal='+resultado.id);
+                    }else{
+                        history.pushState(null,'','?tActual='+resultado.id);
+                    }
+
+                   
+                    
                     $("input[name='idTemporal']").val(resultado.id);
                     console.log('Valor cabecera.idTemporal:'+cabecera.idTemporal);
                     if (cabecera.idTemporal == 0) {
