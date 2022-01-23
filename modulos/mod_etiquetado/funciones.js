@@ -359,13 +359,13 @@ function after_constructor(padre_caja, event){
 	console.log("entre en after_constructor");
 	console.log(padre_caja.id_input.indexOf('peso_'));
 	if (padre_caja.id_input.indexOf('nombre_') >=-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	if (padre_caja.id_input.indexOf('peso_') >=-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	if (padre_caja.id_input.indexOf('numAlb_') >=-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	return padre_caja;
 }
