@@ -555,7 +555,7 @@ function after_constructor(padre_caja,event){
 	//		(objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
 	console.log("entre aqui");
 	if (padre_caja.id_input.indexOf('pvpRecomendado') >-1){
-		padre_caja.id_input = event.originalTarget.id;
+		padre_caja.id_input = event.target.id;
 	}
 	return padre_caja;
 }
