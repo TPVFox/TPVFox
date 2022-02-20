@@ -1253,7 +1253,7 @@ class ClaseProductos extends ClaseTablaArticulos{
     
     public function modificarEstadoWeb($idProducto, $idEstado, $idTienda){
         // Modificamos estado de la tabla relacion articulosTienda.
-        if($idEstado==1){
+        if($idEstado==0){
             $estado="Sin Publicar";
         }else{
             $estado="Publicado";
