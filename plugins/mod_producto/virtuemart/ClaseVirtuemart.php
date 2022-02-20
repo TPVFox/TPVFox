@@ -84,11 +84,24 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $resultado;
 	}
 	
-	public function btnLinkProducto($idVirtuemart){
+	public function btnLinkProducto($idVirtuemart,$publicado = 0){
 		// @ Objetivo :
-		// Crear un link al pagina detalle del producto.
-		$html = '<a target="_blank" href="'.$this->ruta_producto.$idVirtuemart.'">Link web del producto</a>';
-		return $html;
+		// Crear los links al producto de la web tanto de frontEnd , como de BackEnd
+        // @ Parametros :
+        // Nos enviamos el id de la web y si esta publicado.
+        $respuesta = array();
+        if ( $idVirtuemart > 0) {
+            $ruta = '/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$idVirtuemart;
+            if ($publicado >0){
+                $link = $this->TiendaWeb['dominio'].$ruta;
+                $respuesta['html_frontEnd'] = ' <a title="Link al producto en la web si esta publicado" target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
+            }
+            $ruta = '/administrator/index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$idVirtuemart;
+            $link = $this->TiendaWeb['dominio'].$ruta;
+            $respuesta['html_backEnd'] = '<a title="Link al producto parte administrador" target="_blank" class="btn btn-warning glyphicon glyphicon-wrench" href="'.$link.'"></a>';
+        }
+		
+		return $respuesta;
 		
 	}
 
@@ -472,7 +485,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 
             $datosWeb = array(
                             'idVirtual'     => 0,
-                            'estado'        => 1,
+                            'estado'        => 0,
                             'articulo_name' => "",
                             'refTienda'     => "",
                             'codBarra'      => "",
@@ -490,7 +503,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
         
         
-        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
+        $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart,$datosWeb['estado']);
         $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
         $respuesta['htmlnotificaciones']=$htmlnotificaciones;
         $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);

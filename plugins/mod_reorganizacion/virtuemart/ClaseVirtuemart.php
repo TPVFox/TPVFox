@@ -81,14 +81,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $resultado;
 	}
 	
-	public function btnLinkProducto($idVirtuemart){
-		// @ Objetivo :
-		// Crear un link al pagina detalle del producto.
-		$html = '<a target="_blank" href="'.$this->ruta_producto.$idVirtuemart.'">Link web del producto</a>';
-		return $html;
-		
-	}
-
+	
     public function obtenerIdVirtuemart($ref_tiendas){
         // @ Objetivo:
         // Obtener el idVirtuermart de la tienda web.
@@ -464,7 +457,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
         
         
-        $respuesta['htmlLinkVirtuemart']=$this->btnLinkProducto($idVirtuemart);
         $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
         $respuesta['htmlnotificaciones']=$htmlnotificaciones;
         $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
