@@ -69,7 +69,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
             // Ahora comprobamos que exista el iva del producto en la web
             
             // Ahora ponemos valor variable estado -> string
-            if($datosComprobaciones['estado']==1){
+            if($datosComprobaciones['estado']==0){
                $estado="Sin Publicar";
             }else{
                $estado="Publicado";
