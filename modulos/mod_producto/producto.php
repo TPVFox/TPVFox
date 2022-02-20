@@ -82,7 +82,7 @@ if( isset($Producto['ref_tiendas'])){
     }
   
 }  
-if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getAccion("verWebEnProducto") == 1){
+if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     // Sino tiene permisos ya no hacemos consulta a la web.
     $datosWebCompletos=array();
     // Creo el objeto de plugin Virtuemart.
@@ -94,17 +94,16 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
     // Obtengo el id de la tienda Web
     $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
     if (count($tiendaWeb) >0){
-        // Se conecta a la web y obtiene los datos de producto cruzado.
-        $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
-
-        // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-        if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-            $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-        }
-        
-        if ($idVirtuemart>0 ) { 
-           $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
-        }
+            // Se conecta a la web y obtiene los datos de producto cruzado
+            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
+            // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+            if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
+                $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
+            }
+            if ($idVirtuemart>0 ) { 
+               $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+            }
+       
     }
 }
 // ==========		Montamos  html que mostramos. 			============ //
@@ -142,8 +141,13 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
     $htmltabla[] = array (  'titulo' => 'Familias',
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
+    if (isset ( $datosWebCompletos) == true && $datosWebCompletos['datosWeb']['estado'] == 0 ){
+        $linkVirtuemart = 'No esta publicado';
+    } else {
+        $linkVirtuemart = $datosWebCompletos['htmlsLinksVirtuemart']['html_frontEnd'];
+    }
     $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
-                                    'html' => htmlTablaRefTiendas($Producto['ref_tiendas'],$datosWebCompletos['htmlLinkVirtuemart'],$ClasePermisos->getAccion("eliminarRefWebDeProducto"))
+                                    'html' => htmlTablaRefTiendas($Producto['ref_tiendas'],$linkVirtuemart,$ClasePermisos->getAccion("eliminarRefWebDeProducto"))
                                 );
     $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
@@ -177,6 +181,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
 		<?php     
        //~ include_once $URLCom.'/header.php';
        include_once $URLCom.'/modulos/mod_menu/menu.php';
+
+       //~ echo '<pre>';
+       //~ print_r($Producto);
+       //~ echo '</pre>';
 		?>
 
      
@@ -352,8 +360,8 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
                                             $titulo = 'Notificaciones de clientes.';
                                             echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
                                     }
-                                    if (isset($datosWebCompletos['htmlLinkVirtuemart'])){
-                                            echo $datosWebCompletos['htmlLinkVirtuemart'];
+                                    if (isset($datosWebCompletos['htmlsLinksVirtuemart'])){
+                                            echo $datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'];
                                     }
                                     
             }
