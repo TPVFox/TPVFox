@@ -24,7 +24,7 @@
         <accion nombre="modificarStock" descripcion="Modificar stock Productos" permiso="0"></accion>
         <accion nombre="eliminarRefProveedores" descripcion="Eliminar Referencia Proveedores" permiso="0"></accion>
         <accion nombre="verWebEnProducto" descripcion="Ver el Producto de Web" permiso="0"></accion>
-
+        <accion nombre="eliminarRefWebDeProducto" descripcion="Eliminar referencia a web de un producto" permiso="0"></accion>
     </vista>
     <vista nombre="ListaArticulosRegularizacion.php" descripcion="Articulos con stock regularizable" permiso="1">
     </vista>	

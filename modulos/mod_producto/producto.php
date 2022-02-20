@@ -143,7 +143,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getA
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
     $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
-                                    'html' => htmlTablaRefTiendas($Producto['ref_tiendas'])
+                                    'html' => htmlTablaRefTiendas($Producto['ref_tiendas'],$datosWebCompletos['htmlLinkVirtuemart'],$ClasePermisos->getAccion("eliminarRefWebDeProducto"))
                                 );
     $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
