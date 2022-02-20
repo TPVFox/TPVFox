@@ -91,7 +91,7 @@ function htmlLineaProveedorCoste($proveedor,$borrar_ref_prov='KO'){
 	return $nuevaFila;
 }
 
-function htmlLineaRefTienda($item,$crefTienda){
+function htmlLineaRefTienda($item,$crefTienda,$link,$permiso_borrar){
 	// @ Objetivo:
 	// Montar linea de proveedores_coste, para añadir o para modificar.
 	// @ Parametros :
@@ -108,9 +108,12 @@ function htmlLineaRefTienda($item,$crefTienda){
 	$nuevaFila .= '<td>';
 	$nuevaFila .= $crefTienda['tipoTienda'];
 	$nuevaFila .='</td>';
-	$nuevaFila .= '<td>'.$crefTienda['dominio'].'</td>';
-    $nuevaFila .= '<td>'.'<a id="eliminarref_tienda_'.$item.'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('.$crefTienda['id'].',this)"></a></td>'; 
-    $nuevaFila .= '</tr>';
+	$nuevaFila .= '<td>'.$link.'</td>';
+    $nuevaFila .= '<td>';
+    if ($permiso_borrar != 0){
+        $nuevaFila .='<a id="eliminarref_tienda_'.$item.'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('.$crefTienda['id'].',this)"></a>';
+    }
+    $nuevaFila .= '</td></tr>';
 	return $nuevaFila;
 }
 
@@ -230,7 +233,7 @@ function  htmlTablaProveedoresCostes($proveedores,$borrar_ref_prov){
 } 
 
 
-function  htmlTablaRefTiendas($crefTiendas){
+function  htmlTablaRefTiendas($crefTiendas,$link,$permiso_borrar=0){
 	// @ Objetivo
 	// Montar la tabla html de codbarras
 	// @ Parametros
@@ -241,7 +244,7 @@ function  htmlTablaRefTiendas($crefTiendas){
             .'          <th>idTienda</th>'
             .'          <th>Cref / id </th>'
             .'          <th>Tipo Tienda</th>'
-            .'          <th>dominio</th>'
+            .'          <th>link</th>'
             .'          <th></th>'
             .'      </tr>'
             .'  </thead>';
@@ -249,7 +252,7 @@ function  htmlTablaRefTiendas($crefTiendas){
 		foreach ($crefTiendas as $item=>$crefTienda){
 			if ($crefTienda['tipoTienda'] !=='principal'){
 				// No generamos html de tienda principal ya que no tiene sentido.
-				$html .= htmlLineaRefTienda($item,$crefTienda);
+				$html .= htmlLineaRefTienda($item,$crefTienda,$link,$permiso_borrar);
 			}
 		}
 	}
