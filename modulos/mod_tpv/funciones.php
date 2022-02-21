@@ -59,7 +59,7 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     }
     foreach ($busquedas as $key=>$buscar) {
         /* Bandera ($key) nos va indicar si busco por identico o por like */
-        $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
+        $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , a.tipo, ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
                 . ' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
                 . ' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
                 . ' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
@@ -200,12 +200,11 @@ function htmlTrProductosModal($productos,$id_input,$max=15){
             // Esto lo hago para funcion htmlProductos ahora..
             $crefTienda = $producto['crefTienda'];
         }
-        
         $datos = "'" . $id_input . "'," .
                 "'" . addslashes(htmlspecialchars($crefTienda, ENT_COMPAT)) . "','"
                 . addslashes(htmlentities($producto['articulo_name'], ENT_COMPAT)) . "','"
                 . number_format($producto['iva'], 2) . "','" . $codbarras . "',"
-                . number_format($producto['pvpCiva'], 2) . "," . $producto['idArticulo'];
+                . number_format($producto['pvpCiva'], 2) . ",'" . $producto['idArticulo']."','".$producto['tipo']."'";
         $Fila_N = 'Fila_' . $key;
         $htmlTr .= '<tr class="FilaModal" id="' . $Fila_N . '"  onclick="escribirProductoSeleccionado('
                 . $datos . ');">';
@@ -215,7 +214,12 @@ function htmlTrProductosModal($productos,$id_input,$max=15){
         $htmlTr .= '<td>' . htmlspecialchars($crefTienda, ENT_QUOTES) . '</td>';
         $htmlTr .= '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>';
         $htmlTr .= '<td>' . number_format($producto['pvpCiva'], 2) . '</td>';
-
+        // Montamos icono peso
+        $icono_peso = '';
+        if ($producto['tipo'] == 'peso'){
+            $icono_peso = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+        }
+        $htmlTr .= '<td>' .$icono_peso. '</td>';
         $htmlTr .= '</tr>';
         if ($key === $max) {
             break;
@@ -440,7 +444,6 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
     // Variables que vamos utilizar:
     $classtr = ''; // para clase en tr
     $estadoInput = ''; // estado input cantidad.
-
     if (!is_object($producto)) {
         // Comprobamos si product no es objeto lo convertimos.
         $product = (object) $producto;
@@ -455,15 +458,21 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
         $classtr = ' class="tachado" ';
         $estadoInput = 'disabled';
         $funcOnclick = ' retornarFila(' . $num_item . ');';
-        $btnELiminar_Retornar = '<td class="eliminar"><a onclick="' . $funcOnclick . '"><span class="glyphicon glyphicon-export"></span></a></td>';
+        $btn_eliminar = '<span class="glyphicon glyphicon-export"></span>';
     } else {
         $funcOnclick = ' eliminarFila(' . $num_item . ');';
-        $btnELiminar_Retornar = '<td class="eliminar"><a onclick="' . $funcOnclick . '"><span class="glyphicon glyphicon-trash"></span></a></td>';
+        $btn_eliminar = '<span class="glyphicon glyphicon-trash"></span>';
+    }
+    $icono_eliminar = '<td class="eliminar"><a onclick="'.$funcOnclick.'">'.$btn_eliminar.'</a></td>';
+    // Montamos icono peso
+    $icono_peso = '';
+    if ($product->tipo == 'peso'){
+        $icono_peso = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
     }
     $nuevaFila = '<tr id="Row' . ($product->nfila) . '" ' . $classtr . '>'
             . '<td class="linea">' . $product->nfila . '</td>' //num linea
             . '<td class="codbarras">' . $product->ccodebar . '</td>'
-            . '<td class="referencia">' . $product->cref . '</td>'
+            . '<td class="referencia">'. $icono_peso.' '. $product->cref . '</td>'
             . '<td class="detalle">' . $product->cdetalle . '</td>'
             . '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_' . $product->nfila
             . '" type="text" data-obj="Unidad_Fila" name="unidad" placeholder="unidad" size="4"  value="'
@@ -483,7 +492,7 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
             . '</a></td>'
             . '<td class="tipoiva">' .(int) $product->ctipoiva . '%</td>'
             . '<td id="N' . $product->nfila . '_Importe" class="importe" >' . $importe . '</td>' //importe 
-            . $btnELiminar_Retornar // Mostramos btn eliminar o retornar
+            . $icono_eliminar // Mostramos btn eliminar o retornar y iconos informacion.
             . '</tr>';
     return $nuevaFila;
 }
