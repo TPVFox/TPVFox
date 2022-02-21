@@ -218,7 +218,7 @@ function retornarFila(num_item){
 //~ //fin funcion que agrega o elimina linea
 //************************************************************
 
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npconiva,id,tipo){
 	// @ Objetivo:
 	//   Realizamos cuando venimos popUp de Productos.
 	// @ Parametros:
@@ -232,6 +232,8 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,npco
 	datos['pvpCiva'] 		= npconiva;
 	datos['iva'] 			= ctipoIva;
 	datos['codBarras']		= ccodebar;
+    datos['tipo']		    = tipo;
+
 	cerrarPopUp();
 	agregarFila(datos);
 	// Eliminamos contenido de cja destino y ponemos focus.
@@ -534,6 +536,7 @@ function ObjProducto(datos)
 	} else {
 		this.estado = datos.estado;
 	}
+    this.tipo = datos.tipo;
     this.nfila = productos.length+1;
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
