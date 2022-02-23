@@ -216,6 +216,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 $ivas_web = $datosProductoVirtual['Datos']['ivasWeb']['items'];
             }
             $error = $ObjViruemart->error_string($datosProductoVirtual);
+            error_log('plugin/mod_producto/virtuemart/tareas_virtuemart->Error:'.$error);
             if ($error <>''){
                 // Hubo error al obtener los ivas.
                 $respuesta['errores'] = array('tipo'    => 'danger',

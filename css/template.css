@@ -126,6 +126,10 @@ color:  #fdfefe ;
 .icono_web.despublicado > a{
     color:#c6cbc6;
 }
+.icono_web.error_estadoWeb > a{
+    color:red;
+}
+
 
 input[disabled],input[readonly] {
     background-color:#ededed;

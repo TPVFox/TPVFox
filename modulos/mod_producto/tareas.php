@@ -300,17 +300,44 @@ switch ($pulsado) {
                 // Debemos comprobar que es la referencia de la tienda web.. FALTA
                 if ($ref['idVirtuemart'] >0) {
                     $idVirtuemart = $ref['idVirtuemart'];
+                    // Creamos fecha_modificado con 1 hora mas, para que controlar si hacemos consulta
+                    $fecha_modificado = new DateTime($ref['fechaModificacion']); 
+                    $fecha_modificado->modify('+1 hours');
+                    $ahora =new DateTime();
+
+                    $estado =$ref['estado'];
                 }
             }
+           
             if ($idVirtuemart > 0) {
-                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$producto['iva'],$producto['idArticulo'],$id_tiendaWeb);
+                if ($ahora > $fecha_modificado ){
+                    $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$producto['iva'],$producto['idArticulo'],$id_tiendaWeb);
+                    if (isset($datosWebCompletos['datosWeb']['estado'])) {
+                        $estado = $datosWebCompletos['datosWeb']['estado'];
+                        // Ahora guardamos estado tienda en local para que podamos contralar si consultamos o no nuevamente.    
+                        $cambiarEstado=$NCArticulo->modificarEstadoWeb($producto['idArticulo'], $datosWebCompletos['datosWeb']['estado'], $id_tiendaWeb);
+                    } else {
+                        $estado ='Error';
+                    }
+
+                    
+               } else {
+                  
+                    if ($estado == 'Publicado') {
+                        $estado = '1';
+                    } else {
+                        $estado = '0';
+                    }
+                }
             } else {
-                    $datosWebCompletos = array ( 'datosWeb' => array('estado' =>'NoExiste') );
+                    $estado ='NoExiste';
             }
             $respuesta[$key]= array(
-                    'estado'=>$datosWebCompletos['datosWeb']['estado'],
+                    'estado'=> $estado,
                     'idArticulo' => $idProducto
                     );
+            
+            
         }
     break;
 

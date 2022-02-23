@@ -1258,7 +1258,7 @@ class ClaseProductos extends ClaseTablaArticulos{
         }else{
             $estado="Publicado";
         }
-        $sql='UPDATE articulosTiendas SET estado="'.$estado.'" where idArticulo='.$idProducto.' and idTienda='.$idTienda;
+        $sql='UPDATE articulosTiendas SET estado="'.$estado.'" ,fechaModificacion=NOW() where idArticulo='.$idProducto.' and idTienda='.$idTienda;
         $respuesta['Consulta']=$this->Consulta_insert_update($sql);
         return $respuesta;
     }

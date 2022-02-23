@@ -97,11 +97,12 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
             // Se conecta a la web y obtiene los datos de producto cruzado
             $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
             // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-            if(isset($datosWebCompletos['comprobarIvas']['comprobaciones'])){
-                $Producto['comprobaciones'][]= $datosWebCompletos['comprobarIvas']['comprobaciones'];
-            }
-            if ($idVirtuemart>0 ) { 
-               $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+            if (isset($datosWebCompletos['errores'])) {
+                    $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
+            } else  {
+                if ($idVirtuemart>0 ) { 
+                   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+                }
             }
        
     }
@@ -141,10 +142,15 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     $htmltabla[] = array (  'titulo' => 'Familias',
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
-    if (isset ( $datosWebCompletos) == true && $datosWebCompletos['datosWeb']['estado'] == 0 ){
+    if (isset ( $datosWebCompletos) == true && !isset($datosWebCompletos['errores']) ){
+        if ($datosWebCompletos['datosWeb']['estado'] == 0 ){
         $linkVirtuemart = 'No esta publicado';
+        } else {
+            $linkVirtuemart = $datosWebCompletos['htmlsLinksVirtuemart']['html_frontEnd'];
+        }
     } else {
-        $linkVirtuemart = $datosWebCompletos['htmlsLinksVirtuemart']['html_frontEnd'];
+        // hubo un error al obtener datos de la web
+         $linkVirtuemart = 'Error al obtener datos';
     }
     $htmltabla[] = array (  'titulo' => 'Productos en otras tiendas.',
                                     'html' => htmlTablaRefTiendas($Producto['ref_tiendas'],$linkVirtuemart,$ClasePermisos->getAccion("eliminarRefWebDeProducto"))

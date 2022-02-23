@@ -1347,9 +1347,13 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
 			var resultado =  $.parseJSON(response);
 			resultado.forEach(function(producto) {
                 // Los estado 0 son sin publicar.
-                if (producto.estado === "0"){
-                    $("#idProducto_estadoWeb_"+producto.idArticulo).addClass( "icono_web despublicado" );
+                if (producto.estado === "1"){
+                    $("#idProducto_estadoWeb_"+producto.idArticulo).removeClass( "icono_web despublicado" );
                     //~ console.log(producto.idArticulo);
+                }
+                if (producto.estado === "Error"){
+                    $("#idProducto_estadoWeb_"+producto.idArticulo).removeClass('icono_web despublicado')
+                    .addClass('icono_web error_estadoWeb') ;       
                 }
             });
 		}

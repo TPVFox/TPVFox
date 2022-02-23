@@ -395,75 +395,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		return $respuesta;
     }
 
-    public function comprobarIvas($ivaProducto, $ivaWeb){
-        //@OBjetivo:
-        // Comprobar el iva del producto en el tpv y en la web
-        // Si no es el mismo enviamo array con error para mostra como alerta
-        
-        if(number_format($ivaProducto,2)!=number_format($ivaWeb,2)){
-            $resultado=array();
-            $comprobacionIva=array(
-            'tipo'=>'warning',
-            'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
-            );
-            $resultado['comprobaciones']= $comprobacionIva;
-            return $resultado;
-        }
-       
-   }
    
-    public function datosCompletosTiendaWeb($idVirtuemart,$ivaProducto,$idProducto,$idTiendaWeb){
-        // Objetivo
-        // Es obtener todos los datos del producto en la web.
-        // Los html necesarios para mostrar en ficha de producto.
-        // Hacer comprobaciones iva.
-        // A este modulo solo se llama desde vista productos... una vez :-)
-
-        $respuesta=array();
-        // Ahora obtengo datos del producto de la web.
-        $datosProductoVirtual=$this->ObtenerDatosDeProducto($idVirtuemart);
-        // Tambien obtenemos todos los ivas de la  web.
-        $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
-        $respuesta['ivasWeb'] = $ivasWeb; 
-        if ($idVirtuemart == 0) {
-            // Cuando no existe la relacion en tpv con la tienda (articuloTienda)
-            $id_iva_web= 0;
-            $iva = 0;
-            foreach ($ivasWeb as $iva_web){
-                // buscamos el iva que tiene el producto, para enviar id del iva de la web.
-                if ( number_format($iva_web['calc_value'],2) == number_format($ivaProducto,2)){
-                    $id_iva_web = $iva_web['virtuemart_calc_id'];
-                    $iva = number_format($ivaProducto,2);
-                }
-            }
-
-            $datosWeb = array(
-                            'idVirtual'     => 0,
-                            'estado'        => 1,
-                            'articulo_name' => "",
-                            'refTienda'     => "",
-                            'codBarra'      => "",
-                            'precioSiva'    => 0,
-                            'idIva'         => $id_iva_web,
-                            'alias'         => "",
-                            'iva'           =>".$iva."
-                        );
-        } else {
-            $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
-            // Comprobamos si el iva del producto es el mismo en tpv que en la web
-            // Asi advertimos al usuario que algo esta mal..
-            $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $datosWeb['iva']);
-        }
-        $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
-        
-        
-        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
-        $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-        $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
-        
-      
-       return $respuesta;
-    }
     
    
     

@@ -444,7 +444,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
     public function comprobarIvas($ivaProducto, $ivaWeb){
         //@OBjetivo:
         // Comprobar el iva del producto en el tpv y en la web
-        // Si no es el mismo enviamo array con error para mostra como alerta
+        // Si no es el mismo enviamos array con html para mostra como alerta
         
         if(number_format($ivaProducto,2)!=number_format($ivaWeb,2)){
             $resultado=array();
@@ -452,7 +452,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
             'tipo'=>'warning',
             'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
             );
-            $resultado['comprobaciones']= $comprobacionIva;
+            $resultado['html']= $comprobacionIva;
             return $resultado;
         }
        
@@ -468,6 +468,15 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta=array();
         // Ahora obtengo datos del producto de la web.
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idVirtuemart);
+        // Comprobamos si fue correcto
+        if ($idVirtuemart >0 && $datosProductoVirtual['Datos']['datosProducto']['item'] == null){
+             // Hubo un error ya que tiene idVirtuemart pero no obtuvo los datos.
+            $error=array(
+            'tipo'=>'danger',
+            'mensaje'=>'Hubo un error al intentar obtener el producto con idVirtuemart:'.$idVirtuemart
+            );
+            $respuesta['errores'] =$error;
+        }
         // Tambien obtenemos todos los ivas de la  web.
         $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
         $respuesta['ivasWeb'] = $ivasWeb; 
@@ -495,20 +504,25 @@ class PluginClaseVirtuemart extends ClaseConexion{
                             'iva'           =>".$iva."
                         );
         } else {
-            $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
-            // Comprobamos si el iva del producto es el mismo en tpv que en la web
-            // Asi advertimos al usuario que algo esta mal..
-            $respuesta['comprobarIvas']=$this->comprobarIvas($ivaProducto, $datosWeb['iva']);
+            if (!isset( $respuesta['errores']) ){
+                $datosWeb=$datosProductoVirtual['Datos']['datosProducto']['item'];
+                // Comprobamos si el iva del producto es el mismo en tpv que en la web
+                // Asi advertimos al usuario que algo esta mal..
+                $r =$this->comprobarIvas($ivaProducto, $datosWeb['iva']);
+                if ($r !== null && count($r) >0){
+                    $respuesta['errores'] =$r;
+                }
+            } else {
+                $datosWeb = null ; // Devuelvo un null 
+            }
         }
         $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
-        
-        
-        $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart,$datosWeb['estado']);
-        $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
-        $respuesta['htmlnotificaciones']=$htmlnotificaciones;
-        $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
-        
-      
+        if ($datosWeb !== null){
+            $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart,$datosWeb['estado']);
+            $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
+            $respuesta['htmlnotificaciones']=$htmlnotificaciones;
+            $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
+        }
        return $respuesta;
     }
     
@@ -562,13 +576,13 @@ class PluginClaseVirtuemart extends ClaseConexion{
             $error  = $datos['error_conexion'];
             return $error;
         }
-        if (  isset($datosProductoVirtual['error']) ){
+        if (  isset($datos['error']) ){
             // Hubo error en la conexion.
-            $error  .= $datosProductoVirtual['error'];
+            $error  .= $datos['error'];
             return $error ; // No hice pruebas de esto...
         }
-        if ( isset ($datosProductoVirtual['Datos']['ivasWeb']['items'] )){
-            if (count($datosProductoVirtual['Datos']['ivasWeb']['items']) === 0){
+        if ( isset ($datos['Datos']['ivasWeb']['items'] )){
+            if (count($datos['Datos']['ivasWeb']['items']) === 0){
                 // Quiere decir que hizo la consulta pero no hay ivas en la web.
                 $error .=  ' No hay ivas en la web';
                 return $error;

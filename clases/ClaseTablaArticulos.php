@@ -366,7 +366,7 @@ class ClaseTablaArticulos{
 		// Obtener los referencias de todas tiendas de ese producto y los precios con iva y sin iva de esas tiendas.
 		// @Parametro
 		// $id -> (int) Id del producto.
-		$Sql = 'SELECT ati.id,ati.crefTienda, ati.idTienda, ati.idVirtuemart, t.tipoTienda , t.dominio '
+		$Sql = 'SELECT ati.id,ati.crefTienda, ati.idTienda, ati.idVirtuemart, ati.estado, ati.fechaModificacion, t.tipoTienda , t.dominio '
             .' FROM `articulosTiendas` as ati '
 			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
 			.' WHERE  ati.idArticulo= '.$id;

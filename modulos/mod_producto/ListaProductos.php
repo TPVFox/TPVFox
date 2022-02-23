@@ -178,13 +178,15 @@
     </head>
 
     <body>
+        <?php include_once $URLCom.'/modulos/mod_menu/menu.php'; ?>
 		<script type="text/javascript">
 			setTimeout(function()
             {   //pongo un tiempo de focus ya que sino no funciona correctamente
                 jQuery('#buscar').focus(); 
             }, 50);
 		</script>
-        <?php include_once $URLCom.'/modulos/mod_menu/menu.php'; ?>
+       
+        
 
         <div class="container">
             <?php
@@ -473,7 +475,7 @@
                                         if(isset($tiendaWeb)){
                                             if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
                                             ?>
-                                            <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>">
+                                            <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>" class="icono_web despublicado">
                                             <?php
                                             if($CTArticulos->GetReferenciasTiendas()){
                                                 foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
