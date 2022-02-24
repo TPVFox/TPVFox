@@ -301,11 +301,16 @@ switch ($pulsado) {
                 if ($ref['idVirtuemart'] >0) {
                     $idVirtuemart = $ref['idVirtuemart'];
                     // Creamos fecha_modificado con 1 hora mas, para que controlar si hacemos consulta
-                    $fecha_modificado = new DateTime($ref['fechaModificacion']); 
+                    $f = '000-00-00 00:00';
+                    if ($ref['fechaModificacion'] != null){
+                        $f = $ref['fechaModificacion'];
+                    }
+                    $fecha_modificado = new DateTime($f);
                     $fecha_modificado->modify('+1 hours');
                     $ahora =new DateTime();
 
                     $estado =$ref['estado'];
+                    
                 }
             }
            
