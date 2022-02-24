@@ -191,8 +191,7 @@ switch ($pulsado) {
             $margen_top_caja_texto= 56;
             include_once $URLCom.'/clases/imprimir.php';
 			include_once $URLCom.'/controllers/planImprimir.php';
-			$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-			$respuesta=$ficheroCompleto;
+			$respuesta=$rutatmp.'/'.$nombreTmp;
 		break;
 		case 'abririncidencia':
 			$dedonde=$_POST['dedonde'];

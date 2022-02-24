@@ -659,25 +659,37 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 	}
     //~ $productos=array_reverse($productos);
     $direccion =  ucwords(strtolower($datosCliente['direccion']));
-    $imprimir['cabecera']=<<<EOD
-<table><tr><td><font size="20">$textoCabecera</font></td><td><font size="9"><b>Número:</b>$numero<b><br>Fecha:</b>$fecha</font></td></tr></table>
-<hr>
-<table><tr><td>
-<font size="12">$datosTienda[NombreComercial] </font><br>
-<font size="9">$datosTienda[razonsocial]</font><br>
-<font size="9"><b>Direccion:</b>$datosTienda[direccion]</font><br>
-<font size="9"><b>NIF: </b>$datosTienda[nif]</font><br>
-<font size="9"><b>Teléfono: </b>$datosTienda[telefono]</font><br>
-</td>
-<td>
-<font size="9"><b>Datos de Cliente:</b></font><br>
-<font size="12">$datosCliente[Nombre]</font><br>
-<font size="9">$datosCliente[razonsocial]</font><br>
-<font size="9"><b>Direccion:</b>$direccion</font><br>
-<font size="9"><b>NIF: </b>$datosCliente[nif]</font><br>
-<font size="9"><b>Teléfono: </b>$datosCliente[telefono]</font><br>
-</td></tr>
-</table>
+    $imprimir['cabecera'] =  '<table>'
+                            .'<tr>'
+                            .'<td><font size="20">'.$textoCabecera.'</font></td>'
+                            .'<td><font size="9"><b>Número:</b>'.$numero.'<b><br>Fecha:</b>'.$fecha.'</font></td>'
+                            .'</tr>'
+                            .'</table>'
+                            .'<hr style="color:black ; cap:0;join:0;dash:1;phase:0;"/>';
+
+    $imprimir['cabecera'] .= '<table>'
+                            .'<tr>'
+                            .'<td>'
+                            .'<font size="12">'.$datosTienda['NombreComercial'].'</font><br>'
+                            .'<font size="9">'.$datosTienda['razonsocial'].'</font><br>'
+                            .'<font size="9"><b>Direccion:</b>'.$datosTienda['direccion'].'</font><br>'
+                            .'<font size="9"><b>NIF: </b>'.$datosTienda['nif'].'</font><br>'
+                            .'<font size="9"><b>Teléfono: </b>'.$datosTienda['telefono'].'</font><br>'
+                            .'</td>'
+                            .'<td>'
+                            .'<font size="9"><b>Datos de Cliente:</b></font><br>'
+                            .'<font size="12">'.$datosCliente['Nombre'].'</font><br>'
+                            .'<font size="9">'.$datosCliente['razonsocial'].'</font><br>'
+                            .'<font size="9"><b>Direccion:</b>'.$direccion.'</font><br>'
+                            .'<font size="9"><b>NIF: </b>'.$datosCliente['nif'].'</font><br>'
+                            .'<font size="9"><b>Teléfono: </b>'.$datosCliente['telefono'].'</font><br>'
+                            .'</td>'
+                            .'</tr>'
+                            .'</table>';
+
+                            
+    $imprimir['cabecera'] .=<<<EOD
+
 <table WIDTH="100%" border="1px" ALIGN="center">
 <tr>
 <td WIDTH="5%"><font size="9"><b>Linea</b></font></td>
@@ -715,7 +727,6 @@ EOD;
                                 .'</tr>';
 		}
 		$imprimir['html'].='</table>';
-		$imprimir['html'].='<hr><hr>';
         $imprimir['html'] .=<<<EOD
 <table WIDTH="70%" border="1px"><tr><th ALIGN="center">Tipo</th><th ALIGN="center">Base</th><th ALIGN="center">Importe de IVA</th></tr>
 EOD;
@@ -733,8 +744,7 @@ EOD;
 	$imprimir['html'] .='<p align="right"> TOTAL: ';
 	$imprimir['html'] .=(isset($Datostotales['total']) ? '<font size="20">'.number_format($Datostotales['total'],2).'</font>' : '');
 	$imprimir['html'] .='</p>';
-
-		return $imprimir;
+	return $imprimir;
 }
 function htmlTotales($Datostotales){
 	$totalBase=0;
