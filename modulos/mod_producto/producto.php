@@ -363,7 +363,8 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                     <?php
                                     if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
                                          $num = 6; // Numero collapse;
-                                            $titulo = 'Notificaciones de clientes.';
+                                            $titulo = 'Notificaciones de clientes:<span class="num_notificaciones">'
+                                                    .$datosWebCompletos['num_notificaciones'].'</span>';
                                             echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
                                     }
                                     if (isset($datosWebCompletos['htmlsLinksVirtuemart'])){

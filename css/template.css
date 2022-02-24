@@ -129,7 +129,9 @@ color:  #fdfefe ;
 .icono_web.error_estadoWeb > a{
     color:red;
 }
-
+span.num_notificaciones{
+    color:red;
+}
 
 input[disabled],input[readonly] {
     background-color:#ededed;
