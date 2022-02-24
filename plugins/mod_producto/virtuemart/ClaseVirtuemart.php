@@ -11,7 +11,8 @@ class PluginClaseVirtuemart extends ClaseConexion{
 	public $key_api; // (string) que es la llave para conectarse.. debemos obtenerla de la base de datos.
 	public $HostNombre; // (string) Ruta desde servidor a proyecto..
 	public $Ruta_plugin; // (string) Ruta desde servidor a plugin.
-	public $dedonde; 
+	public $dedonde;
+    public $num_notificaciones; // numero notificaciones que tiene el producto.
 
     public function __construct($dedonde ='') {
 		parent::__construct(); // Inicializamos la conexion.
@@ -370,6 +371,11 @@ class PluginClaseVirtuemart extends ClaseConexion{
 			exit();
 		}
 		include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
+        // Ahora añado la cantidad de notificaciones que tiene.
+        $this->num_notificaciones = 0;
+        if (isset ($respuesta['Datos']['items'])){
+            $this->num_notificaciones = count($respuesta['Datos']['items']);
+        }
 		return $respuesta;
     }
 
@@ -520,6 +526,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
         if ($datosWeb !== null){
             $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart,$datosWeb['estado']);
             $htmlnotificaciones=$this->htmlNotificacionesProducto($idVirtuemart);
+            $respuesta['num_notificaciones'] = $this->num_notificaciones;
             $respuesta['htmlnotificaciones']=$htmlnotificaciones;
             $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
         }
