@@ -301,45 +301,58 @@ class ControladorComun
 
     public function getHtmlLinkVolver($anchor=''){
         // @ Objetivo
-        // Obtener html de link para volver de donde viene.
-        // Le falta logica a este metodo, ya si lo queremos ejecutar siempre, falla:
-        //    Cuando la ruta es directa.
-        //    Cuando pulsamos en guardar, ya tiene como HTTP_REFER la misma ruta.
-        $Link_volver = parse_url($_SERVER['HTTP_REFERER']);
-        $ruta_actual = parse_url($_SERVER['REQUEST_URI']);
-        // ver lo que hace parse_url, que devuelve la url en partes, path y query...
-        $valor = 1;
-        $script_history ='';
-        $parametros = '';
-        if ($this->getNombreFichero($Link_volver['path']) === $this->getNombreFichero($ruta_actual['path'])){
-            // Si es el mismo ,volvemos dos atras o mas
-            $valor = $valor + 1 ;
-            if (isset($_GET['historyJS'])){
-                $_GET['historyJS'] = $_GET['historyJS']+1;
-                $valor = $_GET['historyJS'];
-            } else {
-                $_GET['historyJS'] =$valor;
-            }
-
-            // Creamos logica para que cree o cambie parametro get history
-            //montamos link nuevo 
-            $parametros = '';
-            $prefijo = '?';
-            foreach ($_GET as $key=>$v){
-                $parametros .=$prefijo.$key.'='.$v;
-                $prefijo = '&';
-            }
-            
-            $l = $ruta_actual['path'].$parametros;
-            // Creamos script para que replace la url y pongo el nuevo valor parametro history
-            $script_history= "<script>history.replaceState(null,'','".$l."');</script>";
-        }
+        // Obtener html de link para volver de donde viene o la vista principal del modulo.
+        // @ Parametros:
+        // anchor -> Texto a poner en link, esto es interesante cuando saltamos de un modulo a otro, podemos indicar a donde volvemos.
+        // EXPLICACION:
+        // Para poder crear html link volver utilizo HTTP_REFERER (donde venimos ) y REQUEST_URI ( Url actual)
+        // El PRIMER PROBLEMA es cuando HTTP_REFERER no trae de donde viene, por lo que debemos ir a la vista del modulo.
+        // El SEGUNDO PROBLEMA es cuando refrescamos o ejecutamos una recarga de la misma pagina, entonces HTTP_REFERER se convierte en la misma URL
+        // que estamos, por lo que perdemos la ruta anterior.
         
-        $html = '<a class="glyphicon glyphicon-circle-arrow-left" onClick="history.go(-'.$valor.');">'.$script_history;
+        $ruta_actual = parse_url($_SERVER['REQUEST_URI']);
+        
+        if (isset($_SERVER['HTTP_REFERER'])){
+            // Ahora controlo que no sea el mismo que ruta_actual ya entonces , tengo comprobar que si tengo get url_anterior
+            $url_anterior = parse_url($_SERVER['HTTP_REFERER']);
+            if ($this->getNombreFichero($url_anterior['path']) === $this->getNombreFichero($ruta_actual['path'])){
+                if (isset($_GET['historyJS'])) {
+                    // Entoces creamos
+                    $_GET['historyJS'] = $_GET['historyJS'] + 1;
+                } else {
+                    $_GET['historyJS'] = 2;
+                }
+            }
+        } else {
+            $url_anterior = array('path' => dirname($ruta_actual['path']));
+        }
+
+        // Ahora montamos las url actual con los parametros GET y url_anterior.
+        $parametros = '';
+        $prefijo = '?';
+        foreach ($_GET as $key=>$v){
+            $parametros .=$prefijo.$key.'='.$v;
+            $prefijo = '&';
+        }
+        $l = $ruta_actual['path'].$parametros;
+        // Creamos script para que replace la url y pongo el nuevo valor parametro historyJS
+        $script_history= "<script>history.replaceState(null,'','".$l."');</script>";
+        if (isset($_GET['historyJS'])) {
+            $href_o_onclick = 'onClick="history.go(-'. $_GET['historyJS'].');"';
+        } else {
+            $parametros_anteriores = '';
+            if ( isset($url_anterior['query'])){
+                $parametros_anteriores = '?'.$url_anterior['query'];
+            }
+            $href_o_onclick =  'href="'.$url_anterior['path'].$parametros_anteriores.'"';
+        }   
+
+        // Ahora montamos html link a volver.
+        $html = $script_history.'<a class="glyphicon glyphicon-circle-arrow-left" '.$href_o_onclick.'">';
         if ($anchor <> ''){
            $html .= $anchor.'</a>';
         } else {
-           $nombre = $this->getNombreFichero($Link_volver['path']);
+           $nombre = $this->getNombreFichero($url_anterior['path']);
            $html .= 'Volver a:'.$nombre.'</a>';
         }
         return $html;

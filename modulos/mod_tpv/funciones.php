@@ -466,7 +466,7 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
     $icono_eliminar = '<td class="eliminar"><a onclick="'.$funcOnclick.'">'.$btn_eliminar.'</a></td>';
     // Montamos icono peso
     $icono_peso = '';
-    if ($product->tipo == 'peso'){
+    if (isset($product->tipo) && $product->tipo == 'peso'){
         $icono_peso = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
     }
     $nuevaFila = '<tr id="Row' . ($product->nfila) . '" ' . $classtr . '>'
