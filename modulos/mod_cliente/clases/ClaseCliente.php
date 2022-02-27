@@ -6,10 +6,11 @@ include_once $URLCom.'/clases/ClaseTFModelo.php';
 
 class ClaseCliente extends TFModelo{
     protected $tabla = 'clientes';
-    public $adjuntos = array('tickets'  => array('datos' =>array()),
-                             'facturas' => array('datos' =>array()),
-                             'albaranes'=> array('datos' =>array()),
-                             'pedidos'  => array('datos' =>array())
+    public $adjuntos = array('tickets'      => array('datos' =>array()),
+                             'facturas'     => array('datos' =>array()),
+                             'albaranes'    => array('datos' =>array()),
+                             'pedidos'      => array('datos' =>array()),
+                             'desc_tickets' => array('datos' =>array())
                              );  // Los ultimos 15 movimientos de ese cliente.
     public $arrayCliente = array (
                             'idClientes'    => '',

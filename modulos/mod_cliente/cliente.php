@@ -231,12 +231,26 @@ if (count($errores) === 0){
 
                             <div class="col-md-6 form-group">
                             <input type="hidden" name="requiere_factura" value="0" />
-                                <input type="checkbox" id="requiere_factura" name="requiere_factura" <?php echo $solo_lectura ? 'disabled' : '';?> value="1" <?php echo $ClienteUnico['requiere_factura']==1 ? 'checked' : ''; ?>  >                                
+                            <?php
+                            if (isset( $ClienteUnico['requiere_factura'])){
+                                $requiere_factura = ($ClienteUnico['requiere_factura']==1 ? 'checked' : '');
+                            } else {
+                                $requiere_factura  = '';
+                            }
+                            ?>
+                            <input type="checkbox" id="requiere_factura" name="requiere_factura" <?php echo $solo_lectura ? 'disabled' : '';?> value="1"<?php echo $requiere_factura ;?>  >                                
                                 <span style="font-weight:bold">Requiere factura</span>
                             </div>
                             <div class="col-md-6 form-group">                                
                             <input type="hidden" name="recargo_equivalencia" value="0" />
-                            <input type="checkbox" id="recargo_equivalencia" name="recargo_equivalencia" <?php echo $solo_lectura ? 'disabled' : '';?> value="1" <?php echo $ClienteUnico['recargo_equivalencia']==1 ? 'checked' : '' ?>  >                                
+                            <?php
+                            if (isset( $ClienteUnico['requiere_equivalencia'])){
+                                $requiere_equivalencia = ($ClienteUnico['requiere_equivalencia']==1 ? 'checked' : '');
+                            } else {
+                                $requiere_equivalencia = '';
+                            }
+                            ?>
+                            <input type="checkbox" id="recargo_equivalencia" name="recargo_equivalencia" <?php echo $solo_lectura ? 'disabled' : '';?> value="1" <?php echo $requiere_equivalencia; ?>  >                                
                                 <span style="font-weight:bold">Aplicar recargo equivalencia</span>
                             </div>
 
