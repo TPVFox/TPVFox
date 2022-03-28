@@ -19,9 +19,7 @@
 	width:100%;
 }
 
-.btn-toolbar{
 
-}
 .visor.fondoNegro{
     color: #0ade0a;
     background-color: black;
@@ -89,36 +87,6 @@ tbody tr.FilaModal:hover{
 
 
 
-.glyphicon-refresh-animate {
-    -animation: spin .7s infinite linear;
-    -ms-animation: spin .7s infinite linear;
-    -webkit-animation: spinw .7s infinite linear;
-    -moz-animation: spinm .7s infinite linear;
-}
-
-@keyframes spin {
-    from { transform: scale(1) rotate(0deg);}
-    to { transform: scale(1) rotate(360deg);}
-}
-  
-@-webkit-keyframes spinw {
-    from { -webkit-transform: rotate(0deg);}
-    to { -webkit-transform: rotate(360deg);}
-}
-
-@-moz-keyframes spinm {
-    from { -moz-transform: rotate(0deg);}
-    to { -moz-transform: rotate(360deg);}
-}
-
-.piePagina {
-    background-color: #616a6b ;
-    color:  #fdfefe ;
-    bottom: 0px !important;
-    position: fixed;
-    width: 100%;
-}
-
 .piePagina a{
 color:  #fdfefe ;
 }
@@ -143,7 +111,7 @@ input[disabled],input[readonly] {
     margin-right: 5px;
 }
 
-btn-default {
+.btn-default {
     background-color: #f4f4f4;
 }
 
