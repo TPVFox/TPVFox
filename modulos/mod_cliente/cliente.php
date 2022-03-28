@@ -27,7 +27,7 @@ if (is_array($configuracion['campos_defecto'])){
         array_push($conf_javascript_json, $configuracion['campos_defecto']);
 }
 $titulo= "Crear"; 
-$estados_cliente = array ('Activo','inactivo');
+$estados_cliente = array ('Activo','inactivo','Especial');
 if (isset($_GET['id'])) {
     $id=$_GET['id']; // Obtenemos id para modificar.
 } else {

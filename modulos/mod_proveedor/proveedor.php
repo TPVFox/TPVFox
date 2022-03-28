@@ -16,7 +16,7 @@
 		$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 		$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_proveedor',$Usuario['id']);
 		$configuracion=$configuracion['incidencias'];
-        $estados = array('Activo','inactivo');
+        $estados = array('Activo','inactivo','Especial');
 		if (isset($_GET['id'])) {
 			$id=$_GET['id']; // Obtenemos id para modificar.
         }
