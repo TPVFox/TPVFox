@@ -3,10 +3,10 @@
         include_once './../../../inicial.php';
         include_once $URLCom.'/modulos/mod_proveedor/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
-        include_once ($URLCom.'/controllers/parametros.php');
+		include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
-        $ClasesParametros = new ClaseParametros('../parametros.xml');  
-        
+        //~ $ClasesParametros = new ClaseParametros('../parametros.xml');  
+        $CTArticulos = new ClaseProductos($BDTpv);
 		$CProveedor= new ClaseProveedor($BDTpv);
         $fechaInicial="";
         $fechaFinal="";
@@ -49,7 +49,7 @@
 			//Si buscamos todo recarga la página sin fechas
 			 header('Location: resumenAlbaranes.php?fechaIni=&fechaFin=&id='.$id);
 		}
-			if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
+		if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
 			//Cuando recibimos los datos tenga fechas escritas o no buscamos los resumenes en la clase 
 			//MOstramos errores de sql;
 			$fechaIni=$_GET['fechaIni'];
@@ -69,7 +69,17 @@
 								 );
 			}
 		}
-		
+        // Ahora sumamos los productos
+        $productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
+       
+        
+		// Ahora montamos $arrayNums con cDetalle 
+		foreach ($productos as $key => $producto){
+			// Obtenemos datos producto, para añadir nombre Codbarras.
+			$p =$CTArticulos->GetProducto($producto['idArticulo']);
+			$productos[$key]['cdetalle'] = $p['articulo_name'];
+            $productos[$key]['tipo'] = $p['tipo'];
+		}
 		?>
 
 <!DOCTYPE html>
@@ -83,9 +93,6 @@
 	</head>
 	<body>
 	<?php
-    //~ echo '<pre>';
-    //~ print_r($arrayNums);
-    //~ echo '</pre>';
        include_once $URLCom.'/modulos/mod_menu/menu.php';
 				
 				if (isset($errores)){
@@ -124,7 +131,7 @@
 					</form>
 				</div>
 				<div class="col-md-5 " <?php echo $style;?>>
-					<h4 class="text-center" ><u>TOTALES</u></h4>
+					<h4 class="text-center" ><u>TOTALES Y DESGLOSE POR IVAS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
@@ -136,12 +143,16 @@
 						</thead>
 						<tbody>
 						<?php 
-						$totalLinea=0;
-						$totalDesglose=0;
+						$totalLinea		=0;
+						$totalAlbaranes	=0;
+						$totalBases		=0;
+						$toralIvas		=0;
 						if(isset($arrayNums['desglose'])){
 							foreach($arrayNums['desglose'] as $desglose){
 								$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
-								$totalDesglose=$totalDesglose+$totalLinea;
+								$totalAlbaranes += $totalLinea;
+								$totalBases		+=$desglose['sumBase'];
+								$totalIvas		+=$desglose['sumiva'];
 								echo '<tr>
 									<td>'.$desglose['iva'].'%</td>
 									<td>'.$desglose['sumBase'].'</td>
@@ -150,22 +161,13 @@
 								</tr>';
 							}
 						}
-						
+						// Ahora ponemos las sumas
+						echo '<tr class="alert-success">';
+						echo '<th>TOTALES</th><th>'.$totalBases.'</th><th>'.$totalIvas.'</th><th>'.$totalAlbaranes.'</th>';
+						echo '</tr>';
 						?>
 						</tbody>
 					</table>
-					<div class="col-md-12">
-						<div class="col-md-5">
-						</div>
-						<div class="col-md-7">
-							<div class="panel panel-success">
-								<div class="panel-heading">
-									<h3 class="panel-title">TOTAL: <?php echo $totalDesglose;?></h3>
-								</div>
-							</div>
-						</div>
-					</div>
-				
 				</div>
 			</div>
 			
@@ -177,25 +179,49 @@
 						<thead>
 							<tr>
                                 <th>ID</th>
-                                <th>CODBARRAS</th>
                                 <th>PRODUCTO</th>
+                                <th>NºVECES</th>
 								<th>CANTIDAD</th>
 								<th>COSTE</th>
+                                <th>*</th>
 								<th>IMPORTE</th>
 							</tr>
 						</thead>
 						<tbody>
-					<?php 
-                        $lineas = getHmtlTrProductos($arrayNums['productos'],'pantalla');
-                        echo $lineas['html'];
-                    ?>
+                            <?php
+                            $totalLineas = 0;
+                            foreach ($productos as $producto) {
+                                $totalLineas += $producto['total_linea'];
+                            ?>
+                            <tr>
+                                <td><?php echo $producto['idArticulo'];?></td>
+                                <td><?php echo $producto['cdetalle'];?></td>
+                                <td><?php echo $producto['num_compras'];?></td>
+                                
+                                <td><?php
+                                    if ($producto['tipo'] == 'peso'){
+                                        echo number_format($producto['totalUnidades'],2);
+                                    } else {
+                                        echo number_format($producto['totalUnidades'],0);
+                                    };?></td>
+                                <td><?php echo number_format($producto['costeSiva'],2);?></td>
+                                <td><?php
+                                if ($producto['coste_medio'] == 'OK'){
+                                    echo '*';
+                                }
+                                ?></td>
+                                <td><?php echo number_format($producto['total_linea'],2);?></td>
+                            </tr>
+                            <?php
+                            }
+                            ?>
 						</tbody>
 					</table>
 					<div class="col-md-12">
                         <div class="col-md-5 col-md-offset-7">
                             <div class="panel panel-success">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title">TOTAL: <?php echo number_format($lineas['totalLineas'],2);?></h3>
+                                    <h3 class="panel-title">TOTAL: <?php echo number_format($totalLineas,2);?></h3>
                                 </div>
                             </div>
                         </div>

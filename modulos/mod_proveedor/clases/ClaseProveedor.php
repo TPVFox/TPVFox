@@ -18,7 +18,7 @@ class ClaseProveedor extends TFModelo{
                                     'estado'            =>''
                                 );
 
-    public function obtenerProveedores($filtro) {
+    public function obtenerProveedores($filtro='') {
         // Function para obtener proveedores y listarlos
         //tener en cuenta el  paginado con parametros:  ,$filtro
         $sql = "Select * from proveedores ".$filtro; 
@@ -186,14 +186,16 @@ class ClaseProveedor extends TFModelo{
 		if(isset($albaranes['error'])){
 			$respuesta=$albaranes;
 		}else{
-			$ids=implode(', ', array_column($albaranes['datos'], 'id'));
-			if($ids==0){
+            $ids= 0;
+            if (isset($albaranes['datos'])){
+			    $ids=implode(', ', array_column($albaranes['datos'], 'id'));
+            }
+            if($ids==0){
                 $respuesta['error']=1;
                 $respuesta['consulta']='No hay resumen entre las fechas seleccionadas';
             }else{
-                $sql='SELECT	*,	SUM(nunidades) as totalUnidades	FROM	`albprolinea`	WHERE idalbpro  IN('.$ids.') and 
-                `estadoLinea` <> "Eliminado" GROUP BY idArticulo + costeSiva';
-                
+                $sql='SELECT idalbpro, idArticulo, costeSiva ,SUM(nunidades) as totalUnidades FROM `albprolinea` WHERE idalbpro  IN('.$ids.') and 
+                `estadoLinea` <> "Eliminado" GROUP BY idalbpro,idArticulo,costeSiva';
                 $productos=$this->consulta($sql);
                 if(isset($albaranes['error'])){
                     $respuesta=$productos;
@@ -222,6 +224,66 @@ class ClaseProveedor extends TFModelo{
         }
 		return $respuesta;
 	}
+
+
+    public function SumaLineasAlbaranesProveedores($LineasProductos,$quitarIdArticulo = 'OK') {
+        // @ Objetivo
+        // Obtener un array con la suma de productos comprados con su precio coste medio de unos albaranes determinado.
+        // @ Parametros:
+        // $LineasProductos -> Es un array que tiene que trae :
+        //          - idArticulo
+        //          - costeSiva
+        //          - totalUnidades
+        // $quitarIdArticulo -> (string)- >'OK  para indicar si devolvemos array con key = IdArticulo o 'KO' pone autonumerico.
+        // @ Devolvemos:
+        //  El mismo array , cambiando:
+        //       costeSiva=  cambia por coste medio de todas lineas del mismo producto.
+        //       totalUnidades = cambia por la suma de todas la cantidad unidades de todas las lineas
+        //  y añadiendo:
+        //       num_comprados = Indica la cantidad lineas que había de ese mismo producto.
+        //       coste_medio = Es un string que con 'KO' o 'OK' que indica si se calculo coste medio o no.
+       
+        $totalProductos=0;
+        $totalLineas = 0;
+
+        $Productos = []; // inicializa tabla que aparece como resumen productos
+        foreach ($LineasProductos as $producto) {			
+            $id_producto = $producto['idArticulo'];
+            if(array_key_exists($id_producto, $Productos) == false){ // busca el indice. Si no existe lo crea con $producto
+                $Productos[$id_producto] = $producto;
+                $Productos[$id_producto]['costeSiva'] = $producto['costeSiva'];
+                $Productos[$id_producto]['coste_medio'] = 'KO';
+                $Productos[$id_producto]['totalUnidades'] = $producto['totalUnidades'];
+                $Productos[$id_producto]['num_compras'] = 1;
+            } else {  // Si ya existe suma las unidades y calcula el precio medio
+                $total_producto = $producto['totalUnidades'] * $producto['costeSiva'];  
+                if($Productos[$id_producto]['costeSiva'] !== $producto['costeSiva']){
+                    $Productos[$id_producto]['coste_medio'] = 'OK';
+                    $suma = $Productos[$id_producto]['totalUnidades'] + $producto['totalUnidades'];
+                    if ( $suma != 0){
+                        $Productos[$id_producto]['costeSiva'] = ($Productos[$id_producto]['total_linea'] + $total_producto) / $suma;
+                    }
+                }				
+                $Productos[$id_producto]['totalUnidades'] += $producto['totalUnidades'];
+                $Productos[$id_producto]['num_compras'] += 1;
+            }
+            $Productos[$id_producto]['total_linea'] = $Productos[$id_producto]['totalUnidades'] * $Productos[$id_producto]['costeSiva'];
+        }
+        // Una vez terminado, Volvemos a recorrer el array para quitar indice que pusimos como el idArticulo,
+        // esto podría se opcional, ya que si queremos utilizar el array para añadir mas datos, puede ser interesante 
+        // poder recibirlo asi , o no.
+        $respuesta = [];
+        if ($quitarIdArticulo == 'OK'){
+            foreach ($Productos  as $producto){
+                $respuesta[] = $producto;
+            }
+        } else {
+            $respuesta = $Productos;
+        }
+        return $respuesta;
+
+    }
+
 
 
     public function guardarProveedor($datosPost){
@@ -293,7 +355,7 @@ class ClaseProveedor extends TFModelo{
 
     public function validarDatos($datos){
         // @ Objetivo:
-        // Hacer las validaciones de los campos correpondientes antes de guardar o modificar.
+        // Hacer las validaciones y comprobaciones de los campos antes de guardar o modificar.
         // @ Parametros:
         //  $datos -> Array de campos a validar.
         // @ Devuelve:
@@ -322,11 +384,8 @@ class ClaseProveedor extends TFModelo{
                         // Si existe telefono envio un warning
                         $comprobaciones[] = $this-> montarAdvertencia('warning',$c['datos']);   
                     }
-
-                }
-                
+                }        
             }
-
         }
         // Otras validaciones:
         if ($datos['nombrecomercial']==='' && $datos['razonsocial']===''){
