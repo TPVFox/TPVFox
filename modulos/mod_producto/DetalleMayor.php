@@ -22,10 +22,17 @@
         // Nota: Normalmente venimos de vista ListaMayor y este nos envia Fecha Inicio y Fecha Final
         //      si no viniera fecha o no fuera correcta, obtenemos la fecha por defecto que debería
         //      ser un parametro configuracion. ( ahora e fija )
-        if (isset($_GET['fecha_inicial'])){
-            $fecha_inicial = $_GET['fecha_inicial'];
+        if (!isset($_GET['fecha_inicial']) || $_GET['fecha_inicial'] ==''){
+            // No existe o viene vacio.
+            $fecha_inicial="0000-00-00";   
+        } else {
+             $fecha_inicial = $_GET['fecha_inicial'];
         }
-        if (isset($_GET['fecha_final'])){
+        if (!isset($_GET['fecha_final']) || $_GET['fecha_inicial'] ==''){
+            $date =new DateTime('NOW');
+            $fecha_final = $date->format("Y-m-d");
+            
+        } else {
             $fecha_final = $_GET['fecha_final'];
         }
     }
@@ -48,7 +55,7 @@
 	<div class="container">
 		<h2 class="text-center"><?php echo $titulo.' '.$producto['articulo_name'];?></h2>
 		<div class="col-md-2">
-			<a class="text-right" href="<?php echo $ruta_volver;?>">Volver Atrás</a>
+            <?php echo $Controler->getHtmlLinkVolver();?>
         </div>
 		<div class="col-md-10">
             <div class="col-md-2">

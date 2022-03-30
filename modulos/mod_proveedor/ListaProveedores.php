@@ -62,6 +62,8 @@
                     <?php 
                     }
                     ?>
+                    <li><a href="#section2" onclick="metodoClick('ListadoProductos');";>Los producto de un proveedor</a></li>
+
 				</ul>
 				</div>	
 			</nav>		

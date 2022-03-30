@@ -340,11 +340,13 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                             foreach ($htmltabla as $i=>$h){
                                 echo htmlPanelDesplegable($i,$h['titulo'],$h['html']);
                             }
+                            
                          ?>
 						<!-- Inicio collapse de Referencias Tiendas --> 
-
 					<!-- Fin de panel-group -->
 					</div> 
+                    <?php echo '<a class="glyphicon glyphicon-list" href="./DetalleMayor.php?idArticulo='
+								.$Producto['idArticulo'].'">Listado mayor todo el año</a>';?>
 				<!-- Fin div col-md-6 -->
 				</div>
                 

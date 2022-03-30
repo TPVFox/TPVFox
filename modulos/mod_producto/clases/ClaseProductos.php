@@ -203,6 +203,16 @@ class ClaseProductos extends ClaseTablaArticulos{
 		return $respuesta;
         
 	}
+
+	public function GetProductosProveedor($idProveedor) {
+		// @ Objetivo:
+		// Obtener los ids de los productos que tienen como predeterminado un proveedor.
+		$sql = 'SELECT idArticulo FROM articulos WHERE idProveedor='.$idProveedor.' ORDER BY articulos.articulo_name ASC';
+		$respuesta =  parent::Consulta($sql);
+		return $respuesta;
+
+	}
+
 	public function cambiarTienda($id){
 		// @Objetivo
 		// Cambiar el id de la tienda , por si queremos buscar en otras tiendas simplemente.
@@ -441,67 +451,7 @@ class ClaseProductos extends ClaseTablaArticulos{
 			return $respuesta;
     }
 	
-	public function EliminarCodbarras($id,$codbarras = array()){
-			// @ Objetivo 
-			// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
-			// @ parametros:
-			// 		id-> (int) ID del producto
-			// 		codbarras -> (array) -> (strings) Codbarras queremos eliminar.
-			$respuesta = array();
-			if ($id > 0){
-				if (count($codbarras)>0){
-					// Entonces eliminamos solo el codbarras que indicamos.
-					foreach ($codbarras as $key=>$cd){
-						$codbarras[$key]= 'codbarras="'.$cd.'"';
-					}
-					$stringCodbarras = ' AND ('.implode(' OR ',$codbarras).')'; 
-				}
-				$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id.$stringCodbarras;
-				$DB = parent::GetDb();
-				$smt = $DB->query($sql);
-				if ($smt) {
-					$respuesta['NEliminados'] = $DB->affected_rows;
-					// Hubo resultados
-				} else {
-					// Quiere decir que hubo error en la consulta.
-					$respuesta['consulta'] = $sql;
-					$respuesta['error'] = $DB->connect_errno;
-				}
-				$respuesta['consulta'] = $sql;
-				
-			}
-			$respuesta['consulta'] = $sql;
-			return $respuesta;
-			
-	}
 	
-	public function EliminarFamilia($id,$familias = array()){
-        $respuesta = array();
-			if ($id > 0){
-				if (count($familias)>0){
-					// Entonces eliminamos solo el codbarras que indicamos.
-					foreach ($familias as $key=>$cd){
-						$familias[$key]= 'idFamilia="'.$cd.'"';
-					}
-					$stringfamilias = ' AND ('.implode(' OR ',$familias).')'; 
-				}
-				$sql = 'DELETE FROM `articulosFamilias` WHERE `idArticulo`='.$id.$stringfamilias;
-				$DB = parent::GetDb();
-				$smt = $DB->query($sql);
-				if ($smt) {
-					$respuesta['NEliminados'] = $DB->affected_rows;
-					// Hubo resultados
-				} else {
-					// Quiere decir que hubo error en la consulta.
-					$respuesta['consulta'] = $sql;
-					$respuesta['error'] = $DB->connect_errno;
-				}
-				$respuesta['consulta'] = $sql;
-				
-			}
-			$respuesta['consulta'] = $sql;
-			return $respuesta;
-    }
 	public function ComprobarCodbarrasUnProducto($id_pro,$Pro_Nuevo_codBarras){
 		// @ Objetivo:
 		// Que codigo de barras hay que añadir, modificar o eliminar.
@@ -1015,19 +965,80 @@ class ClaseProductos extends ClaseTablaArticulos{
 		
 		return $consulta;
 	}
-    public function EliminarHistorico($id){
-        $sql='DELETE FROM historico_precios WHERE id='.$id;
-        $consulta =$this->Consulta_insert_update($sql);
-        return $consulta;
-    }
-
-    public function EliminarCruceTienda($idCruce){
+    public function EliminarCodbarras($id,$codbarras = array()){
+		// @ Objetivo 
+		// Una funcion para eliminar uno o todos los codBarras del producto que enviamos.
+		// @ parametros:
+		// 		id-> (int) ID del producto
+		// 		codbarras -> (array) -> (strings) Codbarras queremos eliminar.
+		$respuesta = array();
+		if ($id > 0){
+			if (count($codbarras)>0){
+				// Entonces eliminamos solo el codbarras que indicamos.
+				foreach ($codbarras as $key=>$cd){
+					$codbarras[$key]= 'codbarras="'.$cd.'"';
+				}
+				$stringCodbarras = ' AND ('.implode(' OR ',$codbarras).')'; 
+			}
+			$sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`='.$id.$stringCodbarras;
+			$DB = parent::GetDb();
+			$smt = $DB->query($sql);
+			if ($smt) {
+				$respuesta['NEliminados'] = $DB->affected_rows;
+				// Hubo resultados
+			} else {
+				// Quiere decir que hubo error en la consulta.
+				$respuesta['consulta'] = $sql;
+				$respuesta['error'] = $DB->connect_errno;
+			}
+			$respuesta['consulta'] = $sql;
+			
+		}
+		$respuesta['consulta'] = $sql;
+		return $respuesta;
+		
+	}
+	public function EliminarCruceTienda($idCruce){
         $sql='DELETE FROM articulosTiendas WHERE id='.$idCruce;
         $consulta =$this->Consulta_insert_update($sql);
         return $consulta;
 
     }
-    
+
+	public function EliminarFamilia($id,$familias = array()){
+		$respuesta = array();
+			if ($id > 0){
+				if (count($familias)>0){
+					// Entonces eliminamos solo el codbarras que indicamos.
+					foreach ($familias as $key=>$cd){
+						$familias[$key]= 'idFamilia="'.$cd.'"';
+					}
+					$stringfamilias = ' AND ('.implode(' OR ',$familias).')'; 
+				}
+				$sql = 'DELETE FROM `articulosFamilias` WHERE `idArticulo`='.$id.$stringfamilias;
+				$DB = parent::GetDb();
+				$smt = $DB->query($sql);
+				if ($smt) {
+					$respuesta['NEliminados'] = $DB->affected_rows;
+					// Hubo resultados
+				} else {
+					// Quiere decir que hubo error en la consulta.
+					$respuesta['consulta'] = $sql;
+					$respuesta['error'] = $DB->connect_errno;
+				}
+				$respuesta['consulta'] = $sql;
+				
+			}
+			$respuesta['consulta'] = $sql;
+			return $respuesta;
+	}
+	
+	public function EliminarHistorico($id){
+        $sql='DELETE FROM historico_precios WHERE id='.$id;
+        $consulta =$this->Consulta_insert_update($sql);
+        return $consulta;
+    }
+
     public function EliminarRefProveedor($idArticulo,$idProveedor){
         $sql='DELETE FROM articulosProveedores WHERE idArticulo='.$idArticulo.' and idProveedor='.$idProveedor;
         $consulta =$this->Consulta_insert_update($sql);

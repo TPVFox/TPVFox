@@ -9,29 +9,32 @@ function metodoClick(pulsado){
 			if (checkID.length >1 || checkID.length=== 0) {
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
-			}
-			// Ahora redireccionamos 
-			// recambi.php?id=id
-				
-			window.location.href = './proveedor.php?id='+checkID[0]+'&accion=ver';
-			
-			
+			}	
+			window.location.href = './proveedor.php?id='+checkID[0]+'&accion=ver';		
 			break;
 		
 		case 'AgregarProveedor':
 			console.log('entro en agregar proveedor');
 			window.location.href = './proveedor.php';
-			
 			break;
 		
-		
+		case 'ListadoProductos':
+			console.log('Entro en Listado de productos de un proveedor');
+			// Cargamos variable global ar checkID = [];
+			VerIdSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return
+			}
+			window.location.href = './OtrasVistas/ListadoProductosDeProveedor.php?id='+checkID[0];
+			break;
 		
 	 }
 } 
 
 function resumen(dedonde, idProveedor){
 
-	window.location.href = './Resumenes/resumenAlbaranes.php?id='+idProveedor;
+	window.location.href = './OtrasVistas/resumenAlbaranes.php?id='+idProveedor;
 }
 
 function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){

@@ -7,7 +7,7 @@
         include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
         //~ $ClasesParametros = new ClaseParametros('../parametros.xml');  
         $CTArticulos = new ClaseProductos($BDTpv);
-		$CProveedor= new ClaseProveedor($BDTpv);
+		$CProveedor= new ClaseProveedor();
         $fechaInicial="";
         $fechaFinal="";
         $style='style="display:none;"';
@@ -71,14 +71,21 @@
 		}
         // Ahora sumamos los productos
         $productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
-       
-        
+		$num_referencias_compradas = 0;
+        $num_ref_principales_compradas = 0;
 		// Ahora montamos $arrayNums con cDetalle 
 		foreach ($productos as $key => $producto){
 			// Obtenemos datos producto, para añadir nombre Codbarras.
 			$p =$CTArticulos->GetProducto($producto['idArticulo']);
 			$productos[$key]['cdetalle'] = $p['articulo_name'];
             $productos[$key]['tipo'] = $p['tipo'];
+			$productos[$key]['prov_principal'] = 'KO';
+			if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
+				// Si coincide como proveedor principal del producto lo marcamos.
+				$productos[$key]['prov_principal'] = 'OK';
+				$num_ref_principales_compradas++ ;
+			}
+			$num_referencias_compradas++;
 		}
 		?>
 
@@ -93,15 +100,14 @@
 	</head>
 	<body>
 	<?php
-       include_once $URLCom.'/modulos/mod_menu/menu.php';
-				
-				if (isset($errores)){
-				foreach($errores as $error){
-						echo '<div class="'.$error['class'].'">'
-						. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-						. '</div>';
-				}
-				}
+        include_once $URLCom.'/modulos/mod_menu/menu.php';
+        if (isset($errores)){
+            foreach($errores as $error){
+                echo '<div class="'.$error['class'].'">'
+                . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                . '</div>';
+            }
+        }
 				?>
 		
 		<div class="container">
@@ -146,7 +152,7 @@
 						$totalLinea		=0;
 						$totalAlbaranes	=0;
 						$totalBases		=0;
-						$toralIvas		=0;
+						$totalIvas		=0;
 						if(isset($arrayNums['desglose'])){
 							foreach($arrayNums['desglose'] as $desglose){
 								$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
@@ -170,20 +176,18 @@
 					</table>
 				</div>
 			</div>
-			
-			
-				
 			<div class="col-md-6"   <?php echo $style;?>>
 				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
                                 <th>ID</th>
+								<th title="Si este Proveedor es Principal para este producto, marcado *">P</th>
                                 <th>PRODUCTO</th>
                                 <th>NºVECES</th>
 								<th>CANTIDAD</th>
 								<th>COSTE</th>
-                                <th>*</th>
+                                <th title= "Si cambio el precio, se calcula coste medio, marcado *">CM</th>
 								<th>IMPORTE</th>
 							</tr>
 						</thead>
@@ -195,12 +199,17 @@
                             ?>
                             <tr>
                                 <td><?php echo $producto['idArticulo'];?></td>
+								<td><?php
+                                if ($producto['prov_principal'] == 'OK'){
+                                    echo '*';
+                                }
+                                ?></td>
                                 <td><?php echo $producto['cdetalle'];?></td>
                                 <td><?php echo $producto['num_compras'];?></td>
                                 
                                 <td><?php
                                     if ($producto['tipo'] == 'peso'){
-                                        echo number_format($producto['totalUnidades'],2);
+                                        echo number_format($producto['totalUnidades'],3);
                                     } else {
                                         echo number_format($producto['totalUnidades'],0);
                                     };?></td>
@@ -226,58 +235,66 @@
                             </div>
                         </div>
                     </div>
-				</div>
-				<div class="col-md-6 "   <?php echo $style;?>>
-					<h4 class="text-center" ><u>ALBARANES</u></h4>
-					<table class="table table-striped table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>FECHA</th>
-								<th>ALBARÁN</th>
-                                <th>ESTADO</th>
-                                <th>LINK</th>
-								<th>BASE</th>
-								<th>IVA</th>
-								<th>TOTAL</th>
-							</tr>
-						</thead>
-						<tbody>
-						<?php 
-						$totalLinea=0;
-						$totalbases=0;
-						if(isset($arrayNums['resumenBases'])){
-							foreach($arrayNums['resumenBases'] as $bases){
-								$totalLinea=$bases['sumabase']+$bases['sumarIva'];
-								$totalbases=$totalbases+$totalLinea;
-								echo '<tr>
-								<td>'.$bases['fecha'].'</td>
-								<td>'.$bases['Numalbpro'].'</td>
-                                 <td>'.$bases['estado'].'</td>
-                                 <td><a class="glyphicon glyphicon-pencil"  target="_blank" href="../../mod_compras/albaran.php?id='.$bases['Numalbpro'].'"></a></td>
-								<td>'.$bases['sumabase'].'</td>
-								<td>'.$bases['sumarIva'].'</td>
-								<td>'.$totalLinea.'</td>
-								</tr>';
-							}
-						}
-						?>
-						
-						</tbody>
-					</table>
-					<div class="col-md-12" >
-						<div class="col-md-5">
-						</div>
-						<div class="col-md-7">
-							<div class="panel panel-success">
-								<div class="panel-heading">
-									<h3 class="panel-title">TOTAL: <?php echo $totalbases;?></h3>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-			</div>
-		</div>
+					<div class="col-md-12">
+                        <div>Referencias compradas:
+							<?php
+							echo $num_referencias_compradas;?>
+                        </div>
+						<div>Referencias principales compradas:
+							<?php
+							echo $num_ref_principales_compradas;?>
+                        </div>
+                    </div>
+            </div>
+            <div class="col-md-6 "   <?php echo $style;?>>
+                <h4 class="text-center" ><u>ALBARANES</u></h4>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>FECHA</th>
+                            <th>ALBARÁN</th>
+                            <th>ESTADO</th>
+                            <th>LINK</th>
+                            <th>BASE</th>
+                            <th>IVA</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php 
+                    $totalLinea=0;
+                    $totalbases=0;
+                    if(isset($arrayNums['resumenBases'])){
+                        foreach($arrayNums['resumenBases'] as $bases){
+                            $totalLinea=$bases['sumabase']+$bases['sumarIva'];
+                            $totalbases=$totalbases+$totalLinea;
+                            echo '<tr>
+                            <td>'.$bases['fecha'].'</td>
+                            <td>'.$bases['Numalbpro'].'</td>
+                             <td>'.$bases['estado'].'</td>
+                             <td><a class="glyphicon glyphicon-pencil"  target="_blank" href="../../mod_compras/albaran.php?id='.$bases['Numalbpro'].'"></a></td>
+                            <td>'.$bases['sumabase'].'</td>
+                            <td>'.$bases['sumarIva'].'</td>
+                            <td>'.$totalLinea.'</td>
+                            </tr>';
+                        }
+                    }
+                    ?>
+                    
+                    </tbody>
+                </table>
+                <div class="col-md-12" >
+                    <div class="col-md-5">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="panel panel-success">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">TOTAL: <?php echo $totalbases;?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 	</body>
 </html>
