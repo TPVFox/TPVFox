@@ -207,6 +207,12 @@ class TFModelo extends ModeloP {
 		return $fila ;
 		
 	}
+
+    public function conexionBDTPV(){
+        // Devolvemos la conexion para versiones anteriores de modelos.
+        return parent::getDbo();
+
+    }
     
     
 

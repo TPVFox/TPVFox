@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_informes" descripcion="Informes" permiso="0">
+    <vista nombre="ListaInformes.php" descripcion="Listado Informess" permiso="0">
+        <accion nombre="ejecutar" descripcion="Ejecutar Informe Ejemplo" permiso="0"></accion>
+    </vista>
+    <vista nombre="compras.php" descripcion="Informe compras" permiso="0">
+    </vista>
+</modulo>
