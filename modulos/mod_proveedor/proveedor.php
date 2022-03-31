@@ -55,13 +55,12 @@
         
         // Ahora $input_disabled
          $input_disabled= 'disabled'; // Por defecto solo dejo ver.
-        if (isset($_GET['accion'])) {
+         $titulo= "Ver";
+		 if (isset($_GET['accion'])) {
             if ($_GET['accion']=="editar"){
                $input_disabled='';
                $titulo= "Modificar";
-            } else  {
-                $titulo= "Ver";
-            }
+            } 
         }
 
         // Montamos titulo y campos que no se cubren cuando es nuevo.

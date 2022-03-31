@@ -125,14 +125,11 @@ class ClaseInformes extends TFModelo{
                 // Ahora sumar el desglose .
                 
                 
-                //Bloqueo para debug
-                if ($proveedor['idProveedor']== "158" || $proveedor['idProveedor']== "1" ) {
-                    error_log( 'Bloqueo Debug de solo este '.$proveedor['idProveedor']);
                     $SumaAlbaranes[] = $proveedor['albaranes']['resumenBases'];
                     $SumaAlbaranes[] = $todosProveedores[$key];
 
                     $DesgloseAlbaranes[] = $proveedor['albaranes']['resumenBases'];
-                }
+                
             }
         }
         // Esto es necesario ya que tenemos varios array con productos, uno por cada Proveedor.

@@ -8,8 +8,8 @@
         //~ $ClasesParametros = new ClaseParametros('../parametros.xml');  
         $CTArticulos = new ClaseProductos($BDTpv);
 		$CProveedor= new ClaseProveedor();
-        $fechaInicial="";
-        $fechaFinal="";
+        // $fechaInicial="";
+        // $fechaFinal="";
         $style='style="display:none;"';
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
@@ -56,8 +56,8 @@
 			$fechaFin=$_GET['fechaFin'];
 			$idProveedor=$_GET['id'];
 			if($fechaIni<>"" & $fechaFin<>""){
-				$fechaInicial =date_format(date_create($fechaIni), 'd-m-Y');
-				$fechaFinal =date_format(date_create($fechaFin), 'd-m-Y');
+				$fechaInicial =date_format(date_create($fechaIni), 'Y-m-d');
+				$fechaFinal =date_format(date_create($fechaFin), 'Y-m-d');
 			}
 			$style="";
 			$arrayNums=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin);
@@ -69,24 +69,38 @@
 								 );
 			}
 		}
-        // Ahora sumamos los productos
-        $productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
+		// Obtenemos referencias principales de proveedor.
+		$num_ref_principales_proveedor = $CTArticulos->GetProductosProveedor($id);
+		$num_ref_principales_proveedor = $num_ref_principales_proveedor['NItems'];
 		$num_referencias_compradas = 0;
-        $num_ref_principales_compradas = 0;
-		// Ahora montamos $arrayNums con cDetalle 
-		foreach ($productos as $key => $producto){
-			// Obtenemos datos producto, para añadir nombre Codbarras.
-			$p =$CTArticulos->GetProducto($producto['idArticulo']);
-			$productos[$key]['cdetalle'] = $p['articulo_name'];
-            $productos[$key]['tipo'] = $p['tipo'];
-			$productos[$key]['prov_principal'] = 'KO';
-			if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
-				// Si coincide como proveedor principal del producto lo marcamos.
-				$productos[$key]['prov_principal'] = 'OK';
-				$num_ref_principales_compradas++ ;
+		$num_ref_principales_compradas = 0;
+		// Si no existe $_GET fechaIni o fechaFin , no hacemos los calculos.
+		if(isset($_GET['fechaIni']) && isset($_GET['fechaFin'])){
+			// Ahora sumamos los productos
+			$productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
+			// Ahora montamos $arrayNums con cDetalle 
+			foreach ($productos as $key => $producto){
+				// Obtenemos datos producto, para añadir nombre Codbarras.
+				$p =$CTArticulos->GetProducto($producto['idArticulo']);
+				$productos[$key]['cdetalle'] = $p['articulo_name'];
+				$productos[$key]['tipo'] = $p['tipo'];
+				$productos[$key]['prov_principal'] = 'KO';
+				if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
+					// Si coincide como proveedor principal del producto lo marcamos.
+					$productos[$key]['prov_principal'] = 'OK';
+					$num_ref_principales_compradas++ ;
+				}
+				$num_referencias_compradas++;
 			}
-			$num_referencias_compradas++;
 		}
+		// ---   Comprobación de fechas   ---- //
+		if (!isset($fechaFinal)){
+			$fechaFinal = date('Y-m-d');
+		}
+		if (!isset($fechaInicial)){
+			$fechaInicial = date('Y').'-01-01';
+		}
+		
 		?>
 
 <!DOCTYPE html>
@@ -177,74 +191,77 @@
 				</div>
 			</div>
 			<div class="col-md-6"   <?php echo $style;?>>
+				<div class="col-md-12">
+					<p>
+						<strong>Referencias compradas:</strong><?php echo $num_referencias_compradas;?><br/>
+					   	<strong>Referencias principales compradas:</strong><?php echo $num_ref_principales_compradas;?><br/>
+						<strong>Referencias asignadas al proveedor:</strong><?php echo $num_ref_principales_proveedor;?><br/>
+						 Leyenda:<br/>
+						  (P) Producto asignado como principal del proveedor.  <br/>   
+						  (CM) Coste medio: Si se compro a distintos precios.<br/>
+					</p>
+
+				</div>
 				<h4 class="text-center" ><u>RESUMEN PRODUCTOS</u></h4>
-					<table class="table table-striped table-bordered table-hover">
-						<thead>
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th title="Si este Proveedor es Principal para este producto, marcado *">P</th>
+							<th>PRODUCTO</th>
+							<th>NºVECES</th>
+							<th>CANTIDAD</th>
+							<th>COSTE</th>
+							<th title= "Si cambio el precio, se calcula coste medio, marcado *">CM</th>
+							<th>IMPORTE</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						$totalLineas = 0;
+						if(isset($_GET['fechaIni']) & isset($_GET['fechaFin'])){
+							foreach ($productos as $producto) {
+								$totalLineas += $producto['total_linea'];
+							?>
 							<tr>
-                                <th>ID</th>
-								<th title="Si este Proveedor es Principal para este producto, marcado *">P</th>
-                                <th>PRODUCTO</th>
-                                <th>NºVECES</th>
-								<th>CANTIDAD</th>
-								<th>COSTE</th>
-                                <th title= "Si cambio el precio, se calcula coste medio, marcado *">CM</th>
-								<th>IMPORTE</th>
-							</tr>
-						</thead>
-						<tbody>
-                            <?php
-                            $totalLineas = 0;
-                            foreach ($productos as $producto) {
-                                $totalLineas += $producto['total_linea'];
-                            ?>
-                            <tr>
-                                <td><?php echo $producto['idArticulo'];?></td>
+								<td><?php echo $producto['idArticulo'];?></td>
 								<td><?php
-                                if ($producto['prov_principal'] == 'OK'){
-                                    echo '*';
-                                }
-                                ?></td>
-                                <td><?php echo $producto['cdetalle'];?></td>
-                                <td><?php echo $producto['num_compras'];?></td>
-                                
-                                <td><?php
-                                    if ($producto['tipo'] == 'peso'){
-                                        echo number_format($producto['totalUnidades'],3);
-                                    } else {
-                                        echo number_format($producto['totalUnidades'],0);
-                                    };?></td>
-                                <td><?php echo number_format($producto['costeSiva'],2);?></td>
-                                <td><?php
-                                if ($producto['coste_medio'] == 'OK'){
-                                    echo '*';
-                                }
-                                ?></td>
-                                <td><?php echo number_format($producto['total_linea'],2);?></td>
-                            </tr>
-                            <?php
-                            }
-                            ?>
-						</tbody>
-					</table>
-					<div class="col-md-12">
-                        <div class="col-md-5 col-md-offset-7">
-                            <div class="panel panel-success">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">TOTAL: <?php echo number_format($totalLineas,2);?></h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-					<div class="col-md-12">
-                        <div>Referencias compradas:
-							<?php
-							echo $num_referencias_compradas;?>
-                        </div>
-						<div>Referencias principales compradas:
-							<?php
-							echo $num_ref_principales_compradas;?>
-                        </div>
-                    </div>
+								if ($producto['prov_principal'] == 'OK'){
+									echo '*';
+								}
+								?></td>
+								<td><?php echo $producto['cdetalle'];?></td>
+								<td><?php echo $producto['num_compras'];?></td>
+								
+								<td><?php
+									if ($producto['tipo'] == 'peso'){
+										echo number_format($producto['totalUnidades'],3);
+									} else {
+										echo number_format($producto['totalUnidades'],0);
+									};?></td>
+								<td><?php echo number_format($producto['costeSiva'],2);?></td>
+								<td><?php
+								if ($producto['coste_medio'] == 'OK'){
+									echo '*';
+								}
+								?></td>
+								<td><?php echo number_format($producto['total_linea'],2);?></td>
+							</tr>
+						<?php
+							}
+						}
+						?>
+					</tbody>
+				</table>
+				<div class="col-md-12">
+					<div class="col-md-5 col-md-offset-7">
+						<div class="panel panel-success">
+							<div class="panel-heading">
+								<h3 class="panel-title">TOTAL: <?php echo number_format($totalLineas,2);?></h3>
+							</div>
+						</div>
+					</div>
+				</div>		
             </div>
             <div class="col-md-6 "   <?php echo $style;?>>
                 <h4 class="text-center" ><u>ALBARANES</u></h4>

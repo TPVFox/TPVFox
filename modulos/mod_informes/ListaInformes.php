@@ -94,6 +94,9 @@
 	</script> 
     <!-- Cargamos funciones de modulo. -->
     <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js" type="module"></script>	
-
+    <?php
+     echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+     include $URLCom.'/plugins/modal/ventanaModal.php';
+    ?>
 </body>
 </html>
