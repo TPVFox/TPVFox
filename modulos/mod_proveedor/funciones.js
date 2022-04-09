@@ -57,4 +57,26 @@ function imprimirResumen(dedonde, id, fechaInicial, fechaFinal){
            
         });
 }
+function filtroEstado(input,id){
+    // @ Objetivo
+    // Ocultar o mostrar Row con estado tal.
+	if (input.value == '1'){
+		// Ocultamos
+		$(input).val('0');
+		var x = document.getElementsByClassName('Row'+id);
 
+		for (var i = 0; i < x.length; i++) {
+		x[i].style.display= "none";
+		}
+
+
+	} else {
+		// Mostramos
+		$(input).val('1');
+		var x = document.getElementsByClassName('Row'+id);
+		for (var i = 0; i < x.length; i++) {
+		x[i].removeAttribute("style");
+		}
+	}
+	    
+}

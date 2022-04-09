@@ -174,14 +174,17 @@ class ClaseProveedor extends TFModelo{
 	
 
 	public function albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin){
+        // @ Objetivo:
+        // Obtener los albaranes de un proveedor en un intervalo de tiempo.
 		$respuesta=array();
 		$productos=array();
 		$resumenBases=array();
         $sql='SELECT Numalbpro , id FROM albprot WHERE  idProveedor ='.$idProveedor;
+        $and= '';
 		if(!$fechaIni=="" & !$fechaFin==""){
-			$sql='SELECT Numalbpro , id FROM albprot WHERE idProveedor ='.$idProveedor.' and `Fecha` BETWEEN 
-		 "'.$fechaIni.'" and  "'.$fechaFin.'"';
+			$and =' and `Fecha` BETWEEN "'.$fechaIni.'" and  "'.$fechaFin.'"';
 		}
+        $sql = $sql.$and;
 		$albaranes=$this->consulta($sql);
 		if(isset($albaranes['error'])){
 			$respuesta=$albaranes;

@@ -56,8 +56,6 @@ class ClaseInformes extends TFModelo{
         //          [Fecha_Final] => (fecha Y-m-d),
         //          [opcion] => (int) Indica el la opcion seleccionada para realizar filtros.
         // @ Devolvemos
-
-
         $BDTpv = $this->conexionBDTPV();
 		$CProveedor= new ClaseProveedor($BDTpv);
         // Tratamos parametros para añadir ids_proveedores y tratarlos
@@ -103,11 +101,8 @@ class ClaseInformes extends TFModelo{
                
             }
 		}
-        /* El codigo anterior debe mantenerse en esta clase, ya que es para Resumen de varios albaranes
-         * Solo deberíamos tener en cuenta que se añadio al array de todos los albaranes la cantidad de albaranes 
-         * que tiene.
-         * Y ademas controlamos si no tiene albaranes ya no generamos [albaranes][productos]
-         * */
+        // ----     Fin obtener los albaranes de todos los proveedores   ------ //
+
         // Ahora tenemos ordenar y hacer las sumas de lineas albaranes por producto y totales por proveedor.
         $ArrayProductos = [];
         $SumaAlbaranes = [];
@@ -132,12 +127,13 @@ class ClaseInformes extends TFModelo{
                 
             }
         }
-        // Esto es necesario ya que tenemos varios array con productos, uno por cada Proveedor.
+        
         /* Queda pendiente sumar los albaranes y los desglose.
          * y ver como controlar cuando queremos filtrar algun proveedor o albaran no facturado.
          * Aquí en el proceso anterior, añadimos [referencias_productos]
          * */
         $Productos =[];
+        // Esto es necesario ya que tenemos varios array con productos, uno por cada Proveedor.
         foreach ($ArrayProductos as $P){
             foreach ( $P as $producto){
                 $Productos[] = $producto;
@@ -146,10 +142,7 @@ class ClaseInformes extends TFModelo{
         // Ahora sumamos todos los productos ( deberíamos controlar si hay mas de un proveedor), ya que no tiene sentido, si es uno
 
         $Productos = $this->SumaProductosTodosProveedores($Productos);
-        // Ahora tenemos sumar los totales de albaranes.
-
-
-
+        // Ahora tenemos los productos sumados de todos los albaranes de todos los proveedores..
 
         // Montamos lo que devolvemos..
         // Hay que tener en cuenta que la memoria es limitada, por a lo mejor sería bueno devolver solo informe , no los datos, deberíamos
@@ -170,64 +163,7 @@ class ClaseInformes extends TFModelo{
         return $respuesta;
     }
 
-    /* public function SumaLineasAlbaranesProveedores($LineasProductos,$quitarIdArticulo = 'OK') {
-        // NOTA: Realmente este metodo debería esta en Clase de Provedores, ya que es ahí donde ya lo ejecutamos.
-        // @ Objetivo
-        // Obtener un array con la suma de productos comprados con su precio coste medio de unos albaranes determinado.
-        // @ Parametros:
-        // $LineasProductos -> Es un array que tiene que trae :
-        //          - idArticulo
-        //          - costeSiva
-        //          - totalUnidades
-        // $quitarIdArticulo -> (string)- >'OK  para indicar si devolvemos array con key = IdArticulo o 'KO' pone autonumerico.
-        // @ Devolvemos:
-        //  El mismo array , cambiando:
-        //       costeSiva=  cambia por coste medio de todas lineas del mismo producto.
-        //       totalUnidades = cambia por la suma de todas la cantidad unidades de todas las lineas
-        //  y añadiendo:
-        //       num_comprados = Indica la cantidad lineas que había de ese mismo producto.
-        //       coste_medio = Es un string que con 'KO' o 'OK' que indica si se calculo coste medio o no.
-       
-        $totalProductos=0;
-        $totalLineas = 0;
-
-        $Productos = []; // inicializa tabla que aparece como resumen productos
-        foreach ($LineasProductos as $producto) {			
-            $id_producto = $producto['idArticulo'];
-            if(array_key_exists($id_producto, $Productos) == false){ // busca el indice. Si no existe lo crea con $producto
-                $Productos[$id_producto] = $producto;
-                $Productos[$id_producto]['costeSiva'] = $producto['costeSiva'];
-                $Productos[$id_producto]['coste_medio'] = 'KO';
-                $Productos[$id_producto]['totalUnidades'] = $producto['totalUnidades'];
-                $Productos[$id_producto]['num_compras'] = 1;
-            } else {  // Si ya existe suma las unidades y calcula el precio medio
-                $total_producto = $producto['totalUnidades'] * $producto['costeSiva'];  
-                if($Productos[$id_producto]['costeSiva'] !== $producto['costeSiva']){
-                    $Productos[$id_producto]['coste_medio'] = 'OK';
-                    $suma = $Productos[$id_producto]['totalUnidades'] + $producto['totalUnidades'];
-                    if ( $suma != 0){
-                        $Productos[$id_producto]['costeSiva'] = ($Productos[$id_producto]['total_linea'] + $total_producto) / $suma;
-                    }
-                }				
-                $Productos[$id_producto]['totalUnidades'] += $producto['totalUnidades'];
-                $Productos[$id_producto]['num_compras'] += 1;
-            }
-            $Productos[$id_producto]['total_linea'] = $Productos[$id_producto]['totalUnidades'] * $Productos[$id_producto]['costeSiva'];
-        }
-        // Una vez terminado, Volvemos a recorrer el array para quitar indice que pusimos como el idArticulo,
-        // esto podría se opcional, ya que si queremos utilizar el array para añadir mas datos, puede ser interesante 
-        // poder recibirlo asi , o no.
-        $respuesta = [];
-        if ($quitarIdArticulo == 'OK'){
-            foreach ($Productos  as $producto){
-                $respuesta[] = $producto;
-            }
-        } else {
-            $respuesta = $Productos;
-        }
-        return $respuesta;
-
-    } */
+   
 
 
     public function SumaProductosTodosProveedores($LineasProductos) {
@@ -244,7 +180,6 @@ class ClaseInformes extends TFModelo{
         //    [num_compras] => int
         //    [total_linea] => float
         //)
-        
        
         $totalProductos=0;
         $totalLineas = 0;

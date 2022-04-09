@@ -126,6 +126,7 @@
         $limite = $NPaginado->GetLimitConsulta();
         $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
     }
+    
     if (isset($productos['error'])){
         //Hubo un error a la ahora obtener los datos de los productos.
         $error = array('tipo' => 'danger',
@@ -318,7 +319,7 @@
                              <label for="tags">Buscar por Familias:</label>
                              <select id="combobox" class="familiasLista">
                                 <option></option>
-                                <option value="0">-Productos sin familia</option>
+                                <option value="0">Productos sin familia</option>
                                  <?php 
                                    $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
                                    foreach($arbolfamilias as $familia){

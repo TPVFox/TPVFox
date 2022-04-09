@@ -8,7 +8,8 @@
         $CTArticulos = new ClaseProductos($BDTpv);
 		$CProveedor= new ClaseProveedor();
 		$Controler = new ControladorComun; 
-        $style='style="display:none;"';
+        $style='';
+		
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosProveedor=$CProveedor->getProveedor($id);
@@ -31,16 +32,18 @@
 		}
 		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id);
 		if ($ArrayProductoPrincipales['NItems']>0){
+			$estados = $CTArticulos->posiblesEstados('articulos');
 			$productos = [];
 			foreach ($ArrayProductoPrincipales['Items'] as $key => $array){
 				// Obtenemos datos producto, para añadir nombre Codbarras.
 				$p =$CTArticulos->GetProducto($array['idArticulo']);
-				$productos[$key]['idArticulo'] = $p['idArticulo'];
+                $estado = $p['estado'];
+                $productos[$key]['idArticulo'] = $p['idArticulo'];
 				$productos[$key]['articulo_name'] = $p['articulo_name'];
 				$productos[$key]['beneficio'] = $p['beneficio'];
 				$productos[$key]['costepromedio'] = $p['costepromedio'];
 				$productos[$key]['ultimoCoste'] = $p['ultimoCoste'];
-				$productos[$key]['estado'] = $p['estado'];
+				$productos[$key]['estado'] = $estado;
 				$productos[$key]['iva'] = $p['iva'];
 				$productos[$key]['tipo'] = $p['tipo'];
 				$productos[$key]['stockOn'] = $p['stocks']['stockOn'];
@@ -51,6 +54,39 @@
 						$productos[$key]['fecha_actualizacion_proveedor']=$pc['fechaActualizacion'];
 					} 
 				}
+				$index_estado = $CTArticulos->comprobacionesEstado($p);
+				$productos[$key]['index_estado'] =$index_estado;
+				if (isset($estados[$index_estado])){
+						if (!isset($estados[$index_estado]['cantidad'])){
+							// es la primero, por lo que creamo y poner valor 1
+							$estados[$index_estado]['cantidad']=1;
+						} else {
+							// incrementamos uno
+							$estados[$index_estado]['cantidad']++;
+						}
+				} else {
+					// Realmente no existe el estado de ese producto, lo creamos , pero deberíamos crearlo como un error.
+					$estados[]=  array( 'estado'      =>$estado,
+															  'Descripcion' =>'Estado MAL !!.',
+															  'error' => 'KO',
+															  'cantidad'=>1
+															);
+					$productos[$key]['index_estado'] =count($estado); // Recuerda que el array estado empieza en 1 , no en 0
+				}
+                
+			}
+		}
+		foreach ($estados as $i=>$estado){
+			if (isset($estado['cantidad'])){
+				// Recuerda que la estado en texto pueden ser varias palabras, por eso ponemos index
+				$html = '<div class="checkbox">
+							<label title="'.$estado['Descripcion'].'">
+							<input type="checkbox" value="1" id="Check'.$i
+							.'" onchange="filtroEstado(this,'.$i.')"checked>'
+							.$estado['estado'].'<span class="badge">'.$estado['cantidad'].'</span>
+						</label>
+						</div>';
+				$estados[$i]['html'] =$html;
 			}
 		}
 		?>
@@ -83,12 +119,26 @@
 				<div class="col-md-3">
 				<?php 
 						echo $Controler->getHtmlLinkVolver().'<br/>';
-						echo 'Nombre Comercial:'.$datosProveedor['datos'][0]['nombrecomercial'].'<br/>';
-						echo 'Razon Social:'.$datosProveedor['datos'][0]['razonsocial'].'<br/>';
-						echo 'email:'.$datosProveedor['datos'][0]['email'].'<br/>';
-						echo 'Telefono:'.$datosProveedor['datos'][0]['telefono'].'<br/>';
-						echo 'fax:'.$datosProveedor['datos'][0]['fax'].'<br/>';
-						echo 'movil:'.$datosProveedor['datos'][0]['movil'].'<br/>';
+                        echo '<div>';
+                        echo '<h4>Datos del proveedor</h4>';
+                        echo '<strong>Nombre Comercial:</strong>'.$datosProveedor['datos'][0]['nombrecomercial'].'<br/>';
+						echo '<strong>Razon Social:</strong>'.$datosProveedor['datos'][0]['razonsocial'].'<br/>';
+						echo '<strong>email:</strong>'.$datosProveedor['datos'][0]['email'].'<br/>';
+						echo '<strong>Telefono:</strong>'.$datosProveedor['datos'][0]['telefono'].'<br/>';
+						echo '<strong>fax:</strong>'.$datosProveedor['datos'][0]['fax'].'<br/>';
+						echo '<strong>movil:</strong>'.$datosProveedor['datos'][0]['movil'].'<br/>';
+                        echo '</div>';
+                        echo '<div>';
+                        echo '<h4>Otros Datos</h4>';
+                        echo '<strong>Productos:</strong>'.count($productos);
+						echo '</div>';
+						echo '<div><h4>Filtrar por estado:</h4>';
+                        foreach ($estados as $estado){
+							if (isset($estado['html'])){
+								echo $estado['html'];
+							}   
+                        }
+                        echo '</div>';
 					?>
 				</div>
 				<div class="col-md-9">
@@ -114,7 +164,7 @@
 						$link_mayor = '<a class="glyphicon glyphicon-list" target="_blank" href="./../../mod_producto/DetalleMayor.php?idArticulo='
 								.$producto['idArticulo'].'"></a>';
 						echo
-							'<tr>
+							'<tr class="Row'.$producto['index_estado'].'">
 								<td>'.$producto['idArticulo'].'</td>
 								<td>'.$link_producto.'</td>
 								<td>'.$producto['articulo_name'].'</td>

@@ -305,39 +305,40 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// 		$producto-> (array) Con los datos del producto
 		// @ Responde :
 		// 		Si hubiera un error crea una comprobación y le añade a la propiedad comprobaciones.
-        //      No devuelve nada.
+        //      Devuelve el index ( como si fuera un id, que es mas sencillo utilizar)
+
 		$estado = $producto['estado'];
-        $datetime1 = date_create($producto['fecha_creado']);
-        $datetime2 = date_create();
-		$interval = date_diff($datetime1, $datetime2);
-		switch ($estado) {
-			case 'Nuevo':
-				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
-				if ($interval->days >20){
-					// Creamos la advertencia.
-					$error = array ( 'tipo'=>'warning',
-								 'dato' => '',
-								 'mensaje' => 'Ojo !! Este producto tiene el estado [Nuevo], lleva '.$interval->days.' días, recomiendo ponerlo como Activo.'
-								 );
-					parent::SetComprobaciones($error);
-					
+		$posibles_estados = $this->posiblesEstados('articulos');
+		$index = 0 ;
+		foreach ($posibles_estados as $key=>$estadoArray){
+			if ($estado ==$estadoArray['estado']){
+				$index = $key; // Recuerda que no puede haber index 0, sino siempre va indicar que no existe estado.
+				$datetime1 = date_create($producto['fecha_creado']);
+				$datetime2 = date_create();
+				$interval = date_diff($datetime1, $datetime2);
+				if ($estado == 'Nuevo' || $estado == 'importado'){
+					if ($interval->days >20){
+						// Creamos la advertencia.
+						$error = array ( 'tipo'=>'warning',
+						'dato' => '',
+						'mensaje' => 'Ojo !! Este producto tiene el estado ['.$estado.'], lleva '.$interval->days.' días, recomiendo ponerlo como Activo.'
+						);
+						parent::SetComprobaciones($error);
+					}
 				}
-				break;
-			case 'importado':
-				// Debemos saber si la fecha_actualizacion ultima es superior a un mes.
-				if ($interval->days >20){
-					// Creamos la advertencia.
-					$error = array ( 'tipo'=>'warning',
-								 'dato' => '',
-								 'mensaje' => 'Ojo !! Este producto tiene el estado [importado], lleva '.$interval->days.' días, recomiendo cambiarlo.'
-								 );
-					parent::SetComprobaciones($error);
-					
-				}
-				break;
-				
-			
+			break; // Ya no continuamos buscando.
+			}
 		}
+		if ($index == 0){
+				// Creamos la advertencia.
+				$error = array ( 'tipo'=>'warning',
+				'dato' => '',
+				'mensaje' => 'Ojo !! Este producto tiene el estado ['.$estado.'] y no existe ese estado en articulos.'
+				);
+				parent::SetComprobaciones($error);
+
+		}
+		return $index;
 	}
 	
 

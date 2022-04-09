@@ -997,30 +997,41 @@ function modalAutocompleteEstadoProductos($productos,$posibles_estados){
         $html.='<p id="botonEnviarEstados"></p>';
         return $html;
 }
-function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$nombre_completo = ''){
+function selectFamilias($padre=0, $espacio, $array_familias, $conexion,$descendente=0,$title_padre = ''){
+		// @ Objetivo:
+		// Obtener las familias padre y luego obtener los hijos ( funcion recurrente)
+		// [ NOTA]
+		// Esta funcion no debería hacer la consulta, debería utilizarse la Clase familia.
     
         $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre='.$padre.' ORDER BY idFamilia ASC';
         $res = $conexion->query($sql);
        if($padre>0){
            $espacio.='-';
-       }
-        
-        $total= $res->num_rows;
-      
-        if($total>0){
-            
+		   $descendente++;
+		   foreach ($array_familias as $key=>$familia){
+			   if ($padre == $familia['id']){
+					$array_familias[$key]['hijos']=$res->num_rows;
+					break;
+			   }
+		   }
+       	} else {
+		   $descendente = 0;
+		}      
+    	if($res->num_rows>0){    
             while ($row = $res->fetch_assoc()) {
-                if (strlen($nombre_completo) >0){
-                    $nombre_completo = $nombre_completo.'&#187;'.$row['familiaNombre'];
+                if (strlen($title_padre) >0){
+                    $nombre_completo = $title_padre.'&#187;'.$row['familiaNombre'];
                 } else {
                     $nombre_completo = $row['familiaNombre'];
                 }
                 $array_familias[]=array(
                                     "id" => $row['idFamilia'],
                                     "name" => $espacio . $row['familiaNombre'],
-                                    "title" => $nombre_completo );
-               
-                 $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion,$nombre_completo);
+                                    "title" => $nombre_completo,
+									"padre" => $padre,
+									"descendente" => $descendente );
+				$Nuevo_title_padre = $nombre_completo;
+                $array_familias= selectFamilias($row['idFamilia'], $espacio, $array_familias , $conexion,$descendente,$Nuevo_title_padre);
             }
         }
         
