@@ -83,7 +83,8 @@ switch ($pulsado) {
         $idArticulo=$_POST['idArticulo'];
         $buscarPlu=$CBalanza->buscarPluEnBalanza($plu, $idBalanza);
         if(isset($buscarPlu['datos'])){
-            $respuesta['error']="Ya existe ese mismo plu en la balanza";
+            $respuesta['error']='Ya existe el producto con id:'.$buscarPlu['datos']['0']['idArticulo'].' ese mismo plu en la balanza';
+            $respuesta['buscarPlu'] = json_encode($buscarPlu);
         }else{
             $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
             $datos=array(
@@ -96,6 +97,7 @@ switch ($pulsado) {
             );
             $html=htmlLineaPlu($datos, $idBalanza);
             $respuesta['html']=$html;
+           
         }
     break;
     case 'eliminarPlu':
@@ -107,6 +109,7 @@ switch ($pulsado) {
         $datosBalanza=$CBalanza->datosBalanza($_POST['idBalanza']);
         if(isset($datosBalanza['datos'])){
             $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
+            $respuesta['datosPlu'] = json_encode($datosplu);
             if(isset($datosplu['datos'])){
                 $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos'], $_POST['filtro']);
                 $respuesta['html']=$html['html'];
