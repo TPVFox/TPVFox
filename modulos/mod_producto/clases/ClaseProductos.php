@@ -558,6 +558,11 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// @ Parametros
 		// 		id 			-> (int)  Id de producto a consultar.
 		//		datosProveedores -> (array) de arrays que contienen los datos costes, referencia y id de producto.
+		// @ Devolvemos
+		// Ejecutamos UPDATE o  INSERT si hay cambios. Aparte devolvemos.
+		// Array () vacio o con datos
+		//   [Nuevo] => Si es nuevo...
+		//   [Modificado] => SI se modifico.
 		parent::ObtenerCostesProveedores($id); // Obtenemos datos de los proveedores de ese producto.
 		$proveedores_costes_sin = $this->proveedores_costes;
 		// Eliminamos del array los elementos que no vamos comprobar.
@@ -659,8 +664,8 @@ class ClaseProductos extends ClaseTablaArticulos{
 								'beneficio'				=> $this->beneficio,
                                 'tipo'                  =>$this->tipo
 								);
-		// Obtenemos id de proveedor principal
-		if (gettype($this->proveedor_principal) === 'array'){
+		// Obtenemos id de proveedor principal						
+		if (count($this->proveedor_principal) > 0){
 			$datosgenerales_actual['idProveedor'] = $this->proveedor_principal['idProveedor'];
 		}
 		// ---- Ahora montamos datos generales post					--- //
@@ -674,21 +679,22 @@ class ClaseProductos extends ClaseTablaArticulos{
 							'beneficio'					=> $DatosPostProducto['beneficio'],
                             'tipo'                      => $DatosPostProducto['tipo']
 							);
+		$datosgenerales_post['idProveedor'] = NULL;
+		if (isset($DatosPostProducto['idProveedor'])){
+			// Si existe
+			$datosgenerales_post['idProveedor'] = $DatosPostProducto['idProveedor'];
+		}
 		
-		// Obtenemos id de proveedor principal
-        if (isset($DatosPostProducto['proveedor_principal'])){
-            if (gettype($DatosPostProducto['proveedor_principal']) === 'array'){
-                $datosgenerales_post['idProveedor'] = $DatosPostProducto['proveedor_principal']['idProveedor'];
-            }
-        }
 		// Ahora comparamos si no es igual guardamos cambios, sino no hacemos nada.
 		if (serialize($datosgenerales_actual) !== serialize($datosgenerales_post) ){
 			// Montamos sql para guardar...
 			$d =$datosgenerales_post;
             $idp = '';
             if( isset($d['idProveedor'])){
-                $idp = 'idProveedor="'.$d['idProveedor'].'",'; // Evitamos notice cuando no tiene proveedor principal.
-            }
+                $idp = 'idProveedor="'.$d['idProveedor'].'",'; 
+            } else {
+				$idp = 'idProveedor=NULL,'; 
+			}
 			$sql =	'UPDATE `articulos` SET `iva`="'.$d['iva'].'",'
                     .$idp.' `articulo_name`="'.$d['articulo_name'].'",`beneficio`="'.$d['beneficio'].'",`estado`="'
                     .$d['estado'].'",`fecha_modificado`=NOW(),`ultimoCoste`="'.$d['ultimoCoste'].'", tipo="'.$d['tipo'].'" WHERE idArticulo = '

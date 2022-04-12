@@ -37,6 +37,32 @@ if ($_POST){
 }
 // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 $Producto = $CTArticulos->GetProducto($id);
+if ( isset($preparados)){
+    // Preparados viene de 	POST	
+    // No lo puedo hacer en recibosPostProducto.php porque cargamos despues el producto y eso hace las comprobaciones reinicien
+    if (isset($preparados['comprobaciones'])){
+        foreach ($preparados['comprobaciones'] as $comprobacion){
+            $CTArticulos->SetComprobaciones($comprobacion);
+        }
+    }
+
+    if (isset($preparados['codbarras'])){
+        foreach ($preparados['codbarras'] as $comprobacion){
+            $CTArticulos->SetComprobaciones($comprobacion);
+        }
+    }
+    if (isset($preparados['familias'])){
+        foreach ($preparados['familias'] as $comprobacion){
+            $CTArticulos->SetComprobaciones($comprobacion);
+        }
+    }
+    if (isset($preparados['insert_articulos'])){
+        foreach ($preparados['insert_articulos'] as $comprobacion){
+            $CTArticulos->SetComprobaciones($comprobacion);
+        }
+    }
+}
+
 
 
 $Producto['comprobaciones'] = $CTArticulos->GetComprobaciones();
@@ -46,7 +72,7 @@ if ( !isset($Producto['proveedores_costes'])) {
     // No existe costes..
     $Producto['proveedores_costes']= array();
 } else {
-    if ( gettype($Producto['proveedor_principal']) == 'array') {
+    if ( count($Producto['proveedor_principal']) > 0) {
         foreach ($Producto['proveedores_costes'] as $key=>$proveedor){
             if ($proveedor['idProveedor'] === $Producto['proveedor_principal']['idProveedor']){
                 // Indicamos que es le principal
@@ -369,7 +395,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                                     .$datosWebCompletos['num_notificaciones'].'</span>';
                                             echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
                                     }
-                                    if (isset($datosWebCompletos['htmlsLinksVirtuemart'])){
+                                    if (isset($datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'])){
                                             echo $datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'];
                                     }
                                     

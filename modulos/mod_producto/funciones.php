@@ -426,7 +426,6 @@ function prepararandoPostProducto($array,$claseArticulos){
 	
 	// Obtenemos (array) Key del array recibido
 	$Post = array_keys($array);
-	
 	// Recorremos las keys y montamos DatosProducto que son los datos Post formateados.
 	$DatosProducto = array();
 	$DatosProducto['codBarras'] = array();
@@ -461,9 +460,8 @@ function prepararandoPostProducto($array,$claseArticulos){
 				}
 				break;
 			case 'check_pro':
-				// Obtener array de proveedor principal
-				$claseArticulos->ObtenerDatosProvPredeter($array['check_pro']);
-				$DatosProducto['proveedor_principal'] = $claseArticulos->GetProveedorPrincipal();
+				// Creamos proveedor_principal
+				$DatosProducto['idProveedor'] = $array['check_pro'];
 				break;
 			 
 			case (substr($key, 0, 10)=== 'codBarras_'):

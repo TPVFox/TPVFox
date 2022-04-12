@@ -30,7 +30,7 @@ class ClaseTablaArticulos{
 	public $precios_tiendas; // Array de referencias de las tiendas.
 	public $proveedores_costes; // Array de proveedores para ese producto ( costes,referencias)
 	public $familias; // Array de familias de ese producto
-	public $proveedor_principal; // Array con datos del proveedor principal
+	public $proveedor_principal = array(); // Array con datos del proveedor principal
     public $productos_historico;
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
 	public $ref_tiendas = array() ; // (array) Se utiliza para guardar las referencias distintas tiendas.
@@ -88,7 +88,7 @@ class ClaseTablaArticulos{
 		$respuesta = array();
 		// El campo ultimoCoste, tendría que llamarse coste_ultimo
 		// El campo costepromedio -> coste_promedio ...
-		
+		$this->MontarProducto(); // Se monta tanto id sea 0 como si no existe id.
         
         if ($id !=0){                    
 			$Sql = 'SELECT a.*, prec.* FROM articulos as a '
@@ -143,10 +143,7 @@ class ClaseTablaArticulos{
                     
                 }
                 
-		} else {
-			// Se monta tanto id sea 0 como si no existe id.
-			$this->MontarProducto();
-		}
+		} 
 
         
 		return $this->ArrayPropiedades();
@@ -155,6 +152,7 @@ class ClaseTablaArticulos{
 	// ----- METODOS PARA OBTENER PROPIEDADES --- //	
 	public function MontarProducto($datos=array()){
 		// Metodo para montar añadir los datos al producto.
+		$this->proveedor_principal = array(); // Reinicio este valor evitar pille valor anterior.
 		foreach ($datos as $propiedad => $valor){
 			if ($propiedad === 'idProveedor'){
 				// El proveedor principal guardamos como proveedor_principal y todos datos.

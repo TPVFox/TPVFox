@@ -13,6 +13,7 @@ if (isset($_POST['id'])){
 }
 // Comprobamos los datos y grabamos.
 $DatosPostProducto= prepararandoPostProducto($_POST,$CTArticulos);
+
 // Ahora vemos si hay advertencias de campos
 if (isset($DatosPostProducto['comprobaciones'])){
 	foreach ($DatosPostProducto['comprobaciones'] as $key =>$comprobacion){
@@ -67,7 +68,6 @@ if ($id >0 ){
         $preparados['familias'] = $comprobaciones;
 		// ---	Comprobamos y grabamos los proveedores . ---//
 		$comprobaciones = $CTArticulos->ComprobarProveedoresCostes($id,$DatosPostProducto['proveedores_costes']);
-
         foreach ($comprobaciones as $key => $comprobacion){
 			
 			if ($key === 'nuevo'){
@@ -89,7 +89,7 @@ if ($id >0 ){
 	
 			if ($key === 'modificado'){
 				foreach ($comprobacion as $modificado){
-					if ($modificado['error']){
+					if (isset($modificado['error'])){
 					   $success = array ( 'tipo'=>'danger',
 							 'mensaje' =>'Hubo un error al modificarr un coste ,referencia de proveedor.',
 							 'dato' => $modificado
@@ -156,26 +156,6 @@ if ($id >0 ){
 		
 }
 	
-// Preparados viene de 		
-if (isset($preparados['comprobaciones'])){
-    foreach ($preparados['comprobaciones'] as $comprobacion){
-        $CTArticulos->SetComprobaciones($comprobacion);
-    }
-}
-if (isset($preparados['codbarras'])){
-    foreach ($preparados['codbarras'] as $comprobacion){
-        $CTArticulos->SetComprobaciones($comprobacion);
-    }
-}
-if (isset($preparados['familias'])){
-    foreach ($preparados['familias'] as $comprobacion){
-        $CTArticulos->SetComprobaciones($comprobacion);
-    }
-}
-if (isset($preparados['insert_articulos'])){
-    foreach ($preparados['insert_articulos'] as $comprobacion){
-        $CTArticulos->SetComprobaciones($comprobacion);
-    }
-}
+
 
 ?>
