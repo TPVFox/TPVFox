@@ -1,6 +1,4 @@
 function catchEvents(){
-	console.log(productos);
-
 	$(".ordenar").off('click').on('click', function (event) {
 		event.stopPropagation();
 		event.preventDefault();
@@ -17,10 +15,7 @@ function catchEvents(){
 		if(campourl && (campourl == campoorden)){
 			ordenascendente = !sentidourl;
 		} 
-
-		productos = ordenar(productos, campoorden, ordenascendente);
-		$('#lamadredelostbody').html(generarHTML(productos));
-		
+	
 		parametrosURL.set('campoorden', campoorden);	// cambiar el valor del parametro de la url campoorden
 														// si no existe se asigna y si existe se modifica
 		parametrosURL.set('sentidoorden', (ordenascendente ? 'ASC' : 'DESC'));

@@ -166,17 +166,57 @@
 							<tr>
 								<th>ID</th>
 								<th></th>
-								<th class="ordenar" data-campo="articulo_name">Nombre Producto</th>
+								<th class="ordenar" data-campo="articulo_name">Nombre Producto
+								<?php if( $campoOrden == "articulo_name" ) {
+									if($sentidoOrden=='ASC') { ?>
+									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+									<?php } else { ?>
+										<span class="glyphicon glyphicon-sort-by-attributes"></span>
+									<?php } 
+								     }else { ?>										
+										<span class="glyphicon glyphicon-sort"></span>
+								    <?php } ?>										
+								</th>
 								<th>Ultimo</th>
-								<th class="ordenar" data-campo="IdProveedor">Ref_Proveedor</th>
+								<th class="ordenar" data-campo="crefProveedor">Ref_Proveedor
+								<?php if( $campoOrden == "crefProveedor" ) {
+									if($sentidoOrden=='ASC') { ?>
+									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+									<?php } else { ?>
+										<span class="glyphicon glyphicon-sort-by-attributes"></span>
+									<?php } 
+								     }else { ?>										
+										<span class="glyphicon glyphicon-sort"></span>
+								    <?php } ?>										
+								</th>
 								<th>Coste Prov</th>
-								<th class="ordenar" data-campo="fecha_modificado">Fecha_Actualiza</th>
+								<th class="ordenar" data-campo="fechaActualizacion">Fecha_Actualiza
+								    <?php if( $campoOrden == "fechaActualizacion" ) {
+									if($sentidoOrden=='ASC') { ?>
+									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+									<?php } else { ?>
+										<span class="glyphicon glyphicon-sort-by-attributes"></span>
+									<?php } 
+								     }else { ?>										
+										<span class="glyphicon glyphicon-sort"></span>
+								    <?php } ?>										
+								</th>
 								<th>Stock</th>
-								<th class="ordenar" data-campo="estado">Estado</th>
+								<th class="ordenar" data-campo="a.estado">Estado
+								    <?php if( $campoOrden == "a.estado" ) {
+									if($sentidoOrden=='ASC') { ?>
+									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+									<?php } else { ?>
+										<span class="glyphicon glyphicon-sort-by-attributes"></span>
+									<?php } 
+								     }else { ?>										
+										<span class="glyphicon glyphicon-sort"></span>
+								    <?php } ?>										
+								</th>
 								<th></th>
 							</tr>
 						</thead>
-							<tbody id="lamadredelostbody">
+							<tbody>
 
 					<?php
 						foreach ($productos as $producto){
@@ -210,7 +250,6 @@
         	</div>
 		</div>
 		<script>
-		var productos = <?php echo json_encode($productos) ?>;
 		catchEvents();
 	</script>
 	</body>
