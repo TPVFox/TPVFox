@@ -21,6 +21,12 @@
 			$campoOrden = 'articulo_name';
 		}
 
+		if(isset($_GET['sentidoorden'])){
+			$sentidoOrden=$_GET['sentidoorden'];
+		} else {
+			$sentidoOrden = 'ASC';
+		}
+
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosProveedor=$CProveedor->getProveedor($id);
@@ -41,7 +47,8 @@
 								 'mensaje' => 'Error no se ha enviado el id del proveedor'
 								 );
 		}
-		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden);
+		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden);
+
 		if ($ArrayProductoPrincipales['NItems']>0){
 			$estados = $CTArticulos->posiblesEstados('articulos');
 			$productos = [];
@@ -100,6 +107,7 @@
 				$estados[$i]['html'] =$html;
 			}
 		}
+
 		?>
 
 <!DOCTYPE html>
@@ -153,8 +161,6 @@
 					?>
 				</div>
 				<div class="col-md-9">
-					<form type="POST" action="./ListadoProductosDeProveedor.php" id="listadoProductosProveedorForm">
-						<input type="hidden" value="<?php echo $id ?>" name="id" />
 					<table class="table">
 						<thead>
 							<tr>
@@ -170,7 +176,8 @@
 								<th></th>
 							</tr>
 						</thead>
-							<tbody>
+							<tbody id="lamadredelostbody">
+
 					<?php
 						foreach ($productos as $producto){
 						$link_producto = '<a class="glyphicon glyphicon-eye-open" target="_blank" href="./../../mod_producto/producto.php?id='.$producto['idArticulo'].'"></a>';
@@ -199,11 +206,12 @@
 					?>
 						</tbody>
 					</table>
-					<button type="submit">prueba</button>
-					</form>
             	</div>
         	</div>
 		</div>
-		<script>catchEvents()</script>
+		<script>
+		var productos = <?php echo json_encode($productos) ?>;
+		catchEvents();
+	</script>
 	</body>
 </html>

@@ -1,11 +1,34 @@
 function catchEvents(){
+	console.log(productos);
+
 	$(".ordenar").off('click').on('click', function (event) {
 		event.stopPropagation();
 		event.preventDefault();
 
-		let campo = $(this).data('campo');
+		let urlString = window.location.href;	// url actual
+		let url = new URL(urlString);			// objeto URL con la url actual
+		let parametrosURL = url.searchParams;	//parametros GET del objeto url
+
+		let campoorden = $(this).data('campo');	// variable array data, elemento campo
+		let ordenascendente = true; //$(this).data('sentido');	// variable array data, elemento campo
+		let campourl = parametrosURL.get('campoorden');
+		let sentidourl = parametrosURL.get('sentidoorden') == 'ASC';
+
+		if(campourl && (campourl == campoorden)){
+			ordenascendente = !sentidourl;
+		} 
+
+		productos = ordenar(productos, campoorden, ordenascendente);
+		$('#lamadredelostbody').html(generarHTML(productos));
 		
-		console.log(campo);	
+		parametrosURL.set('campoorden', campoorden);	// cambiar el valor del parametro de la url campoorden
+														// si no existe se asigna y si existe se modifica
+		parametrosURL.set('sentidoorden', (ordenascendente ? 'ASC' : 'DESC'));
+
+		url.search = parametrosURL.toString();	// actualizar los parametros de la URL
+
+		window.location.href = url.toString();	// cambiar de URL
+	
 	});
 
 }
