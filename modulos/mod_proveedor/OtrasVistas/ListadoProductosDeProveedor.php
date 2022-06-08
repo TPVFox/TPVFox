@@ -10,6 +10,17 @@
 		$Controler = new ControladorComun; 
         $style='';
 		
+
+
+		//$campoOrden=$_GET['campoorden'] ? : 'articulo_name';
+
+
+		if(isset($_GET['campoorden'])){
+			$campoOrden=$_GET['campoorden'];
+		} else {
+			$campoOrden = 'articulo_name';
+		}
+
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
 			$datosProveedor=$CProveedor->getProveedor($id);
@@ -30,7 +41,7 @@
 								 'mensaje' => 'Error no se ha enviado el id del proveedor'
 								 );
 		}
-		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id);
+		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden);
 		if ($ArrayProductoPrincipales['NItems']>0){
 			$estados = $CTArticulos->posiblesEstados('articulos');
 			$productos = [];
@@ -142,18 +153,20 @@
 					?>
 				</div>
 				<div class="col-md-9">
+					<form type="POST" action="./ListadoProductosDeProveedor.php" id="listadoProductosProveedorForm">
+						<input type="hidden" value="<?php echo $id ?>" name="id" />
 					<table class="table">
 						<thead>
 							<tr>
 								<th>ID</th>
 								<th></th>
-								<th>Nombre Producto</th>
+								<th class="ordenar" data-campo="articulo_name">Nombre Producto</th>
 								<th>Ultimo</th>
-								<th>Ref_Proveedor</th>
+								<th class="ordenar" data-campo="IdProveedor">Ref_Proveedor</th>
 								<th>Coste Prov</th>
-								<th>Fecha_Actualiza</th>
+								<th class="ordenar" data-campo="fecha_modificado">Fecha_Actualiza</th>
 								<th>Stock</th>
-								<th>Estado</th>
+								<th class="ordenar" data-campo="estado">Estado</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -186,8 +199,11 @@
 					?>
 						</tbody>
 					</table>
+					<button type="submit">prueba</button>
+					</form>
             	</div>
         	</div>
 		</div>
+		<script>catchEvents()</script>
 	</body>
 </html>

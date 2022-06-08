@@ -1,3 +1,16 @@
+function catchEvents(){
+	$(".ordenar").off('click').on('click', function (event) {
+		event.stopPropagation();
+		event.preventDefault();
+
+		let campo = $(this).data('campo');
+		
+		console.log(campo);	
+	});
+
+}
+
+
 
 function metodoClick(pulsado){
 	console.log("Inicimos switch de control pulsar");

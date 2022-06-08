@@ -204,10 +204,11 @@ class ClaseProductos extends ClaseTablaArticulos{
         
 	}
 
-	public function GetProductosProveedor($idProveedor) {
+	public function GetProductosProveedor($idProveedor,$campoOrden='articulo_name', $sentidoOrden='ASC') {
 		// @ Objetivo:
 		// Obtener los ids de los productos que tienen como predeterminado un proveedor.
-		$sql = 'SELECT idArticulo FROM articulos WHERE idProveedor='.$idProveedor.' ORDER BY articulos.articulo_name ASC';
+		$sql = 'SELECT idArticulo FROM articulos WHERE idProveedor='.$idProveedor;
+		$sql .= ' ORDER BY '.$campoOrden .' '. $sentidoOrden;
 		$respuesta =  parent::Consulta($sql);
 		return $respuesta;
 
