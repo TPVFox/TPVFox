@@ -15,6 +15,10 @@
 		//$campoOrden=$_GET['campoorden'] ? : 'articulo_name';
 
 
+		//TODO: comprobar que los campos por los que se ordena están en 
+		//      la lista de campos por los que se puede ordenar.
+
+
 		if(isset($_GET['campoorden'])){
 			$campoOrden=$_GET['campoorden'];
 		} else {
