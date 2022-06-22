@@ -109,4 +109,25 @@ function comprobarFechas($fechaIni, $fechaFin){
 	}
 	return $resultado;
 }
+
+
+function obtenerIconoOrden($campoOrden,$sentidoOrden,$campo){
+    // Objetivo:
+    // Obtener string con icono de orden.
+    // Parametros:
+    // $campoOrden -> Nombre de campo por el que esta ordenado.
+    // $sentidoOrden -> ASC o DESC el orden.
+    // $campo -> Actual , para comparar.
+    $icon = '<span class="glyphicon glyphicon-sort';
+    if ( $campoOrden == $campo ) {
+        if($sentidoOrden=='ASC') { 
+            $icon .= '-by-attributes-alt"></span>';
+        } else { 
+            $icon .= '-by-attributes"></span>';
+        } 
+    }else { 										
+        $icon .= '"></span>';
+    } 
+    return $icon;
+}
 ?>

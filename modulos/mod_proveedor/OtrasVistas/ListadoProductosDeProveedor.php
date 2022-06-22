@@ -170,52 +170,24 @@
 							<tr>
 								<th>ID</th>
 								<th></th>
+                                <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'articulo_name');?>
 								<th class="ordenar" data-campo="articulo_name">Nombre Producto
-								<?php if( $campoOrden == "articulo_name" ) {
-									if($sentidoOrden=='ASC') { ?>
-									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-									<?php } else { ?>
-										<span class="glyphicon glyphicon-sort-by-attributes"></span>
-									<?php } 
-								     }else { ?>										
-										<span class="glyphicon glyphicon-sort"></span>
-								    <?php } ?>										
+                                    <?php echo $icon;?>
 								</th>
 								<th>Ultimo</th>
+                                <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'crefProveedor');?>
 								<th class="ordenar" data-campo="crefProveedor">Ref_Proveedor
-								<?php if( $campoOrden == "crefProveedor" ) {
-									if($sentidoOrden=='ASC') { ?>
-									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-									<?php } else { ?>
-										<span class="glyphicon glyphicon-sort-by-attributes"></span>
-									<?php } 
-								     }else { ?>										
-										<span class="glyphicon glyphicon-sort"></span>
-								    <?php } ?>										
+                                    <?php echo $icon;?>
 								</th>
 								<th>Coste Prov</th>
+                                <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'fechaActualizacion');?>
 								<th class="ordenar" data-campo="fechaActualizacion">Fecha_Actualiza
-								    <?php if( $campoOrden == "fechaActualizacion" ) {
-									if($sentidoOrden=='ASC') { ?>
-									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-									<?php } else { ?>
-										<span class="glyphicon glyphicon-sort-by-attributes"></span>
-									<?php } 
-								     }else { ?>										
-										<span class="glyphicon glyphicon-sort"></span>
-								    <?php } ?>										
+                                    <?php echo $icon;?>
 								</th>
 								<th>Stock</th>
+                                <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'articulo_name');?>
 								<th class="ordenar" data-campo="a.estado">Estado
-								    <?php if( $campoOrden == "a.estado" ) {
-									if($sentidoOrden=='ASC') { ?>
-									<span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
-									<?php } else { ?>
-										<span class="glyphicon glyphicon-sort-by-attributes"></span>
-									<?php } 
-								     }else { ?>										
-										<span class="glyphicon glyphicon-sort"></span>
-								    <?php } ?>										
+                                    <?php echo $icon;?>
 								</th>
 								<th></th>
 							</tr>
