@@ -414,7 +414,7 @@ function GuardarConfiguracion(obj){
 	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionMostrarListado.
 	setTimeout(AjaxGuardarConfiguracion,500);
 	// Recargo pagina en un 1 s.
-	setTimeout(refresh,1000);
+	setTimeout(refresh,500);
 }
 function AjaxGuardarConfiguracion(){
 	// Objetivo:
@@ -489,7 +489,7 @@ function GuardarFiltroEstado(event){
     // Ahora creamos grabamos configuracion en usuario
     AjaxGuardarConfiguracion();
     // Redireccionamos
-    setTimeout(refresh,1000);
+    setTimeout(refresh,500);
 }
 
 function refresh() {
