@@ -1380,16 +1380,11 @@ function seleccionProductos(){
         filtrarSeleccionProductos();
         $("#checkSeleccion").prop( "checked", true );
     }else{
-         busquedaSinCheck();
-        //~ eliminarSeleccionProductos();
+        console.log('Va entrar en buscar si check');
+        configuracion.filtro.valor='No';
+        AjaxGuardarConfiguracion();
         $("#checkSeleccion").prop( "checked", false );
     }
-}
-
-function busquedaSinCheck(){
-    configuracion.filtro.valor='No';
-    AjaxGuardarConfiguracion();
-    location.href="ListaProductos.php";
 }
 
 function obtenerFechas(){
