@@ -414,7 +414,7 @@ function GuardarConfiguracion(obj){
 	// Ahora ejecutamos el guardar la configuracion.. pero esperamos un segundo por si tarda en hacer CambiarConfiguracionMostrarListado.
 	setTimeout(AjaxGuardarConfiguracion,500);
 	// Recargo pagina en un 1 s.
-	setTimeout(refresh,500);
+	//setTimeout(refresh,500);
 }
 function AjaxGuardarConfiguracion(){
 	// Objetivo:
@@ -441,6 +441,7 @@ function AjaxGuardarConfiguracion(){
 
 function CambiarConfiguracionMostrarLista(valor,nombre){
 	// Ahora cambiamos el valor configuracion.
+	console.log(valor,nombre)
 	configuracion.mostrar_lista.forEach(function(element) {
 		if (element.nombre === nombre){
 			element.valor=valor;

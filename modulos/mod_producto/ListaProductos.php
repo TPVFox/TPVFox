@@ -228,8 +228,8 @@
                         </ul>
                     </div>
                     <div class="productos_seleccionados" <?php echo $prod_seleccion['display']; ?>>
-                        <h4>Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
-                        <p>Opciones de seleccion:
+                        <h4>Opciones Seleccionados <span class="label label-default textoCantidad"><?php echo $prod_seleccion['NItems']; ?></span></h4>
+                        <p>Filtrar seleccionados:
                         <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()">
                         </p>
                         <ul class=""> 
