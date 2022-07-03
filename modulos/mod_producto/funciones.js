@@ -918,7 +918,8 @@ function filtrarSeleccionProductos(){
 	// Hizo click en filtrar productos seleccionados por lo que 
 	configuracion.filtro.valor='Si';
 	AjaxGuardarConfiguracion();
-	location.href="ListaProductos.php";
+	//location.href="ListaProductos.php";
+	setTimeout(refresh,500);
 }
 
 function mover_up(fila,prefijo){
