@@ -310,11 +310,11 @@ function enviarCorreo( f){
             contenido = '<div class="alert alert-info">Fue enviado correctame y subido como enviado nuestro email correctamente</div>' 
             // Debemos cambiar el estado pedido y cerrar ventanama
         } else {
-            contenido_inicio = '<div class="alert alert-warning">Hubo en error al enviarlo<br/>';
+            contenido_inicio = '<div class="alert alert-danger">Hubo en error al enviarlo<br/>';
             contenido_enviado = ' Envio destino:'+resultado.envio_destinatario+'<br/>';
             contenido_subido = 'Subida a nuestro email:'+resultado.subido_enviados+'<br/>';
             contenido_final = '</div>';
-            contenido = contenido_inicial+contenido_enviado+contenido_subido+contenido_final;
+            contenido = contenido_inicio+contenido_enviado+contenido_subido+contenido_final;
             // Hay que ver que fallo y informar del fallo.
         }
         console.log(resultado);
