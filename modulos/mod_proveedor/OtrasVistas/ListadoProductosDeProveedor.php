@@ -52,13 +52,14 @@
 								 );
 		}
 		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden);
-
+       
 		if ($ArrayProductoPrincipales['NItems']>0){
 			$estados = $CTArticulos->posiblesEstados('articulos');
 			$productos = [];
 			foreach ($ArrayProductoPrincipales['Items'] as $key => $array){
 				// Obtenemos datos producto, para añadir nombre Codbarras.
 				$p =$CTArticulos->GetProducto($array['idArticulo']);
+                
                 $estado = $p['estado'];
                 $productos[$key]['idArticulo'] = $p['idArticulo'];
 				$productos[$key]['articulo_name'] = $p['articulo_name'];
@@ -69,6 +70,8 @@
 				$productos[$key]['iva'] = $p['iva'];
 				$productos[$key]['tipo'] = $p['tipo'];
 				$productos[$key]['stockOn'] = $p['stocks']['stockOn'];
+                $productos[$key]['codBarras']= $p['codBarras'];
+                $productos[$key]['pvpCiva']=$p['pvpCiva'];
 				foreach ($p['proveedores_costes'] as $pc){
 					if ($pc['idProveedor'] == $id){
 						$productos[$key]['costeProveedor'] = $pc['coste'];
@@ -111,7 +114,9 @@
 				$estados[$i]['html'] =$html;
 			}
 		}
-
+        //Strock minimo
+        $stockMin=5;
+        $stockMinKilos=2;
 		?>
 
 <!DOCTYPE html>
@@ -120,6 +125,7 @@
     <?php
         include_once $URLCom.'/head.php';
     ?>
+    <script src="<?php echo $HostNombre; ?>/lib/js/tpvfoxSinExport.js"></script>   
     <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
 
 	</head>
@@ -161,6 +167,7 @@
 								echo $estado['html'];
 							}   
                         }
+                        echo '<a onclick="imprimirSeleccion('.$id.')">Imprimir selección</a>';
                         echo '</div>';
 					?>
 				</div>
@@ -168,6 +175,7 @@
 					<table class="table">
 						<thead>
 							<tr>
+                                <th><input type="checkbox" id= "chekArticuloAll" name="chekArticuloAll" value="0" onchange="SeleccionarTodos()"></th>
 								<th>ID</th>
 								<th></th>
                                 <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'articulo_name');?>
@@ -184,6 +192,8 @@
 								<th class="ordenar" data-campo="fechaActualizacion">Fecha_Actualiza
                                     <?php echo $icon;?>
 								</th>
+                                <th>Precio</th>
+                                <th>Código de Barras</th>
 								<th>Stock</th>
                                 <?php $icon = obtenerIconoOrden($campoOrden,$sentidoOrden,'articulo_name');?>
 								<th class="ordenar" data-campo="a.estado">Estado
@@ -201,6 +211,7 @@
 								.$producto['idArticulo'].'"></a>';
 						echo
 							'<tr class="Row'.$producto['index_estado'].'">
+                                <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="'.$producto['idArticulo'].'">
 								<td>'.$producto['idArticulo'].'</td>
 								<td>'.$link_producto.'</td>
 								<td>'.$producto['articulo_name'].'</td>
@@ -208,11 +219,23 @@
 								<td>'.$producto['Ref_proveedor'].'</td>
 								<td>'.number_format($producto['costeProveedor'],2).'</td>
 								<td>'.$producto['fecha_actualizacion_proveedor'].'</td>
+                                <td>'.number_format($producto['pvpCiva'],2).'€</td>
+                                <td>';
+                                foreach ($producto['codBarras'] as $codBarras){
+                                    echo $codBarras.'   ';
+                                    
+                                }
+                                echo '</td>
 								<td>';
 								if ($producto['tipo'] == 'peso'){
-									echo number_format($producto['stockOn'],3);
+                                    if(number_format($producto['stockOn'],3)< $stockMinKilos){
+                                        echo '<p class="text-danger">'.number_format($producto['stockOn'],3).'</p>';
+                                    }
+									
 								} else {
-									echo number_format($producto['stockOn'],0);
+                                    if(number_format($producto['stockOn'],0)< $stockMin){
+                                        echo '<p class="text-danger">'.number_format($producto['stockOn'],0).'</p>';
+                                    }
 								}
 								echo '</td>
 								<td>'.$producto['estado'].'</td>

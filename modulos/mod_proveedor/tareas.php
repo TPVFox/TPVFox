@@ -64,6 +64,11 @@ switch ($pulsado) {
         include_once $URLCom.'/modulos/mod_proveedor/Tareas/imprimirResumenAlbaran.php';
 		$respuesta=$resultado;
 	break;
+    case 'imprimirListadoProductos':
+       
+        include_once $URLCom.'/modulos/mod_proveedor/Tareas/imprimirListadoProductos.php';
+		$respuesta=$resultado;
+    break;
 }
 echo json_encode($respuesta);
 return $respuesta;

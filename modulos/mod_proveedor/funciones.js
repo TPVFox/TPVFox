@@ -111,3 +111,42 @@ function filtroEstado(input,id){
 	}
 	    
 }
+
+function SeleccionarTodos(){
+    var checkGeneral=$("#chekArticuloAll" ).val();
+    if(checkGeneral==0){
+        $(".table tbody input").prop("checked", true);
+        $("#chekArticuloAll" ).val("1");
+    }else{
+        $(".table tbody input").prop("checked", false);
+        $("#chekArticuloAll" ).val("0");
+    }
+}
+
+function imprimirSeleccion(id){
+    if ($('.table tbody input').is(':checked') ) {
+        var idProductos =TfObtenerCheck('chekArticulo');
+        var parametros = {
+            "pulsado"    		:   'imprimirListadoProductos',
+            "productos"			:   idProductos,
+            "idProveedor"       :   id
+        };
+        $.ajax({
+		data       : parametros,
+		url        : './../tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Imprimir listado de productos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de imprimir listado de productos ');
+				 var resultado = $.parseJSON(response);
+				 console.log(resultado);
+                 window.open(resultado);
+				 
+		}	
+	});
+    }else{
+        alert("No has seleccionado ningún articulo");
+    }
+}

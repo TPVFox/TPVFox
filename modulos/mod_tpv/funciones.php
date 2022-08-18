@@ -869,8 +869,9 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla) {
     $buscar1 = 'Nombre';
     $buscar2 = 'razonsocial';
     $buscar3 = 'nif';
-    $sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE ' . $buscar1 . ' LIKE "%' . $busqueda . '%" OR '
-            . $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%"';
+    $buscar4 = 'telefono';
+    $sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE estado="Activo" and ('. $buscar1 . ' LIKE "%' . $busqueda . '%" OR '
+            . $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%" OR '.$buscar4.' LIKE "%' . $busqueda . '%")';
     $res = $BDTpv->query($sql);
 
     //compruebo error en consulta
@@ -936,6 +937,9 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
                 break;
             }
         }
+        $resultado['html'] .= '<tr><td colspan="4"><div class="alert alert-warning" role="alert">
+                            Si el usuario no se muestra está Inactivo, solicitar activación
+                        </div></td></tr>';
     }
     $resultado['html'] .= '</tbody></table>';
     // Ahora generamos objetos de filas.
