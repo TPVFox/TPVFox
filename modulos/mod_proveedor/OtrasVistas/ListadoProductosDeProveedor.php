@@ -70,6 +70,7 @@
 				$productos[$key]['iva'] = $p['iva'];
 				$productos[$key]['tipo'] = $p['tipo'];
 				$productos[$key]['stockOn'] = $p['stocks']['stockOn'];
+                $productos[$key]['stockMin'] = $p['stocks']['stockMin'];
                 $productos[$key]['codBarras']= $p['codBarras'];
                 $productos[$key]['pvpCiva']=$p['pvpCiva'];
 				foreach ($p['proveedores_costes'] as $pc){
@@ -205,12 +206,19 @@
 							<tbody>
 
 					<?php
+                    
 						foreach ($productos as $producto){
 						$link_producto = '<a class="glyphicon glyphicon-eye-open" target="_blank" href="./../../mod_producto/producto.php?id='.$producto['idArticulo'].'"></a>';
 						$link_mayor = '<a class="glyphicon glyphicon-list" target="_blank" href="./../../mod_producto/DetalleMayor.php?idArticulo='
 								.$producto['idArticulo'].'"></a>';
+                        
+                        if(number_format($producto['stockOn'],0)< $producto['stockMin']){
+                                $lineaRoja='danger';
+                            }else{
+                                $lineaRoja='';
+                            }
 						echo
-							'<tr class="Row'.$producto['index_estado'].'">
+							'<tr class="'.$lineaRoja.' Row'.$producto['index_estado'].'">
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="'.$producto['idArticulo'].'">
 								<td>'.$producto['idArticulo'].'</td>
 								<td>'.$link_producto.'</td>
@@ -227,15 +235,11 @@
                                 }
                                 echo '</td>
 								<td>';
+                                
 								if ($producto['tipo'] == 'peso'){
-                                    if(number_format($producto['stockOn'],3)< $stockMinKilos){
-                                        echo '<p class="text-danger">'.number_format($producto['stockOn'],3).'</p>';
-                                    }
-									
+                                        echo '<p>'.number_format($producto['stockOn'],3).'</p>';
 								} else {
-                                    if(number_format($producto['stockOn'],0)< $stockMin){
-                                        echo '<p class="text-danger">'.number_format($producto['stockOn'],0).'</p>';
-                                    }
+                                         echo '<p>'.number_format($producto['stockOn'],0).'</p>';
 								}
 								echo '</td>
 								<td>'.$producto['estado'].'</td>
