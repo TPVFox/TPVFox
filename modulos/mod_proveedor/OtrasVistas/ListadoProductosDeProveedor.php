@@ -173,6 +173,25 @@
 					?>
 				</div>
 				<div class="col-md-9">
+                    <div id="familiasDiv" class="col-md-3">
+                            <div class="ui-widget">
+                             <label for="tags">Buscar por Familias:</label>
+                             <select id="combobox" class="familiasLista">
+                                <option></option>
+                                <option value="0">Productos sin familia</option>
+                                 <?php 
+                                  /* $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
+                                   foreach($arbolfamilias as $familia){
+                                       echo '<option title ="'.$familia['title'].'" value="'.$familia['id'].'">'.$familia['name'].'</option>';
+                                   }*/
+                                 ?>
+                            </select>
+                            </div>
+                        </div>
+                    
+                    
+                    
+                    
 					<table class="table">
 						<thead>
 							<tr>
