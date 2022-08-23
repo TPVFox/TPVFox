@@ -52,7 +52,9 @@
 								 );
 		}
 		$ArrayProductoPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden);
-       
+        
+         $familiasProducto=array();
+        
 		if ($ArrayProductoPrincipales['NItems']>0){
 			$estados = $CTArticulos->posiblesEstados('articulos');
 			$productos = [];
@@ -100,6 +102,17 @@
 					$productos[$key]['index_estado'] =count($estado); // Recuerda que el array estado empieza en 1 , no en 0
 				}
                 
+                $ban=0;
+                foreach($p['familias'] as $familia){
+                    array_push($familiasProducto, $familia);
+                    $productos[$key]['familias'][$ban]=$familia;
+                    $productos[$key]['familiasPadre'][$ban]=$familia['familiaPadre'];
+                }
+                $familiasProducto= array_unique($familiasProducto, SORT_REGULAR);
+                usort($familiasProducto, function($x, $y) {
+                    return $x['familiaPadre'] <=> $y['familiaPadre'];
+                });
+              
 			}
 		}
 		foreach ($estados as $i=>$estado){
@@ -161,6 +174,7 @@
                         echo '<div>';
                         echo '<h4>Otros Datos</h4>';
                         echo '<strong>Productos:</strong>'.count($productos);
+                        echo '<br/><br/><a onclick="imprimirSeleccion('.$id.')">Imprimir selección</a>';
 						echo '</div>';
 						echo '<div><h4>Filtrar por estado:</h4>';
                         foreach ($estados as $estado){
@@ -168,26 +182,25 @@
 								echo $estado['html'];
 							}   
                         }
-                        echo '<a onclick="imprimirSeleccion('.$id.')">Imprimir selección</a>';
+                        echo '<h4>Filtrar por Familias:</h4>';
+                        foreach ($familiasProducto as $familia){
+                            echo '<div class="checkbox">
+							<label title="'.$familia['familiaNombre'].'">
+							<input type="checkbox" value="1" class="Padre_'.$familia['familiaPadre']
+							.'" id="Familia_'.$familia['idFamilia']
+							.'" onchange="filtroFamilias(this,'.$familia['idFamilia'].' , '.$familia['familiaPadre'].')"checked>'
+							.$familia['familiaNombre'].'
+						</label>
+						</div>';
+                            
+                        }
+                        
+                        
                         echo '</div>';
 					?>
 				</div>
 				<div class="col-md-9">
-                    <div id="familiasDiv" class="col-md-3">
-                            <div class="ui-widget">
-                             <label for="tags">Buscar por Familias:</label>
-                             <select id="combobox" class="familiasLista">
-                                <option></option>
-                                <option value="0">Productos sin familia</option>
-                                 <?php 
-                                  /* $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
-                                   foreach($arbolfamilias as $familia){
-                                       echo '<option title ="'.$familia['title'].'" value="'.$familia['id'].'">'.$familia['name'].'</option>';
-                                   }*/
-                                 ?>
-                            </select>
-                            </div>
-                        </div>
+                   
                     
                     
                     
@@ -236,12 +249,24 @@
                             }else{
                                 $lineaRoja='';
                             }
+                        $htmlFamilia="";
+                        foreach($producto['familias'] as $familia){
+                            $claseFamilia=' Familia_'.$familia['idFamilia'];
+                            
+                            $htmlFamilia.='<span class="label label-info">'.$familia['familiaNombre'].'</span>';
+                        }
+                        foreach($producto['familiasPadre'] as $familia){
+                            $claseFamiliaPadre=' FamiliaPadre_'.$familia;
+                        }
+                        
+                        
+                        
 						echo
-							'<tr class="'.$lineaRoja.' Row'.$producto['index_estado'].'">
+							'<tr class="'.$lineaRoja.' Row'.$producto['index_estado'].' '.$claseFamilia.' '.$claseFamiliaPadre.'">
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="'.$producto['idArticulo'].'">
 								<td>'.$producto['idArticulo'].'</td>
 								<td>'.$link_producto.'</td>
-								<td>'.$producto['articulo_name'].'</td>
+								<td>'.$producto['articulo_name'].'<br>'.$htmlFamilia.'</td>
 								<td>'.number_format($producto['ultimoCoste'],2).'</td>
 								<td>'.$producto['Ref_proveedor'].'</td>
 								<td>'.number_format($producto['costeProveedor'],2).'</td>

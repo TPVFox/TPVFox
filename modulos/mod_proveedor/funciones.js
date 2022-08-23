@@ -112,6 +112,45 @@ function filtroEstado(input,id){
 	    
 }
 
+function  filtroFamilias(input,id, idPadre){
+    
+    if (input.value == '1'){
+		// Ocultamos
+		$(input).val('0');
+         $('.Padre_'+id).val('0');
+         $('.Padre_'+id).prop('checked', false);
+       
+		var x = document.getElementsByClassName('Familia_'+id);
+
+		for (var i = 0; i < x.length; i++) {
+		x[i].style.display= "none";
+		}
+        
+        var y = document.getElementsByClassName('FamiliaPadre_'+idPadre);
+
+		for (var i = 0; i < y.length; i++) {
+		y[i].style.display= "none";
+		}
+        
+
+
+	} else {
+		// Mostramos
+		$(input).val('1');
+        $('.Padre_'+id).val('1');
+        
+		var x = document.getElementsByClassName('Familia_'+id);
+        $('.Padre_'+id).prop('checked', true);
+		for (var i = 0; i < x.length; i++) {
+		x[i].removeAttribute("style");
+		}
+        var y= document.getElementsByClassName('FamiliaPadre_'+idPadre);
+		for (var i = 0; i < y.length; i++) {
+		y[i].removeAttribute("style");
+		}
+	}
+}
+
 function SeleccionarTodos(){
     var checkGeneral=$("#chekArticuloAll" ).val();
     if(checkGeneral==0){
