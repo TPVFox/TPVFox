@@ -126,7 +126,7 @@ function  filtroFamilias(input,id, idPadre){
 		x[i].style.display= "none";
 		}
         
-        var y = document.getElementsByClassName('FamiliaPadre_'+idPadre);
+        var y = document.getElementsByClassName('FamiliaPadre_'+id);
 
 		for (var i = 0; i < y.length; i++) {
 		y[i].style.display= "none";
@@ -144,7 +144,7 @@ function  filtroFamilias(input,id, idPadre){
 		for (var i = 0; i < x.length; i++) {
 		x[i].removeAttribute("style");
 		}
-        var y= document.getElementsByClassName('FamiliaPadre_'+idPadre);
+        var y= document.getElementsByClassName('FamiliaPadre_'+id);
 		for (var i = 0; i < y.length; i++) {
 		y[i].removeAttribute("style");
 		}
