@@ -870,8 +870,9 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla) {
     $buscar2 = 'razonsocial';
     $buscar3 = 'nif';
     $buscar4 = 'telefono';
+    $buscar5 = 'movil';
     $sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE estado="Activo" and ('. $buscar1 . ' LIKE "%' . $busqueda . '%" OR '
-            . $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%" OR '.$buscar4.' LIKE "%' . $busqueda . '%")';
+            . $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%" OR '.$buscar4.' LIKE "%' . $busqueda . '%" OR '.$buscar5.' LIKE "%' . $busqueda . '%")';
     $res = $BDTpv->query($sql);
 
     //compruebo error en consulta
