@@ -7,7 +7,7 @@
 			$idcaja=$_POST['idcaja'];
 			$respuesta=array();
 			if ($idcaja=="id_cliente"){
-				$res=$Ccliente->DatosClientePorId($busqueda);
+				$res=$Ccliente->DatosClientePorIdEstado($busqueda);
 				if (isset($res['error'])){
 					$respuesta['error']=$res['error'];
 					$respuesta['consulta']=$res['consulta'];
@@ -22,7 +22,7 @@
 				}
 				
 			}else{
-				$buscarTodo=$Ccliente->BuscarClientePorNombre($busqueda);
+				$buscarTodo=$Ccliente->BuscarClientePorNombreEstado($busqueda);
 				if (isset($buscarTodo['error'])){
 					$respuesta['error']=$buscarTodo['error'];
 					$respuesta['consulta']=$buscarTodo['consulta'];

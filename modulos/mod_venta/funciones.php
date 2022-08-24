@@ -141,6 +141,9 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 			}
 			
 		}
+         $resultado['html'] .= ''
+                            .' <div class="alert alert-warning">Recuerda que SOLO se muestran los clientes ACTIVOS</div> '
+                            .'';
 	} 
 	$resultado['html'] .='</tbody></table>';
 	// Ahora generamos objetos de filas.
