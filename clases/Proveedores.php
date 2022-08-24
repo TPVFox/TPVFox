@@ -14,8 +14,32 @@ class Proveedores extends TFModelo {
 		}
 		return $respuesta;
 	}
+    public function buscarProveedorIdEstado($idProveedor){
+		$sql='SELECT * from proveedores where estado<>"inactivo" and idProveedor='.$idProveedor;
+		$smt=$this->consulta($sql);
+		if (isset($smt['error'])){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
+            $respuesta = $smt['datos'][0];
+		}
+		return $respuesta;
+	}
+    
+    
 	public function buscarProveedorNombre($nombre){
 		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
+		$smt=$this->consulta($sql);
+		if (isset($smt['error'])){
+			$respuesta['error']=$smt['error'];
+			$respuesta['consulta']=$smt['consulta'];
+		}else{
+			$respuesta=$smt;
+		}
+        return $respuesta;
+	}
+    public function buscarProveedorNombreEstado($nombre){
+		$sql='SELECT * from proveedores where estado<>"inactivo" and nombrecomercial like "%'.$nombre.'%"';
 		$smt=$this->consulta($sql);
 		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
@@ -35,6 +59,24 @@ class Proveedores extends TFModelo {
         // Podemos devolver proveedores o error.
         $proveedores = array();
         $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial FROM proveedores';
+        $smt=$this->consulta($sql);
+		if (isset($smt['datos'])){
+				$proveedores = $smt['datos'];
+		} else {
+            $proveedores['error']=$smt['error'];
+			$proveedores['consulta']=$smt['consulta'];
+        }
+        return $proveedores;
+    }
+    
+    public function todosProveedoresActivos(){
+        // @ Objetivo:
+        // Buscar todos los proveedores y obtener los campos idProveedo y nombrecomercial
+        // @ Devolvemos:
+        // Siempre devolvemos un array ...
+        // Podemos devolver proveedores o error.
+        $proveedores = array();
+        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial FROM proveedores where estado<>"inactivo"';
         $smt=$this->consulta($sql);
 		if (isset($smt['datos'])){
 				$proveedores = $smt['datos'];

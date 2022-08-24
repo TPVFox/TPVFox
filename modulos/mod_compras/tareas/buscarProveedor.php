@@ -14,10 +14,10 @@
         if ( $_POST['idcaja'] === "id_proveedor"){
             // Buscamos por id, pero el resultado siempre es uno..por lo que
             // sino se cambia el metodo, no podemos nunca buscar por id varios proveedores.
-            $buscar=$CProveedores->buscarProveedorId($_POST['busqueda']);
+            $buscar=$CProveedores->buscarProveedorIdEstado($_POST['busqueda']);
         } else {
             // Buscamos por nombre, el resultado siempre es un array de arrays con uno mas proveedores.
-            $buscar=$CProveedores->buscarProveedorNombre($_POST['busqueda']);
+            $buscar=$CProveedores->buscarProveedorNombreEstado($_POST['busqueda']);
         }
         if (isset($buscar['error'])){
             // Existe un error en la consulta
@@ -44,7 +44,7 @@
         }
     if (strlen(trim($_POST['busqueda'])) == 0 ){
         // Buscamos los datos de todos los proveedores ya que no tiene valor busqueda.
-        $buscar['datos'] = $CProveedores->todosProveedores();
+        $buscar['datos'] = $CProveedores->todosProveedoresActivos();
         $respuesta['Nitems'] = count( $buscar['datos']);
     }
     if ($_POST['idcaja']!=='id_proveedor'){

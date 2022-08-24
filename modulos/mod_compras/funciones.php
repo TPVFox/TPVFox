@@ -47,6 +47,10 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 				break;
 			}
 		}
+        
+        $resultado['html'] .= ''
+                            .' <div class="alert alert-warning">Recuerda que SOLO se muestran los proveedores ACTIVOS</div> '
+                            .'';
 	} else {
         // No se encontro nada con esa busqueda.
         $resultado['html'] .= '<tr><td>'
