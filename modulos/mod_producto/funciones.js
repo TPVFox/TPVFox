@@ -1119,7 +1119,7 @@ function guardarProductoFamilia(idfamilia, idProducto){
 				console.log('Respuesta de guardar el registro de productos familia');
                 var resultado = $.parseJSON(response);
                 if(idProducto==0){
-                    if(resultado.productosEnFamilia.length>0){
+                    /*if(resultado.productosEnFamilia.length>0){
                        alert("Producto que YA ESTABAN : "+JSON.stringify(resultado.productosEnFamilia));
                     }
                     if(resultado.error){
@@ -1128,7 +1128,10 @@ function guardarProductoFamilia(idfamilia, idProducto){
                     alert("Productos guardados en familia: "+resultado.contadorProductos );
                     cerrarPopUp();
                     // No hace falta que utilicemos evento modal para recargar.
-                    location.reload();
+                    location.reload();*/
+                    cerrarPopUp();
+                    var nuevafila = resultado['html'];
+                        $("#tfamilias").prepend(nuevafila);
                 }else{
                     if(resultado.error==1){
                         alert("No puedes añadir esa familia al producto ya que ya está añadida");

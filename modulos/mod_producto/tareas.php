@@ -44,7 +44,7 @@ switch ($pulsado) {
         $idProducto=$_POST['idProducto'];
         if($idProducto==0){
             // Añadimos familia a varios productos.
-            $productosEnFamilia=array();
+            /*$productosEnFamilia=array();
             $productos=$_SESSION['productos_seleccionados'];
             $respuesta['productos']=$productos;
             $contadorProductos=0;
@@ -63,7 +63,17 @@ switch ($pulsado) {
                 }
             }
                 $respuesta['contadorProductos']=$contadorProductos;
-                $respuesta['productosEnFamilia']=$productosEnFamilia;
+                $respuesta['productosEnFamilia']=$productosEnFamilia;*/
+                 $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
+              $nuevaFila = '<tr>'
+                        . '<td><input type="hidden" id="idFamilias_'.$idFamilia
+                        .'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
+                        .$idFamilia.'</td>'
+                        .'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
+                        .'<td><a id="eliminar_'.$idFamilia
+                        .'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
+                        .'</td>'.'</tr>';
+                $respuesta['html']=$nuevaFila;  
         }else{
             $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
             $respuesta['comprobar']=$comprobar;
