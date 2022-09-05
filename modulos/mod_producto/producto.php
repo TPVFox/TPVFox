@@ -137,6 +137,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     if ($id == 0 ) {
         $Producto['iva']=$conf_defecto['iva_predeterminado'];
     }
+    
     $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
     $htmlTipo=htmlTipoProducto($Producto['tipo']);
     $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
@@ -253,10 +254,23 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 						<?php echo $htmlEstadosProducto; ?>
 					</select>
 					</div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label class="control-label " > Tipo:</label>
                         <?php 
                             echo $htmlTipo;
+                        ?>
+                    </div>
+                    <div class="col-md-2">
+                       
+                        <?php 
+                            if($id>0){
+                              ?>
+                               <label class="control-label " > Fecha Creación:</label>
+                        <input type="date" value="<?php  echo date('Y-m-d', strtotime($Producto['fecha_creado']));?>" disabled />
+
+                              <?php  
+                            }
+                          //  echo $htmlTipo;
                         ?>
                     </div>
                  
