@@ -555,6 +555,7 @@
                     <th>Coste</th>
                     <th>Iva</th>
                     <th>Importe</th>
+                    <th><a onclick="ocultarcolumnaImporteIva()"><span class="glyphicon glyphicon glyphicon-eye-open ocultar"></span></a></th>
                     <th></th>
                   </tr>
                   
@@ -573,6 +574,7 @@
                             }
                             // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
                             $id_pedido_anterior = (isset($producto['idpedpro']))? $producto['idpedpro'] : '0';
+                           
                             $html=htmlLineaProducto($producto, "albaran",$estilos['readonly']);
                             echo $html['html'];
                         }

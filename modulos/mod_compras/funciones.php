@@ -213,6 +213,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 			$html   .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
                     . '<td '.$style.'>'.$producto['ultimoCoste'].'</td>'
                     . '<td '.$style.'>'.number_format ($producto['coste'],2, '.', '').'</td>'
+                    
                     . '</tr>';
 			$contad = $contad +1;
 			if ($contad === 10){
@@ -288,6 +289,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         $cant=number_format($producto['nunidades'],2);
         $importe=$producto['ultimoCoste']*$producto['nunidades'];	
         $importe = number_format($importe,2);
+        $importeIva=number_format(( $importe ) + ( $importe * ( $producto['iva'] / 100 ) ),2);
         $classtr = '';
         $estadoInput = '';
         $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
@@ -387,8 +389,9 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .' onBlur="controlEventos(event)"/></td>'
                             .'<td class="pvp">'.$html_coste.'</td>'
                             .'<td class="tipoiva">'.$producto['iva'].'%</td>'
-                            .'<td id="N'.$producto['nfila'].'_Importe" class="importe" >'
+                            .'<td  id="N'.$producto['nfila'].'_Importe" class="importe" >'
                             .$importe.'</td>'
+                            .'<td class="ImporteIva" id="N'.$producto['nfila'].'_ImporteIva">'.$importeIva.'</td>'
                             . $btnELiminar_Retornar.'</tr>';
                         
         $respuesta['productos']=$producto;

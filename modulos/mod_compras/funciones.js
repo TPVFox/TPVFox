@@ -15,7 +15,22 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	importe = productos[nfila].importe.toFixed(2);
 	productos[nfila].ultimoCoste=valor;	
 	$(id).html(importe);
+   
+    
+    
 	addTemporal(dedonde);
+     
+    
+    
+    var iva= parseFloat(importe)*(productos[nfila].iva/100);
+    var importeIva=parseFloat(importe)+ parseFloat(iva);
+     
+    
+    importeIva=importeIva.toFixed(2);
+    console.log(importeIva);
+    var idiva= '#N'+productos[nfila].nfila+'_ImporteIva';
+   
+    $(idiva).html(importeIva);
 }
 
 function buscarAdjunto(dedonde, valor=""){
@@ -822,6 +837,17 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
     importe = importe.toFixed(2);
     productos[num_item].importe=importe;
     $(id).html(importe);
+    
+    
+    var iva= importe*(productos[num_item].iva/100);
+    var importeIva=parseFloat(importe)+ parseFloat(iva);
+     
+    
+    importeIva=importeIva.toFixed(2);
+    
+    var idiva= '#N'+productos[num_item].nfila+'_ImporteIva';
+    console.log(idiva);
+    $(idiva).html(importeIva);
 }
 
 function after_constructor(padre_caja,event){
@@ -1178,6 +1204,16 @@ function ObjProducto(datos)
         this.importe = importe.toFixed(2);
     }   
 }
+function ocultarcolumnaImporteIva(){
+    if($(".ImporteIva").is(":hidden")){
+         $(".ImporteIva").toggle("slow");
+         $(".ocultar").toggleClass("glyphicon glyphicon-eye-close").toggleClass('glyphicon glyphicon-eye-open');;
+      
+     } else{
+         $(".ImporteIva").toggle();
+        $(".ocultar").toggleClass("glyphicon glyphicon-eye-open").toggleClass('glyphicon glyphicon-eye-close');;
 
+     }
+}
 
 
