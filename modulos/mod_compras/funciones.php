@@ -24,14 +24,21 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
                         .'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($proveedores)>10){
-		$resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
+		$resultado['html'] .= '<span> Se muestra 10 proveedores de '.count($proveedores).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>'
 	. ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
 	if (count($proveedores)>0){
+		$contador_inactivo = 0 ;
 		foreach ($proveedores as $key=>$proveedor){  
+			$clase_inactiva = '';
+			if ($proveedor['estado']=='inactivo'){
+				$clase_inactiva = ' danger';
+				$contador_inactivo++;
+			}
 			$resultado['html'] .= '<tr id="Fila_'.$key
-                                .'" class="FilaModal" onclick="buscarProveedor('."'".$dedonde."'".' , '
+                                .'" class="FilaModal'
+								.$clase_inactiva.'" onclick="buscarProveedor('."'".$dedonde."'".' , '
                                 ."'id_proveedor'".', '.$proveedor['idProveedor'].', '."'popup'".');" >'
                                 .'<td id="C'.$key.'_Lin" >'
                                 .'<input id="N_'
@@ -47,15 +54,13 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 				break;
 			}
 		}
-        
-        $resultado['html'] .= ''
-                            .' <div class="alert alert-warning">Recuerda que SOLO se muestran los proveedores ACTIVOS</div> '
-                            .'';
+        if ($contador_inactivo>0){
+        $resultado['html'] .=	' <div class="alert alert-danger">'
+								.'Recuerda que los proveedores INACTIVOS están Rojo, no se puede añadir</div> ';
+		}
 	} else {
         // No se encontro nada con esa busqueda.
-        $resultado['html'] .= '<tr><td>'
-                            .' <div class="alert alert-warning">No se encontro ningun proveedor, para esa busqueda</div> '
-                            .'</td></tr>';
+        $resultado['html'] .=' <div class="alert alert-warning">No se encontro ningun proveedor, para esa busqueda</div> ';
     }
 	$resultado['html'] .='</tbody></table>';
 	// Ahora generamos objetos de filas.
