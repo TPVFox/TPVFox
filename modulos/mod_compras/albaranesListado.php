@@ -81,10 +81,10 @@ $albaranesDef=$a['Items'];
             <h2>Albaranes de proveedores</h2>
         </div>
         <div class="col-sm-3">
-            <h4> Opciones general</h4>
+            <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                  echo '<button class="btn btn-default" onclick="metodoClick('."'".'AgregarAlbaran'."'".')">Añadir</button>';
+                  echo '<a class="btn btn-default" href="./albaran.php">Añadir</a>';
                 }
                 if($ClasePermisos->getAccion("Ver")==1){
                     echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'albaran'."'".')">Ver</button>';

@@ -87,10 +87,10 @@ $pedidosDef=$p['Items'];
             <h2>Pedidos de proveedores </h2>
         </div>
         <nav class="col-sm-3">
-            <h4> Opcion general</h4> 
+            <h4> Opciones generales</h4> 
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a>';
+                   echo '<a class="btn btn-default" href="./pedido.php">Añadir</a>';
                 }
             ?>
             <h4> Opciones para una selección</h4>

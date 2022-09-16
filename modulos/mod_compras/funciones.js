@@ -1,4 +1,10 @@
-//Función que controla las acciones que llegan del xml
+// JS para modulo compras 
+// Este se carga en todas las vistas , por lo que debemos poner solo
+// aquellas funciones que se utilizan en todas las vistas.
+// La funciones particulares de cada vista se deben poner /js/nombredecadavista
+//
+// Ya existe un fichero AccionesDirectas.js que tiene acciones directa controlador teclado
+// aunque están mezcladas.
 
 
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
@@ -231,22 +237,9 @@ function metodoClick(pulsado,adonde=''){
             if (pulsado == 'Ver'){
                 accion='&accion=ver';
             }
-			// Ahora Redirijo a  (adonde) falta... ./albaran.php?id='.$albaran['id'].'&accion=ver
+			// Ahora Redirijo al id de adonde conla accion que indiquemos
             window.location.href = './'+adonde+'.php?id='+checkID[0]+accion;
 		break;
-
-		case 'AgregarPedido':
-			window.location.href = './pedido.php';
-		break;
-
-		case 'AgregarAlbaran':
-			window.location.href = './albaran.php';
-		break;
-
-		case 'AgregarFactura':
-			window.location.href = './factura.php';
-        break;
-
         case 'cambiarEstado':
             console.log('Entro en cambio estado albaran');
             if (checkID.length=== 0) {

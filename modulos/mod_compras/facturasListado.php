@@ -80,10 +80,10 @@ $facturasDef=$f['Items'];
             <h2>Facturas de proveedores</h2>
         </div>
         <div class="col-sm-3">
-            <h4> Opción general</h4>
+            <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                    echo '<a class="anhadir" onclick="metodoClick('."'".'AgregarFactura'."'".');";>Añadir</a>';
+                    echo '<a class="btn btn-default" href="./factura.php">Añadir</a>';
                 }
             ?>
             <div class="col-md-12">
