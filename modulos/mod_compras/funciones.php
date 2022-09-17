@@ -17,7 +17,6 @@ function htmlProveedores($busqueda,$dedonde, $idcaja, $proveedores = array()){
 	//		$dedonde  -> Nos indica de donde viene. ()
 	$resultado = array();
 	$resultado['encontrados'] = count($proveedores);
-	$idcaja;
 	$resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
                         .'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
                         .'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda

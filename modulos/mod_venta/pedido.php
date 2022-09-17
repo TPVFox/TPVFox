@@ -21,6 +21,8 @@
 	$titulo="Pedido De Cliente ";
 	$estado='Abierto';
 	$bandera=0;
+    // Si existe accion, variable es $accion , sino es "editar"
+    $accion = (isset($_GET['estado']) and $_GET['estado']='ver' )? 'ver':'';
 	$fecha=date('d-m-Y');
 	$idTemporal = 0;
 	$idPedido=0;
@@ -28,16 +30,17 @@
 	$idCliente=0;
 	$errores=array();
 	$textoNum="";
+    $inciden= 0;
 	$parametros = $ClasesParametros->getRoot();
 	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
 	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_ventas',$Usuario['id']);
 	$configuracionArchivo=array();
-		foreach ($configuracion['incidencias'] as $config){
-		
-		if(get_object_vars($config)['dedonde']==$dedonde){
-			array_push($configuracionArchivo, $config);
-		}
+
+    foreach ($configuracion['incidencias'] as $config){  
+        if(get_object_vars($config)['dedonde']==$dedonde){
+            array_push($configuracionArchivo, $config);
+        }
 	}
 	
 	if (isset($_GET['id'])){//Cuanod recibe el id de uno de los pedidos ya creados 
@@ -490,7 +493,7 @@ include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 		$("#buscar").css("display", "none");
 		<?php
 	}
-	if($estado=="Facturado" || $_GET['estado']=="ver"){
+	if($estado=="Facturado" || $accion=="ver"){
 		?>
 		$("#Row0").css("display", "none");
         $("#fecha").attr("disabled", "disabled");
