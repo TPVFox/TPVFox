@@ -105,13 +105,12 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	$resultado = array();
 	$n_dedonde = 0 ; 
 	$resultado['encontrados'] = count($clientes);
-	$idcaja;
 	$resultado['html'] = '<label>Busqueda Cliente en '.$dedonde.'</label>';
 	$resultado['html'] .= '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'.
 				'size="13" data-obj="cajaBusquedacliente" value="'.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
 				
 	if (count($clientes)>10){
-		$resultado['html'] .= '<span>10 clientes de '.count($clientes).'</span>';
+		$resultado['html'] .= '<span> Se muestra 12 clientes de '.count($clientes).'</span>';
 	}
 	$resultado['html'] .= '<table class="table table-striped"><thead>';
 	$resultado['html'] .= ' <th></th>'; //cabecera blanca para boton agregar
@@ -120,30 +119,35 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	$resultado['html'] .= ' <th>NIF</th>';
 	$resultado['html'] .= '</thead><tbody>';
 	if (count($clientes)>0){
-		$contad = 0;
-		foreach ($clientes as $cliente){  
+		$contador_inactivo = 0;
+		foreach ($clientes as $key=>$cliente){ 
+			$clase_inactiva = '';
+			if ($cliente['estado']!=='Activo'){
+				$clase_inactiva = ' danger';
+				$contador_inactivo++;
+			} 
 			$razonsocial_nombre=$cliente['Nombre'].' - '.$cliente['razonsocial'];
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-			$resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" '
-								.'onclick="escribirClienteSeleccionado('.$cliente['idClientes'].', '."'".$cliente['Nombre']."'".', '."'".$dedonde."'".');">';
+			$resultado['html'] .= '<tr id="Fila_'.$key.'" '
+								.'class="FilaModal'.$clase_inactiva.'" '
+								.'onclick="buscarClientes('."'popup','id_cliente',".$cliente['idClientes'].');">';
 		
-			$resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-			$resultado['html'] .= '<input id="N_'.$contad.'" name="filacliente" data-obj="idN"'
+			$resultado['html'] .= '<td id="C'.$key.'_Lin" >';
+			$resultado['html'] .= '<input id="N_'.$key.'" name="filacliente" data-obj="idN"'
 								.'onkeydown="controlEventos(event)" type="image" value='.$cliente['idClientes'].' alt="">';
 			$resultado['html'] .= '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>';
 			$resultado['html'] .= '<td>'.htmlspecialchars($cliente['Nombre'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.htmlentities($cliente['razonsocial'],ENT_QUOTES).'</td>';
 			$resultado['html'] .= '<td>'.$cliente['nif'].'</td>';
 			$resultado['html'] .= '</tr>';
-			$contad = $contad +1;
-			if ($contad === 10){
+			if ($key === 11){
 				break;
 			}
-			
 		}
-         $resultado['html'] .= ''
-                            .' <div class="alert alert-warning">Recuerda que SOLO se muestran los clientes ACTIVOS</div> '
-                            .'';
+		if ($contador_inactivo>0){
+			$resultado['html'] .=	' <div class="alert alert-danger">'
+									.'Recuerda que los clientes INACTIVOS están Rojo, no se puede añadir</div> ';
+			}
 	} 
 	$resultado['html'] .='</tbody></table>';
 	// Ahora generamos objetos de filas.

@@ -126,7 +126,7 @@ function buscarClientes(dedonde, idcaja, valor=''){
 			if (resultado.error){
 					alert('ERROR DE SQL: '+resultado.consulta);
 			}else{
-				if (resultado.Nitems==1){
+				if (resultado.Nitems==1 && resultado.html ==null ){
 					cabecera.idCliente=resultado.id;
 					$('#Cliente').val(resultado.nombre);
 					$('#id_cliente').val(resultado.id);
@@ -587,19 +587,7 @@ function resetCampo(campo){
 	document.getElementById(campo).value='';
 	return;
 }
-function escribirClienteSeleccionado(id, nombre ,dedonde=''){
-	//Escribe en los input de cliente los datos 
-	//Esta funcon la utilizo para cuando se pulsa un cliente de la ventana modal 
-	//transforma los datos para reutilizar la funcion de buscar cliente como si se introduciera un id de cliente 
-	//De esta forma no hace falta ninguna función más
-	console.log("estamos en escribirClienteSeleccionado");
-	$('#id_cliente').val(id);
-	$('#Cliente').val(nombre);
-	idInput="id_cliente";
-	buscarClientes(dedonde, idInput, id);
-	 cerrarPopUp();
-	 mostrarFila();
-}
+
 function eliminarFila(num_item, valor=""){
 	//@Objetivo
 	//Función para cambiar el estado del producto
