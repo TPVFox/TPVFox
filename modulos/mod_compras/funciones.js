@@ -16,28 +16,11 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	//      dedonde: donde estamos, si en albaranes o facturas 
 	//      nfila: número de la fila que estamos cambiando
 	console.log("Entre en addCosteProveedor");
-	productos[nfila].importe=parseFloat(valor)*productos[nfila].nunidades;
-	var id = '#N'+productos[nfila].nfila+'_Importe';
-	importe = productos[nfila].importe.toFixed(2);
-	productos[nfila].ultimoCoste=valor;	
-	$(id).html(importe);
-   
-    
-    
-	addTemporal(dedonde);
-     
-    
-    
-    var iva= parseFloat(importe)*(productos[nfila].iva/100);
-    var importeIva=parseFloat(importe)+ parseFloat(iva);
-     
-    
-    importeIva=importeIva.toFixed(2);
-    console.log(importeIva);
-    var idiva= '#N'+productos[nfila].nfila+'_ImporteIva';
-   
-    $(idiva).html(importeIva);
+    productos[nfila].ultimoCoste=valor;	
+    recalculoImporte(productos[nfila].nunidades, nfila);
+    addTemporal(dedonde);
 }
+
 
 function buscarAdjunto(dedonde, valor=""){
 	//@Objetivo:
@@ -818,29 +801,27 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
 	// @ Parametros:
 	//	cantidad -> Valor ( numerico) de input unidades.
 	//	num_item -> El numero que indica el producto que modificamos.
+    console.log('Entre recalculoImporte:'+cantidad,num_item)
+    
+    productos[num_item].nunidades = cantidad;
+    productos[num_item].importe =parseFloat(productos[num_item].ultimoCoste)*cantidad;
+    var N_fila = '#N'+productos[num_item].nfila;
+    $(N_fila+'_Importe').html(productos[num_item].importe.toFixed(2));
+  
+    var iva= productos[num_item].importe*(productos[num_item].iva/100);
+    var importeIva=productos[num_item].importe+ parseFloat(iva);
+    $(N_fila+'_ImporteIva').html(importeIva.toFixed(2));
+
+    // Comprobamos que cantidad y nunidades para saber si activamos o desactivamos linea
     if (productos[num_item].nunidades == 0 && cantidad != 0) {
         retornarFila(num_item+1, dedonde);
     } else if (cantidad == 0 ) {
         eliminarFila(num_item+1, dedonde);
     }
-    
-    productos[num_item].nunidades = cantidad;
-    var importe=parseFloat(productos[num_item].ultimoCoste)*cantidad;
-    var id = '#N'+productos[num_item].nfila+'_Importe';
-    importe = importe.toFixed(2);
-    productos[num_item].importe=importe;
-    $(id).html(importe);
-    
-    
-    var iva= importe*(productos[num_item].iva/100);
-    var importeIva=parseFloat(importe)+ parseFloat(iva);
-     
-    
-    importeIva=importeIva.toFixed(2);
-    
-    var idiva= '#N'+productos[num_item].nfila+'_ImporteIva';
-    console.log(idiva);
-    $(idiva).html(importeIva);
+
+
+
+
 }
 
 function after_constructor(padre_caja,event){
@@ -1196,17 +1177,6 @@ function ObjProducto(datos)
         importe = parseFloat(this.ultimoCoste) * this.nunidades;
         this.importe = importe.toFixed(2);
     }   
-}
-function ocultarcolumnaImporteIva(){
-    if($(".ImporteIva").is(":hidden")){
-         $(".ImporteIva").toggle("slow");
-         $(".ocultar").toggleClass("glyphicon glyphicon-eye-close").toggleClass('glyphicon glyphicon-eye-open');;
-      
-     } else{
-         $(".ImporteIva").toggle();
-        $(".ocultar").toggleClass("glyphicon glyphicon-eye-open").toggleClass('glyphicon glyphicon-eye-close');;
-
-     }
 }
 
 

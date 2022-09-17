@@ -400,3 +400,16 @@ function AccionBuscarProductos (caja,event){
         ponerFocus(ObtenerCajaSiguiente(idcaja));
     }
 }
+
+function ocultarcolumnaImporteIva(){
+    // Ocultar columna de importe con iva que mostramos en albaranes..
+    if($(".ImporteIva").is(":hidden")){
+         $(".ImporteIva").toggle("slow");
+         $(".ocultar").toggleClass("glyphicon glyphicon-eye-close").toggleClass('glyphicon glyphicon-eye-open');;
+      
+     } else{
+         $(".ImporteIva").toggle();
+        $(".ocultar").toggleClass("glyphicon glyphicon-eye-open").toggleClass('glyphicon glyphicon-eye-close');;
+
+     }
+}
