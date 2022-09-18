@@ -548,7 +548,7 @@ function buscarClientes(pantalla,valor=''){
 	// 	Ejecutamos Ajax para obtener el html que vamos mostrar.
 	// @ parametros :
 	//	valor -> Sería el valor caja del propio modal
-	console.log('FUNCION buscarClientes JS-AJAX');
+    //  pantalla -> puede ser tpv o popup
 	var parametros = {
 		"pulsado"    : 'buscarClientes',
 		"busqueda" : valor,
@@ -564,18 +564,44 @@ function buscarClientes(pantalla,valor=''){
 		success    :  function (response) {
 			console.log('Ojo:Abrimos modal de busqueda o buscamos en caja.');
 			var resultado =  $.parseJSON(response); 
-			var encontrados = resultado.encontrados;
-			var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
-			var titulo = 'Listado clientes ';
-			abrirModal(titulo,HtmlClientes);
-			focusAlLanzarModal('cajaBusquedacliente');
-			// Asignamos focus a caja buscar cliente.
-			// Asignamos focus
-			if (encontrados >0 ){
-				// Enfocamos el primer item.
-				mover_down(0);
-				$('#N_0').focus();
-			}
+            if (resultado.error){
+					alert('ERROR DE SQL: '+resultado.consulta);
+			}else{
+				if (resultado.Nitems==1 && resultado.html ==null ){
+                    // Resultado de un solo cliente, añadimos directamente caja.
+                    $('#id_cliente').val(resultado.id);
+                    $('#Cliente').val(resultado.nombre);
+                    // Cerramos modal  y le indicamos destino focus.
+                    cerrarPopUp(); // Destino no indicamo ya que no sabes...
+                    if(pantalla == 'cobrados'){
+                        $('#cambioCliente').show();
+                    }
+                    if (pantalla =='tpv'){
+                        // Cambiamos el id del cliente.
+                        cabecera.idCliente = resultado.id;
+                        if ( productos.length>0){
+                            // Si hay productos lo guardamos , sino no.
+                            grabarTicketsTemporal();
+                        }
+                        // Ponemos focus por defecto.
+                        ponerFocus('Codbarras');
+                    } 
+
+                } else  {
+                    // Resultado de varios clientes, mostramos popup   
+                    var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
+                    var titulo = 'Listado clientes ';
+                    abrirModal(titulo,HtmlClientes);
+                    focusAlLanzarModal('cajaBusquedacliente');
+                    // Asignamos focus a caja buscar cliente.
+                    // Asignamos focus
+                    if (resultado.Nitems >0 ){
+                        // Enfocamos el primer item.
+                        mover_down(0);
+                        $('#N_0').focus();
+                    }
+                }
+            }
 		}
 	});
 }

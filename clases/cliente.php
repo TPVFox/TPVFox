@@ -61,25 +61,6 @@ class Cliente{
 			return $cliente;
 		}
 	}
-    
-    public function DatosClientePorIdEstado($idCliente){
-		$db = $this->db;
-		$sql='SELECT * from clientes WHERE estado<>"inactivo" and idClientes='.$idCliente;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
-		}else{
-			if ($result = $smt->fetch_assoc () ){
-				$cliente=$result;
-			}
-			return $cliente;
-		}
-	}
-    
-    
-    
 	public function mofificarFormaPagoVenci($idCliente, $formasVenci){
 		$db=$this->db;
 		$sql='UPDATE clientes SET formasVenci="'.$formasVenci.'" WHERE idClientes='.$idCliente;
@@ -87,29 +68,26 @@ class Cliente{
         $resultado['sql']=$sql;
 		return $resultado;
 	}
-	public function BuscarClientePorNombre($nombreCliente){
+	public function BuscarClientePorNombre($nombre){
+        // Buscar por Nombre Comercial o razon social.
+        // y por palabras
+        $palabras = explode(' ', $nombre);
+        $likes = array();
+        foreach ($palabras as $key => $palabra) {
+            // Montamos consulta por palabras de varias palabras, en nombre o razon social
+            $likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
+        } 
+        $sql = 'SELECT * FROM clientes WHERE ';
+        $whereNombre = '';
+        if (count($likes) >0){
+            // Si no hay palabras ya no buscamos por nombre
+            $whereNombre= '('.implode(' and ', $likes).')';
+            $sql.= $whereNombre.' OR ';
+            // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
+            $sql.= str_replace('Nombre','razonsocial',$whereNombre);
+        } 
+        //~ error_log($sql);  
 		$db = $this->db;
-		$sql='SELECT * from clientes WHERE Nombre  LIKE "%'.$nombreCliente.'%" or
-		 razonsocial like "%'.$nombreCliente.'%" or nif like "%'.$nombreCliente.'%"';
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-			$respuesta['error']=$smt['error'];
-			$respuesta['consulta']=$smt['consulta'];
-			return $respuesta;
-		}else{
-			$clientePrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-					array_push($clientePrincipal, $result);
-			}
-			$respuesta['sql']=$sql;
-			$respuesta['datos']= $clientePrincipal;
-			return $respuesta;
-		}
-	}
-    public function BuscarClientePorNombreEstado($nombreCliente){
-		$db = $this->db;
-		$sql='SELECT * from clientes WHERE estado<>"inactivo" and (Nombre  LIKE "%'.$nombreCliente.'%" or
-		 razonsocial like "%'.$nombreCliente.'%" or nif like "%'.$nombreCliente.'%")';
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 			$respuesta['error']=$smt['error'];

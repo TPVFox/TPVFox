@@ -15,7 +15,24 @@ class Proveedores extends TFModelo {
 		return $respuesta;
 	}
 	public function buscarProveedorNombre($nombre){
-		$sql='SELECT * from proveedores where nombrecomercial like "%'.$nombre.'%"';
+        // Buscar por Nombre Comercial o razon social.
+        // y por palabras
+        $palabras = explode(' ', $nombre);
+        $likes = array();
+        foreach ($palabras as $key => $palabra) {
+            // Montamos consulta por palabras de varias palabras, en nombre o razon social
+            $likes[] =  'nombrecomercial LIKE "%' . $palabra . '%" ';
+        } 
+        $sql = 'SELECT * FROM proveedores WHERE ';
+        $whereNombre = '';
+        if (count($likes) >0){
+            // Si no hay palabras ya no buscamos por nombre
+            $whereNombre= '('.implode(' and ', $likes).')';
+            $sql.= $whereNombre.' OR ';
+            // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
+            $sql.= str_replace('nombrecomercial','razonsocial',$whereNombre);
+        } 
+        //~ error_log($sql);
 		$smt=$this->consulta($sql);
 		if (isset($smt['error'])){
 			$respuesta['error']=$smt['error'];
@@ -34,7 +51,7 @@ class Proveedores extends TFModelo {
         // Siempre devolvemos un array ...
         // Podemos devolver proveedores o error.
         $proveedores = array();
-        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial FROM proveedores';
+        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial, estado FROM proveedores';
         $smt=$this->consulta($sql);
 		if (isset($smt['datos'])){
 				$proveedores = $smt['datos'];

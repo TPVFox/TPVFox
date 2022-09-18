@@ -864,17 +864,41 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla) {
     // 	$busqueda --> Lo que vamos a buscar
     // 	$BDTpv--> Conexion
     //	$tabla--> tabla donde buscar.
-    // Buscamos en los tres campos... Nombre, razon social, nif
+    // Campos que vamos a Buscar: 'Nombre','razonsocial','nif','telefono','movil'
     $resultado = array();
-    $buscar1 = 'Nombre';
-    $buscar2 = 'razonsocial';
-    $buscar3 = 'nif';
-    $buscar4 = 'telefono';
-    $buscar5 = 'movil';
-    $sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE estado="Activo" and ('. $buscar1 . ' LIKE "%' . $busqueda . '%" OR '
-            . $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%" OR '.$buscar4.' LIKE "%' . $busqueda . '%" OR '.$buscar5.' LIKE "%' . $busqueda . '%")';
+    
+    // Separamos la busqueda en varias palabras
+    $palabras = explode(' ', $busqueda);
+    $likes = array();
+    $num = 'KO';
+    foreach ($palabras as $key => $palabra) {
+        //  Identificamos si hay numeros o palabras
+        if (is_numeric($palabra) == false) {      
+            // Montamos consulta por palabras de varias palabras, en nombre o razon social
+            $likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
+        } else  {
+            $num ='OK';
+        }
+    }
+    $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE ';
+    $whereNombre = '';
+    if (count($likes) >0){
+        // Si no hay palabras ya no buscamos por nombre
+        $whereNombre= '('.implode(' and ', $likes).')';
+        $sql.= $whereNombre.' OR ';
+        // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
+        $sql.= str_replace('Nombre','razonsocial',$whereNombre);
+    } else  {
+        if ($snum == 'OK') {
+            // Quiere decir que debemos buscar en los campos telefono.
+            if ($whereNombre !==''){
+                $sql.= ' OR ';
+            }
+            $sql.= '( nif LIKE "%'.$busqueda.'%" OR telefono LIKE "%'.$busqueda.'%" OR movil LIKE "%'.$busqueda.'%")';
+        }
+    }
     $res = $BDTpv->query($sql);
-
+    //~ error_log($sql);
     //compruebo error en consulta
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
@@ -901,51 +925,53 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
     // @ parametros:
     // 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
     //		$dedonde  -> Nos indica de donde viene. (tpv,cerrados,cobrados)
-    $resultado = array();
     $n_dedonde = 0;
-    $resultado['encontrados'] = count($clientes);
 
-    $resultado['html'] = '<label>Busqueda Cliente en ' . $dedonde . '</label>'
+    $html= '<label>Busqueda Cliente en ' . $dedonde . '</label>'
             . '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'
             . 'size="13" data-obj="cajaBusquedacliente" value="' . $busqueda
             . '" onkeydown="controlEventos(event)" type="text">';
 
     if (count($clientes) > 10) {
-        $resultado['html'] .= '<span>10 clientes de ' . count($clientes) . '</span>';
+		$html.= '<span> Se muestra 12 clientes de '.count($clientes).'</span>';
     }
-    $resultado['html'] .= '<table class="table table-striped"><thead>'
+        $html.= '<table class="table table-striped"><thead>'
             . ' <th></th>' //cabecera blanca para boton agregar
             . ' <th>Nombre</th>'
             . ' <th>Razon social</th>'
             . ' <th>NIF</th>'
             . '</thead><tbody>';
     if (count($clientes) > 0) {
-        $contad = 0;
-        foreach ($clientes as $cliente) {
+        $contador_inactivo = 0;
+		foreach ($clientes as $key=>$cliente){
+            $clase_inactiva = '';
+			if ($cliente['estado']!=='Activo'){
+				$clase_inactiva = ' danger';
+				$contador_inactivo++;
+			} 
             $razonsocial_nombre = $cliente['nombre'] . ' - ' . $cliente['razonsocial'];
             $datos = "'" . $cliente['idClientes'] . "','" . addslashes(htmlentities($razonsocial_nombre, ENT_COMPAT)) . "'";
-            $resultado['html'] .= '<tr class="FilaModal" id="Fila_'
-                    . $contad . '" onclick="escribirClienteSeleccionado(' . $datos . ",'" . $dedonde . "'" . ');">'
-                    . '<td id="C' . $contad . '_Lin" >'
-                    . '<input id="N_' . $contad . '" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+            $html.= '<tr class="FilaModal'
+                    .$clase_inactiva.'" id="Fila_'
+                    . $key . '" onclick="buscarClientes('."'popup','".$cliente['nombre']."'".');">'
+                    . '<td id="C' . $key . '_Lin" >'
+                    . '<input id="N_' . $key . '" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
                     . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
                     . '<td>' . htmlspecialchars($cliente['nombre'], ENT_QUOTES) . '</td>'
                     . '<td>' . htmlentities($cliente['razonsocial'], ENT_QUOTES) . '</td>'
                     . '<td>' . $cliente['nif'] . '</td>'
                     . '</tr>';
-            $contad = $contad + 1;
-            if ($contad === 10) {
+            if ($key === 10) {
                 break;
             }
         }
-        $resultado['html'] .= '<tr><td colspan="4"><div class="alert alert-warning" role="alert">
-                            Si el usuario no se muestra está Inactivo, solicitar activación
-                        </div></td></tr>';
+        if ($contador_inactivo>0){
+            $html.=	' <div class="alert alert-danger">'
+                .'Recuerda que los clientes INACTIVOS están Rojo, no se puede añadir</div> ';
+        }
     }
-    $resultado['html'] .= '</tbody></table>';
-    // Ahora generamos objetos de filas.
-    // Objetos queremos controlar.
-    return $resultado;
+    $html.= '</tbody></table>';
+    return $html;
 }
 
 function RegistrarRestaStock($BDTpv, $id, $estado,$datos) {

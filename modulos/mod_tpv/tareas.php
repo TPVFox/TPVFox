@@ -113,7 +113,16 @@ switch ($pulsado) {
         if (!isset($res['datos'])){
             $res = array( 'datos' => array());
         }
-        $respuesta = htmlClientes($busqueda,$dedonde,$res['datos']);
+        $respuesta['Nitems'] = count($res['datos']);
+            
+        if ($respuesta['Nitems']==1 and $res['datos']['0']['estado']=='Activo') {
+            $respuesta['id'] =$res['datos']['0']['idClientes'];
+            $respuesta['nombre'] =$res['datos']['0']['nombre'].'-'.$res['datos']['0']['razonsocial'];
+        } else {
+            $respuesta['html'] = htmlClientes($busqueda,$dedonde,$res['datos']);
+        }
+        
+        $respuesta['datos'] = $res;
     break;
     
     case 'Grabar_configuracion':

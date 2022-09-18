@@ -506,80 +506,80 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	//  2.- Un listado de productos.
 	//  3.- O nada un error.
 	console.log('FUNCION buscarProductos JS- Para buscar con el campo');
-    	if (busqueda !== "" || idcaja === "Descripcion"){
-	var parametros = {
-		"pulsado"    : 'buscarProductos',
-		"cajaInput"	 : id_input,
-		"valorCampo" : busqueda,
-		"campo"      : campo,
-		"idcaja"	 :idcaja,
-		'dedonde'	:dedonde,
-		'idCliente'	:cabecera.idCliente
-	};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Envio datos para Buscar Producto  ****************');
-		},
-		success    :  function (response) {
-			console.log('Repuesta de FUNCION -> buscarProducto');
-			var resultado =  $.parseJSON(response);
-			 if (resultado['Nitems']===1){
-							var datos = new Object();
-							datos.Numalbcli=0;
-							datos.Numpedcli=0;
-							datos.ccodbar=resultado['datos'][0]['codBarras'];
-							datos.cdetalle=resultado['datos'][0]['articulo_name'];
-							datos.cref=resultado['datos'][0]['crefTienda'];
-							datos.estadoLinea="Activo";
-							datos.idArticulo=resultado['datos'][0]['idArticulo'];
-							datos.idpedcli=0;
-							datos.iva=resultado['datos'][0]['iva'];
-							datos.ncant=1;
-							datos.nfila=productos.length+1;
-							datos.nunidades=1;
-							var importe =resultado['datos'][0]['pvpSiva']*1;
-							datos.importe=importe.toFixed(2);
-							var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
-							datos.precioCiva=pvpCiva.toFixed(2);
-							var pvpSiva= parseFloat(resultado['datos'][0]['pvpSiva']);
-							datos.pvpSiva=pvpSiva.toFixed(2);
-							n_item=parseInt(productos.length)+1;
-							var campo='Unidad_Fila_'+n_item;
-							productos.push(datos);
-							addTemporal(dedonde);
-							AgregarFilaProductosAl(datos, dedonde, campo);
-							resetCampo(id_input);
-							if (dedonde=="factura"){
-								$("#tablaAl").hide();
-							}
-							 cerrarPopUp();
-						}else{
-							console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
-				
-							var busqueda = resultado.listado;   
-							var HtmlProductos=busqueda.html;   
-							var titulo = 'Listado productos encontrados ';
-							abrirModal(titulo,HtmlProductos);
-							focusAlLanzarModal('cajaBusqueda');
-							if (resultado.listado['encontrados'] >0 ){
-								// Quiere decir que hay resultados por eso apuntamos al primero
-								// focus a primer producto.
-								var d_focus = 'N_0';
-								 ponerFocus(d_focus);
-							}
-						}
-					
-			}
+    if (busqueda !== "" || idcaja === "Descripcion"){
+        var parametros = {
+            "pulsado"    : 'buscarProductos',
+            "cajaInput"	 : id_input,
+            "valorCampo" : busqueda,
+            "campo"      : campo,
+            "idcaja"	 :idcaja,
+            'dedonde'	:dedonde,
+            'idCliente'	:cabecera.idCliente
+        };
+        $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+                console.log('*********  Envio datos para Buscar Producto  ****************');
+            },
+            success    :  function (response) {
+                console.log('Repuesta de FUNCION -> buscarProducto');
+                var resultado =  $.parseJSON(response);
+                 if (resultado['Nitems']===1){
+                                var datos = new Object();
+                                datos.Numalbcli=0;
+                                datos.Numpedcli=0;
+                                datos.ccodbar=resultado['datos'][0]['codBarras'];
+                                datos.cdetalle=resultado['datos'][0]['articulo_name'];
+                                datos.cref=resultado['datos'][0]['crefTienda'];
+                                datos.estadoLinea="Activo";
+                                datos.idArticulo=resultado['datos'][0]['idArticulo'];
+                                datos.idpedcli=0;
+                                datos.iva=resultado['datos'][0]['iva'];
+                                datos.ncant=1;
+                                datos.nfila=productos.length+1;
+                                datos.nunidades=1;
+                                var importe =resultado['datos'][0]['pvpSiva']*1;
+                                datos.importe=importe.toFixed(2);
+                                var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+                                datos.precioCiva=pvpCiva.toFixed(2);
+                                var pvpSiva= parseFloat(resultado['datos'][0]['pvpSiva']);
+                                datos.pvpSiva=pvpSiva.toFixed(2);
+                                n_item=parseInt(productos.length)+1;
+                                var campo='Unidad_Fila_'+n_item;
+                                productos.push(datos);
+                                addTemporal(dedonde);
+                                AgregarFilaProductosAl(datos, dedonde, campo);
+                                resetCampo(id_input);
+                                if (dedonde=="factura"){
+                                    $("#tablaAl").hide();
+                                }
+                                 cerrarPopUp();
+                            }else{
+                                console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
+                    
+                                var busqueda = resultado.listado;   
+                                var HtmlProductos=busqueda.html;   
+                                var titulo = 'Listado productos encontrados ';
+                                abrirModal(titulo,HtmlProductos);
+                                focusAlLanzarModal('cajaBusqueda');
+                                if (resultado.listado['encontrados'] >0 ){
+                                    // Quiere decir que hay resultados por eso apuntamos al primero
+                                    // focus a primer producto.
+                                    var d_focus = 'N_0';
+                                     ponerFocus(d_focus);
+                                }
+                            }
+                        
+                }
 
-	});
+        });
 
-}else{
-     console.log('Saltamos a ' + ObtenerCajaSiguiente(idcaja));
+    }else{
+        console.log('Saltamos a ' + ObtenerCajaSiguiente(idcaja));
         ponerFocus(ObtenerCajaSiguiente(idcaja));
-}
+    }
 }
 function resetCampo(campo){
 	//@Objetivo: borrar los campos input
