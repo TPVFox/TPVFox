@@ -38,8 +38,9 @@ if ($_POST){
 // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 $Producto = $CTArticulos->GetProducto($id);
 if ( isset($preparados)){
-    // Preparados viene de 	POST	
-    // No lo puedo hacer en recibosPostProducto.php porque cargamos despues el producto y eso hace las comprobaciones reinicien
+    // La $preparados se monta en ./tareas/reciboPostProductos.php	
+    // No podemos añadir al producto en recibosPostProducto.php porque cargamos despues el producto 
+    // y eso hace las comprobaciones reinicien
     if (isset($preparados['comprobaciones'])){
         foreach ($preparados['comprobaciones'] as $comprobacion){
             $CTArticulos->SetComprobaciones($comprobacion);
@@ -197,6 +198,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<script type="text/javascript">
@@ -242,39 +244,40 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 					<input type="submit" value="Guardar" class="btn btn-primary">
 				</div>
 				<div class="col-md-6 Datos">
-					<?php // si es nuevo mostramos Nuevo ?>
-					<div class="col-md-4">
-						<label>ID Producto:</label>
-                            <?php echo $id?>
-                        <input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
-					</div>
-					<div class="col-md-4">
-					<label>Estado</label>
-					<select id="idEstado" name="estado" onchange="">
-						<?php echo $htmlEstadosProducto; ?>
-					</select>
-					</div>
-                    <div class="col-md-2">
-                        <label class="control-label " > Tipo:</label>
-                        <?php 
-                            echo $htmlTipo;
-                        ?>
-                    </div>
-                    <div class="col-md-2">
-                       
-                        <?php 
-                            if($id>0){
-                              ?>
-                               <label class="control-label " > Fecha Creación:</label>
-                        <input type="date" value="<?php  echo date('Y-m-d', strtotime($Producto['fecha_creado']));?>" disabled />
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label>ID Producto:</label>
+                                <?php echo $id?>
+                            <input type="text" id="id" name="id" size="10" style="display:none;" value="<?php echo $id;?>" >
+                        </div>
+                        <div class="col-md-2">
+                        <label>Estado</label>
+                        <select id="idEstado" name="estado" onchange="">
+                            <?php echo $htmlEstadosProducto; ?>
+                        </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="control-label " > Tipo:</label>
+                            <?php 
+                                echo $htmlTipo;
+                            ?>
+                        </div>
+                        <div class="col-md-4">
+                           
+                            <?php 
+                                if($id>0){
+                                  ?>
+                                   <label class="control-label " > Fecha Creación:</label>
+                            <input type="date" value="<?php  echo date('Y-m-d', strtotime($Producto['fecha_creado']));?>" disabled />
 
-                              <?php  
-                            }
-                          //  echo $htmlTipo;
-                        ?>
+                                  <?php  
+                                }
+                              //  echo $htmlTipo;
+                            ?>
+                        </div>
                     </div>
                  
-					<div class="col-md-12">
+					<div class="row">
 						<div class="form-group col-lg-3 ">	
 							<label class="control-label " > Referencia:</label>
 							<input type="text" id="referencia" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
@@ -287,8 +290,8 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 							</div>
 						</div>
 					</div>
-					<div class="col-md-12">
-						<h4> Costes del Producto</h4>
+					<div class="row">
+						<div class="col-md-12"><h4> Costes del Producto</h4></div>
 						<div class="form-group col-md-4">
 							<?php // Si es nuevo solo se utiliza para calcular precio, no se graba ?>
 							<label class="control-label " >
@@ -325,7 +328,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 							</div>
 						</div>
 					</div>
-					<div class="col-md-12">
+					<div class="row">
 						<h4> Precios de venta</h4>
 						<div class="col-md-4 ">	
 								<?php // beneficio solo 2 enteros ?>
@@ -347,49 +350,49 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 						</div>
 					</div>
 
-                        <div class="col-md-12">
-                            <h4> Stock </h4>
-                            <div class="col-md-4 ">	
-                                <label class="control-label-inline " > Mínimo:</label>
-                                <input type="text" id="stockmin" size="5" 
-                                       name="stockmin" placeholder="Stock mínimo" 
-                                       readonly="readonly" 
-                                       data-obj= "cajaStockMin" 
-                                        value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   > 
-                            </div>
-                            <div class="col-md-4 ">	
-                                <label class="control-label " > Máximo:</label>
-                                <input type="text" id="stockmax" size="5" name="stockmax"  
-                                       readonly="readonly"
-                                       data-obj= "cajaStockMax" 
-                                       value="<?php echo number_format($Producto['stocks']['stockMax'], 2, '.', ''); ?>"   >
-                            </div>
-                            <div class="col-md-4 ">	
-                                <label class="control-label " >en almacén:</label>
-                                <input type="text" id="stockon" size="5" name="stockon"  
-                                       data-obj= "cajaStockOn" 
-                                       readonly="readonly" 
-                                       value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
-                            </div>
+                    <div class="row">
+                        <h4> Stock </h4>
+                        <div class="col-md-4 ">	
+                            <label class="control-label-inline " > Mínimo:</label>
+                            <input type="text" id="stockmin" size="5" 
+                                   name="stockmin" placeholder="Stock mínimo" 
+                                   readonly="readonly" 
+                                   data-obj= "cajaStockMin" 
+                                    value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   > 
+                        </div>
+                        <div class="col-md-4 ">	
+                            <label class="control-label " > Máximo:</label>
+                            <input type="text" id="stockmax" size="5" name="stockmax"  
+                                   readonly="readonly"
+                                   data-obj= "cajaStockMax" 
+                                   value="<?php echo number_format($Producto['stocks']['stockMax'], 2, '.', ''); ?>"   >
+                        </div>
+                        <div class="col-md-4 ">	
+                            <label class="control-label " >en almacén:</label>
+                            <input type="text" id="stockon" size="5" name="stockon"  
+                                   data-obj= "cajaStockOn" 
+                                   readonly="readonly" 
+                                   value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
                         </div>
                     </div>
-                    <div class="col-md-6 text-center">
-					 <div class="panel-group">
-						<!-- Inicio collapse de CobBarras --> 
-						<?php 
+                </div>
+                <div class="col-md-6 text-center">
+                    <div class="panel-group">
+                        <!-- Inicio collapse de CobBarras --> 
+                        <?php 
                             foreach ($htmltabla as $i=>$h){
                                 echo htmlPanelDesplegable($i,$h['titulo'],$h['html']);
                             }
                             
                          ?>
-						<!-- Inicio collapse de Referencias Tiendas --> 
-					<!-- Fin de panel-group -->
-					</div> 
-                    <?php echo '<a class="glyphicon glyphicon-list" href="./DetalleMayor.php?idArticulo='
-								.$Producto['idArticulo'].'">Listado mayor todo el año</a>';?>
-				<!-- Fin div col-md-6 -->
-				</div>
-                
+                        <!-- Inicio collapse de Referencias Tiendas --> 
+                    <!-- Fin de panel-group -->
+                    </div> 
+                    <?php
+                    echo '<a class="glyphicon glyphicon-list" href="./DetalleMayor.php?idArticulo='
+                            .$Producto['idArticulo'].'">Listado mayor todo el año</a>';?>
+                    <!-- Fin div col-md-6 -->
+                </div>
 			</div>
             </form>
             <?php 

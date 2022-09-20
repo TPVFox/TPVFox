@@ -168,6 +168,7 @@
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>   
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script type="text/javascript">

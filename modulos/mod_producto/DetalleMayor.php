@@ -47,6 +47,7 @@
 	<head>
         <?php include_once $URLCom.'/head.php'; ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
 	</head>
 	<body>
 	<?php
