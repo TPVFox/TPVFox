@@ -27,12 +27,18 @@ $(function ()
               //@Objetivo: llamar a la librería autocomplete 
             $( ".familias" ).combobox({
                 select : function(event, ui){ 
-                    var idProducto= $( "#idProductoModal" ).val();
-                      
-                    var botonhtml='<button class="btn btn-primary" onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto+')">Guardar</button>';
-                    if(idProducto==0){
+					var dedonde = $("#ProductoModalDedonde" ).val();
+                    var idProducto= $( "#idProductoModal" ).val();   
+                  
+                    if(dedonde==='ListadoProductos'){
+						var botonhtml='<button class="btn btn-primary"'
+									+' onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto
+									+', '+"'"+dedonde+"'"+')">Guardar</button>';
                         $('#botonEnviar2').html(botonhtml);  
                     }else{
+						var botonhtml='<button class="btn btn-primary"'
+									+' onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto
+									+')">Guardar</button>';
                          $('#botonEnviar').html(botonhtml);  
                     }
                 },
@@ -912,16 +918,18 @@ function grabarRegularizacion() {
     });
 }
 
-function modalFamiliaProducto(idProducto="Seleccionados"){
+function modalFamiliaProducto(idProducto,dedonde=''){
     // @ Objetivo:
     // Abril modal con combox autocomplete para seleccionar familia y luego poder guardar esa familia
     // en uno o varios productos.
     // @ parametros:
-    // Si viene vacio, luego al pulsar guardar, va intentar añadir la familia a todos los producto que tengamos
-    // seleccionado en Session.
+    // idproducto -> 0 , puede ser nuevo o los producto que tengamos seleccionado en Session.
+	// dedonde-> No indica si viene de listado o ficha de producto.
+
     var parametros = {
         pulsado: 'modalFamiliaProducto',
-        idProducto: idProducto
+        idProducto: idProducto,
+		dedonde: dedonde
     }
     $.ajax({
 		data       : parametros,
@@ -933,7 +941,11 @@ function modalFamiliaProducto(idProducto="Seleccionados"){
 		success    :  function (response) {
 				console.log('Respuesta de mostrar modal de añadir producto a familia ');
 				var resultado = $.parseJSON(response);
-				var titulo = 'Añadir familia '+idProducto;
+				if (dedonde==='ListadoProductos'){
+					var titulo = 'Añadir familia a todos los seleccionados';
+				}else {
+					var titulo = 'Añadir familia '+idProducto;
+				}
                 abrirModal(titulo,resultado.html);
 				setTimeout(function(){
                         $( ".custom-combobox-input" ).focus();
@@ -990,11 +1002,12 @@ function modificarEstadoProductos(estado, productos){
 	});
 }
 
-function guardarProductoFamilia(idfamilia, idProducto){
+function guardarProductoFamilia(idfamilia, idProducto,dedonde=''){
     var parametros = {
         pulsado: 'guardarFamiliaProductos',
         idfamilia:idfamilia,
-        idProducto:idProducto
+        idProducto:idProducto,
+		dedonde:dedonde
     }
     $.ajax({
 		data       : parametros,
@@ -1006,7 +1019,8 @@ function guardarProductoFamilia(idfamilia, idProducto){
 		success    :  function (response) {
 				console.log('Respuesta de guardar el registro de productos familia');
                 var resultado = $.parseJSON(response);
-                if(idProducto==0){
+				console.log(resultado);
+                if(dedonde=='ListadoProductos'){
                     if(resultado.productosEnFamilia.length>0){
                        alert("Producto que YA ESTABAN : "+JSON.stringify(resultado.productosEnFamilia));
                     }

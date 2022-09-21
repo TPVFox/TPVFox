@@ -956,11 +956,12 @@ function comprobarRecalculosSuperiores($productos, $CArticulo){
     }
     return $productos;
 }
-function modalAutocompleteFamilias($familias, $idProducto){
+function modalAutocompleteFamilias($familias, $idProducto,$dedonde){
     $cantidad=count($familias);
-    $html="";
-    $html.=' <input type="text" value="'.$idProducto.'" id="idProductoModal" style="visibility:hidden">
-            <div class="ui-widget" id="divFamilias">
+    $html="IdProducto".$idProducto;
+    $html.=' <input type="text" value="'.$idProducto.'" id="idProductoModal" style="visibility:hidden">';
+	$html.=' <input type="text" value="'.$dedonde.'" id="ProductoModalDedonde" style="visibility:hidden">';
+	$html.='<div class="ui-widget" id="divFamilias">
             <label for="tags">Familias: '.$cantidad.'</label>
             <select id="combobox" class="familias">
             <option value="0"></option>';
@@ -968,10 +969,11 @@ function modalAutocompleteFamilias($familias, $idProducto){
         $html.='<option value="'.$familia['idFamilia'].'">'.$familia['familiaNombre'].'</option>';
     }
     $html.='</select></div>';
-    if($idProducto>0){
-         $html.='<p id="botonEnviar"></p>';
+    if($dedonde==='ListadoProductos'){
+		// Botton para cuando añadimos familia a varios productos.
+		$html.='<p id="botonEnviar2"></p>';
     }else{
-         $html.='<p id="botonEnviar2"></p>';
+		$html.='<p id="botonEnviar"></p>';
     }
    
     return $html;

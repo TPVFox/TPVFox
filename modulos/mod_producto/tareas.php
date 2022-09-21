@@ -42,9 +42,9 @@ switch ($pulsado) {
     case 'guardarFamiliaProductos':
         $idFamilia=$_POST['idfamilia'];
         $idProducto=$_POST['idProducto'];
-        if($idProducto==0){
+        if (isset($_POST['dedonde']) && $_POST['dedonde']==='ListadoProductos') {
             // Añadimos familia a varios productos.
-            /*$productosEnFamilia=array();
+            $productosEnFamilia=array();
             $productos=$_SESSION['productos_seleccionados'];
             $respuesta['productos']=$productos;
             $contadorProductos=0;
@@ -63,18 +63,8 @@ switch ($pulsado) {
                 }
             }
                 $respuesta['contadorProductos']=$contadorProductos;
-                $respuesta['productosEnFamilia']=$productosEnFamilia;*/
-                 $nombreFamilia=$CFamilia->buscarPorId($idFamilia);
-              $nuevaFila = '<tr>'
-                        . '<td><input type="hidden" id="idFamilias_'.$idFamilia
-                        .'" name="idFamilias_'.$idFamilia.'" value="'.$idFamilia.'">'
-                        .$idFamilia.'</td>'
-                        .'<td>'.$nombreFamilia['datos'][0]['familiaNombre'].'</td>'
-                        .'<td><a id="eliminar_'.$idFamilia
-                        .'" class="glyphicon glyphicon-trash" onclick="eliminarFamiliaProducto(this)"></a>'
-                        .'</td>'.'</tr>';
-                $respuesta['html']=$nuevaFila;  
-        }else{
+                $respuesta['productosEnFamilia']=$productosEnFamilia;
+        } else {
             $comprobar=$CFamilia->comprobarRegistro($idProducto, $idFamilia);
             $respuesta['comprobar']=$comprobar;
             if(isset($comprobar['datos'])){
@@ -371,7 +361,7 @@ switch ($pulsado) {
              $idProducto=$_POST['idProducto'];
         }
         $familias=$CFamilia->todoslosPadres();
-        $modal=modalAutocompleteFamilias($familias['datos'], $idProducto);
+        $modal=modalAutocompleteFamilias($familias['datos'], $idProducto,$_POST['dedonde']);
         $respuesta['familias']=$familias;
         $respuesta['html']=$modal;
     break;

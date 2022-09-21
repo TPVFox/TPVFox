@@ -259,7 +259,7 @@
                             }
                             if($ClasePermisos->getAccion("agregarProductosFamilia")==1){
                             ?>
-                                <li><a onclick="modalFamiliaProducto();">Guardar por familia</a></li>   
+                                <li><a onclick="modalFamiliaProducto('0','ListadoProductos');">Guardar por familia</a></li>   
                             <?php 
                             }
                             if($ClasePermisos->getAccion("cambiarEstado")==1){
