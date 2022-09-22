@@ -182,10 +182,11 @@
                         }
                         $datosFactura['Albaranes'][$key]['estado'] = $estado_adjunto;
                         $datosFactura['Albaranes'][$key]['fecha'] = $e['Fecha'];
-                        $datosAlbaran['Albaranes'][$key]['total_siniva'] = $e['total_siniva'];
+                        $datosFactura['Albaranes'][$key]['totalSiva'] = $e['total_siniva'];
                         $datosFactura['Albaranes'][$key]['total'] = $e['total'];
                         $datosFactura['Albaranes'][$key]['NumAdjunto'] = $e['Numalbpro'];
                         $datosFactura['Albaranes'][$key]['idAdjunto'] = $idAlbaran;
+                        $datosFactura['Albaranes'][$key]['Su_numero']= $e['Su_numero'];
                         $datosFactura['Albaranes'][$key]['nfila'] = $key+1;
                         // ========                 JS_datos_pedidos                    ======== //
                         $JS_datos_albaranes .=  'datos='.json_encode($datosFactura['Albaranes'][$key]).';'
@@ -482,8 +483,8 @@
                     <td><b>Número</b></td>
                     <td><b>Su Número</b></td>
                     <td><b>Fecha</b></td>
-                    <td><b>TotalCiva</b></td>
-                    <td><b>TotalSiva</b></td>
+                    <td><b>Sin Iva</b></td>
+                    <td><b>Total</b></td>
                     <td></td>
                 </tr>
 				</thead>

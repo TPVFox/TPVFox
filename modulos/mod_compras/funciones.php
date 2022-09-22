@@ -546,13 +546,13 @@ function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
 		}
 		if($dedonde=="factura"){
             $a = (isset($adjunto['Su_numero']))? $adjunto['Su_numero'] : '';
-            $respuesta['html'].=ControladorComun::insertTd($a);
+            $respuesta['html'].='<td>'.$a.'</td>';
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
         $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '';
 		$respuesta['html'] .='<td>'.$fecha.'</td>'.
-                             '<td>'.$totalSiva.'</td>'.
+                             '<td>'.number_format ($totalSiva,2, '.', '').'</td>'.
                             '<td>'.$adjunto['total'].'</td>';
         
         if ($accion !=='ver'){
