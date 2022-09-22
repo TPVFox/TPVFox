@@ -500,7 +500,7 @@ function addTemporal(dedonde=""){
 			console.log('******** Estoy funciones.js y voy añadir PEDIDO temporal JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir  temporal-> numero idTemporal'+cabecera.idTemporal);
+			console.log('Llegue devuelta respuesta de añadir  temporal');
 			var resultado =  $.parseJSON(response);
 			if (resultado.error){
                 // Error puede ser array
@@ -510,8 +510,8 @@ function addTemporal(dedonde=""){
                 });
 				alert(JSON.stringify(resultado.error));
 			}else{
-				console.log(resultado);
-				if (resultado.existe == 0){
+				console.log('idtemporal'+resultado.id);
+				if (resultado.id > 0){
                     console.log('Voy poner tActual y idtemporal');
                     // Este codigo será comun pero de momento lo diferencio pedido.
                     if (dedonde=="pedido"){
@@ -523,7 +523,6 @@ function addTemporal(dedonde=""){
                    
                     
                     $("input[name='idTemporal']").val(resultado.id);
-                    console.log('Valor cabecera.idTemporal:'+cabecera.idTemporal);
                     if (cabecera.idTemporal == 0) {
                         // En estado Nuevo de pedido, hay que quitar el style atributo btn-guardar.
                         $("#bGuardar").removeAttr("style") ;

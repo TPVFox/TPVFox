@@ -17,34 +17,48 @@
     }
     $idPedido=$_POST['idReal'];
     $fecha=$_POST['fecha'];
-    $fecha = new DateTime($fecha);
-    $fecha = $fecha->format('Y-m-d');
-    $productos=json_decode($_POST['productos']);
-    $idProveedor=$_POST['idProveedor'];
-    $existe=0; // Variable para devolver y saber si modifico o insert.
-    //Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
-    if ($idPedidoTemporal>0){
-        // El temporal ya esta creado.
-        $rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idPedidoTemporal, $productos);
-        if (isset($rest['error'])){
-                $respuesta['error']=$rest['error'];
-                $respuesta['consulta']=$rest['consulta'];
-        }else{
-            $existe=1;
+    /* Codigo para validar una fecha*/
+    $valores = explode('-', $fecha);
+    $fControl= 'KO';
+    if(count($valores) == 3){
+        if (checkdate($valores[1], $valores[0], $valores[2])===true){
+            $fControl = 'OK';
         }
-    }else{
-        //Si no existe el temporal se crea , con control de errores 
-        $rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor);
-        if(isset($rest['error'])){
-            array_push($errores,$CPed->montarAdvertencia(
-                                'danger',
-                                'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
-                                ,'KO')
-                        );
+    }
+    if ($fControl === 'OK'){
+        $fecha = new DateTime($fecha);
+        $fecha = $fecha->format('Y-m-d');
+        $productos=json_decode($_POST['productos']);
+        $idProveedor=$_POST['idProveedor'];
+        $existe=0; // Variable para devolver y saber si modifico o insert.
+        //Existe la utilizo como bandera para que el javascript solo me cree una vez la url del temporal
+        if ($idPedidoTemporal>0){
+            // El temporal ya esta creado.
+            $rest=$CPed->modificarDatosPedidoTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idPedidoTemporal, $productos);
+            if (isset($rest['error'])){
+                    $respuesta['error']=$rest['error'];
+                    $respuesta['consulta']=$rest['consulta'];
+            }
         }else{
-            $existe=0;
-            $idPedidoTemporal=$rest['id'];
+            //Si no existe el temporal se crea , con control de errores 
+            $rest=$CPed->insertarDatosPedidoTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor);
+            if(isset($rest['error'])){
+                array_push($errores,$CPed->montarAdvertencia(
+                                    'danger',
+                                    'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                    ,'KO')
+                            );
+            }else{
+                $idPedidoTemporal=$rest['id'];
+            }
         }
+    } else {
+        // Esta mal la fecha:
+        array_push($errores,$CFac->montarAdvertencia(
+                                    'danger',
+                                    'La fecha es erronea : '.$fecha,
+                                    'KO')
+                    );
     }
     if ($idPedido>0 && count($errores)===0){
         // Agregamos el numero de la pedido si ya existe y no hubo errores
@@ -86,9 +100,7 @@
     }
     if (count($errores)> 0){
         $respuesta['error'] = $errores; // Devolvemos array no html.
-    }
-    
+    }    
     $respuesta['id']=$idPedidoTemporal;
-    $respuesta['existe']=$existe;
     $respuesta['productos']=$_POST['productos']; 
 ?>

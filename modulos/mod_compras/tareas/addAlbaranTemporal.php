@@ -18,47 +18,63 @@
     }
     $idAlbaran=$_POST['idReal'];
     $fecha=$_POST['fecha'];
-    $fecha = new DateTime($fecha);
-    $fecha = $fecha->format('Y-m-d');
-    $hora="";
-    if(isset($_POST['hora'])){
-        $hora=$_POST['hora'];
-    }
-    if($hora !=""){
-        $fecha1=$fecha.' '.$hora.':00';
-        $fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
-    }
-    $productos=json_decode($_POST['productos']);
-    if (isset($_POST['pedidos'])){
-        $pedidos=$_POST['pedidos'];
-    }
-    $idProveedor=$_POST['idProveedor'];
-    $suNumero=$_POST['suNumero'];
-    if ($idAlbaranTemporal>0){
-        // El temporal ya esta creado.
-        $rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
-        if(isset($rest['error'])){
-            array_push($errores,$CFac->montarAdvertencia(
-                                'danger',
-                                'Error add 1:'.$rest['error'].' .Consulta:'.$rest['consulta']
-                                ,'KO')
-                        );
-        }else{
-                $existe=1;
-            }
-    }else{
-        //Si no existe el temporal se crea , con control de errores 
-        $rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
-        if(isset($rest['error'])){
-            array_push($errores,$CFac->montarAdvertencia(
-                                'danger',
-                                'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
-                                ,'KO')
-                        );
-        }else{
-            $existe=0;
-            $idAlbaranTemporal=$rest['id'];
+    /* Codigo para validar una fecha*/
+    $valores = explode('-', $fecha);
+    $fControl= 'KO';
+    if(count($valores) == 3){
+        if (checkdate($valores[1], $valores[0], $valores[2])===true){
+            $fControl = 'OK';
         }
+    }
+    if ($fControl === 'OK'){
+
+        $fecha = new DateTime($fecha);
+        $fecha = $fecha->format('Y-m-d');
+        
+        $hora="";
+        if(isset($_POST['hora'])){
+            $hora=$_POST['hora'];
+        }
+        if($hora !=""){
+            $fecha1=$fecha.' '.$hora.':00';
+            $fecha=date_format(date_create($fecha1), 'Y-m-d H:i:s');
+        }
+        $productos=json_decode($_POST['productos']);
+        if (isset($_POST['pedidos'])){
+            $pedidos=$_POST['pedidos'];
+        }
+        $idProveedor=$_POST['idProveedor'];
+        $suNumero=$_POST['suNumero'];
+        if ($idAlbaranTemporal>0){
+            // El temporal ya esta creado.
+            $rest=$CAlb->modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $idAlbaranTemporal, $productos, $pedidos, $suNumero);
+            if(isset($rest['error'])){
+                array_push($errores,$CFac->montarAdvertencia(
+                                    'danger',
+                                    'Error add 1:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                    ,'KO')
+                            );
+            }
+        }else{
+            //Si no existe el temporal se crea , con control de errores 
+            $rest=$CAlb->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha ,  $productos, $idProveedor, $pedidos, $suNumero);
+            if(isset($rest['error'])){
+                array_push($errores,$CFac->montarAdvertencia(
+                                    'danger',
+                                    'Error add 2:'.$rest['error'].' .Consulta:'.$rest['consulta']
+                                    ,'KO')
+                            );
+            }else{
+                $idAlbaranTemporal=$rest['id'];
+            }
+        }
+    } else {
+        // Esta mal la fecha:
+        array_push($errores,$CFac->montarAdvertencia(
+                                    'danger',
+                                    'La fecha es erronea : '.$fecha,
+                                    'KO')
+                    );
     }
     if ($idAlbaran>0 && count($errores)===0){
         // Agregamos el numero de la albaran si ya existe y no hubo errores
@@ -101,7 +117,6 @@
         $respuesta['error'] = $errores; // Devolvemos array no html.
     }
     $respuesta['id']=$idAlbaranTemporal;
-    $respuesta['existe']=$existe;
     $respuesta['productos']=$_POST['productos'];
 
 ?>
