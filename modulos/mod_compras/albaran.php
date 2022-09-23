@@ -202,7 +202,7 @@
                         }
                         $datosAlbaran['Pedidos'][$key]['estado'] = $estado_adjunto;
                         $datosAlbaran['Pedidos'][$key]['fecha'] = $e['Fecha'];
-                        $datosAlbaran['Pedidos'][$key]['total_siniva'] = $e['total_siniva'];
+                        $datosAlbaran['Pedidos'][$key]['totalSiva'] = $e['total_siniva'];
                         $datosAlbaran['Pedidos'][$key]['total'] = $e['total'];
                         $datosAlbaran['Pedidos'][$key]['NumAdjunto'] = $e['Numpedpro'];
                         $datosAlbaran['Pedidos'][$key]['idAdjunto'] = $idPedido;
@@ -507,7 +507,9 @@
                 <tr>
                     <td><b>Número</b></td>
                     <td><b>Fecha</b></td>
+                    <td><b>Sin Iva</b></td>
                     <td><b>Total</b></td>
+                    <td></td>
                 </tr>
                 </thead>
                 <?php 

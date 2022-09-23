@@ -119,7 +119,7 @@ class PedidosCompras extends ClaseCompras{
     
     public function buscarPedidoNumero($numPedido) {
         //@Objetivo:
-        //Buscamos los datos de un albarán real según el número del albarán.
+        //Buscamos los datos de un pedido real según el número del albarán.
         $tabla = 'pedprot';
         $where = 'Numpedpro=' . $numPedido;
         $pedido = parent::SelectUnResult($tabla, $where); // Funciona sin haber metido al padre db..
@@ -524,38 +524,39 @@ class PedidosCompras extends ClaseCompras{
 		return $pedido;
 	}
 	
-	public function buscarPedidoProveedorGuardado($idProveedor, $numPedido, $estado){
+	public function buscarPedidoProveedorPorEstado($idProveedor, $numPedido, $estado){
+        // Buscar datos cabecera de los pedidos por estado y numPedido
+        // @ Parametros:
+        // $idProveedor
+        // $numPedido -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
+        // $estado -> Lo pedidos queremos buscar segun su estado.
+        $sql = 'SELECT Numpedpro, Fecha, total_siniva,total, id FROM pedprot 
+        WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'";   
 		if ($numPedido>0){
             // Si buscamos un numero en concreto.
-			$sql='SELECT Numpedpro, Fecha, total_siniva,total, id FROM pedprot 
-			WHERE idProveedor= '.$idProveedor.' and estado='."'".$estado."'"
-			.' and Numpedpro='.$numPedido;
-			$smt=parent::consulta($sql);
-			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
-			}else{
-				$pedidosPrincipal=array();
-				if ($result = $smt->fetch_assoc () ){
-					$pedido=$result;
-				}
-				$pedido['Nitem']=1; // No lo entiendo , y si la consulta obtiene mas.
-			}
-		}else{
-			$sql='SELECT Numpedpro, Fecha, total_siniva, total, id FROM pedprot
-			 WHERE idProveedor= '.$idProveedor.'  and estado='."'".$estado."'";
-			$smt=parent::consulta($sql);
-			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
-			}else{
-				$pedidosPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
-					array_push($pedidosPrincipal,$result);	
-				}
-				$pedido['datos']=$pedidosPrincipal;
-			}
+			$sql.=' and Numpedpro='.$numPedido;
 		}
+        // Ahora hacemos consulta
+        $smt=parent::consulta($sql);
+        if (gettype($smt)==='array'){
+            //Hubo un error
+            $pedido['error']=$smt['error'];
+            $pedido['consulta']=$smt['consulta'];
+        }else{
+            // Fue correcto.
+            $pedido['Nitems']= $smt->num_rows;
+            if($smt->num_rows>0){
+                if ($smt->num_rows==1){
+                    $pedido['datos'][]=$smt->fetch_assoc();
+                } else {
+                    $pedidosPrincipal=array();
+                    while ($result = $smt->fetch_assoc()) {
+                        array_push($pedidosPrincipal,$result);
+                    }
+                    $pedido['datos']=$pedidosPrincipal;
+                }
+            } 
+        }
 		return $pedido;
 	}
     

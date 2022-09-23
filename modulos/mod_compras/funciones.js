@@ -46,12 +46,11 @@ function buscarAdjunto(dedonde, valor=""){
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de buscar adjunto');
             var resultado =  $.parseJSON(response);
-            console.log(resultado);
             var HtmlAdjuntos=resultado.html;
             if (resultado.error){
                 alert(resultado.error +'\n'+resultado.consulta);
             } else {
-                if (valor==""){
+                if (resultado.Nitems!==1){
                     // Si cja adjunto esta vacia o pulsos en lupa.
                     // Debemos mostrar el modal con los datos qumostramos el modal con los pedidos de ese proveedor
                     if (dedonde=="albaran"){
@@ -61,79 +60,77 @@ function buscarAdjunto(dedonde, valor=""){
                     }
                     abrirModal(titulo, HtmlAdjuntos);
                 }else{
-                    if (resultado.Nitems>0){
-                        // Comprobamos que el adjunto que vamos añadir, no este ya añadido en este pedido.
-                        // Ya que podríamos tenermo como marcado eliminado.
-                        var bandera=0;
+                    // Comprobamos que el adjunto que vamos añadir, no este ya añadido en este pedido.
+                    // Ya que podríamos tenermo como marcado eliminado.
+                    var bandera=0;
+                    if (dedonde=="albaran"){
+                        var adjuntos=pedidos;
+                    }else{
+                        var adjuntos=albaranes;
+                    }
+                    for(i=0; i<adjuntos.length; i++){
+                        // Recorre todo el array de arrays de pedidos que existan actualmente en pedido.
+                        var num_adjunto_actual=adjuntos[i].NumAdjunto;
+                        var numeroNuevo=resultado['datos'].NumAdjunto;
+                        if (num_adjunto_actual == numeroNuevo){
+                            bandera=bandera+1;// Para que no añada adjunto , ni productos.
+                            alert( ' Ya existe este adjunto en este '+dedonde);
+                        }
+                    }
+                    if (bandera==0){
+                        var datos = [];
+                        datos = resultado['datos'];
+                        n_item=parseInt(adjuntos.length)+1;
+                        datos.nfila=n_item;
                         if (dedonde=="albaran"){
-                            var adjuntos=pedidos;
+                            pedidos.push(datos);
                         }else{
-                            var adjuntos=albaranes;
+                            albaranes.push(datos);
                         }
-                        for(i=0; i<adjuntos.length; i++){
-                            // Recorre todo el array de arrays de pedidos que existan actualmente en pedido.
-                            var num_adjunto_actual=adjuntos[i].NumAdjunto;
-                            var numeroNuevo=resultado['datos'].NumAdjunto;
-                            if (num_adjunto_actual == numeroNuevo){
-                                bandera=bandera+1;// Para que no añada adjunto , ni productos.
-                                alert( ' Ya existe este adjunto en este '+dedonde);
+                        productosAdd=resultado.productos;
+                        var prodArray=new Array();
+                        for (i=0; i<productosAdd.length; i++){
+                            // Array de arrays de productos metemos los productos de ese pedido
+                            // cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
+                            var prod = {
+                                    'articulo_name' : productosAdd[i].cdetalle,
+                                    'codBarras'     : productosAdd[i].ccodbar,
+                                    'ref_prov' : productosAdd[i].ref_prov,
+                                    'crefTienda'    : productosAdd[i].cref,
+                                    'idArticulo'    : productosAdd[i].idArticulo,
+                                    'iva'           : productosAdd[i].iva,
+                                    'coste'         : productosAdd[i].costeSiva,
+                                    'unidades'      : productosAdd[i].nunidades,
+                                    'estado'        : productosAdd[i].estadoLinea
                             }
+                            prod = new ObjProducto(prod);
+                            if (dedonde=="albaran"){
+                                prod.numPedido=productosAdd[i].Numpedpro;
+                                prod.idpedpro=productosAdd[i].idpedpro;
+                            }else{
+                                prod.numAlbaran=productosAdd[i].Numalbpro;
+                                prod.idalbpro=productosAdd[i].idalbpro;
+                            }
+                            var numAdjunto=resultado['datos'].NumAdjunto;
+                            var idAdjunto=resultado['datos'].idAdjunto;
+                            productos.push(prod);
+                            prodArray.push(prod);
                         }
-                            if (bandera==0){
-                                var datos = [];
-                                datos = resultado['datos'];
-                                n_item=parseInt(adjuntos.length)+1;
-                                datos.nfila=n_item;
-                                if (dedonde=="albaran"){
-                                    pedidos.push(datos);
-                                }else{
-                                    albaranes.push(datos);
-                                }
-                                productosAdd=resultado.productos;
-                                var prodArray=new Array();
-                                for (i=0; i<productosAdd.length; i++){
-                                    // Array de arrays de productos metemos los productos de ese pedido
-                                    // cargamos todos los datos en un objeto y por ultimo lo añadimos a los productos que ya tenemos
-                                    var prod = {
-                                            'articulo_name' : productosAdd[i].cdetalle,
-                                            'codBarras'     : productosAdd[i].ccodbar,
-                                            'ref_prov' : productosAdd[i].ref_prov,
-                                            'crefTienda'    : productosAdd[i].cref,
-                                            'idArticulo'    : productosAdd[i].idArticulo,
-                                            'iva'           : productosAdd[i].iva,
-                                            'coste'         : productosAdd[i].costeSiva,
-                                            'unidades'      : productosAdd[i].nunidades,
-                                            'estado'        : productosAdd[i].estadoLinea
-                                    }
-                                    prod = new ObjProducto(prod);
-                                    if (dedonde=="albaran"){
-                                        prod.numPedido=productosAdd[i].Numpedpro;
-                                        prod.idpedpro=productosAdd[i].idpedpro;
-                                    }else{
-                                        prod.numAlbaran=productosAdd[i].Numalbpro;
-                                        prod.idalbpro=productosAdd[i].idalbpro;
-                                    }
-                                    var numAdjunto=resultado['datos'].NumAdjunto;
-                                    var idAdjunto=resultado['datos'].idAdjunto;
-                                    productos.push(prod);
-                                    prodArray.push(prod);
-                                }
-                               
-                                //  Cambiamos el estado del adjunto, para ponerlo como Facturado, para que no puedas ser añadido.
-                                modificarEstado(dedonde, "Facturado",  idAdjunto);
-                                //Agregamos una nueva fila en adjunto con los datos principales
-                                AgregarAdjunto(datos, dedonde);
-                                // Agregamos filas de productos pero con la cabecera del adjunto.
-                                AgregarFilasProductos(prodArray, dedonde,datos);
-                                // Hago la alerta para que espere un poco
-                                alert('Fijate que esten todas las lineas del producto, sino refresca.');
-                                // Creamos el temporal.
-                                addTemporal(dedonde);
-                                //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
-                                //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
-                                // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba 
-                                cerrarPopUp();
-                            }
+                        
+                        //  Cambiamos el estado del adjunto, para ponerlo como Facturado, para que no puedas ser añadido.
+                        modificarEstado(dedonde, "Facturado",  idAdjunto);
+                        //Agregamos una nueva fila en adjunto con los datos principales
+                        AgregarAdjunto(datos, dedonde);
+                        // Agregamos filas de productos pero con la cabecera del adjunto.
+                        AgregarFilasProductos(prodArray, dedonde,datos);
+                        // Hago la alerta para que espere un poco
+                        alert('Fijate que esten todas las lineas del producto, sino refresca.');
+                        // Creamos el temporal.
+                        addTemporal(dedonde);
+                        //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
+                        //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
+                        // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba 
+                        cerrarPopUp();
                     }
                 }
             }

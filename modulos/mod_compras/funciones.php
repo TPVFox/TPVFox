@@ -110,7 +110,10 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idP
 			.$buscar.' group by  a.idArticulo LIMIT 0 , 30 ';
         $resultado['sql'] = $sql;
         $res = $BDTpv->query($sql);
-        $resultado['Nitems']= $res->num_rows;
+        $resultado['Nitems']=0;
+        if (isset($res->num_rows)){
+            $resultado['Nitems']= $res->num_rows;
+        }
         // "$i" es el contador busquedas, ya podemos buscar de varias formas, identico o like.
         if ($i === 0){
             // Es la primera busqueda ( es decir puede ser la identico, no volvemos a buscar. )
@@ -550,7 +553,7 @@ function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
 		}
 		$date=date_create($adjunto['fecha']);
 		$fecha=date_format($date,'d-m-Y');
-        $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '';
+        $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '0.00';
 		$respuesta['html'] .='<td>'.$fecha.'</td>'.
                              '<td>'.number_format ($totalSiva,2, '.', '').'</td>'.
                             '<td>'.$adjunto['total'].'</td>';

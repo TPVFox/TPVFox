@@ -8,49 +8,47 @@
     $estado="Guardado";
     $dedonde=$_POST['dedonde'];
     if ($dedonde=="albaran"){
-        $datosAdjunto=$CPed->buscarPedidoProveedorGuardado($idProveedor, $numAdjunto, $estado);
+        $datosAdjunto=$CPed->buscarPedidoProveedorPorEstado($idProveedor, $numAdjunto, $estado);
     } else {
-        $datosAdjunto=$CAlb->buscarAlbaranProveedorGuardado($idProveedor, $numAdjunto, $estado);
+        $datosAdjunto=$CAlb->buscarAlbaranProveedorPorEstado($idProveedor, $numAdjunto, $estado);
     }
     if (!isset($datosAdjunto['error'])){
-        if (isset($datosAdjunto['Nitem'])){
+        $respuesta['Nitems']=$datosAdjunto['Nitems'];
+        if ($respuesta['Nitems']==1){
             // Hubo solo un resultado. ( aunque no tiene mucho sentido que exista Nitem.. :-)
+            $datos = $datosAdjunto['datos']['0'];    
             $respuesta['temporales']=1;
-            $fecha =$datosAdjunto['Fecha'];
-            if ($dedonde=="albaran"){
-                $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numpedpro'];
-                $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-                $productosAdjunto=$CPed->ProductosPedidos($datosAdjunto['id']);
-                if (isset($productosAdjunto['error'])){
-                    $respuesta['error']=$productosAdjunto['error'];
-                    $respuesta['consulta']=$productosAdjunto['consulta'];
-                }else{
-                    $respuesta['productos']=$productosAdjunto;
-                }
-            }else{
-                $respuesta['datos']['NumAdjunto']=$datosAdjunto['Numalbpro'];
-                $respuesta['datos']['idAdjunto']=$datosAdjunto['id'];
-                $respuesta['datos']['totalSiva']=$datosAdjunto['totalSiva'];
-                $respuesta['datos']['Su_numero']=$datosAdjunto['Su_numero'];
-                $productosAdjunto=$CAlb->ProductosAlbaran($datosAdjunto['id']);
-                if (isset($productosAdjunto['error'])){
-                    $respuesta['error']=$productosAdjunto['error'];
-                    $respuesta['consulta']=$productosAdjunto['consulta'];
-                }else{
-                    $respuesta['productos']=$productosAdjunto;
-                }
-            }
+            $fecha =$datos['Fecha'];
             $date = new DateTime($fecha);
-            $respuesta['datos']['fecha']=date_format($date, 'Y-m-d');
-            $respuesta['datos']['total']=$datosAdjunto['total'];
-            $respuesta['datos']['estado']="activo";
+            $datos['fecha']     =date_format($date, 'Y-m-d');
+            $datos['idAdjunto'] =$datos['id'];
+            $datos['estado'] = 'activo'; // Estado del adjunto
+            if ($dedonde=="albaran"){
+                $datos['NumAdjunto']=$datos['Numpedpro'];
+                $datos['totalSiva']=$datos['total_siniva'];
+                $productosAdjunto=$CPed->ProductosPedidos($datos['id']);
+            }else{
+                $datos['NumAdjunto']=$datos['Numalbpro'];
+                $productosAdjunto=$CAlb->ProductosAlbaran($datos['id']);
+                
+            }
+            if (isset($productosAdjunto['error'])){
+                $respuesta['error']=$productosAdjunto['error'];
+                $respuesta['consulta']=$productosAdjunto['consulta'];
+            }else{
+                $respuesta['productos']=$productosAdjunto;
+            }
+            $respuesta['datos']=$datos;
             
-            $respuesta['Nitems']=$datosAdjunto['Nitem'];
         } else {
-            // Hubo varios resultado y mostramos modal.
-            $respuesta['datos']=$datosAdjunto;
-            $modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
-            $respuesta['html']=$modal['html'];
+            // Hubo varios resultado o ninguno.
+            if ($respuesta['Nitems']>1){
+                // Montamos contenido para modal
+                $modal=modalAdjunto($datosAdjunto['datos'], $dedonde, $BDTpv);
+                $respuesta['html']=$modal['html'];
+            } else {
+                $respuesta['html']= '<div class="alert alert-warning">No se encontro resultado</div>';
+            }
         }
      } else {
         // Hubo un error en la consulta.

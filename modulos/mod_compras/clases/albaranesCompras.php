@@ -537,39 +537,40 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function buscarAlbaranProveedorGuardado($idProveedor, $numAlbaran, $estado) {
+    public function buscarAlbaranProveedorPorEstado($idProveedor, $numAlbaran, $estado) {
         //@Objetivo:
-        //Buscar datos principal de un albarán de proveedor y estado guardado
-        if ($numAlbaran > 0) {
-            $albaran=array();
-            $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
+        //Buscar datos principales de un albarán de proveedor y con el estado indicado
+        // @ Parametros:
+        // $idProveedor
+        // $numAlbaran -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
+        // $estado -> Lo pedidos queremos buscar segun su estado.
+        $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
 			  a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
 			  INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . ' 
-			  and a.estado="' . $estado . '" and a.Numalbpro=' . $numAlbaran . ' GROUP by a.id ';
-            $smt = parent::consulta($sql);
-            if (gettype($smt)==='array') {
-                $albaran = $smt; 
-            } else {
-                $albaranesPrincipal = array();
-                if ($result = $smt->fetch_assoc()) {
-                    $albaran = $result;
-                    $albaran['Nitem'] = 1;
+			  and a.estado="'.$estado.'"';
+        if ($numAlbaran > 0){
+            $sql .=' and a.Numalbpro=' . $numAlbaran ;
+        }
+        $sql .= ' GROUP by a.id ';
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array'){
+            //Hubo un error
+            $albaran['error']=$smt['error'];
+            $albaran['consulta']=$smt['consulta'];
+        }else{
+            // Fue correcto.
+            $albaran['Nitems']= $smt->num_rows;
+            if($smt->num_rows>0){
+                if ($smt->num_rows==1){
+                    $albaran['datos'][]=$smt->fetch_assoc();
+                } else {
+                    $albaranPrincipal=array();
+                    while ($result = $smt->fetch_assoc()) {
+                        array_push($albaranPrincipal,$result);
+                    }
+                    $albaran['datos']=$albaranPrincipal;
                 }
-            }
-        } else {
-            $sql = 'SELECT a.Su_numero , a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento , 
-			a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a  INNER JOIN albproIva as b 
-			on a.`id`=b.idalbpro where  a.idProveedor=' . $idProveedor . ' and a.estado="' . $estado . '" GROUP by a.id';
-            $smt = parent::consulta($sql);
-            if (gettype($smt)==='array') {
-                $albaran = $smt; 
-            } else {
-                $albaranesPrincipal = array();
-                while ($result = $smt->fetch_assoc()) {
-                    array_push($albaranesPrincipal, $result);
-                }
-                $albaran['datos'] = $albaranesPrincipal;
-            }
+            } 
         }
         return $albaran;
     }
