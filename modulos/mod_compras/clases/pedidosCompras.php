@@ -475,7 +475,7 @@ class PedidosCompras extends ClaseCompras{
 		return $pedido;
 	}
     
-	public function ProductosPedidos($idPedido){
+	public function ProductosPedido($idPedido){
         //@Objetivo:
         //Buscar todos los productos que tenga un id de pedido real
         //@Parametros :

@@ -26,7 +26,7 @@
             if ($dedonde=="albaran"){
                 $datos['NumAdjunto']=$datos['Numpedpro'];
                 $datos['totalSiva']=$datos['total_siniva'];
-                $productosAdjunto=$CPed->ProductosPedidos($datos['id']);
+                $productosAdjunto=$CPed->ProductosPedido($datos['id']);
             }else{
                 $datos['NumAdjunto']=$datos['Numalbpro'];
                 $productosAdjunto=$CAlb->ProductosAlbaran($datos['id']);
