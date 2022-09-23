@@ -573,7 +573,10 @@ function buscarClientes(pantalla,valor=''){
                     $('#Cliente').val(resultado.nombre);
                     // Cerramos modal  y le indicamos destino focus.
                     cerrarPopUp(); // Destino no indicamo ya que no sabes...
+					console.log(pantalla);
                     if(pantalla == 'cobrados'){
+						console.log('Entro'+pantalla);
+
                         $('#cambioCliente').show();
                     }
                     if (pantalla =='tpv'){

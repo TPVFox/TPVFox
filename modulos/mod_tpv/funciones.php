@@ -953,7 +953,7 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
             $datos = "'" . $cliente['idClientes'] . "','" . addslashes(htmlentities($razonsocial_nombre, ENT_COMPAT)) . "'";
             $html.= '<tr class="FilaModal'
                     .$clase_inactiva.'" id="Fila_'
-                    . $key . '" onclick="buscarClientes('."'popup','".$cliente['nombre']."'".');">'
+                    . $key . '" onclick="buscarClientes('."'".$dedonde."','".$cliente['nombre']."'".');">'
                     . '<td id="C' . $key . '_Lin" >'
                     . '<input id="N_' . $key . '" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
                     . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
