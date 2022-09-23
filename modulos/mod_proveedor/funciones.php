@@ -32,7 +32,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
                 break;
                 case 'albaranes':
                     $url=$HostNombre.'/modulos/mod_compras/albaran.php?id=';
-                    $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idProveedor'].')" value="Resumen" name="Resumen" ></td>';
+                    $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idProveedor'].')" value="Resumen" name="Resumen" >';
                 break;
                 case 'pedidos':
                     $url=$HostNombre.'/modulos/mod_compras/pedido.php?id=';

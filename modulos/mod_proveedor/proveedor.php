@@ -72,155 +72,141 @@
         }
         
 		?>
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-    <head>	
-        <?php include_once $URLCom.'/head.php';?>
+<head>	
+	<?php include_once $URLCom.'/head.php';?>
 
-	</head>
-	<body>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
-		 <script type="text/javascript" >
-			<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
-		</script>
+</head>
+<body>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
+<script type="text/javascript" >
+	<?php echo 'var configuracion='.json_encode($configuracion).';';?>	
+</script>
+<?php
+include_once $URLCom.'/modulos/mod_menu/menu.php';
+?>
+<div class="container">	
+	<?php
+	if (isset($errores) && count($errores)>0){
+		foreach($errores as $error){
+			echo '<div class="alert alert-'.$error['tipo'].'">'
+			. '<strong>'.$error['tipo'].' </strong><br/> ';
+			if (is_array($error['mensaje'])){
+				echo '<pre>';
+				print_r($error['mensaje']);
+				echo '</pre>';
+			} else {
+				echo $error['mensaje'];
+			}
+			echo '</div>';
+		}
+	}
+	?>
+	<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
+	<form action="" method="post" name="formProveedor">
+		<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
+		<a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
 		<?php
-        include_once $URLCom.'/modulos/mod_menu/menu.php';
+		if ($input_disabled ==''){
 		?>
-     
-		<div class="container">
-			
-				<?php
-				if (isset($errores) && count($errores)>0){
-                    foreach($errores as $error){
-                        echo '<div class="alert alert-'.$error['tipo'].'">'
-                        . '<strong>'.$error['tipo'].' </strong><br/> ';
-                        if (is_array($error['mensaje'])){
-                            echo '<pre>';
-                            print_r($error['mensaje']);
-                            echo '</pre>';
-                        } else {
-                            echo $error['mensaje'];
-                        }
-                        echo '</div>';
-                    }
-                }
-				?>
-			
-			<h1 class="text-center"> Proveedor: <?php echo $titulo;?></h1>
-			<form action="" method="post" name="formProveedor">
-			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
-            <a  class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion , 0, <?php echo $id ;?>);">Añadir Incidencia </a>
-            <?php
-            if ($input_disabled ==''){
-            ?>
-                <input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
-            <?php
-            }
-            ?>
-            <div class="col-md-12">
-				<h4>Datos del proveedor con ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
-
+			<input type="submit" value="Guardar" name="Guardar" id="Guardar" class="btn btn-primary">
+		<?php
+		}
+		?>
+		<div class="row">
 				<div class="col-md-1">
-					<?php 
-					// UrlImagen
-					$img = './../../css/img/imgUsuario.png';
-					?>
-					<img src="<?php echo $img;?>" style="width:100%;">
-				</div>
-
-				<div class="col-md-7">
-					<div class="Datos">
-						<div class="col-md-6 form-group">
-							
-							<label>Nombre comercial Proveedor:</label>
-							<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $input_disabled;?> size="40" placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>" required  >
-							
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
-							<input type="text" id="razonsocial" name="razonsocial" <?php echo $input_disabled;?> size="40" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>">
-							
-						</div>
-						<div class="col-md-6 form-group">
-							<label>NIF:</label>
-							<input type="text"	id="nif" name="nif" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['nif'];?>">
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Direccion:</label>
-							<input type="text" id="direccion" name="direccion" <?php echo $input_disabled;?> size="50" value="<?php echo $ProveedorUnico['direccion'];?>"   >
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Telefono:</label>
-							<input type="text" id="telefono" name="telefono" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['telefono'];?>"   >
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Movil:</label>
-							<input type="text" id="movil" name="movil" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['movil'];?>"   >
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Fax:</label>
-							<input type="text" id="fax" name="fax" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['fax'];?>"   >
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Email:</label>
-							<input type="text" id="email" name="email" <?php echo $input_disabled;?> size="40" value="<?php echo $ProveedorUnico['email'];?>"  >
-						</div>
-						<div class="col-md-6 form-group">
-							<label>Fecha alta:</label>
-							<input type="text" id="fechaalta" name="fecha_creado" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
-						</div>
-						
-						<div class="col-md-6 form-group">
-							<label for="sel1">Estado:</label>
-                            <div class="col-md-6">
-                            <select class="form-control" name="estado" <?php echo $input_disabled;?> id="sel1">
-								<?php 
-								foreach ($estados as $estado){
-                                    $default ='';
-                                    if($ProveedorUnico['estado']===$estado){
-                                        $default = "selected";
-                                    }
-								    echo '<option size="10" value="'.$estado
-                                        .'" '.$default.'>'.$estado.'</option>';
-								}
-								?>
-								
-							</select>
-                            </div>
-						</div>
-						
-						
-					</div>
-					
-				</div>
-				<div class="col-md-4">
-					 <div class="panel-group">
-						<?php 
-						$num = 1 ; // Numero collapse;
-						$titulo = 'Facturas';
-						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[0]);
-						?>
-						<?php 
-						$num = 2 ; // Numero collapse;
-						$titulo = 'Albaranes';
-						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[1]);
-						?>
-						<?php 
-						$num = 3 ; // Numero collapse;
-						$titulo = 'Pedidos';
-						echo htmlPanelDesplegable($num,$titulo, $tablaHtml[2]);
-						?>
-						 </div>
-				</div>
-				
-				</form>
+				<img src="./../../css/img/imgUsuario.png" style="width:100%;">
 			</div>
-		<?php // Incluimos paginas modales
-        echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-        include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
-        // hacemos comprobaciones de estilos 
-        ?>
+			<div class="col-md-11">
+				<h4>Proveedor ID:<input size="5" type="text" id="idProveedor" name="idProveedor" value="<?php echo $ProveedorUnico['idProveedor'];?>"   readonly></h4>
+			</div>
 		</div>
-	</body>
+		<div class="row">
+			<div class="col-md-8">
+				<div class="Datos">
+					<div class="col-md-6 form-group">	
+						<label>Nombre comercial Proveedor:</label>
+						<input type="text" id="nombrecomercial" name="nombrecomercial" <?php echo $input_disabled;?> size="40" placeholder="nombre" value="<?php echo $ProveedorUnico['nombrecomercial'];?>" required>
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Razon Social:</label> <!--//al enviar con POST los inputs se cogen con name="xx" PRE-->
+						<input type="text" id="razonsocial" name="razonsocial" <?php echo $input_disabled;?> size="40" placeholder="razon social" value="<?php echo $ProveedorUnico['razonsocial'];?>">
+					</div>
+					<div class="col-md-6 form-group">
+						<label>NIF:</label>
+						<input type="text"	id="nif" name="nif" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['nif'];?>">
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Direccion:</label>
+						<input type="text" id="direccion" name="direccion" <?php echo $input_disabled;?> size="50" value="<?php echo $ProveedorUnico['direccion'];?>"   >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Telefono:</label>
+						<input type="text" id="telefono" name="telefono" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['telefono'];?>"   >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Movil:</label>
+						<input type="text" id="movil" name="movil" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['movil'];?>"   >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Fax:</label>
+						<input type="text" id="fax" name="fax" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['fax'];?>"   >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Email:</label>
+						<input type="text" id="email" name="email" <?php echo $input_disabled;?> size="40" value="<?php echo $ProveedorUnico['email'];?>"  >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Fecha alta:</label>
+						<input type="text" id="fechaalta" name="fecha_creado" value="<?php echo $ProveedorUnico['fecha_creado'];?>" readonly >
+					</div>
+					<div class="col-md-6 form-group">
+						<label for="sel1">Estado:</label>
+						<div class="col-md-6">
+							<select class="form-control" name="estado" <?php echo $input_disabled;?> id="sel1">
+							<?php 
+							foreach ($estados as $estado){
+								$default ='';
+								if($ProveedorUnico['estado']===$estado){
+									$default = "selected";
+								}
+								echo '<option size="10" value="'.$estado
+									.'" '.$default.'>'.$estado.'</option>';
+							}
+							?>				
+							</select>
+						</div>
+					</div>
+				</div>	
+			</div>
+			<div class="col-md-4">
+				<div class="panel-group">
+					<?php 
+					$num = 1 ; // Numero collapse;
+					$titulo = 'Facturas';
+					echo htmlPanelDesplegable($num,$titulo, $tablaHtml[0]);
+					?>
+					<?php 
+					$num = 2 ; // Numero collapse;
+					$titulo = 'Albaranes';
+					echo htmlPanelDesplegable($num,$titulo, $tablaHtml[1]);
+					?>
+					<?php 
+					$num = 3 ; // Numero collapse;
+					$titulo = 'Pedidos';
+					echo htmlPanelDesplegable($num,$titulo, $tablaHtml[2]);
+					?>
+				</div>
+			</div>
+		</div>
+	</form>
+	<?php // Incluimos paginas modales
+	echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+	include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+	// hacemos comprobaciones de estilos 
+	?>
+</div>
+</body>
 </html>
