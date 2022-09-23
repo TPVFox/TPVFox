@@ -889,7 +889,7 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla) {
         // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
         $sql.= str_replace('Nombre','razonsocial',$whereNombre);
     } else  {
-        if ($snum == 'OK') {
+        if ($num == 'OK') {
             // Quiere decir que debemos buscar en los campos telefono.
             if ($whereNombre !==''){
                 $sql.= ' OR ';
