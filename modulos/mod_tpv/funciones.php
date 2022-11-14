@@ -837,8 +837,6 @@ function baseIva($BDTpv, $idticketst) {
     //Agrupamos por iva, para obtener sumIva, sumBase
     //se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
     //seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
-
-
     $sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
             . ' FROM `ticketstIva` '
             . ' WHERE `idticketst` IN (' . $idticketst . ') GROUP BY `iva`';
@@ -858,7 +856,7 @@ function baseIva($BDTpv, $idticketst) {
     return $resultado;
 }
 
-function BusquedaClientes($busqueda, $BDTpv, $tabla) {
+function BusquedaClientes($busqueda, $BDTpv, $tabla,$dedonde) {
     // @ Objetivo es buscar los clientes 
     // @ Parametros
     // 	$busqueda --> Lo que vamos a buscar
@@ -866,35 +864,38 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla) {
     //	$tabla--> tabla donde buscar.
     // Campos que vamos a Buscar: 'Nombre','razonsocial','nif','telefono','movil'
     $resultado = array();
-    
     // Separamos la busqueda en varias palabras
-    $palabras = explode(' ', $busqueda);
-    $likes = array();
-    $num = 'KO';
-    foreach ($palabras as $key => $palabra) {
-        //  Identificamos si hay numeros o palabras
-        if (is_numeric($palabra) == false) {      
-            // Montamos consulta por palabras de varias palabras, en nombre o razon social
-            $likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
-        } else  {
-            $num ='OK';
-        }
-    }
-    $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE ';
-    $whereNombre = '';
-    if (count($likes) >0){
-        // Si no hay palabras ya no buscamos por nombre
-        $whereNombre= '('.implode(' and ', $likes).')';
-        $sql.= $whereNombre.' OR ';
-        // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
-        $sql.= str_replace('Nombre','razonsocial',$whereNombre);
-    } else  {
-        if ($num == 'OK') {
-            // Quiere decir que debemos buscar en los campos telefono.
-            if ($whereNombre !==''){
-                $sql.= ' OR ';
+    if ($dedonde=="Linea_tpv" ||$dedonde=="Linea_cobrados"){
+        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE idClientes='.$busqueda;
+    } else {
+        $palabras = explode(' ', $busqueda);
+        $likes = array();
+        $num = 'KO';
+        foreach ($palabras as $key => $palabra) {
+            //  Identificamos si hay numeros o palabras
+            if (is_numeric($palabra) == false) {      
+                // Montamos consulta por palabras de varias palabras, en nombre o razon social
+                $likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
+            } else  {
+                $num ='OK';
             }
-            $sql.= '( nif LIKE "%'.$busqueda.'%" OR telefono LIKE "%'.$busqueda.'%" OR movil LIKE "%'.$busqueda.'%")';
+        }
+        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE ';
+        $whereNombre = '';
+        if (count($likes) >0){
+            // Si no hay palabras ya no buscamos por nombre
+            $whereNombre= '('.implode(' and ', $likes).')';
+            $sql.= $whereNombre.' OR ';
+            // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
+            $sql.= str_replace('Nombre','razonsocial',$whereNombre);
+        } else  {
+            if ($num == 'OK') {
+                // Quiere decir que debemos buscar en los campos telefono.
+                if ($whereNombre !==''){
+                    $sql.= ' OR ';
+                }
+                $sql.= '( nif LIKE "%'.$busqueda.'%" OR telefono LIKE "%'.$busqueda.'%" OR movil LIKE "%'.$busqueda.'%")';
+            }
         }
     }
     $res = $BDTpv->query($sql);
@@ -924,9 +925,8 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
     // Montar el hmtl para mostrar con los clientes si los hubiera.
     // @ parametros:
     // 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
-    //		$dedonde  -> Nos indica de donde viene. (tpv,cerrados,cobrados)
-    $n_dedonde = 0;
-
+    //		$dedonde  -> Nos indica de donde viene.
+    //               (tpv y cerrados)
     $html= '<label>Busqueda Cliente en ' . $dedonde . '</label>'
             . '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'
             . 'size="13" data-obj="cajaBusquedacliente" value="' . $busqueda
@@ -949,11 +949,12 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
 				$clase_inactiva = ' danger';
 				$contador_inactivo++;
 			} 
+
             $razonsocial_nombre = $cliente['nombre'] . ' - ' . $cliente['razonsocial'];
             $datos = "'" . $cliente['idClientes'] . "','" . addslashes(htmlentities($razonsocial_nombre, ENT_COMPAT)) . "'";
             $html.= '<tr class="FilaModal'
                     .$clase_inactiva.'" id="Fila_'
-                    . $key . '" onclick="buscarClientes('."'".$dedonde."','".$cliente['nombre']."'".');">'
+                    . $key . '" onclick="buscarClientes('."'"."Linea_".$dedonde."','".$cliente['idClientes']."'".');">'
                     . '<td id="C' . $key . '_Lin" >'
                     . '<input id="N_' . $key . '" name="filacliente" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
                     . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'

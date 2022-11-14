@@ -108,7 +108,7 @@ switch ($pulsado) {
         //funcion de buscar clientes
         //luego html mostrar modal 
         if ($busqueda != ''){
-            $res = BusquedaClientes($busqueda,$BDTpv,$tabla);
+            $res = BusquedaClientes($busqueda,$BDTpv,$tabla,$dedonde);
         } 
         if (!isset($res['datos'])){
             $res = array( 'datos' => array());
@@ -123,6 +123,7 @@ switch ($pulsado) {
         }
         
         $respuesta['datos'] = $res;
+        $respuesta['donde'] = $dedonde;
     break;
     
     case 'Grabar_configuracion':
