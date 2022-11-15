@@ -43,7 +43,7 @@ if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
 		$resultado['error']=array ( 'tipo'=>'DANGER!','dato' => $arrayNums['consulta'],
 		 'class'=>'alert alert-danger','mensaje' => 'Error de sql');
 	}else{
-        $cabecera=<<<EOD
+$cabecera=<<<EOD
 <p></p><font size="20">$Tienda[NombreComercial] </font><br>
 <font size="12">$Tienda[razonsocial]</font><br>
 <font size="12">$Tienda[direccion]</font><br>
@@ -64,14 +64,12 @@ $html = '<table WIDTH="80%" border="1px">
 <th>ID</th>
 <th width="3%">P</th>
 <th width="50%">PRODUCTO</th>
-<th $style[C]>NºC</th>
+<th '.$style[C].'>NºC</th>
 <th>Uds</th>
 <th>Coste</th>
 <th width="6%">CM</th>
 <th width="20%">IMPORTE</th>
-</tr>
-
-';
+</tr>';
 foreach($productos as $producto){
 	$p =$CTArticulos->GetProducto($producto['idArticulo']);
 	$cdetalle = $p['articulo_name'];
@@ -114,22 +112,24 @@ EOD;
 <td $style[R]>$desglose[sumiva]</td><td $style[R]>$totalLinea</td></tr>
 EOD;
 			}
-		$html .=<<<EOD
+		$html.=<<<EOD
 		<tr><td></td><td></td><td>TOTAL:</td><td><b>$totalDesglose</b></td></tr></table><h3>Listado de Albaranes</h3>
-		<table  WIDTH="75%" border="1px"><tr><td  WIDTH="50%">Fecha</td><td>N_albaran</td><td>Base</td><td>Iva</td>
+		<table  WIDTH="75%" border="1px"><tr><td>Fecha</td><td>Albaran</td><td width="30%">Su NºAlbaran</td><td>Base</td><td>Iva</td>
 		<td>Total</td></tr>
-		EOD;
+EOD;
 		$totalLinea=0;
 		$totalbases=0;
 			foreach($arrayNums['resumenBases'] as $bases){
 				$totalLinea=$bases['sumabase']+$bases['sumarIva'];
 				$totalbases=$totalbases+$totalLinea;
-				
-				$html.=<<<EOD
-					<tr><td WIDTH="50%"><font size="8">$bases[fecha]</font></td><td><font size="8">$bases[Numalbpro]</font></td>
-					<td><font size="8">$bases[sumabase]</font></td><td><font size="8">$bases[sumarIva]</font></td>
-					<td><font size="8">$totalLinea</font></td></tr>
-					EOD;
+				$date = date_create($bases['fecha']);
+				$html.='<tr>'
+						.$tcF8.date_format($date,"d/m/y H:i").'</font></td>'
+						.$tcF8.$bases['Numalbpro'].'</font></td>'
+						.$tcF8.$bases['Su_numero'].'</font></td>'
+						.$tcF8.$bases['sumabase'].'</font></td>'
+						.$tcF8.$bases['sumarIva'].'</font></td>'
+						.$tcF8.$totalLinea.'</font></td></tr>';
 			}
 		$html.='</table>';
 		$nombreTmp="Resumen.pdf";

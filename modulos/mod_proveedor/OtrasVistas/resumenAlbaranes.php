@@ -270,6 +270,7 @@
                         <tr>
                             <th>FECHA</th>
                             <th>ALBARÁN</th>
+							<th>Su NºAlbaran</th>
                             <th>ESTADO</th>
                             <th>LINK</th>
                             <th>BASE</th>
@@ -285,9 +286,11 @@
                         foreach($arrayNums['resumenBases'] as $bases){
                             $totalLinea=$bases['sumabase']+$bases['sumarIva'];
                             $totalbases=$totalbases+$totalLinea;
+							$date = date_create($bases['fecha']);
                             echo '<tr>
-                            <td>'.$bases['fecha'].'</td>
+                            <td>'.date_format($date,"d/m/y H:i").'</td>
                             <td>'.$bases['Numalbpro'].'</td>
+							<td>'.$bases['Su_numero'].'</td>
                              <td>'.$bases['estado'].'</td>
                              <td><a class="glyphicon glyphicon-pencil"  target="_blank" href="../../mod_compras/albaran.php?id='.$bases['Numalbpro'].'"></a></td>
                             <td>'.$bases['sumabase'].'</td>

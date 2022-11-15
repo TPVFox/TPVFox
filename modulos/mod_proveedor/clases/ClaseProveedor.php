@@ -205,7 +205,7 @@ class ClaseProveedor extends TFModelo{
                 }else{
                     $respuesta['productos']=$productos['datos'];
                 }
-                $sql='SELECT i.* , t.idTienda, t.estado, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
+                $sql='SELECT i.* , t.Su_numero,t.idTienda, t.estado, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
                 as sumarIva, t.Fecha as fecha   from albproIva as i  
                 left JOIN albprot as t on t.id=i.idalbpro   where idalbpro  
                 in ('.$ids.')  GROUP BY idalbpro ;';
