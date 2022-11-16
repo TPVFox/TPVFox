@@ -226,10 +226,7 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios
     $permiso=0;
     $checked="";
     $i=0;
-    $bloquear="";
-    if($admin == 0){ //Si no es administrador tiene los inputs bloqueados
-        $bloquear='readonly="readonly" disabled';
-    }else{
+	if($admin !== 0){
          $html.='Copiar permisos de : <select id="usuario">';
          foreach ($Usuarios['datos'] as $usuario){
              $html.='<option value="'.$usuario['id'].'">'.$usuario['username'].'</option>';
@@ -242,9 +239,16 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios
         $inicio_div = 'No';
         foreach ($permisosUsuario as $i =>$permiso){ //Recorremos todos los permisos
             $checked="";
+			$bloquear="";
             if($permiso['permiso']==1){ //Si el permiso es 1 es input está marcado
                 $checked="checked";
-            }
+            } else {
+				if ($admin == 0){
+					// Solo ponemos disabled y solo lectura aquellos que no tenga checked y no tiene permiso de permisos. :-)
+					$bloquear='readonly="readonly" disabled';
+				}
+			}
+
             if($modulo<>$permiso['modulo']){
                 $modulo=$permiso['modulo'];
                 //De todos vamos obteniendo la descripción del acces

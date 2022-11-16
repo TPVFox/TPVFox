@@ -10,7 +10,6 @@
 		include_once $URLCom.'/modulos/mod_usuario/clases/claseUsuarios.php';
         include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
         //~ include_once $URLCom.'/clases/ClasePermisos.php';
-        $admin=0;
         $id = (isset($_GET['id']) ? $_GET['id'] : 0); // Valor id es 0 o el get
 		$CUsuario=new ClaseUsuarios($BDTpv);
         $Cincidencias=new ClaseIncidencia($BDTpv);
@@ -21,10 +20,6 @@
                                     'porDefecto' => "selected"),
                          1 => array('valor' => 'activo')
                         );
-        // La ClasePermisos ya obtiene en inicial.
-        if($ClasePermisos->getAccion("permiso")==1){
-            $admin=1;
-        }
         // No hace falta todos los usuarios para poder copiar permisos.
         $usuarios=$CUsuario->todosUsuarios();
         // Valores por defecto de ficha cuando id = 0
@@ -127,7 +122,7 @@
                 $UsuarioUnico = verSelec($BDTpv,$id_array['id'],$tabla);
 			}
 		}
-        $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $usuarios);
+        $htmlPermisosUsuario=htmlPermisosUsuario($permisosUsuario, $ClasePermisos->getAccion("permiso"), $ClasePermisos, $usuarios);
 
 		?>
      
