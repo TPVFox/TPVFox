@@ -578,7 +578,7 @@ function buscarClientes(pantalla,valor=''){
 
                         $('#cambioCliente').show();
                     }
-                    if (pantalla =='tpv'){
+                    if (pantalla =='tpv' || pantalla == 'Linea_tpv'){
                         // Cambiamos el id del cliente.
                         cabecera.idCliente = resultado.id;
                         if ( productos.length>0){
