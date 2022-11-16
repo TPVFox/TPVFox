@@ -574,15 +574,15 @@ function buscarClientes(pantalla,valor=''){
                     // Cerramos modal  y le indicamos destino focus.
                     cerrarPopUp(); // Destino no indicamo ya que no sabes...
                     if(pantalla == 'Linea_cobrados'){
-						console.log('Entro'+pantalla);
-
-                        $('#cambioCliente').show();
+						// Solo para cuando estamos en tickets cobrados	
+						$('#cambioCliente').show();
                     }
                     if (pantalla =='tpv' || pantalla == 'Linea_tpv'){
                         // Cambiamos el id del cliente.
                         cabecera.idCliente = resultado.id;
                         if ( productos.length>0){
-                            // Si hay productos lo guardamos , sino no.
+							// No grabamos un temporal sino tiene productos no tiene sentido.
+                            // [issue 139] Comentario comment-1316689923
                             grabarTicketsTemporal();
                         }
                         // Ponemos focus por defecto.
