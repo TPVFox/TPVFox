@@ -1,21 +1,23 @@
 
-<!DOCTYPE html>
-<html>
-<head>
+
 <?php
     include_once './../../inicial.php';
-    include $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_venta/funciones.php';
 	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 	include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
     include_once $URLCom.'/clases/cliente.php';
-	
+include_once ($URLCom.'/controllers/parametros.php');
+//Carga de clases necesarias
+$ClasesParametros = new ClaseParametros('parametros.xml');
+// Creamos el objeto de controlador.
+$Controler = new ControladorComun; 
+// Creamos el objeto de pedido
 	$Cpedido=new PedidosVentas($BDTpv);
 	$Ccliente=new Cliente($BDTpv);
-	$Controler = new ControladorComun; 
 	$todoTemporal=$Cpedido->TodosTemporal();
 	if (isset($todoTemporal['error'])){
+        
 	$errores[0]=array ( 'tipo'=>'Danger!',
 								 'dato' => $todoTemporal['consulta'],
 								 'class'=>'alert alert-danger',
@@ -52,30 +54,45 @@
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
 								 );
 	}
+	if (count($pedidosDef)==0){
+		$errores[0]=array ( 'tipo'=>'Warning!',
+								 'dato' => '',
+								 'class'=>'alert alert-warning',
+								 'mensaje' => 'No tienes pedidos guardados!'
+								 );
+	}
 ?>
-
+<!DOCTYPE html>
+<html>
+<head>
+ <?php include_once $URLCom.'/head.php';?>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>    
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
+
 <?php
  include_once $URLCom.'/modulos/mod_menu/menu.php';
-//~ include '../../header.php';
-if (isset($errores)){
+	if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
 				. '</div>';
+				if ($error['tipo']=='Danger!'){
+					exit;
+				}
 		}
-}
-?>
+	}
+	?>
 		<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-					<h2>Ventas: Editar y Añadir pedidos </h2>
+					<h2>Pedidos de clientes </h2>
 				</div>
-					<nav class="col-sm-4">
+					<nav class="col-sm-3">
 				<h4> Pedidos</h4>
 				<h5> Opciones para una selección</h5>
 				<ul class="nav nav-pills nav-stacked"> 
@@ -93,28 +110,41 @@ if (isset($errores)){
 		<table class="table table-striped table-hover">
 			<thead>
 				<tr>
-					<th WIDTH="4">Nº Temp</th>
-					<th WIDTH="4">Nº Ped</th>
-					<th WIDTH="100">Cliente</th>
-					<th WIDTH="4">Total</th>
+					<th>Nº Ped</th>
+					<th>Cliente</th>
+					<th>Total</th>
 				</tr>
 				
 			</thead>
 			<tbody>
 				<?php 
 				if (isset ($todoTemporal)){
-					foreach ($todoTemporal as $pedidoTemp){
-						if ($pedidoTemp['idPedcli']){
-							$numPed=$pedidoTemp['Numpedcli'];
-					}else{
-						$numPed="";
-					}
-					?>
+                    foreach ($todoTemporal as $temporal){
+			    		$numTemporal="";
+						if ($temporal['idPedcli']){
+							$numTemporal=$temporal['Numpedcli'];
+						}					
+						$url = 'pedido.php?tActual='.$temporal['id'];
+						$tdl = '<td style="cursor:pointer" onclick="redireccionA('
+								."'".$url."'".')" title="Pedido con numero temporal:'
+								.$temporal['id'].'">';
+						$td_temporal = $tdl.$numTemporal.'</td>'
+											 .$tdl.$temporal['Nombre'].'</td>'
+											 .$tdl.number_format($temporal['total'],2).'</td>';
+						?>
 						<tr>
-						<td><a href="pedido.php?tActual=<?php echo $pedidoTemp['id'];?>"><?php echo $pedidoTemp['id'];?></td>
-						<td><?php echo $numPed;?></td>
-						<td><?php echo $pedidoTemp['Nombre'];?></td>
-						<td><?php echo number_format($pedidoTemp['total'],2);?></td>
+							<?php echo $td_temporal;
+							// Solo mostramos la opcion de eliminar temporal si tiene permisos.
+							if($ClasePermisos->getAccion("EliminarTemporal")==1){
+							?>
+							<td>
+								<a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoPedidos')">
+									<span class="glyphicon glyphicon-trash"></span>
+								</a>
+							</td>
+							<?php
+							}
+							?>
 						</tr>
 						<?php
 					}
@@ -124,7 +154,7 @@ if (isset($errores)){
 		</table>
 		</div>
 			</nav>
-			<div class="col-md-8">
+			<div class="col-md-9">
 					<p>
 					 -Pedidos encontrados BD local filtrados:
 						<?php echo $CantidadRegistros; ?>
@@ -135,7 +165,7 @@ if (isset($errores)){
 					?>
 					<form action="./pedidosListado.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en número de pedido </label>
+                    <label>Buscar por nombre de cliente o número de pedido</label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>

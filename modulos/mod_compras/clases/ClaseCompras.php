@@ -61,7 +61,6 @@ class ClaseCompras
         if (gettype($smt)==='array'){
 			$resultado['error']=$smt['error'];
 			$resultado['consulta']=$smt['consulta'];
-			return $respuesta;
 		}else{
 			if ($result = $smt->fetch_assoc () ){
 				$resultado=$result;

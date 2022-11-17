@@ -27,8 +27,7 @@ class PedidosCompras extends ClaseCompras{
 		//Modificar los datos de pedidos temporal cada vez que hacemos agregamos un producto, modificamos una candidad ...
 		// @ Parametros:
 		//Todos los datos del pedido temporal
-		$productos_json=json_encode($productos);
-		$UnicoCampoProductos 	=$productos_json;
+		$UnicoCampoProductos 	=json_encode($productos);
 		$PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
 		$sql='UPDATE pedprotemporales SET idUsuario='.$idUsuario.' , idTienda='.$idTienda
 		.' , estadoPedPro="'.$estadoPedido.'" , fechaInicio="'.$fecha.'"  ,Productos="'

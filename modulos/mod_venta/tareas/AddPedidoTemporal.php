@@ -14,7 +14,7 @@
 		$productos=json_decode($_POST['productos']);
 		$existe=0;
 		if ($idTemporal>0){
-			$res=$CcliPed->ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
+			$res=$CcliPed->modificarDatosPedidoTemporal($idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos);
 			if(isset($res['error'])){
 				$respuesta['error']=$res['error'];
 				$respuesta['consulta']=$res['consulta'];

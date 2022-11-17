@@ -1,12 +1,14 @@
 <?php 
 include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
 class PedidosVentas extends ClaseVentas{
-	
+	private $num_rows; // (array) El numero registros que tiene la tabal pedprot
+    public $errores = array(); // (array) con los errores de comprobaciones.
+
 	public function __construct($conexion){
-		$this->db = $conexion;
+		parent::__construct($conexion);
 		// Obtenemos el numero registros.
 		$sql = 'SELECT count(*) as num_reg FROM pedclit';
-		$respuesta = $this->consulta($sql);
+		$respuesta = parent::consulta($sql);
 		if (gettype($respuesta)==='object'){
 			$this->num_rows = $respuesta->fetch_object()->num_reg;
 		} else {
@@ -15,20 +17,24 @@ class PedidosVentas extends ClaseVentas{
 			print_r($respuesta);
 			echo '</pre>';
 		}
+		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	
-		public function consulta($sql){
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$repuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
-		}
+
+    public function modificarDatosPedidoTemporal($idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
+		
+		$UnicoCampoProductos=json_encode($productos);
+		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
+		$sql='UPDATE pedcliltemporales set idUsuario='.$idUsuario.', idTienda='.$idTienda.',  estadoPedCli="'
+		.$estado.'", idPedcli ='.$idReal.', productos="'.$PrepProductos 
+		.'" WHERE id='.$idTemporal;		
+		$smt=parent::consulta($sql);
+			if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+			}
 	}
+    
 	
 	public function addPedidoTemp($idCliente,  $idTienda, $idUsuario, $estado, $idReal, $productos){
 		
@@ -38,7 +44,7 @@ class PedidosVentas extends ClaseVentas{
 		$sql='INSERT INTO pedcliltemporales (idClientes, idTienda, idUsuario,
 		 estadoPedCli, idPedcli, Productos ) VALUES ('.$idCliente.', '
 		 .$idTienda.', '.$idUsuario.', "'.$estado.'", '.$idReal.', "'.$PrepProductos.'")';
-		$smt=$this->consulta($sql);
+		$smt=parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -49,23 +55,6 @@ class PedidosVentas extends ClaseVentas{
 			return $respuesta;
 	}
 	
-	
-	public function ModificarPedidoTemp($idCliente, $idTemporal, $idTienda, $idUsuario, $estado, $idReal, $productos){
-		
-		$db = $this->db;
-		$UnicoCampoProductos=json_encode($productos);
-		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
-		$sql='UPDATE pedcliltemporales set idClientes ='.$idCliente
-		.' , idTienda='.$idTienda.' , idUsuario='.$idUsuario.' ,  estadoPedCli="'
-		.$estado.'", idPedcli ='.$idReal.', productos="'.$PrepProductos 
-		.'" WHERE id='.$idTemporal;		
-		$smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-			}
-	}
 
 	public function ModIdReal($idTemporal, $idPedido){
 		//@Objetivo: Modificar el pedido temporal para insertar el id del pedido real
@@ -89,28 +78,6 @@ class PedidosVentas extends ClaseVentas{
 		return $pedido;
 	
 	}
-	public function TodosTemporal(){
-		//@Objetivo: Muestra los campos principales del temporal
-		$db = $this->db;
-		$sql='SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total,
-		 b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN 
-		 clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit 
-		 as c on tem.idPedcli=c.id';
-		// Debemos crear un metodo de consulta igual para todos, poder controlar el error y mostrarlo.
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}else{
-			$pedidosPrincipal=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				array_push($pedidosPrincipal,$result);
-			}
-			return $pedidosPrincipal;
-		}
-		
-	}
 		public function AddPedidoGuardado($datos, $idPedido){
 		//Objetivo:
 		//Añade un registro de un pedido ya guardado en pedidos . Si el numero del pedido es mayor  de 0 o sea que hay un registro en pedidos 
@@ -124,7 +91,7 @@ class PedidosVentas extends ClaseVentas{
 			 .$datos['fecha'].'", '.$datos['idTienda']. ', '.$datos['idUsuario'].', '
 			 .$datos['idCliente'].' , "'.$datos['estado'].'", '.$datos['total'].', "'
 			 .$datos['fechaCreacion'].'")';
-			$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -137,7 +104,7 @@ class PedidosVentas extends ClaseVentas{
 			 .$datos['NPedidoTemporal'].' , "'.$datos['fecha'].'", '.$datos['idTienda']
 			 . ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado']
 			 .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'")';
-			 $smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];
 					$respuesta['consulta']=$smt['consulta'];
@@ -164,7 +131,7 @@ class PedidosVentas extends ClaseVentas{
 				 VALUES ('.$id.', '.$id.' , '.$prod['idArticulo'].', '."'".$prod['cref']."'".', "'
 				 .$codBarras.'", "'.$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades']
 				 .', '.$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea'].'", '.$prod['pvpSiva'].' )' ;
-				$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 				if (gettype($smt)==='array'){
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
@@ -177,7 +144,7 @@ class PedidosVentas extends ClaseVentas{
 			$sql='INSERT INTO pedcliIva (idpedcli ,  Numpedcli , iva , 
 			importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '.$basesYivas['iva']
 			.' , '.$basesYivas['base'].')';
-			$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 				if (gettype($smt)==='array'){
 					$respuesta['error']=$smt['error'];
 					$respuesta['consulta']=$smt['consulta'];
@@ -194,7 +161,7 @@ class PedidosVentas extends ClaseVentas{
 		$db=$this->db;
 		$sql= 'SELECT a.id , a.Numpedcli, a.FechaPedido, b.Nombre, a.total, a.estado 
 		FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes '.$filtro;
-		$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -211,6 +178,51 @@ class PedidosVentas extends ClaseVentas{
 		}
 	}
 	
+	
+		public function TodosTemporal($idPedcli = 0){
+		//@Objetivo: Muestra los campos principales del temporal
+        $respuesta = array();
+		$sql='SELECT tem.idPedcli, tem.id , tem.idClientes, tem.total,
+		 b.Nombre, c.Numpedcli from pedcliltemporales as tem left JOIN 
+		 clientes as b on tem.idClientes=b.idClientes LEFT JOIN pedclit 
+		 as c on tem.idPedcli=c.id';
+        if ($idPedcli > 0){
+            // buscamos solos temporales para ese pedido.
+            $Sql .= ' where tem.idPedpro='.$idPedcli;
+        }
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            // Hubo error devolvemos array (error,consulta)
+           $respuesta = $smt;
+        } else {
+            // Hubo resultados
+            while ( $result = $smt->fetch_assoc () ) {
+                array_push($respuesta,$result);
+            }
+
+        }
+        return $respuesta;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public function EliminarRegistroTemporal($idTemporal, $idPedido){
 		//@Objetivo:
 		// Cuando un pedido pasa de temporal a pedidos se borran los registros temporales
@@ -220,7 +232,7 @@ class PedidosVentas extends ClaseVentas{
 		}else{
 			$sql='DELETE FROM pedcliltemporales WHERE id='.$idTemporal;
 		}
-		$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -265,7 +277,7 @@ class PedidosVentas extends ClaseVentas{
 		$sql[1]='DELETE FROM pedclilinea where idpedcli='.$idPedido ;
 		$sql[2]='DELETE FROM pedcliIva where idpedcli='.$idPedido ;
 		foreach ($sql as $consulta){
-			$smt=$this->consulta($consulta);
+        $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
@@ -310,7 +322,7 @@ class PedidosVentas extends ClaseVentas{
 		}else{
 			$sql='SELECT  Numpedcli, FechaPedido , total , 
 			id from pedclit where idCliente='.$idCliente .' and estado="Guardado"';
-			$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
 				$pedido['error']=$smt['error'];
 				$pedido['consulta']=$smt['consulta'];
@@ -333,7 +345,7 @@ class PedidosVentas extends ClaseVentas{
 		$db=$this->db;
 		$sql='UPDATE pedclit SET estado="'.$estado.'" 
 		WHERE id='.$idPedido;
-		$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
@@ -348,7 +360,7 @@ class PedidosVentas extends ClaseVentas{
 		$estado='"'.'Guardado'.'"';
 		$sql='SELECT  id from pedclit where idCliente='
 		.$idCliente .' and estado='.$estado;
-		$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
@@ -367,7 +379,7 @@ class PedidosVentas extends ClaseVentas{
 		$db=$this->db;
 		$sql='UPDATE pedcliltemporales set total='.$total 
 		.' , total_ivas='.$totalivas .' where id='.$res;
-		$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
@@ -377,7 +389,7 @@ class PedidosVentas extends ClaseVentas{
 	public function modificarFecha($idPedido, $fecha){
 		$db=$this->db;
 		$sql='UPDATE pedclit SET FechaPedido="'.$fecha.'" where id='.$idPedido;
-			$smt=$this->consulta($sql);
+        $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$resultado=array();
 				$resultado['error']=$smt['error'];

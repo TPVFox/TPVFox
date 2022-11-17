@@ -13,6 +13,7 @@
         $style='style="display:none;"';
 		if(isset($_GET['id'])){
 			$id=$_GET['id'];
+            $idProveedor=$_GET['id'];
 			$datosProveedor=$CProveedor->getProveedor($id);
 			if(isset($datosProveedor['error'])){
 				$errores[1]=array ( 'tipo'=>'DANGER!',
@@ -54,7 +55,6 @@
 			//MOstramos errores de sql;
 			$fechaIni=$_GET['fechaIni'];
 			$fechaFin=$_GET['fechaFin'];
-			$idProveedor=$_GET['id'];
 			if($fechaIni<>"" & $fechaFin<>""){
 				$fechaInicial =date_format(date_create($fechaIni), 'Y-m-d');
 				$fechaFinal =date_format(date_create($fechaFin), 'Y-m-d');
@@ -85,11 +85,14 @@
 				$productos[$key]['cdetalle'] = $p['articulo_name'];
 				$productos[$key]['tipo'] = $p['tipo'];
 				$productos[$key]['prov_principal'] = 'KO';
-				if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
-					// Si coincide como proveedor principal del producto lo marcamos.
-					$productos[$key]['prov_principal'] = 'OK';
-					$num_ref_principales_compradas++ ;
-				}
+                if (isset($p['proveedor_principal']['idProveedor'])){
+                    // Ya que puede venir vacia.
+                    if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
+                        // Si coincide como proveedor principal del producto lo marcamos.
+                        $productos[$key]['prov_principal'] = 'OK';
+                        $num_ref_principales_compradas++ ;
+                    }
+                }
 				$num_referencias_compradas++;
 			}
 		}
@@ -100,7 +103,6 @@
 		if (!isset($fechaInicial)){
 			$fechaInicial = date('Y').'-01-01';
 		}
-		
 		?>
 
 <!DOCTYPE html>
