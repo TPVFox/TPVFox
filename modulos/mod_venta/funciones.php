@@ -651,7 +651,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 				<td colspan="2"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
 			}
 		}
-		$alb_html=array_reverse($alb_html);
+		//$alb_html=array_reverse($alb_html);
 	}
     // Valores comunes
     $idCliente=$datos['idCliente'];
