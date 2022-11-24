@@ -165,9 +165,9 @@
                         $e = $CAlb->DatosAlbaran($idAlbaran);
                         // El indice 'estado' es el estado del albaran puede ser "Sin Guardar", "Guardado","Facturado"
                         // Ahora vamos a crear el estado del adjunto, pero teniendo en cuenta
-                        // Que si estado_pedido es "Sin Guardar" tenemos que enviar un error.
-                        // Si estado_pedido es "Guardado" entonces el estado adjunto es 'Eliminado'.
-                        // Si estado_pedido es "Facturado" entonces el estado ajunto es 'activo'.
+                        // Que si estado_albaran es "Sin Guardar" tenemos que enviar un error.
+                        // Si estado_albaran es "Guardado" entonces el estado adjunto es 'Eliminado'.
+                        // Si estado_albaran es "Facturado" entonces el estado ajunto es 'activo'.
                         if ($e['estado'] === 'Facturado'){
                             $estado_adjunto = 'activo';
                         } else {
@@ -175,8 +175,8 @@
                             if ($e['estado'] !== 'Guardado'){
                                 // Informo posible error, ya que el estado pedido no es Guardado , ni Facturado..
                                 array_push($errores,$CFac->montarAdvertencia(
-                                    'dannger',
-                                    'Posible error, el pedido con id:'.$idPedido.' tiene estado '.$e['estado'])
+                                    'danger',
+                                    'Posible error, el pedido con id:'.$albaran['idAdjunto'].' tiene estado '.$e['estado'])
                                 );
                             }
                         }
@@ -346,13 +346,12 @@
 <div class="container">
 	<?php
 	if (isset($errores)){
-        foreach ($errores as $comprobaciones){
-            echo $CAlb->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
-            if ($comprobaciones['tipo'] === 'danger'){
-                exit; // No continuo.
-            }
-        }
-    }
+        foreach ($errores as $error){
+         		echo '<div class="alert alert-'.$error['tipo'].'">'
+				. '<strong>'.$error['tipo'].' </strong> <br/>'.$error['mensaje']. '</div>';
+		}
+	}
+
     ?>
     <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
     <?php 
