@@ -571,9 +571,11 @@ function buscarClientes(pantalla,valor=''){
                     // Resultado de un solo cliente, añadimos directamente caja.
                     $('#id_cliente').val(resultado.id);
                     $('#Cliente').val(resultado.nombre);
+                    
                     // Cerramos modal  y le indicamos destino focus.
                     cerrarPopUp(); // Destino no indicamo ya que no sabes...
-                    if(pantalla == 'Linea_cobrados'){
+                    console.log(resultado)
+                    if(pantalla == 'Linea_cobrados' || pantalla=='cobrados'){
 						// Solo para cuando estamos en tickets cobrados	
 						$('#cambioCliente').show();
                     }
