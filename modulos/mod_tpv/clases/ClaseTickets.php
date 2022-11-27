@@ -474,6 +474,22 @@ class ClaseTickets extends ClaseSession {
         return $respuesta;
 
     }
+
+    public function ultimoTicketCobrado(){
+        // Objetivo es obtener el ultimo ticket estado cobrado
+        $respuesta = array();
+        $consulta = 'SELECT MAX(id) as ultimo FROM `ticketst` WHERE estado="Cobrado"' ;
+        $query = $this->Consulta($consulta);
+		if (!isset($query['error'])){
+			$resultado['items'] = $query['Items'];
+		} else {
+			$resultado['error'] = array( 'tipo'		=> 'warning',
+										'mensaje'	=> 'Error a la hora obtener lineas del ticket, registros: '.$query['NItems'],
+										 'dato'		=> $query
+										);
+		}
+        return $resultado['items']['0'];
+    }
 	// Fin de clase.
 }
 

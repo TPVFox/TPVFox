@@ -6,15 +6,7 @@
  * @author      Ricardo Carpintero
  * @Descripcion	TPV para realizar la gestion de tickets
  *  */
-
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-<?php
     include_once './../../inicial.php';
-	include_once $URLCom . '/head.php';
 	include_once $URLCom . '/modulos/mod_tpv/funciones.php';
 	include_once $URLCom . '/controllers/Controladores.php';
 	include_once $URLCom . '/modulos/mod_tpv/clases/ClaseTickets.php';
@@ -136,8 +128,13 @@
 	// --  Obtenemos todos los tickets abiertos -- //
 	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
 	$ticketsAbiertos = $Tickets->ObtenerTicketsAbiertos($ticket_numero);
-
+    // -- Obtenemos el ultimo ticket.
+    $UltimoTicket= $Tickets->ultimoTicketCobrado();
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+<?php 	include_once $URLCom . '/head.php';?>
 <script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
@@ -283,14 +280,16 @@
         <div class="row">
                 <h4 class="text-center"> Tickets</h4>
                 <div class="col-xs-4 col-md-12">
-                    <button class="btn btn-primary" onclick="buscarClientes('tpv')">Cliente</button>
-                    <button class="btn btn-primary" onclick="cobrarF1()">Cobrar</button>
+                    <button class="btn btn-primary" onclick="buscarClientes('tpv')" title="F4 Cliente">Cliente</button>
+                    <button class="btn btn-primary" onclick="cobrarF1()" title="F1 Cobrar">Cobrar</button>
+                     <div class="btn btn-warning"><a class="btn-warning" href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo']?>">Ultimo Ticket</a></div>
                 </div>
 
                 <button class="btn" data-toggle="collapse" data-target="#opciones_ticket">Otras opciones</button>
                 <div id="opciones_ticket" class="collapse">
                 <div class="col-xs-4 col-md-12">
                         <div class="btn"><a href="tpv.php">Nuevo ticket</a></div>
+                        <div class="btn"><a href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo']?>">Ultimo Ticket</a></div>
                         <div class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></div>
                         <div class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></div>
                         <div class="btn"><a onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></div>

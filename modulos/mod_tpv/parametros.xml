@@ -19,6 +19,8 @@
 				<action tecla=" 9">saltar_Referencia</action>
 				<action tecla="39">saltar_Referencia</action>
 				<action tecla="112">cobrar</action>
+                <action tecla="115">buscarClientes</action>
+
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">tpv</parametro>
