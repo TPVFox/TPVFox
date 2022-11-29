@@ -216,10 +216,6 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 		<?php     
        //~ include_once $URLCom.'/header.php';
        include_once $URLCom.'/modulos/mod_menu/menu.php';
-
-       //~ echo '<pre>';
-       //~ print_r($Producto);
-       //~ echo '</pre>';
 		?>
 
      

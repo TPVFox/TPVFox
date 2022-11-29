@@ -612,10 +612,12 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$comprobaciones['nuevo'][]=$this->Consulta_insert_update($sql);
 			} else {
 				// Es modificado montamos sql update
+                // .$datos['estado'] -> Es el estado que trae el producto, pero debemos cambiarlo a 'Tarifa', ya que lo cambiamos en
+                // la ficha del producto directamente.
 				$sql = 'UPDATE `articulosProveedores` SET `idArticulo`='
 						.$datos['idArticulo'].',`idProveedor`='.$datos['idProveedor'].',`crefProveedor`="'
 						.$datos['crefProveedor'].'",`coste`="'.$datos['coste']
-						.'",`fechaActualizacion`= NOW(),`estado`="'.$datos['estado'].'" WHERE idArticulo = '
+						.'",`fechaActualizacion`= NOW(),`estado`="Tarifa" WHERE idArticulo = '
 						.$datos['idArticulo'].' AND idProveedor ='.$datos['idProveedor'];
 				$comprobaciones['modificado'][]=$this->Consulta_insert_update($sql);
 
