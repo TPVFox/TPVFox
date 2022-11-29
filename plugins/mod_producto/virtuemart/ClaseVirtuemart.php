@@ -456,9 +456,9 @@ class PluginClaseVirtuemart extends ClaseConexion{
             $resultado=array();
             $comprobacionIva=array(
             'tipo'=>'warning',
-            'mensaje'=>'El iva del producto TPVFox y del producto en la web NO COINCIDEN'
+            'mensaje'=>'El iva del producto en TPVFox NO COINCIDE con iva del producto en la web'
             );
-            $resultado['html']= $comprobacionIva;
+            $resultado= $comprobacionIva;
             return $resultado;
         }
        
