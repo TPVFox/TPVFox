@@ -357,13 +357,15 @@
                         // para comprobar el estado en la web.
                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-                                if (isset($productos)) {
-                                // Si existen productos.
-                                $ids= array_column($productos, 'idArticulo');
-                                echo '<script type="text/javascript">
-                                            var ids_productos='.json_encode($ids).';
-                                            var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
-                                echo '</script>';
+                                if( isset($tiendaWeb['idTienda'])){
+                                    if (isset($productos)) {
+                                    // Si existen productos.
+                                    $ids= array_column($productos, 'idArticulo');
+                                    echo '<script type="text/javascript">
+                                                var ids_productos='.json_encode($ids).';
+                                                var id_tiendaWeb ='.$tiendaWeb['idTienda'].';';
+                                    echo '</script>';
+                                    }
                                 }
                             }
                         }
@@ -532,13 +534,15 @@
         <?php
         // Solo ejecutamos si hay producto y hay web,
         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
-            if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-                if (isset($productos)) {
-            ?>
-                    $(document).ready(function() {
-                        obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
-                    });
-            <?php
+            if( isset($tiendaWeb['idTienda'])){
+                if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                    if (isset($productos)) {
+                ?>
+                        $(document).ready(function() {
+                            obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
+                        });
+                <?php
+                    }
                 }
             }
         }

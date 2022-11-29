@@ -170,7 +170,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     $htmltabla[] = array (  'titulo' => 'Familias',
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
-    if (isset ( $datosWebCompletos) == true && !isset($datosWebCompletos['errores']) ){
+    //~ echo '<pre>';
+    //~ print_r($datosWebCompletos);
+    //~ echo '</pre>';
+    if (isset ( $datosWebCompletos['datosWeb']) == true && !isset($datosWebCompletos['errores']) ){
         if ($datosWebCompletos['datosWeb']['estado'] == 0 ){
         $linkVirtuemart = 'No esta publicado';
         } else {
