@@ -49,6 +49,7 @@ function  htmlTablaPlus($plus, $id){
             .'          <th>Referencia</th>'
             .'          <th>Nombre</th>'
             .'          <th>PVP</th>'
+            .'          <th>Proveedor</th>'
             .'          <th></th>'
             .'          </tr>' 
 			.'		</thead>'
@@ -78,6 +79,7 @@ function htmlLineaPlu( $plu, $idBalanza){
                 .'<td>'.$plu['crefTienda'].'</td>'
                 .'<td>'.$plu['articulo_name'].'</td>'
                 .'<td>'.number_format($plu['pvpCiva'],2).'</td>'
+                .'<td>'.$plu['nombrecomercial'].'</td>'
                 .'<td>'.$imagen.'</td>'
                 .'<td><a id="eliminar_'.$plu['plu']
 				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu('."'".$plu['plu']."'".', '.$idBalanza.')"></a>'

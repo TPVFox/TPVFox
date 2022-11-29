@@ -57,10 +57,11 @@ class ClaseBalanza  extends Modelo  {
         //Parametros:
         //  idBalanza: id de la balanza
         //  filtro: Filtro por el que vamos a ordenar, puede ser por tecla o por número de plu
-         $sql='Select a.*,  t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva from modulo_balanza_plus as a 
+         $sql ='Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a 
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t 
-         on t.idArticulo=b.idArticulo and t.idTienda = '.$this->idTienda. ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
-         where a.idBalanza='.$idBalanza.' 
+         on t.idArticulo=b.idArticulo and t.idTienda ='.$this->idTienda.' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
+         left join proveedores as pro on pro.idProveedor=b.idProveedor
+         where a.idBalanza='.$idBalanza.'
          order by '.$filtro.' asc';
         
         $plus = $this->consulta($sql);
