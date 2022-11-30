@@ -5,7 +5,7 @@
             include_once './../../inicial.php';
             include_once $URLCom.'/head.php';
             include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
-           
+        
             include_once $URLCom . '/modulos/mod_balanza/funciones.php';
             include_once ($URLCom.'/controllers/parametros.php');
             include_once $URLCom.'/controllers/Controladores.php';

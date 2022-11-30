@@ -140,7 +140,26 @@ function camposBuscar($campo, $busqueda){
     if($campo=='a.idArticulo'){
         $busqueda='a.idArticulo='.$busqueda;
     }else{
-        $busqueda=$campo.' like "%'.$busqueda.'%"';
+
+         // Limpio busqueda para evitar rotura en la consulta.
+        $buscar = array(',', ';', '(', ')', '"', "'");
+        $sustituir = array(' , ', ' ; ', ' ( ', ' ) ', ' ', ' ');
+        $string = str_replace($buscar, $sustituir, trim($busqueda));
+        $palabras = explode(' ', $string); //array de varias palabras, si las hay..
+
+        $likes = array();
+
+        foreach ($palabras as $key => $palabra) {
+            if (trim($palabra) !== '') {
+                $likes[] = $campo . ' LIKE "%' . $palabra . '%" ';
+            } else {
+                unset($palabras[$key]);
+            }
+        }
+        $resultado['palabras'] = $palabras;
+
+        //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
+        $busqueda = implode(' and ', $likes);;     
     }
     return $busqueda;
 }
