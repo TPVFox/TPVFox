@@ -128,7 +128,8 @@ function  htmlTablaBalanza($relacion_balanza){
 			.'				<th>Balanza</th>'
             .'              <th>Plu</th>'
             .'              <th>Tecla</th>'
-			.'			</tr>'
+            .'              <th></th>'
+            .'			</tr>'
 			.'		</thead>'
 			.'		<tbody>';
 	if (count($relacion_balanza)>0){
@@ -136,10 +137,11 @@ function  htmlTablaBalanza($relacion_balanza){
 			$html .=    '<tr><td>'.$balanza['idBalanza']
                             .'<td>'.$balanza['plu'].'</td>'
                             .'<td>'.$balanza['tecla'].'</td>'
+                            .'<td><a id="eliminar_'.$balanza['id'].'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaBalanza('
+                            .$balanza['id'].',this)"></a></td>'
                         .'</tr>';
 		}
 	}
-			
 	$html .= '</tbody> </table>	';
 	return $html;
 } 

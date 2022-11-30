@@ -1018,6 +1018,12 @@ class ClaseProductos extends ClaseTablaArticulos{
         return $consulta;
 
     }
+    public function EliminarReferenciaBalanza($id){
+        $sql='DELETE FROM modulo_balanza_plus WHERE id='.$id;
+        $consulta =$this->Consulta_insert_update($sql);
+        return $consulta;
+
+    }
 
 	public function EliminarFamilia($id,$familias = array()){
 		$respuesta = array();

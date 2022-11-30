@@ -10,12 +10,9 @@
 
 $pulsado = $_POST['pulsado'];
 include_once ("./../../inicial.php");
-
 $rutaCompleta = $RutaServidor.$HostNombre;
 include_once($rutaCompleta.'/clases/ClaseSession.php');
-
 $CSession =  new ClaseSession();
-
 // Incluimos controlador.
 include_once $URLCom.'/controllers/Controladores.php';
 $Controler = new ControladorComun; 
@@ -156,6 +153,11 @@ switch ($pulsado) {
         $idCruce=$_POST['idCruce'];
         $eliminar_cruce_tienda=$NCArticulo->EliminarCruceTienda($idCruce);
         $respuesta=$eliminar_cruce_tienda;
+    break;
+    case 'eliminarReferenciaBalanza':
+        $id=$_POST['id'];
+        $eliminar_referencia_balanza=$NCArticulo->EliminarReferenciaBalanza($id);
+        $respuesta=$eliminar_referencia_balanza;
     break;
 
     case 'eliminarRefProveedor':

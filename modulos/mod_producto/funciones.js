@@ -250,12 +250,6 @@ function controlCodBarras(caja){
 	});	
 }
 
-function eliminarFamiliaProducto(e){
-    var padre=e.parentNode; 
-	var abuelo=padre.parentNode; 
-	var bisa=abuelo.parentNode; 
-	bisa.removeChild(abuelo);
-}
 
 function anular(e) {
     // Objetivo:
@@ -265,16 +259,6 @@ function anular(e) {
     tecla = (document.all) ? e.keyCode : e.which;
     return (tecla != 13);
 }
-
- function eliminarCodBarras(e){
-    // @ Objetivo :
-    // Eliminar el código de barras . Busca los elementos a eliminar mediante DOM
-    // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
-	var padre=e.parentNode; 
-	var abuelo=padre.parentNode; 
-	var bisa=abuelo.parentNode; 
-	bisa.removeChild(abuelo);
- }
 
 function recalcularPrecioSegunCosteBeneficio (caja){
 	// @ Objetivo
@@ -563,32 +547,7 @@ function comprobarNumero(valor){
     }
 }
 
-function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
-	
-	var parametros = {
-		"pulsado"    		: 'eliminarCoste',
-		"idArticulo"		: idArticulo,
-		"dedonde"			:dedonde,
-		"id"				:id,
-		"tipo"				:tipo
-	};
-	console.log(parametros);
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-		console.log('*********  Modificando eliminar costes  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de eliminar costes ');
-                var resultado = $.parseJSON(response);
-				$('#Row'+ fila).addClass("tachado");
-				$("#Row" + fila +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
-				//return resultado;
-		}	
-	});
-}
+
 function retornarCoste(idArticulo, dedonde, id, tipo, fila){
 	var parametros = {
 		"pulsado"    		: 'retornarCoste',
@@ -778,29 +737,6 @@ function selecionarItemProducto(id, dedonde="", seleccionar=""){
 	});
 }
 
-function eliminarSeleccionProductos(){
-	// @ Objetivo :
-	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
-	console.log(configuracion);
-		var parametros = {
-		"pulsado"    	: 'eliminarSeleccion'
-		};
-	$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-		console.log('*********  Eliminar seleccion de productos  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de eliminar seleccion de productos ');
-				// La configuracion la cambiamos ya que si esta como si filtrar , ya no .
-				configuracion.filtro.valor='No';
-				AjaxGuardarConfiguracion();
-				location.href="ListaProductos.php";
-        }
-	});
-}
 
 function UnProductoClick(id){
 	// @ Objetivo:
@@ -1115,11 +1051,8 @@ function EliminarHistorico(idHistorico, e){
                    if(resultado.error==0){
                        alert("Error de sql: "+resultado.consulta);
                    }else{
-                        // Codigo repetido que se puede poner en una funcion
-                        var padre=e.parentNode; 
-                        var abuelo=padre.parentNode; 
-                        var bisa=abuelo.parentNode; 
-                        bisa.removeChild(abuelo);
+                            eliminarTR(e);
+
                    }
                 }
             });
@@ -1150,11 +1083,7 @@ function EliminarRefProveedor(e){
                if(resultado.error==0){
                    alert("Error de sql: "+resultado.consulta);
                }else{
-                    // Codigo repetido que es puede poner en una funcion
-                    var padre=e.parentNode; 
-                    var abuelo=padre.parentNode; 
-                    var bisa=abuelo.parentNode; 
-                    bisa.removeChild(abuelo);
+                    eliminarTR(e);
                }
             }
         });
@@ -1182,16 +1111,93 @@ function EliminarReferenciaTienda(idCruce,e){
                    if(resultado.error==0){
                        alert("Error de sql: "+resultado.consulta);
                    }else{
-                        // Codigo repetido que es puede poner en una funcion
-                        var padre=e.parentNode; 
-                        var abuelo=padre.parentNode; 
-                        var bisa=abuelo.parentNode; 
-                        bisa.removeChild(abuelo);
+                        eliminarTR(e);
+
                    }
             }
         });
     }
 }
+function EliminarReferenciaBalanza(id,e){
+    var mensaje = confirm("¿Estás seguro que quieres eliminar la referencia de la balanza a este producto?");
+	if (mensaje) {
+    var parametros = {
+        pulsado: 'eliminarReferenciaBalanza',
+        id:id
+    }
+     $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* eliminar registro indicado de Referencia Balanza **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de eliminar Referencia Balanza');
+                    var resultado = $.parseJSON(response);
+                   //QUEDA ELIMINAR LINEA
+                   if(resultado.error==0){
+                       alert("Error de sql: "+resultado.consulta);
+                   }else{
+                        eliminarTR(e);
+
+                   }
+            }
+        });
+    }
+}
+
+function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
+	
+	var parametros = {
+		"pulsado"    		: 'eliminarCoste',
+		"idArticulo"		: idArticulo,
+		"dedonde"			:dedonde,
+		"id"				:id,
+		"tipo"				:tipo
+	};
+	console.log(parametros);
+		$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Modificando eliminar costes  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar costes ');
+                var resultado = $.parseJSON(response);
+				$('#Row'+ fila).addClass("tachado");
+				$("#Row" + fila +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
+				//return resultado;
+		}	
+	});
+}
+
+function eliminarSeleccionProductos(){
+	// @ Objetivo :
+	// Eliminar todos los productos seleccionados. ( al pulsar ELiminar productos).
+	console.log(configuracion);
+		var parametros = {
+		"pulsado"    	: 'eliminarSeleccion'
+		};
+	$.ajax({
+		data       : parametros,
+		url        : 'tareas.php',
+		type       : 'post',
+		beforeSend : function () {
+		console.log('*********  Eliminar seleccion de productos  **************');
+		},
+		success    :  function (response) {
+				console.log('Respuesta de eliminar seleccion de productos ');
+				// La configuracion la cambiamos ya que si esta como si filtrar , ya no .
+				configuracion.filtro.valor='No';
+				AjaxGuardarConfiguracion();
+				location.href="ListaProductos.php";
+        }
+	});
+}
+
 
 function eliminarProductos(idTiendaWeb=0){
     // @ Objetivo:
@@ -1227,6 +1233,26 @@ function eliminarProductos(idTiendaWeb=0){
             }
         });
     }
+}
+
+function eliminarTR(e){
+    // @ Objetivo :
+    // Eliminar el código de barras . Busca los elementos a eliminar mediante DOM
+    // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
+	var padre=e.parentNode; 
+	var abuelo=padre.parentNode; 
+	var bisa=abuelo.parentNode; 
+	bisa.removeChild(abuelo);
+}
+
+
+function eliminarFamiliaProducto(e){
+    eliminarTR(e);
+}
+
+function eliminarCodBarras(e){
+    eliminarTR(e);
+
 }
 
 function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
