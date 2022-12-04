@@ -21,9 +21,10 @@ columnas = []
 campos = db.fields
 numregistroSinBorrad = len(db)
 numregistroBorrad = len(db.deleted)
-numregistro = numregistroSinBorrad #+numregistroBorrad
+numregistro = numregistroSinBorrad
+#+numregistroBorrad
 #~ jSON2= '{"Numeroregistros":'+str(numregistro)+'}'
-print numregistro
+print(numregistro)
 for campo in campos:
 	tipo = campo.type
 	decimal = 0
@@ -34,6 +35,6 @@ for campo in campos:
 		decimal = campo.decimal_count
 	
 	jSON= '{"campo":"'+nombcampo+'","tipo":"'+tipocampo+'","longitud":'+str(longit)+',"decimal":'+str(decimal)+'}'
-	print jSON
+	print(jSON)
 	
 

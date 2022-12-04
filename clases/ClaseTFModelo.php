@@ -136,6 +136,7 @@ class TFModelo extends ModeloP {
         $Set = [];
         if (is_array($datos)) {
             foreach ($datos as $key => $value) {
+                $value= str_replace("'","\'",$value);
                 $Set[] = $key . ' = \'' . $value . '\'';
             }
         } else {

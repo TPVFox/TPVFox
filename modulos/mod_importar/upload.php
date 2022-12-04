@@ -122,7 +122,7 @@ if ($sum_errores === 0 )
             }
         } else {
             // Fallo al crear tabla modulo_importar_ARTICULO
-            $mensajes[] =  $importarDbf->getAvisosHtml(13,'warning',$respuesta['descripcion']);
+            $mensajes[] =  $importarDbf->getAvisosHtml(13,'warning',json_encode($respuesta['errores']));
         }
         
     } else {

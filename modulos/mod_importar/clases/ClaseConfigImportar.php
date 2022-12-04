@@ -10,9 +10,15 @@ Class ConfigImportar {
     public $campo_principal = 'CODIGO'; // El nombre del campo que debe ser unico y referencia de cruce
 
     //En filtros sin valor tanto en importar como fusionar no filtra nada.
-    public $filtros = array ('importar' => array ( 'nombre_campo' => 'NULO',
-                                               'valor' => '' // Nos indica cuales NO quieres importar a Mysql. 
-                                        ),
+    public $filtros = array ('importar' => array (array
+                                                    ( 'nombre_campo' => 'NULO',
+                                                      'valor' => '' // Nos indica cuales NO quieres importar a Mysql. 
+                                                    ),
+                                                  array
+                                                    ( 'nombre_campo' => 'NOMBRE',
+                                                      'valor' => '' // Nos indica cuales NO quieres importar a Mysql. 
+                                                    ), 
+                                            ),
                             'fusionar' => array(
 												'actualizar' =>array ( 'nombre_campo' => 'NULO',
 															'valor' => '', // Nos indica cuales NO quieres actualizar,crear o ambas.

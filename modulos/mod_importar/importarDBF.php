@@ -10,18 +10,12 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     $estado = $datos_registro['estado'];
     // Ahora compruebo si ya se esta ejecuntado el fichero segundo plano
     $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
+    
     if ($ejecutando === 0){
         exec("php -f ./segundo_plano.php > /dev/null &");
-        if (isset($_POST['token']) && isset($_POST['importarBtn']))
-        {
-            if ($_POST['token'] !== $datos_registro['token']){
-                // Quiere no es la misma session, esto puede suceder, ya que vamos ejecutar el proceso segundo plano.
-                echo '<pre>';
-                print_r('No es la misma session');
-                echo '</pre>';
-            }
-        
-        }   
+        // Ejecutamos... por lo que
+        $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
+
     }
     $Num_registros_estado = $importarDbf->contarRegistrosPorEstado(); // Obtener datos importacion.
     $tabla_info = $importarDbf->InfoTabla('modulo_importar_ARTICULO');
@@ -32,16 +26,15 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
                                 strval($datos_registro['errores'])-$tabla_info['info']['Rows'];
     }
     $htmlBarra = array();
-    // Creamos dos baras con id= bar1 y bar 2 
-    for ($i = 1; $i <= 2; $i++) {
-        $htmlBarra[]= '<div class="progress" style="margin:0 100px">
-                            <div id="bar'.$i.'" class="progress-bar progress-bar-info" 
+    // Creamos barra de control fusionar 
+        $htmlBarra= '<div class="progress" style="margin:0 100px">
+                            <div id="bar2" class="progress-bar progress-bar-info" 
                                  role="progressbar" aria-valuenow="0" 
                                  aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                                 0 % completado
                             </div>
                         </div> ';
-    }
+    
     $registros_fusionado = $tabla_info['info']['Rows'] - $Num_registros_estado['NULL'];
     
 ?>
@@ -66,25 +59,23 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
             <tbody>
                 <tr>
                     <td>
-                        <strong>Importamos:</strong><br/>
+                        <strong>Importamos datos de DBF:</strong><br/>
                         <?php
                         if ($estado === 'Creado'){
                             echo '<span class ="parpadea texto-warning">PROCESANDO</span><br/>';
                         } else {
                             echo '<span class ="text-primary">TERMINADO</span><br/>';
                         }
-                        echo $htmlBarra[0];
                         ?>
-                        Los datos de la tabla Articulos a Tpvfox, en principio debería ser:<br/>
-                        Numeros registros en DBF: <strong><?php echo $datos_registro['Registros_originales'].'.';?></strong> sin filtrar los que tiene Delete DBF.<br/>
+                        Informacion de la tabla que importamos:<br/>
+                        Numeros registros en DBF: <strong><?php echo $datos_registro['Registros_originales'].'.';?></strong>. Desconocemos cuantos estan marcados como delete en DBF.<br/>
                         <?php
                         if (!isset($tabla_info['error'])){
-                            echo 'Registros nulo:<strong>'.$datos_registro['nulos'].'</strong><br/>';
+                            echo 'Registros nulo que filtramos ya al importar:<strong>'.$datos_registro['nulos'].'</strong><br/>';
                             echo 'Registros errores:<strong>'.$datos_registro['errores'].'</strong><br/>';
                             echo 'Numero registros creados:<strong>'.$tabla_info['info']['Rows'].'</strong><br/>';
-                            echo 'Pendiente crear o delete:<strong>'. $pendiente_importar.'</strong><br/>';
-                            echo 'No se puede identicar cuantos faltarian ya que no tenemos datos que cuantos estan marcados como delete en DBF,
-                            por ese motivo la barra puede queda incompleta.<br/>';
+                            echo 'Pendientes crear con los marcados delete:<strong>'. $pendiente_importar.'</strong><br/>';
+                            echo 'Si esta terminado el proceso importar estos son los que no se crearon.<br/>';
                            
                         } else {
                             echo '<div class="alert alert-danger">';
@@ -110,7 +101,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
                                 echo '<span class ="texto-warning">SIN EMPEZAR FUSIONAR</span><br/>';
                             }
                         }
-                        echo $htmlBarra[1];
+                        echo $htmlBarra;
                         ?>
                         Creados nuevos:<?php echo $Num_registros_estado['nuevo'];?><br/>
                         Actualizados:<?php echo $Num_registros_estado['actualizado'];?><br/>
@@ -123,16 +114,9 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
         
     </div>
 </div>
+
  <script>
-    <?php
-        // Calculo los importados.
-        $num_importados = $datos_registro['Registros_originales']-$pendiente_importar;
-    ?>
     var estado = '<?php echo $estado;?>';
-    var inicio = <?php echo $num_importados;?> ;
-    var total = <?php echo $datos_registro['Registros_originales']; ?>;
-    var idBar = '1';
-    BarraProceso(inicio,total,idBar);
     var inicio = <?php echo $registros_fusionado;?> ;
     var total = <?php echo $tabla_info['info']['Rows']; ?>;
     var idBar = '2';
@@ -140,7 +124,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     if (estado !== 'Fusionado'){
         $(document).ready(function(){
             //Cada 10 segundos se ejecutará la función refrescar
-            setTimeout(refrescar, 30000);
+            setTimeout(refrescar, 10000);
         });
         function refrescar(){
             //Actualiza la el div con los datos de imagenes.php
@@ -148,6 +132,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
           }
     }
 </script>
+
  </body>
 </html>
 

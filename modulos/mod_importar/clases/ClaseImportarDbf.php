@@ -29,6 +29,8 @@ Class ImportarDbf extends TFModelo {
     }
     
     public function ultimoRegistro(){
+        // @Objetivo
+        // Obtengo los datos del ultimo registro de tabla REGISTRO de importacion
         $sql = 'SELECT * FROM `modulo_importar_registro` order by id desc limit 1';
         $respuesta = parent::consulta($sql);
         return $respuesta;
@@ -128,7 +130,7 @@ Class ImportarDbf extends TFModelo {
         $mensaje = array(
                         0  =>'Su fichero es válido y se subió con éxito.',
                         1  =>'Error a la hora mover el fichero.',
-                        2  =>'El fichero ya existe, por lo que si no lo subiste tú , cambiale el nombre.',
+                        2  =>'El fichero ya existe en DIRECTORIO UPLOAD de configuracion, por lo que si no lo subiste tú , cambiale el nombre.',
                         3  =>'El directorio upload no es correcto',
                         4  =>'No subiste ficheros',
                         // Errores $_FILES ver manual php (en vez empezar 1 empezamos 5)
@@ -582,15 +584,6 @@ Class ImportarDbf extends TFModelo {
 
     }
 
-    public function comprobarSiExisteFichero($fichero){
-        // @ Objetivo:
-        // Compruebo si se esta ejecutando segundo_plano.php
-        // @ Repuesta:
-        // Numero de procesos que hay abiertos con ese nombre.
-        
-
-    }
-
     public function EliminarRegistroTabla($id){
         $sql = 'DELETE FROM `modulo_importar_registro` WHERE `id`='.$id;
         $respuesta = parent::consultaDML($sql);
@@ -598,7 +591,7 @@ Class ImportarDbf extends TFModelo {
             $respuesta = parent::getFallo();
         } else {
             // Su fue correcto obtenemos array (insert_id = 0 ,affected_rows = 0), ya que se creo una tabla.
-            $respuesta = $repuesta['affected_rows'];
+            $respuesta = $respuesta['affected_rows'];
 
         }
         return $respuesta;
