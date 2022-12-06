@@ -125,7 +125,7 @@
                                                     4 => 'importado'
                                                 );
                         foreach ($estados_posibles as $estado) {
-                            $default = 's';
+                            $default = '';
                             if ($estado === $defecto[$index]->valor){
                                 // El estado que pusimos por defecto.
                                 $default = "selected";
@@ -151,7 +151,7 @@
                         $index= array_search('estado_modificado', array_column($defecto, 'nombre'));
                         // Los estados posibles son los mismos que los nuevos
                         foreach ($estados_posibles as $estado) {
-                            $default = 's';
+                            $default = '';
                             if ($estado === $defecto[$index]->valor){
                                 // El estado que pusimos por defecto.
                                 $default = "selected";

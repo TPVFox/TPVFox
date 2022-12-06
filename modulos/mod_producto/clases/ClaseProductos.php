@@ -1147,7 +1147,7 @@ class ClaseProductos extends ClaseTablaArticulos{
         
        
         $sql='UPDATE articulos SET iva="'.floatval ($datos['iva']).'", articulo_name="'.$datos['nombre'].'", 
-        fecha_modificado="'.date("Y-m-d H:i:s").'" where idArticulo='.$datos['id'];
+        fecha_modificado="'.date("Y-m-d H:i:s").'", estado="'.$datos['estado'].'" where idArticulo='.$datos['id'];
         $respuesta = array();
 		$DB = parent::GetDb();
 		$smt = $DB->query($sql);

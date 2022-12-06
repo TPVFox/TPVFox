@@ -80,6 +80,7 @@ switch ($pulsado) {
         $codBarras=array();
         $precioCiva=0;
         $estadoWeb="Publicado";
+        
         if($_POST['optCodBarra']==1){
              $codBarrasTexto=explode(";",$_POST['codBarras']);
              foreach($codBarrasTexto as $cod){
@@ -95,6 +96,7 @@ switch ($pulsado) {
             'refTienda'=>$_POST['refTienda'],
             'iva'=>$_POST['iva'],
             'precioSiva'=>$_POST['precioSiva'],
+            'estado'=>$_POST['optEstado'],
             'codBarras'=>$codBarras,
             'id'=>$_POST['id'],
             'precioCiva'=>$precioCiva,
