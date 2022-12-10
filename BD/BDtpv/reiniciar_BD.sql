@@ -3,6 +3,7 @@ TRUNCATE pedclit;
 TRUNCATE pedcliIva;
 TRUNCATE pedclilinea;
 TRUNCATE pedcliltemporales;
+TRUNCATE pedcliAlb;
 TRUNCATE albclit;
 TRUNCATE albcliIva;
 TRUNCATE albclilinea;
@@ -54,7 +55,9 @@ TRUNCATE articulosTiendas;
 TRUNCATE historico_precios;
 TRUNCATE stocksRegularizacion;
 
-
+# Virtuemart
+# Estas realmente no debería estar aquí...
+TRUNCATE importar_virtuemart_tickets;
 # Reiniciar modulo incidencias
 TRUNCATE modulo_incidencia;
 
@@ -76,6 +79,7 @@ TRUNCATE cierres_usuarios_tickets;
 TRUNCATE proveedores;
 
 # Reinicio clientes;
+TRUNCATE descuentos_tickets;
 TRUNCATE clientes;
 INSERT INTO `clientes`(`idClientes`, `Nombre`, `razonsocial`,estado,fecha_creado) VALUES (1,'Sin identificar','Sin identificar','activo',NOW());
 
@@ -94,7 +98,7 @@ INSERT INTO usuarios (id,username,password,fecha,group_id,estado,nombre) VALUES 
 
 # Reinicio de tiendas
 TRUNCATE tiendas;
-INSERT INTO tiendas (idTienda,tipoTienda,razonsocial,nif,telefono,estado,NombreComercial,direccion,ano) VALUES (
+INSERT INTO tiendas (idTienda,tipoTienda,razonsocial,nif,telefono,estado,NombreComercial,direccion,servidor_email,ano) VALUES (
         1,
         'principal',
         'Soluciones informaticas Vigo SL',
@@ -103,7 +107,8 @@ INSERT INTO tiendas (idTienda,tipoTienda,razonsocial,nif,telefono,estado,NombreC
         'activo',
         'Soluciones Vigo',
         'Emilia pardo Bazan 52- bajo',
-        2020);
+        'tuservidor.emailtuyo.com',
+        2022);
 
 
 
