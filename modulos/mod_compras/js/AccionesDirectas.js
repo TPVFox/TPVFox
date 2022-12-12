@@ -53,6 +53,10 @@ function controladorAcciones(caja,accion, tecla){
 				buscarProveedor(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
 		break;
+
+        case 'comprobarFecha':
+            comprobarFecha(caja);
+        break
 		
 		case 'recalcular_totalProducto':
 			// recuerda que lo productos empizan 0 y las filas 1
@@ -117,17 +121,7 @@ function controladorAcciones(caja,accion, tecla){
 		break;
 
         case 'Saltar_hora':
-			if (caja.id_input=="fecha"){
-				cabecera.fecha=caja.darValor();
-			}
-			var d_focus = 'hora';
-			if(caja.darParametro('dedonde')=='factura'){
-				var d_focus = 'suNumero';
-			}
-			if(caja.darParametro('dedonde')=='pedido'){
-				var d_focus = 'id_proveedor';
-			}
-			ponerFocus(d_focus);
+			saltarHora(caja);
 		break;
 
         
@@ -150,21 +144,6 @@ function controladorAcciones(caja,accion, tecla){
 			}
 			ponerFocus(d_focus);
 		break;
-
-        case 'Saltar_desde_fecha':
-            console.log('Saltar desde fecha');
-            cabecera.fecha=caja.darValor();
-            var d_focus = 'id_proveedor';
-            // Comprobamos de donde ( albaran, factura, pedido )
-            if (caja.darParametro('dedonde') == "albaran" ){
-                d_focus = "hora";
-            }
-            if (caja.darParametro('dedonde') == "factura"){
-                d_focus = "suNumero";
-            }
-			ponerFocus(d_focus);
-		break;
-
 
         case 'Saltar_idArticulo':
 			var dato = caja.darValor();
@@ -400,6 +379,7 @@ function AccionBuscarProductos (caja,event){
         ponerFocus(ObtenerCajaSiguiente(idcaja));
     }
 }
+
 
 function ocultarcolumnaImporteIva(){
     // Ocultar columna de importe con iva que mostramos en albaranes..

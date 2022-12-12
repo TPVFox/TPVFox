@@ -16,14 +16,14 @@
 		<caja_input>
 			<nombre id_input="fecha">cajaFecha</nombre>
 			<teclas>
-				<action tecla="40">Saltar_desde_fecha</action>
-				<action tecla="38">Saltar_hora</action>
-				<action tecla="13">Saltar_hora</action>
-				<action tecla="9">Saltar_hora</action>
+				<action tecla="40">comprobarFecha</action>
+				<action tecla="38">comprobarFecha</action>
+				<action tecla="13">comprobarFecha</action>
+				<action tecla="9">comprobarFecha</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
-			</parametros> 
+			</parametros>
 		</caja_input>
 		<caja_input>
 			<nombre id_input="hora">cajaHora</nombre>

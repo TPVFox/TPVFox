@@ -235,6 +235,7 @@
 		//@Objetivo:
         // Guardar los datos que recibimos.
         // todo fue OK , pero sino mostramos el error.
+        
         if ($_POST['fechaVenci'] === ''){
             $_POST['fechaVenci'] = '0000-00-00';
         }
@@ -242,6 +243,11 @@
        
 		if (count($guardar)==0){
 			header('Location: albaranesListado.php');
+            // Debug
+            // Comentar linea anterior y mostrar por pantalla post 
+            //~ echo '<pre>';
+            //~ print_r($_POST);
+            //~ echo '</pre>';
 		}else{
             // Hubo errores o advertencias.
 			foreach ($guardar as $error){

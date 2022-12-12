@@ -380,6 +380,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
 	});
 }
 
+
 function comprobarAdjunto(dedonde){
 	//@Objetivo:
     // Comprobamos si el proveedor seleccionado tiene algun pedido o albaran, en estado Guardado que se pueda adjuntar.
@@ -412,6 +413,26 @@ function comprobarAdjunto(dedonde){
 				}
 		}
 	});
+}
+
+function comprobarFecha(caja,event){
+    var hoy=new Date();
+    hoy.setHours(0,0,0,0); // para poner 0 la hora
+    console.log('Imprimo hoy:'+ hoy.toString());
+    var dia_caja= caja.darValor().split('-'); // Obtengo array (dia,mes,anho)
+    var fecha_caja = new Date(dia_caja[2]+'-'+dia_caja[1]+'-'+dia_caja[0]);
+    fecha_caja.setHours(0,0,0,0); // al crearlo me pone la 1 , no se porque
+    console.log('fecha_caja:'+ fecha_caja.toString());
+    if (isNaN(fecha_caja.getTime())){
+        alert('La fecha no es correcta');
+    } else {
+        if (fecha_caja > hoy){
+            alert('La fecha es superior a hoy');
+        } else {
+            saltarHora(caja);
+        }
+    }
+        
 }
 
 function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
@@ -559,6 +580,20 @@ function ponerSelect (destino_focus){
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
+}
+
+function saltarHora(caja){
+    if (caja.id_input=="fecha"){
+        cabecera.fecha=caja.darValor();
+    }
+    var d_focus = 'hora';
+    if(caja.darParametro('dedonde')=='factura'){
+        var d_focus = 'suNumero';
+    }
+    if(caja.darParametro('dedonde')=='pedido'){
+        var d_focus = 'id_proveedor';
+    }
+    ponerFocus(d_focus);
 }
 
 function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, ref_prov, coste){
