@@ -297,7 +297,9 @@ function AccionBuscarProductos (caja,event){
                             alert("Este producto no se puede adjuntar ya que el estado del producto es BAJA");
                         }else{
                             var datos = new ObjProducto(resultado['datos'][0]);
-                            AntesAgregarFilaProducto(datos,dedonde,resultado['datos'][0]['fechaActualizacion']);
+                            // Me mando fecha Actualizacion, ya que no lo gestiona objeto datos.
+                            // Al  igual que el ultimoCoste en el objeto es el coste que obtenemos y mandamos, no ultimoCoste.
+                            AntesAgregarFilaProducto(datos,dedonde,resultado['datos'][0]['fechaActualizacion'],resultado['datos'][0]['ultimoCoste']);
                         }                       
                     }else{
                         // Si no mandamos el resultado html a abrir el modal para poder seleccionar uno de los resultados

@@ -435,18 +435,15 @@ function comprobarFecha(caja,event){
         
 }
 
-function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion){
+function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_articulo){
     // @ Objetivo
     // Comprobamos:
     //  - Si un producto nuevo para ese proveedor.
     //  - Si el coste se cambio con fecha posterior a la fecha del albaran.
     // Luego agregamos linea  o no.
-    console.log('tipo dato fecha_actualizacion');
-    console.log(typeof(fecha_actualizacion));
-    console.log(datos);
     var opcion = true;
-    if (datos.coste == 0){
-        datos.getCoste(datos.ultimoCoste);
+    if (datos.ultimoCoste == 0 || datos.ultimoCoste == null ){
+        datos.getCoste(coste_tabla_articulo);
         // Si contesta NO, no lo añade al dedonde
         var nlen = dedonde.length-1; // le quito la ultima letra, para que no ponga (s)
         var txtDonde = dedonde.substring(0, nlen);
@@ -456,9 +453,6 @@ function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion){
         productos.push(datos);
         addTemporal(dedonde)
         document.getElementById(id_input).value='';
-        console.log('Fecha Actualizacion:'+fecha_actualizacion);
-        console.log('dedonde:'+dedonde);
-
         
         if(fecha_actualizacion!=null){
             fechaProducto= fecha_actualizacion.split("-");
@@ -650,7 +644,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         'iva'           : ctipoIva.toString(),
         'ref_prov' : ref_prov.toString(),
         'coste'         : coste.toString(),
-        'ultimoCoste'   :ultimoCoste
+        'ultimoCoste': ultimoCoste
     };
     var datos = new ObjProducto(objDatos);
     cerrarPopUp();
@@ -660,7 +654,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         f= fecha_actualizacion.split("-")
         fecha_actualizacion = f[2]+'-'+f[1]+'-'+f[0];
     }
-    AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion);
+    AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,ultimoCoste);
     
 }
 
