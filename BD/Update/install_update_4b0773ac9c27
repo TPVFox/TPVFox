@@ -1,2 +1,0 @@
-ALTER TABLE `fac_cobros` ADD `Referencia` VARCHAR(25) NULL AFTER `importe`;
-
