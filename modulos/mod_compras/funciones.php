@@ -193,7 +193,8 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."','"
 						.$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
-						"'".addslashes(htmlspecialchars($producto['ref_prov'],ENT_COMPAT))."' , '".$producto['coste']."'";
+						"'".addslashes(htmlspecialchars($producto['ref_prov'],ENT_COMPAT))."' , '".$producto['coste']."' , '"
+                        .$producto['fechaActualizacion']."'";
 			if(strlen($producto['ref_prov'])==0){
                 $style='style="opacity:0.5;"';
             }

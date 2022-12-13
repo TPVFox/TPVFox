@@ -61,7 +61,7 @@ function buscarAdjunto(dedonde, valor=""){
                     abrirModal(titulo, HtmlAdjuntos);
                 }else{
                     // Comprobamos que el adjunto que vamos añadir, no este ya añadido en este pedido.
-                    // Ya que podríamos tenermo como marcado eliminado.
+                    // Ya que podríamos tenerlo como marcado eliminado.
                     var bandera=0;
                     if (dedonde=="albaran"){
                         var adjuntos=pedidos;
@@ -95,7 +95,7 @@ function buscarAdjunto(dedonde, valor=""){
                             var prod = {
                                     'articulo_name' : productosAdd[i].cdetalle,
                                     'codBarras'     : productosAdd[i].ccodbar,
-                                    'ref_prov' : productosAdd[i].ref_prov,
+                                    'ref_prov'      : productosAdd[i].ref_prov,
                                     'crefTienda'    : productosAdd[i].cref,
                                     'idArticulo'    : productosAdd[i].idArticulo,
                                     'iva'           : productosAdd[i].iva,
@@ -416,13 +416,13 @@ function comprobarAdjunto(dedonde){
 }
 
 function comprobarFecha(caja,event){
+    //@Objetivo
+    // Comprobar que la fecha que contiene la cja no es superior la de hoy
     var hoy=new Date();
     hoy.setHours(0,0,0,0); // para poner 0 la hora
-    console.log('Imprimo hoy:'+ hoy.toString());
     var dia_caja= caja.darValor().split('-'); // Obtengo array (dia,mes,anho)
     var fecha_caja = new Date(dia_caja[2]+'-'+dia_caja[1]+'-'+dia_caja[0]);
     fecha_caja.setHours(0,0,0,0); // al crearlo me pone la 1 , no se porque
-    console.log('fecha_caja:'+ fecha_caja.toString());
     if (isNaN(fecha_caja.getTime())){
         alert('La fecha no es correcta');
     } else {
@@ -433,6 +433,53 @@ function comprobarFecha(caja,event){
         }
     }
         
+}
+
+function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion){
+    // @ Objetivo
+    // Comprobamos:
+    //  - Si un producto nuevo para ese proveedor.
+    //  - Si el coste se cambio con fecha posterior a la fecha del albaran.
+    // Luego agregamos linea  o no.
+    console.log('tipo dato fecha_actualizacion');
+    console.log(typeof(fecha_actualizacion));
+    console.log(datos);
+    var opcion = true;
+    if (datos.coste == 0){
+        datos.getCoste(datos.ultimoCoste);
+        // Si contesta NO, no lo añade al dedonde
+        var nlen = dedonde.length-1; // le quito la ultima letra, para que no ponga (s)
+        var txtDonde = dedonde.substring(0, nlen);
+        opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
+    }
+    if (opcion === true){                          
+        productos.push(datos);
+        addTemporal(dedonde)
+        document.getElementById(id_input).value='';
+        console.log('Fecha Actualizacion:'+fecha_actualizacion);
+        console.log('dedonde:'+dedonde);
+
+        
+        if(fecha_actualizacion!=null){
+            fechaProducto= fecha_actualizacion.split("-");
+            fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
+            fechaCabecera= cabecera.fecha.split("-");
+            fechaCabecera=new Date(fechaCabecera[2], fechaCabecera[1] - 1, fechaCabecera[0]);
+            console.log('fechaCabecera'+fechaCabecera);
+            console.log('fechaProducto'+fechaProducto);
+
+            if(fechaProducto>fechaCabecera)
+            {
+                 alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
+            }
+        }   
+        //  Añado linea de producto.
+        AgregarFilasProductos(datos, dedonde);
+        // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
+        if (dedonde=="factura"){
+            $("#tablaAl").hide();
+        }
+    }
 }
 
 function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
@@ -518,7 +565,7 @@ function addTemporal(dedonde=""){
 			console.log('******** Estoy funciones.js y voy añadir PEDIDO temporal JS****************');
 		},
 		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de añadir  temporal');
+			console.log('== Respuesta de añadir temporal ==');
 			var resultado =  $.parseJSON(response);
 			if (resultado.error){
                 // Error puede ser array
@@ -528,18 +575,13 @@ function addTemporal(dedonde=""){
                 });
 				alert(JSON.stringify(resultado.error));
 			}else{
-				console.log('idtemporal'+resultado.id);
 				if (resultado.id > 0){
-                    console.log('Voy poner tActual y idtemporal');
                     // Este codigo será comun pero de momento lo diferencio pedido.
                     if (dedonde=="pedido"){
                         history.pushState(null,'','?temporal='+resultado.id);
                     }else{
                         history.pushState(null,'','?tActual='+resultado.id);
                     }
-
-                   
-                    
                     $("input[name='idTemporal']").val(resultado.id);
                     if (cabecera.idTemporal == 0) {
                         // En estado Nuevo de pedido, hay que quitar el style atributo btn-guardar.
@@ -567,7 +609,6 @@ function addTemporal(dedonde=""){
 function ponerFocus (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Pongo focus a:'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).focus(); 
 	}, 50); 
@@ -576,7 +617,6 @@ function ponerFocus (destino_focus){
 function ponerSelect (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
-	console.log('Pongo select a :'+destino_focus);
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
@@ -596,7 +636,7 @@ function saltarHora(caja){
     ponerFocus(d_focus);
 }
 
-function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, ref_prov, coste){
+function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ultimoCoste,id , dedonde, ref_prov, coste,fecha_actualizacion){
 	//@ Objetivo:
 	// Escribir y añadir el producto seleccionado en el modal
     //@ Parametos:
@@ -609,27 +649,19 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         'idArticulo'    : id.toString(),
         'iva'           : ctipoIva.toString(),
         'ref_prov' : ref_prov.toString(),
-        'coste'         : coste.toString()
+        'coste'         : coste.toString(),
+        'ultimoCoste'   :ultimoCoste
     };
-    var opcion = true;
-    if(coste <= 0){
-        // Si contesta NO, no lo añade al dedonde
-        var nlen = dedonde.length-1; // le quito la ultima letra, para que no ponga (s)
-        var txtDonde = dedonde.substring(0, nlen);
-        // Confirmar cuando es un producto Nuevo para ese proveedor lo ideal sería que fuera un opcion
-        // de momento lo pongo fijo.
-        objDatos.coste = ultimoCoste.toString();
-        opcion = confirm("¡OJO!\nEste producto es NUEVO por lo que no tenemos coste correcto, para este proveedor \n Vamos poner el ultimo coste del productos:" + objDatos.coste + "\n Si (cancelas) no lo añade al "+ txtDonde);
-        objDatos.coste = ultimoCoste.toString();
-    }
     var datos = new ObjProducto(objDatos);
-    if (opcion === true){
-        productos.push(datos);
-        addTemporal(dedonde);
-        AgregarFilasProductos(datos, dedonde);
-        document.getElementById(campo).value='';
-    }
     cerrarPopUp();
+    // La fecha actualizacion viene en formato AAAA-MM-DD , tengo cambiarlo porque la funcion siguiente
+    // lo gestion al reves.
+    if (fecha_actualizacion !=''){
+        f= fecha_actualizacion.split("-")
+        fecha_actualizacion = f[2]+'-'+f[1]+'-'+f[0];
+    }
+    AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion);
+    
 }
 
 function cambioEstadoFila(producto,dedonde=""){
@@ -703,7 +735,6 @@ function eliminarTemporal(id_temporal,dedonde){
 		"id_temporal"     : id_temporal,
 		"dedonde"   : dedonde
 	};
-    console.log(dedonde);
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
@@ -800,7 +831,6 @@ function cambiarEstadoVariosAlbaranes(){
     console.log('Entro en cambiar estado de varios albaranes');
     var estado=$('select[id=Nuevo_estado_albaranes]').val();
     VerIdSeleccionado (); // Cargamos array de id seleccionados ;
-    console.log(checkID);
     var parametros = {
 		"pulsado"   : 'cambiarEstadoVariosAlbaranes',
 		"ids"       : checkID,
@@ -818,12 +848,10 @@ function cambiarEstadoVariosAlbaranes(){
 			console.log('Respuesta despues de cambio estado de albaranes');
 			var resultado =  $.parseJSON(response);
             console.log(' Si devuelve nulos es que fue ok');
-            console.log(resultado);
             cerrarPopUp();
             location.reload(); // recargo pagina.
 		}
 	});
-    console.log('et');
 }
 
 function recalculoImporte(cantidad, num_item, dedonde=""){
@@ -1179,7 +1207,6 @@ function ObjProducto(datos)
     this.ccodbar = datos.codBarras;
     this.cdetalle = datos.articulo_name;
     this.iva = datos.iva;
-    console.log(datos.unidades);
     if (datos.unidades === undefined){
 		this.nunidades = '1.00'; // Valor por defecto.
    		this.ncant = '1.00'; // Valor por defecto.
