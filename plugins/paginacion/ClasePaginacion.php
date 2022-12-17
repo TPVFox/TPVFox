@@ -311,23 +311,28 @@ class PluginClasePaginacion {
         $sustituir = array(' , ',' ; ',' ( ',' ) ',' - ',' ');
         $string  = str_replace($buscar, $sustituir, trim($a_buscar));
         $palabras = explode(' ',$string);
-        $likes = array();
-        // La palabras queremos descartar , la ponemos en mayusculas
-        foreach($palabras as $palabra){
-            if (trim($palabra) !== '' && strlen(trim($palabra))){
-                // Entra si la palabra tiene mas 3 caracteres.
-                // Aplicamos filtro de palabras descartadas
-                
-                    foreach ($campos as $campo){
+       
+        $likesCampo = array();
+        $operador = ' '.$operador.' ';
+
+        foreach ($campos as $campo){
+            $likes = array();
+            foreach($palabras as $key=>$palabra){
+                if (trim($palabra) !== ''){
+                    // Entra si la palabra tiene mas 3 caracteres.
+                    // Aplicamos filtro de palabras descartadas
                         $likes[] =  $campo.' LIKE "%'.$palabra.'%" ';
-                    }
-                    
-                
+                }
+            }
+            // Con el mismo campo es AND.
+            if ($key > 0){
+                $likesCampo[] ='('.implode(' AND ',$likes).')';
+            } else {
+                $likesCampo[]= $likes[0];
             }
         }
         // Montamos busqueda con el operador indicado o el por defecto
-        $operador = ' '.$operador.' ';
-        $busqueda = implode($operador,$likes);
+        $busqueda = implode($operador,$likesCampo);
         return $busqueda;
     }
 	

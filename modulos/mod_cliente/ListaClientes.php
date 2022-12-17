@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <?php
+
+<?php
     include_once './../../inicial.php';
-	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_cliente/funciones.php';
     include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
     include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
@@ -11,10 +8,9 @@
 	$Cliente=new ClaseCliente();
     // --- Inicializamos objeto de Paginado --- //
     $NPaginado = new PluginClasePaginacion(__FILE__);
-    $campos = array('razonsocial','Nombre','nif');
+    $campos = array('razonsocial','Nombre','nif','movil');
     $NPaginado->SetCamposControler($campos);
     $filtro = $NPaginado->GetFiltroWhere('OR');
-    
     // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
     $NPaginado->SetCantidadRegistros($Cliente->contarRegistros($filtro));
     $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
@@ -31,7 +27,13 @@
     $titulo = "Descuentos de tickets de cliente";
     $contenido = 'Mes de '.date_format($fecha, 'F Y').'<br/><br/> Intervalo de fechas:'.
     date_format(date_create($fechainicio),'d-m-Y').' a '.date_format(date_create($fechafin), 'd-m-Y');									
-	?>
+?>
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <?php 	include_once $URLCom.'/head.php';?>
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
@@ -107,7 +109,7 @@
 					?>
 				<form action="./ListaClientes.php" method="GET" name="formBuscar">
 					<div class="form-group ClaseBuscar">
-						<label>Buscar en nombre, razon social o nif: </label>
+						<label>Buscar en nombre, razon social, nif o movil: </label>
 						<input type="text" name="buscar" value="">
 						<input type="submit" value="buscar">
 					</div>
