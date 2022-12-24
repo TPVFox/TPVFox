@@ -180,7 +180,7 @@ if (isset($errores)){
                              <?php 
                              if($ClasePermisos->getAccion("Modificar")==1){
                              ?>
-                                <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>'>
+                                <a class="glyphicon glyphicon-pencil" href='./factura.php?id=<?php echo $factura['id'];?>&accion=editar'>
                             <?php 
                             }
                             ?>
@@ -189,7 +189,7 @@ if (isset($errores)){
                                <?php 
                              if($ClasePermisos->getAccion("Ver")==1){
                             ?>
-                            <a class="glyphicon glyphicon-eye-open" href='./factura.php?id=<?php echo $factura['id'];?>&estado=ver'>
+                            <a class="glyphicon glyphicon-eye-open" href='./factura.php?id=<?php echo $factura['id'];?>&accion=ver'>
                             <?php 
                             }
                             ?>

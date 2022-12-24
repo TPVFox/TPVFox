@@ -546,37 +546,25 @@ function modificarArrayAlbaranes($albaranes, $BDTpv){
 }
 
 
-function htmlFormasVenci($formaVenci, $BDTpv){
-	$html="";
-	$forma="";
-	$formasPago=new FormasPago($BDTpv);
-	if(isset($formaVenci)){
-		$forma=$formaVenci;
-	}
-	$principal=$formasPago->datosPrincipal($forma);
-	$html.='<option value="'.$principal['id'].'">'.$principal['descripcion'].'</option>';
-	$otras=$formasPago->formadePagoSinPrincipal($forma);
-	foreach ($otras as $otra){
-		$html.='<option value= "'.$otra['id'].'">'.$otra['descripcion'].'</option>';
-}
-	$respuesta['formas']=$formaVenci;
-	$respuesta['html']=$html;
-	return $respuesta;
+function htmlOptions($opciones,$opcionSeleccionada =0 ){
+	$html='';
+    $select = '';
+	foreach($opcioneso as $f){
+        if ($f['id'] == $opcionSeleccionada){
+            $select = ' selected="selected"';
+        }
+		$html.='<option value= "'.$f['id'].'"'.$select.'>'.$f['descripcion'].'</option>';
+    }
+	return $html;
 }
 
-function htmlVencimiento($nuevafecha, $BDTpv){
-	$vencimiento=new TiposVencimientos();
-		$html='<input type="date" name="fechaVenci" id="fechaVenci" data-obj= "fechaVenci" onBlur="selectFormas()" value='.$nuevafecha.' >';
-		$respuesta['html']=$html;
-		return $respuesta;
-    
-}
-function fechaVencimiento($fecha, $BDTpv){
+
+function fechaVencimiento($fecha, $dias){
+    // @Objetivo
+    // Añadirle a fecha los dias que le indicamos.
+    // $Respuesta fecha o fecha actual.
     $nuevafecha = date('Y-m-d');
 	if ($fecha>0){
-		$vencimiento=new TiposVencimientos();
-		$principal=$vencimiento->datosPrincipal($fecha);
-		$dias=$principal['dias'];
 		$string=" +".$dias." day ";
 		$fecha = date('Y-m-j');
 		$nuevafecha = strtotime($fecha.$string);
@@ -586,19 +574,6 @@ function fechaVencimiento($fecha, $BDTpv){
 	
 }
 
-function htmlImporteFactura($datos, $BDTpv){
-	$formaPago=new FormasPago($BDTpv);
-	$datosPago=$formaPago->datosPrincipal($datos['forma']);
-	$respuesta['html'].='<tr>';
-	$respuesta['html'].='<td>'.$datos['importe'].'</td>';
-	$respuesta['html'].='<td>'.$datos['fecha'].'</td>';
-	$respuesta['html'].='<td>'.$datosPago['descripcion'].'</td>';
-	$respuesta['html'].='<td>'.$datos['referencia'].'</td>';
-	$respuesta['html'].='<td>'.$datos['pendiente'].'</td>';
-	$respuesta['html'].='</tr>';
-	return $respuesta;
-	
-}
 function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 	$Ccliente=new Cliente($BDTpv);
 	$imprimir=array(
@@ -776,21 +751,6 @@ function htmlTotales($Datostotales){
 		.'</tr>';
 	return $htmlIvas;
 	}
-}
-
-function modificarArraysImportes($importes, $total){
-	$importesDef= array();
-	foreach ($importes as $importe){
-		$nuevo= array();
-		$nuevo['importe']=$importe['importe'];
-		$nuevo['fecha']=$importe['FechaPago'];
-		$nuevo['referencia']=$importe['Referencia'];
-		$nuevo['forma']=$importe['idFormasPago'];
-		$total=$total-$importe['importe'];
-		$nuevo['pendiente']=$total;
-		array_push($importesDef, $nuevo);
-	}
-	return $importesDef;
 }
 
 function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
@@ -1040,16 +1000,7 @@ function cancelarFactura($idTemporal, $BDTpv){
 	}
 	return $error;
 }
-function comprobarAlbaran($idCliente, $BDTpv){
-	$Calb=new AlbaranesVentas($BDTpv);
-	$busqueda="";
-    $bandera=0;
-	$con=$Calb->AlbaranClienteGuardado($busqueda, $idCliente);
-	if (count($con)>0){
-		$bandera=1;
-	}
-	return $bandera;
-}
+
 function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
 	include_once('../mod_incidencias/clases/ClaseIncidencia.php');
 	$Cindicencia=new ClaseIncidencia($BDTpv);

@@ -107,25 +107,6 @@ switch ($pulsado) {
 		 }
 		break;
 		
-		case 'htmlFormasVenci':
-			//@Objetivo:
-			//MUestra las formas de vencimiento de esa factura
-			$formasVenci=$_POST['formasVenci'];
-            $forma=0;
-            $venci=0;
-			if ($_POST['formasVenci']){
-				$formaPago=json_decode($formasVenci, true);
-				$forma=$formaPago['formapago'];
-				$venci=$formaPago['vencimiento'];
-			}
-			$for=htmlFormasVenci($forma, $BDTpv);
-			$respuesta['html1']=$for['html'];
-			$fun=fechaVencimiento($venci, $BDTpv);
-			$ven=htmlVencimiento($fun, $BDTpv);
-			$respuesta['html2']=$ven['html'];
-			$respuesta['fecha']=$fun;
-		break;
-		
 		case 'ModificarFormasVencimiento':
 		//@Objetivo:
 		//MOdificar la forma de vencimiento de esa factura en concreto

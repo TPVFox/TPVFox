@@ -30,26 +30,31 @@ class FacturasVentas extends ClaseVentas{
 			return $respuesta;
 		}
 	}
-	public function TodosTemporal(){
+	public function TodosTemporal($idFactura = 0){
 		//@Objetivo:
 		//Mostrar los datos principales de una factura temnporal
-			$db = $this->db;
-			$sql='SELECT tem.numfaccli, tem.id , tem.idClientes,
-			 tem.total, b.Nombre from faccliltemporales as tem left JOIN 
-			 clientes as b on tem.idClientes=b.idClientes';
-			 $smt=$this->consulta($sql);
-			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-			}else{
-				$facturaPrincipal=array();
-				while ( $result = $smt->fetch_assoc () ) {
-					array_push($facturaPrincipal,$result);
-				}
-				return $facturaPrincipal;
-			}
-		
+        $respuesta = array();
+        $sql='SELECT tem.numfaccli, tem.id , tem.idClientes,
+         tem.total, b.Nombre from faccliltemporales as tem left JOIN 
+         clientes as b on tem.idClientes=b.idClientes';
+        if ($idFactura > 0){
+            // buscamos solos temporales para ese albaran.
+            // [OJO] El campo que tenemos en temporal es numfaccli pero debe se idfaccli
+            // ya el día de mañana que pongamos en funcionamiento el poder distinto numero que id
+            // dejaría funciona.
+            $sql .= ' where tem.numfaccli='.$idFactura;
+        }
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+            $respuesta['error']=$smt['error'];
+            $respuesta['consulta']=$smt['consulta'];
+        }else{
+            while ( $result = $smt->fetch_assoc () ) {
+                array_push($respuesta,$result);
+            }
+        }
+        return $respuesta;
+
 	}
 	public function TodosFacturaFiltro($filtro){
 		//@Objetivo:
@@ -92,6 +97,44 @@ class FacturasVentas extends ClaseVentas{
 		}
 		return $factura;
 	}
+    public function comprobarTemporalesIdFac($idFactura,$numFacturaTemp = 0){
+        // @Objetivo:
+        // Compruebo que solo hay un factura temporal para ese idFactura y ademas si envio temporal compruebo que sea al mismo 
+        // @Devuelvo:
+        //  Array con o sin errores.
+        $errores = array();
+        if ($idFactura > 0){
+            $posible_duplicado = $this->TodosTemporal($idFactura);
+            if (!isset($posible_duplicado['error'])){
+                $OK ='OK';
+                if (count($posible_duplicado)>1){
+                     $OK = 'Hay mas de un temporal con el mismo numero factura.';
+                } else {
+                    // Hay uno solo.
+                    if ($numFacturaTemp > 0) {
+                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numFacturaTemp){
+                            $OK = 'Hay un temporal y no coincide el idtemporal.';
+                        }
+                    } else {
+                        if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
+                            // Solo devuelvo idTemporal si id > 0    
+                            $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                        }
+                    }
+                }
+                if ($OK !== 'OK' ){
+                    // Existe un registro o el que existe es distinto al actual.
+                    array_push($errores,$this->montarAdvertencia('danger',
+                                         '<strong>Ojo posible duplicidad en factura temporal !! </strong>  <br> '.$OK
+                                        )
+                            );
+                }
+            }
+        }
+        return $errores;
+    }
+
+    
 	public function ProductosFactura($idFactura){
 		//@Objetivo:
 		//Buscar los productos de un número de factura
