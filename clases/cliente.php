@@ -61,13 +61,7 @@ class Cliente{
 			return $cliente;
 		}
 	}
-	public function mofificarFormaPagoVenci($idCliente, $formasVenci){
-		$db=$this->db;
-		$sql='UPDATE clientes SET formasVenci="'.$formasVenci.'" WHERE idClientes='.$idCliente;
-        $smt=$db->query($sql);
-        $resultado['sql']=$sql;
-		return $resultado;
-	}
+	
 	public function BuscarClientePorNombre($nombre){
         // Buscar por Nombre Comercial o razon social.
         // y por palabras
