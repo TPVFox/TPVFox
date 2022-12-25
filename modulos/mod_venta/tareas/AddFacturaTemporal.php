@@ -4,7 +4,6 @@
 			$idFacturaTemp=$_POST['idTemporal'];
 			$idUsuario=$_POST['idUsuario'];
 			$idTienda=$_POST['idTienda'];
-			$estadoFactura=$_POST['estado'];
 			$numFactura=$_POST['idReal'];
 			$fecha=$_POST['fecha'];
             $fecha = new DateTime($fecha);
@@ -20,7 +19,7 @@
 			$existe=0;
 			$res=$idFacturaTemp;
 			if ($idFacturaTemp>0){
-				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idFacturaTemp, $productos);
+				$rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idFacturaTemp, $productos);
 				if(isset($rest['error'])){
 					$respuesta['error']=$rest['error'];
 					$respuesta['consulta']=$rest['consulta'];
@@ -29,7 +28,7 @@
 					$pro=$rest['productos'];
 				}
 			}else{
-				$rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente);
+				$rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda,  $fecha , $albaranes, $productos, $idCliente);
 				if(isset($rest['error'])){
 					$respuesta['error']=$rest['error'];
 					$respuesta['consulta']=$rest['consulta'];

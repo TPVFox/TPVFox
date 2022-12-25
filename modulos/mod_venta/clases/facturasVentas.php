@@ -34,15 +34,15 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Mostrar los datos principales de una factura temnporal
         $respuesta = array();
-        $sql='SELECT tem.numfaccli, tem.id , tem.idClientes,
+        $sql='SELECT tem.Numfaccli, tem.id , tem.idCliente,
          tem.total, b.Nombre from faccliltemporales as tem left JOIN 
-         clientes as b on tem.idClientes=b.idClientes';
+         clientes as b on tem.idCliente=b.idClientes';
         if ($idFactura > 0){
             // buscamos solos temporales para ese albaran.
-            // [OJO] El campo que tenemos en temporal es numfaccli pero debe se idfaccli
+            // [OJO] El campo que tenemos en temporal es Numfaccli pero debe se idfaccli
             // ya el día de mañana que pongamos en funcionamiento el poder distinto numero que id
             // dejaría funciona.
-            $sql .= ' where tem.numfaccli='.$idFactura;
+            $sql .= ' where tem.Numfaccli='.$idFactura;
         }
         $smt=$this->consulta($sql);
         if (gettype($smt)==='array'){
@@ -172,7 +172,7 @@ class FacturasVentas extends ClaseVentas{
 		//Eliminar el resgistro de un temporal indicado
 		$db=$this->db;
 		if ($idFactura>0){
-			$sql='DELETE FROM faccliltemporales WHERE numfaccli ='.$idFactura;
+			$sql='DELETE FROM faccliltemporales WHERE Numfaccli ='.$idFactura;
 		}else{
 			$sql='DELETE FROM faccliltemporales WHERE id='.$idTemporal;
 		}
@@ -184,7 +184,7 @@ class FacturasVentas extends ClaseVentas{
 		}
 		
 	}
-	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $idTemporal, $productos){
+	public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idTemporal, $productos){
 		//@Objetivo:
 		//Modificar los datos de una factura temporal
 		$db = $this->db;
@@ -194,7 +194,7 @@ class FacturasVentas extends ClaseVentas{
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='UPDATE faccliltemporales SET idUsuario='.$idUsuario
-		.' , idTienda='.$idTienda.' , estadoFacCli="'.$estadoFactura.'" , fechaInicio="'
+		.' , idTienda='.$idTienda.' , Fecha="'
 		.$fecha.'" , Albaranes ="'.$PrepAlbaranes.'" ,Productos="'.$PrepProductos
 		.' " WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
@@ -210,7 +210,7 @@ class FacturasVentas extends ClaseVentas{
 	
 		return $respuesta;
 	}
-	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $estadoFactura, $fecha , $albaranes, $productos, $idCliente){
+	public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $productos, $idCliente){
 		//@Objetivo:
 		//Insertar nuevo registro de factura 
 		$db = $this->db;
@@ -220,9 +220,9 @@ class FacturasVentas extends ClaseVentas{
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='INSERT INTO faccliltemporales ( idUsuario , idTienda ,
-		 estadoFacCli , fechaInicio, idClientes, Albaranes, Productos ) VALUES ('
-		 .$idUsuario.' , '.$idTienda.' , "'.$estadoFactura.'" , "'.$fecha.'", '
-		 .$idCliente.' , "'.$PrepAlbaranes.'", "'.$PrepProductos.'")';
+		 Fecha, fechaInicio,idCliente, Albaranes, Productos ) VALUES ('
+		 .$idUsuario.' , '.$idTienda.' , "'.$fecha.'",NOW(), '
+		 .$idCliente.' , '."'".$PrepAlbaranes."', '".$PrepProductos."'".')';
 		 $smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -239,7 +239,7 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Añadir a una factura temporal el número real de la factura en el caso de que exista 
 		$db = $this->db;
-		$sql='UPDATE faccliltemporales SET numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
+		$sql='UPDATE faccliltemporales SET Numfaccli ='.$numFactura.' WHERE id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -259,6 +259,16 @@ class FacturasVentas extends ClaseVentas{
 				return $respuesta;
 		}
 	}
+    public function getEstado($idFactura){
+        // @ Objetivo
+        // Obtener el estado de una factura
+        $tabla='facclit';
+        $where='id='.$idFactura ;
+        $factura = parent::SelectUnResult($tabla, $where);
+        $estado = $factura['estado'];
+        return $estado;
+    
+    }
 	public function modificarEstado($idFactura, $estado){
 		//@Objetivo:
 		//Modificar el estado de una factura real

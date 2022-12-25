@@ -4,7 +4,6 @@
 <head>
 <?php
     include_once './../../inicial.php';
-	include $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_venta/funciones.php';
 	include_once $URLCom.'/clases/cliente.php';
     include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
@@ -44,7 +43,7 @@
 	$htmlPG = $NPaginado->htmlPaginado();
 	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 	$f=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$facturasDef=$f['Items'];
+    $facturasDef=$f['Items'];
 if (isset($f['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $f['consulta'],
@@ -53,15 +52,18 @@ if (isset($f['error'])){
 								 );
 }
 ?>
-
+<!DOCTYPE html>
+<html>
+<head>
+    <?php 	include $URLCom.'/head.php';?>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>   
 </head>
 
 <body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
+	  
 <?php
-//~ include '../../header.php';
- include_once $URLCom.'/modulos/mod_menu/menu.php';
+include_once $URLCom.'/modulos/mod_menu/menu.php';
 if (isset($errores)){
 		foreach($errores as $error){
 				echo '<div class="'.$error['class'].'">'
@@ -104,8 +106,8 @@ if (isset($errores)){
 				<?php
 			if (isset($todosTemporal)){
 				foreach ($todosTemporal as $temporal){
-					if ($temporal['numfaccli']){
-						$numTemporal=$temporal['numfaccli'];
+					if ($temporal['Numfaccli']){
+						$numTemporal=$temporal['Numfaccli'];
 					}else{
 						$numTemporal="";
 					}
