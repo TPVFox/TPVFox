@@ -22,7 +22,54 @@ $CalbAl=new AlbaranesVentas($BDTpv);
 $Ccliente=new Cliente($BDTpv);
 $CFac=new FacturasVentas($BDTpv);
 switch ($pulsado) {
-		case 'buscarProductos':
+        case 'abririncidencia':
+			$dedonde=$_POST['dedonde'];
+			$usuario=$_POST['usuario'];
+			$idReal=0;
+			if(isset($_POST['idReal'])){
+				$idReal=$_POST['idReal'];
+			}
+			$configuracion=$_POST['configuracion'];
+			$numInicidencia=0;
+			$tipo="mod_ventas";
+			$datos=array(
+			'vista'=>$dedonde,
+			'idReal'=>$idReal
+			);
+			$datos=json_encode($datos);
+			$estado="No resuelto";
+			$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
+			$respuesta['html']=$html;
+			$respuesta['datos']=$datos;
+		break;
+
+        case 'abrirIncidenciasAdjuntas':
+			$idReal=$_POST['id'];
+			$modulo=$_POST['modulo'];
+			$dedonde=$_POST['dedonde'];
+			$datosIncidencia=$CIncidencia->incidenciasAdjuntas($idReal, $modulo,  $dedonde);
+			if(isset($datosIncidencia['error'])){
+				$respuesta['error']=$datosIncidencia['error'];
+				$respuesta['consulta']=$datosIncidencia['consulta'];
+			}else{
+                $html=modalIncidenciasAdjuntas($datosIncidencia);
+                $respuesta['html']=$html;
+			}
+		break;
+        
+        case 'anhadirPedidoTemp':
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddPedidoTemporal.php';
+		break;
+        
+		case 'anhadirAlbaranTemporal':
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
+		break;
+        
+		case 'anhadirfacturaTemporal':
+            include_once $URLCom.'/modulos/mod_venta/tareas/AddFacturaTemporal.php';
+		break;
+
+        case 'buscarProductos':
             include_once $URLCom.'/modulos/mod_venta/tareas/BuscarProductos.php';
 		break;
 		
@@ -37,37 +84,33 @@ switch ($pulsado) {
 		case 'buscarAlbaran':
             include_once $URLCom.'/modulos/mod_venta/tareas/BuscarAlbaran.php';
 		break;
-		case 'anhadirPedidoTemp':
-            include_once $URLCom.'/modulos/mod_venta/tareas/AddPedidoTemporal.php';
-		break;
-		case 'anhadirAlbaranTemporal':
-            include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
-		break;
-		case 'anhadirfacturaTemporal':
-            include_once $URLCom.'/modulos/mod_venta/tareas/AddFacturaTemporal.php';
-		break;
-			case 'modificarEstadoPedido':
-		//Objetivo:
-		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
-		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
-			$idPedido=$_POST['idModificar'];
-			$estado=$_POST['estado'];
+        
+        case 'cancelarTemporal':
+			$idTemporal=$_POST['idTemporal'];
+			$dedonde=$_POST['dedonde'];
 			$respuesta=array();
-			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
-			if(isset($modEstado['error'])){
-				$respuesta['error']=$modEstado['error'];
-				$respuesta['consulta']=$modEstado['consulta'];
-			}
+			switch($dedonde){
+				case 'pedidos':
+					$cancelar=cancelarPedido( $idTemporal, $BDTpv);
+					$respuesta=$cancelar;
+				break;
+				case 'albaran':
+					$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
+				break;
+				case 'factura':
+					$cancelar=cancelarFactura( $idTemporal, $BDTpv);
+				break;
+			 }
 		break;
 		
 		case 'comprobarPedidos':
             include_once $URLCom.'/modulos/mod_venta/tareas/comprobarPedidos.php';
 		break;
+        
 		case 'comprobarAlbaran':
             include_once $URLCom.'/modulos/mod_venta/tareas/comprobarAlbaranes.php';
 		break;
-		
-		
+
 		case 'htmlAgregarFilaPedido':
 		//Objetivo:
 		//Devuelve el html de la fila del pedido 
@@ -75,14 +118,11 @@ switch ($pulsado) {
 			$respuesta['html']=$res['html'];
 		break;
 		
-		case 'htmlAgregarFilaAlbaran':
+        case 'htmlAgregarFilaAdjunto':
 		//Objetivo:
-		//Devuelve el html de la fila albarán
-		$arrayAlbaranes=array();
-		array_push($arrayAlbaranes, $_POST['datos']);
-		$res=htmlAlbaranFactura($arrayAlbaranes, $_POST['dedonde']);
-		$respuesta['html']=$res['html'];
-			
+		//Devuelve el html de la fila del pedido 
+			$html=htmlLineaAdjunto($_POST['datos'], $_POST['dedonde']);
+			$respuesta['html']=$html;
 		break;
 		
 		case 'htmlAgregarFilasProductos':
@@ -95,7 +135,6 @@ switch ($pulsado) {
 			if (!is_array($producto)){
 				 // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
 				 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
-				
 				 $respuesta['html']=$res;
 				break;
 			}else{
@@ -106,26 +145,19 @@ switch ($pulsado) {
 			 $respuesta['productos']=$productos;
 		 }
 		break;
-		
-		case 'ModificarFormasVencimiento':
-		//@Objetivo:
-		//MOdificar la forma de vencimiento de esa factura en concreto
-		$opcion=$_POST['opcion'];
-		$fechaVenci=$_POST['fechaVenci'];
-		$idTemporal=$_POST['idFacTem'];
-		$formasVenci=array();
-		$formasVenci['forma']=$opcion;
-		$formasVenci['fechaVencimiento']=$fechaVenci;
-		$respuesta=array();
-		$json=json_encode($formasVenci);
-		
-		if ($idTemporal>0){
-			$modTemporal=$CFac->formasVencimientoTemporal($idTemporal, $json);
-			if(isset($modTemporal['error'])){
-					$respuesta['error']=$modTemporal['error'];
-					$respuesta['consulta']=$modTemporal['consulta'];
+        
+		case 'modificarEstadoPedido':
+		//Objetivo:
+		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
+		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
+			$idPedido=$_POST['idModificar'];
+			$estado=$_POST['estado'];
+			$respuesta=array();
+			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+			if(isset($modEstado['error'])){
+				$respuesta['error']=$modEstado['error'];
+				$respuesta['consulta']=$modEstado['consulta'];
 			}
-		}
 		break;
 		
 		case 'modificarEstadoFactura':
@@ -154,10 +186,6 @@ switch ($pulsado) {
 		}
 		break;
 		
-		case 'insertarImporte':
-            include_once $URLCom.'/modulos/mod_venta/tareas/insertarImporte.php';
-		break;
-		
 		case 'datosImprimir':
 			//@Objetivo:
 		//enviar los datos para imprimir el pdf
@@ -174,27 +202,7 @@ switch ($pulsado) {
 			include_once $URLCom.'/controllers/planImprimir.php';
 			$respuesta=$rutatmp.'/'.$nombreTmp;
 		break;
-		case 'abririncidencia':
-			$dedonde=$_POST['dedonde'];
-			$usuario=$_POST['usuario'];
-			$idReal=0;
-			if(isset($_POST['idReal'])){
-				$idReal=$_POST['idReal'];
-			}
-			$configuracion=$_POST['configuracion'];
-			$numInicidencia=0;
-			$tipo="mod_ventas";
-			$datos=array(
-			'vista'=>$dedonde,
-			'idReal'=>$idReal
-			);
-			$datos=json_encode($datos);
-			$estado="No resuelto";
-			$html=$CIncidencia->htmlModalIncidencia($datos, $dedonde, $configuracion, $estado, $numIncidencia);
-			$respuesta['html']=$html;
-			$respuesta['datos']=$datos;
-		break;
-		
+        
 		case 'nuevaIncidencia':
 			$usuario= $_POST['usuario'];
 			$fecha= $_POST['fecha'];
@@ -217,39 +225,7 @@ switch ($pulsado) {
 				$respuesta=$nuevo;
 			}
 		break;
-		
-		case 'cancelarTemporal':
-			$idTemporal=$_POST['idTemporal'];
-			$dedonde=$_POST['dedonde'];
-			$respuesta=array();
-			switch($dedonde){
-				case 'pedidos':
-					$cancelar=cancelarPedido( $idTemporal, $BDTpv);
-					$respuesta=$cancelar;
-				break;
-				case 'albaran':
-					$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
-				break;
-				case 'factura':
-					$cancelar=cancelarFactura( $idTemporal, $BDTpv);
-				break;
-			 }
-		break;
-		case 'abrirIncidenciasAdjuntas':
-			$idReal=$_POST['id'];
-			$modulo=$_POST['modulo'];
-			$dedonde=$_POST['dedonde'];
-			$datosIncidencia=$CIncidencia->incidenciasAdjuntas($idReal, $modulo,  $dedonde);
-			if(isset($datosIncidencia['error'])){
-				$respuesta['error']=$datosIncidencia['error'];
-				$respuesta['consulta']=$datosIncidencia['consulta'];
-			}else{
-                $html=modalIncidenciasAdjuntas($datosIncidencia);
-                $respuesta['html']=$html;
-			}
-		break;
-	
-		
+        
 }
 echo json_encode($respuesta);
 return $respuesta;

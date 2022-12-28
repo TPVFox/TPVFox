@@ -59,10 +59,8 @@ class FacturasVentas extends ClaseVentas{
 	public function TodosFacturaFiltro($filtro){
 		//@Objetivo:
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
-		$db=$this->db;
 		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
 		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  '.$filtro;
-		$smt=$this->consulta($sql);
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -153,12 +151,33 @@ class FacturasVentas extends ClaseVentas{
 	}
 	public function AlbaranesFactura($idFactura){
 		//@Objetivo:
-		//Mostrar los albaranes que estan ligados a una determinada factura
+		//Mostrar los albaranes que estan ligados a una determinada factura.
+        
 		$tabla='albclifac';
 		$where='idFactura= '.$idFactura;
 		$factura = parent::SelectVariosResult($tabla, $where);
 		return $factura;
 	}
+    public function obtenerAlbaranesFactura($idFactura){
+        //@Objetivo:
+        // Obtener los albaranes de una factura con sus datos.
+        $respuesta = array();
+        $sql = 'SELECT a.idAlbaran ,b.Numalbcli, b.fecha, b.total, b.estado	FROM albclifac as a LEFT JOIN albclit as b on a.idAlbaran=b.id WHERE a.idFactura='.$idFactura;
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$respuesta['Items'] = array();
+			while ( $result = $smt->fetch_assoc () ) {
+                array_push($respuesta['Items'],$result);
+			}
+            $respuesta['consulta'] = $sql;
+
+			return $respuesta;
+		}
+    }
 	public function buscarDatosFacturasTemporal($idFacturaTemporal) {
 		//@Objetivo:
 		//Buscar los datos de una factura temporal
@@ -307,11 +326,11 @@ class FacturasVentas extends ClaseVentas{
 		$db = $this->db;
 		if ($idFactura>0){
 			$sql='INSERT INTO facclit (id, Numfaccli, Fecha, idTienda 
-			, idUsuario , idCliente , estado , total, fechaCreacion, formaPago, 
+			, idUsuario , idCliente , estado , total, fechaCreacion, 
 			fechaVencimiento,  fechaModificacion) VALUES ('.$idFactura.' , '.$idFactura
 			.' , "'.$datos['Fecha'].'", '.$datos['idTienda'].', '.$datos['idUsuario'].', '
-			.$datos['idCliente'].', "'.$datos['estado'].'", '.$datos['total'].', "'
-			.$datos['fechaCreacion'].'", "'.$datos['formapago'].'", "'.$datos['fechaVencimiento']
+			.$datos['idCliente'].', "'.$datos['estado'].'", "'.$datos['total'].'", "'
+			.$datos['fechaCreacion'].'", "'.$datos['fechaVencimiento']
 			.'", "'.$datos['fechaModificacion'].'")';
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
@@ -447,57 +466,7 @@ class FacturasVentas extends ClaseVentas{
 				return $respuesta;
 		}
 	}
-	public function modificarImportesTemporal($idTemporal, $importes){
-		$db=$this->db;
-		$sql='UPDATE faccliltemporales SET FacCobros='."'".$importes."'".' WHERE id='.$idTemporal;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}
-	}
-	public function importesTemporal($idTemporal){
-		$db=$this->db;
-		$sql='SELECT FacCobros FROM faccliltemporales where id='.$idTemporal ;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}else{
-			if ($result = $smt->fetch_assoc () ){
-				$factura=$result;
-			}
-			return $factura;
-		}
-	}
-	public function importesFactura($idFactura){
-		$db=$this->db;
-		$sql='SELECT * FROM fac_cobros where idFactura='.$idFactura ;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}else{
-			$importesPrincipal=array();
-			while ($result = $smt->fetch_assoc () ){
-				array_push($importesPrincipal,$result);
-			}
-			return $importesPrincipal;
-		}
-	}
-	public function eliminarRealImportes($idFactura){
-		$db=$this->db;
-		$sql='DELETE FROM  fac_cobros where idFactura='.$idFactura ;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}
-	}
+
 	public function modificarFechaFactura($idFactura, $Fecha, $formaPago, $fechaVenci){
 		$respuesta=array();
 		$db=$this->db;

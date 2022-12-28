@@ -401,38 +401,37 @@ class AlbaranesVentas extends ClaseVentas {
     }
 
     public function AlbaranClienteGuardado($busqueda, $idCliente) {
-        $db = $this->db;
-        $pedido['busqueda'] = $busqueda;
+        $respuesta['busqueda'] = $busqueda;
         if ($busqueda > 0) {
             $sql = 'select  Numalbcli , id , Fecha  , total from albclit where
 			 Numalbcli =' . $busqueda . ' and  idCliente=' . $idCliente;
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
-                $pedido['error'] = $smt['error'];
-                $pedido['consulta'] = $smt['consulta'];
+                $respuesta['error'] = $smt['error'];
+                $respuesta['consulta'] = $smt['consulta'];
             } else {
                 if ($result = $smt->fetch_assoc()) {
-                    $pedido = $result;
+                    $respuesta = $result;
                 }
-                $pedido['Nitem'] = 1;
+                $respuesta['Nitems'] = 1;
             }
         } else {
-            $sql = 'SELECT  Numalbcli , Fecha  , total , id from albclit 
+            $sql = 'SELECT  Numalbcli ,  id , Fecha  , total  from albclit 
 			where idCliente=' . $idCliente . ' and estado="Guardado"';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
-                $pedido['error'] = $smt['error'];
-                $pedido['consulta'] = $smt['consulta'];
+                $respuesta['error'] = $smt['error'];
+                $respuesta['consulta'] = $smt['consulta'];
             } else {
-                $pedidosPrincipal = array();
+                $albaranes = array();
                 while ($result = $smt->fetch_assoc()) {
-                    array_push($pedidosPrincipal, $result);
+                    array_push($albaranes, $result);
                 }
-
-                $pedido['datos'] = $pedidosPrincipal;
+                $respuesta['datos'] = $albaranes;
+                $respuesta['Nitems'] = count($albaranes);
             }
         }
-        return $pedido;
+        return $respuesta;
     }
 
     public function modificarFecha($idReal, $fecha) {

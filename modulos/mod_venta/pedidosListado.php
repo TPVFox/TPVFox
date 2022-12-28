@@ -1,113 +1,109 @@
-
-
 <?php
-    include_once './../../inicial.php';
-    include_once $URLCom.'/modulos/mod_venta/funciones.php';
-	include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-    include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
-    include_once $URLCom.'/clases/cliente.php';
+include_once './../../inicial.php';
+include_once $URLCom.'/modulos/mod_venta/funciones.php';
+include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
+include_once $URLCom.'/controllers/Controladores.php';
+include_once $URLCom.'/clases/cliente.php';
 include_once ($URLCom.'/controllers/parametros.php');
+include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
 //Carga de clases necesarias
 $ClasesParametros = new ClaseParametros('parametros.xml');
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
 // Creamos el objeto de pedido
-	$Cpedido=new PedidosVentas($BDTpv);
-	$Ccliente=new Cliente($BDTpv);
-	$todoTemporal=$Cpedido->TodosTemporal();
-	if (isset($todoTemporal['error'])){
-        
-	$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $todoTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-	}
-	$todoTemporal=array_reverse($todoTemporal);
-	$Tienda = $_SESSION['tiendaTpv'];
-		
-	// ===========    Paginacion  ====================== //
-	$NPaginado = new PluginClasePaginacion(__FILE__);
-	$campos = array( 'a.Numpedcli','b.Nombre');
+$Cpedido=new PedidosVentas($BDTpv);
+$Ccliente=new Cliente($BDTpv);
+$todoTemporal=$Cpedido->TodosTemporal();
+if (isset($todoTemporal['error'])){
+    
+$errores[0]=array ( 'tipo'=>'Danger!',
+                             'dato' => $todoTemporal['consulta'],
+                             'class'=>'alert alert-danger',
+                             'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                             );
+}
+$todoTemporal=array_reverse($todoTemporal);
+$Tienda = $_SESSION['tiendaTpv'];
+    
+// ===========    Paginacion  ====================== //
+$NPaginado = new PluginClasePaginacion(__FILE__);
+$campos = array( 'a.Numpedcli','b.Nombre');
 
-	$NPaginado->SetCamposControler($campos);
-	$NPaginado->SetOrderConsulta('a.Numpedcli');
-	// --- Ahora contamos registro que hay para es filtro --- //
-	$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+$NPaginado->SetCamposControler($campos);
+$NPaginado->SetOrderConsulta('a.Numpedcli');
+// --- Ahora contamos registro que hay para es filtro --- //
+$filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 
-	$CantidadRegistros=0;
-	// Obtenemos la cantidad registros 
-	$p= $Cpedido->TodosPedidosFiltro($filtro);
-	$CantidadRegistros = count($p['Items']);
-	
-	// --- Ahora envio a NPaginado la cantidad registros --- //
-	$NPaginado->SetCantidadRegistros($CantidadRegistros);
-	$htmlPG = $NPaginado->htmlPaginado();
-	//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-	$p=$Cpedido->TodosPedidosFiltro($filtro.$NPaginado->GetLimitConsulta());
-	$pedidosDef=$p['Items'];
-	if (isset($p['error'])){
-	$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $p['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-	}
-	if (count($pedidosDef)==0){
-		$errores[0]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes pedidos guardados!'
-								 );
-	}
+$CantidadRegistros=0;
+// Obtenemos la cantidad registros 
+$p= $Cpedido->TodosPedidosFiltro($filtro);
+$CantidadRegistros = count($p['Items']);
+
+// --- Ahora envio a NPaginado la cantidad registros --- //
+$NPaginado->SetCantidadRegistros($CantidadRegistros);
+$htmlPG = $NPaginado->htmlPaginado();
+//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+$p=$Cpedido->TodosPedidosFiltro($filtro.$NPaginado->GetLimitConsulta());
+$pedidosDef=$p['Items'];
+if (isset($p['error'])){
+    $errores[0]=array ( 'tipo'=>'Danger!',
+                             'dato' => $p['consulta'],
+                             'class'=>'alert alert-danger',
+                             'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                             );
+}
+if (count($pedidosDef)==0){
+    $errores[0]=array ( 'tipo'=>'Warning!',
+                             'dato' => '',
+                             'class'=>'alert alert-warning',
+                             'mensaje' => 'No tienes pedidos guardados!'
+                             );
+}
 ?>
 <!DOCTYPE html>
 <html>
 <head>
  <?php include_once $URLCom.'/head.php';?>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>    
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
-
 <body>
-
 <?php
- include_once $URLCom.'/modulos/mod_menu/menu.php';
-	if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
-				. '</div>';
-				if ($error['tipo']=='Danger!'){
-					exit;
-				}
-		}
-	}
-	?>
-		<div class="container">
-		<div class="row">
-			<div class="col-md-12 text-center">
-					<h2>Pedidos de clientes </h2>
-				</div>
-					<nav class="col-sm-3">
-				<h4> Pedidos</h4>
-				<h5> Opciones para una selección</h5>
-				<ul class="nav nav-pills nav-stacked"> 
-				<?php 
-					if($ClasePermisos->getAccion("Crear")==1){
-                        echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a></li>';
-                    }
-                    if($ClasePermisos->getAccion("Modificar")==1){
-                        echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'pedido'."'".');";>Modificar</a></li>';
-                    }
-					?>
-				</ul>	
-					<div class="col-md-12">
-		<h4 class="text-center"> Pedidos Abiertos</h4>
-		<table class="table table-striped table-hover">
+include_once $URLCom.'/modulos/mod_menu/menu.php';
+if (isset($errores)){
+    foreach($errores as $error){
+            echo '<div class="'.$error['class'].'">'
+            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+            . '</div>';
+            if ($error['tipo']=='Danger!'){
+                exit;
+            }
+    }
+}
+?>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12 text-center">
+            <h2>Pedidos de clientes </h2>
+        </div>
+        <nav class="col-sm-3">
+            <h4> Pedidos</h4>
+            <h5> Opciones para una selección</h5>
+            <ul class="nav nav-pills nav-stacked"> 
+            <?php 
+                if($ClasePermisos->getAccion("Crear")==1){
+                    echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a></li>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                     echo '<li><a href="#section2" onclick="metodoClick('."'".'editar'."'".','."'".'pedido'."'".');";>Modificar</a></li>';
+                }
+            ?>
+            </ul>	
+            <div class="col-md-12">
+            <h4 class="text-center"> Pedidos Abiertos</h4>
+            <table class="table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Nº Ped</th>
@@ -151,26 +147,26 @@ $Controler = new ControladorComun;
 				}
 				?>
 			</tbody>
-		</table>
-		</div>
-			</nav>
-			<div class="col-md-9">
-					<p>
-					 -Pedidos encontrados BD local filtrados:
-						<?php echo $CantidadRegistros; ?>
-					</p>
-					<?php 	// Mostramos paginacion 
-						echo $htmlPG;
-				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
-					?>
-					<form action="./pedidosListado.php" method="GET" name="formBuscar">
-					<div class="form-group ClaseBuscar">
-                    <label>Buscar por nombre de cliente o número de pedido</label>
-						<input type="text" name="buscar" value="">
-						<input type="submit" value="buscar">
-					</div>
-					</form>
-					<div>
+            </table>
+            </div>
+        </nav>
+        <div class="col-md-9">
+            <p>
+             -Pedidos encontrados BD local filtrados:
+                <?php echo $CantidadRegistros; ?>
+            </p>
+            <?php 	// Mostramos paginacion 
+                echo $htmlPG;
+                //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
+            ?>
+            <form action="./pedidosListado.php" method="GET" name="formBuscar">
+                <div class="form-group ClaseBuscar">
+                <label>Buscar por nombre de cliente o número de pedido</label>
+                    <input type="text" name="buscar" value="">
+                    <input type="submit" value="buscar">
+                </div>
+            </form>
+            <div>
 			<table class="table table-bordered table-hover">
 				<thead>
 					<tr>
@@ -184,19 +180,15 @@ $Controler = new ControladorComun;
 						<th>IVA</th>
 						<th>TOTAL</th>
 						<th>ESTADO</th>
-						
 					</tr>
 				</thead>
 				<tbody>
 					<?php 
-					$checkUser = 0;
-					foreach($pedidosDef as $pedido){
-						$checkUser = $checkUser + 1;
-						
+					foreach($pedidosDef as $k=>$pedido){
 						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
-						<td class="rowUsuario"><input type="checkbox" name="checkUsu<?php echo $checkUser;?>" value="<?php echo $pedido['id'];?>">
+                            <td class="row"><input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $pedido['id'];?>">
                          <td>
                              <?php 
                               if($ClasePermisos->getAccion("Modificar")==1){
@@ -228,27 +220,21 @@ $Controler = new ControladorComun;
 							<?php
 						}else{
 							$tienda=json_encode($_SESSION['tiendaTpv']);
-							
 							?>
 						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $tienda;?>)'></a></td>
 
-							
 							<?php
 						}
-						
 						?>
-						
 						</tr>
 						<?php
 					}
 					?>
-				
-				
-				</tbody>
-				</table>
+                </tbody>
+            </table>
 			</div>
 		</div>
 	</div>
-    </div>
-	</body>
+</div>
+</body>
 </html>
