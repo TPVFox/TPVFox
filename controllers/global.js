@@ -38,26 +38,22 @@ function VerIdSeleccionado (){
 function leerChecked(clase) {
     // @ Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
     // @ Objetivo
-    //  Obtener los id checks que tenemos seleccionados con la clase indicada,
+    //  Obtener los checks que tenemos seleccionados con la clase indicada,
     //  esto implica que tenemos que poner la misma clase a todos los checks queremos controlar.
     // @ Parametros:
     //      clase -> (string) Nombre de la clase queremos buscar los ids de los checks seleccionados.
-    // @ Devuelve -> (array) Nombres completos de los ids que tiene marcado el check.
+    // @ Devuelve -> (array) Todos objecto check, para luego puedas tratarlos, obtener lo valores necesites.
     
     var checks = [];
     $('.' + clase).each(function (indice) {
         indice++;
         //todos los que sean de la clase row1
-        console.log($(this)[0]);
         if ($(this)[0].checked) {
             // cant cuenta los que está seleccionado.
-            var id = $(this)[0].id;
-            checks.push(id);
+            checks.push(this);
         }
 
     });
-   console.log('ID de checks seleccionados:'+checks);
-
     return checks;
 }
 

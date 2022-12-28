@@ -4,18 +4,8 @@
 	 *  @copyright  Copyright (C) 2017 - 2018  Soluciones Vigo.
 	 *  @license    GNU General Public License version 2 or later; see LICENSE.txt
 	 * */
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-<?php
-	include 'head.php';?>
-</head>
-<body>
-	<?php 
-    include_once $URLCom.'/modulos/mod_menu/menu.php';
-	$titulos=array('Almacén', 'Compras', 'Ventas', 'Tickets', 'Contactos', 'Sistema');
+    include_once '/inicial.php';
+    $titulos=array('Almacén', 'Compras', 'Ventas', 'Tickets', 'Contactos', 'Sistema');
 	$links=array( '0'=>array(
 					'icono'=>'css/img/productosP.png',
 					'link'=>'modulos/mod_producto/ListaProductos.php',
@@ -144,8 +134,17 @@
 					),
 				);
 	?>
-	
-	
+
+<!DOCTYPE html>
+<html>
+<head>
+<?php
+	include 'head.php';?>
+</head>
+<body>
+	<?php 
+    include_once $URLCom.'/modulos/mod_menu/menu.php';
+    ?>
 		<div class="container">
 			<div class="col-md-12 row">
 				<h2 class="text-center">Accesos Directos</h2>

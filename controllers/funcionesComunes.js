@@ -76,29 +76,4 @@ function bucleProceso (lineaF,linea,fichero) {
 	}
 }
 
-function consultaDatos(linea,lineaF,fichero) {
-	// Script que utilizamos para ejecutar funcion de php , para importar datos a MySql.
-	// Recuerda que importamos a BD y tabla temporar, me falta un proceso importación final.
-	var parametros = {
-	"lineaI" : linea,
-	"lineaF" : lineaF,
-	"Fichero" : fichero
-			};
-	$.ajax({
-			async:false, // Carga peticiones de forma sincrono , no asincrono.
-            //cache:false, // No lo texteo lo suficiente , pero pienso que repite registros y lo hace mal...( por defecto es true)
-			data:  parametros,
-			url:   'msql_csv.php',
-			type:  'post',
-			beforeSend: function () {
-					$("#resultado").html('Subiendo linea '+ linea + 'hasta '+ lineaF + ', espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
-			},
-			success:  function (response) {
-					$("#resultado").html(response);
-					console.log("Responde");
-					console.log(response);
-
-			}
-		});
-}
 
