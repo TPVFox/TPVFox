@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 
     include_once './../../inicial.php';
-    include $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_venta/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
 	include_once ($URLCom.'/controllers/parametros.php');
@@ -156,6 +152,10 @@
 $titulo .= ' '.$textoNum.': '.$estado;
 
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include $URLCom.'/head.php';?>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
@@ -247,7 +247,7 @@ if (isset($_GET['tActual'])){
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
                     <div class="col-md-8" >
-                        <a  href="./albaranesListado.php">Volver Atrás</a>
+            <?php echo $Controler->getHtmlLinkVolver('Volver');
                         <input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
                         <?php 
                             if($idAlbaran>0){

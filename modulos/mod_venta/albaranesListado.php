@@ -64,21 +64,24 @@ if (isset($errores)){
 <div class="container">
     <div class="row">
         <div class="col-md-12 text-center">
-            <h2>Ventas: Editar y Añadir albaranes </h2>
+            <h2>Albaranes de Clientes</h2>
         </div>
-        <nav class="col-sm-4">
-			<h4> Albaranes </h4>
-			<h5> Opciones para una selección</h5>
-			<ul class="nav nav-pills nav-stacked"> 
-                <?php 
+        <div class="col-sm-3">
+            <h4> Opciones generales</h4>
+            <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                     echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarAlbaran'."'".', '."'".'albaran'."'".');";>Añadir</a></li>';
+                  echo '<a class="btn btn-default" href="./albaran.php">Añadir</a>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'albaran'."'".')">Ver</button>';
                 }
                 if($ClasePermisos->getAccion("Modificar")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'Ver'."'".','."'".'albaran'."'".');";>Modificar</a></li>';
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'albaran'."'".')">Modificar</button>';
                 }
-                ?>
-			</ul>	
+                if($ClasePermisos->getAccion("CambiarEstadoAlbaran")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'albaranes'."'".')">Cambiar estado</button>';
+                }
+            ?>
             <div class="col-md-12">
             <h4 class="text-center"> Albaranes Abiertos</h4>
             <table class="table table-striped table-hover">
@@ -114,8 +117,8 @@ if (isset($errores)){
 			</tbody>
             </table>
             </div>
-        </nav>
-        <div class="col-md-8">
+        </div>
+        <div class="col-md-9">
             <p>
              -Albaranes encontrados BD local filtrados:
                 <?php echo $CantidadRegistros; ?>
