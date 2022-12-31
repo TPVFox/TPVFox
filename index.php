@@ -4,7 +4,7 @@
 	 *  @copyright  Copyright (C) 2017 - 2018  Soluciones Vigo.
 	 *  @license    GNU General Public License version 2 or later; see LICENSE.txt
 	 * */
-    include_once '/inicial.php';
+    include_once './inicial.php';
     $titulos=array('Almacén', 'Compras', 'Ventas', 'Tickets', 'Contactos', 'Sistema');
 	$links=array( '0'=>array(
 					'icono'=>'css/img/productosP.png',

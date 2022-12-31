@@ -100,7 +100,7 @@ class FacturasVentas extends ClaseVentas{
         // Compruebo que solo hay un factura temporal para ese idFactura y ademas si envio temporal compruebo que sea al mismo 
         // @Devuelvo:
         //  Array con o sin errores.
-        $errores = array();
+        $repuesta = array();
         if ($idFactura > 0){
             $posible_duplicado = $this->TodosTemporal($idFactura);
             if (!isset($posible_duplicado['error'])){
@@ -116,20 +116,20 @@ class FacturasVentas extends ClaseVentas{
                     } else {
                         if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
                             // Solo devuelvo idTemporal si id > 0    
-                            $errores['idTemporal'] = $posible_duplicado[0]['id'];
+                            $respuesta['idTemporal'] = $posible_duplicado[0]['id'];
                         }
                     }
                 }
                 if ($OK !== 'OK' ){
                     // Existe un registro o el que existe es distinto al actual.
-                    array_push($errores,$this->montarAdvertencia('danger',
+                    array_push($respuesta['error'],$this->montarAdvertencia('danger',
                                          '<strong>Ojo posible duplicidad en factura temporal !! </strong>  <br> '.$OK
                                         )
                             );
                 }
             }
         }
-        return $errores;
+        return $respuesta;
     }
 
     

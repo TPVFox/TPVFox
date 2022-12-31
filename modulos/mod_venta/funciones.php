@@ -425,7 +425,7 @@ function htmlLineaAdjunto($adjunto, $dedonde){
         $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
     }else{
         $classtr = ' class="tachado" ';
-        $funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
+        $funcOnclick = ' retornarAdjunto('.$adjunto['NumAdjunto'].', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
         $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
     }
     $html .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';

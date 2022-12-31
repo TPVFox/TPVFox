@@ -84,7 +84,7 @@
                 // Comprobamos temporales para ese idFactura y obtenemos idTemporal si tiene.
                 $t= $Cfaccli->TodosTemporal($idFactura);
                 if (count($t) > 0){
-                    // Existe temporal o temporales
+                    // Existe temporal o temporales convertimos accion en ver
                     $accion = 'ver';
                     if (count($t) >1){
                         // Si hay mas de un temporal ejecutamos comprobaciones para informar del error.
@@ -92,9 +92,8 @@
                                          '<strong>Existen varios temporales de esta factura !! </strong>  <br> '
                                         );
                     } else {
-                        $idTemporal = $t['0']['id']; // Si ponemos valor idTemporal podemos comprobar cuando editamos que estado esta guardado
                         $errores[] =$Cfaccli->montarAdvertencia('warning',
-                                         '<strong>Existe un temporal</strong> no permitimos editarlo desde aquí, si quieres editarlo haz <a href="factura.php?tActual='. $idTemporal.'">clic en el temporal</a> '
+                                         '<strong>Existe un temporal</strong> no permitimos editarlo desde aquí, si quieres editarlo haz <a href="factura.php?tActual='. $t['0']['id'].'">clic en el temporal</a> '
                                         );
                     }
                 }
@@ -117,7 +116,7 @@
         if (isset($datosFactura['Numfaccli'])){
             $idFactura = $datosFactura['Numfaccli'];
         }
-    } 
+    }
 	 // ---- FACTURA YA CREADA  -------  //
 	if ($idFactura >0 ){
 		$datosFactura_guardada              = $Cfaccli->datosFactura($idFactura);//Extraemos los datos de la factura
@@ -129,6 +128,8 @@
 		$incidenciasAdjuntas                = incidenciasAdjuntas($idFactura, "mod_ventas", $BDTpv, "factura");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         if ($idTemporal == 0){
+            // Comprobamos si esta factura tiene temporales.
+            
             // Si no es temporal, entonces tenemos crear $datosFactura.
             $datosFactura = $datosFactura_guardada;
             $estado=$datosFactura['estado'];
@@ -143,10 +144,9 @@
         $productos = json_decode($datosFactura['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosFactura['Fecha']), 'd-m-Y');
     }
-    //~ echo '<pre>';
-    //~ print_r($datosFactura['Albaranes']);;
-    //~ echo '</pre>';
+
     // ---- Compromamos si existe la factura que el estado sea Sin guardar --- //
+    
     if ($idFactura >0){
         $estado = $Cfaccli->getEstado($idFactura);
         if ($idTemporal >0 &&  $estado !='Sin guardar'){
@@ -261,17 +261,18 @@
             //~ }
         }
     }
-    // --- Montamos html_albaranes y convertimos albaranes a adjunto --- //
+    // --- Montamos html_adjuntos y variable adjunto que utilizamos para montar variable JS --- //
     $html_adjuntos= '';
+    $adjuntos = array();
     foreach ($albaranes as $k=>$albaran){
         if($idTemporal == 0){
             $albaran = prepararCaberaAdjuntoTemporal($albaran,$dedonde);
             //Tengo añadirle el numero fila
             $albaran['nfila'] =intval($k)+1; // Sumamos uno ya que empieza en 0
         }
+        array_push($adjuntos,$albaran);
         $html_adjuntos .= htmlLineaAdjunto($albaran, "factura");
     }
-
     // ---  Controlamos cuando poner solo lectura o display none los campos --- //
     $display = '';
     $readonly = '';
@@ -320,7 +321,7 @@
 		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente;?>;
 	var productos = []; 
-	var albaranes =[];
+	var adjuntos =[];
 </script>
 <?php 
 if ($idTemporal > 0 || $idFactura > 0 ){?>
@@ -329,17 +330,16 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
         //Introducimos los productos a la cabecera productos
        
 		if (isset($productos)){
-            
 			foreach($productos as $i =>$product){?>	
 				datos=<?php echo json_encode($product); ?>;
 				productos.push(datos);
             <?php 
             }
 		}
-		if (isset($albaranes)){
-			foreach ($albaranes as $alb){?>
-				datos=<?php echo json_encode($alb);?>;
-				albaranes.push(datos);
+		if (isset($adjuntos)){
+			foreach ($adjuntos as $adjunto){?>
+				datos=<?php echo json_encode($adjunto);?>;
+				adjuntos.push(datos);
             <?php
 			}
 		}
@@ -379,6 +379,7 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
 		}
         // Por si falta maquetar errores.
         echo '<pre>';
+        print_r('Errores<br/>');
         print_r($errores);
         echo '</pre>';
 	}

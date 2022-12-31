@@ -227,7 +227,7 @@ if (isset($_GET['tActual'])){
 		<?php
 	 if (isset($_POST['Cancelar'])){
 		  ?>
-		 mensajeCancelar(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+		 cancelarTemporal(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
 		
 		 
 		  <?php
