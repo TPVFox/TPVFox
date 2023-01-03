@@ -247,7 +247,7 @@ if (isset($_GET['tActual'])){
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
                     <div class="col-md-8" >
-            <?php echo $Controler->getHtmlLinkVolver('Volver');
+            <?php echo $Controler->getHtmlLinkVolver('Volver');?>
                         <input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
                         <?php 
                             if($idAlbaran>0){
@@ -375,7 +375,7 @@ if (isset($_GET['tActual'])){
 			if (isset($productos)){
 				$productos=array_reverse($productos);
 				foreach ( $productos as $producto){
-				$html=htmlLineaPedidoAlbaran($producto, "albaran");
+				$html=htmlLineaProductos($producto, "albaran");
 				echo $html;
 			}
 		

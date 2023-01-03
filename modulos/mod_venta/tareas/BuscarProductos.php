@@ -12,7 +12,7 @@
 				$respuesta['Nitems']=$res['Nitems'];
 			}else{
 				// Cambio estado para devolver que es listado.
-				$respuesta['listado']= htmlProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv, $idCliente);
+				$respuesta['listado']= htmlListadoProductos($res['datos'],$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv, $idCliente);
 				$respuesta['Estado'] = 'Listado';
 				$respuesta['datos']=$res['datos'];
 			}

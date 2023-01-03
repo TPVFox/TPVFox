@@ -119,12 +119,7 @@ function AgregarFilaProductosAl(productosAl, dedonde='', cabecera ='NO'){
 			var resultado =  $.parseJSON(response); 
 			var nuevafila = resultado['html'];
 			$("#tabla").prepend(nuevafila);
-			if(dedonde=="factura"){
-				if(adjuntos.length>0){
-				bloquearInput();
-			}
-			}
-		}
+        }
 	});
 }
 
@@ -223,15 +218,7 @@ function addTemporal(dedonde){
 	});
 }
 
-function bloquearInput(){
-	//@Objetivo:
-	//Blosquear la linea de insertción de inputs y los input de unidades para que no se puedan modificar
-	console.log("Elementos js");
-	$('#Row0').css('display', 'none');
-	$('.unidad').attr("readonly","readonly");
-}
-
-function buscarAdjunto(dedonde, valor=''){
+function buscarAdjunto(dedonde,valor=''){
 	//@ Objetivos:
 	//  Buscar los pedidos de un cliente que tenga el estado guardado
     //@ Parametros
@@ -241,7 +228,7 @@ function buscarAdjunto(dedonde, valor=''){
     // Controlamos
 
 	var parametros = {
-		"pulsado"    : 'buscarAlbaran',
+		"pulsado"    : 'buscarAdjunto',
 		"busqueda" : valor,
 		"idCliente":cabecera.idCliente,
         "dedonde": dedonde
@@ -257,11 +244,11 @@ function buscarAdjunto(dedonde, valor=''){
 			console.log('Llegue devuelta respuesta de buscar albaran');
 			var resultado =  $.parseJSON(response); 
 			var encontrados = resultado.encontrados;
-			var HtmlAdjuntos=resultado.html;   //$resultado['html'] de montaje html
+			var HtmlAdjuntos=resultado.html;   //$resultado['html'] de modal
 			if(resultado.error){
 				alert('Error de sql: '+resultado.consulta);
 			}else{
-				if (resultado.Nitems>1 || resultado.Nitems== 0){
+				if (resultado.html){
                  //Si hay mas un dato o 0 entonces abrimos modal.
 					var titulo = 'Listado Albaranes ';
 					abrirModal(titulo, HtmlAdjuntos);
@@ -272,7 +259,7 @@ function buscarAdjunto(dedonde, valor=''){
 						var bandera=0;
 						for(i=0; i<adjuntos.length; i++){//recorre todo el array de arrays de pedidos
 							var numeroAdjunto=adjuntos[i].NumAdjunto;
-							var numeroNuevo=resultado['datos'].NumAdjunto;
+							var numeroNuevo=resultado['cabecera_adjunto'].NumAdjunto;
 							if (numeroAdjunto == numeroNuevo){
 								bandera=bandera+1;
 							}
@@ -280,10 +267,10 @@ function buscarAdjunto(dedonde, valor=''){
 						if (bandera==0){
                             // Si no es repetido el adjunto.
                             // -- Añadimos fila adjunto y cambiamos estado.  --//
-							resultado['datos'].nfila=parseInt(adjuntos.length)+1;;
-							adjuntos.push(resultado['datos']);
-                            modificarEstado("albaran", "Facturado", resultado['datos'].NumAdjunto);
-							AgregarFilaAdjunto(resultado['datos'], dedonde);
+							resultado['cabecera_adjunto'].nfila=parseInt(adjuntos.length)+1;;
+							adjuntos.push(resultado['cabecera_adjunto']);
+                            modificarEstado("albaran", "Facturado", resultado['cabecera_adjunto'].NumAdjunto);
+							AgregarFilaAdjunto(resultado['cabecera_adjunto'], dedonde);
                             // -- Añadimos productos y lineas de productos de ese adjunto. --//
 							productosAdd=resultado.productos;
 							var numFila=productos.length+1;
@@ -296,10 +283,8 @@ function buscarAdjunto(dedonde, valor=''){
 							AgregarFilaProductosAl(resultado.productos, dedonde,cabecera);
                             addTemporal(dedonde);
 						}else{
-							alert("Ya has introducido ese "+dedonde);
+							alert("HUBO UN ERROR!! ,Este adjunto ya sido introducido en este "+dedonde);
 						}
-					}else{
-						alert("No hay resultado");
 					}
 				}
 			}
@@ -381,7 +366,7 @@ function buscarDatosAlbaran(NumAlbaran){
 	//@Objetivo:
 	//Cuando se selecciona un albaran se llama a la función buscarAlbaran con los datos principales
 	console.log("Estoy en buscar datos albaran");
-	buscarAlbaran("factura", "numAlbaran", NumAlbaran);
+	buscarAdjunto("factura", NumAlbaran);
 	cerrarPopUp();
 }
 
@@ -894,14 +879,12 @@ function retornarAdjunto(numRegistro, dedonde, nfila){
 	//@Objetivo:
 	//retornar un adjunto eliminado , modifica el estado del adjunto a facturado y añade los productos de ese adjunto
 	console.log("entre en retornar fila adjunto");
-    alert ('NumRegistro:'+numRegistro);
 	var estado="Guardado";
 	var line;
     // Recuerda que el nfila empieza 1 y num de array 0
     var num = nfila -1;
 	if (dedonde=="factura"){
 		line = "#lineaP" + adjuntos[num].nfila;
-        alert ('line:'+num);
 		adjuntos[num].estado= 'Activo';
 	}
 	if (dedonde=="albaran"){

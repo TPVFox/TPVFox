@@ -348,6 +348,22 @@ class ClaseCliente extends TFModelo{
         return $respuesta;
 
     }
+    public function getVencimiento($id){
+        // @ Objetivo:
+        // - Obtener dias de un vencimiento
+        // @ Respuesta
+        // Devolvemos un int, 0 si no hay respuesta.
+        $respuesta = 0;
+        $CtiposVen=new TiposVencimientos();
+        $datos=$CtiposVen->datosPrincipal($id);
+    
+        if (isset($datos['0']['dias'])){
+            $respuesta = $datos['0']['dias'];
+        }
+        return $respuesta;
+
+    }
+
 
     public function getFormasPago(){
         // @Objetivo:

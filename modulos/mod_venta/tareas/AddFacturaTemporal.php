@@ -21,7 +21,6 @@
     }
     $respuesta=array();
     $existe=0;
-    $res=$idFacturaTemp;
     if ($idFacturaTemp>0){
         $rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idFacturaTemp, $productos);
         if(isset($rest['error'])){
@@ -39,8 +38,7 @@
         }else{
             $existe=0;
             $pro=$rest['productos'];
-            $res=$rest['id'];
-            $idFacturaTemp=$res;
+            $idFacturaTemp=$rest['id'];
         }
         
     }
@@ -57,7 +55,7 @@
         $total=round($CalculoTotales['total'],2);
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
-        $modTotal=$CFac->modTotales($res, $respuesta['total'], $CalculoTotales['subivas']);
+        $modTotal=$CFac->modTotales($idFacturaTemp, $respuesta['total'], $CalculoTotales['subivas']);
         if(isset($modTotal['error'])){
             $respuesta['error']=$modTotal['error'];
             $respuesta['consulta']=$modTotal['consulta'];
@@ -66,7 +64,7 @@
         $respuesta['htmlTabla']=$htmlTotales['html'];
         
     }
-    $respuesta['id']=$res;
+    $respuesta['id']=$idFacturaTemp;
     $respuesta['existe']=$existe;
     $respuesta['productos']=$_POST['productos'];
 ?>

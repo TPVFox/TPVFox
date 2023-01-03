@@ -1,8 +1,6 @@
 <?php
 // Clase base para modulo de compras.
-include_once $URLCom.'/clases/articulos.php';
-
-class ClaseVentas{
+class ClaseVentas {
 	
 	public $db; //(Objeto) Es la conexion;
 	public $affected_rows; // Numero filas que afecto la consulta, se guarda cuando hacemos una consulta.

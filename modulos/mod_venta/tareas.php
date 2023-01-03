@@ -81,8 +81,8 @@ switch ($pulsado) {
             include_once $URLCom.'/modulos/mod_venta/tareas/BuscarPedido.php';
 		break;
 		
-		case 'buscarAlbaran':
-            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarAlbaran.php';
+		case 'buscarAdjunto':
+            include_once $URLCom.'/modulos/mod_venta/tareas/BuscarAdjunto.php';
 		break;
         
         case 'cancelarTemporal':
@@ -119,9 +119,10 @@ switch ($pulsado) {
 		break;
 		
         case 'htmlAgregarFilaAdjunto':
-		//Objetivo:
-		//Devuelve el html de la fila del pedido 
-			$html=htmlLineaAdjunto($_POST['datos'], $_POST['dedonde']);
+            // @ Objetivo:
+            // Devuelve el html de la fila del pedido y permitimos borrar fila,
+            // ya que si permitimos añadir, tambien permitimos eliminar.
+			$html=htmlLineaAdjunto($_POST['datos'], $_POST['dedonde'],'editar');
 			$respuesta['html']=$html;
 		break;
 		
@@ -134,12 +135,12 @@ switch ($pulsado) {
 		 foreach($productos as $producto){
 			if (!is_array($producto)){
 				 // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
-				 $res=htmlLineaPedidoAlbaran($productos, $dedonde);
+				 $res=htmlLineaProductos($productos, $dedonde);
 				 $respuesta['html']=$res;
 				break;
 			}else{
 				//Como es un array de productos ejecutamos foreach
-				$res=htmlLineaPedidoAlbaran($producto, $dedonde);
+				$res=htmlLineaProductos($producto, $dedonde);
 				$respuesta['html'].=$res;
 			}
 			 $respuesta['productos']=$productos;

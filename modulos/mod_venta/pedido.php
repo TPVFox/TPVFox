@@ -434,7 +434,7 @@ if ($idCliente===0){
 		
 			if (isset($productos)){
 			foreach (array_reverse($productos) as $producto){
-				$html=htmlLineaPedidoAlbaran($producto,"pedidos");
+				$html=htmlLineaProductos($producto,"pedidos");
 				echo $html;
 			}
 			}

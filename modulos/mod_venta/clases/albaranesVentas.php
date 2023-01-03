@@ -401,6 +401,7 @@ class AlbaranesVentas extends ClaseVentas {
     }
 
     public function AlbaranClienteGuardado($busqueda, $idCliente) {
+        $respuesta = array();
         $respuesta['busqueda'] = $busqueda;
         if ($busqueda > 0) {
             $sql = 'select  Numalbcli , id , Fecha  , total from albclit where
@@ -411,7 +412,7 @@ class AlbaranesVentas extends ClaseVentas {
                 $respuesta['consulta'] = $smt['consulta'];
             } else {
                 if ($result = $smt->fetch_assoc()) {
-                    $respuesta = $result;
+                    $respuesta['datos']['0'] = $result;
                 }
                 $respuesta['Nitems'] = 1;
             }

@@ -239,7 +239,7 @@ class FacturasVentas extends ClaseVentas{
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$PrepAlbaranes = $db->real_escape_string($UnicoCampoAlbaranes);
 		$sql='INSERT INTO faccliltemporales ( idUsuario , idTienda ,
-		 Fecha, fechaInicio,idCliente, Albaranes, Productos ) VALUES ('
+		 fecha, fechaInicio,idCliente, Albaranes, Productos ) VALUES ('
 		 .$idUsuario.' , '.$idTienda.' , "'.$fecha.'",NOW(), '
 		 .$idCliente.' , '."'".$PrepAlbaranes."', '".$PrepProductos."'".')';
 		 $smt=$this->consulta($sql);
@@ -266,11 +266,11 @@ class FacturasVentas extends ClaseVentas{
 				return $respuesta;
 		}
 	}
-	public function modTotales($res, $total, $totalivas){
+	public function modTotales($idTemporal, $total, $totalivas){
 		//@Objetivo:
 		//Modificar el total de una factura temporal
 		$db=$this->db;
-		$sql='UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$res;
+		$sql='UPDATE faccliltemporales set total='.$total .' , total_ivas='.$totalivas .' where id='.$idTemporal;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
@@ -335,7 +335,7 @@ class FacturasVentas extends ClaseVentas{
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
-                error_log('facturaVentas en AddFacturaGuardado1:'.implode(' ',$smt['error']));
+                error_log('facturaVentas en AddFacturaGuardado_1:'.json_encode($smt['error']));
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 			}else{
@@ -344,15 +344,15 @@ class FacturasVentas extends ClaseVentas{
 		}else{
 			$sql='INSERT INTO facclit (Numtemp_faccli , Fecha, 
 			idTienda , idUsuario , idCliente , estado , total, fechaCreacion,
-			 formaPago, fechaVencimiento, fechaModificacion) VALUES ('
+			fechaVencimiento, fechaModificacion) VALUES ('
 			 .$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']
 			 . ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado']
-			 .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", "'.$datos['formapago']
-			 .'", "'.$datos['fechaVencimiento'].'" ,  "'.$datos['fechaModificacion'].'")';
+			 .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", "'.$datos['fechaVencimiento']
+             .'" ,  "'.$datos['fechaModificacion'].'")';
 			 $smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
-                error_log('facturaVentas en AddFacturaGuardado2:'.$smt['error']);
+                error_log('facturaVentas en AddFacturaGuardado_2:'.$smt['error']);
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 			}else{
@@ -360,6 +360,7 @@ class FacturasVentas extends ClaseVentas{
 				$sql='UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id;
 				$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
+                        error_log('facturaVentas en AddFacturaGuardado_3:'.$smt['error']);
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
 						
@@ -382,7 +383,6 @@ class FacturasVentas extends ClaseVentas{
 						$numAl=$prod['NumalbCli'];
 					}
 				}
-				
 				$sql='INSERT INTO facclilinea (idfaccli  , Numfaccli ,
 				 idArticulo , cref, ccodbar, cdetalle, ncant, nunidades, precioCiva, 
 				 iva, nfila, estadoLinea, NumalbCli, pvpSiva ) VALUES ('.$id.', '.$id.' , '
@@ -392,13 +392,13 @@ class FacturasVentas extends ClaseVentas{
 				 .'" , '.$numAl.', '.$prod['pvpSiva'].')' ;
 					$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
+                        error_log('facturaVentas en AddFacturaGuardado_4:'.$smt['error']);
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
 						break;
 					}
 					$i++;
 				}
-				
 			}
 		
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
@@ -407,6 +407,7 @@ class FacturasVentas extends ClaseVentas{
 			.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
+                        error_log('facturaVentas en AddFacturaGuardado_5:'.$smt['error']);
 						$respuesta['error']=$smt['error'];
 						$respuesta['consulta']=$smt['consulta'];
 						break;
@@ -414,32 +415,20 @@ class FacturasVentas extends ClaseVentas{
 		}
 		$albaranes = json_decode($datos['albaranes'], true); 
 		if (isset($albaranes)){
-		foreach ($albaranes as $albaran){
-			if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
-					$sql='INSERT INTO albclifac (idFactura  ,  numFactura  
-					 , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
-					 .$albaran['idAlbaran'].' , '.$albaran['Numalbcli'].')';
-					$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
-						break;
-					}
-			}
-		}
-		}
-		if(is_array($datos['importes'])){
-			foreach ($datos['importes'] as $importe){
-				$sql='INSERT INTO fac_cobros (idFactura, idFormasPago, FechaPago, 
-				importe, Referencia) VALUES ('.$id.' , '.$importe['forma'].' , "'
-				.$importe['fecha'].'", '.$importe['importe'].', '."'".$importe['referencia']."'".')';
-				$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
-						break;
-					}
-			}
+            foreach ($albaranes as $albaran){
+                if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
+                        $sql='INSERT INTO albclifac (idFactura  ,  numFactura  
+                         , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
+                         .$albaran['NumAdjunto'].' , '.$albaran['NumAdjunto'].')';
+                        $smt=$this->consulta($sql);
+                        if (gettype($smt)==='array'){
+                            error_log('facturaVentas en AddFacturaGuardado_6:'.$smt['error']);
+                            $respuesta['error']=$smt['error'];
+                            $respuesta['consulta']=$smt['consulta'];
+                            break;
+                        }
+                }
+            }
 		}
 		return $respuesta;
 	}
@@ -453,18 +442,6 @@ class FacturasVentas extends ClaseVentas{
 			$factura=$result;
 		}
 		return $factura;
-	}
-	public function formasVencimientoTemporal($idTemporal, $json){
-		//@Objetivo:
-		//Modificar la forma de vencimiento de una factura temporal
-		$db=$this->db;
-		$sql='UPDATE faccliltemporales set FacCobros='."'".$json."'".' where id='.$idTemporal;
-		$smt=$this->consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-				return $respuesta;
-		}
 	}
 
 	public function modificarFechaFactura($idFactura, $Fecha, $formaPago, $fechaVenci){

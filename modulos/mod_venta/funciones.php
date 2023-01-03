@@ -218,7 +218,7 @@ function fechaVencimiento($fecha, $dias){
     $nuevafecha = date('Y-m-d');
 	if ($fecha>0){
 		$string     = " +".$dias." day ";
-		$fecha      = date('Y-m-j');
+		$fecha      = date($fecha);
 		$nuevafecha = strtotime($fecha.$string);
 		$nuevafecha = date ( 'Y-m-d' , $nuevafecha );
 	}
@@ -417,16 +417,21 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	return $resultado;
 }
 
-function htmlLineaAdjunto($adjunto, $dedonde){
+function htmlLineaAdjunto($adjunto, $dedonde,$accion='ver'){
+    // @ Objectivo
+    // Añadir una linea adjunto, si viene $accion de editar, muestro bottones retornar o eliminar fila.
 	$html="";
-    if ($adjunto['estado']=="Activo"){
-        $classtr = '';
-        $funcOnclick = ' eliminarAdjunto('.$adjunto['NumAdjunto'].' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
-        $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-    }else{
-        $classtr = ' class="tachado" ';
-        $funcOnclick = ' retornarAdjunto('.$adjunto['NumAdjunto'].', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
-        $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+    $btnELiminar_Retornar = '';
+    if ($accion !=='ver'){
+        if ($adjunto['estado']=="Activo"){
+            $classtr = '';
+            $funcOnclick = ' eliminarAdjunto('.$adjunto['NumAdjunto'].' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
+            $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+        }else{
+            $classtr = ' class="tachado" ';
+            $funcOnclick = ' retornarAdjunto('.$adjunto['NumAdjunto'].', '."'".$dedonde."'".', '.$adjunto['nfila'].');';
+            $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+        }
     }
     $html .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
     $html .='<td>'.$adjunto['NumAdjunto'].'</td>';
@@ -437,78 +442,100 @@ function htmlLineaAdjunto($adjunto, $dedonde){
 	return $html;
 }
 
-function htmlLineaPedidoAlbaran($productos, $dedonde){
-	$codBarras="";
-	$producto=$productos;
-	$respuesta=array('html'=>'');
-		 	if ($producto['estadoLinea'] !=='Activo'){
-				$classtr = ' class="tachado" ';
-				$estadoInput = 'disabled';
-				$funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-			} else {
-				$funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
-				$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-				$classtr = ' ';
-				$estadoInput = ' ';
-			}
-			$numeroPed="";
-			if ($dedonde=="albaran"){
-				if(isset($producto['NumpedCli'])){
-					if ($producto['NumpedCli']>0){
-						$numeroPed=$producto['NumpedCli'];
-					}
-				}else if (isset($producto['Numpedcli'])){
-						$numeroPed=$producto['Numpedcli'];
-				}	
-				
-			}
-			if ($dedonde=="factura"){
-				if(isset($producto['Numalbcli'])){
-					if ($producto['Numalbcli']>0){
-					$numeroPed=$producto['Numalbcli'];
-					}
-				}else{
-					if(isset($producto['NumalbCli'])){
-						$numeroPed=$producto['NumalbCli'];
-					}
-					if(isset($producto['numalbcli'])){
-						$numeroPed=$producto['numalbcli'];
-					}
-				}
-				
-			}
-			if (isset($producto['ccodbar'])){
-				$codBarras=$producto['ccodbar'];
-			}
-			
-		 $respuesta['html'] .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
-		 
-		 $respuesta['html'] .='<td class="linea">'.$producto['nfila'].'</td>';
-		 if ($dedonde<>"pedidos"){
-				$respuesta['html'] .='<td>'.$numeroPed.'</td>';
-		}
-		 $respuesta['html']	.= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
-		 $respuesta['html'] .='<td class="referencia">'.$producto['cref'].'</td>';
-		 $respuesta['html'] .='<td class="codbarras">'.$codBarras.'</td>';
-		 $respuesta['html'] .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
-		 $cant=number_format($producto['nunidades'],2);
-		 $respuesta['html'] .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="3"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-		 $respuesta['html'] .='<td class="pvp">'.$producto['precioCiva'].'</td>';
-		 $respuesta['html'] .='<td class="psi">'.$producto['pvpSiva'].'</td>';
-		 $respuesta['html'] .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
-		 $importe = $producto['pvpSiva']*$producto['nunidades'];
-		 $importe = number_format($importe,2);
-		 $respuesta['html'] .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
-		 $respuesta['html'] .= $btnELiminar_Retornar;
-		 $respuesta['html'] .='</tr>';
+function htmlLineaProductos($producto, $dedonde,$accion='ver'){
+    // @ Objetivo
+    // Montar la tr (linea) de producto.
+    // @ Parametros
+    // $producto -> Array de producto, con estadoLinea, aparte del estado del producto.
+    // $dedonde  -> string que indica si es pedido, albaran o factura.
+    // $accion   -> indica si permitimos interactuar con linea, ver : no permite ,editar : permite cambiarlo.
+    // @ Resultado
+    // Enviar array resultado con $html.
+	$respuesta=array();
+    // Valores calculados
+    $importe = $producto['pvpSiva']*$producto['nunidades'];
+    $importe = number_format($importe,2);
+    $cant=number_format($producto['nunidades'],2);
+    $btnELiminar_Retornar ='';
+    $estadoInput = 'disabled';
+    $classtr = ' ';
+    // ---  Obtenemos el numero del adjunto del producto para montar --- //
+    $numAdjunto    ="";
+    $td_numAdjunto =''; 
+    if ($dedonde=="albaran"){
+        if(isset($producto['NumpedCli'])){
+            if ($producto['NumpedCli']>0){
+                $numAdjunto=$producto['NumpedCli'];
+            }
+        }else if (isset($producto['Numpedcli'])){
+                $numAdjunto=$producto['Numpedcli'];
+        }
+        $td_numAdjunto ='<td>'.$numAdjunto.'</td>'; 
+    }
+    if ($dedonde=="factura"){
+        if(isset($producto['Numalbcli'])){
+            if ($producto['Numalbcli']>0){
+            $numAdjunto=$producto['Numalbcli'];
+            }
+        }else{
+            if(isset($producto['NumalbCli'])){
+                $numAdjunto=$producto['NumalbCli'];
+            }
+            if(isset($producto['numalbcli'])){
+                $numAdjunto=$producto['numalbcli'];
+            }
+        }
+        $td_numAdjunto ='<td>'.$numAdjunto.'</td>'; 
+    }
+    // --   Creamos btnEliminar_Retornar y estadoInput para los input     --//
+    // Si la accion es distinto 'ver' y si numAdjunto existe  y dedonde es distinto Albaran bloqueamos input y no mostramos btn -- //
+    if ($accion !=='ver' ) {
+        $Control_btn_input = 'OK'; // Control de btnEliminar_Retornar y disabled input
+        if ($numAdjunto !==''){
+            if ($dedonde !=="albaran"){
+                $Control_btn_input = 'KO'; // No permitimos editar input y no mostramos btnEliminar_Retornar 
+            }
+        }
+        if ($Control_btn_input == 'OK'){
+            if ($producto['estadoLinea'] !=='Activo'){
+                $classtr = ' class="tachado" ';
+                $funcOnclick = ' retornarFila('.$producto['nfila'].', '."'".$dedonde."'".');';
+                $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
+            } else {
+                $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
+                $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+            }
+        }
+    }
+   	$codBarras="";
+    if (isset($producto['ccodbar'])){
+        $codBarras=$producto['ccodbar'];
+    }
+    $html ='';
+    $html .='<tr id="Row'.($producto['nfila']).'" '.$classtr.'>';
+     
+    $html .='<td class="linea">'.$producto['nfila'].'</td>';
+    $html .=$td_numAdjunto; 
+    $html .= '<td class="idArticulo">'.$producto['idArticulo'].'</td>';
+    $html .='<td class="referencia">'.$producto['cref'].'</td>';
+    $html .='<td class="codbarras">'.$codBarras.'</td>';
+    $html .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
+    $html .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="3"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+    $html .='<td class="pvp">'.$producto['precioCiva'].'</td>';
+    $html .='<td class="psi">'.$producto['pvpSiva'].'</td>';
+    $html .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
+    $html .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
+    $html .= $btnELiminar_Retornar;
+    $html .='</tr>';
+
+    $respuesta['html'] = $html;
 	 return $respuesta['html'];
 }
 
 function htmlOptions($opciones,$opcionSeleccionada =0 ){
 	$html='';
-    $select = '';
-	foreach($opcioneso as $f){
+	foreach($opciones as $f){
+        $select = '';
         if ($f['id'] == $opcionSeleccionada){
             $select = ' selected="selected"';
         }
@@ -545,10 +572,9 @@ function htmlPedidoAlbaran($pedido, $dedonde){
 	return $respuesta;
 }
 
-function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv,$idCliente){
+function htmlListadoProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv,$idCliente){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
-	//~ $Cprod=new Producto($BDTpv);
 	$resultado = array();
 	
 	$resultado['encontrados'] = count($productos);
