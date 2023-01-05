@@ -5,4 +5,7 @@ ALTER TABLE `faccliltemporales` DROP `estadoFacCli`;
 ALTER TABLE `faccliltemporales` DROP `FacCobros`;
 ALTER TABLE `faccliltemporales` CHANGE `fechaFinal` `fechaVencimiento` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `facclit` DROP `formaPago`;
-UPDATE `tiposVencimiento` SET `dias` = '0' WHERE `tiposVencimiento`.`id` = 1; 
+UPDATE `tiposVencimiento` SET `dias` = '0' WHERE `tiposVencimiento`.`id` = 1;
+ALTER TABLE `albcliltemporales` CHANGE `idClientes` `idCliente` INT(11) NULL DEFAULT NULL; 
+ALTER TABLE `albcliltemporales` CHANGE `fechaFinal` `Fecha` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `albcliltemporales` DROP `estadoAlbCli`;

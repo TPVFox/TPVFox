@@ -14,7 +14,7 @@
     $fecha = $fecha->format('Y-m-d');
     $productos=json_decode($_POST['productos']);
     $idCliente=$_POST['idCliente'];
-    if(isset($_POST['albaranes'])){
+    if (isset($_POST['albaranes'])){
         $albaranes=$_POST['albaranes'];
     }else{
         $albaranes=array();
@@ -23,21 +23,19 @@
     $existe=0;
     if ($idFacturaTemp>0){
         $rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idFacturaTemp, $productos);
-        if(isset($rest['error'])){
+        if (isset($rest['error'])){
             $respuesta['error']=$rest['error'];
             $respuesta['consulta']=$rest['consulta'];
         }else{
             $existe=1;	
-            $pro=$rest['productos'];
         }
     }else{
         $rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda,  $fecha , $albaranes, $productos, $idCliente);
-        if(isset($rest['error'])){
+        if (isset($rest['error'])){
             $respuesta['error']=$rest['error'];
             $respuesta['consulta']=$rest['consulta'];
         }else{
             $existe=0;
-            $pro=$rest['productos'];
             $idFacturaTemp=$rest['id'];
         }
         
@@ -45,7 +43,7 @@
     $respuesta['numFactura']=$numFactura;
     if ($numFactura>0){
         $modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
-        if(isset($modId['error'])){
+        if (isset($modId['error'])){
             $respuesta['error']=$modId['error'];
             $respuesta['consulta']=$modId['consulta'];
         }
@@ -56,7 +54,7 @@
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
         $modTotal=$CFac->modTotales($idFacturaTemp, $respuesta['total'], $CalculoTotales['subivas']);
-        if(isset($modTotal['error'])){
+        if (isset($modTotal['error'])){
             $respuesta['error']=$modTotal['error'];
             $respuesta['consulta']=$modTotal['consulta'];
         }

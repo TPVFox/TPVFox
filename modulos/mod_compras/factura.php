@@ -502,7 +502,7 @@
 		<thead>
 		  <tr>
 			<th>L</th>
-			<th>Num Albaran</th>
+			<th>Num<span class="glyphicon glyphicon-info-sign" title="Numero de adjunto"></span></th>
 			<th>Id Articulo</th>
 			<th>Referencia</th>
 			<th>Referencia Proveedor</th>

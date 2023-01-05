@@ -164,9 +164,7 @@ if (isset($errores)){
                             <td>
                                 <?php 
                                  if($ClasePermisos->getAccion("Modificar")==1){
-                                ?>
-                                    <a class="glyphicon glyphicon-pencil" href='./albaran.php?id=<?php echo $albaran['id'];?>'>
-                                <?php 
+                            echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].'&accion=editar"></a>';
                                 }
                                 ?>
                             </td>

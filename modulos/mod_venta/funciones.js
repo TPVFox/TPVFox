@@ -94,11 +94,10 @@ function AgregarFilaPedido(datos , dedonde=""){
 	});
 }
 
-function AgregarFilaProductosAl(productosAl, dedonde='', cabecera ='NO'){
-	//@Objetivo:
-	//Agregar la fila de productos al principio de la tabla
+function AgregarFilaProductosAl(productosAl, dedonde=''){
+	// @ Objetivo:
+	// Agregar la fila de productos al principio de la tabla
 	console.log("Estoy en agregar fila productos para "+dedonde);
-    console.log(cabecera);
 	if (productosAl.length>1){
 		productosAl=productosAl.reverse();
 	}
@@ -280,7 +279,7 @@ function buscarAdjunto(dedonde,valor=''){
 								productos.push(resultado.productos[i]);
 								numFila++;
 							}
-							AgregarFilaProductosAl(resultado.productos, dedonde,cabecera);
+							AgregarFilaProductosAl(resultado.productos, dedonde);
                             addTemporal(dedonde);
 						}else{
 							alert("HUBO UN ERROR!! ,Este adjunto ya sido introducido en este "+dedonde);
@@ -479,7 +478,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                 var resultado =  $.parseJSON(response);
                  if (resultado['Nitems']===1){
                     var datos = new Object();
-                    datos.Numalbcli=0;
+                    datos.NumalbCli=0;
                     datos.Numpedcli=0;
                     datos.ccodbar=resultado['datos'][0]['codBarras'];
                     datos.cdetalle=resultado['datos'][0]['articulo_name'];
@@ -491,12 +490,20 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                     datos.ncant=1;
                     datos.nfila=productos.length+1;
                     datos.nunidades=1;
-                    var importe =resultado['datos'][0]['pvpSiva']*1;
-                    datos.importe=importe.toFixed(2);
                     var pvpCiva= parseFloat(resultado['datos'][0]['pvpCiva']);
+                    if (resultado['datos'][0]['pvpCivaCLI'] !=null){
+                        // Precio Tarifa
+                        pvpCiva= parseFloat(resultado['datos'][0]['pvpCivaCLI']);
+                    }
                     datos.precioCiva=pvpCiva.toFixed(2);
                     var pvpSiva= parseFloat(resultado['datos'][0]['pvpSiva']);
+                    if (resultado['datos'][0]['pvpCivaCLI'] !=null){
+                        // Precio Tarifa
+                        pvpSiva= parseFloat(resultado['datos'][0]['pvpSivaCLI']);
+                    }
                     datos.pvpSiva=pvpSiva.toFixed(2);
+                    var importe =resultado['datos'][0]['pvpSiva']*1;
+                    datos.importe=importe.toFixed(2);
                     n_item=parseInt(productos.length)+1;
                     var campo='Unidad_Fila_'+n_item;
                     productos.push(datos);
@@ -541,7 +548,7 @@ function cambiarEstadoProductosAdjunto(dedonde,estado,numRegistro){
     console.log('Entro en cambiarEstadoProductosAdjuntos:'+numRegistro);
     for(i=0;i<productos.length; i++){
         if (dedonde=="albaran"){
-            var numAdjunto_Producto=productos[i].Numpedcli;
+            var numAdjunto_Producto=productos[i].NumpedCli;
         }else{
             var numAdjunto_Producto=productos[i].NumalbCli;
         }
@@ -688,7 +695,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 	//@Objetivo:
 	//Eliminar tanto un pedido o albaran adjunto en una factura o albaran , elimina por lo tanto los productos
 	//de ese adjunto y le modifica el estado a guardado
-	console.log("entre en eliminar Fila");
+	console.log("entre en eliminar Adjunto");
 	var line;
 	num=nfila-1;
 	if (dedonde=="factura"){

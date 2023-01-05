@@ -6,7 +6,8 @@
 			$idcaja=$_POST['idcaja'];
 			$dedonde=$_POST['dedonde'];
 			$idCliente=$_POST['idCliente'];
-			$res = BuscarProductos($id_input,$campoAbuscar, $idcaja, $busqueda,$BDTpv, $idCliente);
+   			$res = BuscarProductos($campoAbuscar, $busqueda,$BDTpv, $idCliente);
+
 			if ($res['Nitems']===1){
 				$respuesta=$res;
 				$respuesta['Nitems']=$res['Nitems'];

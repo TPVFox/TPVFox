@@ -4,32 +4,29 @@
 	include_once $URLCom.'/modulos/mod_venta/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
 	include_once ($URLCom.'/controllers/parametros.php');
-    include_once $URLCom.'/clases/cliente.php';
+	include_once $URLCom.'/modulos/mod_cliente/clases/ClaseCliente.php';
     include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
     include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
      
 	$ClasesParametros = new ClaseParametros('parametros.xml');
-	$Ccliente=new Cliente($BDTpv);
+	$Ccliente=new ClaseCliente();
 	$Calbcli=new AlbaranesVentas($BDTpv);
 	$Cped = new PedidosVentas($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
-	$Tienda = $_SESSION['tiendaTpv'];
-	$Usuario = $_SESSION['usuarioTpv'];// array con los datos de usuario
-	$idAlbaranTemporal=0;
-	$estado='Abierto';
+    // -- Valores por defecto -- //
+	$idTemporal=0;
 	$idAlbaran=0;
-	$numAlbaran=0;
 	$idCliente=0;
-	$nombreCliente="";
 	$titulo="Albarán De Cliente ";
+    $accion     = '';
+	$estado     = 'Nuevo';
 	$fecha=date('d-m-Y');
 	$dedonde="albaran";
-	$Datostotales=array();
-    $creado_por = array(); 
-	$textoNum="";
-    $inciden= 0;
+    $empleado   = $Usuario; // Por defecto ponemos el usuario
+    $errores    = array();
 	$parametros = $ClasesParametros->getRoot();
+    $inciden= "";
 	foreach($parametros->cajas_input->caja_input as $caja){
 			$caja->parametros->parametro[0]="albaran";
 	}
@@ -42,130 +39,245 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-	if (isset($_GET['id'])){//Cuando recibe un albarán existente cargamos los datos
-		$idAlbaran=$_GET['id'];
-		$textoNum=$idAlbaran;
-		$datosAlbaran=$Calbcli->datosAlbaran($idAlbaran);
-        $creado_por = $Calbcli->obtenerDatosUsuario($datosAlbaran['idUsuario']);
-       
-		$productosAlbaran=$Calbcli->ProductosAlbaran($idAlbaran);
-		$ivasAlbaran=$Calbcli->IvasAlbaran($idAlbaran);
-		$pedidosAlbaran=$Calbcli->PedidosAlbaranes($idAlbaran);
-		$estado=$datosAlbaran['estado'];
-		$date=date_create($datosAlbaran['Fecha']);
-		$fecha=date_format($date,'d-m-Y');
-		$numAlbaran=$datosAlbaran['Numalbcli'];
-		$idCliente=$datosAlbaran['idCliente'];
-		if ($idCliente){
-				// Si se cubrió el campo de idcliente llama a la función dentro de la clase cliente 
-				$datosCliente=$Ccliente->DatosClientePorId($idCliente);
-				$nombreCliente="'".$datosCliente['Nombre']."'";
-		}
-		$productosMod=modificarArrayProductos($productosAlbaran);
-		$productos=json_decode(json_encode($productosMod));
-		$Datostotales = recalculoTotales($productos);
-		$productos=json_decode(json_encode($productos), true);
-	
-		if ($pedidosAlbaran){
-			 $modificarPedido=modificarArrayPedidos($pedidosAlbaran, $BDTpv);
-			 $pedidos=json_decode(json_encode($modificarPedido), true);
-		}
-			
-		$total=$Datostotales['total'];
-		
-			if($estado=="Facturado"){
-				$numFactura=$Calbcli->NumfacturaDeAlbaran($idAlbaran);
-				if(isset($numFactura['error'])){
-					$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $numFactura['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-				}
-			
-			}
-		$incidenciasAdjuntas=incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
-		$inciden=count($incidenciasAdjuntas['datos']);
-	}else{
-		$bandera=1;
-			if (isset($_GET['tActual'])){
-                //Recibido un albarán temporal
-				$idAlbaranTemporal=$_GET['tActual'];
-                //Recogemos todos los datos del albarán temporal 
-				$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-				if (isset($datosAlbaran['numalbcli'])){
-					$numAlbaran=$datosAlbaran['numalbcli'];
-					$id=$Calbcli->datosAlbaranNum($numAlbaran);
-					$idAlbaran=$id['id'];
-					$textoNum=$idAlbaran;
-				}
-				//~ echo $numAlbaran;
-				if ($datosAlbaran['fechaInicio']=="0000-00-00 00:00:00"){
-					$fecha=date('d-m-Y');
-				}else{
-					$fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'd-m-Y');
-				}
-				$idCliente=$datosAlbaran['idClientes'];
-				$cliente=$Ccliente->DatosClientePorId($idCliente);
-				if(isset($cliente['Nombre'])){
-					$nombreCliente="'".$cliente['Nombre']."'";
-				}
-				$albaran=$datosAlbaran;
-				$productos =  json_decode($datosAlbaran['Productos']) ;
-				$pedidos=json_decode($datosAlbaran['Pedidos']);
-				
-			}
-		$creado_por = $Usuario;
-	}
-	if(isset($albaran['Productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
-			// convertimos el objeto productos en array
-			$Datostotales = recalculoTotales($productos);
-			$productos = json_decode(json_encode($productos), true); // Array de arrays	
-		}
-		if (isset($albaran['Pedidos'])){
-			$pedidos=json_decode(json_encode($pedidos), true);
-		}
-		//Para guardar un albarán creamos un array con todos los datos 
-		//Comprobamos que la existencia del albarán real si existe eliminamos todas las tablas que tengan que ver con el albarán real
-		//Una vez eliminados creamos los registros con los datos nuevos y por último eliminamos el temporal
-		//Si no existe un número de albarán real solo hay que crear un los registros nuevos de los albaranes en las diferentes tablas
-		//Y eliminar el temporal
-		if (isset($_POST['Guardar'])){
-			$guardar=guardarAlbaran($_POST, $_GET, $BDTpv, $Datostotales);
-			if (count($guardar)==0){
-				
-				header('Location: albaranesListado.php');
-			}else{
-				foreach ($guardar as $error){
-					echo '<div class="'.$error['class'].'">'
-					. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
-					. '</div>';
-				}
-			}
-		}
-		if (isset ($pedidos) | isset($_GET['tActual'])| isset($_GET['id'])){
-			$style="";
-		}else{
-			$style="display:none;";
-		}
-$titulo .= ' '.$textoNum.': '.$estado;
+    // Comprobamos:
+    // $_GET['tActual] -> No comprobamos nada, solo asignamos valor idTemporal
+    // $_GET['id'] -> Si trae accion y si existe temporal. Si exite temporal advertimos y no dejamos editar.
+    if (isset($_GET['tActual'])){
+        $idTemporal=$_GET['tActual'];
+    } else {
+        if (isset($_GET['id'])){
+            $idAlbaran = $_GET['id'];
+            if (isset($_GET['accion'])){
+                if ( $_GET['accion'] == 'editar'){
+                    $accion = $_GET['accion'];
+                } 
+            }
+            if ($accion != 'editar'){
+                // Cuando trae GET['id'] y no trae accion es 'ver' siempre.
+                $accion = 'ver';
+            }
+            if ($accion != 'ver'){
+                // Comprobamos temporales para ese idAlbaran y obtenemos idTemporal si tiene.
+            }
+        }
+    }
+    // --------------- MONTAMOS DATOS DE NUEVO,TEMPORAL,FACTURA CREADA   -------------   //
+    // --- NUEVO --- /
+    if ($idTemporal==0 && $idAlbaran == 0){
+        $datosCliente = array ('idClientes' => '',
+                              'Nombre'     => '',
+                       );
+        $productos = array();
+    }
 
+    // --- TEMPORAL --- /   
+    if ($idTemporal>0 && $accion==''){
+        // Temporal
+        $datosAlbaran = $datosAlbaran=$Calbcli->buscarDatosAlbaranTemporal($idTemporal);;
+        if (isset($datosAlbaran['numalbcli'])){
+            $idAlbaran=$datosAlbaran['numalbcli'];
+        }
+    }
+
+     // ---- ALBARAN YA CREADO  -------  //
+     // Entra tanto cuando al id de Albaran , como viene de temporal y esta tiene idAlbaran.
+	if ($idAlbaran >0 ){
+		$datosAlbaran_guardada              = $Calbcli->datosAlbaran($idAlbaran);
+		$productosAlbaran                   = $Calbcli->ProductosAlbaran($idAlbaran);
+		$productosMod			    = modificarArrayProductos($productosAlbaran);
+		$datosAlbaran_guardada['Productos'] = json_encode($productosMod);
+        $pedisAlbaran_creada                = $Calbcli->PedidosAlbaranes($idAlbaran);
+        $datosAlbaran_guardada['Pedidos'] = json_encode($pedisAlbaran_creada);
+        $incidenciasAdjuntas                = incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
+		$inciden                            = count($incidenciasAdjuntas['datos']);
+        if ($idTemporal == 0){
+            // Comprobamos si esta albaran tiene temporales.
+            // Si no es temporal, entonces tenemos crear $datosAlbaran.
+            $datosAlbaran = $datosAlbaran_guardada;
+            $estado=$datosAlbaran['estado'];
+        }
+    }
+    if ( isset($datosAlbaran)){
+        // Esto es lo comun cuando es temporal o cuando es factura existente.
+        $idCliente = $datosAlbaran['idCliente'];
+        $pedidos = json_decode($datosAlbaran['Pedidos'],true);
+        $productos = json_decode($datosAlbaran['Productos']) ;
+        $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
+        $productos = json_decode($datosAlbaran['Productos'], true); // Convertimos en array de arrays
+        $fecha =date_format(date_create($datosAlbaran['Fecha']), 'd-m-Y');
+    }
+
+    // ---- Compromamos si existe la albaran que el estado sea Sin guardar --- //
+    if ($idAlbaran >0){
+        // Pendiente hacer.
+    
+    }
+
+    
+    if ($idCliente > 0){
+        $datosCliente=$Ccliente->getCliente($idCliente);
+        if ( isset($datosCliente['datos'])){
+            $datosCliente  = $datosCliente['datos']['0'];
+            // Como en tabla en clientes idCliente es idCLientes (algo que está muy mal.. :-) lo tenemos crear.
+            $idCliente = $datosCliente['idClientes'];
+        } else {
+            $errores[]=$Calbcli->montarAdvertencia('danger',
+                                             'No se encuentra datos del cliente de la factura con id'.$idCliente.'</br/>'
+                                             .json_encode($datosCliente)
+                                            );
+        }
+    }
+
+    // ---  Pulso Guardar --- //
+    if (isset($_POST['Guardar'])){
+        if ( $accion !='ver' && $idTemporal >0){
+            // Si entramos aquí es porque existe temporal y pulso guardar.
+            // ---- Comprobamos fechas antes guardar --- //
+            $f= explode('-',$_POST['fecha']);
+            $validar_fecha = checkdate($f['1'],$f['0'],$f['2']);
+            
+            if ($validar_fecha ==true){
+               $fecha_post = $f['2'].'-'.$f['1'].'-'.$f['0'];
+            } else {
+                // Si la fecha no es correcta.
+                 $errores[] =$Calbcli->montarAdvertencia('warning',
+                                             'La fecha que envia POST no es correcta.Fecha:'.$_POST['fecha']
+                                            );
+            }
+            $datos=array(
+						'Numtemp_albcli'=>$idTemporal,
+						'Fecha'=>$fecha,
+						'idTienda'=>$Tienda['idTienda'],
+						'idUsuario'=>$Usuario['id'],
+						'idCliente'=>$idCliente,
+						'estado'=>"Guardado",
+						'total'=>$Datostotales['total'],
+						'DatosTotales'=>$Datostotales,
+						'productos'=>$datosAlbaran['Productos'],
+						'pedidos'=>$datosAlbaran['Pedidos']
+					);
+
+            if(count($errores)==0){
+                if($datosAlbaran['numalbcli']>0){
+                    $idAlbaran=$datosAlbaran['numalbcli'];
+                    $eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+                    if (isset($eliminarTablasPrincipal['error'])){
+                        $errores[] =$Calbcli->montarAdvertencia('danger',
+                                                 'ERROR EN LA BASE DE DATOS AL BORRAR factura!'.'<br/> Consulta:'.$eliminarTablasPrincipal['consulta']
+                                                 .'<br/>Error:'.$eliminarTablasPrincipal['error'].'<br/>'
+                                                );
+                    }
+                }
+            }
+            if(count($errores)==0){
+                $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+                if(isset($addNuevo['error'])){
+                $errores[]=$Calbcli->montarAdvertencia('Danger!',
+                                              'Error al añadir factura y guardarla.<br/>'
+                                                 .'Error:'.$addNuevo['error'].'<br/>'
+                                                 .'Consulta:'.$addNuevo['consulta'].'<br/>'
+                                                 );
+                }
+                $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+                if(isset($eliminarTemporal['error'])){
+                $errores[]=$CFac->montarAdvertencia('danger',
+                                                 'Error al eliminar temporal:'.$idTemporal
+                                                 .'Error: '.$eliminarTemporal['error'].'<br/>'
+                                                 .'Consulta:'.$eliminarTemporal['consulta'].'<br/>'
+                                                 );
+                }
+            }
+            if(count($errores) == 0){
+                //  Redireccionamos a listado facturas una vez guardado correctamente.
+                header('Location: albaranesListado.php');
+            } else {
+                // Si hay error es una de las 3 consultas que hace para eliminar datos de la factura de varias tablas.
+                // devuelve un array con error y consulta. Entonces hay que ver cual elimino o no .
+
+                // --- Ahora pongo valores post, para crear temporal --/
+                // Esto debería se una funcion, para poder reutilizar en en debug.
+                $_POST['idTemporal']    = 0; // Ya queremos sea un temporal nuevo.
+                $_POST['idUsuario']     = $Usuario['id'];
+                $_POST['idTienda']      = $Tienda['idTienda'];
+                $_POST['idReal']        = $datosAlbaran['numalbcli'];
+                $_POST['productos']     = $datosAlbaran_guardada['Productos'];
+                $_POST['idCliente']     = $datosAlbaran_guardada['idCliente'];
+                // Los albaranes de factura directa hay que prepararlos para ser un adjunto
+                $pAdjuntos = prepararAdjuntos(json_decode($datosAlbaran_guardada['Albaranes'],true),$dedonde,$accion);
+                $_POST['pedidos']     = $pAdjuntos['adjuntos'];
+                // Para añadir el temporal de copia de los datos si hubo error.
+                include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
+                $errores[]=$CFac->montarAdvertencia('danger',
+                                    'HUBO ERROR AL GRABAR !! <br/>'
+                                    .'El error, es el o los anteriores.</br>'
+                                    .'Creamos un temporal nuevo con los datos factura guardada para recuperarlos, idTemporal:'.$respuesta['id']
+                                    .'<br/> Avisa al administrador de sistema, no cierres pantalla.'
+                                    );
+            }
+        }
+    }
+
+
+    // --- Montamos html_adjuntos y variable adjunto que utilizamos para montar variable JS --- //
+    $html_adjuntos= '';
+    $adjuntos = array();
+    if ($idTemporal>0){
+        // No hay accion , por lo que tenemos editar
+        $accion = 'editar';
+    }
+    $pAdjuntos = prepararAdjuntos($pedidos,$dedonde,$accion);
+    $adjuntos = $pAdjuntos['adjuntos'];
+    $html_adjuntos = $pAdjuntos['html'];
+    
+    // ---  Controlamos cuando poner solo lectura o display none los campos --- //
+    $display = '';
+    $readonly = '';
+    $readonly_cliente = '';
+    if ($accion == 'ver'){
+        $display = 'style="display:none"';
+        $readonly = 'readonly';
+        $readonly_cliente = 'readonly';
+    }
+    $display_btn_guardar_cancelar = $display;
+    if ($idTemporal == 0){
+        $display_btn_guardar_cancelar= 'style="display:none"';
+    }
+    if ($idAlbaran > 0 ){
+        $readonly_cliente = 'readonly';
+    }
+    // --- html de titulo --- /
+    $n = 'Sin Guardar';
+    if ($idAlbaran > 0) {
+        $n = $idAlbaran;
+    }
+    $html_numero = '<span>'.$n.'</span>';
+    if ($idTemporal > 0){
+        $a = 'TEMPORAL'.'<span class="glyphicon glyphicon-info-sign" title="Numero temporal:'.$idTemporal.'"></span><input type="text" style="display:none;" name="idAlbaran" value="'.$idTemporal.'">';
+        $readonly_cliente = 'readonly';
+    } else {
+        $a = $accion;
+    }
+    $html_accion = '<span>'.$a.'</span>';
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <?php include $URLCom.'/head.php';?>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
 	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $creado_por['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
 		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
-		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal ;?>;
+		cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
@@ -190,7 +302,6 @@ $titulo .= ' '.$textoNum.': '.$estado;
 			}
 			$i++;
 			}
-	
 		}
 		if (isset($pedidos)){
 			foreach ($pedidos as $pedi){
@@ -201,54 +312,46 @@ $titulo .= ' '.$textoNum.': '.$estado;
 			}
 		}
 	}	
-	
-	
-?>
-</script>
-<?php
-if ($idCliente==0){
-	$idCliente="";
-	$nombreCliente="";
-}
-if (isset($_GET['tActual'])){
-	$nombreCliente=$cliente['Nombre'];
-}
-?>
-</head>
-<body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-<?php
-	//~ include '../../header.php';
-     include_once $URLCom.'/modulos/mod_menu/menu.php';
-?>
-<script type="text/javascript">
-		<?php
-	 if (isset($_POST['Cancelar'])){
-		  ?>
-		 cancelarTemporal(<?php echo $idAlbaranTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-		
-		 
-		  <?php
-	  }
-	  ?>
-<?php echo $VarJS;?>
-     function anular(e) {
+    if (isset($_POST['Cancelar'])){
+    ?>
+        cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+	<?php
+	}
+	echo $VarJS;
+    ?>
+    function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);
-      }
+    }
 </script>
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+
+</head>
+<body>
+<?php
+     include_once $URLCom.'/modulos/mod_menu/menu.php';
+?>
+
 <div class="container">
 	
-			<h2 class="text-center"> <?php echo $titulo;?></h2>
+    <?php
+	if (count($errores)>0){
+        foreach ($errores as $error){
+         		echo '<div class="alert alert-'.$error['tipo'].'">'
+				. '<strong>'.$error['tipo'].' </strong> <br/>'.$error['mensaje']. '</div>';
+            // Controlamos si hay un danger, no permito cancelar.
+            if ( $error['tipo'] =='danger'){
+                $display_btn_guardar_cancelar= 'style="display:none"';
+            }
+        }
+	}
+    ?>
+    <?php
+        // Montamos html de titulo
+        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.'</h2>' ;?>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
                     <div class="col-md-8" >
             <?php echo $Controler->getHtmlLinkVolver('Volver');?>
-                        <input  class="btn btn-primary" type="submit" value="Guardar" name="Guardar" id="bGuardar">
                         <?php 
                             if($idAlbaran>0){
                                 ?>
@@ -262,6 +365,7 @@ if (isset($_GET['tActual'])){
                                 <?php
                             }
                             ?>
+                <input type="submit"  class="btn btn-primary" <?php echo $display_btn_guardar_cancelar;?> value="Guardar" id="Guardar" name="Guardar">
                     </div>
 				<div class="col-md-4 text-right" >
                      <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
@@ -272,73 +376,51 @@ if (isset($_GET['tActual'])){
 						<option value="3">Cod Barras</option>
 						<option value="4">Descripción</option>
 					</select>
-					<input type="submit"  class="btn btn-danger" value="Cancelar" name="Cancelar" id="bCancelar">
-					</div>
-					<?php
-					if (isset($idAlbaranTemporal)){
-				if ($idAlbaranTemporal>0){
-					?>
-					<input type="text" style="display:none;" name="idTemporal" value="<?php echo $idAlbaranTemporal;?>">
-					<?php
-				}
-			}
-					?>
-<div class="rot" >
+                <input type="submit" class="btn btn-danger" <?php echo $display_btn_guardar_cancelar;?> value="Cancelar Temporal" id="Cancelar" name="Cancelar">
+            </div>
+<div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">
-				<div class="col-md-3">
-					<strong>Fecha albarán:</strong><br>
-					<input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' title=" Formato de entrada dd-mm-yyyy">
-				</div>
-				<div class="col-md-3">
-					<strong>Estado:</strong><br>
-					<span id="EstadoTicket"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
-				</div>
-			
-				<div class="col-md-3">
-					<strong>Empleado:</strong><br>
-					<input type="text" id="Usuario" name="Usuario" value="<?php echo $creado_por['nombre'];?>" size="10" readonly>
-				</div>
+            <div class="col-md-2">
+                <strong>Fecha Alb:</strong><br>
+                <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
+            </div>
+            <div class="col-md-2">
+                <strong>Estado:</strong><br>
+            
+                <span id="Estado"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
+            </div>
+        
+				<div class="col-md-2">
+                    <strong>Empleado:</strong><br>
+                    <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
+                </div>
+            
 		</div>
 		<div class="form-group">
 			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="idCliente" data-obj= "cajaIdCliente" value="<?php echo $idCliente;?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $nombreCliente; ?>" size="60">
-			<a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
-			<?php 
-			if(isset($numFactura)){
-				echo '<b>Número de factura asociado: '.$numFactura['numFactura'].'</b>';
-			}
-			?>
+			<input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
+            <?php if ($readonly_cliente ==''  ){?>
+                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
+            <?php } ?>
 		</div>
 	</div>
 	<div class="col-md-4" >
-			<div>
-			<label style="<?php echo $style;?>" id="numPedidoT">Número del pedido:</label>
-			<input style="<?php echo $style;?>" type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a style="<?php echo $style;?>" id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
-			<div class="table-responsive">
-			<table  class="col-md-12" style="<?php echo $style;?>" id="tablaPedidos"> 
+        <div style="margin-top:0;" id="tablaAl">
+			<label id="numPedidoT">Número del pedido:</label>
+			<input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numPedido" onkeydown="controlEventos(event)">
+			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
+			<table  class="col-md-12" id="tablaPedidos"> 
 				<thead>
 				
 				<td><b>Número</b></td>
 				<td><b>Fecha</b></td>
 				<td><b>Total</b></td>
-				<td></td>
 				
 				</thead>
-				
-				<?php 
-				//Si existen pedidos en el albarán los escribimos
-				if (isset($pedidos)){
-					foreach ($pedidos as $pedido){
-					$html=htmlPedidoAlbaran($pedido, "albaran");
-					echo $html['html'];
-				}
-				}
-				?>
+                <?php echo $html_adjuntos;?>
 			</table>
-			</div>
 		</div>
 	</div>
 	</div>
@@ -348,19 +430,19 @@ if (isset($_GET['tActual'])){
 		<thead>
 		  <tr>
 			<th>L</th>
-			<th>Num Pedido</th>
+			<th>Num<span class="glyphicon glyphicon-info-sign" title="Numero de adjunto"></span></th>
 			<th>Id Articulo</th>
 			<th>Referencia</th>
 			<th>Cod Barras</th>
 			<th>Descripcion</th>
 			<th>Unid</th>
 			<th>PVP</th>
-			<th>S/iva</th>
+			<th>Pv sin iva</th>
 			<th>Iva</th>
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" style=<?php echo $style;?>>  
+		  <tr id="Row0" <?php echo $display;?>>  
 			<td id="C0_Linea" ></td>
 			<td></td>
 			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
@@ -371,11 +453,10 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 			<?php 
-			//Si el albarán ya tiene productos 
+			//Si el albarán ya tiene productos
 			if (isset($productos)){
-				$productos=array_reverse($productos);
-				foreach ( $productos as $producto){
-				$html=htmlLineaProductos($producto, "albaran");
+				foreach (array_reverse($productos) as $producto){
+                    $html=htmlLineaProductos($producto, "albaran", $accion);
 				echo $html;
 			}
 		
@@ -385,7 +466,7 @@ if (isset($_GET['tActual'])){
 	  </table>
 	</div>
 	<?php 
-	if (isset ($Datostotales['total'])){
+	if(isset($Datostotales)){
 	?>
 
 		<script type="text/javascript">
@@ -406,11 +487,11 @@ if (isset($_GET['tActual'])){
 		</thead>
 		<tbody>
 		<?php 
-		if(isset($Datostotales)){
+		if(isset($Datostotales) && count($Datostotales)>0){
 			$htmlIvas=htmlTotales($Datostotales);
-			echo $htmlIvas['html'];
-			}
-			 ?>
+            echo $htmlIvas['html'];
+        }
+        ?>
 		</tbody>
 		</table>
 		<div class="col-md-6">
@@ -428,32 +509,5 @@ if (isset($_GET['tActual'])){
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 ?>
-<script type="text/javascript">
-	$('#fecha').focus();
-	<?php
-	if ($idCliente>0){
-		?>
-		$('#Cliente').prop('disabled', true);
-		$('#id_cliente').prop('disabled', true);
-		$("#buscar").css("display", "none");
-		<?php
-	}
-	if (isset ($datosAlbaran['estado'])){
-		if ($datosAlbaran['estado']=="Facturado" || $_GET['estado']=="ver"){
-			?>
-			$("#tabla").find('input').attr("disabled", "disabled");
-			$("#tabla").find('a').css("display", "none");
-			$("#tablaPedidos").css("display", "none");
-			$("#numPedidoT").css("display", "none");
-			$("#numPedido").css("display", "none");
-			$("#buscarPedido").css("display", "none");
-			$("#bGuardar").css("display", "none");
-			$("#bCancelar").css("display", "none");
-            $("#fecha").attr("disabled", "disabled");
-			<?php
-		}
-	}
-	?>
-</script>
 	</body>
 </html>

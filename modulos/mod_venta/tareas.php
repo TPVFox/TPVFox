@@ -127,24 +127,25 @@ switch ($pulsado) {
 		break;
 		
 		case 'htmlAgregarFilasProductos':
-		//Objetivo:
-		//HTML mostrar las lineas de productos
-		$productos=$_POST['productos']; // (array) Un array de varios productos, o un array de un producto..
-		$dedonde=$_POST['dedonde'];
-		$respuesta =array('html'=>'');
-		 foreach($productos as $producto){
-			if (!is_array($producto)){
-				 // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
-				 $res=htmlLineaProductos($productos, $dedonde);
-				 $respuesta['html']=$res;
-				break;
-			}else{
-				//Como es un array de productos ejecutamos foreach
-				$res=htmlLineaProductos($producto, $dedonde);
-				$respuesta['html'].=$res;
-			}
-			 $respuesta['productos']=$productos;
-		 }
+            //Objetivo:
+            //HTML mostrar las lineas de productos
+            $productos=$_POST['productos']; // (array) Un array de varios productos, o un array de un producto..
+            $dedonde=$_POST['dedonde'];
+            $respuesta =array('html'=>'');
+            foreach($productos as $producto){
+                if (!is_array($producto)){
+                    // Si no es un array, es un producto, por lo que se hace linea productos ( que es uno solo )
+                    // por lo que permitimos editarlo, ya que desde tarea, solo es cuando estamos editando.
+                    $res=htmlLineaProductos($productos, $dedonde,'editar');
+                    $respuesta['html']=$res;
+                    break;
+                }else{
+                    //Como es un array de productos ejecutamos foreach
+                    $res=htmlLineaProductos($producto, $dedonde);
+                    $respuesta['html'].=$res;
+                }
+                 $respuesta['productos']=$productos;
+             }
 		break;
         
 		case 'modificarEstadoPedido':

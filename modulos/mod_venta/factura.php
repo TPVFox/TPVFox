@@ -36,7 +36,6 @@
 	$idTemporal=0;  
 	$idFactura=0;
 	$idCliente=0;
-	$nombreCliente="";
 	$titulo     = "Factura De Cliente ";
     $accion     = '';
 	$estado     = 'Nuevo';
@@ -102,7 +101,8 @@
     // --- NUEVO --- /
     if ($idTemporal==0 && $idFactura == 0){
         $datosCliente = array ('idClientes' => '',
-                              'Nombre'     => ''
+                              'Nombre'     => '',
+                              'formasVenci'=> '{"vencimiento":"0"}'
                        );
         $productos = array();
     }
@@ -115,7 +115,9 @@
             $idFactura = $datosFactura['Numfaccli'];
         }
     }
-	 // ---- FACTURA YA CREADA  -------  //
+    
+	// ---- FACTURA YA CREADA  -------  //
+    // Entra tanto cuando al id de Factura , como viene de temporal y esta tiene idFactura.
 	if ($idFactura >0 ){
 		$datosFactura_guardada              = $CFac->datosFactura($idFactura);//Extraemos los datos de la factura
     	$productosFactura                   = $CFac->ProductosFactura($idFactura);//De los productos
@@ -132,6 +134,7 @@
             $estado=$datosFactura['estado'];
         }
 	}
+    
     if ( isset($datosFactura)){
         // Esto es lo comun cuando es temporal o cuando es factura existente.
         $idCliente = $datosFactura['idCliente'];
@@ -152,9 +155,9 @@
                                              'Existe un temporal y su factura, pero el <strong>estado de factura es distinto al sin guardar</strong>. Avisa al administrador del sistema.'
                                             );
                 //[DEBUG]
-                // Si se produce este error, era bueno que al administrador se le permita Guardar, por lo que deberíamos mostrarlo al administrador.
-                // Permitir guardar aunque haya este error.
-                // Una opcion ahora es comentando este if, ya que solo comprueba estado, no tiene mucha relevancia.
+                // Si se produce este error, era bueno que al administrador se le permita Guardar.
+                // Permitir guardar aunque haya este error y ya no muestra el btn.
+                // Si quieres guardarlo, comenta este if y te deja guardarlo con en mismo numero.
         }
     }
 
@@ -168,14 +171,12 @@
             $V = json_decode($datosCliente['formasVenci']);
             $idFormaVencimiento = $V->vencimiento;
         } else {
-            $errores[]=array ( 'tipo'=>'Danger!',
-                                         'datos' => json_encode($datosCliente),
-                                         'class'=>'alert alert-danger',
-                                         'mensaje' => 'No se encuentra datos del cliente de la factura con id'.$idCliente
-                                         );
+            $errores[]= $CFac->montarAdvertencia('danger',
+                                             'No se encuentra datos del cliente de la factura con id'.$idCliente.'</br/>'
+                                             .json_encode($datosCliente)
+                                            );
         }
     }
-    // Montar select tipo vencimiento.
     
     // ---  Pulso Guardar --- //
     if (isset($_POST['Guardar'])) {
@@ -206,7 +207,7 @@
                     'productos'=>$datosFactura['Productos'],
                     'albaranes'=>$datosFactura['Albaranes'],
                     'fechaCreacion'=>date('Y-m-d'),
-                    'fechaVencimiento'=>'fECA', //$_POST['fechaVencimiento'],
+                    'fechaVencimiento'=>$_POST['fechaVencimiento'],
                     'fechaModificacion'=>date('Y-m-d')
                     );
                
@@ -215,7 +216,6 @@
                         $idFactura=$datosFactura['Numfaccli'];
                         $eliminarTablasPrincipal=$CFac->eliminarFacturasTablas($idFactura);
                         if (isset($eliminarTablasPrincipal['error'])){
-                            // -- Cargamos error indicando el numero temporal creado -- /
                             $errores[] =$CFac->montarAdvertencia('danger',
                                                  'ERROR EN LA BASE DE DATOS AL BORRAR factura!'.'<br/> Consulta:'.$eliminarTablasPrincipal['consulta']
                                                  .'<br/>Error:'.$eliminarTablasPrincipal['error'].'<br/>'
@@ -257,7 +257,9 @@
                             $_POST['idReal']        = $datosFactura['Numfaccli'];
                             $_POST['productos']     = $datosFactura_guardada['Productos'];
                             $_POST['idCliente']     = $datosFactura_guardada['idCliente'];
-                            $_POST['albaranes']     = $datosFactura_guardada['Albaranes'];
+                            // Los albaranes de factura directa hay que prepararlos para ser un adjunto
+                            $pAdjuntos = prepararAdjuntos(json_decode($datosFactura_guardada['Albaranes'],true),$dedonde,$accion);
+                            $_POST['albaranes']     = $pAdjuntos['adjuntos'];
                             // Para añadir el temporal de copia de los datos si hubo error.
                             include_once $URLCom.'/modulos/mod_venta/tareas/AddFacturaTemporal.php';
                             $errores[]=$CFac->montarAdvertencia('danger',
@@ -283,15 +285,10 @@
         // No hay accion , por lo que tenemos editar
         $accion = 'editar';
     }
-    foreach ($albaranes as $k=>$albaran){
-        if($idTemporal == 0){
-            $albaran = prepararCaberaAdjuntoTemporal($albaran,$dedonde);
-            //Tengo añadirle el numero fila
-            $albaran['nfila'] =intval($k)+1; // Sumamos uno ya que empieza en 0
-        }
-        array_push($adjuntos,$albaran);
-        $html_adjuntos .= htmlLineaAdjunto($albaran, "factura",$accion);
-    }
+    $pAdjuntos = prepararAdjuntos($albaranes,$dedonde,$accion);
+    $adjuntos = $pAdjuntos['adjuntos'];
+    $html_adjuntos = $pAdjuntos['html'];
+    
     // ---  Controlamos cuando poner solo lectura o display none los campos --- //
     $display = '';
     $readonly = '';
@@ -321,16 +318,20 @@
         $a = $accion;
     }
     $html_accion = '<span>'.$a.'</span>';
-// -- Obtenemos options de vencimiento y vencimiento por defecto.
-$array_venci = json_decode($datosCliente['formasVenci']);
-$html_options_vencimiento =  htmlOptions($formasVenci,$array_venci->vencimiento);
-
-
-if ($datosFactura['fechaVencimiento'] ==null || $datosFactura['fechaVencimiento']< $datosFactura['Fecha'] ) {
-    // Si no tiene fecha vencimiento , pues la generamos.
-    $dias_vencimiento = $Ccliente->getVencimiento($array_venci->vencimiento);
-    $fechaVencimiento = fechaVencimiento($datosFactura['Fecha'], $dias_vencimiento);
-}
+    // -- Obtenemos options de vencimiento y vencimiento por defecto.
+    $array_venci = json_decode($datosCliente['formasVenci']);
+    $html_options_vencimiento =  htmlOptions($formasVenci,$array_venci->vencimiento);
+    if ($datosCliente['idClientes'] > 0){
+        if ($datosFactura['fechaVencimiento'] ==null || $datosFactura['fechaVencimiento']< $datosFactura['Fecha'] ) {
+            // Si no tiene fecha vencimiento , pues la generamos.
+            $dias_vencimiento = $Ccliente->getVencimiento($array_venci->vencimiento);
+            $fechaVencimiento = fechaVencimiento($datosFactura['Fecha'], $dias_vencimiento);
+        } else  {
+            $fechaVencimiento = fechaVencimiento($datosFactura['fechaVencimiento'],0); // Asi la convierto al formato.
+        }
+    } else {
+        $fechaVencimiento = date('Y-m-d');
+    }
 ?>
 <!DOCTYPE html>
 <html>
@@ -378,14 +379,8 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
             <?php
 			}
 		}
-    ?>
-    </script>
-<?php
 }	
-?>
-<script type="text/javascript">
-	<?php
-	if (isset($_POST['Cancelar'])){
+if (isset($_POST['Cancelar'])){
 	?>
         cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
     <?php
@@ -425,7 +420,7 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
 	<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 		<div class="col-md-12">
 			<div class="col-md-8" >
-                <a  href="./facturasListado.php">Volver Atrás</a>
+            <?php echo $Controler->getHtmlLinkVolver('Volver');?>
                 <?php 
                 if($idFactura>0){
                     ?>
@@ -470,7 +465,7 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
                 <strong>Empleado:</strong><br>
                 <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
             </div>
-            
+
             <div class="col-md-3" id="tiposVencimientos">
                 <label class="text-center">Tipo vencimiento:</label>
                 <select name='formaTipoVencimiento' id='formaTipoVencimiento' onChange='selectFormas()'>
@@ -512,7 +507,7 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
 		<thead>
 		  <tr>
 			<th>L</th>
-			<th>Num Albaran</th>
+			<th>Num<span class="glyphicon glyphicon-info-sign" title="Numero de adjunto"></span></th>
 			<th>Id Articulo</th>
 			<th>Referencia</th>
 			<th>Cod Barras</th>

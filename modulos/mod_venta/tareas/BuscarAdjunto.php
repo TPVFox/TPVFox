@@ -11,8 +11,10 @@
     // Como este mismo fichero va valer para buscar Pedidos o Albaranes, con loque, sabemos que buscar.
     if ($dedonde =='factura'){
         $res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
+        $onclick="buscarDatosAlbaran"; // Me hace falta montar modal si fuera necesario
     } else {
         $res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
+        $onclick="buscarDatosPedido";
     }
     $respuesta['res'] = json_encode($res);
     if (isset($res['error'])){
@@ -39,7 +41,8 @@
                 $respuesta['productos'] = $productos;
             }
         } else {
-            $modal              = modalAdjunto($res['datos']);
+            $pAdjuntos = prepararAdjuntos($res['datos'],$dedonde);
+            $modal              = modalAdjunto($pAdjuntos['adjuntos'],$onclick);
             $respuesta['html']  = $modal['html'];
         }
     }

@@ -39,7 +39,8 @@ $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $f=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
-$facturasDef=$f['Items'];
+$facturas=$f['Items'];
+
 if (isset($f['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
 								 'dato' => $f['consulta'],
@@ -156,7 +157,7 @@ if (isset($errores)){
             </thead>
             <tbody>
                 <?php 
-                foreach ($facturasDef as $k=> $factura){
+                foreach ($facturas as $k => $factura){
                         $totalBase="0.00";
                         $importeIva="0.00";
                         $totaliva=$Cfactura->sumarIva($factura['Numfaccli']);
@@ -169,7 +170,9 @@ if (isset($errores)){
                         $date=date_create($factura['Fecha']);
                     ?>
                 <tr>
-                    <td class="row"><input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $factura['id'];?>">
+                    <td>
+                        <input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $factura['id'];?>">
+                    </td>
                      <td>
                         <?php 
                         if($ClasePermisos->getAccion("Modificar")==1){
@@ -191,10 +194,11 @@ if (isset($errores)){
                     <td><?php echo $importeIva;?></td>
                     <td><?php echo $factura['total'];?></td>
                     <td>
-                        <?php echo $factura['estado'];
+                        <?php
+                        echo $factura['estado'];
                         if ($factura['estado']!=="Sin Guardar"){
                             $tienda=json_encode($_SESSION['tiendaTpv']);
-                            echo '<a class="glyphicon glyphicon-print"'." onclick='imprimir(".$factura['id'].', "factura",'.$tienda.')></a>';
+                            echo '<a class="glyphicon glyphicon-print"'." onclick='imprimir(".$factura['id'].', "factura",'.$tienda.")'></a>";
                         }
                         ?>
                     </td>

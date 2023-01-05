@@ -7,10 +7,8 @@
  * @Descripcion	Funciones en php para modulo TPV
  * */
 include_once './../../inicial.php';
-include_once $URLCom.'/clases/FormasPago.php';
-include_once $URLCom.'/clases/TiposVencimiento.php';
- 
-function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idCliente) {
+
+function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
 	// @ Parametros:
@@ -25,10 +23,8 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	$resultado['palabras']= $palabras;
 	$likes = array();
-	$whereIdentico = array();
 	foreach($palabras as $palabra){
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
-		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
 	}
 	
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
@@ -36,31 +32,14 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 	$busquedas = array();
 	
 	if ($palabra !== ''){ 
-		$busquedas[] = implode(' and ',$whereIdentico);
-	
+		$busquedas[] = $campoAbuscar.'="'.$busqueda.'"';
 		$busquedas[] = implode(' and ',$likes);
 	}
 	$i = 0;
 	foreach ($busquedas as $buscar){
-		$sql1='SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` 
-			FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac 
-			ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosClientes` AS ap 
-			ON a.idArticulo = ap.idArticulo  LEFT JOIN `articulosTiendas` 
-			AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE ap.idClientes='.$idCliente.' and ap.estado=1 and 
-			'.$buscar.' group by a.idArticulo LIMIT 0 , 30';
-		$res = $BDTpv->query($sql1);
-		$resultado['Nitems']= $res->num_rows;
-		if($resultado['Nitems']==0){
-		$sql = 'SELECT a.`idArticulo` , a.`articulo_name` , ac.`codBarras` , ap.pvpCiva, ap.pvpSiva, at.crefTienda , a.`iva` '
-			.' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
-			.' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
-			.' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-			.' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE '.$buscar.' group by a.idArticulo LIMIT 0 , 30 ';
-		$resultado['sql'] = $sql;
+        $sql= 'SELECT a.`idArticulo`, a.`articulo_name`, a.estado, a.tipo, a.beneficio, ac.`codBarras`, ap.pvpCiva, ap.pvpSiva, acli.pvpCiva as pvpCivaCLI, acli.pvpSiva as pvpSivaCLI, AT.crefTienda, a.`iva` FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap ON a.idArticulo = ap.idArticulo AND ap.idTienda = 1 LEFT JOIN `articulosTiendas` AS AT ON a.idArticulo = AT.idArticulo AND AT.idTienda = 1 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes='.$idCliente.' WHERE '.$buscar.' GROUP BY a.idArticulo LIMIT 0, 30 ';
 		$res = $BDTpv->query($sql);
-		$resultado['Nitems']= $res->num_rows;
-		}
-		
+        $resultado['Nitems']= $res->num_rows;
 		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
 		if ($i === 0){
 			if ($res->num_rows >0){
@@ -96,12 +75,13 @@ function BuscarProductos($id_input,$campoAbuscar,$idcaja, $busqueda,$BDTpv, $idC
 	return $resultado;
 }
 
+
 function cancelarAlbaran($idTemporal, $BDTpv){
 	$Calbcli=new AlbaranesVentas($BDTpv);
 	$Cped = new PedidosVentas($BDTpv);
 	$error=array();
 	if($idTemporal>0){
-		$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idTemporal);
+		$datosAlbaran=$Calbcli->buscarDatosAlbaranTemporal($idTemporal);
 		if(isset($datosAlbaran['error'])){
 			$error =array ( 'tipo'=>'Danger!',
 								'dato' => $datosAlbaran['consulta'],
@@ -226,137 +206,6 @@ function fechaVencimiento($fecha, $dias){
 	
 }
 
-function guardarAlbaran($datosPost, $datosGet, $BDTpv, $Datostotales){
-	$errores=array();
-	$Tienda = $_SESSION['tiendaTpv'];
-	$Usuario = $_SESSION['usuarioTpv'];
-	if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
-			$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => '',
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR NO HAY DATOS DE SESIÓN!'
-								 );
-			return $errores;
-	}
-	$Calbcli=new AlbaranesVentas($BDTpv);
-	if (isset($datosGet['tActual'])){
-			$datosPost['estado']='Sin guardar';
-	}
-	$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-	switch($datosPost['estado']){
-				case 'Sin guardar':
-				case 'Abierto':
-					if (isset($datosGet['tActual'])){
-						$idAlbaranTemporal=$datosGet['tActual'];
-					}else{
-						$errores[0]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'El temporal ya no existe  !'
-								 );
-						break;
-					}
-					$datosAlbaran=$Calbcli->buscarDatosAlabaranTemporal($idAlbaranTemporal);
-                    $fecha =date_format(date_create($datosAlbaran['fechaInicio']), 'Y-m-d');
-					if (isset ($datosPost['fecha'])){
-						$fecha =date_format(date_create($datosPost['fecha']), 'Y-m-d');
-					}
-					if (isset ($datosAlbaran['Productos'])){
-						$productos=$datosAlbaran['Productos'];
-						$productos_para_recalculo = json_decode( $productos );
-						if(count($productos_para_recalculo)>0){
-							$CalculoTotales = recalculoTotales($productos_para_recalculo);
-                            $total=round($CalculoTotales['total'],2);
-						}else{
-							$errores[0]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes productos  !'
-								 );
-						break;
-						}
-					}else{
-						$errores[0]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes productos  !'
-								 );
-						break;
-					}
-					$datos=array(
-						'Numtemp_albcli'=>$idAlbaranTemporal,
-						'Fecha'=>$fecha,
-						'idTienda'=>$Tienda['idTienda'],
-						'idUsuario'=>$Usuario['id'],
-						'idCliente'=>$datosAlbaran['idClientes'],
-						'estado'=>"Guardado",
-						'total'=>$total,
-						'DatosTotales'=>$Datostotales,
-						'productos'=>$datosAlbaran['Productos'],
-						'pedidos'=>$datosAlbaran['Pedidos']
-					);
-					if($datosAlbaran['numalbcli']>0){
-						$idAlbaran=$datosAlbaran['numalbcli'];
-						$eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
-						if (isset($eliminarTablasPrincipal['error'])){
-						$errores[0]=array ( 'tipo'=>'Danger!',
-													 'dato' => $eliminarTablasPrincipal['consulta'],
-													 'class'=>'alert alert-danger',
-													 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-													 );
-						}
-						
-					}else{
-						$idAlbaran=0;
-					}
-					if(count($errores)==0){
-							$addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
-							if(isset($addNuevo['error'])){
-							$errores[1]=array ( 'tipo'=>'Danger!',
-														 'dato' => $addNuevo['consulta'],
-														 'class'=>'alert alert-danger',
-														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-														 );
-							}
-							$eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idAlbaranTemporal, $datosAlbaran['numalbcli']);
-							if(isset($eliminarTemporal['error'])){
-							$errores[2]=array ( 'tipo'=>'Danger!',
-														 'dato' => $eliminarTemporal['consulta'],
-														 'class'=>'alert alert-danger',
-														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-														 );
-							}
-					}
-					break;
-					case 'Guardado':
-					if (isset($datosGet['id'])){
-						$idReal=$datosGet['id'];
-						$modFecha=$Calbcli->modificarFecha($idReal, $fecha);
-						if(isset($modFecha['error'])){
-							$errores[2]=array ( 'tipo'=>'Danger!',
-														 'dato' => $modFecha['consulta'],
-														 'class'=>'alert alert-danger',
-														 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-														 );
-							}
-					}else{
-						$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => '',
-								 'class'=>'aalert alert-danger',
-								 'mensaje' => 'No ha recibido ningún id para modificar !'
-						);
-					}
-					break;
-					default:
-					$errores[0]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No has realizado nunguna modificación !'
-					);
-					break;
-				}
-				return $errores;
-}
 
 function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 	// @ Objetivo:
@@ -422,9 +271,9 @@ function htmlLineaAdjunto($adjunto, $dedonde,$accion='ver'){
     // Añadir una linea adjunto, si viene $accion de editar, muestro bottones retornar o eliminar fila.
 	$html="";
     $btnELiminar_Retornar = '';
+    $classtr = '';
     if ($accion !=='ver'){
         if ($adjunto['estado']=="Activo"){
-            $classtr = '';
             $funcOnclick = ' eliminarAdjunto('.$adjunto['NumAdjunto'].' , '."'".$dedonde."'".' , '.$adjunto['nfila'].');';
             $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
         }else{
@@ -491,7 +340,7 @@ function htmlLineaProductos($producto, $dedonde,$accion='ver'){
     // Si la accion es distinto 'ver' y si numAdjunto existe  y dedonde es distinto Albaran bloqueamos input y no mostramos btn -- //
     if ($accion !=='ver' ) {
         $Control_btn_input = 'OK'; // Control de btnEliminar_Retornar y disabled input
-        if ($numAdjunto !==''){
+        if (strval($numAdjunto) > 0){
             if ($dedonde !=="albaran"){
                 $Control_btn_input = 'KO'; // No permitimos editar input y no mostramos btnEliminar_Retornar 
             }
@@ -504,6 +353,7 @@ function htmlLineaProductos($producto, $dedonde,$accion='ver'){
             } else {
                 $funcOnclick = ' eliminarFila('.$producto['nfila'].' , '."'".$dedonde."'".');';
                 $btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
+                $estadoInput = '';
             }
         }
     }
@@ -588,8 +438,8 @@ function htmlListadoProductos($productos,$id_input,$campoAbuscar,$busqueda, $ded
 	
 	$resultado['html'] .= '<input id="cajaBusqueda" name="'.$id_input.'" placeholder="Buscar" data-obj="cajaBusquedaproductos" size="13" value="'
 					.$busqueda.'" onkeydown="controlEventos(event)" type="text">';
-	if (count($productos)>10){
-		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
+	if (count($productos)>15){
+		$resultado['html'] .= '<span>15 productos de '.count($productos).'</span>';
 	}
 	if ($resultado['encontrados'] === 0){
 			// Hay que tener en cuenta tambien si la caja tiene datos ya que sino no es lo mismo.
@@ -609,24 +459,19 @@ function htmlListadoProductos($productos,$id_input,$campoAbuscar,$busqueda, $ded
 		$resultado['html'] .= '</thead><tbody>';
 		$contad = 0;
 		foreach ($productos as $producto){
-			$pvpCiva=$producto['pvpCiva'];
-			//comprobarTarifa=$Cprod->productosClientes($idCliente, $producto['idArticulo']);
-			$sql='select * from articulosClientes where idClientes='.$idCliente.' and 
-			idArticulo='.$producto['idArticulo'].' and estado=1';
-			$res = $BDTpv->query($sql);
-			$bandera=0;
-			$resultado['Nitems']= $res->num_rows;
-			if($resultado['Nitems']>0){
-				if ($fila = $res->fetch_assoc()) {
-					$pvpCiva=$fila['pvpCiva'];
-					$bandera=1;
-				}
-			}
+            // Ahora comprobamos si tiene precio en tarifa.
+            if($producto['pvpCivaCLI']!==null){
+                $pvpCiva = number_format($producto['pvpCivaCLI'],2);
+                $pvptachado ='<strike>'.number_format($producto['pvpCiva'],2).'</strike>';
+            } else {
+                $pvpCiva = number_format($producto['pvpCiva'],2);
+                $pvptachado = '';
+            }
 			$datos = 	"'".$id_input."',".
 						"'".addslashes(htmlspecialchars($producto['crefTienda'],ENT_COMPAT))."','"
 						.addslashes(htmlentities($producto['articulo_name'],ENT_COMPAT))."','"
 						.number_format($producto['iva'],2)."','".$producto['codBarras']."',"
-						.number_format($pvpCiva,2).",".$producto['idArticulo'].
+						.$pvpCiva.",".$producto['idArticulo'].
 						" , '".$dedonde."'";
 			$resultado['html'] .= '<tr id="Fila_'.$contad.'" data-obj= "idN" class="FilaModal"'
 								.'onclick="buscarProductos('."'".'idArticulo'."'".', '."'".'a.idArticulo'."'".', '."'".'idArticulo'.
@@ -637,15 +482,12 @@ function htmlListadoProductos($productos,$id_input,$campoAbuscar,$busqueda, $ded
 								.'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 								.'<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>'
 								.'<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
-								.'<td>'.number_format($pvpCiva,2).'</td>';
-								if($bandera==1){
-									$resultado['html'] .='<td><strike>'.number_format($producto['pvpCiva'],2).'</strike></td>';
-								}else{
-									$resultado['html'] .='<td></td>';
-								}
+								.'<td>'.number_format($pvpCiva,2).'</td>'
+                                .'<td>'.$pvptachado.'</td>';
+								
 			$resultado['html'] .='</tr>';
 			$contad = $contad +1;
-			if ($contad === 10){
+			if ($contad === 15){
 				break;
 			}
 		}
@@ -695,7 +537,7 @@ function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
 }
 
 
-function modalAdjunto($adjuntos){
+function modalAdjunto($adjuntos,$onclick){
 	$respuesta=array();
     if (count($adjuntos)>0) {
         $html = '<p>Mostramos 15 de '.count($adjuntos).'</p>';
@@ -707,16 +549,9 @@ function modalAdjunto($adjuntos){
         $html .='</th>';
         $html .='</thead><tbody>';
         foreach ($adjuntos as $i =>$adjunto){
-            $num=$adjunto['Numpedcli'];
-            $onclick="buscarDatosPedido";
-            $fecha=$adjunto['FechaPedido'];
-            if (isset($adjunto['Numalbcli'])){
-                $onclick="buscarDatosAlbaran";
-                $num=$adjunto['Numalbcli'];
-            }
-            if(isset($adjunto['Fecha'])){
-                $fecha=$adjunto['Fecha'];
-            }
+            $num=$adjunto['NumAdjunto'];
+            $fecha=$adjunto['fecha'];
+            
             $html .= '<tr id="Fila_'.$i.'" class="FilaModal" onclick="'.$onclick.'('.$num.');">'
                                 .'<td id="C'.$i.'_Lin" >'
                                 .'<input id="N_'.$i.'" name="filapedido" data-obj="idN" '
@@ -830,18 +665,17 @@ function modificarArrayProductos($productos){
 		if(isset($producto['NumalbCli'])){
 			$product['NumalbCli']=$producto['NumalbCli'];
 		}
+        if(isset($producto['Numalbcli'])){
+			$product['NumalbCli']=$producto['Numalbcli'];
+		}
 		if(isset($producto['NumpedCli'])){
 			$product['NumpedCli']=$producto['NumpedCli'];
-		}
-		if(isset($producto['Numalbcli'])){
-			$product['Numalbcli']=$producto['Numalbcli'];
 		}
 		if(isset($producto['Numpedcli'])){
 			$product['Numpedcli']=$producto['Numpedcli'];
 		}
 		$product['importe']=$sinIva*$producto['nunidades'];
 		array_push($respuesta,$product);
-		
 	}
 	return $respuesta;
 }
@@ -878,11 +712,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 		$textoCabecera="Factura de Cliente";
 		$numero=$datos['Numfaccli'];
 		$productos=$Cfaccli->ProductosFactura($id);
-		$albaranes=$Cfaccli->obtenerAlbaranesFactura($idFactura);
+		$albaranes=$Cfaccli->obtenerAlbaranesFactura($id);
 		$alb_html=[];
-		if (count($albaranFactura)>0){
-			 foreach ($albaranes as $adjunto){ 
-				 
+		if (count($albaranes['Items'])>0){
+			 foreach ($albaranes['Items'] as $adjunto){ 
 				$total=0;
                 $fecha1="";
 				if(isset($adjunto['total'])){
@@ -892,11 +725,10 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 					$fecha1=date_create($adjunto['fecha']);
 					$fecha1=date_format($fecha1,'Y-m-d');
 				}
-				$alb_html[]='<tr><td colspan="2"><b><font size="9">Nun Alb:'.$adjunto['Numalbcli'].'</font></b></td><td><b><font size="9">'.$fecha1.'</font></b></td>
+				$alb_html[]='<tr><td colspan="2"><b><font size="9">Nun Alb:'.$adjunto['NumalbCli'].'</font></b></td><td><b><font size="9">'.$fecha1.'</font></b></td>
 				<td colspan="2"><b><font size="9">Total  : '.$total.'€</font></b></td></tr>';
 			}
 		}
-		//$alb_html=array_reverse($alb_html);
 	}
     // Valores comunes
     $idCliente=$datos['idCliente'];
@@ -909,7 +741,6 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 	if (isset ($date)){
 		$fecha=date_format($date,'d-m-Y');
 	}
-    //~ $productos=array_reverse($productos);
     $direccion =  ucwords(strtolower($datosCliente['direccion']));
     $imprimir['cabecera'] =  '<table>'
                             .'<tr>'
@@ -1008,12 +839,40 @@ function prepararCaberaAdjuntoTemporal($adjunto,$dedonde){
     //  adjunto si fue modificado, sino devolvemos array() vacio.
     $respuesta = array();
     if ($dedonde = 'factura'){
-        $respuesta['id']        = $adjunto['idAlbaran'];
-        $respuesta['NumAdjunto']= $adjunto['Numalbcli'];
-        $respuesta['fecha']     = $adjunto['fecha'];
+        $respuesta['id']        = $adjunto['id'];
+        $respuesta['NumAdjunto']= $adjunto['NumalbCli'];
+        $respuesta['fecha']     = $adjunto['Fecha'];
         $respuesta['total']     = $adjunto['total'];
         $respuesta['estado']    = "Activo";
     }
+    return $respuesta;
+}
+
+function prepararAdjuntos($adjuntos,$dedonde,$accion='ver'){
+    //@ Objetivo
+    //  Preparar adjuntos para añadir al temporal.
+    //  Lo que hacemos es cambiar indices del array para que el adjunto sea ESTANDAR en todas las vistas.
+    //  aparte añadimos estado y nfila, esta ultima lo hacemos en esta funcion, ya que prepararCabeceraAdjuntoTemporal
+    //  la utilizamos en BuscarAdjunto y el numerofila no lo podemos poner.
+    //  Los estados de los adjuntos son activos o eliminados, solamente.
+    //@ Devolvemos
+    //  respuesta = array( html-> Que el html de los adjuntos
+    //                      adjuntos-> array con los adjuntos);
+    $respuesta = array('html' => '',
+                       'adjuntos'=> array()
+                       );
+    $html_adjuntos ='';
+    foreach ($adjuntos as $k=>$adjunto){
+        // Ahora comprobamos que no esta preparado.
+        if (!isset($adjunto['NumAdjunto'])){
+            // Ya que enviamos a esta funcion tanto cuando es factura como temporal que este ya esta preparado
+            $adjunto = prepararCaberaAdjuntoTemporal($adjunto,$dedonde);
+        }
+        $adjunto['nfila'] =intval($k)+1; // Sumamos uno ya que empieza en 0
+        array_push($respuesta['adjuntos'],$adjunto);
+        $html_adjuntos .= htmlLineaAdjunto($adjunto, $dedonde,$accion);
+    }
+    $respuesta['html'] = $html_adjuntos;
     return $respuesta;
 }
 
@@ -1028,7 +887,6 @@ function recalculoTotales($productos) {
 	foreach ($productos as $product){
 		// Si la linea esta eliminada, no se pone.
 		if ($product->estadoLinea === 'Activo'){
-			//error_log(json_encode($product));
 			$bandera=$product->iva/100;
 			// Ahora calculmos bases por ivas
 			// Ahora calculamos base y iva 
