@@ -379,7 +379,13 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
             <?php
 			}
 		}
-}	
+    ?>
+    </script>
+<?php
+}
+?>
+<script type="text/javascript">
+<?php
 if (isset($_POST['Cancelar'])){
 	?>
         cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);

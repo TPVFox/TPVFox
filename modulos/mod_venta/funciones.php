@@ -838,13 +838,20 @@ function prepararCaberaAdjuntoTemporal($adjunto,$dedonde){
     //@ Devolvemos
     //  adjunto si fue modificado, sino devolvemos array() vacio.
     $respuesta = array();
-    if ($dedonde = 'factura'){
+    if ($dedonde == 'factura'){
         $respuesta['id']        = $adjunto['id'];
         $respuesta['NumAdjunto']= $adjunto['NumalbCli'];
         $respuesta['fecha']     = $adjunto['Fecha'];
         $respuesta['total']     = $adjunto['total'];
         $respuesta['estado']    = "Activo";
+    } else {
+        $respuesta['id']        = $adjunto['id'];
+        $respuesta['NumAdjunto']= $adjunto['Numpedcli'];
+        $respuesta['fecha']     = $adjunto['FechaPedido'];
+        $respuesta['total']     = $adjunto['total'];
+        $respuesta['estado']    = "Activo";
     }
+    error_log('Entro:'.json_encode($adjunto));
     return $respuesta;
 }
 

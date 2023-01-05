@@ -31,7 +31,7 @@
         }
     }else{
        $rest=$CalbAl->insertarDatosAlbaranTemporal($idUsuario, $idTienda, $fecha , $pedidos, $productos, $idCliente);
-       error_log(json_encode($rest));
+       //~ error_log(json_encode($rest));
         if (isset($rest['error'])){
             $respuesta['error']=$rest['error'];
             $respuesta['consulta']=$rest['consulta'];

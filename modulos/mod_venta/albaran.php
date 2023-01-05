@@ -10,7 +10,7 @@
      
 	$ClasesParametros = new ClaseParametros('parametros.xml');
 	$Ccliente=new ClaseCliente();
-	$Calbcli=new AlbaranesVentas($BDTpv);
+	$CalbAl=new AlbaranesVentas($BDTpv);
 	$Cped = new PedidosVentas($BDTpv);
 	$Controler = new ControladorComun; 
 	$Controler->loadDbtpv($BDTpv);
@@ -73,7 +73,7 @@
     // --- TEMPORAL --- /   
     if ($idTemporal>0 && $accion==''){
         // Temporal
-        $datosAlbaran = $datosAlbaran=$Calbcli->buscarDatosAlbaranTemporal($idTemporal);;
+        $datosAlbaran = $datosAlbaran=$CalbAl->buscarDatosAlbaranTemporal($idTemporal);;
         if (isset($datosAlbaran['numalbcli'])){
             $idAlbaran=$datosAlbaran['numalbcli'];
         }
@@ -82,11 +82,11 @@
      // ---- ALBARAN YA CREADO  -------  //
      // Entra tanto cuando al id de Albaran , como viene de temporal y esta tiene idAlbaran.
 	if ($idAlbaran >0 ){
-		$datosAlbaran_guardada              = $Calbcli->datosAlbaran($idAlbaran);
-		$productosAlbaran                   = $Calbcli->ProductosAlbaran($idAlbaran);
+		$datosAlbaran_guardada              = $CalbAl->datosAlbaran($idAlbaran);
+		$productosAlbaran                   = $CalbAl->ProductosAlbaran($idAlbaran);
 		$productosMod			    = modificarArrayProductos($productosAlbaran);
 		$datosAlbaran_guardada['Productos'] = json_encode($productosMod);
-        $pedisAlbaran_creada                = $Calbcli->PedidosAlbaranes($idAlbaran);
+        $pedisAlbaran_creada                = $CalbAl->PedidosAlbaranes($idAlbaran);
         $datosAlbaran_guardada['Pedidos'] = json_encode($pedisAlbaran_creada);
         $incidenciasAdjuntas                = incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
@@ -121,7 +121,7 @@
             // Como en tabla en clientes idCliente es idCLientes (algo que está muy mal.. :-) lo tenemos crear.
             $idCliente = $datosCliente['idClientes'];
         } else {
-            $errores[]=$Calbcli->montarAdvertencia('danger',
+            $errores[]=$CalbAl->montarAdvertencia('danger',
                                              'No se encuentra datos del cliente de la factura con id'.$idCliente.'</br/>'
                                              .json_encode($datosCliente)
                                             );
@@ -140,7 +140,7 @@
                $fecha_post = $f['2'].'-'.$f['1'].'-'.$f['0'];
             } else {
                 // Si la fecha no es correcta.
-                 $errores[] =$Calbcli->montarAdvertencia('warning',
+                 $errores[] =$CalbAl->montarAdvertencia('warning',
                                              'La fecha que envia POST no es correcta.Fecha:'.$_POST['fecha']
                                             );
             }
@@ -160,9 +160,9 @@
             if(count($errores)==0){
                 if($datosAlbaran['numalbcli']>0){
                     $idAlbaran=$datosAlbaran['numalbcli'];
-                    $eliminarTablasPrincipal=$Calbcli->eliminarAlbaranTablas($idAlbaran);
+                    $eliminarTablasPrincipal=$CalbAl->eliminarAlbaranTablas($idAlbaran);
                     if (isset($eliminarTablasPrincipal['error'])){
-                        $errores[] =$Calbcli->montarAdvertencia('danger',
+                        $errores[] =$CalbAl->montarAdvertencia('danger',
                                                  'ERROR EN LA BASE DE DATOS AL BORRAR factura!'.'<br/> Consulta:'.$eliminarTablasPrincipal['consulta']
                                                  .'<br/>Error:'.$eliminarTablasPrincipal['error'].'<br/>'
                                                 );
@@ -170,15 +170,15 @@
                 }
             }
             if(count($errores)==0){
-                $addNuevo=$Calbcli->AddAlbaranGuardado($datos, $idAlbaran);
+                $addNuevo=$CalbAl->AddAlbaranGuardado($datos, $idAlbaran);
                 if(isset($addNuevo['error'])){
-                $errores[]=$Calbcli->montarAdvertencia('Danger!',
+                $errores[]=$CalbAl->montarAdvertencia('Danger!',
                                               'Error al añadir factura y guardarla.<br/>'
                                                  .'Error:'.$addNuevo['error'].'<br/>'
                                                  .'Consulta:'.$addNuevo['consulta'].'<br/>'
                                                  );
                 }
-                $eliminarTemporal=$Calbcli->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+                $eliminarTemporal=$CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
                 if(isset($eliminarTemporal['error'])){
                 $errores[]=$CFac->montarAdvertencia('danger',
                                                  'Error al eliminar temporal:'.$idTemporal
@@ -203,7 +203,7 @@
                 $_POST['productos']     = $datosAlbaran_guardada['Productos'];
                 $_POST['idCliente']     = $datosAlbaran_guardada['idCliente'];
                 // Los albaranes de factura directa hay que prepararlos para ser un adjunto
-                $pAdjuntos = prepararAdjuntos(json_decode($datosAlbaran_guardada['Albaranes'],true),$dedonde,$accion);
+                $pAdjuntos = prepararAdjuntos(json_decode($datosAlbaran_guardada['Pedidos'],true),$dedonde,$accion);
                 $_POST['pedidos']     = $pAdjuntos['adjuntos'];
                 // Para añadir el temporal de copia de los datos si hubo error.
                 include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
@@ -410,8 +410,8 @@
         <div style="margin-top:0;" id="tablaAl">
 			<label id="numPedidoT">Número del pedido:</label>
 			<input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarPedido('pedidos')"></a>
-			<table  class="col-md-12" id="tablaPedidos"> 
+			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
+			<table  class="col-md-12" id="tablaAlbaran"> 
 				<thead>
 				
 				<td><b>Número</b></td>
