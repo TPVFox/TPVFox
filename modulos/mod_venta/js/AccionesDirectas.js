@@ -32,7 +32,15 @@ function controladorAcciones(caja,accion, tecla){
 				buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
 			
-			break;
+		break;
+
+        case 'desde_fecha':
+            console.log('Estoy Accion/case desde_fecha');
+            console.log(caja.tecla);
+
+        break;
+
+        
 		case 'saltar_idCliente':
 		console.log('Entro en acciones saltar_idCliente');
 		var dato = caja.darValor();
@@ -45,12 +53,7 @@ function controladorAcciones(caja,accion, tecla){
 				var d_focus = 'id_cliente';
 				ponerFocus(d_focus);
 			}
-			break;
-		case 'saltar_idClienteFlechaAbajo':
-		console.log('Entro en acciones saltar_idClienteFlechaAbajo');
-		var d_focus = 'id_cliente';
-		ponerFocus(d_focus);
-		break;
+        break;
 		
 		case 'saltar_nombreCliente':
 		console.log('Entro en acciones saltar_nombreCliente');
@@ -74,6 +77,7 @@ function controladorAcciones(caja,accion, tecla){
 			break
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
+            console.log(caja.tecla);
 			var dato = caja.darValor();
 			if(dato.length === 0){
 				var d_focus = 'idArticulo';
@@ -112,7 +116,6 @@ function controladorAcciones(caja,accion, tecla){
 			break;
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
-			console.log(caja);
 			var nueva_fila = 0;
 			if(caja.id_input=="cajaBusquedacliente" || caja.id_input=="cajaBusqueda"){
 				ponerFocus('N_0');
@@ -249,8 +252,7 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
 		padre_caja.id_input = event.target.id;;
 	}
-	
-	return padre_caja;
+    return padre_caja;
 }
 
 function before_constructor(caja){

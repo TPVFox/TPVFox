@@ -851,7 +851,6 @@ function prepararCaberaAdjuntoTemporal($adjunto,$dedonde){
         $respuesta['total']     = $adjunto['total'];
         $respuesta['estado']    = "Activo";
     }
-    error_log('Entro:'.json_encode($adjunto));
     return $respuesta;
 }
 
