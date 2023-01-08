@@ -13,7 +13,7 @@
         $res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
         $onclick="buscarDatosAlbaran"; // Me hace falta montar modal si fuera necesario
     } else {
-        $res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
+        $res=$Cpedido->PedidosClienteGuardado($busqueda, $idCliente);
         $onclick="buscarDatosPedido";
     }
     $respuesta['res'] = json_encode($res);
@@ -31,7 +31,7 @@
             if ($dedonde =='factura'){
                 $productos  = $CalbAl->ProductosAlbaran($datos['id']);
             } else {
-                $productos=$CcliPed->ProductosPedidos($datos['id']);
+                $productos=$Cpedido->ProductosPedido($datos['id']);
             }
             $productos   = modificarArrayProductos($productos);
             if(isset($productos['error'])){

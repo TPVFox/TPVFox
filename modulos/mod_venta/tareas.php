@@ -17,7 +17,7 @@ include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
 include_once $URLCom.'/clases/cliente.php';
 
 $CIncidencia=new ClaseIncidencia($BDTpv);
-$CcliPed=new PedidosVentas($BDTpv);
+$Cpedido=new PedidosVentas($BDTpv);
 $CalbAl=new AlbaranesVentas($BDTpv);
 $Ccliente=new Cliente($BDTpv);
 $CFac=new FacturasVentas($BDTpv);
@@ -86,9 +86,8 @@ switch ($pulsado) {
 			$dedonde=$_POST['dedonde'];
 			$respuesta=array();
 			switch($dedonde){
-				case 'pedidos':
+				case 'pedido':
 					$cancelar=cancelarPedido( $idTemporal, $BDTpv);
-					$respuesta=$cancelar;
 				break;
 				case 'albaran':
 					$cancelar=cancelarAlbaran( $idTemporal, $BDTpv);
@@ -97,6 +96,7 @@ switch ($pulsado) {
 					$cancelar=cancelarFactura( $idTemporal, $BDTpv);
 				break;
 			 }
+             $respuesta=$cancelar;
 		break;
 		
 		case 'comprobarPedidos':
@@ -151,7 +151,7 @@ switch ($pulsado) {
 			$idPedido=$_POST['idModificar'];
 			$estado=$_POST['estado'];
 			$respuesta=array();
-			$modEstado=$CcliPed->ModificarEstadoPedido($idPedido, $estado);
+			$modEstado=$Cpedido->ModificarEstadoPedido($idPedido, $estado);
 			if(isset($modEstado['error'])){
 				$respuesta['error']=$modEstado['error'];
 				$respuesta['consulta']=$modEstado['consulta'];

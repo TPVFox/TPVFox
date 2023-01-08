@@ -24,6 +24,9 @@
     if ($_POST['dedonde'] =='factura'){
         $Clase= $CFac;
     }
+    if ($_POST['dedonde'] =='pedido'){
+        $Clase= $Cpedido;
+    }
     $respuesta=array();
     $existe=0;
     if ($idTemporal>0){

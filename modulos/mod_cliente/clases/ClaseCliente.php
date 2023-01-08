@@ -124,7 +124,7 @@ class ClaseCliente extends TFModelo{
 		//Cargar todos los pedidos de clientes de un cliente determinado en orden descendente
 		//@Parametros:
 		//id-> id del cliente
-		$sql='SELECT Numpedcli as num, FechaPedido as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by FechaPedido desc limit 0,15';
+		$sql='SELECT Numpedcli as num, Fecha as fecha, total, id , idCliente , estado FROM pedclit WHERE idCliente='.$id.' order by FechaPedido desc limit 0,15';
 		return $this->consulta($sql);
 	}
 

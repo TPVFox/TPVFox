@@ -240,7 +240,7 @@ class FacturasVentas extends ClaseVentas{
 		}
 	}
 
-    public function buscarDatosFacturasTemporal($idFacturaTemporal) {
+    public function buscarDatosTemporal($idFacturaTemporal) {
 		//@Objetivo:
 		//Buscar los datos de una factura temporal
 		$tabla='faccliltemporales';

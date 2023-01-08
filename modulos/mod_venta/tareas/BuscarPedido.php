@@ -5,7 +5,7 @@
 	
 			$busqueda=$_POST['busqueda'];
 			$idCliente=$_POST['idCliente'];
-			$res=$CcliPed->PedidosClienteGuardado($busqueda, $idCliente);
+			$res=$Cpedido->PedidosClienteGuardado($busqueda, $idCliente);
 			if (isset($res['error'])){
 				$respuesta['error']=$res['error'];
 				$respuesta['consulta']=$res['consulta'];
@@ -15,11 +15,11 @@
 						$respuesta['datos']['Numpedcli']=$res['Numpedcli'];
 						$respuesta['datos']['idPedCli']=$res['id'];
 						$respuesta['datos']['idPedido']=$res['id'];
-						$respuesta['datos']['fecha']=$res['FechaPedido'];
+						$respuesta['datos']['fecha']=$res['Fecha'];
 						$respuesta['datos']['total']=$res['total'];
 						$respuesta['datos']['estado']="Activo";
 						$respuesta['Nitems']=$res['Nitem'];
-						$productosPedido=$CcliPed->ProductosPedidos($res['id']);
+						$productosPedido=$Cpedido->ProductosPedido($res['id']);
 						$productosPedido=modificarArrayProductos($productosPedido);
 						if (isset($productosPedido['error'])){
 							$respuesta['error']=$productosPedido['error'];

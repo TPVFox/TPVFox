@@ -59,6 +59,21 @@
             }
             if ($accion != 'ver'){
                 // Comprobamos temporales para ese idAlbaran y obtenemos idTemporal si tiene.
+                $t= $CalbAl->TodosTemporal($idAlbaran);
+                if (count($t) > 0){
+                    // Existe temporal o temporales convertimos accion en ver
+                    $accion = 'ver';
+                    if (count($t) >1){
+                        // Si hay mas de un temporal ejecutamos comprobaciones para informar del error.
+                       $errores[] =$CalbAl->montarAdvertencia('danger',
+                                         '<strong>Existen varios temporales de esta Albaran !! </strong>  <br> '
+                                        );
+                    } else {
+                        $errores[] =$CalbAl->montarAdvertencia('warning',
+                                         '<strong>Existe un temporal</strong> no permitimos editarlo desde aquí, si quieres editarlo haz <a href="albaran.php?tActual='. $t['0']['id'].'">clic en el temporal</a> '
+                                        );
+                    }
+                }
             }
         }
     }
@@ -74,7 +89,7 @@
     // --- TEMPORAL --- /   
     if ($idTemporal>0 && $accion==''){
         // Temporal
-        $datosAlbaran = $datosAlbaran=$CalbAl->buscarDatosAlbaranTemporal($idTemporal);;
+        $datosAlbaran=$CalbAl->buscarDatosTemporal($idTemporal);;
         if (isset($datosAlbaran['Numalbcli'])){
             $idAlbaran=$datosAlbaran['Numalbcli'];
         }
@@ -109,8 +124,18 @@
 
     // ---- Compromamos si existe la albaran que el estado sea Sin guardar --- //
     if ($idAlbaran >0){
-        // Pendiente hacer.
     
+        $estado = $CalbAl->getEstado($idAlbaran);
+        if ($idTemporal >0 &&  $estado !='Sin guardar'){
+                // Hay un error, hay que informarlo
+                $errores[] =$CalbAl->montarAdvertencia('danger',
+                                             'Existe un temporal y su alabran, pero el <strong>estado de albaran es distinto al sin guardar</strong>. Avisa al administrador del sistema.'
+                                            );
+                //[DEBUG]
+                // Si se produce este error, era bueno que al administrador se le permita Guardar.
+                // Permitir guardar aunque haya este error y ya no muestra el btn.
+                // Si quieres guardarlo, comenta este if y te deja guardarlo con en mismo numero.
+        }
     }
     
     if ($idCliente > 0){
@@ -121,7 +146,7 @@
             $idCliente = $datosCliente['idClientes'];
         } else {
             $errores[]=$CalbAl->montarAdvertencia('danger',
-                                             'No se encuentra datos del cliente de la factura con id'.$idCliente.'</br/>'
+                                             'No se encuentra datos del cliente de la albaran con id'.$idCliente.'</br/>'
                                              .json_encode($datosCliente)
                                             );
         }
@@ -162,7 +187,7 @@
                     $eliminarTablasPrincipal=$CalbAl->eliminarAlbaranTablas($idAlbaran);
                     if (isset($eliminarTablasPrincipal['error'])){
                         $errores[] =$CalbAl->montarAdvertencia('danger',
-                                                 'ERROR EN LA BASE DE DATOS AL BORRAR factura!'.'<br/> Consulta:'.$eliminarTablasPrincipal['consulta']
+                                                 'ERROR EN LA BASE DE DATOS AL BORRAR albaran!'.'<br/> Consulta:'.$eliminarTablasPrincipal['consulta']
                                                  .'<br/>Error:'.$eliminarTablasPrincipal['error'].'<br/>'
                                                 );
                     }
@@ -170,17 +195,17 @@
             }
             if(count($errores)==0){
                 $addNuevo=$CalbAl->AddAlbaranGuardado($datos, $idAlbaran);
-                if(isset($addNuevo['errores'])){
+                if (isset($addNuevo['errores'])){
                     foreach ($addNuevo['errores'] as $error){
                         $errores[]=$CalbAl->montarAdvertencia('Danger!',
-                                                      'Error al añadir factura y guardarla.<br/>'
+                                                      'Error al añadir Albaran y guardarla.<br/>'
                                                          .'Error:'.$error['error'].'<br/>'
                                                          .'Consulta:'.$error['consulta'].'<br/>'
                                                          );
                     }
                 } else {
 			$eliminarTemporal=$CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-			if(isset($eliminarTemporal['error'])){
+                        if (isset($eliminarTemporal['error'])){
 			$errores[]=$CalbAl->montarAdvertencia('danger',
 							 'Error al eliminar temporal:'.$idTemporal
 							 .'Error: '.$eliminarTemporal['error'].'<br/>'
@@ -220,7 +245,7 @@
         }
         } else {
             // Pulso guardar, pero hay errores anteriores.
-            $errores[]=$CFac->montarAdvertencia('warning',
+            $errores[]=$CalbAl->montarAdvertencia('warning',
                                                 'Pulsaste GUARDAR, pero hay errores anteriores que hace que no ejecutemos.'
                                                  );
         }
@@ -232,6 +257,17 @@
     if ($idTemporal>0){
         // No hay accion , por lo que tenemos editar
         $accion = 'editar';
+    } else {
+        // Es Nuevo o ya existe pero no tiene temporal.
+        if ($estado === 'Facturado'){
+            // No permitimos editarlo
+            $accion = 'ver';
+            // Informamos
+             $errores[]=$Cpedido->montarAdvertencia('warning',
+                                    'INTENTAS EDITAR UN PEDIDO YA FACTURADO !! <br/>'
+                                    );
+        }
+
     }
     $pAdjuntos = prepararAdjuntos($pedidos,$dedonde,$accion);
     $adjuntos = $pAdjuntos['adjuntos'];
@@ -270,14 +306,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <?php
-    include $URLCom.'/head.php';?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-	<script type="text/javascript">
+<?php include $URLCom.'/head.php';?>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
+<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
@@ -426,7 +461,7 @@ if (isset($_POST['Cancelar'])){
 	</div>
 	</div>
 	<!-- Tabla de lineas de productos -->
-	<div >
+	<div>
 		<table id="tabla" class="table table-striped">
 		<thead>
 		  <tr>

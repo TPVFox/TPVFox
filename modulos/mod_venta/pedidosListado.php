@@ -23,7 +23,6 @@ $errores[0]=array ( 'tipo'=>'Danger!',
                              );
 }
 $todoTemporal=array_reverse($todoTemporal);
-$Tienda = $_SESSION['tiendaTpv'];
     
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
@@ -117,7 +116,7 @@ if (isset($errores)){
 				if (isset ($todoTemporal)){
                     foreach ($todoTemporal as $temporal){
 			    		$numTemporal="";
-						if ($temporal['idPedcli']){
+						if ($temporal['Numpedcli']){
 							$numTemporal=$temporal['Numpedcli'];
 						}					
 						$url = 'pedido.php?tActual='.$temporal['id'];
@@ -188,44 +187,39 @@ if (isset($errores)){
 						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
 						?>
 						<tr>
-                            <td class="row"><input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $pedido['id'];?>">
-                         <td>
-                             <?php 
-                              if($ClasePermisos->getAccion("Modificar")==1){
-                             ?>
-                                <a class="glyphicon glyphicon-pencil" href='./pedido.php?id=<?php echo $pedido['id'];?>'>
-                            <?php 
-                            }
-                            ?>
-                        </td>
-                        <td>
-                            <?php 
-                            if($ClasePermisos->getAccion("Ver")==1){
-                            ?>
-                            <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&estado=ver'>
-                            <?php 
-                            }
-                            ?>
-                        </td>
+                            <td class="row">
+                                <input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $pedido['id'];?>">
+                            </td>
+
+                            <td>
+                                <?php 
+                                 if($ClasePermisos->getAccion("Modificar")==1){
+                            echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].'&accion=editar"></a>';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php 
+                                if($ClasePermisos->getAccion("Ver")==1){
+                                   echo '<a class="glyphicon glyphicon-eye-open" href="./pedido.php?id='.$pedido['id'].'&estado=ver"></a>';
+                                }
+                                ?>
+                            </td>
 						<td><?php echo $pedido['Numpedcli'];?></td>
-						<td><?php echo $pedido['FechaPedido'];?></td>
+						<td><?php echo $pedido['Fecha'];?></td>
 						<td><?php echo $pedido['Nombre'];?></td>
 						<td><?php echo $totaliva['totalbase'];?></td>
 						<td><?php echo $totaliva['importeIva'];?></td>
 						<td><?php echo $pedido['total'];?></td>
-						<?php 
-						if ($pedido['estado']=="Sin Guardar"){
-							?>
-							<td><?php echo $pedido['estado'];?></td>
-							<?php
-						}else{
-							$tienda=json_encode($_SESSION['tiendaTpv']);
-							?>
-						<td><?php echo $pedido['estado'];?>  <a class="glyphicon glyphicon-print" onclick='imprimir(<?php echo $pedido['id'];?>, "pedido", <?php echo $tienda;?>)'></a></td>
-
-							<?php
-						}
-						?>
+                            <td>
+                            <?php 
+                            echo $pedido['estado'];
+                            if ($pedido !== 'Sin Guardar'){
+                                $onclick=" onclick='imprimir(".$pedido['id'].',"pedido",'.json_encode($_SESSION['tiendaTpv']).")'";
+                                echo '<a class="glyphicon glyphicon-print" '.$onclick.'></a>';
+                            }
+                            ?>
+                            </td>
 						</tr>
 						<?php
 					}

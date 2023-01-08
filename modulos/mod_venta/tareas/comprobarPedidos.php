@@ -5,7 +5,7 @@
 			$estado="Guardado";
 			$respuesta=array();
 			if ($idCliente>0){
-				$comprobar=$CcliPed->ComprobarPedidos($idCliente, $estado);
+				$comprobar=$Cpedido->ComprobarPedidos($idCliente, $estado);
 				if(isset($comprobar['error'])){
 					$respuesta['error']=$comprobar['error'];
 					$respuesta['consulta']=$comprobar['consulta'];

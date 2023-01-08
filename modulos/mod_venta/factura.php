@@ -110,7 +110,7 @@
     // --- TEMPORAL --- /   
     if ($idTemporal>0 && $accion==''){
         // Temporal
-        $datosFactura = $CFac->buscarDatosFacturasTemporal($idTemporal);
+        $datosFactura = $CFac->buscarDatosTemporal($idTemporal);
         if (isset($datosFactura['Numfaccli'])){
             $idFactura = $datosFactura['Numfaccli'];
         }
@@ -224,13 +224,15 @@
                 }
                 if(count($errores)==0){
                     $addNuevo=$CFac->AddFacturaGuardado($datos, $idFactura);
-                    if (isset($addNuevo['error'])){
-                    $errores[]=$CFac->montarAdvertencia('danger',
-                                                 'Error al añadir factura y guardarla.<br/>'
-                                                 .'Error:'.$addNuevo['error'].'<br/>'
-                                                 .'Consulta:'.$addNuevo['consulta'].'<br/>'
-                                                 );
-                    }else{
+                    if (isset($addNuevo['errores'])){
+                        foreach ($addNuevo['errores'] as $error){
+                            $errores[]=$CFac->montarAdvertencia('Danger!',
+                                                          'Error al añadir factura y guardarla.<br/>'
+                                                             .'Error:'.$error['error'].'<br/>'
+                                                             .'Consulta:'.$error['consulta'].'<br/>'
+                                                             );
+                        }
+                    } else {
                         $eliminarTemporal=$CFac->EliminarRegistroTemporal($idTemporal, $idFactura);
                         if (isset($eliminarTemporal['error'])){
                         $errores[]=$CFac->montarAdvertencia('danger',
@@ -239,7 +241,7 @@
                                                  .'Consulta:'.$eliminarTemporal['consulta'].'<br/>'
                                                  );
                          }
-                    }                    
+                    }
                 }
                 if(count($errores) == 0){
                     //  Redireccionamos a listado facturas una vez guardado correctamente.

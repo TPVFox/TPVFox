@@ -155,14 +155,8 @@ function addTemporal(dedonde){
 	//@Parametros: 
 	//dedonde: de donde viene (factura, albaran, pedidos)
 		console.log('FUNCION Añadir temporal JS-AJAX');
-		if (dedonde=="pedidos"){
-			var pulsado= 'anhadirPedidoTemp';
-		}
-		if (dedonde=="albaran" || dedonde=="factura"){
-			var pulsado='anhadirTemporal';
-		}
 		var parametros = {
-		"pulsado"    : pulsado,
+		"pulsado"    : 'anhadirTemporal',
 		"idTemporal":cabecera.idTemporal,
 		"idUsuario":cabecera.idUsuario,
 		"idTienda":cabecera.idTienda,
@@ -419,7 +413,7 @@ function buscarPedido(dedonde, idcaja, valor=''){
 							}
 							console.log(dedonde);
 							addTemporal(dedonde)
-							modificarEstado("pedidos", "Facturado",resultado['datos'].idPedCli );
+							modificarEstado("pedido", "Facturado",resultado['datos'].idPedCli );
 							AgregarFilaPedido(datos, "albaran");
 							AgregarFilaProductosAl(resultado.productos, dedonde);
 						}else{
@@ -598,7 +592,7 @@ function cancelarTemporal(idTemporal, dedonde){
 							alert(resultado.mensaje+": "+resultado.dato);
 						}else{
 							switch(dedonde){
-								case 'pedidos':
+								case 'pedido':
 									location.href="pedidosListado.php";
 								break;
 								case 'albaran':
@@ -689,21 +683,15 @@ function eliminarAdjunto(numRegistro, dedonde, nfila){
 	console.log("entre en eliminar Adjunto");
 	var line;
 	num=nfila-1;
-	if (dedonde=="factura"){
-		line = "#lineaP" + adjuntos[num].nfila;
-		adjuntos[num].estado= 'Eliminado';
-	}
-	if (dedonde=="albaran"){
-		line = "#lineaP" + pedidos[num].nfila;
-		pedidos[num].estado= 'Eliminado';
-	}
+    line = "#lineaP" + adjuntos[num].nfila;
+    adjuntos[num].estado= 'Eliminado';
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarAdjunto('+numRegistro+', '+"'"+dedonde+"'," + nfila+');"><span class="glyphicon glyphicon-export"></span></a>');
     // Ahora cambiamos estado poniendo 'Eliminando' de todos los productos de ese adjunto.
     cambiarEstadoProductosAdjunto(dedonde,'Eliminado',numRegistro);
     // Ahora cambiamos estado de adjunto a Guardado, ya que debería tener como facturado.
     if (dedonde=="albaran"){
-        modificarEstado("pedidos", "Guardado", pedidos[num].idPedido);
+        modificarEstado("pedido", "Guardado",  adjuntos[num].NumAdjunto);
     }
     if (dedonde=="factura"){
         modificarEstado("albaran", "Guardado", adjuntos[num].NumAdjunto);
@@ -791,7 +779,7 @@ function  modificarEstado(dedonde, estado, idModificar){
 	//Dedonde: de donde llamamos a la función
 	//Estado: estado que vamos a asignarle al registro
 	//IdModificar: id del registro que se va a modificar
-	if (dedonde=="pedidos"){
+	if (dedonde=="pedido"){
 		var pulsado='modificarEstadoPedido';
 	}
 	if (dedonde=="albaran"){

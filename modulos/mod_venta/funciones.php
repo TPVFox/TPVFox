@@ -81,7 +81,7 @@ function cancelarAlbaran($idTemporal, $BDTpv){
 	$Cped = new PedidosVentas($BDTpv);
 	$error=array();
 	if($idTemporal>0){
-		$datosAlbaran=$Calbcli->buscarDatosAlbaranTemporal($idTemporal);
+		$datosAlbaran=$Calbcli->buscarDatosTemporal($idTemporal);
 		if(isset($datosAlbaran['error'])){
 			$error =array ( 'tipo'=>'Danger!',
 								'dato' => $datosAlbaran['consulta'],
@@ -128,7 +128,7 @@ function cancelarFactura($idTemporal, $BDTpv){
 	$Cfaccli= new FacturasVentas($BDTpv);
 	$error  = array();
 	if($idTemporal>0){
-		$datosFactura=$Cfaccli->buscarDatosFacturasTemporal($idTemporal);
+		$datosFactura=$Cfaccli->buscarDatosTemporal($idTemporal);
 		if(isset($datosFactura['error'])){
 			$error = array ( 'tipo'=>'Danger!',
 									'dato' => $datosFactura['consulta'],
@@ -585,7 +585,7 @@ function modificarArrayPedidos($pedidos, $BDTpv){
 			}
 			$res['Numpedcli']=$numPedido;
 			$res['idPedido']=$ped['id'];
-			$res['fecha']=$ped['FechaPedido'];
+			$res['fecha']=$ped['Fecha'];
 			$res['idPedCli']=$ped['id'];
 			$res['total']=$ped['total'];
 			$res['estado']="Activo";
@@ -688,11 +688,11 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
 	);
 	if ($dedonde=='pedido'){
 		$Cpedido=new PedidosVentas($BDTpv);
-		$datos=$Cpedido->datosPedidos($id);
+		$datos=$Cpedido->datosPedido($id);
 		$datosCliente=$Ccliente->DatosClientePorId($datos['idCliente']);
 		$textoCabecera="Pedido de cliente";
 		$numero=$datos['Numpedcli'];
-		$productos=$Cpedido->ProductosPedidos($id);
+		$productos=$Cpedido->ProductosPedido($id);
     }
 	if ($dedonde =='albaran'){
 		$Calbaran=new AlbaranesVentas($BDTpv);
@@ -844,7 +844,7 @@ function prepararCaberaAdjuntoTemporal($adjunto,$dedonde){
     } else {
         $respuesta['id']        = $adjunto['id'];
         $respuesta['NumAdjunto']= $adjunto['Numpedcli'];
-        $respuesta['fecha']     = $adjunto['FechaPedido'];
+        $respuesta['fecha']     = $adjunto['Fecha'];
         $respuesta['total']     = $adjunto['total'];
         $respuesta['estado']    = "Activo";
     }
