@@ -75,8 +75,8 @@
     if ($idTemporal>0 && $accion==''){
         // Temporal
         $datosAlbaran = $datosAlbaran=$CalbAl->buscarDatosAlbaranTemporal($idTemporal);;
-        if (isset($datosAlbaran['numalbcli'])){
-            $idAlbaran=$datosAlbaran['numalbcli'];
+        if (isset($datosAlbaran['Numalbcli'])){
+            $idAlbaran=$datosAlbaran['Numalbcli'];
         }
     }
 
@@ -92,7 +92,6 @@
         $incidenciasAdjuntas                = incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         if ($idTemporal == 0){
-            // Comprobamos si esta albaran tiene temporales.
             // Si no es temporal, entonces tenemos crear $datosAlbaran.
             $datosAlbaran = $datosAlbaran_guardada;
             $estado=$datosAlbaran['estado'];
@@ -113,7 +112,6 @@
         // Pendiente hacer.
     
     }
-
     
     if ($idCliente > 0){
         $datosCliente=$Ccliente->getCliente($idCliente);
@@ -128,9 +126,9 @@
                                             );
         }
     }
-
     // ---  Pulso Guardar --- //
     if (isset($_POST['Guardar'])){
+        if (count($errores) == 0){ 
         if ( $accion !='ver' && $idTemporal >0){
             // Si entramos aquí es porque existe temporal y pulso guardar.
             // ---- Comprobamos fechas antes guardar --- //
@@ -146,21 +144,21 @@
                                             );
             }
             $datos=array(
-						'Numtemp_albcli'=>$idTemporal,
-						'Fecha'=>$fecha,
-						'idTienda'=>$Tienda['idTienda'],
-						'idUsuario'=>$Usuario['id'],
-						'idCliente'=>$idCliente,
-						'estado'=>"Guardado",
-						'total'=>$Datostotales['total'],
-						'DatosTotales'=>$Datostotales,
-						'productos'=>$datosAlbaran['Productos'],
-						'pedidos'=>$datosAlbaran['Pedidos']
-					);
+					'Numtemp_albcli'=>$idTemporal,
+                    'Fecha'=>$fecha_post,
+					'idTienda'=>$Tienda['idTienda'],
+					'idUsuario'=>$Usuario['id'],
+					'idCliente'=>$idCliente,
+					'estado'=>"Guardado",
+					'total'=>$Datostotales['total'],
+					'DatosTotales'=>$Datostotales,
+					'productos'=>$datosAlbaran['Productos'],
+					'pedidos'=>$datosAlbaran['Pedidos']
+				);
 
             if(count($errores)==0){
-                if($datosAlbaran['numalbcli']>0){
-                    $idAlbaran=$datosAlbaran['numalbcli'];
+                if($datosAlbaran['Numalbcli']>0){
+                    $idAlbaran=$datosAlbaran['Numalbcli'];
                     $eliminarTablasPrincipal=$CalbAl->eliminarAlbaranTablas($idAlbaran);
                     if (isset($eliminarTablasPrincipal['error'])){
                         $errores[] =$CalbAl->montarAdvertencia('danger',
@@ -172,21 +170,24 @@
             }
             if(count($errores)==0){
                 $addNuevo=$CalbAl->AddAlbaranGuardado($datos, $idAlbaran);
-                if(isset($addNuevo['error'])){
-                $errores[]=$CalbAl->montarAdvertencia('Danger!',
-                                              'Error al añadir factura y guardarla.<br/>'
-                                                 .'Error:'.$addNuevo['error'].'<br/>'
-                                                 .'Consulta:'.$addNuevo['consulta'].'<br/>'
-                                                 );
-                }
-                $eliminarTemporal=$CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-                if(isset($eliminarTemporal['error'])){
-                $errores[]=$CalbAl->montarAdvertencia('danger',
-                                                 'Error al eliminar temporal:'.$idTemporal
-                                                 .'Error: '.$eliminarTemporal['error'].'<br/>'
-                                                 .'Consulta:'.$eliminarTemporal['consulta'].'<br/>'
-                                                 );
-                }
+                if(isset($addNuevo['errores'])){
+                    foreach ($addNuevo['errores'] as $error){
+                        $errores[]=$CalbAl->montarAdvertencia('Danger!',
+                                                      'Error al añadir factura y guardarla.<br/>'
+                                                         .'Error:'.$error['error'].'<br/>'
+                                                         .'Consulta:'.$error['consulta'].'<br/>'
+                                                         );
+                    }
+                } else {
+			$eliminarTemporal=$CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+			if(isset($eliminarTemporal['error'])){
+			$errores[]=$CalbAl->montarAdvertencia('danger',
+							 'Error al eliminar temporal:'.$idTemporal
+							 .'Error: '.$eliminarTemporal['error'].'<br/>'
+							 .'Consulta:'.$eliminarTemporal['consulta'].'<br/>'
+							 );
+			}
+		}
             }
             if(count($errores) == 0){
                 //  Redireccionamos a listado facturas una vez guardado correctamente.
@@ -200,14 +201,15 @@
                 $_POST['idTemporal']    = 0; // Ya queremos sea un temporal nuevo.
                 $_POST['idUsuario']     = $Usuario['id'];
                 $_POST['idTienda']      = $Tienda['idTienda'];
-                $_POST['idReal']        = $datosAlbaran['numalbcli'];
+                $_POST['idReal']        = $datosAlbaran['Numalbcli'];
                 $_POST['productos']     = $datosAlbaran_guardada['Productos'];
                 $_POST['idCliente']     = $datosAlbaran_guardada['idCliente'];
+                $_POST['dedonde']       = $dedonde;
                 // Los albaranes de factura directa hay que prepararlos para ser un adjunto
                 $pAdjuntos = prepararAdjuntos(json_decode($datosAlbaran_guardada['Pedidos'],true),$dedonde,$accion);
                 $_POST['pedidos']     = $pAdjuntos['adjuntos'];
                 // Para añadir el temporal de copia de los datos si hubo error.
-                include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
+                include_once $URLCom.'/modulos/mod_venta/tareas/AddTemporal.php';
                 $errores[]=$CalbAl->montarAdvertencia('danger',
                                     'HUBO ERROR AL GRABAR !! <br/>'
                                     .'El error, es el o los anteriores.</br>'
@@ -216,8 +218,13 @@
                                     );
             }
         }
+        } else {
+            // Pulso guardar, pero hay errores anteriores.
+            $errores[]=$CFac->montarAdvertencia('warning',
+                                                'Pulsaste GUARDAR, pero hay errores anteriores que hace que no ejecutemos.'
+                                                 );
+        }
     }
-
 
     // --- Montamos html_adjuntos y variable adjunto que utilizamos para montar variable JS --- //
     $html_adjuntos= '';

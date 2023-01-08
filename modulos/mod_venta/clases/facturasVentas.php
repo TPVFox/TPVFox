@@ -22,6 +22,7 @@ class FacturasVentas extends ClaseVentas{
 		//@Objetivo:
 		//Añadir todos los registros de las diferentes tablas de una factura real
 		$respuesta=array();
+        $errores = array();
 		$db = $this->db;
 		if ($idFactura>0){
 			$sql='INSERT INTO facclit (id, Numfaccli, Fecha, idTienda 
@@ -33,9 +34,9 @@ class FacturasVentas extends ClaseVentas{
 			.'", "'.$datos['fechaModificacion'].'")';
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-                error_log('facturaVentas en AddFacturaGuardado_1:'.json_encode($smt['error']));
-				$respuesta['consulta']=$smt['consulta'];
+                error_log('en facturasVentas AddGuardado(1):'.$smt['error']);
+                $errores[]['error'] = 'facturaVentas AddGuardado(1):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
 				return $respuesta;
 			}else{
 				$id=$idFactura;
@@ -50,18 +51,18 @@ class FacturasVentas extends ClaseVentas{
              .'" ,  "'.$datos['fechaModificacion'].'")';
 			 $smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-                error_log('facturaVentas en AddFacturaGuardado_2:'.$smt['error']);
-				$respuesta['consulta']=$smt['consulta'];
+				$error_log('en facturasVentas AddGuardado(2):'.$smt['error']);
+                $errores[]['error'] = 'facturaVentas AddGuardado(2):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
 				return $respuesta;
 			}else{
 				$id=$db->insert_id;
 				$sql='UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id;
 				$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
-                        error_log('facturaVentas en AddFacturaGuardado_3:'.$smt['error']);
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
+                        error_log('en facturasVentas AddGuardado(3):'.$smt['error']);
+                        $errores[]['error'] = 'facturaVentas AddGuardado(3):'.$smt['error'];
+                        $errores[]['consulta'] = $smt['consulta'];
 						
 					}
 			}
@@ -85,46 +86,49 @@ class FacturasVentas extends ClaseVentas{
 				 .$prod['cdetalle'].'", '.$prod['ncant'].' , '.$prod['nunidades'].', '
 				 .$prod['precioCiva'].' , '.$prod['iva'].', '.$i.', "'. $prod['estadoLinea']
 				 .'" , '.$numAl.', '.$prod['pvpSiva'].')' ;
-					$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-                        error_log('facturaVentas en AddFacturaGuardado_4:'.$smt['error']);
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
-						break;
-					}
-					$i++;
-				}
-			}
-		
+                $smt=$this->consulta($sql);
+                if (gettype($smt)==='array'){
+                    error_log('en facturasVentas AddGuardado(4):'.$smt['error']);
+                    $errores[]['error'] = 'facturaVentas AddGuardado(4):'.$smt['error'];
+                    $errores[]['consulta'] = $smt['consulta'];
+                    break;
+                }
+                $i++;
+            }
+        }
 		foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas){
 			$sql='INSERT INTO faccliIva (idfaccli  ,  Numfaccli  , iva , 
 			importeIva, totalbase) VALUES ('.$id.', '.$id.' , '.$iva.', '
 			.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			$smt=$this->consulta($sql);
-					if (gettype($smt)==='array'){
-                        error_log('facturaVentas en AddFacturaGuardado_5:'.$smt['error']);
-						$respuesta['error']=$smt['error'];
-						$respuesta['consulta']=$smt['consulta'];
-						break;
-					}
+            if (gettype($smt)==='array'){
+                error_log('en facturasVentas AddGuardado(5):'.$smt['error']);
+                $errores[]['error'] = 'facturaVentas AddGuardado(5):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
+                break;
+            }
 		}
 		$albaranes = json_decode($datos['albaranes'], true); 
 		if (isset($albaranes)){
             foreach ($albaranes as $albaran){
                 if ($albaran['estado']=="activo" || $albaran['estado']=="Activo"){
-                        $sql='INSERT INTO albclifac (idFactura  ,  numFactura  
-                         , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
-                         .$albaran['NumAdjunto'].' , '.$albaran['NumAdjunto'].')';
-                        $smt=$this->consulta($sql);
-                        if (gettype($smt)==='array'){
-                            error_log('facturaVentas en AddFacturaGuardado_6:'.$smt['error']);
-                            $respuesta['error']=$smt['error'];
-                            $respuesta['consulta']=$smt['consulta'];
-                            break;
-                        }
+                    $sql='INSERT INTO albclifac (idFactura  ,  numFactura  
+                     , idAlbaran , numAlbaran) VALUES ('.$id.', '.$id.' ,  '
+                     .$albaran['NumAdjunto'].' , '.$albaran['NumAdjunto'].')';
+                    $smt=$this->consulta($sql);
+                    if (gettype($smt)==='array'){
+                        error_log('en facturasVentas AddGuardado(6):'.$smt['error']);
+                        $errores[]['error'] = 'facturaVentas AddGuardado(6):'.$smt['error'];
+                        $errores[]['consulta'] = $smt['consulta'];
+                        break;
+                    }
                 }
             }
 		}
+        if (count($errores) >0 ){
+            // Devolvemos los errores.
+            $respuesta['errores'] = $errores;
+        }
 		return $respuesta;
 	}
 

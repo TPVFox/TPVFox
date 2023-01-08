@@ -41,6 +41,7 @@ function controladorAcciones(caja,accion, tecla){
             if (cabecera.fecha !== caja.darValor()){
                 // Solo creamos temporal si la accion es editar
                 if (cabecera.accion == 'editar'){
+                    cabecera.fecha = caja.darValor();
                     // Deberíamos recalcular  fecha vencimiento, ante de generar temporal
                     addTemporal(caja.darParametro('dedonde'));
                 }

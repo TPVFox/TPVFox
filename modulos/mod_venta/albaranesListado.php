@@ -98,8 +98,8 @@ if (isset($errores)){
 				<?php
 			if (isset($todosTemporal)){
 				foreach ($todosTemporal as $temporal){
-					if ($temporal['numalbcli']){
-						$numTemporal = $temporal['numalbcli'];
+					if ($temporal['Numalbcli']){
+						$numTemporal = $temporal['Numalbcli'];
 					}else{
 						$numTemporal = "";
 					}

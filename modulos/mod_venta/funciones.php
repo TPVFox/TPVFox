@@ -330,9 +330,6 @@ function htmlLineaProductos($producto, $dedonde,$accion='ver'){
             if(isset($producto['NumalbCli'])){
                 $numAdjunto=$producto['NumalbCli'];
             }
-            if(isset($producto['numalbcli'])){
-                $numAdjunto=$producto['numalbcli'];
-            }
         }
         $td_numAdjunto ='<td>'.$numAdjunto.'</td>'; 
     }

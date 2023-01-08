@@ -46,7 +46,7 @@
     $formasVenci= $Ccliente->getVencimientos();
     $errores    = array();
     $parametros = $ClasesParametros->getRoot();
-    $inciden="";
+    $inciden= "";
 	foreach($parametros->cajas_input->caja_input as $caja){
 		$caja->parametros->parametro[0]="factura";
 	}
@@ -128,7 +128,6 @@
 		$incidenciasAdjuntas                = incidenciasAdjuntas($idFactura, "mod_ventas", $BDTpv, "factura");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         if ($idTemporal == 0){
-            // Comprobamos si esta factura tiene temporales.
             // Si no es temporal, entonces tenemos crear $datosFactura.
             $datosFactura = $datosFactura_guardada;
             $estado=$datosFactura['estado'];
@@ -257,6 +256,7 @@
                             $_POST['idReal']        = $datosFactura['Numfaccli'];
                             $_POST['productos']     = $datosFactura_guardada['Productos'];
                             $_POST['idCliente']     = $datosFactura_guardada['idCliente'];
+                $_POST['dedonde']       = $dedonde;
                             // Los albaranes de factura directa hay que prepararlos para ser un adjunto
                             $pAdjuntos = prepararAdjuntos(json_decode($datosFactura_guardada['Albaranes'],true),$dedonde,$accion);
                             $_POST['albaranes']     = $pAdjuntos['adjuntos'];

@@ -1,5 +1,4 @@
 <?php
-//~ include_once ("./../../../inicial.php");
 include_once $URLCom.'/modulos/mod_venta/clases/ClaseVentas.php';
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
@@ -19,7 +18,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //Añadir nuevos registros de un albaran real 
         $respuesta = array();
-        $i = 1;
+        $errores = array();
         $db = $this->db;
         if ($idAlbaran > 0) {
             $sql = 'INSERT INTO albclit (id, Numalbcli, Fecha, idTienda , 
@@ -28,8 +27,10 @@ class AlbaranesVentas extends ClaseVentas {
                     . $datos['idCliente'] . ', "' . $datos['estado'] . '", ' . $datos['total'] . ')';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
-                $respuesta['error'] = $smt['error'];
-                $respuesta['consulta'] = $smt['consulta'];
+                error_log('en albaranesVentas AddGuardado(1):'.$smt['error']);
+                $errores[]['error'] = 'albaranesVentas AddGuardado(1):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
+				return $respuesta;
             } else {
                 $id = $idAlbaran;
             }
@@ -40,25 +41,28 @@ class AlbaranesVentas extends ClaseVentas {
                     . ', ' . $datos['idCliente'] . ' , "' . $datos['estado'] . '", ' . $datos['total'] . ')';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
-                $respuesta['error'] = $smt['error'];
-                error_log('en albaranesVentas modificarDatosAlbaranesTemporal:'.$smt['error']);
-                $respuesta['consulta'] = $smt['consulta'];
+                error_log('en albaranesVentas AddGuardado(2):'.$smt['error']);
+                $errores[]['error'] = 'albaranesVentas AddGuardado(2):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
+				return $respuesta;
             } else {
                 $id = $db->insert_id;
                 $sql = 'UPDATE albclit SET Numalbcli  = ' . $id . ' WHERE id =' . $id;
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
-                    $respuesta['error'] = $smt['error'];
-                    $respuesta['consulta'] = $smt['consulta'];
+                    error_log('en albaranesVentas AddGuardado(3):'.$smt['error']);
+                    $errores[]['error'] = 'albaranesVentas AddGuardado(3):'.$smt['error'];
+                    $errores[]['consulta'] = $smt['consulta'];
                 }
             }
         }
         $productos = json_decode($datos['productos'], true);
         $stock = new alArticulosStocks();
+        $i = 1;
         foreach ($productos as $prod) {
             if ($prod['estadoLinea'] === 'Activo') {
-                $numPed = 0;
                 $codBarras = "";
+                $numPed = 0;
                 if (isset($prod['ccodbar'])) {
                     $codBarras = $prod['ccodbar'];
                 }
@@ -76,8 +80,9 @@ class AlbaranesVentas extends ClaseVentas {
                         . $prod['iva'] . ', ' . $i . ', "' . $prod['estadoLinea'] . '" , ' . $numPed . ', ' . $prod['pvpSiva'] . ')';
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
-                    $respuesta['error'] = $smt['error'];
-                    $respuesta['consulta'] = $smt['consulta'];
+                    error_log('en albaranesVentas AddGuardado(4):'.$smt['error']);
+                    $errores[]['error'] = 'albaranesVentas AddGuardado(4):'.$smt['error'];
+                    $errores[]['consulta'] = $smt['consulta'];
                     break;
                 }
                 $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_RESTA);
@@ -90,9 +95,9 @@ class AlbaranesVentas extends ClaseVentas {
                     . $basesYivas['iva'] . '" , "' . $basesYivas['base'] . '")';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
-                $respuesta['error'] = $smt['error'];
-                error_log('Error albaranesVentas en modificarDatosAlbaranTemporal:'.$smt['error']);
-                $respuesta['consulta'] = $smt['consulta'];
+                error_log('en albaranesVentas AddGuardado(5):'.$smt['error']);
+                $errores[]['error'] ='albaranesVentas AddGuardado(5):'.$smt['error'];
+                $errores[]['consulta'] = $smt['consulta'];
                 break;
             }
         }
@@ -104,11 +109,16 @@ class AlbaranesVentas extends ClaseVentas {
                         . ' , ' . $pedido['Numpedcli'] . ')';
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
-                    $respuesta['error'] = $smt['error'];
-                    $respuesta['consulta'] = $smt['consulta'];
+                    error_log('en albaranesVentas AddGuardado(6):'.$smt['error']);
+                    $errores[]['error'] ='albaranesVentas AddGuardado(6):'.$smt['error'];
+                    $errores[]['consulta'] = $smt['consulta'];
                     break;
                 }
             }
+        }
+        if (count($errores) >0 ){
+            // Devolvemos los errores.
+            $respuesta['errores'] = $errores;
         }
         return $respuesta;
     }
@@ -173,7 +183,7 @@ class AlbaranesVentas extends ClaseVentas {
         //Eliminar el albarán temporal indicado
         $db = $this->db;
         if ($idAlbaran > 0) {
-            $smt = $db->query('DELETE FROM albcliltemporales WHERE numalbcli =' . $idAlbaran);
+            $smt = $db->query('DELETE FROM albcliltemporales WHERE Numalbcli =' . $idAlbaran);
         } else {
             $smt = $db->query('DELETE FROM albcliltemporales WHERE id=' . $idTemporal);
         }
@@ -255,7 +265,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //Mostrar todos los datos temporales
         $db = $this->db;
-        $sql = 'SELECT tem.numalbcli, tem.id , tem.idCliente,
+        $sql = 'SELECT tem.Numalbcli, tem.id , tem.idCliente,
 			 tem.total, b.Nombre from albcliltemporales as tem left JOIN clientes
 			  as b on tem.idCliente=b.idClientes';
         $smt = $this->consulta($sql);
@@ -276,7 +286,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //SI tenemos un número de albarán real lo metemos en el albarán temporal
         $db = $this->db;
-        $sql = 'UPDATE albcliltemporales SET numalbcli =' . $numAlbaran
+        $sql = 'UPDATE albcliltemporales SET Numalbcli =' . $numAlbaran
                 . ' WHERE id=' . $idTemporal;
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
@@ -300,7 +310,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //Buscar todos los datos de un albarán temporal por numero real de albarán cliente
         $tabla = 'albcliltemporales';
-        $where = 'numalbcli=' . $idAlbaran;
+        $where = 'Numalbcli=' . $idAlbaran;
         $albaran = parent::SelectUnResult($tabla, $where);
         return $albaran;
     }
@@ -331,7 +341,7 @@ class AlbaranesVentas extends ClaseVentas {
         //@Objetivo:
         //Datos de un albarán real según numero de cliente
         $tabla = 'albclit';
-        $where = 'numalbcli=' . $numAlbaran;
+        $where = 'Numalbcli=' . $numAlbaran;
         $albaran = parent::SelectUnResult($tabla, $where);
         return $albaran;
     }

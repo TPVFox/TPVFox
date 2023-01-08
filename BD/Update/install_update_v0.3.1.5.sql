@@ -9,3 +9,4 @@ UPDATE `tiposVencimiento` SET `dias` = '0' WHERE `tiposVencimiento`.`id` = 1;
 ALTER TABLE `albcliltemporales` CHANGE `idClientes` `idCliente` INT(11) NULL DEFAULT NULL; 
 ALTER TABLE `albcliltemporales` CHANGE `fechaFinal` `Fecha` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `albcliltemporales` DROP `estadoAlbCli`;
+ALTER TABLE `albcliltemporales` CHANGE `numalbcli` `Numalbcli` INT(11) NULL DEFAULT NULL; 
