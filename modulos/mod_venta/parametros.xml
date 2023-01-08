@@ -43,7 +43,6 @@
 				<action tecla="38">saltar_Fecha</action>
 				<action tecla=" 9">saltar_idArticulo</action>
 				<action tecla="40">saltar_idArticulo</action>
-				<action tecla="37">saltar_idCliente</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -69,7 +68,6 @@
 				<action tecla="38">saltar_nombreClienteArticulo</action>
 				<action tecla=" 9">saltar_Referencia</action>
 				<action tecla="40">saltar_productos</action>
-				<action tecla="37">saltar_idCliente</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
@@ -174,9 +172,7 @@
 		<caja_input>
 			<nombre id_input="numPedido">numPedido</nombre>
 			<teclas>
-				<action tecla="39">saltar_idCliente</action>
 				<action tecla="37">saltarFechaAl</action>
-				<action tecla="9">saltar_idCliente</action>
 				<action tecla="13">buscarPedido</action>
 			</teclas>
 			<parametros>

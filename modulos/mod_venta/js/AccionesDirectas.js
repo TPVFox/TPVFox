@@ -36,25 +36,20 @@ function controladorAcciones(caja,accion, tecla){
 
         case 'desde_fecha':
             console.log('Estoy Accion/case desde_fecha');
-            console.log(caja.tecla);
+            // Controlamos si es temporal, ya que si no es temporal, tenemos que generar si cambio de valor.(claro)
+            console.log(cabecera);
+            if (cabecera.fecha !== caja.darValor()){
+                // Solo creamos temporal si la accion es editar
+                if (cabecera.accion == 'editar'){
+                    // Deberíamos recalcular  fecha vencimiento, ante de generar temporal
+                    addTemporal(caja.darParametro('dedonde'));
+                }
+            }
+            var d_focus = 'Cliente';
+            ponerFocus(d_focus)
 
         break;
 
-        
-		case 'saltar_idCliente':
-		console.log('Entro en acciones saltar_idCliente');
-		var dato = caja.darValor();
-		if(caja.id_input=="fecha"){
-					cabecera.fecha=dato;
-					var d_focus = 'id_cliente';
-				ponerFocus(d_focus);
-		}
-			if ( dato.length === 0){
-				var d_focus = 'id_cliente';
-				ponerFocus(d_focus);
-			}
-        break;
-		
 		case 'saltar_nombreCliente':
 		console.log('Entro en acciones saltar_nombreCliente');
 		var dato = caja.darValor();

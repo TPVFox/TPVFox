@@ -1,4 +1,3 @@
-
 function AgregarFilaAlbaran(datos, dedonde){
 	//@Objetivo:
 	//Agregar html con el albaran seleccionado
@@ -159,11 +158,8 @@ function addTemporal(dedonde){
 		if (dedonde=="pedidos"){
 			var pulsado= 'anhadirPedidoTemp';
 		}
-		if (dedonde=="albaran"){
-			var pulsado='anhadirAlbaranTemporal';
-		}
-		if (dedonde=="factura"){
-			var pulsado='anhadirfacturaTemporal';
+		if (dedonde=="albaran" || dedonde=="factura"){
+			var pulsado='anhadirTemporal';
 		}
 		var parametros = {
 		"pulsado"    : pulsado,
@@ -174,25 +170,20 @@ function addTemporal(dedonde){
 		"idReal":cabecera.idReal,
 		"fecha":cabecera.fecha,
 		"productos":JSON.stringify(productos),
-		"idCliente":cabecera.idCliente
+		"idCliente":cabecera.idCliente,
+        "adjuntos": adjuntos,
+        "dedonde" : dedonde
 	};
-	if (dedonde=="albaran"){
-		parametros['pedidos']=pedidos;
-	}
-	if (dedonde=="factura"){
-		parametros['albaranes']=adjuntos;
-	}
 	$.ajax({
 		data       : parametros,
 		url        : 'tareas.php',
 		type       : 'post',
 		beforeSend : function () {
-			console.log('******** estoy en añadir albaran temporal JS****************');
+			console.log('******** estoy en añadir temporal JS****************');
 		},
 		success    :  function (response) {
 			console.log('Llegue devuelta respuesta de añadir temporal'+dedonde);
 			var resultado =  $.parseJSON(response); 
-			var HtmlClientes=resultado.html;
 			if(resultado.error){
 				alert('Error de SQL: '+resultado.consulta);
 			}else{

@@ -5,24 +5,29 @@
     //    - STANDARIZAR en un proceso unico.
     //    - Comprobar si los productos tiene numero albaran o pedido, que venga los adjuntos.
     
-    $idFacturaTemp=$_POST['idTemporal'];
+    $idTemporal=$_POST['idTemporal'];
     $idUsuario=$_POST['idUsuario'];
     $idTienda=$_POST['idTienda'];
-    $numFactura=$_POST['idReal'];
+    $numDocumento=$_POST['idReal'];
     $fecha=$_POST['fecha'];
     $fecha = new DateTime($fecha);
     $fecha = $fecha->format('Y-m-d');
     $productos=json_decode($_POST['productos']);
     $idCliente=$_POST['idCliente'];
-    if (isset($_POST['albaranes'])){
-        $albaranes=$_POST['albaranes'];
-    }else{
-        $albaranes=array();
+    $adjuntos = array();
+    if (isset($_POST['adjuntos'])){
+        $adjuntos=$_POST['adjuntos'];
+    }
+    if ($_POST['dedonde'] =='albaran'){
+        $Clase= $CalbAl;
+    }
+    if ($_POST['dedonde'] =='factura'){
+        $Clase= $CFac;
     }
     $respuesta=array();
     $existe=0;
-    if ($idFacturaTemp>0){
-        $rest=$CFac->modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idFacturaTemp, $productos);
+    if ($idTemporal>0){
+        $rest=$Clase->modificarDatosTemporal($idUsuario, $idTienda, $fecha , $adjuntos, $idTemporal, $productos);
         if (isset($rest['error'])){
             $respuesta['error']=$rest['error'];
             $respuesta['consulta']=$rest['consulta'];
@@ -30,19 +35,19 @@
             $existe=1;	
         }
     }else{
-        $rest=$CFac->insertarDatosFacturaTemporal($idUsuario, $idTienda,  $fecha , $albaranes, $productos, $idCliente);
+        $rest=$Clase->insertarDatosTemporal($idUsuario, $idTienda,  $fecha , $adjuntos, $productos, $idCliente);
         if (isset($rest['error'])){
             $respuesta['error']=$rest['error'];
             $respuesta['consulta']=$rest['consulta'];
         }else{
             $existe=0;
-            $idFacturaTemp=$rest['id'];
+            $idTemporal=$rest['id'];
         }
         
     }
-    $respuesta['numFactura']=$numFactura;
-    if ($numFactura>0){
-        $modId=$CFac->addNumRealTemporal($idFacturaTemp, $numFactura);
+    $respuesta['numDocumento']=$numDocumento;
+    if ($numDocumento>0){
+        $modId=$Clase->addNumRealTemporal($idTemporal, $numDocumento);
         if (isset($modId['error'])){
             $respuesta['error']=$modId['error'];
             $respuesta['consulta']=$modId['consulta'];
@@ -53,7 +58,7 @@
         $total=round($CalculoTotales['total'],2);
         $respuesta['total']=round($CalculoTotales['total'],2);
         $respuesta['totales']=$CalculoTotales;
-        $modTotal=$CFac->modTotales($idFacturaTemp, $respuesta['total'], $CalculoTotales['subivas']);
+        $modTotal=$Clase->modTotales($idTemporal, $respuesta['total'], $CalculoTotales['subivas']);
         if (isset($modTotal['error'])){
             $respuesta['error']=$modTotal['error'];
             $respuesta['consulta']=$modTotal['consulta'];
@@ -62,7 +67,7 @@
         $respuesta['htmlTabla']=$htmlTotales['html'];
         
     }
-    $respuesta['id']=$idFacturaTemp;
+    $respuesta['id']=$idTemporal;
     $respuesta['existe']=$existe;
     $respuesta['productos']=$_POST['productos'];
 ?>

@@ -369,7 +369,7 @@ class AlbaranesVentas extends ClaseVentas {
         return $respuesta;
     }
 
-    public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $fecha, $pedidos, $productos, $idCliente) {
+    public function insertarDatosTemporal($idUsuario, $idTienda, $fecha, $pedidos, $productos, $idCliente) {
         //@Objetivo:
         //Insertar un nuevo registro de albaranes temporales
         $respuesta = array();
@@ -385,7 +385,7 @@ class AlbaranesVentas extends ClaseVentas {
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
-	    error_log('albaranesVentas en insertarDatosAlbaranTemporal:'.implode(' ',$smt));
+	    error_log('albaranesVentas en insertarDatosTemporal:'.implode(' ',$smt));
             $respuesta['consulta'] = $smt['error'].'consulta'.$smt['consulta'];
         } else {
             $id = $db->insert_id;
@@ -408,7 +408,7 @@ class AlbaranesVentas extends ClaseVentas {
         }
     }
 
-    public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $fecha, $pedidos, $idTemporal, $productos) {
+    public function modificarDatosTemporal($idUsuario, $idTienda, $fecha, $pedidos, $idTemporal, $productos) {
         //@Objetivo:
         //Modificar un registro de albaranes temporales
         $respuesta = array();
@@ -424,7 +424,7 @@ class AlbaranesVentas extends ClaseVentas {
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
-            error_log('Error en clase albaranesVentas en modificarDatosAlbaranTemporal'.$smt['error']);
+            error_log('Error en clase albaranesVentas en modificarDatosTemporal'.$smt['error']);
             $respuesta['consulta'] = $smt['consulta'];
         } else {
             $respuesta['idTemporal'] = $idTemporal;

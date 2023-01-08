@@ -22,6 +22,7 @@
     $accion     = '';
 	$estado     = 'Nuevo';
 	$fecha=date('d-m-Y');
+	$pedidos  = array();
 	$dedonde="albaran";
     $empleado   = $Usuario; // Por defecto ponemos el usuario
     $errores    = array();
@@ -180,7 +181,7 @@
                 }
                 $eliminarTemporal=$CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
                 if(isset($eliminarTemporal['error'])){
-                $errores[]=$CFac->montarAdvertencia('danger',
+                $errores[]=$CalbAl->montarAdvertencia('danger',
                                                  'Error al eliminar temporal:'.$idTemporal
                                                  .'Error: '.$eliminarTemporal['error'].'<br/>'
                                                  .'Consulta:'.$eliminarTemporal['consulta'].'<br/>'
@@ -207,7 +208,7 @@
                 $_POST['pedidos']     = $pAdjuntos['adjuntos'];
                 // Para añadir el temporal de copia de los datos si hubo error.
                 include_once $URLCom.'/modulos/mod_venta/tareas/AddAlbaranTemporal.php';
-                $errores[]=$CFac->montarAdvertencia('danger',
+                $errores[]=$CalbAl->montarAdvertencia('danger',
                                     'HUBO ERROR AL GRABAR !! <br/>'
                                     .'El error, es el o los anteriores.</br>'
                                     .'Creamos un temporal nuevo con los datos factura guardada para recuperarlos, idTemporal:'.$respuesta['id']
@@ -262,7 +263,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <?php include $URLCom.'/head.php';?>
+    <?php
+    include $URLCom.'/head.php';?>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
@@ -273,52 +275,44 @@
 	// En configuracion podemos definir SI / NO
 	<?php echo 'var configuracion='.json_encode($configuracionArchivo).';';?>	
 	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
-	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+    // Cabecera - Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+	var cabecera = []; 
+		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; 
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estado ;?>'; // Si no hay datos GET es 'Nuevo'
+		cabecera['estado'] ='<?php echo $estado ;?>';
+        cabecera['accion'] ='<?php echo $accion ;?>';
 		cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idAlbaran ;?>;
 		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente ;?>;
-		
-		 // Si no hay datos GET es 'Nuevo';
-	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
-	var pedidos =[];
-<?php 
-	if (isset($albaranTemporal)| isset($idAlbaran)){ 
-	$i= 0;
-		if (isset($productos)){
-			foreach($productos as $product){
-?>	
-				datos=<?php echo json_encode($product); ?>;
-				productos.push(datos);
-	
-<?php 
-		// cambiamos estado y cantidad de producto creado si fuera necesario.
-			if ($product['estadoLinea'] !== 'Activo'){
-			?>	productos[<?php echo $i;?>].estadoLinea=<?php echo'"'.$product['estadoLinea'].'"';?>;
-			<?php
-			}
-			$i++;
-			}
-		}
-		if (isset($pedidos)){
-			foreach ($pedidos as $pedi){
-				?>
-				datos=<?php echo json_encode($pedi);?>;
-				pedidos.push(datos);
-				<?php
-			}
-		}
-	}	
-    if (isset($_POST['Cancelar'])){
-    ?>
+	var productos = []; 
+	var adjuntos =[];
+<?php
+if ($idTemporal > 0 || $idAlbaran > 0 ){?>
+    <?php
+    //Introducimos los productos a la cabecera productos
+   
+    if (isset($productos)){
+        foreach($productos as $i =>$product){?>	
+            datos=<?php echo json_encode($product); ?>;
+            productos.push(datos);
+        <?php 
+        }
+    }
+    if (isset($adjuntos)){
+        foreach ($adjuntos as $adjunto){?>
+            datos=<?php echo json_encode($adjunto);?>;
+            adjuntos.push(datos);
+        <?php
+        }
+    }
+}
+if (isset($_POST['Cancelar'])){
+	?>
         cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-	<?php
+    <?php
 	}
-	echo $VarJS;
-    ?>
+	echo $VarJS;?>
     function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
           return (tecla != 13);

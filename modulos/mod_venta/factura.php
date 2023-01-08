@@ -351,17 +351,16 @@
 	var cabecera = []; 
 		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; 
 		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estado ;?>'; 
+		cabecera['estado'] ='<?php echo $estado ;?>';
+        cabecera['accion'] ='<?php echo $accion ;?>';
 		cabecera['idTemporal'] = <?php echo $idTemporal ;?>;
 		cabecera['idReal'] = <?php echo $idFactura ;?>;
 		cabecera['fecha'] = '<?php echo $fecha ;?>';
 		cabecera['idCliente'] = <?php echo $idCliente;?>;
 	var productos = []; 
 	var adjuntos =[];
-</script>
 <?php 
 if ($idTemporal > 0 || $idFactura > 0 ){?>
-    <script type="text/javascript">
         <?php
         //Introducimos los productos a la cabecera productos
        
@@ -379,13 +378,7 @@ if ($idTemporal > 0 || $idFactura > 0 ){?>
             <?php
 			}
 		}
-    ?>
-    </script>
-<?php
 }
-?>
-<script type="text/javascript">
-<?php
 if (isset($_POST['Cancelar'])){
 	?>
         cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);

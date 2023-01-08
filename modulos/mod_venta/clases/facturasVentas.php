@@ -347,7 +347,7 @@ class FacturasVentas extends ClaseVentas{
     
     }
 
-    public function insertarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $productos, $idCliente){
+    public function insertarDatosTemporal($idUsuario, $idTienda, $fecha , $albaranes, $productos, $idCliente){
 		//@Objetivo:
 		//Insertar nuevo registro de factura 
 		$db = $this->db;
@@ -363,7 +363,7 @@ class FacturasVentas extends ClaseVentas{
 		 $smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
-                error_log('facturaVentas en insertarDatosFacturaTemporal:'.implode(' ',$smt));
+                error_log('facturaVentas en insertarDatosTemporal de Factura:'.implode(' ',$smt));
 				$respuesta['consulta']=$smt['consulta'];
 		}else{
 			$id=$db->insert_id;
@@ -386,7 +386,7 @@ class FacturasVentas extends ClaseVentas{
 		}
 	}
 
-    public function modificarDatosFacturaTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idTemporal, $productos){
+    public function modificarDatosTemporal($idUsuario, $idTienda, $fecha , $albaranes, $idTemporal, $productos){
 		//@Objetivo:
 		//Modificar los datos de una factura temporal
 		$db = $this->db;
@@ -403,7 +403,7 @@ class FacturasVentas extends ClaseVentas{
 		if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
-                error_log('Error mod_ventas/clases/facturasVentas en modificarDatosFacturaTemporal:'.$smt['error'].$smt['consulta']);
+                error_log('Error mod_ventas/clases/facturasVentas en modificarDatosTemporal:'.$smt['error'].$smt['consulta']);
 				return $respuesta;
 		}else{
 			$respuesta['idTemporal']=$idTemporal;
