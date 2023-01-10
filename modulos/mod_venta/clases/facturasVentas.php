@@ -47,11 +47,11 @@ class FacturasVentas extends ClaseVentas{
 			fechaVencimiento, fechaModificacion) VALUES ('
 			 .$datos['Numtemp_faccli'].' , "'.$datos['Fecha'].'", '.$datos['idTienda']
 			 . ', '.$datos['idUsuario'].', '.$datos['idCliente'].' , "'.$datos['estado']
-			 .'", '.$datos['total'].', "'.$datos['fechaCreacion'].'", "'.$datos['fechaVencimiento']
+			 .'", "'.$datos['total'].'", "'.$datos['fechaCreacion'].'", "'.$datos['fechaVencimiento']
              .'" ,  "'.$datos['fechaModificacion'].'")';
 			 $smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-				$error_log('en facturasVentas AddGuardado(1):'.$smt['error']);
+				error_log('en facturasVentas AddGuardado(1):'.$smt['error'].' consulta:'.$smt['consulta']);
                 $errores['1']['error'] = 'facturaVentas AddGuardado(1):'.$smt['error'];
                 $errores['1']['consulta'] = $smt['consulta'];
 				return $respuesta;

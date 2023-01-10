@@ -18,3 +18,4 @@ ALTER TABLE `pedcliltemporales` DROP `estadoPedCli`;
 UPDATE `albclit` SET `estado`='Procesado' WHERE estado='facturado';
 UPDATE `pedclit` SET `estado`='Procesado' WHERE estado='facturado';
 UPDATE `facclit` SET `estado`='Procesado' WHERE estado='facturado';
+ALTER TABLE `faccliltemporales` CHANGE `Albaranes` `Albaranes` VARBINARY(50000) NULL DEFAULT NULL; 
