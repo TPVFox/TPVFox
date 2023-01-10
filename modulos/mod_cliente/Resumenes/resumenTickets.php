@@ -30,7 +30,7 @@
             // Ya se envio post
             $redirect ='Location: resumenTickets.php?hacerResumen=Si&id='.$id; 
             if(isset($_POST['porfechas'])){
-                //Cuando se envia por fechas se comprueba que las fechas estan bien escritas 
+                //Cuando se envia por fechas se comprueba que las fechas estan bien escritas
                 $comprobarFechas=comprobarFechas($_POST['fechaInicial'], $_POST['fechaFinal']);
                 $redirect .='&fechaIni='.$comprobarFechas['fechaIni'].'&fechaFin='.$comprobarFechas['fechaFin']; 
                 if(isset($comprobarFechas['error'])){

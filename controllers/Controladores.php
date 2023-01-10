@@ -1,4 +1,3 @@
-
 <?php
 /*	 Es crear un controlador de consultas comunes para varios modulos.
  * */
@@ -52,9 +51,6 @@ class ControladorComun
 		return $fila ;
 		
 	}
-	
-	
-    
    
 	public function VerConexiones ($Conexiones){
 		// Objetivo comprobar si las conexiones son correctas.
@@ -67,17 +63,6 @@ class ControladorComun
 		}
 		return $htmlError ;
 	}
-	
-	
-	//~ public function EliminarTabla($nombretabla, $BD) 
-	//~ {
-		//~ //Objetivo tener una funcion para eliminar contenido de una tabla.
-		//~ $consulta = "Delete from " . $nombretabla;
-		//~ $Queryinfo = $BD->query($consulta);
-		//~ // Anotamos cuantos registros eliminamos. 
-		//~ $NRegiEliminados = $BD->affected_rows   ;
-		//~ return $NRegiEliminados;
-	//~ }
 
 	public function contarRegistro($BD,$nombretabla,$whereC='') {
 		/* Esta funcio esta repetida en Consultas de modulo de importar
@@ -159,7 +144,6 @@ class ControladorComun
 				$array['Items'][] = $fila;
 			}
 		}
-		//~ $array['sql']=$consulta;
 		return $array;
 	}
 
@@ -202,9 +186,6 @@ class ControladorComun
 			} else {
 				$JSstringAfter ='';
 			}
-			//~ echo '<pre>';
-			//~ echo $JSstringBefore;
-			//~ echo '</pre>';
 			$VarJS[] = 'var '.(string) $caja_input->nombre.' = {'.$JSstringAfter.
 					"id_input :'".$caja_input->nombre['id_input']."'".$JSaccionesTeclas.$JSstringParametros.$JSstringBefore.'};
 					';
@@ -367,5 +348,7 @@ class ControladorComun
         $desglose_nombre = explode(".",$nombre_extension);
         return $desglose_nombre[0];
     }
+
+    
 }
 ?>

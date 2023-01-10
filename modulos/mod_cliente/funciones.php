@@ -191,17 +191,17 @@ function comprobarFechas($fechaIni, $fechaFin){
 	//@Comprobaciones:
 	//comprobar si las dos fechas están cubiertas 
 	//comprobar el formato de las fechas de año mes y dia
-	$resultado=array();
-	if($fechaIni=="" ||$fechaFin==""){
-		$resultado['error']='Error';
-		$resultado['consulta']='Una de las fechas está sin cubrir';
-	}else{
-		$fechaIni =date_format(date_create($fechaIni), 'Y-m-d');
-		$fechaFin =date_format(date_create($fechaFin), 'Y-m-d');
-		$resultado['fechaIni']=$fechaIni;
-		$resultado['fechaFin']=$fechaFin;
-	}
-	return $resultado;
+    if ($fechaIni==''){
+        $fechaIni = '2000-01-01';
+    }
+    if ($fechaFin==''){
+        $fechaFin = date("Y-m-d");
+    }
+    $fechaIni =date_format(date_create($fechaIni), 'Y-m-d');
+    $fechaFin =date_format(date_create($fechaFin), 'Y-m-d');
+    $resultado['fechaIni']=$fechaIni;
+    $resultado['fechaFin']=$fechaFin;
+    return $resultado;
 }
 function getHtmlOptions($datos,$valor=0){
     // @Objetivo:

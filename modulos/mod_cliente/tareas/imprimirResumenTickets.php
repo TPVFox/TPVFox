@@ -31,7 +31,7 @@ if(isset($idCliente)){
 		'mensaje' => 'Error no se ha enviado el id del cliente'
 		);
 		}
-if(isset($_POST['fechaInicial']) & isset($_POST['fechaFinal'])){
+if($_POST['fechaInicial'] !='' & $_POST['fechaFinal']!=''){
 	$fechaInicial=$_POST['fechaInicial'];
 	$fechaFinal=$_POST['fechaFinal'];
 	if($fechaInicial<>"" & $fechaFinal<>""){
