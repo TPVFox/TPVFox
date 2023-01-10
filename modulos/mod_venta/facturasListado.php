@@ -5,9 +5,11 @@ include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
 include_once $URLCom.'/clases/cliente.php';
 include_once $URLCom.'/modulos/mod_venta/clases/facturasVentas.php';
-$Controler = new ControladorComun; 
+include_once ($URLCom.'/controllers/parametros.php');
+$ClasesParametros = new ClaseParametros('parametros.xml');
 $Ccliente=new Cliente($BDTpv);
 $Cfactura=new FacturasVentas($BDTpv);
+$Controler = new ControladorComun; 
 $todosTemporal=$Cfactura->TodosTemporal();
 if (isset($todosTemporal['error'])){
 $errores[0]=array ( 'tipo'=>'Danger!',
@@ -17,7 +19,6 @@ $errores[0]=array ( 'tipo'=>'Danger!',
                              );
 }
 $todosTemporal=array_reverse($todosTemporal);
-$Tienda = $_SESSION['tiendaTpv'];
     
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
@@ -38,15 +39,22 @@ $CantidadRegistros = count($f['Items']);
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$f=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
-$facturas=$f['Items'];
+$d=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
+$facturas=$d['Items'];
 
-if (isset($f['error'])){
+if (isset($d['error'])){
 		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $f['consulta'],
+								 'dato' => $d['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
+                             );
+}
+if (count($d['Items'])==0){
+    $errores[]=array ( 'tipo'=>'Warning!',
+                             'dato' => '',
+                             'class'=>'alert alert-warning',
+                             'mensaje' => 'No tienes albaranes guardados!'
+                             );
 }
 ?>
 <!DOCTYPE html>
@@ -56,6 +64,7 @@ if (isset($f['error'])){
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>   
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
 
 <body>
@@ -72,57 +81,59 @@ if (isset($errores)){
 <div class="container">
     <div class="row">
         <div class="col-md-12 text-center">
-            <h2>Ventas: Editar y Añadir facturas </h2>
+            <h2>Facturas de clientes </h2>
         </div>
-        <nav class="col-sm-4">
-            <h4> Facturas </h4>
-            <h5> Opciones para una selección</h5>
-            <ul class="nav nav-pills nav-stacked"> 
+        <div class="col-sm-3">
+            <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarFactura'."'".');";>Añadir</a></li>';
+                  echo '<a class="btn btn-default" href="./factura.php">Añadir</a>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'factura'."'".')">Ver</button>';
                 }
                 if($ClasePermisos->getAccion("Modificar")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'editar'."'".','."'".'factura'."'".');";>Modificar</a></li>';
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'factura'."'".')">Modificar</button>';
                 }
-                ?>
-            </ul>	
+                if($ClasePermisos->getAccion("CambiarEstadoFactura")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'factura'."'".')">Cambiar estado</button>';
+                }
+            ?>
             <div class="col-md-12">
             <h4 class="text-center"> Facturas Abiertas</h4>
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Nº Temp</th>
-                        <th>Nº Fac</th>
-                        <th>Cliente</th>
-                        <th>Total</th>
+					<th WIDTH="4">Nº Temp</th>
+					<th WIDTH="100">Nº Alb</th>
+					<th WIDTH="4">Cliente</th>
+					<th WIDTH="4">Total</th>
                     </tr>
                     
                 </thead>
-                <tbody>
-                    <?php
-                if (isset($todosTemporal)){
-                    foreach ($todosTemporal as $temporal){
-                        if ($temporal['Numfaccli']){
-                            $numTemporal=$temporal['Numfaccli'];
-                        }else{
-                            $numTemporal="";
-                        }
-                        ?>
-                        <tr>
-                            <td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
-                            <td><?php echo $numTemporal;?></td>
-                            <td><?php echo $temporal['Nombre'];?></td>
-                            <td><?php echo number_format($temporal['total'],2);?></td>
-                            </tr>
-                        <?php
-                    }
-                }
-                    ?>
-                </tbody>
+			<tbody>
+				<?php
+			if (isset ($todosTemporal)){
+				foreach ($todosTemporal as $temporal){
+                    $numDocumento = "";
+                    if ($temporal['Numfaccli']){
+						$numDocumento = $temporal['Numfaccli'];
+					}
+					?>
+					<tr>
+						<td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
+						<td><?php echo $numDocumento;?></td>
+						<td><?php echo $temporal['Nombre'];?></td>
+						<td><?php echo number_format($temporal['total'],2);?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</tbody>
             </table>
             </div>
-        </nav>
+        </div>
         <div class="col-md-8">
             <p>
              -Facturas encontrados BD local filtrados:

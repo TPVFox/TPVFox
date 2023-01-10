@@ -107,13 +107,6 @@ switch ($pulsado) {
             include_once $URLCom.'/modulos/mod_venta/tareas/comprobarAlbaranes.php';
 		break;
 
-		case 'htmlAgregarFilaPedido':
-		//Objetivo:
-		//Devuelve el html de la fila del pedido 
-			$res=htmlPedidoAlbaran($_POST['datos'], $_POST['dedonde']);
-			$respuesta['html']=$res['html'];
-		break;
-		
         case 'htmlAgregarFilaAdjunto':
             // @ Objetivo:
             // Devuelve el html de la fila del pedido y permitimos borrar fila,
@@ -123,7 +116,7 @@ switch ($pulsado) {
 		break;
 		
 		case 'htmlAgregarFilasProductos':
-            //Objetivo:
+            // @ Objetivo:
             //HTML mostrar las lineas de productos
             $productos=$_POST['productos']; // (array) Un array de varios productos, o un array de un producto..
             $dedonde=$_POST['dedonde'];
@@ -143,47 +136,29 @@ switch ($pulsado) {
                  $respuesta['productos']=$productos;
              }
 		break;
-        
-		case 'modificarEstadoPedido':
-		//Objetivo:
-		//Modificar el estado de un pedido a Sin Guardar si viene de pedidos , si viene de albarán a facturado
-		//Y si viene de factura entonces no es un pedido es un albarán que lo pasa a facturado
-			$idPedido=$_POST['idModificar'];
-			$estado=$_POST['estado'];
-			$respuesta=array();
-			$modEstado=$Cpedido->ModificarEstadoPedido($idPedido, $estado);
+
+        case 'modificarEstadoDocumento':
+            // @ Objetivo:
+            //Modificar el estado de un pedido, albaran o factura.
+            $dedonde        = $_POST['dedonde'];
+			$idDocumento    = $_POST['idModificar'];
+			$estado         = $_POST['estado'];
+			$respuesta      = array();
+            if ( $dedonde = 'pedido' ){
+                $modEstado=$Cpedido->ModificarEstadoPedido($idDocumento, $estado);
+            }
+            if ( $dedonde = 'factura' ){
+                $modEstado=$CFac->modificarEstado($idDocumento, $estado);
+            }
+            if ( $dedonde = 'albaran' ){
+                $modEstado=$CalbAl->ModificarEstadoAlbaran($idDocumento, $estado);
+            }
 			if(isset($modEstado['error'])){
 				$respuesta['error']=$modEstado['error'];
 				$respuesta['consulta']=$modEstado['consulta'];
 			}
 		break;
-		
-		case 'modificarEstadoFactura':
-		//@Objetivo:
-		//Modificar el estado de una factura 
-		$idFactura=$_POST['idModificar'];
-		$estado=$_POST['estado'];
-		$respuesta=array();
-		$modEstado=$CFac->modificarEstado($idFactura, $estado);
-		if(isset($modEstado['error'])){
-					$respuesta['error']=$modEstado['error'];
-					$respuesta['consulta']=$modEstado['consulta'];
-		}
-		break;
-		
-		case 'modificarEstadoAlbaran':
-		//@Objetivo:
-		//modificar el estado de un alabrán
-		$idAlbaran=$_POST['idModificar'];
-		$estado=$_POST['estado'];
-		$respuesta=array();
-		$modEstado=$CalbAl->ModificarEstadoAlbaran($idAlbaran, $estado);
-		if (isset($modEstado['error'])){
-			$respuesta['error']=$modEstado['error'];
-			$respuesta['consulta']=$modEstado['consulta'];
-		}
-		break;
-		
+        
 		case 'datosImprimir':
 			//@Objetivo:
 		//enviar los datos para imprimir el pdf

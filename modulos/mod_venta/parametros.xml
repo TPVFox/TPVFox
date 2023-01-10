@@ -170,7 +170,7 @@
 		</caja_input>
 
 		<caja_input>
-			<nombre id_input="numPedido">numPedido</nombre>
+			<nombre id_input="numAdjunto">numAdjunto</nombre>
 			<teclas>
 				<action tecla="37">saltarFechaAl</action>
 				<action tecla="13">buscarPedido</action>

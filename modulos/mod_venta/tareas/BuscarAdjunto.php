@@ -7,14 +7,13 @@
 //Si busca todos, muestra numero de cuanto tiene en estado guardado, pero solo muestra 15 como maximo. Si no tuviera muestrar advertencia que no encontro.
     $busqueda   = $_POST['busqueda'];
     $idCliente  = $_POST['idCliente'];
-    $dedonde    = $_POST['dedonde']; 
+    $dedonde    = $_POST['dedonde'];
+    $onclick="buscarAdjunto";
     // Como este mismo fichero va valer para buscar Pedidos o Albaranes, con loque, sabemos que buscar.
     if ($dedonde =='factura'){
         $res=$CalbAl->AlbaranClienteGuardado($busqueda, $idCliente);
-        $onclick="buscarDatosAlbaran"; // Me hace falta montar modal si fuera necesario
     } else {
         $res=$Cpedido->PedidosClienteGuardado($busqueda, $idCliente);
-        $onclick="buscarDatosPedido";
     }
     $respuesta['res'] = json_encode($res);
     if (isset($res['error'])){
@@ -42,7 +41,7 @@
             }
         } else {
             $pAdjuntos = prepararAdjuntos($res['datos'],$dedonde);
-            $modal              = modalAdjunto($pAdjuntos['adjuntos'],$onclick);
+            $modal              = modalAdjunto($pAdjuntos['adjuntos'],$onclick,$dedonde);
             $respuesta['html']  = $modal['html'];
         }
     }

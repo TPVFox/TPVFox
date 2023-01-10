@@ -113,13 +113,14 @@
         }
     }
     if ( isset($datosAlbaran)){
-        // Esto es lo comun cuando es temporal o cuando es factura existente.
+        // Esto es lo comun cuando es temporal o cuando es albaran existente.
         $idCliente = $datosAlbaran['idCliente'];
         $pedidos = json_decode($datosAlbaran['Pedidos'],true);
         $productos = json_decode($datosAlbaran['Productos']) ;
         $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
         $productos = json_decode($datosAlbaran['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosAlbaran['Fecha']), 'd-m-Y');
+        $existe_doc_procesado                  = $CalbAl->NumFacturaDeAlbaran($idAlbaran);
     }
 
     // ---- Compromamos si existe la albaran que el estado sea Sin guardar --- //
@@ -129,12 +130,14 @@
         if ($idTemporal >0 &&  $estado !='Sin guardar'){
                 // Hay un error, hay que informarlo
                 $errores[] =$CalbAl->montarAdvertencia('danger',
-                                             'Existe un temporal y su alabran, pero el <strong>estado de albaran es distinto al sin guardar</strong>. Avisa al administrador del sistema.'
+                                             'Existe un temporal y su albaran, pero el <strong>estado de albaran NO es "Sin guardar"</strong>. Avisa al administrador del sistema.'
                                             );
                 //[DEBUG]
-                // Si se produce este error, era bueno que al administrador se le permita Guardar.
-                // Permitir guardar aunque haya este error y ya no muestra el btn.
-                // Si quieres guardarlo, comenta este if y te deja guardarlo con en mismo numero.
+                // Si se produce este error
+                // Habría que saber porque fallo.
+                // Para que permita guardar debemos comentar estas if, ya no muestra el btn y te deja Guardarlo de Nuevo, aunque primero:
+                // Se debería comprobar que no si existe el numero de ese documento que lo puedes ver el temporal, creado.
+                // Recuerda que hay varias tablas.
         }
     }
     
@@ -259,12 +262,12 @@
         $accion = 'editar';
     } else {
         // Es Nuevo o ya existe pero no tiene temporal.
-        if ($estado === 'Facturado'){
+        if ($estado === 'Procesado'){
             // No permitimos editarlo
             $accion = 'ver';
             // Informamos
-             $errores[]=$Cpedido->montarAdvertencia('warning',
-                                    'INTENTAS EDITAR UN PEDIDO YA FACTURADO !! <br/>'
+             $errores[]=$CalbAl->montarAdvertencia('warning',
+                                    'INTENTAS EDITAR UN ALBARAN YA FACTURADO !! <br/>'
                                     );
         }
 
@@ -274,6 +277,10 @@
     $html_adjuntos = $pAdjuntos['html'];
     
     // ---  Controlamos cuando poner solo lectura o display none los campos --- //
+    if (count($errores) >0 ){
+        // No permito modificar si hubo algun error.
+        $accion='ver';
+    }
     $display = '';
     $readonly = '';
     $readonly_cliente = '';
@@ -290,6 +297,12 @@
         $readonly_cliente = 'readonly';
     }
     // --- html de titulo --- /
+    $html_procesado='';
+    if (isset($existe_doc_procesado) && count($existe_doc_procesado)>0){
+        $html_procesado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
+        $html_procesado .= 'factura:'.$existe_doc_procesado['numAlbaran'];
+        $html_procesado .='</span>';
+    }
     $n = 'Sin Guardar';
     if ($idAlbaran > 0) {
         $n = $idAlbaran;
@@ -345,15 +358,15 @@ if ($idTemporal > 0 || $idAlbaran > 0 ){?>
         foreach ($adjuntos as $adjunto){?>
             datos=<?php echo json_encode($adjunto);?>;
             adjuntos.push(datos);
-        <?php
+<?php 
         }
-    }
+	}
 }
 if (isset($_POST['Cancelar'])){
-	?>
-        cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-    <?php
-	}
+      ?>
+    cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+<?php
+}
 	echo $VarJS;?>
     function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -383,7 +396,7 @@ if (isset($_POST['Cancelar'])){
     ?>
     <?php
         // Montamos html de titulo
-        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.'</h2>' ;?>
+        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.$html_procesado.'</h2>' ;?>
 			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
 				<div class="col-md-12">
                     <div class="col-md-8" >

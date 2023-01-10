@@ -34,8 +34,8 @@ class AlbaranesVentas extends ClaseVentas {
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 error_log('en albaranesVentas AddGuardado(1):'.$smt['error']);
-                $errores[]['error'] = 'albaranesVentas AddGuardado(1):'.$smt['error'];
-                $errores[]['consulta'] = $smt['consulta'];
+                $errores['0']['error'] = 'albaranesVentas AddGuardado(1):'.$smt['error'];
+                $errores['0']['consulta'] = $smt['consulta'];
 				return $respuesta;
             } else {
                 $id = $idAlbaran;
@@ -48,8 +48,8 @@ class AlbaranesVentas extends ClaseVentas {
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 error_log('en albaranesVentas AddGuardado(2):'.$smt['error']);
-                $errores['0']['error'] = 'albaranesVentas AddGuardado(2):'.$smt['error'];
-                $errores['0']['consulta'] = $smt['consulta'];
+                $errores['1']['error'] = 'albaranesVentas AddGuardado(2):'.$smt['error'];
+                $errores['1']['consulta'] = $smt['consulta'];
 				return $respuesta;
             } else {
                 $id = $db->insert_id;
@@ -57,8 +57,8 @@ class AlbaranesVentas extends ClaseVentas {
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
                     error_log('en albaranesVentas AddGuardado(3):'.$smt['error']);
-                    $errores['1']['error'] = 'albaranesVentas AddGuardado(3):'.$smt['error'];
-                    $errores['1']['consulta'] = $smt['consulta'];
+                    $errores['2']['error'] = 'albaranesVentas AddGuardado(3):'.$smt['error'];
+                    $errores['2']['consulta'] = $smt['consulta'];
                 }
             }
         }
@@ -87,8 +87,8 @@ class AlbaranesVentas extends ClaseVentas {
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
                     error_log('en albaranesVentas AddGuardado(4):'.$smt['error']);
-                    $errores['2']['error'] = 'albaranesVentas AddGuardado(4):'.$smt['error'];
-                    $errores['2']['consulta'] = $smt['consulta'];
+                    $errores['3']['error'] = 'albaranesVentas AddGuardado(4):'.$smt['error'];
+                    $errores['3']['consulta'] = $smt['consulta'];
                     break;
                 }
                 $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_RESTA);
@@ -102,8 +102,8 @@ class AlbaranesVentas extends ClaseVentas {
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 error_log('en albaranesVentas AddGuardado(5):'.$smt['error']);
-                $errores['3']['error'] ='albaranesVentas AddGuardado(5):'.$smt['error'];
-                $errores['3']['consulta'] = $smt['consulta'];
+                $errores['4']['error'] ='albaranesVentas AddGuardado(5):'.$smt['error'];
+                $errores['4']['consulta'] = $smt['consulta'];
                 break;
             }
         }
@@ -111,13 +111,13 @@ class AlbaranesVentas extends ClaseVentas {
         foreach ($pedidos as $pedido) {
             if ($pedido['estado'] == "activo" || $pedido['estado'] == "Activo") {
                 $sql = 'INSERT INTO pedcliAlb (idAlbaran  ,  numAlbaran  
-					 , idPedido , numPedido) VALUES (' . $id . ', ' . $id . ' ,  ' . $pedido['idPedCli']
-                        . ' , ' . $pedido['Numpedcli'] . ')';
+					 , idPedido , numPedido) VALUES (' . $id . ', ' . $id . ' ,  ' . $pedido['id']
+                        . ' , ' . $pedido['NumAdjunto'] . ')';
                 $smt = $this->consulta($sql);
                 if (gettype($smt) === 'array') {
-                    error_log('en albaranesVentas AddGuardado(6):'.$smt['error']);
-                    $errores['4']['error'] ='albaranesVentas AddGuardado(6):'.$smt['error'];
-                    $errores['4']['consulta'] = $smt['consulta'];
+                    error_log('en albaranesVentas AddGuardado(5):'.$smt['error']);
+                    $errores['5']['error'] ='albaranesVentas AddGuardado(5):'.$smt['error'];
+                    $errores['5']['consulta'] = $smt['consulta'];
                     break;
                 }
             }
@@ -184,21 +184,22 @@ class AlbaranesVentas extends ClaseVentas {
         }
     }
 
-     public function EliminarRegistroTemporal($idTemporal, $idAlbaran) {
+    public function EliminarRegistroTemporal($idTemporal, $idAlbaran) {
         //@Objetivo:
-        //Eliminar el albarán temporal indicado
+        //Eliminar  un temporal , pero si trae numero albaran , elimina todos los temporales
+        //para es albaran.
         $db = $this->db;
         if ($idAlbaran > 0) {
-            $smt = $db->query('DELETE FROM albcliltemporales WHERE Numalbcli =' . $idAlbaran);
+            $sql = 'DELETE FROM albcliltemporales WHERE Numalbcli =' . $idAlbaran;
         } else {
-            $smt = $db->query('DELETE FROM albcliltemporales WHERE id=' . $idTemporal);
+            $sql = 'DELETE FROM albcliltemporales WHERE id=' . $idTemporal;
         }
-	$smt=$this->consulta($sql);
-	if (gettype($smt)==='array'){
-		$respuesta['error']=$smt['error'];
-		$respuesta['consulta']=$smt['consulta'];
-		return $respuesta;
-	}
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+            $respuesta['error']=$smt['error'];
+            $respuesta['consulta']=$sql;
+            return $respuesta;
+        }
     }
 
     public function IvasAlbaran($idAlbaran) {
@@ -484,6 +485,28 @@ class AlbaranesVentas extends ClaseVentas {
             return $errores;
         }
     }
+
+    public function posiblesEstados(){
+        // @ Objetivo:
+        // Devolver los posibles estados para la tabla de albaran. albclit
+        $posibles_estados = array(  '1'=> array(
+											'estado'      =>'Guardado',
+											'Descripcion' =>'Estado albaran guardado cuando no se esta editando.'
+												),
+									'2' =>  array(
+											'estado'      =>'Sin Guardar',
+											'Descripcion' =>'Estado albaran que se hay temporal , se esta editando.'
+											),
+									
+									'3' =>  array(
+											'estado'      =>'Procesado',
+											'Descripcion' =>'Un albaran que ya fue procesado ya se añadió a una factura.No se permite modificar, ni cambiar.'
+											)
+                                );
+        return $posibles_estados;
+    }
+
+    
     public function sumarIva($numAlbaran) {
         //@Objetivo:
         //Mostrar la suma de los impirtes ivas y total base   de un albaran real

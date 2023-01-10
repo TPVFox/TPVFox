@@ -5,6 +5,8 @@ include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
 include_once $URLCom.'/clases/cliente.php';
 include_once $URLCom.'/modulos/mod_venta/clases/albaranesVentas.php';
+include_once ($URLCom.'/controllers/parametros.php');
+$ClasesParametros = new ClaseParametros('parametros.xml');
 $Ccliente=new Cliente($BDTpv);
 $Calbaran=new AlbaranesVentas($BDTpv);
 $Controler = new ControladorComun; 
@@ -32,14 +34,21 @@ $CantidadRegistros = count($a['Items']);
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$a=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
-$albaranesDef=$a['Items'];
-if (isset($a['error'])){
-		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $a['consulta'],
+$d=$Calbaran->TodosAlbaranesFiltro($filtro.$NPaginado->GetLimitConsulta());
+$albaranesDef=$d['Items'];
+if (isset($d['error'])){
+		$errores[]=array ( 'tipo'=>'Danger!',
+								 'dato' => $d['consulta'],
 								 'class'=>'alert alert-danger',
 								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
+                             );
+}
+if (count($d['Items'])==0){
+    $errores[]=array ( 'tipo'=>'Warning!',
+                             'dato' => '',
+                             'class'=>'alert alert-warning',
+                             'mensaje' => 'No tienes albaranes guardados!'
+                             );
 }
 ?>
 <!DOCTYPE html>
@@ -49,17 +58,18 @@ if (isset($a['error'])){
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>     
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
 <body>
 <?php
- include_once $URLCom.'/modulos/mod_menu/menu.php';
+include_once $URLCom.'/modulos/mod_menu/menu.php';
 if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
-	}
+    foreach($errores as $error){
+            echo '<div class="'.$error['class'].'">'
+            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+            . '</div>';
+    }
+}
 ?>
 <div class="container">
     <div class="row">
@@ -79,7 +89,7 @@ if (isset($errores)){
                     echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'albaran'."'".')">Modificar</button>';
                 }
                 if($ClasePermisos->getAccion("CambiarEstadoAlbaran")==1){
-                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'albaranes'."'".')">Cambiar estado</button>';
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'albaran'."'".')">Cambiar estado</button>';
                 }
             ?>
             <div class="col-md-12">
@@ -92,24 +102,22 @@ if (isset($errores)){
 					<th WIDTH="4">Cliente</th>
 					<th WIDTH="4">Total</th>
 				</tr>
-				
 			</thead>
 			<tbody>
 				<?php
-			if (isset($todosTemporal)){
+			if (isset ($todosTemporal)){
 				foreach ($todosTemporal as $temporal){
-					if ($temporal['Numalbcli']){
-						$numTemporal = $temporal['Numalbcli'];
-					}else{
-						$numTemporal = "";
+                    $numDocumento = "";
+                    if ($temporal['Numalbcli']){
+						$numDocumento = $temporal['Numalbcli'];
 					}
 					?>
 					<tr>
 						<td><a href="albaran.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
-						<td><?php echo $numTemporal;?></td>
+						<td><?php echo $numDocumento;?></td>
 						<td><?php echo $temporal['Nombre'];?></td>
 						<td><?php echo number_format($temporal['total'],2);?></td>
-						</tr>
+					</tr>
 					<?php
 				}
 			}
@@ -157,7 +165,7 @@ if (isset($errores)){
                             $date       = date_create($albaran['Fecha']);
                         ?>
                         <tr>
-                            <td class="row">
+                    <td>
                                 <input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $albaran['id'];?>">
                             </td>
 

@@ -34,9 +34,9 @@ class FacturasVentas extends ClaseVentas{
 			.'", "'.$datos['fechaModificacion'].'")';
 			$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-                error_log('en facturasVentas AddGuardado(1):'.$smt['error']);
-                $errores[]['error'] = 'facturaVentas AddGuardado(1):'.$smt['error'];
-                $errores[]['consulta'] = $smt['consulta'];
+                error_log('en facturasVentas AddGuardado(0):'.$smt['error']);
+                $errores['0']['error'] = 'facturaVentas AddGuardado(0):'.$smt['error'];
+                $errores['0']['consulta'] = $smt['consulta'];
 				return $respuesta;
 			}else{
 				$id=$idFactura;
@@ -51,18 +51,18 @@ class FacturasVentas extends ClaseVentas{
              .'" ,  "'.$datos['fechaModificacion'].'")';
 			 $smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-				$error_log('en facturasVentas AddGuardado(2):'.$smt['error']);
-                $errores[]['error'] = 'facturaVentas AddGuardado(2):'.$smt['error'];
-                $errores[]['consulta'] = $smt['consulta'];
+				$error_log('en facturasVentas AddGuardado(1):'.$smt['error']);
+                $errores['1']['error'] = 'facturaVentas AddGuardado(1):'.$smt['error'];
+                $errores['1']['consulta'] = $smt['consulta'];
 				return $respuesta;
 			}else{
 				$id=$db->insert_id;
 				$sql='UPDATE facclit SET Numfaccli  = '.$id.' WHERE id ='.$id;
 				$smt=$this->consulta($sql);
 					if (gettype($smt)==='array'){
-                        error_log('en facturasVentas AddGuardado(3):'.$smt['error']);
-                        $errores[]['error'] = 'facturaVentas AddGuardado(3):'.$smt['error'];
-                        $errores[]['consulta'] = $smt['consulta'];
+                        error_log('en facturasVentas AddGuardado(2):'.$smt['error']);
+                        $errores['2']['error'] = 'facturaVentas AddGuardado(2):'.$smt['error'];
+                        $errores['2']['consulta'] = $smt['consulta'];
 						
 					}
 			}
@@ -88,9 +88,9 @@ class FacturasVentas extends ClaseVentas{
 				 .'" , '.$numAl.', '.$prod['pvpSiva'].')' ;
                 $smt=$this->consulta($sql);
                 if (gettype($smt)==='array'){
-                    error_log('en facturasVentas AddGuardado(4):'.$smt['error']);
-                    $errores[]['error'] = 'facturaVentas AddGuardado(4):'.$smt['error'];
-                    $errores[]['consulta'] = $smt['consulta'];
+                    error_log('en facturasVentas AddGuardado(3):'.$smt['error']);
+                    $errores['3']['error'] = 'facturaVentas AddGuardado(3):'.$smt['error'];
+                    $errores['3']['consulta'] = $smt['consulta'];
                     break;
                 }
                 $i++;
@@ -102,9 +102,9 @@ class FacturasVentas extends ClaseVentas{
 			.$basesYivas['iva'].' , '.$basesYivas['base'].')';
 			$smt=$this->consulta($sql);
             if (gettype($smt)==='array'){
-                error_log('en facturasVentas AddGuardado(5):'.$smt['error']);
-                $errores[]['error'] = 'facturaVentas AddGuardado(5):'.$smt['error'];
-                $errores[]['consulta'] = $smt['consulta'];
+                error_log('en facturasVentas AddGuardado(4):'.$smt['error']);
+                $errores['4']['error'] = 'facturaVentas AddGuardado(4):'.$smt['error'];
+                $errores['4']['consulta'] = $smt['consulta'];
                 break;
             }
 		}
@@ -117,9 +117,9 @@ class FacturasVentas extends ClaseVentas{
                      .$albaran['NumAdjunto'].' , '.$albaran['NumAdjunto'].')';
                     $smt=$this->consulta($sql);
                     if (gettype($smt)==='array'){
-                        error_log('en facturasVentas AddGuardado(6):'.$smt['error']);
-                        $errores[]['error'] = 'facturaVentas AddGuardado(6):'.$smt['error'];
-                        $errores[]['consulta'] = $smt['consulta'];
+                        error_log('en facturasVentas AddGuardado(5):'.$smt['error']);
+                        $errores['5']['error'] = 'facturaVentas AddGuardado(5):'.$smt['error'];
+                        $errores['5']['consulta'] = $smt['consulta'];
                         break;
                     }
                 }
@@ -135,7 +135,6 @@ class FacturasVentas extends ClaseVentas{
     public function AlbaranesFactura($idFactura){
 		//@Objetivo:
 		//Mostrar los albaranes que estan ligados a una determinada factura.
-        
 		$tabla='albclifac';
 		$where='idFactura= '.$idFactura;
 		$factura = parent::SelectVariosResult($tabla, $where);
@@ -157,7 +156,6 @@ class FacturasVentas extends ClaseVentas{
 				$respuesta['consulta']=$smt['consulta'];
 				return $respuesta;
 		}
-		
 	}
       
 	public function IvasFactura($idFactura){
@@ -465,6 +463,27 @@ class FacturasVentas extends ClaseVentas{
 			return $respuesta;
 		}
     }
+
+    public function posiblesEstados(){
+        // @ Objetivo:
+        // Devolver los posibles estados para la tabla de pedido. pedclit
+        $posibles_estados = array(  '1'=> array(
+											'estado'      =>'Guardado',
+											'Descripcion' =>'Estado factura guardado cuando no se esta editando.'
+												),
+									'2' =>  array(
+											'estado'      =>'Sin Guardar',
+											'Descripcion' =>'Estado factura que se hay temporal , se esta editando.'
+											),
+									
+									'3' =>  array(
+											'estado'      =>'Procesado',
+											'Descripcion' =>'Un factura que ya fue procesado. Hay recibo generado.'
+											)
+                                );
+        return $posibles_estados;
+    }
+
 
     public function sumarIva($numFactura){
 		//@Objetivo:

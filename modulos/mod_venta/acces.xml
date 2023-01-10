@@ -4,7 +4,7 @@
         <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
         <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
         <accion nombre="Modificar" descripcion="Modificar albarán" permiso="1"></accion>
-	<accion nombre="EliminarAlbaran" descripcion="Eliminar Albaran" permiso="0"></accion>
+        <accion nombre="EliminarAlbaran" descripcion="Eliminar Albaran" permiso="0"></accion>
         <accion nombre="CambiarEstadoAlbaran" descripcion="Cambiar Estado Albaran" permiso="0"></accion>
     </vista>
     <vista nombre="albaran.php" descripcion="Albarán" permiso="0"></vista>
@@ -12,12 +12,15 @@
         <accion nombre="Crear" descripcion="Crear factura" permiso="1"></accion>
         <accion nombre="Modificar" descripcion="Modificar factura" permiso="1"></accion>
 	    <accion nombre="Ver" descripcion="Ver factura" permiso="1"></accion>
+        <accion nombre="CambiarEstadoFactura" descripcion="Cambiar Estado Factura" permiso="0"></accion>
     </vista>
     <vista nombre="factura.php" descripcion="Factura" permiso="0"></vista>
     <vista nombre="pedidosListado.php" descripcion="Listado pedidos" permiso="0">
         <accion nombre="Crear" descripcion="Crear pedido" permiso="1"></accion>
         <accion nombre="Modificar" descripcion="Modificar pedido" permiso="1"></accion>
-	    <accion nombre="Ver" descripcion="Ver pedido" permiso="1"></accion>			
+	    <accion nombre="Ver" descripcion="Ver pedido" permiso="1"></accion>
+        <accion nombre="CambiarEstadoPedido" descripcion="Cambiar Estado Pedido" permiso="0"></accion>
+        <accion nombre="EliminarPedido" descripcion="Eliminar Pedido" permiso="0"></accion>
     </vista>
     <vista nombre="pedido.php" descripcion="Pedido" permiso="0"></vista>
 </modulo>

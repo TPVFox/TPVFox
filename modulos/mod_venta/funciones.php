@@ -391,34 +391,6 @@ function htmlOptions($opciones,$opcionSeleccionada =0 ){
 	return $html;
 }
 
-function htmlPedidoAlbaran($pedido, $dedonde){
-	$respuesta=array();
-	$respuesta['html']='';
-	if(isset($pedido)){
-				if ($pedido['Numpedcli']){
-					$num=$pedido['Numpedcli'];
-				}
-				if ($pedido['estado']=="Activo"){
-					$funcOnclick = ' eliminarAdjunto('.$num.' , '."'".$dedonde."'".' , '.$pedido['nfila'].');';
-					$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-trash"></span></a></td>';
-					$classtr = '';
-					$estadoInput = '';
-				}else{
-					$classtr = ' class="tachado" ';
-					$estadoInput = 'disabled';
-					$funcOnclick = ' retornarAdjunto('.$num.', '."'".$dedonde."'".', '.$pedido['nfila'].');';
-					$btnELiminar_Retornar= '<td class="eliminar"><a onclick="'.$funcOnclick.'"><span class="glyphicon glyphicon-export"></span></a></td>';
-				}
-			$respuesta['html'] .='<tr id="lineaP'.($pedido['nfila']).'" '.$classtr.'>';
-			$respuesta['html'] .='<td>'.$pedido['Numpedcli'].'</td>';
-			$respuesta['html'] .='<td>'.$pedido['fecha'].'</td>';
-			$respuesta['html'] .='<td>'.$pedido['total'].'</td>';
-			$respuesta['html'].=$btnELiminar_Retornar;
-			$respuesta['html'] .='</tr>';
-	}
-	return $respuesta;
-}
-
 function htmlListadoProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde, $BDTpv,$idCliente){
 	// @ Objetivo 
 	// Obtener listado de produtos despues de busqueda.
@@ -534,7 +506,7 @@ function incidenciasAdjuntas($id, $dedonde, $BDTpv, $vista){
 }
 
 
-function modalAdjunto($adjuntos,$onclick){
+function modalAdjunto($adjuntos,$onclick,$dedonde){
 	$respuesta=array();
     if (count($adjuntos)>0) {
         $html = '<p>Mostramos 15 de '.count($adjuntos).'</p>';
@@ -549,7 +521,7 @@ function modalAdjunto($adjuntos,$onclick){
             $num=$adjunto['NumAdjunto'];
             $fecha=$adjunto['fecha'];
             
-            $html .= '<tr id="Fila_'.$i.'" class="FilaModal" onclick="'.$onclick.'('.$num.');">'
+            $html .= '<tr id="Fila_'.$i.'" class="FilaModal" onclick="'.$onclick."('".$dedonde."',".$num.')";>'
                                 .'<td id="C'.$i.'_Lin" >'
                                 .'<input id="N_'.$i.'" name="filapedido" data-obj="idN" '
                                 .' onkeydown="controlEventos(event)" type="image"  alt="">'

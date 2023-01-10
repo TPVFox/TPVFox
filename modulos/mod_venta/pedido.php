@@ -87,18 +87,18 @@
     if ($idTemporal>0 && $accion==''){
         // Temporal
         $datosPedido=$Cpedido->buscarDatosTemporal($idTemporal);;
-        if (isset($datosPedido['Numpedcli '])){
-            $idPedido=$datosPedido['Numpedcli '];
+        if (isset($datosPedido['Numpedcli'])){
+            $idPedido=$datosPedido['Numpedcli'];
         }
     }
 
      // ---- PEDIDO YA CREADO  -------  //
      // Entra tanto cuando al id de Pedido.
 	if ($idPedido >0 ){
-		$datosPedido_guardada              = $Cpedido->datosPedido($idPedido);
-		$productosPedido                   = $Cpedido->ProductosPedido($idPedido);
-		$productosMod			    = modificarArrayProductos($productosPedido);
-		$datosPedido_guardada['Productos'] = json_encode($productosMod);
+		$datosPedido_guardada               = $Cpedido->datosPedido($idPedido);
+		$productosPedido                    = $Cpedido->ProductosPedido($idPedido);
+		$productosMod			            = modificarArrayProductos($productosPedido);
+		$datosPedido_guardada['Productos']  = json_encode($productosMod);
         $incidenciasAdjuntas                = incidenciasAdjuntas($idPedido, "mod_ventas", $BDTpv, "pedido");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         if ($idTemporal == 0){
@@ -108,12 +108,13 @@
         }
     }
     if ( isset($datosPedido)){
-        // Esto es lo comun cuando es temporal o cuando es factura existente.
+        // Esto es lo comun cuando es temporal o cuando es pedido existente.
         $idCliente = $datosPedido['idCliente'];
         $productos = json_decode($datosPedido['Productos']) ;
         $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
         $productos = json_decode($datosPedido['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosPedido['Fecha']), 'd-m-Y');
+        $existe_doc_procesado                  = $Cpedido->NumAlbaranDePedido($idPedido);
     }
 
     // ---- Compromamos si existe la pedido que el estado sea Sin guardar --- //
@@ -122,7 +123,7 @@
         if ($idTemporal >0 &&  $estado !='Sin guardar'){
                 // Hay un error, hay que informarlo
                 $errores[] =$Cpedido->montarAdvertencia('danger',
-                                             'Existe un temporal y su pedido, pero el <strong>estado de albaran es distinto al sin guardar</strong>. Avisa al administrador del sistema.'
+                                             'Existe un temporal y su pedido, pero el <strong>estado del pedido NO es "Sin guardar"</strong>. Avisa al administrador del sistema.'
                                             );
                 //[DEBUG]
                 // Si se produce este error, era bueno que al administrador se le permita Guardar.
@@ -163,7 +164,7 @@
             }
             $datos=array(
 					'Numtemp_pedcli'=>$idTemporal,
-                    'Fecha'=>'fecha',//$fecha_post,
+                    'Fecha'=>$fecha_post,
 					'idTienda'=>$Tienda['idTienda'],
 					'idUsuario'=>$Usuario['id'],
 					'idCliente'=>$idCliente,
@@ -248,12 +249,12 @@
         $accion = 'editar';
     } else {
         // Es Nuevo o ya existe pero no tiene temporal.
-        if ($estado === 'Facturado'){
+        if ($estado === 'Procesado'){
             // No permitimos editarlo
             $accion = 'ver';
             // Informamos
              $errores[]=$Cpedido->montarAdvertencia('warning',
-                                    'INTENTAS EDITAR UN PEDIDO YA FACTURADO !! <br/>'
+                                    'INTENTAS EDITAR UN PEDIDO YA CREO ALBARAN !! <br/>'
                                     );
         }
 
@@ -261,6 +262,10 @@
     
     
     // ---  Controlamos cuando poner solo lectura o display none los campos --- //
+    if (count($errores) >0 ){
+        // No permito modificar si hubo algun error.
+        $accion='ver';
+    }
     $display = '';
     $readonly = '';
     $readonly_cliente = '';
@@ -277,6 +282,12 @@
         $readonly_cliente = 'readonly';
     }
     // --- html de titulo --- /
+    $html_procesado='';
+    if (isset($existe_doc_procesado) && count($existe_doc_procesado)>0){
+        $html_procesado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
+        $html_procesado .= 'albaran:'.$existe_doc_procesado['numAlbaran'];
+        $html_procesado .='</span>';
+    }
     $n = 'Sin Guardar';
     if ($idPedido > 0) {
         $n = $idPedido;
@@ -330,19 +341,13 @@ if ($idTemporal > 0 || $idPedido > 0 ){?>
 	
 <?php 
         }
-	
-		
 	}
 }
-	
-	
-	 if (isset($_POST['Cancelar'])){
-		  ?>
-        cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
-		
-		 
-		  <?php
-	  }
+if (isset($_POST['Cancelar'])){
+      ?>
+    cancelarTemporal(<?php echo $idTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+<?php
+}
  echo $VarJS;?>
      function anular(e) {
           tecla = (document.all) ? e.keyCode : e.which;
@@ -353,10 +358,7 @@ if ($idTemporal > 0 || $idPedido > 0 ){?>
 <body>
 <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
-	
 ?>
-
-
 <div class="container">
     <?php
 	if (count($errores)>0){
@@ -372,7 +374,7 @@ if ($idTemporal > 0 || $idPedido > 0 ){?>
     ?>
     <?php
         // Montamos html de titulo
-        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.'</h2>' ;?>
+        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.$html_procesado.'</h2>' ;?>
 			
 <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
     <div class="col-md-12" >

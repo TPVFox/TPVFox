@@ -4,25 +4,21 @@ include_once $URLCom.'/modulos/mod_venta/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
 include_once $URLCom.'/clases/cliente.php';
-include_once ($URLCom.'/controllers/parametros.php');
 include_once $URLCom.'/modulos/mod_venta/clases/pedidosVentas.php';
-//Carga de clases necesarias
+include_once ($URLCom.'/controllers/parametros.php');
 $ClasesParametros = new ClaseParametros('parametros.xml');
-// Creamos el objeto de controlador.
-$Controler = new ControladorComun; 
-// Creamos el objeto de pedido
-$Cpedido=new PedidosVentas($BDTpv);
 $Ccliente=new Cliente($BDTpv);
-$todoTemporal=$Cpedido->TodosTemporal();
-if (isset($todoTemporal['error'])){
-    
-$errores[0]=array ( 'tipo'=>'Danger!',
-                             'dato' => $todoTemporal['consulta'],
+$Cpedido=new PedidosVentas($BDTpv);
+$Controler = new ControladorComun; 
+$todosTemporal=$Cpedido->TodosTemporal();
+if (isset($todosTemporal['error'])){
+    $errores[0]=array ( 'tipo'=>'Danger!',
+                             'dato' => $todosTemporal['consulta'],
                              'class'=>'alert alert-danger',
                              'mensaje' => 'ERROR EN LA BASE DE DATOS!'
                              );
 }
-$todoTemporal=array_reverse($todoTemporal);
+$todosTemporal=array_reverse($todosTemporal);
     
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
@@ -42,17 +38,17 @@ $CantidadRegistros = count($p['Items']);
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$p=$Cpedido->TodosPedidosFiltro($filtro.$NPaginado->GetLimitConsulta());
-$pedidosDef=$p['Items'];
-if (isset($p['error'])){
-    $errores[0]=array ( 'tipo'=>'Danger!',
-                             'dato' => $p['consulta'],
+$d=$Cpedido->TodosPedidosFiltro($filtro.$NPaginado->GetLimitConsulta());
+$pedidosDef=$d['Items'];
+if (isset($d['error'])){
+    $errores[]=array ( 'tipo'=>'Danger!',
+                             'dato' => $d['consulta'],
                              'class'=>'alert alert-danger',
                              'mensaje' => 'ERROR EN LA BASE DE DATOS!'
                              );
 }
-if (count($pedidosDef)==0){
-    $errores[0]=array ( 'tipo'=>'Warning!',
+if (count($d['Items'])==0){
+    $errores[]=array ( 'tipo'=>'Warning!',
                              'dato' => '',
                              'class'=>'alert alert-warning',
                              'mensaje' => 'No tienes pedidos guardados!'
@@ -64,7 +60,7 @@ if (count($pedidosDef)==0){
 <head>
  <?php include_once $URLCom.'/head.php';?>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>    
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
@@ -74,11 +70,8 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 if (isset($errores)){
     foreach($errores as $error){
             echo '<div class="'.$error['class'].'">'
-            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br> '.$error['dato']
+            . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
             . '</div>';
-            if ($error['tipo']=='Danger!'){
-                exit;
-            }
     }
 }
 ?>
@@ -87,68 +80,56 @@ if (isset($errores)){
 		<div class="col-md-12 text-center">
             <h2>Pedidos de clientes </h2>
         </div>
-        <nav class="col-sm-3">
-            <h4> Pedidos</h4>
-            <h5> Opciones para una selección</h5>
-            <ul class="nav nav-pills nav-stacked"> 
+        <div class="col-sm-3">
+            <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                    echo '<li><a href="#section2" onclick="metodoClick('."'".'AgregarPedido'."'".');";>Añadir</a></li>';
+                  echo '<a class="btn btn-default" href="./pedido.php">Añadir</a>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'pedido'."'".')">Ver</button>';
                 }
                 if($ClasePermisos->getAccion("Modificar")==1){
-                     echo '<li><a href="#section2" onclick="metodoClick('."'".'editar'."'".','."'".'pedido'."'".');";>Modificar</a></li>';
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'pedido'."'".')">Modificar</button>';
+                }
+                if($ClasePermisos->getAccion("CambiarEstadoPedido")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'pedido'."'".')">Cambiar estado</button>';
                 }
             ?>
-            </ul>	
             <div class="col-md-12">
             <h4 class="text-center"> Pedidos Abiertos</h4>
             <table class="table table-striped table-hover">
 			<thead>
 				<tr>
-					<th>Nº Ped</th>
-					<th>Cliente</th>
-					<th>Total</th>
+					<th WIDTH="4">Nº Temp</th>
+					<th WIDTH="100">Nº Alb</th>
+					<th WIDTH="4">Cliente</th>
+					<th WIDTH="4">Total</th>
 				</tr>
-				
 			</thead>
 			<tbody>
-				<?php 
-				if (isset ($todoTemporal)){
-                    foreach ($todoTemporal as $temporal){
-			    		$numTemporal="";
-						if ($temporal['Numpedcli']){
-							$numTemporal=$temporal['Numpedcli'];
-						}					
-						$url = 'pedido.php?tActual='.$temporal['id'];
-						$tdl = '<td style="cursor:pointer" onclick="redireccionA('
-								."'".$url."'".')" title="Pedido con numero temporal:'
-								.$temporal['id'].'">';
-						$td_temporal = $tdl.$numTemporal.'</td>'
-											 .$tdl.$temporal['Nombre'].'</td>'
-											 .$tdl.number_format($temporal['total'],2).'</td>';
-						?>
-						<tr>
-							<?php echo $td_temporal;
-							// Solo mostramos la opcion de eliminar temporal si tiene permisos.
-							if($ClasePermisos->getAccion("EliminarTemporal")==1){
-							?>
-							<td>
-								<a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoPedidos')">
-									<span class="glyphicon glyphicon-trash"></span>
-								</a>
-							</td>
-							<?php
-							}
-							?>
-						</tr>
-						<?php
-					}
-				}
-				?>
+            <?php 
+            if (isset ($todosTemporal)){
+                foreach ($todosTemporal as $temporal){
+                    $numDocumento = "";
+                    if ($temporal['Numpedcli']){
+                        $numDocumento = $temporal['Numpedcli'];
+                    };
+                    ?>
+                    <tr>
+                        <td><a href="pedido.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
+                        <td><?php echo $numDocumento;?></td>
+                        <td><?php echo $temporal['Nombre'];?></td>
+                        <td><?php echo number_format($temporal['total'],2);?></td>
+                    </tr>
+                    <?php
+                }
+            }
+            ?>
 			</tbody>
             </table>
             </div>
-        </nav>
+        </div>
         <div class="col-md-9">
             <p>
              -Pedidos encontrados BD local filtrados:
@@ -182,12 +163,13 @@ if (isset($errores)){
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
-					foreach($pedidosDef as $k=>$pedido){
-						$totaliva=$Cpedido->sumarIva($pedido['Numpedcli']);
-						?>
-						<tr>
-                            <td class="row">
+                    <?php 
+                    foreach($pedidosDef as $k=>$pedido){
+                        $totaliva   = $Cpedido->sumarIva($pedido['Numpedcli']);
+                        $date       = date_create($pedido['Fecha']);
+                        ?>
+                        <tr>
+                    <td>
                                 <input class="Check" type="checkbox" name="check_<?php echo $k;?>" value="<?php echo $pedido['id'];?>">
                             </td>
 
@@ -205,12 +187,12 @@ if (isset($errores)){
                                 }
                                 ?>
                             </td>
-						<td><?php echo $pedido['Numpedcli'];?></td>
-						<td><?php echo $pedido['Fecha'];?></td>
-						<td><?php echo $pedido['Nombre'];?></td>
-						<td><?php echo $totaliva['totalbase'];?></td>
-						<td><?php echo $totaliva['importeIva'];?></td>
-						<td><?php echo $pedido['total'];?></td>
+                            <td><?php echo $pedido['Numpedcli'];?></td>
+                            <td><?php echo date_format($date,'Y-m-d');?></td>
+                            <td><?php echo $pedido['Nombre'];?></td>
+                            <td><?php echo $totaliva['totalbase'];?></td>
+                            <td><?php echo $totaliva['importeIva'];?></td>
+                            <td><?php echo $pedido['total'];?></td>
                             <td>
                             <?php 
                             echo $pedido['estado'];

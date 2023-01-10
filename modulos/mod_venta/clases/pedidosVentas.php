@@ -161,43 +161,53 @@ class PedidosVentas extends ClaseVentas{
 		}
 	}
 
+    public function NumAlbaranDePedido($idPedido){
+		$tabla='pedcliAlb';
+		$where='idPedido='.$idPedido;
+		$relacion_alb_pedido = parent::SelectUnResult($tabla, $where);
+		return $relacion_alb_pedido;
+    }
+
+
     public function PedidosClienteGuardado($busqueda, $idCliente){
 		//@Objetivo:
 		//Buscar algunos datos de un pedido guardado
-		$db=$this->db;
-		$pedido['busqueda']=$busqueda;
+        $respuesta = array();
+        $db=$this->db;
+		$respuesta['busqueda']=$busqueda;
 		if ($busqueda>0){
 		$sql='select  Numpedcli, id , Fecha , total from 
 		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente;
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
 				
 			}else{
 				if ($result = $smt->fetch_assoc () ){
-					$pedido=$result;
+					$respuesta['datos']['0']=$result;
 				}
-				$pedido['Nitem']=1;
+				$respuesta['Nitems']=1;
 			}
 		}else{
 			$sql='SELECT  Numpedcli, Fecha , total , 
 			id from pedclit where idCliente='.$idCliente .' and estado="Guardado"';
         $smt = parent::consulta($sql);
 			if (gettype($smt)==='array'){
-				$pedido['error']=$smt['error'];
-				$pedido['consulta']=$smt['consulta'];
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
 				
 			}else{
-				$pedidosPrincipal=array();
+				$pedidos=array();
 				while ( $result = $smt->fetch_assoc () ) {
-					array_push($pedidosPrincipal,$result);	
+					array_push($pedidos,$result);	
 				}
-				
-				$pedido['datos']=$pedidosPrincipal;
+				$respuesta['datos']=$pedidos;
+                $respuesta['Nitems'] = count($pedidos);
+
 			}
 		}
-		return $pedido;
+		return $respuesta;
 	}
 
     public function ProductosPedido($idPedido){
@@ -387,6 +397,26 @@ class PedidosVentas extends ClaseVentas{
 				return $resultado;
 		}
 	}
+
+    public function posiblesEstados(){
+        // @ Objetivo:
+        // Devolver los posibles estados para la tabla de pedido. pedclit
+        $posibles_estados = array(  '1'=> array(
+											'estado'      =>'Guardado',
+											'Descripcion' =>'Estado pedido guardado cuando no se esta editando.'
+												),
+									'2' =>  array(
+											'estado'      =>'Sin Guardar',
+											'Descripcion' =>'Estado pedido que se hay temporal , se esta editando.'
+											),
+									
+									'3' =>  array(
+											'estado'      =>'Procesado',
+											'Descripcion' =>'Un pedido que ya fue procesado, se creo el albaran, no se permite modificar, ni eliminar.'
+											)
+                                );
+        return $posibles_estados;
+    }
 
     public function sumarIva($numPedido){
 		//@Objetivo:
