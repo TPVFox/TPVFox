@@ -15,3 +15,6 @@ ALTER TABLE `pedcliltemporales` CHANGE `fechaFinal` `Fecha` DATETIME NULL DEFAUL
 ALTER TABLE `pedcliltemporales` CHANGE `idClientes` `idCliente` INT(11) NULL DEFAULT NULL; 
 ALTER TABLE `pedclit` CHANGE `FechaPedido` `Fecha` DATE NOT NULL; 
 ALTER TABLE `pedcliltemporales` DROP `estadoPedCli`;
+UPDATE `albclit` SET `estado`='Procesado' WHERE estado='facturado';
+UPDATE `pedclit` SET `estado`='Procesado' WHERE estado='facturado';
+UPDATE `facclit` SET `estado`='Procesado' WHERE estado='facturado';
