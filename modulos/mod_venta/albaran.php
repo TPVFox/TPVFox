@@ -300,7 +300,7 @@
     $html_procesado='';
     if (isset($existe_doc_procesado) && count($existe_doc_procesado)>0){
         $html_procesado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
-        $html_procesado .= 'factura:'.$existe_doc_procesado['numAlbaran'];
+        $html_procesado .= 'factura:'.$existe_doc_procesado['numFactura'];
         $html_procesado .='</span>';
     }
     $n = 'Sin Guardar';
