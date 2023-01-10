@@ -22,14 +22,13 @@ function AgregarFilaAdjunto(datos, dedonde){
 		success    :  function (response) {
 			var resultado =  $.parseJSON(response); 
 			var nuevafila = resultado['html'];
-			$("#tablaAlbaran").prepend(nuevafila);
-			$('#numAlbaran').focus(); 
-			$('#numAlbaran').val(""); 
+			$("#tablaAdjunto").prepend(nuevafila);
+			$('#numAdjunto').focus(); 
+			$('#numAdjunto').val(""); 
 			
 		}
 	});
 }
-
 
 function AgregarFilaProductosAl(productosAl, dedonde=''){
 	// @ Objetivo:

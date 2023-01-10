@@ -449,98 +449,100 @@ if (isset($_POST['Cancelar'])){
                 
                 <input type="submit" class="btn btn-danger" <?php echo $display_btn_guardar_cancelar;?> value="Cancelar Temporal" id="Cancelar" name="Cancelar">
             </div>
-<div class="col-md-12" >
-	<div class="col-md-8">
-		<div class="col-md-12">
-            <div class="col-md-2">
-                <strong>Fecha Fact:</strong><br>
-                <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
-            </div>
-            <div class="col-md-2">
-                <strong>Estado:</strong><br>
-            
-                <span id="Estado"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
-            </div>
-        
-            <div class="col-md-2">
-                <strong>Empleado:</strong><br>
-                <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
-            </div>
-
-            <div class="col-md-3" id="tiposVencimientos">
-                <label class="text-center">Tipo vencimiento:</label>
-                <select name='formaTipoVencimiento' id='formaTipoVencimiento' onChange='selectFormas()'>
-                    <?php echo $html_options_vencimiento;?>
-                </select>
-            </div>
-            <div class="col-md-3" id="fechaVencimiento">
-                <label class="text-center">Fecha vencimiento:</label>
-                <input type="date" name="fechaVencimiento" id="fechaVencimiento" size="10" data-obj= "cajaFecha"  value="<?php echo $fechaVencimiento;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
-            </div>
-		</div>
-		<div class="form-group">
-			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
-            <?php if ($readonly_cliente ==''  ){?>
-                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
-            <?php } ?>
-		</div>
-	</div>
-	<div class="col-md-4" >
-        <div style="margin-top:0;" id="tablaAl">
-            <label  id="numAlbaranT">Número del albaran:</label>
-            <input  type="text" id="numAlbaran" name="numAlbaran" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numAlbaran" onkeydown="controlEventos(event)">
-            <a  id="buscarAlbaran" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
-            <table  class="col-md-12"  id="tablaAlbaran"> 
-                <thead>
-                    <td><b>Número</b></td>
-                    <td><b>Fecha</b></td>
-                    <td><b>Total</b></td>
-                </thead>
-                <?php echo $html_adjuntos;?>
-            </table>
         </div>
-	</div>
-	<!-- Tabla de lineas de productos -->
-	<div>
-		<table id="tabla" class="table table-striped" >
-		<thead>
-		  <tr>
-			<th>L</th>
-			<th>Num<span class="glyphicon glyphicon-info-sign" title="Numero de adjunto"></span></th>
-			<th>Id Articulo</th>
-			<th>Referencia</th>
-			<th>Cod Barras</th>
-			<th>Descripcion</th>
-			<th>Unid</th>
-			<th>PVP</th>
-			<th>Pv sin iva</th>
-			<th>Iva</th>
-			<th>Importe</th>
-			<th></th>
-		  </tr>
-		  <tr id="Row0" <?php echo $display;?>>  
-			<td id="C0_Linea" ></td>
-			<td></td>
-			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
-		  </tr>
-		</thead>
-		<tbody>
-			<?php
-			if (isset($productos)){
-				foreach (array_reverse($productos) as $producto){
-                    $html=htmlLineaProductos($producto, "factura", $accion);
-                    echo $html;
+        <div class="col-md-12" >
+            <div class="col-md-8">
+                <div class="col-md-12">
+                    <div class="col-md-2">
+                        <strong>Fecha Fact:</strong><br>
+                        <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Estado:</strong><br>
+                    
+                        <span id="Estado"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
+                    </div>
+                
+                    <div class="col-md-2">
+                        <strong>Empleado:</strong><br>
+                        <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
+                    </div>
+
+                    <div class="col-md-3" id="tiposVencimientos">
+                        <label class="text-center">Tipo vencimiento:</label>
+                        <select name='formaTipoVencimiento' id='formaTipoVencimiento' onChange='selectFormas()'>
+                            <?php echo $html_options_vencimiento;?>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="fechaVencimiento">
+                        <label class="text-center">Fecha vencimiento:</label>
+                        <input type="date" name="fechaVencimiento" id="fechaVencimiento" size="10" data-obj= "cajaFecha"  value="<?php echo $fechaVencimiento;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cliente:</label>
+                    <input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+                    <input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
+                    <?php if ($readonly_cliente ==''  ){?>
+                        <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="col-md-4" >
+                <div style="margin-top:0;" id="tablaAl">
+                    <label>Número del albaran:</label>
+                    <input  type="text" id="numAdjunto" name="numAdjunto" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numAdjunto" onkeydown="controlEventos(event)">
+                    <a  id="buscarAdjunto" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+                    <table  class="col-md-12"  id="tablaAdjunto"> 
+                        <thead>
+                            <td><b>Número</b></td>
+                            <td><b>Fecha</b></td>
+                            <td><b>Total</b></td>
+                        </thead>
+                        <?php echo $html_adjuntos;?>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Tabla de lineas de productos -->
+        <div>
+            <table id="tabla" class="table table-striped" >
+            <thead>
+              <tr>
+                <th>L</th>
+                <th>Num<span class="glyphicon glyphicon-info-sign" title="Numero de adjunto"></span></th>
+                <th>Id Articulo</th>
+                <th>Referencia</th>
+                <th>Cod Barras</th>
+                <th>Descripcion</th>
+                <th>Unid</th>
+                <th>PVP</th>
+                <th>Pv sin iva</th>
+                <th>Iva</th>
+                <th>Importe</th>
+                <th></th>
+              </tr>
+              <tr id="Row0" <?php echo $display;?>>  
+                <td id="C0_Linea" ></td>
+                <td></td>
+                <td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="6" value=""  onkeydown="controlEventos(event)"></td>
+                <td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="13" value="" onkeydown="controlEventos(event)"></td>
+                <td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+                <td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
+              </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (isset($productos)){
+                    foreach (array_reverse($productos) as $producto){
+                        $html=htmlLineaProductos($producto, "factura", $accion);
+                        echo $html;
+                    }
                 }
-			}
-			?>
-		</tbody>
-	  </table>
-	</div>
+                ?>
+            </tbody>
+          </table>
+        </div>
 	<?php 
 	if(isset($Datostotales)){
 	?>
@@ -576,7 +578,6 @@ if (isset($_POST['Cancelar'])){
 			</div>
 		</div>
 	</div>
-</div>
 </form>
 </div>
 <?php // Incluimos paginas modales

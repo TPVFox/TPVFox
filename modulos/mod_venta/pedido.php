@@ -406,7 +406,7 @@ if (isset($_POST['Cancelar'])){
             </select>
             <input type="submit" class="btn btn-danger" <?php echo $display_btn_guardar_cancelar;?> value="Cancelar Temporal" id="Cancelar" name="Cancelar">
         </div>
-					
+        </div>
 <div class="col-md-12" >
 	<div class="col-md-8">
 		<div class="col-md-12">

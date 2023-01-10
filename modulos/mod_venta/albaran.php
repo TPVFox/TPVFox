@@ -381,7 +381,6 @@ if (isset($_POST['Cancelar'])){
 ?>
 
 <div class="container">
-	
     <?php
 	if (count($errores)>0){
         foreach ($errores as $error){
@@ -395,86 +394,87 @@ if (isset($_POST['Cancelar'])){
 	}
     ?>
     <?php
-        // Montamos html de titulo
-        echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.$html_procesado.'</h2>' ;?>
-			<form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-				<div class="col-md-12">
-                    <div class="col-md-8" >
-            <?php echo $Controler->getHtmlLinkVolver('Volver');?>
-                        <?php 
-                            if($idAlbaran>0){
-                                ?>
-                                <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
+    // Montamos html de titulo
+    echo '<h2 class="text-center">'.$titulo.$html_numero.'-'.$html_accion.$html_procesado.'</h2>' ;?>
+    <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+        <div class="col-md-12">
+            <div class="col-md-8" >
+                <?php echo $Controler->getHtmlLinkVolver('Volver');?>
+                <?php 
+                    if($idAlbaran>0){
+                        ?>
+                        <input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('<?php echo $dedonde;?>' , configuracion, 0,<?php echo $idAlbaran ;?>);" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">
 
-                                <?php
-                            }
-                                if($inciden>0){
-                                ?>
-                                <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_ventas', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
-                                <?php
-                            }
-                            ?>
+                        <?php
+                    }
+                        if($inciden>0){
+                        ?>
+                        <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas(<?php echo $idAlbaran;?>, 'mod_ventas', 'albaran')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">
+                        <?php
+                    }
+                    ?>
                 <input type="submit"  class="btn btn-primary" <?php echo $display_btn_guardar_cancelar;?> value="Guardar" id="Guardar" name="Guardar">
-                    </div>
-				<div class="col-md-4 text-right" >
-                     <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-                     <select  title="Escoje casilla de salto" id="salto" name="salto">
-                        <option value="0">Seleccionar</option>
-						<option value="1">Id Articulo</option>
-						<option value="2">Referencia</option>
-						<option value="3">Cod Barras</option>
-						<option value="4">Descripción</option>
-					</select>
+            </div>
+            <div class="col-md-4 text-right" >
+                 <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+                 <select  title="Escoje casilla de salto" id="salto" name="salto">
+                    <option value="0">Seleccionar</option>
+                    <option value="1">Id Articulo</option>
+                    <option value="2">Referencia</option>
+                    <option value="3">Cod Barras</option>
+                    <option value="4">Descripción</option>
+                </select>
                 <input type="submit" class="btn btn-danger" <?php echo $display_btn_guardar_cancelar;?> value="Cancelar Temporal" id="Cancelar" name="Cancelar">
             </div>
-<div class="col-md-12" >
-	<div class="col-md-8">
-		<div class="col-md-12">
-            <div class="col-md-2">
-                <strong>Fecha Alb:</strong><br>
-                <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
-            </div>
-            <div class="col-md-2">
-                <strong>Estado:</strong><br>
-            
-                <span id="Estado"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
-            </div>
-        
-				<div class="col-md-2">
-                    <strong>Empleado:</strong><br>
-                    <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
+        </div>
+        <div class="col-md-12" >
+            <div class="col-md-8">
+                <div class="col-md-12">
+                    <div class="col-md-2">
+                        <strong>Fecha Alb:</strong><br>
+                        <input type="text" name="fecha" id="fecha" size="10" data-obj= "cajaFecha"  value="<?php echo $fecha;?>" onkeydown="controlEventos(event)" pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" placeholder='dd-mm-yyyy' <?php echo $readonly;?> title=" Formato de entrada dd-mm-yyyy">
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Estado:</strong><br>
+                    
+                        <span id="Estado"> <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" size="10" readonly></span><br>
+                    </div>
+                
+                        <div class="col-md-2">
+                            <strong>Empleado:</strong><br>
+                            <input type="text" id="Usuario" name="Usuario" value="<?php echo $empleado['nombre'];?>" size="10" readonly>
+                        </div>
+                    
                 </div>
-            
-		</div>
-		<div class="form-group">
-			<label>Cliente:</label>
-			<input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
-			<input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
-            <?php if ($readonly_cliente ==''  ){?>
-                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
-            <?php } ?>
-		</div>
-	</div>
-	<div class="col-md-4" >
-        <div style="margin-top:0;" id="tablaAl">
-			<label id="numPedidoT">Número del pedido:</label>
-			<input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numPedido" onkeydown="controlEventos(event)">
-			<a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
-			<table  class="col-md-12" id="tablaAlbaran"> 
-				<thead>
-				
-				<td><b>Número</b></td>
-				<td><b>Fecha</b></td>
-				<td><b>Total</b></td>
-				
-				</thead>
-                <?php echo $html_adjuntos;?>
-			</table>
-		</div>
-	</div>
-	</div>
+                <div class="form-group">
+                    <label>Cliente:</label>
+                    <input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
+                    <input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
+                    <?php if ($readonly_cliente ==''  ){?>
+                        <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="col-md-4" >
+                <div style="margin-top:0;" id="tablaAl">
+                    <label>Número del pedido:</label>
+                    <input  type="text" id="numAdjunto" name="numAdjunto" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numAdjunto" onkeydown="controlEventos(event)">
+                    <a  id="buscarAdjunto" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+                    <table  class="col-md-12"  id="tablaAdjunto"> 
+                        <thead>
+                        
+                        <td><b>Número</b></td>
+                        <td><b>Fecha</b></td>
+                        <td><b>Total</b></td>
+                        
+                        </thead>
+                        <?php echo $html_adjuntos;?>
+                    </table>
+                </div>
+            </div>
+        </div>
 	<!-- Tabla de lineas de productos -->
-	<div>
+        <div>
 		<table id="tabla" class="table table-striped">
 		<thead>
 		  <tr>
@@ -512,47 +512,47 @@ if (isset($_POST['Cancelar'])){
 			}
 			?>
 		</tbody>
-	  </table>
-	</div>
-	<?php 
-	if(isset($Datostotales)){
-	?>
-
-		<script type="text/javascript">
-			total = <?php echo $Datostotales['total'];?>;
-			</script>
-
-			<?php
-		}
-	?>
-	<div class="col-md-10 col-md-offset-2 pie-ticket">
-		<table id="tabla-pie" class="col-md-6">
-		<thead>
-			<tr>
-				<th>Tipo</th>
-				<th>Base</th>
-				<th>IVA</th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php 
-		if(isset($Datostotales) && count($Datostotales)>0){
-			$htmlIvas=htmlTotales($Datostotales);
-            echo $htmlIvas['html'];
-        }
+        </table>
+        </div>
+        <?php 
+        if(isset($Datostotales)){
         ?>
-		</tbody>
-		</table>
-		<div class="col-md-6">
-			<div class="col-md-4">
-			<h3>TOTAL</h3>
-			</div>
-			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
-			</div>
-		</div>
-	
-</form>
+
+            <script type="text/javascript">
+                total = <?php echo $Datostotales['total'];?>;
+                </script>
+
+                <?php
+            }
+        ?>
+        <div class="col-md-10 col-md-offset-2 pie-ticket">
+            <table id="tabla-pie" class="col-md-6">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Base</th>
+                    <th>IVA</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php 
+            if(isset($Datostotales) && count($Datostotales)>0){
+                $htmlIvas=htmlTotales($Datostotales);
+                echo $htmlIvas['html'];
+            }
+            ?>
+            </tbody>
+            </table>
+            <div class="col-md-6">
+                <div class="col-md-4">
+                <h3>TOTAL</h3>
+                </div>
+                <div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+                    <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 <?php // Incluimos paginas modales
 echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
