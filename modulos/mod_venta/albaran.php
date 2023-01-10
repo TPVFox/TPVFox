@@ -468,7 +468,7 @@ if (isset($_POST['Cancelar'])){
                     <input type="text" id="id_cliente" name="id_cliente" data-obj= "cajaIdCliente" <?php echo $readonly_cliente;?> value="<?php echo $datosCliente['idClientes'];?>" size="2" onkeydown="controlEventos(event)" placeholder='id'>
                     <input type="text" id="Cliente" name="Cliente" data-obj= "cajaCliente" placeholder="Nombre de cliente" onkeydown="controlEventos(event)" value="<?php echo $datosCliente['Nombre']; ?>"  <?php echo $readonly_cliente;?> size="60">
                     <?php if ($readonly_cliente ==''  ){?>
-                        <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('factura')"></a>
+                        <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('albaran')"></a>
                     <?php } ?>
                 </div>
             </div>
@@ -476,7 +476,7 @@ if (isset($_POST['Cancelar'])){
                 <div style="margin-top:0;" id="tablaAl">
                     <label>Número del pedido:</label>
                     <input  type="text" id="numAdjunto" name="numAdjunto" value="" size="5" placeholder='Num' <?php echo $readonly;?> data-obj= "numAdjunto" onkeydown="controlEventos(event)">
-                    <a  id="buscarAdjunto" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
+                    <a  id="buscarAdjunto" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
                     <table  class="col-md-12"  id="tablaAdjunto"> 
                         <thead>
                         

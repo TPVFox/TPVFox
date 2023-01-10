@@ -174,17 +174,18 @@ class PedidosVentas extends ClaseVentas{
 		$respuesta['busqueda']=$busqueda;
 		if ($busqueda>0){
 		$sql='select  Numpedcli, id , Fecha , total from 
-		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente;
+		pedclit where Numpedcli='.$busqueda.' and  idCliente='. $idCliente.' and estado="Guardado"';
 		$smt=$this->consulta($sql);
 			if (gettype($smt)==='array'){
 				$respuesta['error']=$smt['error'];
 				$respuesta['consulta']=$smt['consulta'];
 				
 			}else{
+                $respuesta['Nitems']=0; // Puede que no haya resultados
 				if ($result = $smt->fetch_assoc () ){
 					$respuesta['datos']['0']=$result;
+    				$respuesta['Nitems']=1;
 				}
-				$respuesta['Nitems']=1;
 			}
 		}else{
 			$sql='SELECT  Numpedcli, Fecha , total , 

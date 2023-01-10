@@ -134,16 +134,17 @@ class AlbaranesVentas extends ClaseVentas {
         $respuesta['busqueda'] = $busqueda;
         if ($busqueda > 0) {
             $sql = 'select  Numalbcli as NumalbCli, id , Fecha  , total from albclit where
-			 Numalbcli =' . $busqueda . ' and  idCliente=' . $idCliente;
+			 Numalbcli =' . $busqueda . ' and  idCliente=' . $idCliente.' and estado="Guardado"';
             $smt = $this->consulta($sql);
             if (gettype($smt) === 'array') {
                 $respuesta['error'] = $smt['error'];
                 $respuesta['consulta'] = $smt['consulta'];
             } else {
-                if ($result = $smt->fetch_assoc()) {
-                    $respuesta['datos']['0'] = $result;
-                }
-                $respuesta['Nitems'] = 1;
+                $respuesta['Nitems']=0; // Puede que no haya resultados
+				if ($result = $smt->fetch_assoc () ){
+					$respuesta['datos']['0']=$result;
+    				$respuesta['Nitems']=1;
+				}
             }
         } else {
             $sql = 'SELECT  Numalbcli as NumalbCli ,  id , Fecha  , total  from albclit 
