@@ -262,25 +262,17 @@ function buscarClientes(dedonde, idcaja, valor=''){
 					$('#id_cliente').prop('disabled', true);
 					$("#buscar").css("display", "none");
 					mostrarFila();
-					if (dedonde=="albaran"){
-						comprobarPedidosExis();
-					}
-					if (dedonde=="factura"){
-						comprobarAdjuntosExis();
-					}
-					if(dedonde=="pedido"){
-					$('#Referencia').focus();	
-					}
-					 cerrarPopUp();
+                    comprobarAdjuntosExis(dedonde);
+					cerrarPopUp();
 				}else{
 					console.log(resultado.html);
-				 var titulo = 'Listado clientes ';
-				 var HtmlClientes=resultado.html.html; 
-				 abrirModal(titulo,HtmlClientes);
-				 focusAlLanzarModal('cajaBusquedacliente');
-				if(resultado.html.encontrados>0){
-					ponerFocus('N_0');
-				}
+                    var titulo = 'Listado clientes ';
+                    var HtmlClientes=resultado.html.html; 
+                    abrirModal(titulo,HtmlClientes);
+                    focusAlLanzarModal('cajaBusquedacliente');
+                    if(resultado.html.encontrados>0){
+                        ponerFocus('N_0');
+                    }
 				 }
 			}
 		}
@@ -484,70 +476,34 @@ function cancelarTemporal(idTemporal, dedonde){
 	}
 }
 
-function comprobarAdjuntosExis(){
+function comprobarAdjuntosExis(dedonde){
 	//@Objetivo:
 	//Buscar los albaranes de el cliente seleccionado 
 	//Si la respuesta es positiva muestra la tabla oculta
-	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
+	console.log('FUNCION comprobar adjunto existentes  JS-AJAX');
 	var parametros = {
-		"pulsado"    : 'comprobarAlbaran',
-		"idCliente" : cabecera.idCliente
+		"pulsado"   : 'comprobarAlbaran',
+		"idCliente" : cabecera.idCliente,
+        "dedonde"   : dedonde
 	};
-	console.log(parametros);
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en comprobar pedidos existentes JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de comprobar pedidos');
-			var resultado =  $.parseJSON(response); 
-			if (resultado.error){
-				alert('Error de SQL: '+resultado.consulta);
-			}else{
-				if (resultado.alb==1){
-					$("#numAlbaranT").show();
-					$("#numAlbaran").show();
-					$("#buscarAlbaran").show();
-					$("#tablaAlbaran").show();
-				}
-			}
-		}
-	});
-}
-
-function comprobarPedidosExis(){
-	//@Objetivo:
-	//comprobar que un cliente tiene pedidos con estado guardado
-	//Si la respuesta es positiva muestra la entrada de pedidos
-	console.log('FUNCION comprobar pedidos existentes  JS-AJAX');
-	var parametros = {
-		"pulsado"    : 'comprobarPedidos',
-		"idCliente" : cabecera.idCliente
-		
-	};
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('******** estoy en comprobar pedidos existentes JS****************');
-		},
-		success    :  function (response) {
-			console.log('Llegue devuelta respuesta de comprobar pedidos');
-			var resultado =  $.parseJSON(response); 
-			if (resultado.ped==1){
-				$("#numPedidoT").show();
-				$("#numPedido").show();
-				$("#buscarPedido").show();
-				$("#tablaPedidos").show();
-				$("#numPedido").focus();
-			}else{
-				$('#idArticulo').focus();
-			}
-		}
+    $.ajax({
+    data       : parametros,
+    url        : 'tareas.php',
+    type       : 'post',
+        beforeSend : function () {
+            console.log('******** estoy en comprobar pedidos existentes JS****************');
+        },
+        success    :  function (response) {
+            console.log('Llegue devuelta respuesta de comprobar pedidos');
+            var resultado =  $.parseJSON(response); 
+            if (resultado.error){
+                alert('Error de SQL: '+resultado.consulta);
+            }else{
+                if (resultado.NItems > 0){
+                    $("#tablaAl").show();
+                }
+            }
+        }
 	});
 }
 

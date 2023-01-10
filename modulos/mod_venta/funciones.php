@@ -241,7 +241,7 @@ function htmlClientes($busqueda,$dedonde, $idcaja, $clientes){
 			$datos = 	"'".$cliente['idClientes']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
 			$resultado['html'] .= '<tr id="Fila_'.$key.'" '
 								.'class="FilaModal'.$clase_inactiva.'" '
-								.'onclick="buscarClientes('."'popup','id_cliente',".$cliente['idClientes'].');">';
+								.'onclick="buscarClientes('."'".$dedonde."','id_cliente',".$cliente['idClientes'].');">';
 		
 			$resultado['html'] .= '<td id="C'.$key.'_Lin" >';
 			$resultado['html'] .= '<input id="N_'.$key.'" name="filacliente" data-obj="idN"'

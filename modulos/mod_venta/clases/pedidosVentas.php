@@ -103,22 +103,19 @@ class PedidosVentas extends ClaseVentas{
     public function ComprobarPedidos($idCliente, $estado){
 		//@Objetivo:
 		//Comprobar los pedidos de un cliente determinado con el estado guardado
-		$db=$this->db;
-		$estado='"'.'Guardado'.'"';
+        $respuesta = array( 'NItems'=>0);
+        $db=$this->db;
 		$sql='SELECT  id from pedclit where idCliente='
-		.$idCliente .' and estado='.$estado;
+		.$idCliente .' and estado="'.$estado.'"';
         $smt = parent::consulta($sql);
 		if (gettype($smt)==='array'){
 				$resultado['error']=$smt['error'];
 				$resultado['consulta']=$smt['consulta'];
 				return $resultado;
-		}else{
-			$pedidos=array();
-			while ( $result = $smt->fetch_assoc () ) {
-				$pedidos['ped']=1;
-			}
-			return $pedidos;
-		}
+		}else {
+            $respuesta['NItems'] = $smt->num_rows;
+        }
+        return $respuesta;
 	}
 
     public function EliminarRegistroTemporal($idTemporal, $idPedido){

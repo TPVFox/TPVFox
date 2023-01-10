@@ -98,13 +98,9 @@ switch ($pulsado) {
 			 }
              $respuesta=$cancelar;
 		break;
-		
-		case 'comprobarPedidos':
-            include_once $URLCom.'/modulos/mod_venta/tareas/comprobarPedidos.php';
-		break;
         
 		case 'comprobarAlbaran':
-            include_once $URLCom.'/modulos/mod_venta/tareas/comprobarAlbaranes.php';
+            include_once $URLCom.'/modulos/mod_venta/tareas/comprobarAdjunto.php';
 		break;
 
         case 'htmlAgregarFilaAdjunto':

@@ -102,8 +102,8 @@
 		$productosAlbaran                   = $CalbAl->ProductosAlbaran($idAlbaran);
 		$productosMod			    = modificarArrayProductos($productosAlbaran);
 		$datosAlbaran_guardada['Productos'] = json_encode($productosMod);
-        $pedisAlbaran_creada                = $CalbAl->PedidosAlbaranes($idAlbaran);
-        $datosAlbaran_guardada['Pedidos'] = json_encode($pedisAlbaran_creada);
+        $pedisAlbaran_creada                = $CalbAl->obtenerPedidosAlbaran($idAlbaran);
+        $datosAlbaran_guardada['Pedidos'] = json_encode($pedisAlbaran_creada['Items']);
         $incidenciasAdjuntas                = incidenciasAdjuntas($idAlbaran, "mod_ventas", $BDTpv, "albaran");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         if ($idTemporal == 0){

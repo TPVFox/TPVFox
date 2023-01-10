@@ -167,21 +167,19 @@ class AlbaranesVentas extends ClaseVentas {
     public function ComprobarAlbaranes($idCliente, $estado) {
         //@Objetivo:
         //Comprobar los albaranes de un determinado estado
+        $respuesta = array( 'NItems'=>0);
         $db = $this->db;
-        $estado = '"' . 'Guardado' . '"';
-        $sql = 'SELECT  id from albclit where idCliente=' . $idCliente . ' and estado=' . $estado;
-        $albaranes = array();
+        $sql = 'SELECT  id from albclit where idCliente=' . $idCliente . ' and estado="' . $estado.'"';
         $smt = $this->consulta($sql);
+    
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
             $respuesta['consulta'] = $smt['consulta'];
-            return $respuesta;
+            
         } else {
-            while ($result = $smt->fetch_assoc()) {
-                $albaranes['alb'] = 1;
-            }
-            return $albaranes;
+            $respuesta['NItems'] = $smt->num_rows;
         }
+        return $respuesta;
     }
 
     public function EliminarRegistroTemporal($idTemporal, $idAlbaran) {
@@ -231,16 +229,6 @@ class AlbaranesVentas extends ClaseVentas {
 		$albaran = parent::SelectUnResult($tabla, $where);
 		return $albaran;
 	}
-    
-    public function PedidosAlbaranes($idAlbaran) {
-        //@Objetivo:
-        //Busca los pedidos de un albarán real
-        $tabla = 'pedcliAlb';
-        $where = 'idAlbaran= ' . $idAlbaran;
-        $albaran = parent::SelectVariosResult($tabla, $where);
-        return $albaran;
-    }
-
 
      public function ProductosAlbaran($idAlbaran) {
         //@Objetivo:
@@ -484,6 +472,27 @@ class AlbaranesVentas extends ClaseVentas {
             $errores['consulta'] = $smt['consulta'];
             return $errores;
         }
+    }
+
+    public function obtenerPedidosAlbaran($idAlbaran){
+        //@Objetivo:
+        // Obtener los albaranes de una factura con sus datos.
+        $respuesta = array();
+        $sql = 'SELECT a.idPedido as id ,b.Numpedcli as Numpedcli, b.fecha as Fecha, b.total, b.estado	FROM pedcliAlb as a LEFT JOIN pedclit as b on a.idPedido=b.id WHERE a.idAlbaran='.$idAlbaran;
+        $smt=$this->consulta($sql);
+        if (gettype($smt)==='array'){
+				$respuesta['error']=$smt['error'];
+				$respuesta['consulta']=$smt['consulta'];
+				return $respuesta;
+		}else{
+			$respuesta['Items'] = array();
+			while ( $result = $smt->fetch_assoc () ) {
+                array_push($respuesta['Items'],$result);
+			}
+            $respuesta['consulta'] = $sql;
+
+			return $respuesta;
+		}
     }
 
     public function posiblesEstados(){
