@@ -19,7 +19,6 @@ function controladorAcciones(caja,accion, tecla){
 	//				tiene funciones que podemos necesitar como:
 	//						darValor -> donde obtiene el valor input
 	switch(accion) {
-		
 		case 'buscarClientes':
 			// Esta funcion necesita el valor.
 			console.log("Estoy en buscarClientes");
@@ -31,7 +30,6 @@ function controladorAcciones(caja,accion, tecla){
             }else{
 				buscarClientes(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 			}
-			
 		break;
 
         case 'desde_fecha':
@@ -65,12 +63,14 @@ function controladorAcciones(caja,accion, tecla){
 				var d_focus = 'Cliente';
 				ponerFocus(d_focus);
 			
-			break;
+        break;
+        
 		case 'saltar_Fecha':
 		console.log('Entro en acciones saltar_fecha');
 			var d_focus = 'fecha';
 			ponerFocus(d_focus);
-			break
+        break
+        
 		case 'saltar_idArticulo':
 		console.log('Entro en acciones saltar_idArticulo');
             console.log(caja.tecla);
@@ -95,7 +95,8 @@ function controladorAcciones(caja,accion, tecla){
 				var d_focus = 'Codbarras';
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+        
 		case 'recalcular_totalProducto':
 		console.log("entre en recalcular precio producto");
 			// recuerda que lo productos empizan 0 y las filas 1
@@ -109,7 +110,8 @@ function controladorAcciones(caja,accion, tecla){
 			}
 			
 			
-			break;
+		break;
+        
 		case 'mover_down':
 			// Controlamos si numero fila es correcto.
 			var nueva_fila = 0;
@@ -125,6 +127,7 @@ function controladorAcciones(caja,accion, tecla){
 			mover_down(nueva_fila,caja.darParametro('prefijo'));
 			}
 		break;
+        
 		case 'mover_up':
 			console.log( 'Accion subir 1 desde fila'+caja.fila);
 			var nueva_fila = 0;
@@ -149,7 +152,8 @@ function controladorAcciones(caja,accion, tecla){
 				var d_focus = 'Referencia';
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+        
 		case 'saltar_Descripcion':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -157,7 +161,8 @@ function controladorAcciones(caja,accion, tecla){
 				var d_focus = 'Descripcion';
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+        
 		case 'saltar_CodBarras':
 			var dato = caja.darValor();
 			if ( dato.length === 0){
@@ -166,7 +171,8 @@ function controladorAcciones(caja,accion, tecla){
 				
 				ponerFocus(d_focus);
 			}
-			break;
+		break;
+        
 		case  'saltar_productos':
 			if (productos.length >0){
 			// Debería añadir al caja N cuantos hay
@@ -175,7 +181,7 @@ function controladorAcciones(caja,accion, tecla){
 			} else {
 			   console.log( ' No nos movemos ya que no hay productos');
 			}
-			break;
+		break;
 	
 		case 'saltarNumPedido':
 				console.log("Ente en fecha Al");
@@ -190,21 +196,18 @@ function controladorAcciones(caja,accion, tecla){
                 ponerFocus(d_focus);
 
 		break;
-		case 'buscarPedido':
-		console.log("Entre en buscar pedido");
-		buscarPedido(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-		
+        
+		case 'buscarAdjunto':
+		console.log("Entre en buscar adjunto");
+		buscarAdjunto(caja.darParametro('dedonde'),caja.darValor());
 		break;
-		case 'buscarAlbaran':
-		console.log("Entre en buscar albaran");
-		buscarAlbaran(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
-		
-		break;
-		case 'selectFormas':
+
+        case 'selectFormas':
 		console.log("Entre en la funcion select formas");
 		selectFormas();
 		break;
-		case 'buscarClientesAlbaran':
+
+        case 'buscarClientesAlbaran':
 		console.log("Entre en buscarCliente albaran");
 		buscarClienteAl(caja.darParametro('dedonde'),caja.id_input ,caja.darValor());
 		break;

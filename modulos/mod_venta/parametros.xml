@@ -173,7 +173,7 @@
 			<nombre id_input="numAdjunto">numAdjunto</nombre>
 			<teclas>
 				<action tecla="37">saltarFechaAl</action>
-				<action tecla="13">buscarPedido</action>
+				<action tecla="13">buscarAdjunto</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">albaran</parametro>
