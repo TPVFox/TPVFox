@@ -101,10 +101,18 @@
 		$datosPedido_guardada['Productos']  = json_encode($productosMod);
         $incidenciasAdjuntas                = incidenciasAdjuntas($idPedido, "mod_ventas", $BDTpv, "pedido");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
+        $existe_doc_procesado                  = $Cpedido->NumAlbaranDePedido($idPedido);
         if ($idTemporal == 0){
             // Si no es temporal, entonces tenemos crear $datosPedido.
             $datosPedido = $datosPedido_guardada;
             $estado=$datosPedido['estado'];
+        }
+        if ($estado == 'Procesado' && count($existe_doc_procesado)==0){
+            // Hay un error, ya que esta procesado y no hay factura relacionada.
+            $existe_doc_procesado = array ('numAlbaran' => '???');
+            $errores[] =$Cpedido->montarAdvertencia('danger',
+                                         'El estado pedido es <strong> "Procesado"</strong> pero no existe relacion de ninguna albaran.</a> '
+                                        );
         }
     }
     if ( isset($datosPedido)){
@@ -114,7 +122,6 @@
         $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
         $productos = json_decode($datosPedido['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosPedido['Fecha']), 'd-m-Y');
-        $existe_doc_procesado                  = $Cpedido->NumAlbaranDePedido($idPedido);
     }
 
     // ---- Compromamos si existe la pedido que el estado sea Sin guardar --- //
@@ -249,7 +256,7 @@
         $accion = 'editar';
     } else {
         // Es Nuevo o ya existe pero no tiene temporal.
-        if ($estado === 'Procesado'){
+        if ($estado === 'Procesado' && $accion !='ver'){
             // No permitimos editarlo
             $accion = 'ver';
             // Informamos
@@ -284,8 +291,17 @@
     // --- html de titulo --- /
     $html_procesado='';
     if (isset($existe_doc_procesado) && count($existe_doc_procesado)>0){
-        $html_procesado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label label-default">';
-        $html_procesado .= 'albaran:'.$existe_doc_procesado['numAlbaran'];
+        $num_adjunto = $existe_doc_procesado['numAlbaran'];
+        if ($existe_doc_procesado['numAlbaran']>0){
+            $label='label-default';
+        } else {
+            // Hay error porque esta estado Procesado, pero no hay relacion de factura.
+            $label='label-danger';
+            
+            
+        }
+        $html_procesado = ' <span style="font-size: 0.55em;vertical-align: middle;" class="label '.$label.'">';
+        $html_procesado .= 'Albaran:'.$num_adjunto;
         $html_procesado .='</span>';
     }
     $n = 'Sin Guardar';
