@@ -264,56 +264,27 @@ function grabarTicketsTemporal(){
 			console.log('******** Voy a grabar****************');
 		},
 		success    :  function (response) {
-			console.log('Respuesta de grabar');
-			var resultado =  $.parseJSON(response); 
-			// Cambiamos el estado :
-			cabecera.estadoTicket = resultado.estadoTicket;
-			cabecera.numTicket = resultado.NumeroTicket;
-			$('#EstadoTicket').html(resultado.estadoTicket);			
-			$('#EstadoTicket').css('background-color','red')
-			$('#EstadoTicket').css('color','white')
-			$('#NTicket').html('0/'+resultado.NumeroTicket);
-			
-			
-			//objetivo cuando esta en ticket actual , 
-			//en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
-			if (productos.length ===1 ){ 
-				history.pushState(null,'','?tActual='+resultado.NumeroTicket);
-			}
-			// Limpiamos los valores ivas y bases.
-			$('#tipo4').html('');
-			$('#tipo10').html('');
-			$('#tipo21').html('');
-			$('#base4').html('');
-			$('#base10').html('');
-			$('#base21').html('');
-			$('#iva4').html('');
-			$('#iva10').html('');
-			$('#iva21').html('');
-			$('.totalImporte').html('');
-			
-			// Quiere decir que hay datos a mostrar en pie.
-			total = parseFloat(resultado.total) // varible global.
-			$('.totalImporte').html(total.toFixed(2));
-			// Ahora tengo que pintar los ivas.
-			if (resultado.desglose !=='undefined'){
-				var desgloseIvas = [];
-				desgloseIvas.push(resultado.desglose);
-				// Ahora recorremos array desglose
-				desgloseIvas.forEach(function(desglose){
-					// mostramos los tipos ivas , bases y importes.
-					var tipos = Object.keys(desglose);
-					for (index in tipos){
-						var tipo = tipos[index];
-						$('#line'+parseInt(tipo)).css('display','');
-						$('#tipo'+parseInt(tipo)).html(parseInt(tipo)+'%');
-						$('#base'+parseInt(tipo)).html(desglose[tipo].base); 
-						$('#iva'+parseInt(tipo)).html(desglose[tipo].iva);
-					}
-				});
-				
-			}
-			
+            console.log('Respuesta de grabar');
+            var resultado =  $.parseJSON(response); 
+            // Cambiamos el estado :
+            cabecera.estadoTicket = resultado.estadoTicket;
+            cabecera.numTicket = resultado.NumeroTicket;
+            $('#EstadoTicket').html(resultado.estadoTicket);
+            $('#EstadoTicket').css('background-color','red')
+            $('#EstadoTicket').css('color','white')
+            $('#NTicket').html('0/'+resultado.NumeroTicket);
+            //objetivo cuando esta en ticket actual , 
+            //en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
+            if (productos.length ===1 ){ 
+                history.pushState(null,'','?tActual='+resultado.NumeroTicket);
+            }
+            // Limpiamos los valores ivas y bases.
+            $('.totalImporte').html('');
+            $('#tabla-iva tbody tr').slice(0).remove();
+            // Quiere decir que hay datos a mostrar en pie.
+            total = parseFloat(resultado.total) // varible global.
+            $('.totalImporte').html(total.toFixed(2));
+            $("#tabla-iva").prepend(resultado.html);
 		}
 	});
 }

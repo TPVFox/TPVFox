@@ -224,7 +224,6 @@
 			$productos = json_decode( json_encode( $ticket['productos'] ), true );
 			$Datostotales = recalculoTotales($ticket['productos']);	
 	}
-
 ?>
 
 <?php if (isset($ticket)){
@@ -249,7 +248,15 @@
         <?php	
         }
         ?>
-
+        <?php
+            // Inicializamos variables a 0
+            if (isset($ticket['productos'])){
+                // Ahora cambiamos valor a variable global de javascritp total
+                ?>
+                total = <?php echo $Datostotales['total'];?>;
+                <?php
+            }
+        ?>
         </script>
 <?php } ?>
 <div class="container">
@@ -466,40 +473,9 @@
             </tbody>
           </table>
         </div>
-        <?php
-            // Inicializamos variables a 0
-
-            if (isset($ticket['productos'])){
-                // Ahora montamos base y ivas
-
-                foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-                    switch ($iva){
-                    case 4 :
-                        $base4 = $basesYivas['base'];
-                        $iva4 = $basesYivas['iva'];
-
-                    break;
-                    case 10 :
-                        $base10 = $basesYivas['base'];
-                        $iva10 = $basesYivas['iva'];
-                    break;
-                    case 21 :
-                        $base21 = $basesYivas['base'];
-                        $iva21 = $basesYivas['iva'];
-                    break;
-                    }
-                }
-                // Ahora cambiamos valor a variable global de javascritp total
-                ?>
-                <script type="text/javascript">
-                total = <?php echo $Datostotales['total'];?>;
-                </script>
-                <?php
-            }
-        ?>
 
         <div class="col-md-10 col-md-offset-2 pie-ticket">
-            <table id="tabla-pie" class="col-md-6">
+            <table id="tabla-iva" class="col-md-6">
             <thead>
                 <tr>
                     <th>Tipo</th>
@@ -508,42 +484,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr id="line4">
-                    <td id="tipo4">
-                        <?php echo (isset($base4) ? " 4%" : '');?>
-                    </td>
-                    <td id="base4">
-                        <?php echo (isset($base4) ? $base4 : '');?>
-                    </td>
-                    <td id="iva4">
-                        <?php echo (isset($iva4) ? $iva4 : '');?>
-                    </td>
-                    
-                </tr>
-                <tr id="line10">
-                    <td id="tipo10">
-                        <?php echo (isset($base10) ? "10%" : '');?>
-                    </td>
-                    <td id="base10">
-                        <?php echo (isset($base10) ? $base10 : '');?>
-                    </td>
-                    <td id="iva10">
-                        <?php echo (isset($iva10) ? $iva10 : '');?>
-                    </td>
-                    
-                </tr>
-                <tr id="line21">
-                    <td id="tipo21">
-                        <?php echo (isset($base21) ? "21%" : '');?>
-                    </td>
-                    <td id="base21">
-                        <?php echo (isset($base21) ? $base21 : '');?>
-                    </td>
-                    <td id="iva21">
-                        <?php echo (isset($iva21) ? $iva21 : '');?>
-                    </td>
-                    
-                </tr>
+                <?php
+                    if (isset($Datostotales['desglose'])){
+                        echo htmlDesgloseIvas($Datostotales['desglose']);
+                    }
+                ?>
             </tbody>
             </table>
             <div class="col-md-6">

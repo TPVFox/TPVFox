@@ -11,11 +11,12 @@ $cabecera['numTicket'] 		=$_POST['numTicket'];
 // Ahora recalculamos nuevamente
 $CalculoTotales = recalculoTotales($productos);
 
-$nuevoArray = array(
+$respuesta = array(
 				'desglose'=> $CalculoTotales['desglose'],
 				'total' => $CalculoTotales['total']
 					);
+$respuesta['html']= htmlDesgloseIvas($CalculoTotales['desglose']);
 
-$respuesta	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
-$respuesta  = array_merge($respuesta,$nuevoArray);
+$grabar	= grabarTicketsTemporales($BDTpv,$productos,$cabecera,$CalculoTotales['total']);
+$respuesta  = array_merge($respuesta,$grabar);
 ?>

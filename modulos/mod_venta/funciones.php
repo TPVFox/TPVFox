@@ -39,7 +39,12 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 	foreach ($busquedas as $buscar){
         $sql= 'SELECT a.`idArticulo`, a.`articulo_name`, a.estado, a.tipo, a.beneficio, ac.`codBarras`, ap.pvpCiva, ap.pvpSiva, acli.pvpCiva as pvpCivaCLI, acli.pvpSiva as pvpSivaCLI, AT.crefTienda, a.`iva` FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap ON a.idArticulo = ap.idArticulo AND ap.idTienda = 1 LEFT JOIN `articulosTiendas` AS AT ON a.idArticulo = AT.idArticulo AND AT.idTienda = 1 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes='.$idCliente.' WHERE '.$buscar.' GROUP BY a.idArticulo LIMIT 0, 30 ';
 		$res = $BDTpv->query($sql);
-        $resultado['Nitems']= $res->num_rows;
+        if ($res->num_rows) {;
+            $resultado['Nitems']= $res->num_rows;
+        }else {
+            // No obtuvo resultado
+            $resultado['Nitems']= 0;
+        }
 		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
 		if ($i === 0){
 			if ($res->num_rows >0){
@@ -69,9 +74,9 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 		//fetch_assoc es un boleano..
 		while ($fila = $res->fetch_assoc()) {
 			$products[] = $fila;
-			$resultado['datos']=$products;
 		}
-	} 
+	}
+    $resultado['datos']=$products;
 	return $resultado;
 }
 

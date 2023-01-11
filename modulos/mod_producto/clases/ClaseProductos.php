@@ -104,7 +104,6 @@ class ClaseProductos extends ClaseTablaArticulos{
             default :
                 // Hubo un error, no podemos continuar, ya que campo no es correcto.
                 $consulta="KO";
-			
 		}
 		if ($consulta !== 'KO'){
             // Obtenemos items de los productos.
@@ -135,7 +134,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 		}
 		if ($respuesta['NItems'] === 0){
 			$respuesta['Items'] = array();
-			
 		}
 		return $respuesta['Items'];
 		
@@ -297,7 +295,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 								);
 				$posibles_estados= $posibles_estados +$array;
 				break;
-  
 		}
 		return $posibles_estados;
 		
@@ -341,7 +338,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 				'mensaje' => 'Ojo !! Este producto tiene el estado ['.$estado.'] y no existe ese estado en articulos.'
 				);
 				parent::SetComprobaciones($error);
-
 		}
 		return $index;
 	}
@@ -415,16 +411,6 @@ class ClaseProductos extends ClaseTablaArticulos{
 				$stringValues = implode(',',$values);
 				$sql = 'INSERT INTO `articulosCodigoBarras`(`idArticulo`, `codBarras`) VALUES '.$stringValues;
 				$respuesta = $this->Consulta_insert_update($sql);
-				//~ $DB = parent::GetDb();
-				//~ $smt = $DB->query($sql);
-				//~ if ($smt) {
-					//~ $respuesta['NAnhadidos'] = $DB->affected_rows;
-					//~ // Hubo resultados
-				//~ } else {
-					//~ // Quiere decir que hubo error en la consulta.
-					//~ $respuesta['consulta'] = $sql;
-					//~ $respuesta['error'] = $DB->connect_errno;
-				//~ }
 				$respuesta['consulta'] = $sql;
 				
 			}
@@ -511,9 +497,6 @@ class ClaseProductos extends ClaseTablaArticulos{
         foreach ($familiasNuevas as $familia){
             array_push($familiasNoGuardadas, $familia['idFamilia']);
         }
-         //~ echo '<pre>';
-        //~ print_r(gettype($producto_sin_modificar['familias']));
-        //~ echo '</pre>';
         if (isset($producto_sin_modificar['familias'])){
             $familiasGuardadas = $producto_sin_modificar['familias'];
         } else {
@@ -1071,13 +1054,9 @@ class ClaseProductos extends ClaseTablaArticulos{
 		// @ Parametros
 		// 	De momento solo obtenemos el coste, iva , beneficio de objeto.
 		$coste = $this->ultimoCoste;
-		if ( $this->iva >0 ){
-			$costeCiva = $coste + ($coste * $this->iva/100);
-		}
+        $costeCiva = $coste * (100 + $this->iva)/100;
 		$precio_recalculado = $costeCiva;
-		if ($this->beneficio > 0){
-			$precio_recalculado = $precio_recalculado + ($precio_recalculado * $this->beneficio/100);
-		} 
+        $precio_recalculado = $precio_recalculado * (100 + $this->beneficio)/100;
 		
 		return $precio_recalculado;
 		

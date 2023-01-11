@@ -227,9 +227,26 @@ function htmlTrProductosModal($productos,$id_input,$max=15){
     }
     return $htmlTr;
 
+}
 
 
-
+function htmlDesgloseIvas($desglose){
+    // @ Objetivo
+    // Obtener html del desglose ivas
+    $html = '';
+    foreach ( $desglose as $tipo=>$baseYiva){
+        $html.= '<tr><td class="tipo_'.(int)$tipo.'">'
+                    .(int)$tipo
+                    .'%</td>'
+                    .'<td class="base">'
+                    .$baseYiva['base']
+                    .'</td>'
+                    .'<td class="importe_iva">'
+                    .$baseYiva['iva']
+                    .'</td>'
+                    .'</tr>';
+    }
+    return $html;
 }
 
 function htmlCobrar($total, $configuracion) {
