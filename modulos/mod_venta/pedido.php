@@ -107,12 +107,21 @@
             $datosPedido = $datosPedido_guardada;
             $estado=$datosPedido['estado'];
         }
-        if ($estado == 'Procesado' && count($existe_doc_procesado)==0){
+        if ($estado == 'Procesado' ){
+            if (count($existe_doc_procesado)==0){
             // Hay un error, ya que esta procesado y no hay factura relacionada.
             $existe_doc_procesado = array ('numAlbaran' => '???');
             $errores[] =$Cpedido->montarAdvertencia('danger',
                                          'El estado pedido es <strong> "Procesado"</strong> pero no existe relacion de ninguna albaran.</a> '
                                         );
+            }
+        } else {
+            if (count($existe_doc_procesado)>0){
+                // Si hay resultado y el estado no es Procesado, algo esta mal fijo.
+                $errores[] =$CalbAl->montarAdvertencia('danger',
+                             'El estado pedido es <strong> "'.$estado.'"</strong> cuando debería ser PROCESADO ya que tiene un numero Albaran.'
+                            );
+            }
         }
     }
     if ( isset($datosPedido)){
