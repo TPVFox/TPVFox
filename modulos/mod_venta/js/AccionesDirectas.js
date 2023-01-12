@@ -37,8 +37,8 @@ function controladorAcciones(caja,accion, tecla){
             // Controlamos si es temporal, ya que si no es temporal, tenemos que generar si cambio de valor.(claro)
             console.log(cabecera);
             if (cabecera.fecha !== caja.darValor()){
-                // Solo creamos temporal si la accion es editar
-                if (cabecera.accion == 'editar'){
+                // Solo creamos temporal si la accion es editar o el estado es Nuevo, ya que eso cuando no se guardo.(temporal)
+                if (cabecera.accion == 'editar' || cabecera.estado=='Nuevo'){
                     cabecera.fecha = caja.darValor();
                     // Deberíamos recalcular  fecha vencimiento, ante de generar temporal
                     addTemporal(caja.darParametro('dedonde'));
