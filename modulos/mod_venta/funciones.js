@@ -279,7 +279,6 @@ function buscarClientes(dedonde, idcaja, valor=''){
 	});
 }
 
-
 function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
 	// @ Objetivo:
 	//  Buscar productos donde el dato exista en el campo que se busca...
@@ -314,6 +313,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                 console.log('Repuesta de FUNCION -> buscarProducto');
                 var resultado =  $.parseJSON(response);
                  if (resultado['Nitems']===1){
+                    cerrarPopUp();
                     var datos = new Object();
                     datos.NumalbCli=0;
                     datos.Numpedcli=0;
@@ -341,17 +341,10 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                     datos.pvpSiva=pvpSiva.toFixed(2);
                     var importe =resultado['datos'][0]['pvpSiva']*1;
                     datos.importe=importe.toFixed(2);
-                    n_item=parseInt(productos.length)+1;
-                    var campo='Unidad_Fila_'+n_item;
                     productos.push(datos);
-                    addTemporal(dedonde);
                     AgregarFilaProductosAl(datos, dedonde);
-                    ponerSelect(campo);
-                    resetCampo(id_input);
-                    if (dedonde=="factura"){
-                        $("#tablaAl").hide();
-                    }
-                     cerrarPopUp();
+                    addTemporal(dedonde);
+                    ponerFocus(idcaja);
                 }else{
                     console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
         
@@ -432,6 +425,14 @@ function cambioEstadoFila(producto,dedonde=""){
         $("#N" + producto.nfila + "_Unidad").val(producto.nunidades);
     }
 }
+
+function campoPredeterminado(campo){
+    console.log(campo);
+    // Pendiente controlar para hacer el salto por defecto.
+    // Pendiente guardar esta configuracion , asi si pulsa f5 o refresca pagina no se borra.
+
+}
+
 
 function cancelarTemporal(idTemporal, dedonde){
 	var mensaje = confirm("Estas  seguro que quieres eliminar el temporal "+idTemporal+'?');

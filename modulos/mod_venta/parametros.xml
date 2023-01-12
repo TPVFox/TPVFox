@@ -124,7 +124,6 @@
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>  
-				<parametro nombre="prefijo">Fila_</parametro>
 			</parametros>
 			<before>
 				<estado>Si</estado>

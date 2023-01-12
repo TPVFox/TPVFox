@@ -260,7 +260,6 @@ function before_constructor(caja){
 	//  Estos procesos los indicamos en parametro before_constructor, si hay
 	console.log( 'Entro en before');
 	if (caja.id_input ==='cajaBusqueda'){
-		caja.parametros.dedonde = 'popup';
 		if (caja.name_cja ==='Codbarras'){
 			caja.parametros.campo = cajaCodBarras.parametros.campo;
 		}
@@ -274,20 +273,6 @@ function before_constructor(caja){
 	if (caja.id_input.indexOf('N_') >-1){
 		console.log(' Entro en Before de '+ caja.id_input)
 		caja.fila = caja.id_input.slice(2);
-		if(caja.tecla==13){
-			if(cabecera.idCliente>0){
-				console.log(caja.parametros.dedonde);
-				if(caja.parametros.dedonde=='albaran'){
-                    console.log(caja);
-                    console.log(caja.parametros.dedonde);
-                    buscarProductos('idArticulo', 'a.idArticulo', 'idArticulo', caja.darValor(), caja.parametros.dedonde);
-                }
-			}else{
-				if(caja.parametros.dedonde!="factura"){
-					 buscarClientes(caja.parametros.dedonde, "id_cliente", caja.darValor());
-				}
-			}
-		}
 	}
 	if (caja.id_input.indexOf('Unidad_Fila') >-1){
 		console.log("input de caja");
@@ -327,6 +312,7 @@ function ObtenerFocusDefectoEntradaLinea(){
 
 
 function mover_up(fila,prefijo){
+    console.log('Mover_up');
 	var d_focus = prefijo+fila;
 		// Segun prefijo de la caja seleccionamos o pones focus.
 	if ( prefijo === 'Unidad_Fila_'){

@@ -443,7 +443,7 @@ if (isset($_POST['Cancelar'])){
             </div>
             <div class="col-md-4 text-right" >
                  <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-                 <select  title="Escoje casilla de salto" id="salto" name="salto">
+                 <select  title="Escoje casilla de salto" id="salto" onchange="campoPredeterminado(this.value);" name="salto">
                     <option value="0">Seleccionar</option>
                     <option value="1">Id Articulo</option>
                     <option value="2">Referencia</option>
