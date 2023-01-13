@@ -62,11 +62,7 @@
 			$style="";
 			$arrayNums=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin);
 			if(isset($arrayNums['error'])){
-				$errores[1]=array ( 'tipo'=>'DANGER!',
-								 'dato' => $arrayNums['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'Error de sql'
-								 );
+				$errores=$arrayNums['error'];
 			}
 		}
 		// Obtenemos referencias principales de proveedor.
@@ -77,24 +73,27 @@
 		// Si no existe $_GET fechaIni o fechaFin , no hacemos los calculos.
 		if(isset($_GET['fechaIni']) && isset($_GET['fechaFin'])){
 			// Ahora sumamos los productos
-			$productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
-			// Ahora montamos $arrayNums con cDetalle 
-			foreach ($productos as $key => $producto){
-				// Obtenemos datos producto, para añadir nombre Codbarras.
-				$p =$CTArticulos->GetProducto($producto['idArticulo']);
-				$productos[$key]['cdetalle'] = $p['articulo_name'];
-				$productos[$key]['tipo'] = $p['tipo'];
-				$productos[$key]['prov_principal'] = 'KO';
-                if (isset($p['proveedor_principal']['idProveedor'])){
-                    // Ya que puede venir vacia.
-                    if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
-                        // Si coincide como proveedor principal del producto lo marcamos.
-                        $productos[$key]['prov_principal'] = 'OK';
-                        $num_ref_principales_compradas++ ;
+            $productos = array();
+            if ( isset($arrayNums['productos'])){
+                $productos = $CProveedor->SumaLineasAlbaranesProveedores($arrayNums['productos'],'KO');
+                // Ahora montamos $arrayNums con cDetalle 
+                foreach ($productos as $key => $producto){
+                    // Obtenemos datos producto, para añadir nombre Codbarras.
+                    $p =$CTArticulos->GetProducto($producto['idArticulo']);
+                    $productos[$key]['cdetalle'] = $p['articulo_name'];
+                    $productos[$key]['tipo'] = $p['tipo'];
+                    $productos[$key]['prov_principal'] = 'KO';
+                    if (isset($p['proveedor_principal']['idProveedor'])){
+                        // Ya que puede venir vacia.
+                        if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
+                            // Si coincide como proveedor principal del producto lo marcamos.
+                            $productos[$key]['prov_principal'] = 'OK';
+                            $num_ref_principales_compradas++ ;
+                        }
                     }
+                    $num_referencias_compradas++;
                 }
-				$num_referencias_compradas++;
-			}
+            }
 		}
 		// ---   Comprobación de fechas   ---- //
 		if (!isset($fechaFinal)){
@@ -119,8 +118,8 @@
         include_once $URLCom.'/modulos/mod_menu/menu.php';
         if (isset($errores)){
             foreach($errores as $error){
-                echo '<div class="'.$error['class'].'">'
-                . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                echo '<div class="alert alert-'.$error['tipo'].'">'
+                . $error['mensaje']
                 . '</div>';
             }
         }

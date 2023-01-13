@@ -996,11 +996,17 @@ function buscarProductosFamilia(idFamilia){
                     console.log('Respuesta de buscar productos de la familia');
                     var resultado = $.parseJSON(response);
                     productos=resultado['Productos'];
+                    console.log(productos.length);
+                    if (productos.length > 0){
                        for(i=0;i<productos.length; i++){
                            selecionarItemProducto(productos[i], "listaProductos");
                            $("#botonEnviar").hide();
                        }
-            }	
+                    } else {
+                        alert('Esta familia no tiene productos, busca en los hijos, si tiene');
+                        refresh();
+                    }
+            }
         });
 }
 
@@ -1020,9 +1026,14 @@ function buscarProductosProveedor(idProveedor){
                     console.log('Respuesta de buscar productos de un proveedor');
                     var resultado = $.parseJSON(response);
                     productos=resultado['Productos'];
+                    if (productos.length > 0){
                        for(i=0;i<productos.length; i++){
                            selecionarItemProducto(productos[i], "listaProductos");
                        }
+                    } else {
+                        alert('Esta proveedor no tiene productos, busca en los hijos, si tiene');
+                        refresh();
+                    }
             }
         });
 }

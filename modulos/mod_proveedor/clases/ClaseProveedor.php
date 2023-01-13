@@ -194,14 +194,16 @@ class ClaseProveedor extends TFModelo{
 			    $ids=implode(', ', array_column($albaranes['datos'], 'id'));
             }
             if($ids==0){
-                $respuesta['error']=1;
-                $respuesta['consulta']='No hay resumen entre las fechas seleccionadas';
+                
+                $respuesta['error'][]= $this->montarAdvertencia('warning','No hay albaranes para ese proveedor entre las fechas seleccionadas');
             }else{
                 $sql='SELECT idalbpro, idArticulo, costeSiva ,SUM(nunidades) as totalUnidades FROM `albprolinea` WHERE idalbpro  IN('.$ids.') and 
                 `estadoLinea` <> "Eliminado" GROUP BY idalbpro,idArticulo,costeSiva';
                 $productos=$this->consulta($sql);
                 if(isset($albaranes['error'])){
-                    $respuesta=$productos;
+                    $respuesta['error'][]= $this->montarAdvertencia('danner','Error al obtener los albaranes encontrados.<br/>'
+                                                                            .'Error:'.$albaranes['error'].'<br/>'
+                                                                            .'Consulta:'.$albaranes['consulta'],'<br/>');
                 }else{
                     $respuesta['productos']=$productos['datos'];
                 }
@@ -211,7 +213,9 @@ class ClaseProveedor extends TFModelo{
                 in ('.$ids.')  GROUP BY idalbpro ;';
                 $resumenBases=$this->consulta($sql);
                 if(isset($resumenBases['error'])){
-                    $respuesta=$resumenBases;
+                     $respuesta['error'][]= $this->montarAdvertencia('danner','Error al obtener el resumen de las bases de albaranes encontrados.<br/>'
+                                                                            .'Error:'.$resumenBases['error'].'<br/>'
+                                                                            .'Consulta:'.$resumenBases['consulta'],'<br/>');
                 }else{
                     $respuesta['resumenBases']=$resumenBases['datos'];
                 }
@@ -219,7 +223,9 @@ class ClaseProveedor extends TFModelo{
                 in ('.$ids.')  GROUP BY iva;';
                 $desglose=$this->consulta($sql);
                 if(isset($desglose['error'])){
-                    $respuesta=$desglose;
+                    $respuesta['error'][]= $this->montarAdvertencia('danner','Error al obtener el desglose ivas de albaranes encontrados.<br/>'
+                                                                            .'Error:'.$desglose['error'].'<br/>'
+                                                                            .'Consulta:'.$desglose['consulta'],'<br/>');
                 }else{
                     $respuesta['desglose']=$desglose['datos'];
                 }

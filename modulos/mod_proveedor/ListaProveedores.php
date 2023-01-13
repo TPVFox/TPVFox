@@ -8,7 +8,7 @@
     include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
     include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 
-    $CProveedor= new ClaseProveedor($BDTpv);
+    $CProveedor= new ClaseProveedor();
     // --- Inicializamos objeto de Paginado --- //
     $NPaginado = new PluginClasePaginacion(__FILE__);
     $campos = array('razonsocial','nombrecomercial','nif');
