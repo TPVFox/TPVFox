@@ -300,7 +300,7 @@
         $readonly = 'readonly';
         $readonly_cliente = 'readonly';
     }
-    if ($estado = 'Nuevo'){
+    if ($estado = 'Nuevo' && $idTemporal == 0){
         $display = 'style="display:none"';
     }
     $display_btn_guardar_cancelar = $display;

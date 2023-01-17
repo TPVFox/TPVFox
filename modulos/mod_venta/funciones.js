@@ -1,5 +1,3 @@
-
-
 function AgregarFilaAdjunto(datos, dedonde){
 	//@Objetivo:
 	//Agregar html con el albaran seleccionado
@@ -344,6 +342,7 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                     productos.push(datos);
                     AgregarFilaProductosAl(datos, dedonde);
                     addTemporal(dedonde);
+                    resetCampo(idcaja);
                     ponerFocus(idcaja);
                 }else{
                     console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
