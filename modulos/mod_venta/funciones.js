@@ -342,7 +342,12 @@ function buscarProductos(id_input,campo, idcaja, busqueda,dedonde){
                     productos.push(datos);
                     AgregarFilaProductosAl(datos, dedonde);
                     addTemporal(dedonde);
+                    // idcaja, es siempre idArticulo, pero realmente no sabemos cual es el campo real de busqueda inicial,
+                    // lo que hacemos es resetCampo de los cuatro (idArticulo, Referencia, Codbarras,Descripcion.
                     resetCampo(idcaja);
+                    resetCampo('Referencia');
+                    resetCampo('Codbarras');
+                    resetCampo('Descripcion');
                     ponerFocus(idcaja);
                 }else{
                     console.log('=== Entro en Estado Listado de funcion buscarProducto =====');
