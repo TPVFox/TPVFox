@@ -290,6 +290,9 @@
         $readonly = 'readonly';
         $readonly_cliente = 'readonly';
     }
+    if ($estado = 'Nuevo'){
+        $display = 'style="display:none"';
+    }
     $display_btn_guardar_cancelar = $display;
     if ($idTemporal == 0){
         $display_btn_guardar_cancelar= 'style="display:none"';
