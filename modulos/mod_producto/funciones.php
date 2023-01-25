@@ -727,7 +727,7 @@ function htmlEtiquetaLinea1($producto,$medida){
     // Variable que puede no imprimirse:
     $linea='';
     $proveedor_principal = '';
-    if ($producto['proveedor_principal'] !== null){
+    if (isset($producto['proveedor_principal']['idProveedor'])){
         $proveedor_principal = ' Prov:'.$producto['proveedor_principal']['idProveedor'];
     }
     $linea.='<font size="'.$medida['font_linea'].' em" align="center"><br>  Fecha: '.date('Y-m-d').'  Id: '.$producto['idArticulo'].$proveedor_principal.'<br></font>';

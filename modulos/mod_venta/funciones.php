@@ -56,6 +56,8 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 		if (mysqli_error($BDTpv)){
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
+            error_log('Error en modulo_ventas/funciones.php -> buscarProductos consulta'.$sql);
+            error_log('Error en modulo_ventas/funciones.php -> buscarProductos error:'.json_encode($res));
 			return $resultado;
 		} 
 		$i++;
