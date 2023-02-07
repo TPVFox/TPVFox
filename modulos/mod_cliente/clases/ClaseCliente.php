@@ -236,7 +236,10 @@ class ClaseCliente extends TFModelo{
 		if(isset($tickets['error'])){
 			$respuesta=$tickets;
 		}else{
-			$ids=implode(', ', array_column($tickets['datos'], 'id'));
+            $ids= 0;
+            if (isset($tickets['datos']){
+                $ids=implode(', ', array_column($tickets['datos'], 'id'));
+            }
             if($ids==0){
                 $respuesta['error']=1;
                 $respuesta['consulta']='No existen ids entre estas fechas';
