@@ -14,8 +14,8 @@
         
         
 ?>
-<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
 <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js"></script>
+<script src="<?php echo $HostNombre; ?>/lib/js/tpvfoxSinExport.js"></script>
 </head>
 
 <body>
@@ -46,16 +46,16 @@
                        <td>Nombre</td>
                        </tr>
                     <?php 
-                    $checkUser = 0;
+                    $check = 0;
                     
                     foreach ($balanzas as $balanza){
-                        $checkUser = $checkUser + 1; 
+                        $check = $check + 1; 
                         ?>
                         <tr>
                         
                             <td>
                              <?php
-                            $check_name = 'checkUsu'.$checkUser;
+                            $check_name = 'checkBalanza'.$check;
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$balanza['idBalanza'].'" class="check_balanza">';
                             ?>    
                             </td>
