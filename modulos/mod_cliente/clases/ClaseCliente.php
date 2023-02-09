@@ -237,7 +237,7 @@ class ClaseCliente extends TFModelo{
 			$respuesta=$tickets;
 		}else{
             $ids= 0;
-            if (isset($tickets['datos']){
+            if (isset($tickets['datos'])){
                 $ids=implode(', ', array_column($tickets['datos'], 'id'));
             }
             if($ids==0){
