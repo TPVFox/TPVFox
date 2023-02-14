@@ -870,18 +870,17 @@ class ClaseProductos extends ClaseTablaArticulos{
           
           $resp = $this->Consulta($sql); 
        
-        if(isset($resp['NItems'])){
-           
+        if(isset($resp['NItems']) && $resp['NItems']>0){
             $respuesta['res']=$resp;
             $respuesta = $resp['Items']; 
             
-           }else {
-                $error = array ( 'tipo'=>'success',
-                                 'dato' => $sql,
-                                 'mensaje' => 'No se encontró nungun producto.'
-                                 );
-                $respuesta['error'] = $error;
-            }
+        }else {
+            $error = array ( 'tipo'=>'success',
+                             'dato' => $sql,
+                             'mensaje' => 'No se encontró nungun producto.'
+                             );
+            $respuesta['error'] = $error;
+        }
 		return $respuesta;
     }
 	public function comprobacionCamposObligatoriosProducto($datos){
