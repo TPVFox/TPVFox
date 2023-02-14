@@ -105,10 +105,7 @@
         }
     }
     $select_campos = htmlSelectConfiguracionSalto($configuracion['input_pordefecto']);
-	// Añadimos a JS la configuracion
-		echo '<script type="application/javascript"> '
-		. 'var configuracion = '. json_encode($configuracion);
-		echo '</script>';
+	
 	
 	// Cambio datos si es un tiche Abierto
 	if (isset($_GET['tAbierto'])) {
@@ -134,7 +131,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<?php 	include_once $URLCom . '/head.php';?>
+<?php 	include_once $URLCom . '/head.php';
+
+// Añadimos a JS la configuracion
+echo '<script type="application/javascript"> '
+. 'var configuracion = '. json_encode($configuracion);
+echo '</script>';
+?>
 <script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
