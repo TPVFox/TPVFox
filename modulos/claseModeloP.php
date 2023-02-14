@@ -173,7 +173,7 @@ class ModeloP {
         if ($soloSQL) {
             $respuesta = true;
         } else
-            $respuesta = self::consultaDML($sql);
+            $respuesta = ModeloP::_consultaDML($sql);
 
         return $respuesta;
     }
