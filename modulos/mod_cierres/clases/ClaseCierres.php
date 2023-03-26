@@ -28,7 +28,7 @@ class ClaseCierres extends ClaseConexion{
         $BDTpv = $this->BDTpv;
         $resultado = array();
         if (trim($filtro) !=''){
-            $filtro = ' '.$filtro;
+            $filtro = ' where '.$filtro;
         }
         $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
                     ." LEFT JOIN usuarios AS u ON c.idUsuario=u.id ".$filtro.$limite; 

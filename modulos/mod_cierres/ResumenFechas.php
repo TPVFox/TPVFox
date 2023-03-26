@@ -1,43 +1,44 @@
+<?php
+include_once './../../inicial.php';
+include_once $URLCom.'/modulos/mod_cierres/funciones.php';
+include_once $URLCom.'/clases/iva.php';
+include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
+$CCierres = new ClaseCierres;
+$Civas = new iva($BDTpv);
+//LLega mediente get las dos fechas  
+if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
+    $fecha1=$_GET['fecha1'];
+    $fecha2=$_GET['fecha2'];
+    $filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
+}
+$total        = 0;
+$num_cierres  = 0;
+$fecha_dmY = 'd-m-Y';
+//Obterer los cierres entre dos fechas
+$cierres =$CCierres->obtenerCierres($filtro);
+foreach ($cierres as $cierre){
+    // almacenamos en una variable el total de los cierres seleccionados
+    $total +=$cierre['Total'];
+    $num_cierres++;
+}
+//llamar a la función que devuelve los tipos de iva
+//$tablaIVA="iva";
+//$ivas=tiposIva($BDTpv, $tablaIVA);
+$ivas=$Civas->todoIvas();
+//llamar a la función que devuelve el total de las formas de pago utilizadas entre los cierres indicados
+$formasPago=cantMOdPago($BDTpv, $fecha1, $fecha2);
+$rutaVolver = '../mod_cierres/ListaCierres.php';
+?>
+
 <!DOCTYPE html>
 <html>
-    <head>
-		<?php
-        include_once './../../inicial.php';
-        include $URLCom.'/head.php';
-        include_once $URLCom.'/modulos/mod_cierres/funciones.php';
-        include_once $URLCom.'/clases/iva.php';
-        include_once $URLCom.'/modulos/mod_cierres/clases/ClaseCierres.php';
-        $CCierres = new ClaseCierres;
-        $Civas = new iva($BDTpv);
-        //LLega mediente get las dos fechas  
-		if (isset($_GET['fecha1'])& isset($_GET['fecha2'])) {
-			$fecha1=$_GET['fecha1'];
-			$fecha2=$_GET['fecha2'];
-			$filtro=' FechaCierre between "'.$fecha1. '" AND "'.$fecha2.'"';
-		}
-		
-		$total=0;
-		$fecha_dmY = 'd-m-Y';
-		//Obterer los cierres entre dos fechas
-		$cierres =$CCierres->obtenerCierres($filtro);
-		foreach ($cierres as $cierre){ 
-			// almacenamos en una variable el total de los cierres seleccionados 
-				$total=$total+$cierre['Total'];
-		}
-		//llamar a la función que devuelve los tipos de iva
-		//$tablaIVA="iva";
-		//$ivas=tiposIva($BDTpv, $tablaIVA);
-		$ivas=$Civas->todoIvas();
-		
-		//llamar a la función que devuelve el total de las formas de pago utilizadas entre los cierres indicados
-		$formasPago=cantMOdPago($BDTpv, $fecha1, $fecha2);
-		?>
-	</head>
-	<body>
+<head>
+    <?php include $URLCom.'/head.php';?>
+</head>
+<body>
 		
 	<?php
         include_once $URLCom.'/modulos/mod_menu/menu.php';
-		$rutaVolver = '../mod_cierres/ListaCierres.php';
 		
 	?>
 	<div class="container">
@@ -54,12 +55,14 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
+                        <th>Num Cierres</th>
 						<th>FECHA CIERRE</th>
 						<th>FECHA FINAL</th>		
 						<th>TOTAL</th>					
 					</tr>
 				</thead>
 				<tr>
+                <td><?php echo $num_cierres;?></td>
 				<td><?php echo date($fecha_dmY,strtotime($fecha1));?></td>
 				<td><?php echo date($fecha_dmY,strtotime($fecha2));?></td>
 				<td><?php echo $total;?></td>
@@ -79,14 +82,10 @@
 				</thead>
 				<?php 
 				foreach ($ivas  as $iva){
-				
 					//$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
-						
 					$consultaResIva=sumDatosIva($BDTpv, $iva['iva'],$filtro);
-						
 					if ($consultaResIva['base']){
 						$importeBase=$consultaResIva['base'];
-					
 					if ($consultaResIva['iva']){
 						$importeIva=$consultaResIva['iva'];
 					}else{
@@ -158,5 +157,5 @@
 			</div> <!--fin row-->
 		</div><!--fin col-10 -->
 	</div>	<!--fin container-->
-	</body>
+</body>
 </html>
