@@ -27,7 +27,7 @@
 	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.( Si hay usuario claro) 
 	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
 	if (isset($cambiosEstadoTickets['error'])){
-		$error = array ( 'tipo'=>'dander',
+		$error = array ( 'tipo'=>'danger',
 								 'mensaje' =>'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'],
 								 'dato' => $preparado_nuevo['consulta']
 							);

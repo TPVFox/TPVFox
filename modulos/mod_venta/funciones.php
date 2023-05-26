@@ -376,8 +376,8 @@ function htmlLineaProductos($producto, $dedonde,$accion='ver'){
     $html .= '<td class="detalle">'.$producto['cdetalle'].'</td>';
     $html .= '<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila'].'" type="text" data-obj="Unidad_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad" placeholder="unidad" size="3"  value="'.$cant.'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';	
     //$html .='<td class="pvp">'.$producto['precioCiva'].'</td>';
-	$html .= '<td><input class="pvp" id="precioCiva_'.$producto['nfila'].'" type="text" data-obj="precioCiva_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="preciociva" placeholder="Precio CON Iva" size="5"  value="'.$producto['precioCiva'].'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
-    $html .='<td class="psi">'.$producto['pvpSiva'].'</td>';
+	$html .= '<td><input class="pvp" id="precioCiva_Fila_'.$producto['nfila'].'" type="text" data-obj="precioCiva_Fila" pattern="[-+]?[0-9]*[.]?[0-9]+" name="precioCiva" placeholder="Precio CON Iva" size="5"  value="'.$producto['precioCiva'].'"  '.$estadoInput.' onkeydown="controlEventos(event)" onBlur="controlEventos(event)"></td>';
+    $html .='<td id="pvpSiva_'.$producto['nfila'].'">'.$producto['pvpSiva'].'</td>';
     $html .= '<td class="tipoiva">'.$producto['iva'].'%</td>';
     $html .='<td id="N'.$producto['nfila'].'_Importe" class="importe" >'.$importe.'</td>';
     $html .= $btnELiminar_Retornar;

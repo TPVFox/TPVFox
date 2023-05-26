@@ -677,7 +677,7 @@ function recalculoImporte(cantidad,num_item, dedonde=""){
 		importe = importe.toFixed(2);
 		productos[num_item].importe= importe;
 		$(id).html(importe);
-        addTemporal(dedonde);
+        addTemporal(dedonde);	
 }
 
 function resetCampo(campo){

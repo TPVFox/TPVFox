@@ -171,14 +171,14 @@
 		<caja_input>
 			<nombre id_input="precioCiva_Fila">precioCiva_Fila</nombre>
 			<teclas>
-				<action tecla="13">recalcular_totalProducto</action>
+				<action tecla="13">recalcular_precioSiva</action>
 				<action tecla="40">mover_up</action>
 				<action tecla="38">mover_down</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedidos</parametro>
 				<parametro nombre="campo"></parametro>
-				<parametro nombre="prefijo">precioCiva_</parametro>
+				<parametro nombre="prefijo">precioCiva_Fila_</parametro>
 								
 			</parametros>
 			<after>

@@ -102,14 +102,30 @@ function controladorAcciones(caja,accion, tecla){
 			// recuerda que lo productos empizan 0 y las filas 1
 			var nfila = parseInt(caja.fila)-1;
 			// Comprobamos si cambio valor , sino no hacemos nada.
+			console.log('¿de donde?');
+			console.log(caja.darParametro('dedonde'));
 			productos[nfila].nunidades = caja.darValor();
 			productos[nfila].ncant=caja.darValor();
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
                 ponerFocus( ObtenerFocusDefectoEntradaLinea());
-			}
+			}	
+		break;
+		
+		case 'recalcular_precioSiva':
+			var nfila = parseInt(caja.fila)-1;
+			productos[nfila].precioCiva = caja.darValor();
+			var divisor = 1 + productos[nfila].iva / 100;
+			var pvpSiva = productos[nfila].precioCiva / divisor;
+			pvpSiva = pvpSiva.toFixed(2);
+			productos[nfila].pvpSiva = pvpSiva;
 			
-			
+			var id = '#pvpSiva_'+productos[nfila].nfila;	
+			$(id).html(pvpSiva);
+
+			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
+
+
 		break;
         
 		case 'mover_down':
@@ -251,6 +267,9 @@ function after_constructor(padre_caja,event){
 	if (padre_caja.id_input.indexOf('Unidad_Fila') >-1){
 		padre_caja.id_input = event.target.id;;
 	}
+	if (padre_caja.id_input.indexOf('precioCiva_Fila') >-1){
+		padre_caja.id_input = event.target.id;;
+	}
     return padre_caja;
 }
 
@@ -278,6 +297,11 @@ function before_constructor(caja){
 		console.log("input de caja");
 		caja.parametros.item_max = productos.length;
 		caja.fila = caja.id_input.slice(12);
+	}
+	if (caja.id_input.indexOf('precioCiva_Fila') >-1){
+		console.log("input de caja");
+		caja.parametros.item_max = productos.length;
+		caja.fila = caja.id_input.slice(16);
 	}
 	return caja;	
 }
