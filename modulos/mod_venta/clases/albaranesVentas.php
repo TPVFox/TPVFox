@@ -6,7 +6,7 @@ include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 class AlbaranesVentas extends ClaseVentas {
 
     public function __construct($conexion) {
-        $this->db = $conexion;
+        parent::__construct($conexion);
         // Obtenemos el numero registros.
         $sql = 'SELECT count(*) as num_reg FROM albclit';
         $respuesta = $this->consulta($sql);
@@ -20,6 +20,7 @@ class AlbaranesVentas extends ClaseVentas {
 			echo '</pre>';
 		}
 	}
+    
     public function AddAlbaranGuardado($datos, $idAlbaran) {
         //@Objetivo:
         //Añadir nuevos registros de un albaran real 
