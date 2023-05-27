@@ -24,7 +24,7 @@
 	$fecha=date('d-m-Y');
 	$pedidos  = array();
 	$dedonde="albaran";
-    $empleado   = $Usuario; // Por defecto ponemos el usuario
+    $empleado   = $Usuario; // Por defecto ponemos el usuario    
     $errores    = array();
 	$parametros = $ClasesParametros->getRoot();
     $inciden= "";
@@ -89,7 +89,7 @@
     // --- TEMPORAL --- /   
     if ($idTemporal>0 && $accion==''){
         // Temporal
-        $datosAlbaran=$CalbAl->buscarDatosTemporal($idTemporal);;
+        $datosAlbaran=$CalbAl->buscarDatosTemporal($idTemporal);        
         if (isset($datosAlbaran['Numalbcli'])){
             $idAlbaran=$datosAlbaran['Numalbcli'];
         }
@@ -138,6 +138,9 @@
         $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
         $productos = json_decode($datosAlbaran['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosAlbaran['Fecha']), 'd-m-Y');
+
+        $usuario = $CalbAl->obtenerDatosUsuario($datosAlbaran['idUsuario']);
+        $empleado = $usuario;
     }
 
     // ---- Compromamos si existe la albaran que el estado sea Sin guardar --- //
