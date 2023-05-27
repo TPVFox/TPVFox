@@ -102,6 +102,7 @@
         $incidenciasAdjuntas                = incidenciasAdjuntas($idPedido, "mod_ventas", $BDTpv, "pedido");
 		$inciden                            = count($incidenciasAdjuntas['datos']);
         $existe_doc_procesado                  = $Cpedido->NumAlbaranDePedido($idPedido);
+
         if ($idTemporal == 0){
             // Si no es temporal, entonces tenemos crear $datosPedido.
             $datosPedido = $datosPedido_guardada;
@@ -131,6 +132,10 @@
         $Datostotales = recalculoTotales($productos); // Necesita un array de objetos.
         $productos = json_decode($datosPedido['Productos'], true); // Convertimos en array de arrays
         $fecha =date_format(date_create($datosPedido['Fecha']), 'd-m-Y');
+
+        $usuario = $Cpedido->obtenerDatosUsuario($datosPedido['idUsuario']);
+        $empleado = $usuario;
+
     }
 
     // ---- Compromamos si existe la pedido que el estado sea Sin guardar --- //
