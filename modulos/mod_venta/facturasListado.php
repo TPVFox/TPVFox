@@ -83,7 +83,7 @@ if (isset($errores)){
         <div class="col-md-12 text-center">
             <h2>Facturas de clientes </h2>
         </div>
-        <div class="col-sm-3">
+        <div class="col-md-3">
             <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
@@ -133,7 +133,9 @@ if (isset($errores)){
 			</tbody>
             </table>
             </div>
+			</div>
         </div>
+
         <div class="col-md-8">
             <p>
              -Facturas encontrados BD local filtrados:

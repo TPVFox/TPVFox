@@ -56,8 +56,13 @@ class Proveedores extends TFModelo {
 		if (isset($smt['datos'])){
 				$proveedores = $smt['datos'];
 		} else {
-            $proveedores['error']=$smt['error'];
-			$proveedores['consulta']=$smt['consulta'];
+			if (count($proveedores) >0 ) {
+				$proveedores['error']=$smt['error'];
+				$proveedores['consulta']=$smt['consulta'];
+			} else {
+				$proveedores['error']=' No hay proveedores';
+				$proveedores['consulta']=$smt['consulta'];
+			}
         }
         return $proveedores;
     }

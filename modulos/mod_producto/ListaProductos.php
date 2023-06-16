@@ -144,6 +144,8 @@
             'mensaje' => $todosProveedores['error'].' :'.$todosProveedores['consulta']
         );
         $CTArticulos->SetComprobaciones($error);
+        // Ahora tengo reiniciar variable,para evitar problemas
+        $todosProveedores= array();
     }
     $script_ObjVirtuemart = '';
     if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){

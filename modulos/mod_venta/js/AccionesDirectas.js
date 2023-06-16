@@ -39,9 +39,12 @@ function controladorAcciones(caja,accion, tecla){
             if (cabecera.fecha !== caja.darValor()){
                 // Solo creamos temporal si la accion es editar o el estado es Nuevo, ya que eso cuando no se guardo.(temporal)
                 if (cabecera.accion == 'editar' || cabecera.estado=='Nuevo'){
-                    cabecera.fecha = caja.darValor();
-                    // Deberíamos recalcular  fecha vencimiento, ante de generar temporal
-                    addTemporal(caja.darParametro('dedonde'));
+					// Si es Nuevo , solo creamos temporal si hay dato de cliente, sino genera un error.
+					cabecera.fecha = caja.darValor();
+					if (cabecera.idCliente>0){
+						// Deberíamos recalcular  fecha vencimiento, ante de generar temporal
+						addTemporal(caja.darParametro('dedonde'));
+					}
                 }
             }
             var d_focus = 'Cliente';
