@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
-	include_once $URLCom.'/head.php';
 	include_once $URLCom.'/modulos/mod_compras/funciones.php';
 	include_once $URLCom.'/controllers/Controladores.php';
 	include_once $URLCom.'/clases/Proveedores.php';
@@ -245,6 +241,10 @@
     }
     
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <?php  include_once $URLCom.'/head.php'; ?>
 
 <script type="text/javascript">
     <?php

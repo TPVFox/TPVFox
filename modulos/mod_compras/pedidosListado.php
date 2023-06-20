@@ -4,11 +4,8 @@ include_once './../../inicial.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
-include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 include_once $URLCom.'/clases/Proveedores.php';
-include_once ($URLCom.'/controllers/parametros.php');
-//Carga de clases necesarias
-$ClasesParametros = new ClaseParametros('parametros.xml');
+include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
 // Creamos el objeto de controlador.
 $Controler = new ControladorComun; 
 // Creamos el objeto de pedido
@@ -63,10 +60,10 @@ $pedidosDef=$p['Items'];
 <html>
 <head>
  <?php include_once $URLCom.'/head.php';?>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>    
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
 <body>
 <?php
@@ -86,11 +83,20 @@ $pedidosDef=$p['Items'];
         <div class="col-md-12 text-center">
             <h2>Pedidos de proveedores </h2>
         </div>
-        <nav class="col-sm-3">
+        <div class="col-md-3">
             <h4> Opciones generales</h4> 
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                   echo '<a class="btn btn-default" href="./pedido.php">Añadir</a>';
+                  echo '<a class="btn btn-default" href="./pedido.php">Añadir</a>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'pedido'."'".')">Ver</button>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'pedido'."'".')">Modificar</button>';
+                }
+                if($ClasePermisos->getAccion("CambiarEstado")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'pedidos'."'".')">Cambiar estado</button>';
                 }
             ?>
             <h4> Opciones para una selección</h4>
@@ -141,7 +147,7 @@ $pedidosDef=$p['Items'];
                     </tbody>
                 </table>
             </div>	
-        </nav>
+        </div>
         <div class="col-md-9">
             <p>
              -Pedidos encontrados BD local filtrados:

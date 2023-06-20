@@ -76,6 +76,13 @@ function controladorAcciones(caja,accion, tecla){
 				}
 			}
 		break;
+		
+		case 'cambio_descripcion':
+			var nfila = parseInt(caja.fila)-1;
+			productos[nfila].cdetalle=caja.darValor();
+			console.log('Estoy cambio descripcion,nfila:'+nfila);
+			addTemporal(caja.darParametro('dedonde'));
+		break;
 
 		case  'saltar_productos':
 			if (productos.length >0){

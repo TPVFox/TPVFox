@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 include_once './../../inicial.php';
-include_once $URLCom.'/head.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
@@ -59,13 +55,17 @@ $albaranesDef=$a['Items'];
 								 );
 	}
 ?>
-</head>
-<body>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+ <?php include_once $URLCom.'/head.php';?>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
    	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+   <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+   <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
+</head>
+<body>
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
 	if (isset($errores)){
@@ -92,7 +92,7 @@ $albaranesDef=$a['Items'];
                 if($ClasePermisos->getAccion("Modificar")==1){
                     echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'albaran'."'".')">Modificar</button>';
                 }
-                if($ClasePermisos->getAccion("CambiarEstadoAlbaran")==1){
+                if($ClasePermisos->getAccion("CambiarEstado")==1){
                     echo '<button class="btn btn-default" onclick="metodoClick('."'".'cambiarEstado'."','".'albaranes'."'".')">Cambiar estado</button>';
                 }
             ?>
@@ -125,7 +125,7 @@ $albaranesDef=$a['Items'];
                             <tr>
                             <?php echo $td_temporal;
                                 // Solo mostramos la opcion de eliminar temporal si tiene permisos.
-                                if($ClasePermisos->getAccion("EliminarAlbaran")==1){
+                                if($ClasePermisos->getAccion("EliminarTemporal")==1){
                                     ?>
                                     <td>
                                         <a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoAlbaranes')">

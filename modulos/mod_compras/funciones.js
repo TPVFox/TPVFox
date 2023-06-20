@@ -221,14 +221,15 @@ function metodoClick(pulsado,adonde=''){
             window.location.href = './'+adonde+'.php?id='+checkID[0]+accion;
 		break;
         case 'cambiarEstado':
-            console.log('Entro en cambio estado albaran');
             if (checkID.length=== 0) {
 				alert ('No tienes items seleccionados');
 				return
 			}
-            //~ checkID = leerChecked('check_'+ adonde);
-            console.log(checkID);
-            modalAlbaranesCambioEstado(checkID);
+            // Ahora deberíamos controlar a donde..
+            if (adonde == 'albaranes'){
+	            console.log('Entro en cambio estado albaran');
+				modalAlbaranesCambioEstado(checkID);
+			} 
         break;
 	 }
 }
@@ -275,7 +276,7 @@ function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
 			},
             success    :  function (response) {
                 var resultado =  $.parseJSON(response); 
-				abrirModal('Enviar por email pedido',resultado.html);// Abre una ventana y muestra el texto
+				abrirModal('Enviar por email el '+ dedonde,resultado.html);// Abre una ventana y muestra el texto
             },
             error    :  function (request) {
 				console.log(request);

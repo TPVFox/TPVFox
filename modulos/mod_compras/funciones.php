@@ -305,6 +305,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
         $html_numeroDoc=''; // Valor por defecto.
         $coste= number_format($producto['ultimoCoste'], 4); 
         $html_coste = $coste;
+        $html_descripcion = '<td class="detalle">'.$producto['cdetalle'].'</td>';
         // Si hay valor de ccodbar lo ponemos en variable.
         if (isset ($producto['ccodbar'])){
             if ($producto['ccodbar']>0){
@@ -351,7 +352,13 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                 }
             }
             $html_numeroDoc='<td class="Ndocumento">'.$numeroDoc.'</td>';
-        } 
+        } else {
+				// Al ser un pedido permitimos editar la descripcion
+				$html_descripcion ='<td><input id="Descripcion_Fila_'
+                        .$producto['nfila'].'" type="text" data-obj="Descripcion_Fila" '
+                        .'name="descripcion[]" value="'.$producto['cdetalle'].'" size=40  onkeydown="controlEventos(event)" '
+                        .'onBlur="controlEventos(event)"'.$solo_lectura.'></td>';
+		}
         // ================== Montamos td de referencia de filaProveedor ========================
         // Montamos td de referencia proveedor,
         // Es input, que puede ser solo lectura si $solo_lectura = readonly y no montamos btn_ref_prov ( esto es estado ver)
@@ -388,7 +395,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .'<td class="idArticulo">'.$producto['idArticulo'].'</td>'
                             .'<td class="referencia">'.$producto['cref'].'</td>'.$filaProveedor
                             .'<td class="codbarras">'.$codBarra.'</td>'
-                            .'<td class="detalle">'.$producto['cdetalle'].'</td>'
+                            . $html_descripcion
                             .'<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
                             .'" type="text" data-obj="Unidad_Fila"  '
                             .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad[]" placeholder="unidad"'
