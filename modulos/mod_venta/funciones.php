@@ -8,7 +8,7 @@
  * */
 include_once './../../inicial.php';
 
-function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
+function BuscarProductos($idcaja,$campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 	// @ Objetivo:
 	// 	Es buscar por Referencia / Codbarras / Descripcion nombre.
 	// @ Parametros:
@@ -23,27 +23,36 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 	$palabras = explode(' ',$busqueda); // array de varias palabras, si las hay..
 	$resultado['palabras']= $palabras;
 	$likes = array();
+	$whereIdentico = array();
 	foreach($palabras as $palabra){
 		$likes[] =  $campoAbuscar.' LIKE "%'.$palabra.'%" ';
+		$whereIdentico[]= $campoAbuscar.' = "'.$palabra.'"';
+
 	}
-	
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
-	
 	$busquedas = array();
-	
 	if ($palabra !== ''){ 
-		$busquedas[] = $campoAbuscar.'="'.$busqueda.'"';
-		$busquedas[] = implode(' and ',$likes);
+		if ($idcaja=="cajaBusqueda"){
+			$busquedas[] = implode(' and ',$likes);
+		}else{
+			$busquedas[] = implode(' and ',$whereIdentico);
+	
+			$busquedas[] = implode(' and ',$likes);
+		}
 	}
-	$i = 0;
+	$i=0;
 	foreach ($busquedas as $buscar){
-        $sql= 'SELECT a.`idArticulo`, a.`articulo_name`, a.estado, a.tipo, a.beneficio, ac.`codBarras`, ap.pvpCiva, ap.pvpSiva, acli.pvpCiva as pvpCivaCLI, acli.pvpSiva as pvpSivaCLI, AT.crefTienda, a.`iva` FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap ON a.idArticulo = ap.idArticulo AND ap.idTienda = 1 LEFT JOIN `articulosTiendas` AS AT ON a.idArticulo = AT.idArticulo AND AT.idTienda = 1 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes='.$idCliente.' WHERE '.$buscar.' GROUP BY a.idArticulo LIMIT 0, 30 ';
+        $sql= 'SELECT a.`idArticulo`, a.`articulo_name`, a.estado, a.tipo, a.beneficio,
+			ac.`codBarras`, ap.pvpCiva, ap.pvpSiva, acli.pvpCiva as pvpCivaCLI, acli.pvpSiva as pvpSivaCLI, at.crefTienda, a.`iva`
+			 FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac ON a.idArticulo = ac.idArticulo 
+			 LEFT JOIN `articulosPrecios` AS ap ON a.idArticulo = ap.idArticulo AND ap.idTienda = 1 
+			 LEFT JOIN `articulosTiendas` AS at ON a.idArticulo = at.idArticulo AND at.idTienda = 1 
+			 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes='.$idCliente.' WHERE '.$buscar.' GROUP BY a.idArticulo LIMIT 0, 30 ';
+		$resultado['sql'] = $sql;
 		$res = $BDTpv->query($sql);
+        $resultado['Nitems']=0;
         if (isset($res->num_rows)) {;
             $resultado['Nitems']= $res->num_rows;
-        }else {
-            // No obtuvo resultado
-            $resultado['Nitems']= 0;
         }
 		//si es la 1ª vez que buscamos, y hay muchos resultados, estado correcto y salimos del foreach.
 		if ($i === 0){
@@ -57,6 +66,7 @@ function BuscarProductos($campoAbuscar,$busqueda,$BDTpv, $idCliente) {
 			$resultado['consulta'] = $sql;
 			$resultado['error'] = $BDTpv->error_list;
             error_log('Error en modulo_ventas/funciones.php -> buscarProductos consulta'.$sql);
+            error_log('Busqueda:'.$buscar);
             error_log('Error en modulo_ventas/funciones.php -> buscarProductos error:'.json_encode($res));
 			return $resultado;
 		} 
