@@ -372,7 +372,7 @@ function recalculoTotales($productos) {
         }
     }
     $respuesta['desglose'] = $desglose;
-    $respuesta['total'] = number_format($subtotal, 2);
+    $respuesta['total'] = number_format($subtotal, 2, '.', '');
     return $respuesta;
 }
 
