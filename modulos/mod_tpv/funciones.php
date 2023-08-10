@@ -467,6 +467,10 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
     } else {
         $product = $producto;
     }
+    //Comprobamos si el campo unidad esta vacío, en caso de que lo este, la convertimos en 1
+    if ($producto->unidad == ''){
+	$producto->unidad =1;
+    }
     // Creamos importe --> 
     $importe = $product->pvpconiva * $product->unidad;
     $importe = number_format($importe, 2);
