@@ -99,7 +99,6 @@
 				<action tecla="40">mover_up</action>
 				<action tecla="38">mover_down</action>
 				<action tecla="27">saltar_esc</action>
-				<action tecla="112">cobrar</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">tpv</parametro>

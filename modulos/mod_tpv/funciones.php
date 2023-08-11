@@ -359,7 +359,7 @@ function recalculoTotales($productos) {
     foreach ($productos as $product) {
         // Si la linea esta eliminada, no se pone.
         if ($product->estado === 'Activo') {
-            $totalLinea = $product->unidad * $product->pvpconiva;
+			$totalLinea = $product->unidad * $product->pvpconiva;
             //~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
             $subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
             // Ahora calculmos bases por ivas
@@ -468,8 +468,8 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
         $product = $producto;
     }
     //Comprobamos si el campo unidad esta vacío, en caso de que lo este, la convertimos en 1
-    if ($producto->unidad == ''){
-	$producto->unidad =1;
+    if ($product->unidad == ''){
+	$product->unidad =1;
     }
     // Creamos importe --> 
     $importe = $product->pvpconiva * $product->unidad;
