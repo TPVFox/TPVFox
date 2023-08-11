@@ -190,7 +190,7 @@ function eliminarFila(num_item){
 	productos[num_item].estado= 'Eliminado';
 	$(line).addClass('tachado');
 	$(line + "> .eliminar").html('<a onclick="retornarFila('+num_item+');"><span class="glyphicon glyphicon-export"></span></a>');
-	$("#N" +productos[num_item].nfila + "_Unidad").prop("disabled", true);
+	$("#Unidad_Fila_" +productos[num_item].nfila).prop("disabled", true);
 	grabarTicketsTemporal();
 }
 
@@ -210,9 +210,8 @@ function retornarFila(num_item){
 		productos[num_item].unidad = 1;
 		recalculoImporte(productos[num_item].unidad,num_item);
 	}
-	$("#N" + productos[num_item].nfila + "_Unidad").prop("disabled", false);
-	$("#N" + productos[num_item].nfila + "_Unidad").val(productos[num_item].unidad);
-	console.log(productos);
+	$("#Unidad_Fila_" + productos[num_item].nfila).val(productos[num_item].unidad);
+	$("#Unidad_Fila_" + productos[num_item].nfila).prop("disabled", false);
 	grabarTicketsTemporal();
 }
 //~ //fin funcion que agrega o elimina linea
@@ -633,14 +632,17 @@ function controladorAcciones(caja,accion){
 		break;
 		
 		case 'recalcular_ticket':
-			// Comprobamos que el valor puesto sea un numero decimal.
-			if (comprobarNumero(caja.darValor())){
+			
+			var n_producto = parseInt(caja.fila)-1;
+			// Comprobamos que el valor puesto sea un numero decimal y que sea inferior a 9999
+			if (comprobarNumero(caja.darValor()) && caja.darValor() < 9999){
 				// recuerda que lo productos empizan 0 y las filas 1
-				var n_producto = parseInt(caja.fila)-1;
+				//var n_producto = parseInt(caja.fila)-1;
 				productos[n_producto].unidad = caja.darValor();
 				recalculoImporte(productos[n_producto].unidad,n_producto);
-			} else {
-				alert('Incorrecto la cantidad');
+			}else {
+				var n_producto = parseInt(caja.fila)-1;
+				alert('Incorrecto la cantidad en ' + productos[n_producto].cdetalle);
 				console.log('Cantidad incorrecta, cambio pongo 1');
 				$('#'+caja.id_input).val('1');
 			}
