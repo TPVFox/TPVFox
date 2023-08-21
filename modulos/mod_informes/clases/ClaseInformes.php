@@ -82,11 +82,8 @@ class ClaseInformes extends TFModelo{
             }else{
                 $resumenProveedor=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaInicial, $fechaFinal);
                 if(isset($resumenProveedor['error'])){
-                    $errores[2]=array ( 'tipo'=>'DANGER!',
-                                        'dato' => $resumenProveedor['consulta'],
-                                        'class'=>'alert alert-danger',
-                                        'mensaje' => 'El proveedor '.$idProveedor.' no debe tener albaranes.'
-                                        );                 
+					// Puede ser varios error, trae un array(tipo,mensaje)
+                    $errores[2]=$resumenProveedor['error'];          
                 } 
             }
 			if (count($errores)>0) {
