@@ -257,8 +257,8 @@ function htmlCobrar($total, $configuracion) {
     $resultado['modoPago'] = 0;
     $resultado['imprimir'] = 0;
     $resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">'
-            . '<h1>' . number_format($total, 2) . '<span class="small"> €</span></h1>'
-            . '<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="' . number_format($total, 2) . '" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>'
+            . '<h1>' . number_format($total, 2,'.','') . '<span class="small"> €</span></h1>'
+            . '<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="' . number_format($total, 2,'.','') . '" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>'
             . '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value="0"></input></h4>'
             . '<div class="checkbox" style="text-align:center">';
     if ($configuracion['impresion_ticket'] === 'Si') {
@@ -366,8 +366,8 @@ function recalculoTotales($productos) {
             $desglose[$product->ctipoiva]['BaseYiva'] = (!isset($desglose[$product->ctipoiva]['BaseYiva']) ? $totalLinea : $desglose[$product->ctipoiva]['BaseYiva'] + $totalLinea);
             // Ahora calculamos base y iva 
             $operador = (100 + $product->ctipoiva) / 100;
-            $desglose[$product->ctipoiva]['base'] = number_format(($desglose[$product->ctipoiva]['BaseYiva'] / $operador), 2);
-            $desglose[$product->ctipoiva]['iva'] = number_format($desglose[$product->ctipoiva]['BaseYiva'] - $desglose[$product->ctipoiva]['base'], 2);
+            $desglose[$product->ctipoiva]['base'] = number_format(($desglose[$product->ctipoiva]['BaseYiva'] / $operador), 2,'.','');
+            $desglose[$product->ctipoiva]['iva'] = number_format($desglose[$product->ctipoiva]['BaseYiva'] - $desglose[$product->ctipoiva]['base'], 2,'.','');
             //~ $desglose[$product->ctipoiva]['tipoIva'] =$iva;
         }
     }
