@@ -359,7 +359,7 @@ function recalculoTotales($productos) {
     foreach ($productos as $product) {
         // Si la linea esta eliminada, no se pone.
         if ($product->estado === 'Activo') {
-			$totalLinea = $product->unidad * $product->pvpconiva;
+            $totalLinea = $product->unidad * $product->pvpconiva;
             //~ $respuesta['lineatotal'][$product->nfila] = number_format($totalLinea,2);
             $subtotal = $subtotal + $totalLinea; // Subtotal sumamos importes de lineas.
             // Ahora calculmos bases por ivas
