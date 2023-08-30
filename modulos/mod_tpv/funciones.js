@@ -641,7 +641,6 @@ function controladorAcciones(caja,accion){
 				productos[n_producto].unidad = caja.darValor();
 				recalculoImporte(productos[n_producto].unidad,n_producto);
 			}else {
-				var n_producto = parseInt(caja.fila)-1;
 				alert('Incorrecto la cantidad en ' + productos[n_producto].cdetalle);
 				console.log('Cantidad incorrecta, cambio pongo 1');
 				$('#'+caja.id_input).val('1');
