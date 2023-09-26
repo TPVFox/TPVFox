@@ -11,6 +11,27 @@
  *  como esta organizado funciones.js , no puedo hacerlo.
  * */
 
+window.onload = () => {
+	let buttom = document.getElementById("modificarRuta");
+	buttom.addEventListener("click", functionBuscar);
+}
+
+//Modifica la ruta
+function functionBuscar() {
+	let idArticulo = document.getElementById("idArticulo").value;
+
+	let rutaAbsoluta = String(window.location);
+
+	let rutaSinId = rutaAbsoluta.split('=');
+
+	//alert("Modificada -> " + rutaSinId[0] + "=" + idArticulo);
+	location.replace(rutaSinId[0] + "=" + idArticulo);
+
+}
+
+
+
+
 function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		case 'revisar_contenido':

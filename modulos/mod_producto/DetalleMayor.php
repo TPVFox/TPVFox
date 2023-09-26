@@ -60,8 +60,8 @@
         </div>
 		<div class="col-md-10">
             <div class="col-md-2">
-				<strong>ID Articulo:</strong><br>
-				<input type="text" name="idArticulo" size="10"   value="<?php echo $producto['idArticulo'];?>" readonly >
+				<strong>ID Articulo: </strong><br>
+				<input type="num" name="idArticulo" size="10" id="idArticulo"  placeholder="<?php echo $producto['idArticulo'];?>"  >
 			</div>
             <div class="col-md-2">
 				<strong>Fecha Inicial:</strong><br>
@@ -70,6 +70,9 @@
             <div class="col-md-2">
 				<strong>Fecha Final:</strong><br>
 				<input type="date" name="fecha" id="fecha_final" size="10"   value="<?php echo $fecha_final;?>" readonly >
+			</div>
+            <div class="col-md-2">	
+				<button type="buttom" id="modificarRuta">Buscar</button>
 			</div>
 			<div class="col-md-12">
 				<table class="table table-bordered table-hover">
