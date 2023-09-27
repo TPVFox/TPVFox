@@ -205,7 +205,7 @@ $albaranesDef=$a['Items'];
                             if($ClasePermisos->getAccion("Modificar")==1 && $albaran['estado']!=='Facturado'){
                                 $accion='';
                                 if ($albaran['estado']==="Sin Guardar"){
-                                    $accion ='&accion=temporal';
+                                    $accion ='&accion=editar';
                                 }
                                 echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].$accion.'"></a>';
                             }
