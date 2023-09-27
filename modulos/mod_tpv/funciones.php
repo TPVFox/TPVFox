@@ -257,8 +257,8 @@ function htmlCobrar($total, $configuracion) {
     $resultado['modoPago'] = 0;
     $resultado['imprimir'] = 0;
     $resultado['html'] = '<div style="margin:0 auto; display:table; text-align:right;">'
-            . '<h1>' . number_format($total, 2,'.','') . '<span class="small"> €</span></h1>'
-            . '<h4> Entrega &nbsp <input pattern="[-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="' . number_format($total, 2,'.','') . '" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>'
+            . '<h1>' . number_format($total, 2) . '<span class="small"> €</span></h1>'
+            . '<h4> Entrega &nbsp <input pattern="[\-+]?[0-9]*[.]?[0-9]+" id="entrega" name="entrega" class="text-right" value="' . number_format($total, 2) . '" data-obj="entrega" size="8" onkeydown="controlEventos(event)" ></input></h4>'
             . '<h4> Cambio &nbsp<input class="text-right" disabled id="cambio" size="8" type="text" name="cambio" value="0"></input></h4>'
             . '<div class="checkbox" style="text-align:center">';
     if ($configuracion['impresion_ticket'] === 'Si') {
@@ -495,17 +495,17 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
             . '<td class="codbarras">' . $product->ccodebar . '</td>'
             . '<td class="referencia">'. $icono_peso.' '. $product->cref . '</td>'
             . '<td class="detalle">' . $product->cdetalle . '</td>'
-            . '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_' . $product->nfila
+            . '<td><input pattern="[\-+]?[0-9]*[.]?[0-9]+" id="Unidad_Fila_' . $product->nfila
             . '" type="text" data-obj="Unidad_Fila" name="unidad" placeholder="unidad" size="4"  value="'
             . $product->unidad . '"  ' . $estadoInput . ' onkeydown="controlEventos(event,'
             . "'Unidad_Fila_" . $product->nfila . "'" . ')" onBlur="controlEventos(event)"></td>';
     //si en config peso=si, mostramos columna peso
     if ($CONF_campoPeso === 'si') {
-        $nuevaFila .= '<td><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="C' . $product->nfila . '_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
+        $nuevaFila .= '<td><input pattern="[\-+]?[0-9]*[.]?[0-9]+" id="C' . $product->nfila . '_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>'; //cant/kilo
     } else {
         $nuevaFila .= '<td style="display:none"><input id="C' . $product->nfila . '_Kilo" type="text" name="kilo" size="3" placeholder="peso" value="" ></td>';
     }
-    $nuevaFila .= '<td class="pvp"><input pattern="[-+]?[0-9]*[.]?[0-9]+" id="precioCIva_' . $product->nfila
+    $nuevaFila .= '<td class="pvp"><input pattern="[\-+]?[0-9]*[.]?[0-9]+" id="precioCIva_' . $product->nfila
             . '" name="precioCIva_' . $product->nfila . '" value="' . $product->pvpconiva . '" size="3" data-obj="cajaPrecioCIva"'
             . ' onkeydown="controlEventos(event)"  readonly>'
             . '<a onclick="ActivarPrecioCIva(event,' . $product->nfila . ')">'

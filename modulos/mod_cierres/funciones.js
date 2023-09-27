@@ -51,7 +51,7 @@ function guardarCierreCaja(){
                 
             if (errores === 0 ){
                 // Todo fue correcto.
-                document.location.href='ListaCierres.php';
+                //document.location.href='ListaCierres.php';
         
             }
         }
@@ -60,7 +60,6 @@ function guardarCierreCaja(){
 	
 	
 }
-
 
 function metodoClick(pulsado){
 	console.log("Inicimos switch de control pulsar");

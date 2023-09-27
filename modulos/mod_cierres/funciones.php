@@ -98,6 +98,23 @@ function fechaMaxMinTickets($BDTpv){
 	return $respuesta;
 }
 
+/*
+function comprobarFechaCierre($BDTpv,$fechaAComprobar){
+	//Objetivo:
+	//Retornar true si la fecha de cierre existe y false en caso contrario
+	$sql = 'SELECT FechaCierre FROM cierres where FechaCierre=DATE(NOW());';
+	$res = mysqli_query($BDTpv, $sql);
+	$arr = mysqli_fetch_array($res);
+	print_r('fecha en la bd: ' + $arr[0]);
+	print_r($fechaAComprobar);
+	if($arr[0] == $fechaAComprobar){
+		print_r($arr[0]);
+		return true;
+	}else return false;
+
+}
+*/
+
 function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	// Objetivos :
 	// 	Proceso 1 
@@ -144,12 +161,19 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	$insertCierre = 'INSERT INTO '.$tabla.' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES ("'
 			.$idTienda.'" , "'.$idUsuario.'" ,  '.$formateoFechaInicio.' , '.$formateoFechaFinal.' , '
 			.' "'.$total.'" , '.$formateoFechaCierre.' , '.$formateoFechaCreacion.' )';
-    error_log($insertCierre);
 	//Cambiamos estado de tickets estado  lo pasamao a Cerrado
 	$updateEstado = 'UPDATE ticketst SET `estado`= "'.$estadoCierre.'" WHERE `estado` = "Cobrado"'
 					.' AND DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN "'.strftime("%Y-%m-%d",$FI_unix).'"'
 					.' AND "'.strftime("%Y-%m-%d",$FF_unix).'" AND id IN '.$rangoTickets;
+	//Comprobamos que los tickets estan en estado cobrado
+	$selectEstado = 'SELECT count(*) FROM ticketst WHERE `estado` = "Cobrado"'
+					.'AND id IN '.$rangoTickets;
+	$resultado_comprobacion = $BDTpv->query($selectEstado);
+	$row_comprobacion = $resultado_comprobacion->fetch_assoc();
+	//error_log(json_encode($selectEstado));
+	error_log(json_encode($row_comprobacion));
 	//Este update creo que le sobra intervalo de fechas , ya que ponemos rangotickets que son los tickets.
+	error_log($insertCierre);
 	if ($BDTpv->query($insertCierre) === true){
 		$idCierre = $BDTpv->insert_id; //crea id en bbddd 
         $resultado['insertarCierre']='Correcto';
@@ -158,7 +182,6 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 		// Quiere decir que hubo error en insertar en cierres
 		$resultado['error'] = 'Error en Insert de CIERRES Numero error:'.$BDTpv->errno;
 	}
-
 	// Realizamo UPDATE de ticketst
 	if ($BDTpv->query($updateEstado) === true){
 		//actualizacion hecha
