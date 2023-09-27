@@ -21,8 +21,7 @@
     // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
     // [accion] -> editar,ver
     $estado='Nuevo';
-    // Si existe accion, variable es $accion , sino es "editar"
-    $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
+    
 	$fecha=date('d-m-Y');
 	$idAlbaranTemporal=0;
     $idAlbaran=0;
@@ -53,37 +52,59 @@
 			array_push($configuracionArchivo, $config);
 		}
 	}
-    // Por GET recibimos uno o varios parametros:
+    // --------------- Controlamos GET -------------------------  //
+    // Por GET podemos recibir uno o varios parametros:
     //  [id] cuando editamos o vemos un albaran pulsando en listado.
     //  [tActual] cuando pulsamos en cuadro albaranes temporales.
     //  [accion] cuando indicamos que accion vamos hacer.
-    if (isset($_GET['id'])){
-        $idAlbaran=$_GET['id'];  // Id real de pedido
-    }
-    if (isset($_GET['tActual'])){
-        $idAlbaranTemporal=$_GET['tActual']; // Id de albaran temporal
-    }
-    // ---------- Posible errores o advertencias mostrar     ------------------- //
-
+    $contador_get = count($_GET);
+    if( $contador_get > 0) {
+		// Si existe accion, variable es $accion , sino es "ver"
+		if (isset($_GET['accion'])){
+			$accion = $_GET['accion'];
+			$contador_get = $contador_get - 1;
+		}
+		if (isset($_GET['tActual'])){
+			$idAlbaranTemporal=$_GET['tActual']; // Id de albaran temporal
+			// Si viene temporal, siempre es la accion es editar
+			$accion = 'editar';
+			$contador_get = $contador_get - 1;
+		}
+		if (isset($_GET['id'])){
+			$idAlbaran=$_GET['id'];  // Id real de pedido
+			$contador_get = $contador_get - 1;
+		}
+	}
+	if ( $contador_get >0){
+		// Hay un parametro get, que no se controlo
+		// deberíamos indicarlo.
+		array_push($errores,  array_push($errores,$CAlb->montarAdvertencia(
+                                        'warning',
+                                        'Hay parametro get,distinto a tActual,accion,id:'.json_encode($_GET))
+                                )
+                );
+	}
+	// Comprobamos si existe temporal del idAlbaran ( Comprueba aunque idAlbaran sea 0)
+	$temporales_albaran = $CAlb->comprobarTemporalIdAlbpro($idAlbaran);
     if ($idAlbaran > 0){
-        // Comprobamos cuantos temporales tiene idPedido y si tiene uno obtenemos el numero.
-        $c = $CAlb->comprobarTemporalIdAlbpro($idAlbaran);
-        if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
+        // Si existe numero albaran, comprobamos cuantos temporales tiene Albaran y si tiene uno obtenemos el numero.
+        if (isset($temporales_albaran['idTemporal']) && $temporales_albaran['idTemporal'] !== NULL){
             // Existe un temporal de este pedido por lo que cargo ese temporal.
-            $idAlbaranTemporal = $c['idTemporal'];
-            $idAlbaran = 0 ; // Lo pongo en 0 para ejecute la parte temporal
-            $_GET['tActual'] = $idAlbaranTemporal;
-
-            if ($accion !== 'temporal' && $accion !=='ver'){
-                // Si entro sin accion temporal, NO PERMITO EDITAR.
-                // YA PROVABLEMENTE ESTAN EDITANDO.
+            $idAlbaranTemporal = $temporales_albaran['idTemporal'];
+            if ($accion !== 'editar' && $accion !=='ver'){
+                // Si entro sin accion editar, es que pulse en editar en listado, por lo que ya que tiene temporal.
+                // ASI evitamos estar editando dos veces. YA PROVABLEMENTE ESTAN EDITANDO.
                 $accion = 'ver';
                 // Creo alert
-                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, hay un temporal");</script>';
+                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, ya que hay un temporal");</script>';
             }
         } else {
-            if (count($c)>0){
-                 $errores= $c;
+            if (count($temporales_albaran)>0){
+				array_push($errores,  array_push($errores,$CAlb->montarAdvertencia(
+                                        'warning',
+                                        'Hay varios temporales del mismo albaran:'.json_encode($temporales_albaran))
+                                )
+                );
             }
         }
     }
@@ -135,12 +156,13 @@
     }
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
-        if (!isset($datosAlbaran)){
+        if ($estado == 'Nuevo' && !isset($datosAlbaran)){
             // SI es NUEVO.
             $datosAlbaran = array();
             $datosAlbaran['Fecha']="0000-00-00 00:00:00";
             $datosAlbaran['Su_numero'] = '';
             $datosAlbaran['idProveedor'] = 0;
+            $accion='editar';
             $creado_por = $Usuario;
         } else {
             // No es NUEVO
@@ -406,18 +428,17 @@
             ?>
         </div>
         <div class="col-md-4 text-right" >
-            <?php
-            if ($estado != "Facturado" || $accion != "ver"){?>
-                <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-                <?php echo htmlSelectConfiguracionSalto();
+            <?php 
+            if ($accion == 'editar'){
+				// NO tiene sentido mostrar opciones configuracion, sino se permite modificar ?>
+				<span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
+				<?php
+				echo htmlSelectConfiguracionSalto();
+			}
+            if ($estado === "Nuevo" ){
                 // El btn cancelar solo se crea si el estado es "Nuevo"
                 // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
-                if ($estado != "Nuevo"){
-                    $estilos['btn_cancelar'] = ' style="display:none;"';
-                    // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
-                }
-                echo '<input type="submit" class="btn btn-danger"'
-                    .$estilos['btn_cancelar']. ' value="Cancelar" name="Cancelar" id="bCancelar">';
+                echo '<input type="submit" class="btn btn-danger" value="Cancelar" '.$estilos['btn_cancelar'].' name="Cancelar" id="bCancelar">';
             }
             ?>
         </div>
