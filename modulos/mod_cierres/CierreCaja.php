@@ -48,12 +48,9 @@
 		
 		
 		// debug
-		//echo '<pre>';
-		//print_r($fechas);
-		//echo '</pre>';
-		//echo '<pre>';
-		//print_r($fechas['Cierre']['String_d-m-y']);
-		//echo '</pre>';
+		//~ echo '<pre>';
+		//~ print_r($fechas);
+		//~ echo '</pre>';
 		// ========= Obtenemos tickets usuarios Cobrados y Abiertos ======================== //.
 		
 		$ResumenTicketsCierre = ticketsPorFechaUsuario($fechas['fechaMin']['String_y-m-d'],$BDTpv,$fechas['fechaMax']['String_y-m-d']);
@@ -102,6 +99,7 @@
 		}  else{ 
 			//Es el mismo dia la fecha inicial de la final,
 			$estados['fechaFinal'] = "disabled";
+	
 		}
 		
 		/*Comprobamos si la fecha existe
@@ -115,7 +113,7 @@
 		if (count($ResumenTicketsCierre['tickets_abiertos']) >0 ) {
 			// Añadimos mensaje
 			$mensajes['danger'][] = "<strong>Hay tickets abiertos.</strong> Debes cobrarlos primero.";
-		}
+		} 
 		
 	//  ======   Montamos Array con los datos que tenemos =================== 
 		//monto string de numTickets para usar en funcion baseIva
