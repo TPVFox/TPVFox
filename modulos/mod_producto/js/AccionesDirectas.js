@@ -11,21 +11,39 @@
  *  como esta organizado funciones.js , no puedo hacerlo.
  * */
 
-window.onload = () => {
-	let buttom = document.getElementById("modificarRuta");
-	buttom.addEventListener("click", functionBuscar);
-}
 
-//Modifica la ruta
-function functionBuscar() {
-	let idArticulo = document.getElementById("idArticulo").value;
+
+function RehacerMayor(){
 
 	let rutaAbsoluta = String(window.location);
 
-	let rutaSinId = rutaAbsoluta.split('=');
+	let rutaSinId = rutaAbsoluta.split('idArticulo=');
 
-	//alert("Modificada -> " + rutaSinId[0] + "=" + idArticulo);
-	location.replace(rutaSinId[0] + "=" + idArticulo);
+	console.log("ID -> " + id);
+	console.log("Fecha Inicial -> " + fechaInicio);
+	console.log("Fecha Final -> " + fechaFin);
+
+	let idnuevo = document.getElementById("idArticulo").value;
+	let fechaInicialN = document.getElementById("fecha_inicial").value;
+	let fechaFinalN = document.getElementById("fecha_final").value;
+
+	console.log("***********************");
+	console.log("ID value -> " + idnuevo);
+	console.log("Fecha Inicial value-> " + fechaInicialN);
+	console.log("Fecha Inicial value -> " + fechaFinalN);
+
+	if(id != idnuevo){
+		id = idnuevo;
+	}
+	if(fechaInicio != fechaInicialN){
+		fechaInicio = fechaInicialN;
+	}
+	if(fechaFin != fechaInicialN){
+		fechaFin = fechaFinalN;
+	}
+
+	location.replace(rutaSinId[0] + "idArticulo=" + id + "&fecha_inicial=" + fechaInicio + '&fecha_final=' + fechaFin);
+
 
 }
 

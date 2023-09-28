@@ -46,6 +46,11 @@
 <html>
 	<head>
         <?php include_once $URLCom.'/head.php'; ?>
+        <script>
+            let id=<?php echo $producto['idArticulo'];?> ;
+            let fechaInicio='<?php echo $fecha_inicial;?>';
+            let fechaFin ='<?php echo $fecha_final;?>';
+        </script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
 	</head>
@@ -61,18 +66,19 @@
 		<div class="col-md-10">
             <div class="col-md-2">
 				<strong>ID Articulo: </strong><br>
-				<input type="num" name="idArticulo" size="10" id="idArticulo"  placeholder="<?php echo $producto['idArticulo'];?>"  >
+				<input type="num" name="idArticulo" size="10" id="idArticulo"  value="<?php echo $producto['idArticulo'];?>"  >
 			</div>
             <div class="col-md-2">
 				<strong>Fecha Inicial:</strong><br>
-				<input type="date" name="fecha" id="fecha_inicial" size="10"   value="<?php echo $fecha_inicial;?>" readonly >
+                <!-- Preguntar -->
+				<input type="date" name="fecha" id="fecha_inicial" size="10"  value="<?php echo $fecha_inicial;?>"  >
 			</div>
             <div class="col-md-2">
 				<strong>Fecha Final:</strong><br>
-				<input type="date" name="fecha" id="fecha_final" size="10"   value="<?php echo $fecha_final;?>" readonly >
+				<input type="date" name="fecha" id="fecha_final" size="10"   value="<?php echo $fecha_final;?>">
 			</div>
             <div class="col-md-2">	
-				<button type="buttom" id="modificarRuta">Buscar</button>
+				<button type="buttom" id="modificarRuta" onclick="RehacerMayor()">Buscar</button>
 			</div>
 			<div class="col-md-12">
 				<table class="table table-bordered table-hover">
