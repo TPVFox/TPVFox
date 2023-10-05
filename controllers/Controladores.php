@@ -329,7 +329,7 @@ class ControladorComun
         }   
 
         // Ahora montamos html link a volver.
-        $html = $script_history.'<a class="glyphicon glyphicon-circle-arrow-left" '.$href_o_onclick.'">';
+        $html = $script_history.'<a class="glyphicon glyphicon-circle-arrow-left" '.$href_o_onclick.'>';
         if ($anchor <> ''){
            $html .= $anchor.'</a>';
         } else {

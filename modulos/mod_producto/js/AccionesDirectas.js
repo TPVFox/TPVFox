@@ -13,6 +13,70 @@
 
 
 
+window.onload = () => {
+
+document.addEventListener("keydown", presionar);
+let inputID = document.getElementById("idArticulo");
+inputID.addEventListener("click", borrar);
+inputID.addEventListener("blur", comprobar);
+	
+}
+function borrar(){
+	document.getElementById("idArticulo").value = "";
+	
+}
+
+function comprobar(){
+	
+	if(document.getElementById("idArticulo").value.length <= 0){
+		document.getElementById("idArticulo").value = id;
+	}
+
+
+}
+
+function presionar(event){
+	console.log(event.keyCode);
+	if(event.keyCode == 13){
+	console.log("hghj" + id);
+	console.log("hghj  ->  " + document.getElementById("idArticulo").value);
+
+		let parametro = {
+			"pulsado": 'idExiste',
+			"id": document.getElementById("idArticulo").value
+		};
+		$.ajax({
+			data: parametro,
+			url: 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('*********  Envio datos para Buscar Producto  ****************');
+			},
+			success:  function (response) {				
+				let resultado =  $.parseJSON(response);
+				
+				console.log(resultado);
+
+				if(resultado){
+				RehacerMayor();
+				}else{
+					console.log("Entra al fallo")
+					let div = document.getElementById("error");
+					div.setAttribute("class", "alert alert-danger");
+					
+
+					div.innerHTML = "No se encontró un producto con ese id";
+
+					
+					
+					
+				}
+
+			}
+		})
+		
+	}
+}
 function RehacerMayor(){
 
 	let rutaAbsoluta = String(window.location);
