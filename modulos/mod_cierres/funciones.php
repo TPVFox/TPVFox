@@ -109,6 +109,8 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 	// 	Proceso 3
 	// 		3.1- Insert en tabla usuarios
 	$resultado=array();
+	$respuesta = array() ; // Lo que vamos a devolver...
+
 	$tabla = 'cierres';
 	
 	$idTienda = $datosCierre['tienda'];
@@ -150,44 +152,52 @@ function InsertarProceso1Cierres($BDTpv,$datosCierre){
 					.' AND DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN "'.strftime("%Y-%m-%d",$FI_unix).'"'
 					.' AND "'.strftime("%Y-%m-%d",$FF_unix).'" AND id IN '.$rangoTickets;
 	//Comprobamos que los tickets estan en estado cobrado
-	$selectEstado = 'SELECT count(*) FROM ticketst WHERE `estado` = "Cobrado"'
+	$selectEstado = 'SELECT count(*) as num_tickets FROM ticketst WHERE `estado` = "Cobrado"'
 					.'AND id IN '.$rangoTickets;
 	$resultado_comprobacion = $BDTpv->query($selectEstado);
 	$row_comprobacion = $resultado_comprobacion->fetch_assoc();
 	//error_log(json_encode($selectEstado));
-	error_log(json_encode($row_comprobacion));
+	error_log( 'Entro' .json_encode($row_comprobacion));
 	//Este update creo que le sobra intervalo de fechas , ya que ponemos rangotickets que son los tickets.
-	if ($BDTpv->query($insertCierre) === true){
-		$idCierre = $BDTpv->insert_id; //crea id en bbddd 
-        $resultado['insertarCierre']='Correcto';
-		$resultado['idCierre']=$idCierre;
+	if ($row_comprobacion['num_tickets'] > 0){
+		if ($BDTpv->query($insertCierre) === true){
+			$idCierre = $BDTpv->insert_id; //crea id en bbddd 
+			$resultado['insertarCierre']='Correcto';
+			$resultado['idCierre']=$idCierre;
+		} else {
+			// Quiere decir que hubo error en insertar en cierres
+			$resultado['error'] = 'Error en Insert de CIERRES Numero error:'.$BDTpv->errno;
+		}
 	} else {
-		// Quiere decir que hubo error en insertar en cierres
-		$resultado['error'] = 'Error en Insert de CIERRES Numero error:'.$BDTpv->errno;
+		$resultado['error'] = 'No tienes tiquets para cerrar';
 	}
-
-	// Realizamo UPDATE de ticketst
-	if ($BDTpv->query($updateEstado) === true){
-		//actualizacion hecha
-		$resultado['Nafectados_CambioEstado_tickets'] = $BDTpv->affected_rows;
-		$resultado['update_estado']='Correcto';
+	if (!isset($resultado['error'])){
+		// Realizamo UPDATE de ticketst
+		if ($BDTpv->query($updateEstado) === true){
+			//actualizacion hecha
+			$resultado['Nafectados_CambioEstado_tickets'] = $BDTpv->affected_rows;
+			$resultado['update_estado']='Correcto';
+		} else {
+			// Quiere decir que hubo error en insertar en cierres
+			$resultado['error'] = 'Error en Update de ticketst-> Numero error:'.$BDTpv->errno;
+		}
+		$resultado['insertCierres'] = $insertCierre;
+		$resultado['updateTicketst'] = $updateEstado;
+		$respuesta['Proceso1'] = $resultado; 
+		
+		//Insertamos en la tabla cierres_ivas 
+		
+		$insertarIvas = insertarCierre_IVAS($BDTpv,$datosCierre,$idCierre);
+		$respuesta['Proceso2']=$insertarIvas;
+		// Deberíasmo comprobar que realmente lo hace... y si da error advertirlo
+		
+		//Insertamos en la tabla cierres_usuarios_tickets
+		$insertarUsuarios = insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre);
+		$respuesta['Proceso3']=$insertarUsuarios;
+		// Deberíasmo comprobar que realmente lo hace... y si da error advertirlo
 	} else {
-		// Quiere decir que hubo error en insertar en cierres
-		$resultado['error'] = 'Error en Update de ticketst-> Numero error:'.$BDTpv->errno;
+			$respuesta['Proceso1'] = $resultado; 
 	}
-	$resultado['insertCierres'] = $insertCierre;
-	$resultado['updateTicketst'] = $updateEstado;
-	$respuesta = array() ; // Lo que vamos a devolver...
-	$respuesta['Proceso1'] = $resultado; 
-	
-	//Insertamos en la tabla cierres_ivas 
-	$insertarIvas = insertarCierre_IVAS($BDTpv,$datosCierre,$idCierre);
-	$respuesta['Proceso2']=$insertarIvas;
-	
-	//Insertamos en la tabla cierres_usuarios_tickets
-	$insertarUsuarios = insertarUsuariosCierre($BDTpv,$datosCierre,$idCierre);
-	$respuesta['Proceso3']=$insertarUsuarios;
-
 	//debug
 	//~ $resultado['datos'] = $datosCierre;
 	return $respuesta;
