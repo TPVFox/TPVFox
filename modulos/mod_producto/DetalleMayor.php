@@ -50,16 +50,13 @@
         $activarMensaje = true;
     }
 
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
 
-    /*
-    echo '<pre>';
-    print_r($movimientos);
-    echo '</pre>';
-    */
+  
 ?>
 <!DOCTYPE html>
 <html>
-	<head>
+    <head>
         <?php include_once $URLCom.'/head.php'; ?>
         <script>
             let id=<?php echo $producto['idArticulo'];?> ;
@@ -68,11 +65,16 @@
         </script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
+        
+        <script type="text/javascript">
+            // Declaramos variables globales
+            <?php echo $VarJS;?>
+        </script>
+        <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
         <style>
-            .col-md-12{
-                display:flex;
-                flex-direction:column-reverse;
-            }
+            .margenDivSuperior{
+                margin:2vh;
+            } 
             .centrarDomingos{
                 text-align:center;
             }
@@ -98,6 +100,13 @@
                 border-radius:3vh;
                 background-color:#f3e1fa;
             }
+            #buscar{
+                display:none;
+            }
+            .tablasEstilos{
+                display: flex;
+                flex-direction: column-reverse;
+            }
         </style>
 	</head>
 	<body>
@@ -105,36 +114,44 @@
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 	<div class="container">
-		<h2 class="text-center"><?php echo $titulo.' '.$producto['articulo_name'];?></h2>
-
+        <?php //Quito los 3 ultimos caracteres del titulo 'de ' ?>
+		<h3 class="text-center"><?php echo substr($titulo, 0, -3);?></h3>
 
 
         <?php 
 
             //Datos para la tabla lateral        
             $numVeces = 0;
-            $datosMeses = array();
-            $datosMesesEspeciales = array();
+            $$datosMesesTabla = array();
+
         ?>
 		
-        
-		<div class="col-md-9 col-md-push-3">
+        <h2 class="text-center"><?php echo $producto['articulo_name'] ?></h2>
             <div id="error"><?php if($activarMensaje){echo $mensaje;} ?></div>
+
+        <div class="col-md-12 margenDivSuperior">
+        
+            <div class="col-md-3">
+                <?php echo $Controler->getHtmlLinkVolver();?>
+            </div>
             <div class="col-md-2">
-				<strong>ID Articulo: </strong><br>
-				<input type="num" name="idArticulo" size="10" id="idArticulo"  value="<?php echo $producto['idArticulo'];?>"  >
-			</div>
+                    <strong>ID Articulo:</strong>
+                    <input type="num" name="id_producto" size="10" id="id_producto" data-obj= "cajaIdDetalleMayor" onfocus=borrar() onkeydown="controlEventos(event)" onblur="controlEventos(event)" value="<?php echo $producto['idArticulo'];?>" >
+            </div>
             <div class="col-md-2">
-				<strong>Fecha Inicial:</strong><br>
-                <!-- Preguntar -->
-				<input type="date" name="fecha" id="fecha_inicial" size="10"  value="<?php echo $fecha_inicial;?>"  >
-			</div>
+                    <strong>Fecha Inicial:</strong>
+                    <input type="date" name="fecha" id="fecha_inicial" size="10" onblur=visibleButton() value="<?php echo $fecha_inicial;?>"  >
+            </div>
             <div class="col-md-2">
-				<strong>Fecha Final:</strong><br>
-				<input type="date" name="fecha" id="fecha_final" size="10"   value="<?php echo $fecha_final;?>">
-			</div>
-            
-            
+                    <strong>Fecha Final:</strong>
+                    <input type="date" name="fecha" id="fecha_final" size="10" onblur=visibleButton() value="<?php echo $fecha_final;?>">
+            </div>
+            <div class="col-md-1">
+                <button id="buscar"  class="btn btn-primary" onclick=clikMayor(event)>Buscar</button>
+            </div>            
+        </div>
+
+		<div class="col-md-9 col-md-push-3 tablasEstilos">           
 			<div class="col-md-12">
 				<table class="table table-bordered table-hover">
 					<thead>
@@ -165,7 +182,7 @@
                                 $salidasMes = 0;
                                 $compradoMes = 0;
                                 $vendidoMes = 0;
-                                $beneficioMes = 0;
+                                
 
                                 $compradoSubEs = 0;
                                 $vendidoSubEs = 0;
@@ -183,10 +200,6 @@
                                     }
                             
                                     $dia = Date("w",strtotime($movimiento['fecha']));
-                                    //print_r($movimiento['preciosalida']);
-                                    //print_r($movimiento['entrega']);
-                                    //print_r($movimiento['salida']);
-
                             
                             $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
                             $e = 0;// variable bandera para indicar decimales
@@ -206,7 +219,7 @@
                                 $td_coste  = '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
                                 $entradas += $movimiento['entrega'];
 
-                                        //
+                                        
                                         $entradasMes += $movimiento['entrega'];
                                 if ( $movimiento['precioentrada'] !== 0){
                                     $precio_coste_civa = $movimiento['precioentrada']+($movimiento['precioentrada']*$producto['iva'])/100;
@@ -248,8 +261,8 @@
                                             $salidasES += $movimiento['salida'];
                                             $vendidoSubEs += $b;
                                             $salidasSubEs+=$movimiento['salida'];
+                                        }
                             }
-                                    }
                             
                             $url= $HostNombre.'/modulos/'.$tipo_doc;
                             
@@ -258,21 +271,33 @@
                                         
                                         $mismoMes = FALSE;
                                         
-                                        $datosMeses[$numVeces] = subMesTotal($vendidoMes, $compradoMes, $mes, $entradasMes , 
-                                        $salidasMes, $entregaSubEs,$salidasSubEs,$compradoSubEs,$vendidoSubEs);
+                                        
+                                       
+                                        if($producto['tipo'] == 'peso'){
+                                            //Subtotales por meses en listado
+                                            $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoMes, $compradoMes, $entradasMes , $salidasMes, $vendidoSubEs, 3);                                            
+                                            // Guardamos datos de esos subtotales por meses
+                                            $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs,3);
+                                        }else{
+                                            $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoMes, $compradoMes, $entradasMes , $salidasMes, $vendidoSubEs, 0);
+                                            $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs,0);
+                                            
+                                        } 
+                                        $datosMesesTabla[1][$mes] = guardarDatosTablasLaterales($compradoMes,$vendidoMes, $compradoSubEs, $vendidoSubEs, 2);
+                                                            
+                                        echo $HtmlSubtotalesMeses;
                                         
                                         $entradasMes =0;
                                         $salidasMes = 0;
                                         $compradoMes=0;
                                         $vendidoMes =0;
-                                        $beneficioMes = 0;
+                                       
                                         
                                         $entregaSubEs = 0;
                                         $salidasSubEs = 0;
                                         $compradoSubEs =0;
                                         $vendidoSubEs = 0;
 
-                                        $numVeces++;
                                     }
                             
                                     //Si es 0 significa que es domingo
@@ -286,65 +311,38 @@
                                         echo "<tr class='bg-danger'>";
                                                                
                                     }else{
-
-                                        colorTabla($stock);
+                                        $color = ($stock> 0 ? '':' class="bg-warning"');
+                                        echo '<tr'.$color.'>';
                                 
                                     }
                            
                                     echo "<td class='centrarDomingos'><b>".$domingo."</b></td>
-                                        <td>".$movimiento['fecha']."</td>"
-                                    ;
-                                echo $td_entrada.$td_salida;
-                                echo '<td>'.$stock.'</td>';
-                                echo $td_coste.$td_precio;
-                                echo '<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>';
-                                echo '<td>'.$movimiento['nombre'].'</td>';
-                                echo '<td>'.$movimiento['estado'].'</td>';
+                                        <td>".$movimiento['fecha']."</td>";
+                                    echo $td_entrada.$td_salida;
+                                    echo '<td>'.$stock.'</td>';
+                                    echo $td_coste.$td_precio;
+                                    echo '<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>';
+                                    echo '<td>'.$movimiento['nombre'].'</td>';
+                                    echo '<td>'.$movimiento['estado'].'</td>';
                                 
-                                echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
-                            echo '</tr>';
+                                    echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
+                                    echo '</tr>';
                         }   
-                                $datosMeses[$numVeces] = subMesTotal($vendidoMes, $compradoMes, $mes, $entradasMes , $salidasMes,
-                                 $entregaSubEs,$salidasSubEs, $compradoSubEs, $vendidoSubEs);
-                        // Calculo del beneficio.
-                        $beneficio = $vendido - $comprado;
+                                //Tabla submes
+                                if($producto['tipo'] == 'peso'){
+                                    //Subtotales por meses en listado
+                                    $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoMes, $compradoMes, $entradasMes , $salidasMes, $vendidoSubEs, 3);                                            
+                                    // Guardamos datos de esos subtotales por meses
+                                    $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs,3);
+                                }else{
+                                    $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoMes, $compradoMes, $entradasMes , $salidasMes, $vendidoSubEs, 0);
+                                    $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs,0);
+                                    
+                                } 
+                                $datosMesesTabla[1][$mes] = guardarDatosTablasLaterales($compradoMes,$vendidoMes, $compradoSubEs, $vendidoSubEs, 2);
 
-                                $regulaciones = $vendidoEs - $compradoES;
-
-                                $beneficioReal = $beneficio - $regulaciones;
-                        
-                            
-                                echo '<tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><b>Entradas</b></td>
-                                        <td><b>Salidas</b></td>
-                                        <td></td>
-                                        <td><b>Compras</b></td>
-                                        <td><b>Ventas</b></td>
-                                        <td><b>Beneficios</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><b>Total</b></td>
-                                        <td><b>'.$entradas.'</b></td>
-                                        <td><b>'.number_format($salidas,3, '.', '').'</b></td>
-                                        <td></td>
-                                        <td><b>'.number_format($comprado,2, '.', '').'</b></td>
-                                        <td><b>'.number_format($vendido,2, '.', '').'</b></td>
-                                        <td><b>Beneficio = '.number_format($beneficio,2, '.', '').' €</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td><b>Especiales</b></td>
-                                        <td><b>'.$entradasES.'</b></td>
-                                        <td><b>'.number_format($salidasES,3, '.', '').'</b></td>
-                                        <td></td>
-                                        <td><b>'.number_format($compradoES,2, '.', '').'</b></td>
-                                        <td><b>'.number_format($vendidoEs,2, '.', '').'</b></td>
-                                        <td><b>Beneficio Real = '.number_format($beneficioReal,2, '.', '').' €</b></td>
-                                    </tr>'
-                                ;
+                               
+                                 echo $HtmlSubtotalesMeses;
                             }
                 
                     
@@ -353,83 +351,58 @@
                   
                     </tbody>
                 </table>
+                <div >
+                <?php  // Calculo del beneficio.
 
 
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Entradas</th>
-                            <th>Salidas</th>
-                        
-                            <th>Compras</th>
-                            <th>Ventas</th>
-                            <th>Beneficios</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                    if($producto['tipo'] == 'peso'){
+                        $resultado = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
+                                $compradoES, $entradas, $salidas,$entradasES, $salidasES, 3);
+                    }else{
+                        $resultado = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
+                                $compradoES, $entradas, $salidas,$entradasES, $salidasES, 0);    
+                    } 
 
-                        <?php  
-                            echo '<tr>
-                                    <td><b>Total</b></td>
-                                    <td><b>'.$entradas.'</b></td>
-                                    <td><b>'.number_format($salidas,3, '.', '').'</b></td>
-                                    <td><b>'.number_format($comprado,2, '.', '').'</b></td>
-                                    <td><b>'.number_format($vendido,2, '.', '').'</b></td>
-                                    <td><b>Beneficio = '.number_format($beneficio,2, '.', '').' €</b></td>
-                                </tr>'
-                            ;
-                        
-                            echo '<tr>
-                                    <td><b>Especiales</b></td>
-                                    <td><b>'.$entradasES.'</b></td>
-                                    <td><b>'.number_format($salidasES,3, '.', '').'</b></td>
-                                    <td><b>'.number_format($compradoES,2, '.', '').'</b></td>
-                                    <td><b>'.number_format($vendidoEs,2, '.', '').'</b></td>
-                                    <td><b>Beneficio Real = '.number_format($beneficioReal,2, '.', '').' €</b></td>
-                                </tr>'
-                            ;
-                        ?>
-                    </tbody>
-                </table>
+                    
+                    echo $resultado;
+                ?>
+                </div >
+
+                
             </div>
-        </div>
-            <div class="col-md-3 col-md-pull-9">
-                <div class="">
-                    <?php echo $Controler->getHtmlLinkVolver();?>
+            <div class="col-md-12">
+                    <?php //Tabla resumen Arriba                 
+                        if($producto['tipo'] == 'peso'){
+                            $tablaTotalArriba = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
+                                    $compradoES, $entradas, $salidas,$entradasES, $salidasES, 3);
+                        }else{
+                            $tablaTotalArriba = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
+                                    $compradoES, $entradas, $salidas,$entradasES, $salidasES, 0);    
+                        } 
+                        echo $tablaTotalArriba; 
+                    ?>
                 </div>
-                <div class="">
+        </div>
+            <div class="col-md-3 col-md-pull-9 ">
                     <fieldset class="unidades">
-
                         <h1>Unidades</h1>
                         <table class="table table-bordered table-hover">
-                            <caption title="Las suma contienen los especiales">Subtotal <b>unidades con</b>  especiales</caption>
+                            <caption title="Las suma contienen los especiales">Subtotal <b>unidades con</b>  especiales</caption>                        
                             <thead>
                                 <tr>
                                     <th>Mes</th>
                                     <th>Entrada</th>
                                     <th>Salida</th>
-                                    <th>Stock</th>
+                                    <th>Diferencias</th>
                                 </tr>
                             </thead>
-                            
                             <tbody>
-                                
-                                <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla($dato['stock']);
-                               
-                                        echo "<td>". $dato['mes'] ."</td>";
-                                        echo '<td>'.$dato['entrada'].'</td>';
-                                        echo '<td>'.$dato['salida'].'</td>';
-                                        echo '<td>'.$dato['stock'].'</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                                                    
-                            </tbody>
                         
+                                <?php 
+                                    $tablaLateral = tablasLateral($datosMesesTabla[0],0);
+                                    echo $tablaLateral;
+                                ?>                        
+                            </tbody>
                         </table>
 
                         <table class="table table-bordered table-hover">
@@ -439,33 +412,21 @@
                                     <th>Mes</th>
                                     <th>Entrada</th>
                                     <th>Salida</th>
-                                    <th>Stock</th>
+                                    <th>Diferencias</th>
                                 </tr>
-                            </thead>
-                            
+                            </thead>                            
                             <tbody>
                                 
-                                <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla($dato['stockSubEs']);
-                               
-                                        echo "<td>".$dato['mes'] ."</td>";
-                                        echo '<td>'.$dato['entradaSubEs'].'</td>';
-                                        echo '<td>'.$dato['salidaSubEs'].'</td>';
-                                        echo '<td>'.$dato['stockSubEs'].'</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                                                    
-                            </tbody>
-                        
+                                <?php                                 
+                                    $tablaLateral1 = tablasLateral($datosMesesTabla[0],1);
+                                    echo $tablaLateral1;
+                                ?>                                                    
+                            </tbody>                        
                         </table>
-                
+                    </fieldset> 
 
-                    </fieldset>
+                   
                     <fieldset class="importes">
-
                         <h1>Importes</h1>
                         <table class="table table-bordered table-hover">
                             <caption title="Las sumas contienen los especiales">Subtotal <b>importes con</b>  especiales</caption>                        
@@ -480,20 +441,9 @@
                             <tbody>
                         
                                 <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla($dato['beneficio']);
-                               
-                                        echo "<td>".$dato['mes'] ."</td>";
-                                        echo '<td>'.$dato['compras'].' €</td>';
-                                        echo '<td>'.$dato['ventas'].' €</td>';
-                                        echo '<td>'.$dato['beneficio'].' €</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                            
-                        
-                        
+                                    $tablaLateral2 = tablasLateral($datosMesesTabla[1],0);
+                                    echo $tablaLateral2;
+                                ?>                        
                             </tbody>
                         </table>
 
@@ -510,24 +460,14 @@
                             
                             <tbody>
                                 
-                                <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla($dato['beneficioEs']);
-                               
-                                        echo "<td>".$dato['mes'] ."</td>";
-                                        echo '<td>'.$dato['comprasEs'].' €</td>';
-                                        echo '<td>'.$dato['ventasEs'].' €</td>';
-                                        echo '<td>'.$dato['beneficioEs'].' €</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                                                    
-                            </tbody>
-                        
+                                <?php                                 
+                                    $tablaLateral3 = tablasLateral($datosMesesTabla[1],1);
+                                    echo $tablaLateral3;
+                                ?>                                                    
+                            </tbody>                        
                         </table>
+                    </fieldset> 
 
-                    </fieldset>
                     <fieldset class="sinEspeciales">
 
                         <h1>Unidades</h1>
@@ -544,21 +484,9 @@
                             <tbody>
                         
                                 <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla(($dato['beneficio'] - $dato['beneficioEs']));
-
-                               
-                                        echo "<td>".$dato['mes'] ."</td>";
-                                        echo '<td>'.($dato['entrada'] - $dato['entradaSubEs']).'</td>';
-                                        echo '<td>'.($dato['salida'] - $dato['salidaSubEs']).'</td>';
-                                        echo '<td>'.($dato['beneficio'] - $dato['beneficioEs']).'</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                            
-                        
-                        
+                                    $tablaLateral3 = tablasLateral($datosMesesTabla[0],2);
+                                    echo $tablaLateral3;                            
+                                ?>                        
                             </tbody>
                         </table>
                         
@@ -577,24 +505,15 @@
                             <tbody>
                                 
                                 <?php 
-                                    foreach($datosMeses as $dato){
-                                        colorTabla(($dato['beneficio'] - $dato['beneficioEs']));
-                               
-                                        echo "<td>".$dato['mes'] ."</td>";
-                                        echo '<td>'.($dato['compras'] - $dato['comprasEs']).' €</td>';
-                                        echo '<td>'.($dato['ventas'] - $dato['ventasEs']).' €</td>';
-                                        echo '<td>'.($dato['beneficio'] - $dato['beneficioEs']).' €</td>';
-                                        echo '</tr>';
-
-                                    }
-                                ?>
-                                                    
+                                    $tablaLateral4 = tablasLateral($datosMesesTabla[1],2);
+                                    echo $tablaLateral4;
+                                ?>                                                    
                             </tbody>
                         
                         </table>
 
                     </fieldset>
-                </div>
+                
 
 
 
@@ -611,67 +530,3 @@
 
 
 <?php 
-
-function colorTabla($controlStock){
-    if($controlStock <= 0){
-        echo "<tr class='bg-warning'>";
-    }else{
-        echo "<tr>";
-    }
-   
-}
-
-function subMesTotal($vendidoMes, $compradoMes, $mes, $entradasMes , $salidasMes, $entregaSubEs,$salidasSubEs, $compradoSubEs,$vendidoSubEs){
-    $beneficioMes = $vendidoMes - $compradoMes;
-    $beneficioSubMes = $vendidoSubEs - $compradoSubEs;
-                               
-    $datosMeses['mes']=$mes;
-    $datosMeses['entrada']=$entradasMes;
-    $datosMeses['salida']= number_format($salidasMes,3, '.', '');
-    $datosMeses['stock']= ($entradasMes - number_format($salidasMes,3, '.', ''));
-
-    $datosMeses['compras']=number_format($compradoMes,2,'.', '');
-    $datosMeses['ventas']=number_format($vendidoMes,2,'.', '');
-    $datosMeses['beneficio']=number_format($beneficioMes,2,'.', '');
-
-                                        
-    $datosMeses['entradaSubEs'] = $entregaSubEs;
-    $datosMeses['salidaSubEs'] = number_format($salidasSubEs,3, '.', '');
-    $datosMeses['stockSubEs'] = ($entregaSubEs - number_format($salidasSubEs,3, '.',''));
-
-    $datosMeses['comprasEs']=number_format($compradoSubEs,2,'.', '');
-    $datosMeses['ventasEs']=number_format($vendidoSubEs,2,'.', '');
-    $datosMeses['beneficioEs']=number_format($beneficioSubMes,2,'.', '');
-
-                                       
-                                                                     
-    echo "<tr class='colorSubtotal'>
-            <td colspan=2></td>                                        
-            <td><b>Entradas</b></td>
-            <td><b>Salidas</b></td>
-            <td></td>
-            <td><b>Compras</b></td>
-            <td><b>Ventas</b></td>
-            <td><b>Beneficios</b></td>
-        </tr>"
-    ;
-
-    echo "<tr class='colorSubtotal'>
-                                        
-            <td colspan=2><b>Subtotal</b></td>
-            <td><b>".$entradasMes."</b></td>
-            <td><b>".number_format($salidasMes,3, '.', '')."</b></td>
-            <td></td><td><b>".number_format($compradoMes,2,'.', '')."</b></td>
-            <td><b>".number_format($vendidoMes,2,'.', '')."</b></td>
-            <td><b>".number_format($beneficioMes,2,'.', '')." €</b></td>
-        </tr>"
-     ;
-
-                                        
-
-    return $datosMeses;
-
-
-}
-
-?>

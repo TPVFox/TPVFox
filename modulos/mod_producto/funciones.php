@@ -1095,3 +1095,137 @@ function construirHTMLEliminarProductos($productosEliminados, $productosNoElimin
 return $miHtml;    
 }
 
+
+// ---------------------------------------------------------------------------------------------
+
+
+//controlar el stock
+function guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs, $productoTipo){
+	
+	$stockMes = $entradasMes -$salidasMes;
+	$stockSubEs = $entregaSubEs -$salidasSubEs;	
+
+	$entregaTotal = $entradasMes -$entregaSubEs;
+	$salidaTotal = $salidasMes - $salidasSubEs;
+	$stockTotal = $stockMes - $stockSubEs;
+
+	//Hago un array para almacenar los datos que me interesan para ponerlos en l primera tabla de la derecha 
+	$datosMesesUnidades = array(number_format($entradasMes,$productoTipo, '.', ''),number_format($salidasMes,$productoTipo, '.', ''),number_format($stockMes,$productoTipo, '.', ''));
+	$datosMesesUnidades2 = array(number_format($entregaSubEs,$productoTipo, '.', ''),number_format($salidasSubEs,$productoTipo, '.', ''),number_format($stockSubEs,$productoTipo, '.', ''));
+	$datosMesesUnidades3 = array(number_format($entregaTotal,$productoTipo, '.', ''),number_format($salidaTotal,$productoTipo, '.', ''),number_format($stockTotal,$productoTipo, '.', ''));
+
+
+	$datosMeses= array($datosMesesUnidades,$datosMesesUnidades2,$datosMesesUnidades3);
+
+	
+
+	return $datosMeses;
+}
+
+
+function tablasSubMes($clase, $vendido, $comprado, $entradas , $salidas, $vendidoSub, $productoTipo){
+    $beneficio = $vendido - $comprado; 
+	
+	
+	$tabla =  "<tr class='".$clase."'>
+            <td colspan=2></td>                                        
+            <td><b>Entradas</b></td>
+            <td><b>Salidas</b></td>
+            <td></td>
+            <td><b>Compras</b></td>
+            <td><b>Ventas</b></td>
+            <td><b>Beneficios</b></td>
+        </tr>
+		<tr class='".$clase."'>                                        
+            <td colspan=2><b>Subtotal</b></td>
+            <td><b>".number_format($entradas,$productoTipo,'.','')."</b></td>
+            <td><b>".number_format($salidas,$productoTipo, '.', '')."</b></td>
+            <td></td><td><b>".number_format($comprado,2,'.', '')."</b></td>
+            <td><b>".number_format($vendido,2,'.', '')."</b></td>
+            <td><b>".number_format($beneficio,2,'.', '')." €</b></td>
+        </tr>";                                        
+
+    return $tabla;
+
+}
+
+function tablaTotal($clase,$vendido, $comprado, $vendidoEs, $compradoES, $entradas, $salidas, $entradasES, $salidasES, $productoTipo){
+
+	$beneficio = $vendido - $comprado;
+
+	$regulaciones = $vendidoEs - $compradoES;
+
+	$beneficioReal = $beneficio - $regulaciones;
+
+
+	$resultado = "<table class='".$clase."'>
+			<thead>
+				<tr>				
+					<th colspan=2></th>
+					<th>Entradas</th>
+					<th>Salidas</th>
+					<th></th>
+					<th>Compras</th>
+					<th>Ventas</th>
+					<th>Beneficios</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					
+					<td colspan=2><b>Total</b></td>
+					<td><b>".number_format($entradas,$productoTipo,'.','')."</b></td>
+					<td><b>".number_format($salidas,$productoTipo, '.', '')."</b></td>
+					<td></td>
+					<td><b>".number_format($comprado,2, '.', '')."</b></td>
+					<td><b>".number_format($vendido,2, '.', '')."</b></td>
+					<td><b>Beneficio = ".number_format($beneficio,2, '.', '')." €</b></td>
+				</tr>
+				<tr>
+					
+					<td colspan=2><b>Especiales</b></td>
+					<td><b>".number_format($entradasES,$productoTipo,'.','')."</b></td>
+					<td><b>".number_format($salidasES,$productoTipo, '.', '')."</b></td>
+					<td></td>
+					<td><b>".number_format($compradoES,2, '.', '')."</b></td>
+					<td><b>".number_format($vendidoEs,2, '.', '')."</b></td>
+					<td><b>Beneficio Real = ".number_format($beneficioReal,2, '.', '')." €</b></td>
+				</tr>
+			</tbody>
+		</table>";
+
+
+return $resultado;
+}
+
+function tablasLateral($datosMesesTabla,$indice){
+	
+	foreach($datosMesesTabla as $mesArray => $dato){
+		
+		$color = ($dato[$indice][2]> 0 ? '':' class="bg-warning"');
+
+		$respuesta .='<tr'.$color.'>'
+					.'<td>'. $mesArray .'</td>'
+					.'<td>'.$dato[$indice][0].'</td>'
+					.'<td>'.$dato[$indice][1].'</td>'
+					.'<td>'.$dato[$indice][2].'</td>'
+					.'</tr>';
+
+	}
+
+	return $respuesta;
+
+}
+?>
+
+
+
+
+
+
+
+
+
+
+
+

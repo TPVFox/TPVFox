@@ -12,38 +12,35 @@
  * */
 
 
-
-window.onload = () => {
-
-document.addEventListener("keydown", presionar);
-let inputID = document.getElementById("idArticulo");
-inputID.addEventListener("click", borrar);
-inputID.addEventListener("blur", comprobar);
-	
-}
 function borrar(){
-	document.getElementById("idArticulo").value = "";
-	
+	document.getElementById("id_producto").value = "";	
 }
 
-function comprobar(){
+
+function visibleButton(){
+
 	
-	if(document.getElementById("idArticulo").value.length <= 0){
-		document.getElementById("idArticulo").value = id;
+	if(document.getElementById("fecha_inicial").value != fechaInicio || document.getElementById("fecha_final").value != fechaFin){
+		document.getElementById("buscar").style.display="block";
+		if(document.getElementById("fecha_inicial").value >  document.getElementById("fecha_final").value){
+			document.getElementById("buscar").setAttribute("disabled",'true');
+		}else{			
+			document.getElementById("buscar").removeAttribute("disabled");
+		}
+	}else{
+		document.getElementById("buscar").style.display="none";
 	}
-
-
 }
 
-function presionar(event){
-	console.log(event.keyCode);
-	if(event.keyCode == 13){
-	console.log("hghj" + id);
-	console.log("hghj  ->  " + document.getElementById("idArticulo").value);
+function AccionExisteIdProductoDetalleMayor(tecla){	
+	if(document.getElementById("id_producto").value.length <= 0){
+		document.getElementById("id_producto").value = id;
 
+	}else {
+	
 		let parametro = {
 			"pulsado": 'idExiste',
-			"id": document.getElementById("idArticulo").value
+			"id": document.getElementById("id_producto").value
 		};
 		$.ajax({
 			data: parametro,
@@ -53,19 +50,26 @@ function presionar(event){
 				console.log('*********  Envio datos para Buscar Producto  ****************');
 			},
 			success:  function (response) {				
-				let resultado =  $.parseJSON(response);
+				let resultado =  $.parseJSON(response);	
 				
-				console.log(resultado);
 
 				if(resultado){
-				RehacerMayor();
+					if(tecla['tecla'] == '13' ){
+						rehacerMayor();
+					}
 				}else{
 					console.log("Entra al fallo")
 					let div = document.getElementById("error");
 					div.setAttribute("class", "alert alert-danger");
+					if(document.getElementById("id_producto").value == id){
+						div.innerHTML = "No se encontró un producto con este id: " +  reserva;					
+						document.getElementById("id_producto").value = id;
+					}else{
+						div.innerHTML = "No se encontró un producto con este id: " + document.getElementById("id_producto").value;
+						reserva = document.getElementById("id_producto").value;
+						document.getElementById("id_producto").value = id;
 					
-
-					div.innerHTML = "No se encontró un producto con ese id";
+					}
 
 					
 					
@@ -74,27 +78,21 @@ function presionar(event){
 
 			}
 		})
-		
 	}
+		
 }
-function RehacerMayor(){
+function clikMayor(tecla){
+	tecla['tecla'] = '13';
+	AccionExisteIdProductoDetalleMayor(tecla);
+}
+function rehacerMayor(){
 
 	let rutaAbsoluta = String(window.location);
 
 	let rutaSinId = rutaAbsoluta.split('idArticulo=');
-
-	console.log("ID -> " + id);
-	console.log("Fecha Inicial -> " + fechaInicio);
-	console.log("Fecha Final -> " + fechaFin);
-
-	let idnuevo = document.getElementById("idArticulo").value;
+	let idnuevo = document.getElementById("id_producto").value;
 	let fechaInicialN = document.getElementById("fecha_inicial").value;
 	let fechaFinalN = document.getElementById("fecha_final").value;
-
-	console.log("***********************");
-	console.log("ID value -> " + idnuevo);
-	console.log("Fecha Inicial value-> " + fechaInicialN);
-	console.log("Fecha Inicial value -> " + fechaFinalN);
 
 	if(id != idnuevo){
 		id = idnuevo;
