@@ -1200,6 +1200,8 @@ return $resultado;
 
 function tablasLateral($datosMesesTabla,$indice){
 	
+	
+
 	foreach($datosMesesTabla as $mesArray => $dato){
 		
 		$color = ($dato[$indice][2]> 0 ? '':' class="bg-warning"');
