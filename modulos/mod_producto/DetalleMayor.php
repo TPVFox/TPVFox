@@ -172,31 +172,28 @@
 				<?php
                     $stock = 0;
                     if (isset($movimientos['datos'])){
-                        $entradas = 0;
-                        $comprado = 0;
-                        $salidas = 0;
-                        $vendido = 0;
+                        
+                        $mismoMes=False;
 
-                                $mismoMes=False;
-                                $entradasMes = 0;
-                                $salidasMes = 0;
-                                $compradoMes = 0;
-                                $vendidoMes = 0;
-
-                                $entradasSubMes = 0;
-                                $salidasSubMes = 0;
-                                $compradoSubMes = 0;
-                                $vendidoSubMes = 0;
-                                
-
-                                $compradoSubMesEs = 0;
-                                $vendidoSubMesEs = 0;
-                                $entregaSubMesEs = 0;
-                                $salidasSubMesEs = 0;
-                            $e = 0;// variable bandera para indicar decimales
-                            if ($producto['tipo'] ==='peso'){   
-                                $e = 3;
+                        /*
+                        $cantidades = array();
+                        for ($i=1 ;$i>13; $I++){
+                            if (strlen($i) === 1){
+                                $m = '0'.$i;
+                            } else {
+                                $m = $i;
                             }
+                            $cantidades[$m] = array ('entrada'=> 0,
+                                                    'salida' => 0);
+                            
+                        }  
+                        
+                        */
+                        $importes = array();        
+                        $e = 0;// variable bandera para indicar decimales
+                        if ($producto['tipo'] ==='peso'){   
+                            $e = 3;
+                        }
 
                         foreach ($movimientos['datos'] as $movimiento){
                             $tipo_doc= '';
@@ -205,10 +202,6 @@
                             $td_salida = '<td></td>';
                             $td_precio = '<td></td>';
                             $td_coste = '<td></td>';
-                            
-                            $entradas += $movimiento['entrega'];
-                            $salidas += $movimiento['salida'];
-                            $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
                             // Para controlar  cambio de mes y dia de la semana
                             $mesFecha = Date("m", strtotime($movimiento['fecha']));
                             if(!$mismoMes){
@@ -218,8 +211,66 @@
                             $dia = Date("w",strtotime($movimiento['fecha']));
                             //
                             
+                            if($mes <> Date("m", strtotime($movimiento['fecha']))){                                
+                                $mismoMes = FALSE; 
+
+                                
+                                //$datos['cantidades'] = guardarDatosTablasLaterales($cantidades[$mes],$e);
+                                
+                                $mes = $mesFecha;
+
+
+
+                                $arrayTotalCantidades = array_reduce($cantidades,function ($result, $item) {
+                                    $result['entrada'] +=  $item['entrada'];
+                                    $result['salida'] += $item['salida'];
+                                    return $result;
+                                });
+                                $arrayTotalImportes= array_reduce($importes,function ($result, $item) {
+                                    $result['entrada'] +=  $item['entrada'];
+                                    $result['salida'] += $item['salida'];
+                                    return $result;
+                                });
+                                echo '<pre>';
+                                
+                                print_r($arrayTotalCantidades);
+                                echo '</pre>';
+                                echo '<pre>';
+						        print_r($cantidades);
+                                print_r('AAAAAAAAAAAAAAAAAAAAAAAA');
+						        echo '</pre>';
+                               
+                            }
+                            $entradas += $movimiento['entrega'];
+                            $salidas += $movimiento['salida'];
+                            $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
                            
+
+                            if($movimiento['estadoCliente'] == "Especial"){
+                                $cantidadesEs[$mes]['entrega'] += $movimiento['entrega'];
+                                $cantidadesEs[$mes]['salida'] += $movimiento['salida'];
+
+
+                                $importesEs[$mes]['precioentrada'] += $movimiento['precioentrada'];
+                                $importesEs[$mes]['preciosalida'] += $movimiento['preciosalida'];
+
+                            }
+
+
+                            $cantidades[$mes]['entrada'] += $movimiento['entrega']; 
+                            $cantidades[$mes]['salida'] += $movimiento['salida'];                           
+                            $importes[$mes]['precioentrada'] += $movimiento['precioentrada'];
+                            $importes[$mes]['preciosalida'] += $movimiento['preciosalida'];
+
+
                             
+                            echo '<pre>';
+                            print_r($cantidades);
+                            echo '</pre>';
+                            echo '<pre>';
+                            //print_r($importes);
+                            echo '</pre>';
+
                             
                           
                             if ($movimiento['tipodoc']=== 'C'){

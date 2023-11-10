@@ -1100,9 +1100,9 @@ return $miHtml;
 
 
 //controlar el stock
-function guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, $salidasSubEs, $productoTipo){
+function guardarDatosTablasLaterales($datosArray,$format){
 	
-	$stockMes = $entradasMes -$salidasMes;
+	$datosArray['stock'] = $datosArray['entrada'] - $datosArray['salida'];
 	$stockSubEs = $entregaSubEs -$salidasSubEs;	
 
 	$entregaTotal = $entradasMes -$entregaSubEs;
@@ -1110,9 +1110,10 @@ function guardarDatosTablasLaterales($entradasMes , $salidasMes, $entregaSubEs, 
 	$stockTotal = $stockMes - $stockSubEs;
 
 	//Hago un array para almacenar los datos que me interesan para ponerlos en l primera tabla de la derecha 
-	$datosMesesUnidades = array(number_format($entradasMes,$productoTipo, '.', ''),number_format($salidasMes,$productoTipo, '.', ''),number_format($stockMes,$productoTipo, '.', ''));
-	$datosMesesUnidades2 = array(number_format($entregaSubEs,$productoTipo, '.', ''),number_format($salidasSubEs,$productoTipo, '.', ''),number_format($stockSubEs,$productoTipo, '.', ''));
-	$datosMesesUnidades3 = array(number_format($entregaTotal,$productoTipo, '.', ''),number_format($salidaTotal,$productoTipo, '.', ''),number_format($stockTotal,$productoTipo, '.', ''));
+	$datosMesesUnidades = array(number_format( $datosArray['entrada'],$format, '.', ''),
+						number_format($datosArray['salida'],$format, '.', ''),number_format($datosArray['stock'],$format, '.', ''));
+	$datosMesesUnidades2 = array(number_format($entregaSubEs,$format, '.', ''),number_format($salidasSubEs,$format, '.', ''),number_format($stockSubEs,$format, '.', ''));
+	$datosMesesUnidades3 = array(number_format($entregaTotal,$format, '.', ''),number_format($salidaTotal,$format, '.', ''),number_format($stockTotal,$format, '.', ''));
 
 
 	$datosMeses= array($datosMesesUnidades,$datosMesesUnidades2,$datosMesesUnidades3);
