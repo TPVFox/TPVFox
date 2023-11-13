@@ -12,7 +12,7 @@
     $ClassProductos = new ClaseProductos($BDTpv);
     $CArticulo =  new alArticulos();
     $ruta_volver= $HostNombre.'/modulos/mod_producto/ListaMayor.php'; // De momento este, pero tiene que se dinamico.
-    $titulo="Listado de mayor de ";
+    $titulo="Listado de mayor ";   
     if (isset($_GET['idArticulo'])){
         $idArticulo = $_GET['idArticulo'];
         // Por get debo recibir
@@ -34,6 +34,11 @@
             
         } else {
             $fecha_final = $_GET['fecha_final'];
+        }
+        if (!isset($_GET['stock'])){
+            $stock = 0;
+        }else{
+            $stock = $_GET['stock'];
         }
     }
     $producto = $ClassProductos->GetProducto($idArticulo);
@@ -114,8 +119,7 @@
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 	?>
 	<div class="container">
-        <?php //Quito los 3 ultimos caracteres del titulo 'de ' ?>
-		<h3 class="text-center"><?php echo substr($titulo, 0, -3);?></h3>
+        <h3 class="text-center"><?php echo $titulo;?></h3>
 
 
         <?php 
@@ -123,7 +127,7 @@
             //Datos para la tabla lateral        
             $numVeces = 0;
             $datosMesesTabla = array();
-
+            $datosGuardar = array();
         ?>
 		
         <h2 class="text-center"><?php echo $producto['articulo_name'] ?></h2>
@@ -160,7 +164,7 @@
 						<th>Fecha</th>
 						<th>Entrada</th>
                         <th>Salida</th>
-                        <th>Stock</th>
+                        <th>Stock<span class="glyphicon glyphicon-info-sign" title="El stock inicial es <?php echo $stock;?>"></span></th>
 						<th>Coste <br/>Sin Iva</th>
 						<th>PVP</th>
 						<th>doc</th>
@@ -170,26 +174,13 @@
                     </thead>
                     <tbody>
 				<?php
-                    $stock = 0;
                     if (isset($movimientos['datos'])){
                         
                         $mismoMes=False;
-
-                        /*
-                        $cantidades = array();
-                        for ($i=1 ;$i>13; $I++){
-                            if (strlen($i) === 1){
-                                $m = '0'.$i;
-                            } else {
-                                $m = $i;
-                            }
-                            $cantidades[$m] = array ('entrada'=> 0,
-                                                    'salida' => 0);
-                            
-                        }  
-                        
-                        */
-                        $importes = array();        
+                        $mes = 0;
+                        $importes = array();
+                        $datosMes = array();        
+                        $datosMesEs = array();                               
                         $e = 0;// variable bandera para indicar decimales
                         if ($producto['tipo'] ==='peso'){   
                             $e = 3;
@@ -202,106 +193,84 @@
                             $td_salida = '<td></td>';
                             $td_precio = '<td></td>';
                             $td_coste = '<td></td>';
-                            // Para controlar  cambio de mes y dia de la semana
-                            $mesFecha = Date("m", strtotime($movimiento['fecha']));
-                            if(!$mismoMes){
-                                $mes = $mesFecha;
-                                $mismoMes = TRUE;
+                            if ($mes== 0){
+                                $mes =  Date("m", strtotime($movimiento['fecha']));
                             }
-                            $dia = Date("w",strtotime($movimiento['fecha']));
-                            //
+                            if ( $movimiento['precioentrada'] !== 0){
+                                $precio_coste_civa = $movimiento['precioentrada']+($movimiento['precioentrada']*$producto['iva'])/100;
+                            }
+                            $movimiento['compras'] = $movimiento['entrega'] * $precio_coste_civa;
+                            $movimiento['ventas']= $movimiento['salida']*$movimiento['preciosalida'];
                             
-                            if($mes <> Date("m", strtotime($movimiento['fecha']))){                                
-                                $mismoMes = FALSE; 
 
-                                
-                                //$datos['cantidades'] = guardarDatosTablasLaterales($cantidades[$mes],$e);
-                                
-                                $mes = $mesFecha;
-
-
-
-                                $arrayTotalCantidades = array_reduce($cantidades,function ($result, $item) {
-                                    $result['entrada'] +=  $item['entrada'];
+                            
+                            $dia = Date("w",strtotime($movimiento['fecha'])); // Obtengo un numero de la semana (0-6)
+                           
+                            if($mes <> Date("m", strtotime($movimiento['fecha']))){
+                                $datosMes = array_reduce($datosMes,function ($result, $item) {
+                                    $result['entrega'] +=  $item['entrega'];
                                     $result['salida'] += $item['salida'];
+                                    $result['compras'] +=  $item['compras'];
+                                    $result['ventas'] +=  $item['ventas'];
                                     return $result;
                                 });
-                                $arrayTotalImportes= array_reduce($importes,function ($result, $item) {
-                                    $result['entrada'] +=  $item['entrada'];
+                                $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
+                                    $result['entrega'] +=  $item['entrega'];
                                     $result['salida'] += $item['salida'];
+                                    $result['compras'] +=  $item['compras'];
+                                    $result['ventas'] +=  $item['ventas'];
                                     return $result;
-                                });
-                                echo '<pre>';
+                                });                                
+
+                                $datosGuardar[$mes]['cantidades'] = guardarDatosUnidades($datosMes,$datosMesEs,$e);
+                                $datosGuardar[$mes]['importes'] = guardarDatosImportes($datosMes,$datosMesEs,$e);                                
+                                                              
+
+                                $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal', $datosGuardar[$mes], $e);
+                                    
+                                echo $HtmlSubtotalesMeses;
+
+                                $datosMes = array();
+                                $datosMesEs = array();
+
                                 
-                                print_r($arrayTotalCantidades);
-                                echo '</pre>';
-                                echo '<pre>';
-						        print_r($cantidades);
-                                print_r('AAAAAAAAAAAAAAAAAAAAAAAA');
-						        echo '</pre>';
+                                $mes = Date("m", strtotime($movimiento['fecha']));
+
                                
                             }
-                            $entradas += $movimiento['entrega'];
-                            $salidas += $movimiento['salida'];
-                            $stock = $stock+$movimiento['entrega'] - $movimiento['salida'];
                            
+                            array_push($datosMes,$movimiento);                            
 
                             if($movimiento['estadoCliente'] == "Especial"){
-                                $cantidadesEs[$mes]['entrega'] += $movimiento['entrega'];
-                                $cantidadesEs[$mes]['salida'] += $movimiento['salida'];
+                                array_push($datosMesEs,$movimiento);                                
 
 
-                                $importesEs[$mes]['precioentrada'] += $movimiento['precioentrada'];
-                                $importesEs[$mes]['preciosalida'] += $movimiento['preciosalida'];
 
                             }
 
 
-                            $cantidades[$mes]['entrada'] += $movimiento['entrega']; 
-                            $cantidades[$mes]['salida'] += $movimiento['salida'];                           
-                            $importes[$mes]['precioentrada'] += $movimiento['precioentrada'];
-                            $importes[$mes]['preciosalida'] += $movimiento['preciosalida'];
 
 
                             
-                            echo '<pre>';
-                            print_r($cantidades);
-                            echo '</pre>';
-                            echo '<pre>';
-                            //print_r($importes);
-                            echo '</pre>';
 
                             
                           
                             if ($movimiento['tipodoc']=== 'C'){
                                 // Entonces es una entrada
-                                $tipo_doc   = 'mod_compras/albaran.php?id='.$movimiento['numid'].'&estado=ver';
+                                $tipo_doc   = 'mod_compras/albaran.php?id='.$movimiento['numid'].'&accion=ver';
                                 $td_entrada = '<td>'.number_format(round($movimiento['entrega'],$e),$e).'</td>';
                                 $td_coste  = '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
-                               
-
-                                        
-                                        $entradasMes += $movimiento['entrega'];
-
+                                $stock += $movimiento['entrega'];
 
                                         
 
-                                if ( $movimiento['precioentrada'] !== 0){
-                                    $precio_coste_civa = $movimiento['precioentrada']+($movimiento['precioentrada']*$producto['iva'])/100;
-                                }
-                                        $c = $movimiento['entrega'] * $precio_coste_civa;
-                                        $comprado += $c;
-                                        //
-                                        $compradoMes += $c;
 
-                                        if($movimiento['estadoCliente'] == 'Especial'){
-                                            $compradoES += $c;
-                                            $entradasES += $movimiento['entrega'];
-                                            $compradoSubEs+= $c;
-                                            $entregaSubEs+=$movimiento['entrega'];
-                                        }
+                                        
+
+
                                                                 
                             } else {
+                                $stock -= $movimiento['salida'];
                                 if ($movimiento['tipodoc']=== 'T'){
                                     // Es un ticket
                                     $tipo_doc = 'mod_tpv/ticketCobrado.php?id='.$movimiento['numid'];
@@ -313,80 +282,17 @@
                                 $td_salida = '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
                                 $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
 
-                                        $salidasMes += $movimiento['salida'];
 
-                                        $b = $movimiento['salida']*$movimiento['preciosalida'];
-                                        $vendido += $b;
-                                        //
-                                        $vendidoMes += $b;
 
-                                        if($movimiento['estadoCliente'] == 'Especial'){
-                                            $vendidoEs += $b;
-                                            $salidasES += $movimiento['salida'];
-                                            $vendidoSubEs += $b;
-                                            $salidasSubEs+=$movimiento['salida'];
-                                        }
                             }
                             
                             $url= $HostNombre.'/modulos/'.$tipo_doc;
                             
 
-                            if($mes <> Date("m", strtotime($movimiento['fecha']))){
-                                
-                                $mismoMes = FALSE;                                             
-                                
-                               
-                                    $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoSubMes, $compradoSubMes, $entradasSubMes , $salidasSubMes, $vendidoSubMesEs, $e);
-                                    $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasSubMes , $salidasSubMes, $entregaSubMesEs, $salidasSubMesEs,$e);
-                                                                             
-                                
-                                $datosMesesTabla[1][$mes] = guardarDatosTablasLaterales($compradoSubMes,$vendidoSubMes, $compradoSubMesEs, $vendidoSubMesEs, 2);
-
-                               
-                                echo $HtmlSubtotalesMeses;
-                                
-                                $entradasSubMes = 0;
-                                $salidasSubMes = 0;                                       
-                                $compradoSubMes = 0;
-                                $vendidoSubMes = 0;
-                                
-                                $compradoSubMesEs = 0;
-                                $vendidoSubMesEs = 0;
-                                $entregaSubMesEs = 0;
-                                $salidasSubMesEs = 0;
-
-                            }else{
-                               
-
-                                $entradasSubMes += $entradasMes;
-                                $salidasSubMes += $salidasMes;                                       
-                                $compradoSubMes += $compradoMes;
-                                $vendidoSubMes += $vendidoMes;
-
-                                
-
-                                $compradoSubMesEs += $compradoSubEs;
-                                $vendidoSubMesEs += $vendidoSubEs;
-                                $entregaSubMesEs += $entregaSubEs;
-                                $salidasSubMesEs += $salidasSubEs;
-
-
-                                $entradasMes =0;
-                                $salidasMes = 0;
-                                $compradoMes=0;
-                                $vendidoMes =0;
-                               
-                                $entregaSubEs = 0;
-                                $salidasSubEs = 0;
-                                $compradoSubEs =0;
-                                $vendidoSubEs = 0;
-                            }
-                    
                             //Si es 0 significa que es domingo
+                            $domingo = "";
                             if($dia == 0){
                                 $domingo = "X";
-                            }else{
-                                $domingo = "";
                             }
                    
                             if($movimiento['estadoCliente'] == "Especial"){
@@ -410,19 +316,29 @@
                             echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
                             echo '</tr>';
                         }   
-                       echo '<pre>';
-                       print($entradasMes);
-                       echo '</pre>';
 
 
+                        $datosMes = array_reduce($datosMes,function ($result, $item) {
+                            $result['entrega'] +=  $item['entrega'];
+                            $result['salida'] += $item['salida'];
+                            $result['compras'] +=  $item['compras'];
+                            $result['ventas'] +=  $item['ventas'];
+                            return $result;
+                        });
+                        $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
+                            $result['entrega'] +=  $item['entrega'];
+                            $result['salida'] += $item['salida'];
+                            $result['compras'] +=  $item['compras'];
+                            $result['ventas'] +=  $item['ventas'];
+                            return $result;
+                        });
                        
+                        $datosGuardar[$mes]['cantidades'] = guardarDatosUnidades($datosMes,$datosMesEs,$e);
+                        $datosGuardar[$mes]['importes'] = guardarDatosImportes($datosMes,$datosMesEs,$e);
 
-                       
-                               $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal',$vendidoSubMes, $compradoSubMes, $entradasSubMes , $salidasSubMes, $vendidoSubMesEs, $e);
-                                    $datosMesesTabla[0][$mes] = guardarDatosTablasLaterales($entradasSubMes , $salidasSubMes, $entregaSubMesEs, $salidasSubMesEs,$e);
+                        $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal', $datosGuardar[$mes], $e);
                                                                              
                                 
-                                $datosMesesTabla[1][$mes] = guardarDatosTablasLaterales($compradoSubMes,$vendidoSubMes, $compradoSubMesEs, $vendidoSubMesEs, 2);
 
                                          
                                 echo $HtmlSubtotalesMeses;
@@ -437,18 +353,25 @@
                     </tbody>
                 </table>
                 <div >
-                <?php  // Calculo del beneficio.
+                <?php  //Calculo del total.
 
+                $datosMesTotal = array_reduce($datosGuardar,function ($result, $item) {
+                    $result['entrega'] +=  $item['cantidades'][0][0];
+                    $result['salida'] += $item['cantidades'][0][1];
+                    $result['compras'] +=  $item['importes'][0][0];
+                    $result['ventas'] +=  $item['importes'][0][1];
+                    $result['beneficio'] +=  $item['importes'][0][2];
 
-                    if($producto['tipo'] == 'peso'){
-                        $resultado = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
-                                $compradoES, $entradas, $salidas,$entradasES, $salidasES, 3);
-                    }else{
-                        $resultado = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
-                                $compradoES, $entradas, $salidas,$entradasES, $salidasES, 0);    
-                    } 
+                    $result['entregaES'] +=  $item['cantidades'][1][0];
+                    $result['salidaES'] += $item['cantidades'][1][1];
+                    $result['comprasES'] +=  $item['importes'][1][0];
+                    $result['ventasES'] +=  $item['importes'][1][1];
+                    $result['beneficioES'] +=  $item['importes'][1][2];
 
+                    return $result;
+                });
                     
+                    $resultado = tablaTotal('table table-bordered table-hover',$datosMesTotal, $e);                     
                     echo $resultado;
                 ?>
                 </div >
@@ -457,14 +380,7 @@
             </div>
             <div class="col-md-12">
                     <?php //Tabla resumen Arriba                 
-                        if($producto['tipo'] == 'peso'){
-                            $tablaTotalArriba = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
-                                    $compradoES, $entradas, $salidas,$entradasES, $salidasES, 3);
-                        }else{
-                            $tablaTotalArriba = tablaTotal('table table-bordered table-hover',$vendido, $comprado, $vendidoEs, 
-                                    $compradoES, $entradas, $salidas,$entradasES, $salidasES, 0);    
-                        } 
-                        echo $tablaTotalArriba; 
+                         echo $resultado; 
                     ?>
                 </div>
         </div>
@@ -484,11 +400,8 @@
                             <tbody>
                         
                                 <?php 
-                                
-                                    $tablaLateral = tablasLateral($datosMesesTabla[0],0);
+                                    $tablaLateral = tablasLateral($datosGuardar,'cantidades',0);
                                     echo $tablaLateral;
-                                    $tablaLateralUltimoMes = tablasLateral($datosUltimoMesesTabla[0],0);
-                                    echo $tablaLateralUltimoMes;
                                 ?>                        
                             </tbody>
                         </table>
@@ -506,7 +419,7 @@
                             <tbody>
                                 
                                 <?php                                 
-                                    $tablaLateral1 = tablasLateral($datosMesesTabla[0],1);
+                                    $tablaLateral1 = tablasLateral($datosGuardar,'cantidades',1);
                                     echo $tablaLateral1;
                                 ?>                                                    
                             </tbody>                        
@@ -529,7 +442,7 @@
                             <tbody>
                         
                                 <?php 
-                                    $tablaLateral2 = tablasLateral($datosMesesTabla[1],0);
+                                    $tablaLateral2 = tablasLateral($datosGuardar,'importes',0);
                                     echo $tablaLateral2;
                                 ?>                        
                             </tbody>
@@ -549,7 +462,7 @@
                             <tbody>
                                 
                                 <?php                                 
-                                    $tablaLateral3 = tablasLateral($datosMesesTabla[1],1);
+                                    $tablaLateral3 = tablasLateral($datosGuardar,'importes',1);
                                     echo $tablaLateral3;
                                 ?>                                                    
                             </tbody>                        
@@ -572,7 +485,7 @@
                             <tbody>
                         
                                 <?php 
-                                    $tablaLateral3 = tablasLateral($datosMesesTabla[0],2);
+                                    $tablaLateral3 = tablasLateral($datosGuardar,'cantidades',2);
                                     echo $tablaLateral3;                            
                                 ?>                        
                             </tbody>
@@ -593,7 +506,7 @@
                             <tbody>
                                 
                                 <?php 
-                                    $tablaLateral4 = tablasLateral($datosMesesTabla[1],2);
+                                    $tablaLateral4 = tablasLateral($datosGuardar,'importes',2);
                                     echo $tablaLateral4;
                                 ?>                                                    
                             </tbody>
@@ -617,4 +530,3 @@
 </html>
 
 
-<?php 

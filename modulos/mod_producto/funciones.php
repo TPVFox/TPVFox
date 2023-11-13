@@ -1099,34 +1099,54 @@ return $miHtml;
 // ---------------------------------------------------------------------------------------------
 
 
-//controlar el stock
-function guardarDatosTablasLaterales($datosArray,$format){
+//Almacenar datos de unidades
+function guardarDatosUnidades($datosArray,$datosArrayEs,$format){
 	
-	$datosArray['stock'] = $datosArray['entrada'] - $datosArray['salida'];
-	$stockSubEs = $entregaSubEs -$salidasSubEs;	
+	$datosArray['stock'] = $datosArray['entrega'] - $datosArray['salida'];
+	$datosArrayEs['stockEs'] =$datosArrayEs['entrega'] -$datosArrayEs['salida'];	
 
-	$entregaTotal = $entradasMes -$entregaSubEs;
-	$salidaTotal = $salidasMes - $salidasSubEs;
-	$stockTotal = $stockMes - $stockSubEs;
-
+	$datosArray['entradaSinEs'] = $datosArray['entrega'] -$datosArrayEs['entrega'];
+	$datosArray['salidaSinEs'] = $datosArray['salida'] -$datosArrayEs['salida'];
+	$datosArray['stockSinEs'] = $datosArray['stock'] -$datosArrayEs['stockEs'];
+	
 	//Hago un array para almacenar los datos que me interesan para ponerlos en l primera tabla de la derecha 
-	$datosMesesUnidades = array(number_format( $datosArray['entrada'],$format, '.', ''),
+	$datosMesesUnidades = array(number_format($datosArray['entrega'],$format, '.', ''),
 						number_format($datosArray['salida'],$format, '.', ''),number_format($datosArray['stock'],$format, '.', ''));
-	$datosMesesUnidades2 = array(number_format($entregaSubEs,$format, '.', ''),number_format($salidasSubEs,$format, '.', ''),number_format($stockSubEs,$format, '.', ''));
-	$datosMesesUnidades3 = array(number_format($entregaTotal,$format, '.', ''),number_format($salidaTotal,$format, '.', ''),number_format($stockTotal,$format, '.', ''));
-
+	$datosMesesUnidades2 = array(number_format($datosArrayEs['entrega'],$format, '.', ''),
+						number_format($datosArrayEs['salida'],$format, '.', ''),number_format($datosArrayEs['stockEs'],$format, '.', ''));
+	$datosMesesUnidades3 = array(number_format($datosArray['entradaSinEs'],$format, '.', ''),
+						number_format($datosArray['salidaSinEs'],$format, '.', ''),number_format($datosArray['stockSinEs'],$format, '.', ''));
 
 	$datosMeses= array($datosMesesUnidades,$datosMesesUnidades2,$datosMesesUnidades3);
 
+	return $datosMeses;
+}
+
+function guardarDatosImportes($datosArray,$datosArrayEs,$format){
 	
+	$datosArray['beneficio'] = $datosArray['ventas'] - $datosArray['compras'];
+	$datosArrayEs['beneficioEs'] =$datosArrayEs['ventas'] - $datosArrayEs['compras'];	
+
+	$datosArray['comprasSinEs'] = $datosArray['compras'] -$datosArrayEs['entrega'];
+	$datosArray['ventasSinEs'] = $datosArray['ventas'] -$datosArrayEs['ventas'];
+	$datosArray['beneficioSinEs'] = $datosArray['beneficio'] -$datosArrayEs['beneficioEs'];
+	
+	//Hago un array para almacenar todos los datos 
+	$datosMesesUnidades = array(number_format($datosArray['compras'],$format, '.', ''),
+						number_format($datosArray['ventas'],$format, '.', ''),number_format($datosArray['beneficio'],$format, '.', ''));
+	$datosMesesUnidades2 = array(number_format($datosArrayEs['entrega'],$format, '.', ''),
+						number_format($datosArrayEs['ventas'],$format, '.', ''),number_format($datosArrayEs['beneficioEs'],$format, '.', ''));
+	$datosMesesUnidades3 = array(number_format($datosArray['comprasSinEs'],$format, '.', ''),
+						number_format($datosArray['ventasSinEs'],$format, '.', ''),number_format($datosArray['beneficioSinEs'],$format, '.', ''));
+
+	// Junto los arrays 
+	$datosMeses= array($datosMesesUnidades,$datosMesesUnidades2,$datosMesesUnidades3);
 
 	return $datosMeses;
 }
 
 
-function tablasSubMes($clase, $vendido, $comprado, $entradas , $salidas, $vendidoSub, $productoTipo){
-    $beneficio = $vendido - $comprado; 
-	
+function tablasSubMes($clase, $datosArray, $productoTipo){		
 	
 	$tabla =  "<tr class='".$clase."'>
             <td colspan=2></td>                                        
@@ -1139,18 +1159,18 @@ function tablasSubMes($clase, $vendido, $comprado, $entradas , $salidas, $vendid
         </tr>
 		<tr class='".$clase."'>                                        
             <td colspan=2><b>Subtotal</b></td>
-            <td><b>".number_format($entradas,$productoTipo,'.','')."</b></td>
-            <td><b>".number_format($salidas,$productoTipo, '.', '')."</b></td>
-            <td></td><td><b>".number_format($comprado,2,'.', '')."</b></td>
-            <td><b>".number_format($vendido,2,'.', '')."</b></td>
-            <td><b>".number_format($beneficio,2,'.', '')." €</b></td>
+            <td><b>".number_format($datosArray['cantidades'][0][0],$productoTipo,'.','')."</b></td>
+            <td><b>".number_format($datosArray['cantidades'][0][1],$productoTipo, '.', '')."</b></td>
+            <td></td><td><b>".number_format($datosArray['importes'][0][0],2,'.', '')."</b></td>
+            <td><b>".number_format($datosArray['importes'][0][1],2,'.', '')."</b></td>
+            <td><b>".number_format($datosArray['importes'][0][2],2,'.', '')." €</b></td>
         </tr>";                                        
 
     return $tabla;
 
 }
 
-function tablaTotal($clase,$vendido, $comprado, $vendidoEs, $compradoES, $entradas, $salidas, $entradasES, $salidasES, $productoTipo){
+function tablaTotal($clase, $datosArray, $productoTipo){
 
 	$beneficio = $vendido - $comprado;
 
@@ -1172,25 +1192,23 @@ function tablaTotal($clase,$vendido, $comprado, $vendidoEs, $compradoES, $entrad
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					
+				<tr>					
 					<td colspan=2><b>Total</b></td>
-					<td><b>".number_format($entradas,$productoTipo,'.','')."</b></td>
-					<td><b>".number_format($salidas,$productoTipo, '.', '')."</b></td>
+					<td><b>".number_format($datosArray['entrega'],$productoTipo,'.','')."</b></td>
+					<td><b>".number_format($datosArray['salida'],$productoTipo, '.', '')."</b></td>
 					<td></td>
-					<td><b>".number_format($comprado,2, '.', '')."</b></td>
-					<td><b>".number_format($vendido,2, '.', '')."</b></td>
-					<td><b>Beneficio = ".number_format($beneficio,2, '.', '')." €</b></td>
+					<td><b>".number_format($datosArray['compras'],2, '.', '')."</b></td>
+					<td><b>".number_format($datosArray['ventas'],2, '.', '')."</b></td>
+					<td><b>Beneficio = ".number_format($datosArray['beneficio'],2, '.', '')." €</b></td>
 				</tr>
-				<tr>
-					
+				<tr>					
 					<td colspan=2><b>Especiales</b></td>
-					<td><b>".number_format($entradasES,$productoTipo,'.','')."</b></td>
-					<td><b>".number_format($salidasES,$productoTipo, '.', '')."</b></td>
+					<td><b>".number_format($datosArray['entregaES'],$productoTipo,'.','')."</b></td>
+					<td><b>".number_format($datosArray['salidaES'],$productoTipo, '.', '')."</b></td>
 					<td></td>
-					<td><b>".number_format($compradoES,2, '.', '')."</b></td>
-					<td><b>".number_format($vendidoEs,2, '.', '')."</b></td>
-					<td><b>Beneficio Real = ".number_format($beneficioReal,2, '.', '')." €</b></td>
+					<td><b>".number_format($datosArray['comprasES'],2, '.', '')."</b></td>
+					<td><b>".number_format($datosArray['ventasES'],2, '.', '')."</b></td>
+					<td><b>Beneficio Especial = ".number_format($datosArray['beneficioES'],2, '.', '')." €</b></td>
 				</tr>
 			</tbody>
 		</table>";
@@ -1199,26 +1217,22 @@ function tablaTotal($clase,$vendido, $comprado, $vendidoEs, $compradoES, $entrad
 return $resultado;
 }
 
-function tablasLateral($datosMesesTabla,$indice){
-	
-	
+function tablasLateral($datosMesesTabla,$tipo,$indice){
 
 	foreach($datosMesesTabla as $mesArray => $dato){
 		
-		$color = ($dato[$indice][2]> 0 ? '':' class="bg-warning"');
-
+		$color = ($dato[$tipo][$indice][2]> 0 ? '':' class="bg-warning"');
+		
 		$respuesta .='<tr'.$color.'>'
 					.'<td>'. $mesArray .'</td>'
-					.'<td>'.$dato[$indice][0].'</td>'
-					.'<td>'.$dato[$indice][1].'</td>'
-					.'<td>'.$dato[$indice][2].'</td>'
+					.'<td>'.$dato[$tipo][$indice][0].'</td>'
+					.'<td>'.$dato[$tipo][$indice][1].'</td>'
+					.'<td>'.$dato[$tipo][$indice][2].'</td>'
 					.'</tr>';
-
 	}
-
 	return $respuesta;
-
 }
+
 ?>
 
 
