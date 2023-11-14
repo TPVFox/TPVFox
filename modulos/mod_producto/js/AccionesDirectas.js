@@ -11,6 +11,107 @@
  *  como esta organizado funciones.js , no puedo hacerlo.
  * */
 
+
+function borrar(){
+	document.getElementById("id_producto").value = "";	
+}
+
+
+function visibleButton(){
+
+	
+	if(document.getElementById("fecha_inicial").value != fechaInicio || document.getElementById("fecha_final").value != fechaFin){
+		document.getElementById("buscar").style.display="block";
+		if(document.getElementById("fecha_inicial").value >  document.getElementById("fecha_final").value){
+			document.getElementById("buscar").setAttribute("disabled",'true');
+		}else{			
+			document.getElementById("buscar").removeAttribute("disabled");
+		}
+	}else{
+		document.getElementById("buscar").style.display="none";
+	}
+}
+
+function AccionExisteIdProductoDetalleMayor(tecla){	
+	if(document.getElementById("id_producto").value.length <= 0){
+		document.getElementById("id_producto").value = id;
+
+	}else {
+	
+		let parametro = {
+			"pulsado": 'idExiste',
+			"id": document.getElementById("id_producto").value
+		};
+		$.ajax({
+			data: parametro,
+			url: 'tareas.php',
+			type       : 'post',
+			beforeSend : function () {
+				console.log('*********  Envio datos para Buscar Producto  ****************');
+			},
+			success:  function (response) {				
+				let resultado =  $.parseJSON(response);	
+				
+
+				if(resultado){
+					if(tecla['tecla'] == '13' ){
+						rehacerMayor();
+					}
+				}else{
+					console.log("Entra al fallo")
+					let div = document.getElementById("error");
+					div.setAttribute("class", "alert alert-danger");
+					if(document.getElementById("id_producto").value == id){
+						div.innerHTML = "No se encontró un producto con este id: " +  reserva;					
+						document.getElementById("id_producto").value = id;
+					}else{
+						div.innerHTML = "No se encontró un producto con este id: " + document.getElementById("id_producto").value;
+						reserva = document.getElementById("id_producto").value;
+						document.getElementById("id_producto").value = id;
+					
+					}
+
+					
+					
+					
+				}
+
+			}
+		})
+	}
+		
+}
+function clikMayor(tecla){
+	tecla['tecla'] = '13';
+	AccionExisteIdProductoDetalleMayor(tecla);
+}
+function rehacerMayor(){
+
+	let rutaAbsoluta = String(window.location);
+
+	let rutaSinId = rutaAbsoluta.split('idArticulo=');
+	let idnuevo = document.getElementById("id_producto").value;
+	let fechaInicialN = document.getElementById("fecha_inicial").value;
+	let fechaFinalN = document.getElementById("fecha_final").value;
+
+	if(id != idnuevo){
+		id = idnuevo;
+	}
+	if(fechaInicio != fechaInicialN){
+		fechaInicio = fechaInicialN;
+	}
+	if(fechaFin != fechaInicialN){
+		fechaFin = fechaFinalN;
+	}
+
+	location.replace(rutaSinId[0] + "idArticulo=" + id + "&fecha_inicial=" + fechaInicio + '&fecha_final=' + fechaFin);
+
+
+}
+
+
+
+
 function controladorAcciones(caja,accion, tecla){
 	switch(accion) {
 		case 'revisar_contenido':

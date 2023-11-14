@@ -1347,9 +1347,10 @@ function redirecionarMayor(idArticulo,adonde){
     // El objetivo es redireccionar a la vista de Mayor o generar el informe
     // Obtenemos Fechas de cajas:
     Fechas = obtenerFechas();
+    stock = $("#stkini"+idArticulo).val();
     if (adonde === 'DetalleMayor'){
-        var href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1];
+        var href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1]+'&stock='+stock;
         window.open(href,'_blank')
-
     }
+    
 }

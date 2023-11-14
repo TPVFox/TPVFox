@@ -36,6 +36,19 @@ $respuesta = array();
 
 switch ($pulsado) {
 
+    case 'idExiste':
+        
+        $idNuevo = json_decode($_POST['id']);		
+        $productoNuevo = $NCArticulo->GetProducto($idNuevo);
+
+        $exito = false;
+
+        if($productoNuevo["idArticulo"] <> ""){
+            $exito = true;
+        }
+
+        $respuesta =  $exito;
+        break;
     case 'guardarFamiliaProductos':
         $idFamilia=$_POST['idfamilia'];
         $idProducto=$_POST['idProducto'];

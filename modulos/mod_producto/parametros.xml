@@ -125,6 +125,14 @@ de la tabla modulos_configuracion los registros de este modulo
 			</before>			
 		</caja_input>
 		
+		<!---    						Vista DetalleMayor                          -->
+		<caja_input>
+			<nombre id_input="id_producto">cajaIdDetalleMayor</nombre>
+			<teclas>
+				<action tecla="13">AccionExisteIdProductoDetalleMayor</action>
+			</teclas>
+		</caja_input>
+		
 	</cajas_input>
 	
 </parametros>
