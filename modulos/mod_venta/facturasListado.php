@@ -43,10 +43,10 @@ $d=$Cfactura->TodosFacturaFiltro($filtro.$NPaginado->GetLimitConsulta());
 $facturas=$d['Items'];
 
 if (isset($d['error'])){
-		$errores[1]=array ( 'tipo'=>'Danger!',
-								 'dato' => $d['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+        $errores[1]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $d['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
                              );
 }
 if (count($d['Items'])==0){
@@ -71,11 +71,11 @@ if (count($d['Items'])==0){
 <?php
 include_once $URLCom.'/modulos/mod_menu/menu.php';
 if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
+        foreach($errores as $error){
+                echo '<div class="'.$error['class'].'">'
+                . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                . '</div>';
+        }
 }
 ?>
 <div class="container">
@@ -104,44 +104,43 @@ if (isset($errores)){
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-					<th WIDTH="4">Nº Temp</th>
-					<th WIDTH="100">Nº Alb</th>
-					<th WIDTH="4">Cliente</th>
-					<th WIDTH="4">Total</th>
+                    <th WIDTH="4">Nº Temp</th>
+                    <th WIDTH="100">Nº Alb</th>
+                    <th WIDTH="4">Cliente</th>
+                    <th WIDTH="4">Total</th>
                     </tr>
                     
                 </thead>
-			<tbody>
-				<?php
-			if (isset ($todosTemporal)){
-				foreach ($todosTemporal as $temporal){
+            <tbody>
+                <?php
+            if (isset ($todosTemporal)){
+                foreach ($todosTemporal as $temporal){
                     $numDocumento = "";
                     if ($temporal['Numfaccli']){
-						$numDocumento = $temporal['Numfaccli'];
-					}
-					?>
-					<tr>
-						<td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
-						<td><?php echo $numDocumento;?></td>
-						<td><?php echo $temporal['Nombre'];?></td>
-						<td><?php echo number_format($temporal['total'],2);?></td>
-					</tr>
-					<?php
-				}
-			}
-			?>
-			</tbody>
+                        $numDocumento = $temporal['Numfaccli'];
+                    }
+                    ?>
+                    <tr>
+                        <td><a href="factura.php?tActual=<?php echo $temporal['id'];?>"><?php echo $temporal['id'];?></td>
+                        <td><?php echo $numDocumento;?></td>
+                        <td><?php echo $temporal['Nombre'];?></td>
+                        <td><?php echo number_format($temporal['total'],2);?></td>
+                    </tr>
+                    <?php
+                }
+            }
+            ?>
+            </tbody>
             </table>
+          </div>
             </div>
-			</div>
-        </div>
 
         <div class="col-md-8">
             <p>
              -Facturas encontrados BD local filtrados:
                 <?php echo $CantidadRegistros; ?>
             </p>
-            <?php 	// Mostramos paginacion 
+            <?php   // Mostramos paginacion 
                 echo $htmlPG;
         //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
             ?>
@@ -223,7 +222,7 @@ if (isset($errores)){
             </table>
             </div>
         </div>
-	</div>
+    </div>
 </div>
 </body>
 </html>
