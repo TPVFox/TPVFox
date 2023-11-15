@@ -55,7 +55,7 @@
         $activarMensaje = true;
     }
 
-    $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
   
 ?>
@@ -180,7 +180,7 @@
                         $mes = 0;
                         $importes = array();
                         $datosMes = array();        
-                        $datosMesEs = array();                               
+                        $datosMesEs = array(array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0));                               
                         $e = 0;// variable bandera para indicar decimales
                         if ($producto['tipo'] ==='peso'){   
                             $e = 3;
@@ -208,17 +208,25 @@
                            
                             if($mes <> Date("m", strtotime($movimiento['fecha']))){
                                 $datosMes = array_reduce($datosMes,function ($result, $item) {
-                                    $result['entrega'] +=  $item['entrega'];
-                                    $result['salida'] += $item['salida'];
-                                    $result['compras'] +=  $item['compras'];
-                                    $result['ventas'] +=  $item['ventas'];
+                                    if(!isset($result['entrega']) || !isset($result['salida'])){
+                                        $result = array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0);
+                                    }else{
+                                        $result['entrega'] +=  $item['entrega'];
+                                        $result['salida'] += $item['salida'];
+                                        $result['compras'] +=  $item['compras'];
+                                        $result['ventas'] +=  $item['ventas'];
+                                    }                                    
                                     return $result;
                                 });
-                                $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
-                                    $result['entrega'] +=  $item['entrega'];
-                                    $result['salida'] += $item['salida'];
-                                    $result['compras'] +=  $item['compras'];
-                                    $result['ventas'] +=  $item['ventas'];
+                                $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {  
+                                    if(!isset($result['entrega']) || !isset($result['salida'])){
+                                        $result = array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0);
+                                    }else{                              
+                                        $result['entrega'] +=  $item['entrega'];
+                                        $result['salida'] += $item['salida'];
+                                        $result['compras'] +=  $item['compras'];
+                                        $result['ventas'] +=  $item['ventas'];
+                                    }                                    
                                     return $result;
                                 });                                
 
@@ -231,7 +239,7 @@
                                 echo $HtmlSubtotalesMeses;
 
                                 $datosMes = array();
-                                $datosMesEs = array();
+                                $datosMesEs = array(array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0));
 
                                 
                                 $mes = Date("m", strtotime($movimiento['fecha']));
@@ -319,19 +327,27 @@
 
 
                         $datosMes = array_reduce($datosMes,function ($result, $item) {
-                            $result['entrega'] +=  $item['entrega'];
-                            $result['salida'] += $item['salida'];
-                            $result['compras'] +=  $item['compras'];
-                            $result['ventas'] +=  $item['ventas'];
+                            if(!isset($result['entrega']) || !isset($result['salida'])){
+                                $result = array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0);
+                            }else{
+                                $result['entrega'] +=  $item['entrega'];
+                                $result['salida'] += $item['salida'];
+                                $result['compras'] +=  $item['compras'];
+                                $result['ventas'] +=  $item['ventas'];
+                            }                                    
                             return $result;
                         });
-                        $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
-                            $result['entrega'] +=  $item['entrega'];
-                            $result['salida'] += $item['salida'];
-                            $result['compras'] +=  $item['compras'];
-                            $result['ventas'] +=  $item['ventas'];
+                        $datosMesEs = array_reduce($datosMesEs,function ($result, $item) { 
+                            if(!isset($result['entrega']) || !isset($result['salida'])){
+                                $result = array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0);
+                            }else{                             
+                                $result['entrega'] +=  $item['entrega'];
+                                $result['salida'] += $item['salida'];
+                                $result['compras'] +=  $item['compras'];
+                                $result['ventas'] +=  $item['ventas'];
+                            }                            
                             return $result;
-                        });
+                        });  
                        
                         $datosGuardar[$mes]['cantidades'] = guardarDatosUnidades($datosMes,$datosMesEs,$e);
                         $datosGuardar[$mes]['importes'] = guardarDatosImportes($datosMes,$datosMesEs,$e);
@@ -355,7 +371,36 @@
                 <div >
                 <?php  //Calculo del total.
 
+                /*
+                Estructura de $datosGuardar:
+
+                $datosGuardar[$mes][catidades][0(Total)][0(Entradas)]
+                $datosGuardar[$mes][[catidades][0(Total)][1(Salidas)]
+                $datosGuardar[$mes][[catidades][0(Total)][2(Stock)]
+
+                $datosGuardar[$mes][catidades][1(Especiales)][0(EntradasES)]
+                $datosGuardar[$mes][catidades][1(Especiales)][1(SalidasES)]
+                $datosGuardar[$mes][catidades][1(Especiales)][2(StockES)]
+
+                $datosGuardar[$mes][catidades][2(SinEspeciales)][0(EntradasSinES)]
+                ...
+                
+                lo mismo en importes (en vez de entradas, salidas y stock es: compras, ventas y beneficios): 
+                $datosGuardar[$mes][importes][0(Total)][0(Compras)]
+                $datosGuardar[$mes][importes][0(Total)][1(Ventas)]
+                $datosGuardar[$mes][importes][0(Total)][2(Beneficio)]
+
+                $datosGuardar[$mes][importes][1(Especiales)][0(ComprasES)]
+                ....
+
+                En esta funcion sumo el total de todos los distintos meses
+                */
+
                 $datosMesTotal = array_reduce($datosGuardar,function ($result, $item) {
+                    if(!isset($result['entrega']) || !isset($result['salida'])){
+                        $result = array('entrega'=>0,'salida' => 0, 'compras' => 0, 'ventas' => 0, 'beneficio' => 0,
+                                        'entregaES' =>0, 'salidaES' => 0, 'comprasES' => 0, 'ventasES' => 0, 'beneficioES' => 0);
+                    }else{  
                     $result['entrega'] +=  $item['cantidades'][0][0];
                     $result['salida'] += $item['cantidades'][0][1];
                     $result['compras'] +=  $item['importes'][0][0];
@@ -367,7 +412,7 @@
                     $result['comprasES'] +=  $item['importes'][1][0];
                     $result['ventasES'] +=  $item['importes'][1][1];
                     $result['beneficioES'] +=  $item['importes'][1][2];
-
+                    }
                     return $result;
                 });
                     

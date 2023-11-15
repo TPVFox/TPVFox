@@ -1109,7 +1109,7 @@ function guardarDatosUnidades($datosArray,$datosArrayEs,$format){
 	$datosArray['salidaSinEs'] = $datosArray['salida'] -$datosArrayEs['salida'];
 	$datosArray['stockSinEs'] = $datosArray['stock'] -$datosArrayEs['stockEs'];
 	
-	//Hago un array para almacenar los datos que me interesan para ponerlos en l primera tabla de la derecha 
+	//Creo el array $datosMeses para almacenar los todos los datos para ponerlos en la tabla de la derecha 
 	$datosMesesUnidades = array(number_format($datosArray['entrega'],$format, '.', ''),
 						number_format($datosArray['salida'],$format, '.', ''),number_format($datosArray['stock'],$format, '.', ''));
 	$datosMesesUnidades2 = array(number_format($datosArrayEs['entrega'],$format, '.', ''),
@@ -1172,11 +1172,8 @@ function tablasSubMes($clase, $datosArray, $productoTipo){
 
 function tablaTotal($clase, $datosArray, $productoTipo){
 
-	$beneficio = $vendido - $comprado;
 
-	$regulaciones = $vendidoEs - $compradoES;
 
-	$beneficioReal = $beneficio - $regulaciones;
 
 
 	$resultado = "<table class='".$clase."'>
@@ -1218,6 +1215,7 @@ return $resultado;
 }
 
 function tablasLateral($datosMesesTabla,$tipo,$indice){
+	$respuesta = '';	
 
 	foreach($datosMesesTabla as $mesArray => $dato){
 		
