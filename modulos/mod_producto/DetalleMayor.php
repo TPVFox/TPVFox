@@ -55,7 +55,7 @@
         $activarMensaje = true;
     }
 
-    $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
   
 ?>
@@ -80,9 +80,6 @@
             .margenDivSuperior{
                 margin:2vh;
             } 
-            .centrarDomingos{
-                text-align:center;
-            }
             .colorSubtotal{
                 background-color:#eefad4;
                 text-align:center;
@@ -113,12 +110,12 @@
                 flex-direction: column-reverse;
             }
         </style>
-	</head>
-	<body>
-	<?php
+    </head>
+    <body>
+    <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
-	?>
-	<div class="container">
+    ?>
+    <div class="container">
         <h3 class="text-center"><?php echo $titulo;?></h3>
 
 
@@ -129,7 +126,7 @@
             $datosMesesTabla = array();
             $datosGuardar = array();
         ?>
-		
+        
         <h2 class="text-center"><?php echo $producto['articulo_name'] ?></h2>
             <div id="error"><?php if($activarMensaje){echo $mensaje;} ?></div>
 
@@ -155,25 +152,25 @@
             </div>            
         </div>
 
-		<div class="col-md-9 col-md-push-3 tablasEstilos">           
-			<div class="col-md-12">
-				<table class="table table-bordered table-hover">
-					<thead>
-					<tr>
+        <div class="col-md-9 col-md-push-3 tablasEstilos">           
+            <div class="col-md-12">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
                             <th>Domingos</th>
-						<th>Fecha</th>
-						<th>Entrada</th>
+                        <th>Fecha</th>
+                        <th>Entrada</th>
                         <th>Salida</th>
                         <th>Stock<span class="glyphicon glyphicon-info-sign" title="El stock inicial es <?php echo $stock;?>"></span></th>
-						<th>Coste <br/>Sin Iva</th>
-						<th>PVP</th>
-						<th>doc</th>
-						<th>Nombre</th>
-						<th>Estado</th>
-					</tr>
+                        <th>Coste <br/>Sin Iva</th>
+                        <th>PVP</th>
+                        <th>doc</th>
+                        <th>Nombre</th>
+                        <th>Estado</th>
+                    </tr>
                     </thead>
                     <tbody>
-				<?php
+                <?php
                     if (isset($movimientos['datos'])){
                         
                         $mismoMes=False;
@@ -207,20 +204,30 @@
                             $dia = Date("w",strtotime($movimiento['fecha'])); // Obtengo un numero de la semana (0-6)
                            
                             if($mes <> Date("m", strtotime($movimiento['fecha']))){
-                                $datosMes = array_reduce($datosMes,function ($result, $item) {
-                                    $result['entrega'] +=  $item['entrega'];
-                                    $result['salida'] += $item['salida'];
-                                    $result['compras'] +=  $item['compras'];
-                                    $result['ventas'] +=  $item['ventas'];
-                                    return $result;
-                                });
-                                $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
-                                    $result['entrega'] +=  $item['entrega'];
-                                    $result['salida'] += $item['salida'];
-                                    $result['compras'] +=  $item['compras'];
-                                    $result['ventas'] +=  $item['ventas'];
-                                    return $result;
-                                });                                
+                                $datosMes = array_reduce($datosMes,
+                                    function ($result, $item) {
+                                        if (!isset($result['entrega'])){
+                                                $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
+                                        }
+                                        $result['entrega'] +=  $item['entrega'];
+                                        $result['salida'] += $item['salida'];
+                                        $result['compras'] +=  $item['compras'];
+                                        $result['ventas'] +=  $item['ventas'];
+                                        return $result;
+                                    }
+                                );
+                                $datosMesEs = array_reduce($datosMesEs,
+                                    function ($result, $item) {
+                                        if (!isset($result['entrega'])){
+                                                $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
+                                        }
+                                        $result['entrega'] +=  $item['entrega'];
+                                        $result['salida'] += $item['salida'];
+                                        $result['compras'] +=  $item['compras'];
+                                        $result['ventas'] +=  $item['ventas'];
+                                        return $result;
+                                    }
+                                );                                
 
                                 $datosGuardar[$mes]['cantidades'] = guardarDatosUnidades($datosMes,$datosMesEs,$e);
                                 $datosGuardar[$mes]['importes'] = guardarDatosImportes($datosMes,$datosMesEs,$e);                                
@@ -304,7 +311,7 @@
                         
                             }
                    
-                            echo "<td class='centrarDomingos'><b>".$domingo."</b></td>
+                            echo "<td class='text-center'><b>".$domingo."</b></td>
                                 <td>".$movimiento['fecha']."</td>";
                             echo $td_entrada.$td_salida;
                             echo '<td>'.$stock.'</td>';
@@ -526,7 +533,7 @@
         </div>
         
     
-	</body>	
+    </body> 
 </html>
 
 
