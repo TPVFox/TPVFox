@@ -205,32 +205,11 @@
                            
                             if($mes <> Date("m", strtotime($movimiento['fecha']))){
                                 // Solo entra cuando el mes cambia
-                                $datosMes = array_reduce($datosMes,
-                                    function ($result, $item) {
-                                        if (!isset($result['entrega'])){
-                                                $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
-                                        }
-                                        $result['entrega'] +=  $item['entrega'];
-                                        $result['salida'] += $item['salida'];
-                                        $result['compras'] +=  $item['compras'];
-                                        $result['ventas'] +=  $item['ventas'];
-                                        return $result;
-                                    }
-                                );
+                                // suma_reduce es una funcion para sumar.
+                                $datosMes = array_reduce($datosMes,'sumar_reduce');
                                
                                 if (count($datosMesEs)>0){
-                                    $datosMesEs = array_reduce($datosMesEs,
-                                        function ($result, $item) {
-                                            if (!isset($result['entrega'])){      
-                                                    $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
-                                            }
-                                            $result['entrega'] +=  $item['entrega'];
-                                            $result['salida'] += $item['salida'];
-                                            $result['compras'] +=  $item['compras'];
-                                            $result['ventas'] +=  $item['ventas'];
-                                            return $result;
-                                        }
-                                    ); 
+                                    $datosMesEs = array_reduce($datosMesEs,'sumar_reduce'); 
                                 } else {
                                     $datosMesEs = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
                                 }    
@@ -244,20 +223,13 @@
 
                                 $datosMes = array();
                                 $datosMesEs = array();
-
-                                
                                 $mes = Date("m", strtotime($movimiento['fecha']));
-
-                               
                             }
                            
                             array_push($datosMes,$movimiento);                            
 
                             if($movimiento['estadoCliente'] == "Especial"){
                                 array_push($datosMesEs,$movimiento);                                
-
-
-
                             }
 
 
@@ -272,15 +244,7 @@
                                 $tipo_doc   = 'mod_compras/albaran.php?id='.$movimiento['numid'].'&accion=ver';
                                 $td_entrada = '<td>'.number_format(round($movimiento['entrega'],$e),$e).'</td>';
                                 $td_coste  = '<td>'.number_format($movimiento['precioentrada'],2).' €'.'</td>';
-                                $stock += $movimiento['entrega'];
-
-                                        
-
-
-                                        
-
-
-                                                                
+                                $stock += $movimiento['entrega'];                                                               
                             } else {
                                 $stock -= $movimiento['salida'];
                                 if ($movimiento['tipodoc']=== 'T'){
@@ -293,9 +257,6 @@
                                 }
                                 $td_salida = '<td>'. number_format(round($movimiento['salida'],$e),$e).'</td>';
                                 $td_precio = '<td>'.number_format($movimiento['preciosalida'],2).' €'.'</td>';
-
-
-
                             }
                             
                             $url= $HostNombre.'/modulos/'.$tipo_doc;
@@ -306,71 +267,39 @@
                             if($dia == 0){
                                 $domingo = "X";
                             }
-                   
+                            $color_fila = ($stock> 0 ? '':' class="bg-warning"');
                             if($movimiento['estadoCliente'] == "Especial"){
-                                echo "<tr class='bg-danger'>";
-                                                       
-                            }else{
-                                $color = ($stock> 0 ? '':' class="bg-warning"');
-                                echo '<tr'.$color.'>';
-                        
+                                $color_fila = ' class="bg-danger"';
                             }
-                   
-                            echo "<td class='text-center'><b>".$domingo."</b></td>
-                                <td>".$movimiento['fecha']."</td>";
-                            echo $td_entrada.$td_salida;
-                            echo '<td>'.$stock.'</td>';
-                            echo $td_coste.$td_precio;
-                            echo '<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>';
-                            echo '<td>'.$movimiento['nombre'].'</td>';
-                            echo '<td>'.$movimiento['estado'].'</td>';
-                        
-                            echo '<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
+                            echo '<tr'.$color_fila.'>';
+                            echo '<td class="text-center"><b>'.$domingo.'</b></td>'
+                                .'<td>'.$movimiento['fecha'].'</td>'
+                                . $td_entrada.$td_salida
+                                .'<td>'.$stock.'</td>'
+                                .$td_coste.$td_precio
+                                .'<td>'.$movimiento['serie'].$movimiento['numdocu'].'</td>'
+                                .'<td>'.$movimiento['nombre'].'</td>'
+                                .'<td>'.$movimiento['estado'].'</td>'                  
+                                .'<td>'.'<a target="_blank" href="'.$url.'"><span class="glyphicon glyphicon-eye-open"></span></a></td>';
+                            
                             echo '</tr>';
                         }   
 
 
-                        $datosMes = array_reduce($datosMes,function ($result, $item) {
-                            if (!isset($result['entrega'])){
-                                                $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
-                                        }
-                            $result['entrega'] +=  $item['entrega'];
-                            $result['salida'] += $item['salida'];
-                            $result['compras'] +=  $item['compras'];
-                            $result['ventas'] +=  $item['ventas'];
-                            return $result;
-                        });
+                        $datosMes = array_reduce($datosMes,'sumar_reduce');
                         if (count($datosMesEs)>0){
-                            $datosMesEs = array_reduce($datosMesEs,function ($result, $item) {
-                                if (!isset($result['entrega'])){
-                                                    $result = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
-                                            }
-                                $result['entrega'] +=  $item['entrega'];
-                                $result['salida'] += $item['salida'];
-                                $result['compras'] +=  $item['compras'];
-                                $result['ventas'] +=  $item['ventas'];
-                                return $result;
-                            });
-                       } else {
-                           $datosMesEs = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
-                       }  
+                            $datosMesEs = array_reduce($datosMesEs,'sumar_reduce');
+                        } else {
+                            $datosMesEs = array('entrega'=>0,'salida'=>0,'compras'=>0,'ventas'=>0);
+                        }  
                         $datosGuardar[$mes]['cantidades'] = guardarDatosUnidades($datosMes,$datosMesEs,$e);
                         $datosGuardar[$mes]['importes'] = guardarDatosImportes($datosMes,$datosMesEs,$e);
 
                         $HtmlSubtotalesMeses = tablasSubMes('colorSubtotal', $datosGuardar[$mes], $e);
-                                                                             
-                                
-
-                                         
-                                echo $HtmlSubtotalesMeses;
-
-                                
-                            }
-                
-                    
-                    
-                        ?>
-                  
+                        echo $HtmlSubtotalesMeses;
+                        
+                    }                 
+                 ?>
                     </tbody>
                 </table>
                 <div >
