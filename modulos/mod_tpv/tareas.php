@@ -32,36 +32,34 @@ include_once $URLCom.'/modulos/mod_tpv/clases/ClaseTickets.php';
 // Creamos clase de ticket
 
 $CTickets = new ClaseTickets();
-include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
-$CIncidencia=new ClaseIncidencia($BDTpv);
 switch ($pulsado) {
     
     case 'buscarProductos':
         include_once $URLCom.'/modulos/mod_tpv/tareas/buscarProducto.php';
-	break;	
-	
-	case 'cobrar':
-		$totalJS = $_POST['total'];
-		$productos = json_decode($_POST['productos']);
-		$configuracion = $_POST['configuracion'];
-		// Recalcular totales.
-		$totales = recalculoTotales($productos);
-		$respuesta = htmlCobrar($totalJS,$configuracion);
-		$respuesta['recalculo'] = $totales;
-		break;
-	
-	case 'grabarTickes';
-		// @ Objetivo :
-		// Grabar tickets temporales.
-		include ('tareas/grabarTicketTemporal.php');
-	break;
-		
+    break;  
+    
+    case 'cobrar':
+        $totalJS = $_POST['total'];
+        $productos = json_decode($_POST['productos']);
+        $configuracion = $_POST['configuracion'];
+        // Recalcular totales.
+        $totales = recalculoTotales($productos);
+        $respuesta = htmlCobrar($totalJS,$configuracion);
+        $respuesta['recalculo'] = $totales;
+        break;
+    
+    case 'grabarTickes';
+        // @ Objetivo :
+        // Grabar tickets temporales.
+        include ('tareas/grabarTicketTemporal.php');
+    break;
+        
     case 'HtmlLineaTicket';
         $respuesta = array();
-        $product 					=$_POST['producto'];
-        $num_item					=$_POST['num_item'];
-        $CONF_campoPeso		=$_POST['CONF_campoPeso'];
-        $res 	= htmlLineaTicket($product,$num_item,$CONF_campoPeso);
+        $product                    =$_POST['producto'];
+        $num_item                   =$_POST['num_item'];
+        $CONF_campoPeso     =$_POST['CONF_campoPeso'];
+        $res    = htmlLineaTicket($product,$num_item,$CONF_campoPeso);
         $respuesta['html'] =$res;
         $respuesta['conf_peso'] =$CONF_campoPeso;
     break;
@@ -73,7 +71,7 @@ switch ($pulsado) {
 
     case 'ImprimirTicketCerrados';
         // Ahora debería imprimir el ticket cerrado.
-        $id					=$_POST['idTicketst'];
+        $id                 =$_POST['idTicketst'];
         $ticket = $CTickets->obtenerUnTicket($id);
         
         $datosImpresion = $CTickets->prepararParaImprimirTicket($ticket);
@@ -134,13 +132,14 @@ switch ($pulsado) {
         $idUsuario = $configuracion['idUsuario'];
         unset($configuracion['nombre_modulo'],$configuracion['idUsuario']);
         
-        $respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);		
+        $respuesta = $Controler->GrabarConfiguracionModulo($nombre_modulo,$idUsuario,$configuracion);       
         $respuesta['configuracion'] = $configuracion ; 
     break;
     
     case 'abririncidencia':
+        include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+        $CIncidencia=new ClaseIncidencia($BDTpv);
         $dedonde=$_POST['dedonde'];
-        $usuario=$_POST['usuario'];
         $configuracion=$_POST['configuracion'];
         $idReal=0;
         if(isset($_POST['idReal'])){
@@ -161,7 +160,8 @@ switch ($pulsado) {
     break;
     
     case 'nuevaIncidencia':
-        $usuario= $_POST['usuario'];
+        include_once $URLCom.'/modulos/mod_incidencias/clases/ClaseIncidencia.php';
+        $CIncidencia=new ClaseIncidencia($BDTpv);
         $fecha= $_POST['fecha'];
         $datos= $_POST['datos'];
         $estado= $_POST['estado'];
