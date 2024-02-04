@@ -45,7 +45,7 @@
                                         </div>
                                     </div> </td>
                             </tr>
-                            <?php if ( isset($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb)){;
+                            <?php if ( count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb)>0){;
                                 // Solo mostramos si hay web conectada a tienda principal.
                                 ?>
                             <tr>
