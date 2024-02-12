@@ -100,17 +100,19 @@
                                     // Eliminamos ya que puede ser descendente o no existe en tpv
                                      unset($todasFamiliasWeb[$key]);
                                 }
-                                if ($nombre_familia_web === ''){
-                                // No se encontro el nombre de la familia en la web para familia o esta en la web tiene titulo blanco (ojo)
-                                $errores[] =  $Cfamilias->montarAdvertencia('danger',
-                                                    'Error intentar obtener virtuemart_category_id:'
-                                                    .$idsFamiliaTiendaWeb['datos']['0']['idFamilia'] .' o esta el titulo en blanco en la web.'
-                                                    );
-                                }
+                                //~ if ($nombre_familia_web === ''){
+                                //~ // No se encontro el nombre de la familia en la web o esta en la web tiene titulo blanco (ojo)
+                                //~ // Pienso que este error no debe pasar nunca , ya que virtuemart no permite eliminar el nombre.
+                                //~ $errores[] =  $Cfamilias->montarAdvertencia('danger',
+                                                    //~ 'Error intentar obtener virtuemart_category_id:'
+                                                    //~ .$idsFamiliaTiendaWeb['datos']['0']['idFamilia'] .' o esta el titulo en blanco en la web.'
+                                                    //~ );
+                                //~ }
                                 
                             }
                         }
-                        // ¿ Montamos combo igualmente hubiera errores danger ?    
+                        // ¿ Montamos combo igualmente hubiera errores danger ? 
+                        array_unshift($todasFamiliasWeb, ['virtuemart_category_id' => 0, 'nombre' => 'Raíz: la madre de todas las familias', 'familiaNombre'=>'Raíz: el padre de las familias','idFamilia'=>0,'padre'=>0]);
                         $combopadresWeb = $Cfamilias->htmlComboFamilias($todasFamiliasWeb, $id_padre_web,'virtuemart_category_id');
 
                     } else {
