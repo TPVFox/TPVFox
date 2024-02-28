@@ -3,7 +3,7 @@
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción 
  */
 include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulos.php';
@@ -98,7 +98,7 @@ function familias2Html2($familias,$idTiendaWeb) {
     $html = '';
     if ($familias && (count($familias) > 0)) {
         foreach ($familias as $indice => $familia) {
-            $html .= '<tr>';
+            $html .= '<tr id="Relacion'.$indice.'">';
             $html .= '<td>' . $familia['idFamilia'] . '</td>';
             $html .= '<td> '. $familia['familiaNombre'] . ' </td>';
             $html .= '<td> '. $familia['hijos'] . '</td>';
@@ -106,8 +106,21 @@ function familias2Html2($familias,$idTiendaWeb) {
             if ($idTiendaWeb >0 ){
                 foreach ($familia['familiaTienda'] as $tienda){
                     if ( $tienda['idTienda'] === $idTiendaWeb ) {
-                        $html .= '<td><span title="Id de familia web '.$tienda['idFamilia_tienda'].'" class="glyphicon glyphicon-globe">  </span></td>';
-                    }
+                        $link = $tienda['link_front_end_categoria'];
+                        $color = '';
+                        $titulo = 'Id de familia web '.$tienda['idFamilia_tienda'];
+                        if ($tienda['exites_web'] == 'KO'){
+                            $color = 'style="color:red"';
+                            $titulo = 'ERROR OBTENER '.$titulo;
+                            $link = '';
+                        } else {
+                            
+                        }
+                        $html .= '<td>'
+                                .'<a href="'.$link.'"><span title="'.$titulo.'"'.$color.' class="glyphicon glyphicon-globe"></span></a>'
+                                .'<a class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('. $familia['idFamilia'].','.$idTiendaWeb.',this)"></a>'
+                                .'</td>';
+                        }
                 }
             }
             $html .= '</tr>';
@@ -121,7 +134,7 @@ function htmlTablaFamiliasHijas($familiasHijos,$idTienda, $bottonSubir) {
     // @ Objetivo
     // Montar la tabla html de familias descendientes
     // @ Parametros
-    // 		$familiasHijos -> (array) con todos los datos del hijo
+    //      $familiasHijos -> (array) con todos los datos del hijo
     
    
     $htmlFamilias = familias2Html2($familiasHijos,$idTienda);
@@ -138,7 +151,7 @@ function htmlTablaFamiliasHijas($familiasHijos,$idTienda, $bottonSubir) {
     $html .='</tr>'
             . '</thead>';
     $html .= $htmlFamilias;
-    $html .= '</table>	';
+    $html .= '</table>  ';
     $html .= $bottonSubir;
    
     return $html;
@@ -148,7 +161,7 @@ function htmlTablaFamiliaProductos($idfamilia) {
     // @ Objetivo
     // Montar la tabla html de familias descendientes
     // @ Parametros
-    // 		$idfamilia
+    //      $idfamilia
 
 
     $productos = alArticulos::leerArticulosXFamilia($idfamilia);
@@ -173,7 +186,63 @@ function htmlTablaFamiliaProductos($idfamilia) {
             $html .= '</tr>';
         }
     }
-    $html .= '</table>	';
+    $html .= '</table>  ';
     return $html;
 }
+
+function htmlPanelDesplegable($num_desplegable,$titulo,$body){
+    // @ Objetivo:
+    // Montar html de desplegable.
+    // @ Parametros:
+    //      $num_desplegable -> (int) que indica el numero deplegable para un correcto funcionamiento.
+    //      $titulo-> (string) El titulo que se muestra en desplegable
+    //      $body-> (String) lo que contiene el desplegable.
+    // Ejemplo tomado de:
+    // https://www.w3schools.com/bootstrap/tryit.asp?filename=trybs_collapsible_panel&stacked=h 
+    
+    $collapse = 'collapse'.$num_desplegable;
+    $html ='<div class="panel panel-default">'
+            .       '<div class="panel-heading">'
+            .           '<h2 class="panel-title">'
+            .           '<a data-toggle="collapse" href="#'.$collapse.'">'
+            .           $titulo.'</a>'
+            .           '</h2>'
+            .       '</div>'
+            .       '<div id="'.$collapse.'" class="panel-collapse collapse">'
+            .           '<div class="panel-body">'
+            .               $body
+            .           '</div>'
+            .       '</div>'
+            .'</div>';
+    return $html;
+}
+function  htmlTablaRefTiendas($crefFamiliasTiendas,$link,$permiso_borrar=0){
+    // @ Objetivo
+    // Montar la tabla html de codbarras
+    // @ Parametros
+    //      //      $crefTiendas-> (array) de Arrays con datos de productos en otras tiendas.
+    //  Link: index.php?option=com_virtuemart&view=category&virtuemart_category_id=   a vista web
+    //  Link: index.php?option=com_virtuemart&view=category&task=edit&cid=            a administador
+    
+    $html =  '<table id="tproveedor" class="table table-striped">'
+            .'  <thead>'
+            .'      <tr>'
+            .'          <th>idTienda</th>'
+            .'          <th>Cref / id </th>'
+            .'          <th>Tipo Tienda</th>'
+            .'          <th>link</th>'
+            .'          <th></th>'
+            .'      </tr>'
+            .'  </thead>';
+    if (count($crefTiendas)>0){
+        foreach ($crefTiendas as $item=>$crefTienda){
+            if ($crefTienda['tipoTienda'] !=='principal'){
+                // No generamos html de tienda principal ya que no tiene sentido.
+                $html .= htmlLineaRefTienda($item,$crefTienda,$link,$permiso_borrar);
+            }
+        }
+    }
+    $html .= '</table>  ';
+    return $html;
+} 
 

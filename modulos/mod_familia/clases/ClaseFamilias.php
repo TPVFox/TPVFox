@@ -4,7 +4,7 @@
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción 
  */
 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
@@ -20,13 +20,13 @@ class ClaseFamilias extends Modelo {
     protected $tabla = 'familias';
     public $plugins;
     public $view ; 
-	public $idTienda ;
+    public $idTienda ;
     public function __construct($conexion='')
-	{
-		$this->view = str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
-		$plugins = new ClasePlugins('mod_familia',$this->view);
-		$this->plugins = $plugins->GetParametrosPlugins();
-	}
+    {
+        $this->view = str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
+        $plugins = new ClasePlugins('mod_familia',$this->view);
+        $this->plugins = $plugins->GetParametrosPlugins();
+    }
 
     public function SetPlugin($nombre_plugin){
             // @ Objetivo
@@ -208,7 +208,13 @@ class ClaseFamilias extends Modelo {
             return $resultado['datos'][0]['contador'];
     }
     
-    public function Borrar($idfamilia) {
+    public function BorrarRelacionFamiliasTiendas($idfamilia,$idTienda) {
+        $sql = 'DELETE FROM familiasTienda '
+                . ' WHERE idFamilia = ' . $idfamilia.' and idTienda = '. $idTienda;
+            return $this->consultaDML($sql);
+    }
+    
+     public function Borrar($idfamilia) {
         $sql = 'DELETE FROM familias '
                 . ' WHERE idFamilia = ' . $idfamilia;
             return $this->consultaDML($sql);
@@ -278,9 +284,9 @@ class ClaseFamilias extends Modelo {
             if (count($dif_ref_tiendas) >0 ){
                 // Entonces encontro diferencias por lo que alguno esta repetido..
                 $resultado['error'][] = array ( 'tipo'=>'danger',
-								 'mensaje' =>'La familia '.$idFamilia.' tiene duplicado una relacion en las siguiente tiendas:'.implode(',',$dif_ref_tiendas),
-								 'dato' =>$dif_ref_tiendas
-								);
+                                 'mensaje' =>'La familia '.$idFamilia.' tiene duplicado una relacion en las siguiente tiendas:'.implode(',',$dif_ref_tiendas),
+                                 'dato' =>$dif_ref_tiendas
+                                );
             }
             
         }

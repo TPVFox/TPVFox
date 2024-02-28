@@ -2,7 +2,7 @@
  * @Copyright 2018, Alagoro Software. 
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción 
  */
 
 
@@ -246,4 +246,39 @@ function compactarTodos() {
 }
 
 
+function EliminarReferenciaTienda(idFamilia, idTienda,e){
+    var mensaje = confirm("¿Estás seguro que quieres eliminar este la relacion de este producto entre  esta tienda?");
+    if (mensaje) {
+    var parametros = {
+        pulsado:    'eliminarReferenciaFamiliaTienda',
+        idFamilia:  idFamilia,
+        idTienda:   idTienda
+    }
+     $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+            console.log('********* eliminar registro indicado de historico precio **************');
+            },
+            success    :  function (response) {
+                    console.log('Respuesta de eliminar Referenca de Familia');
+                    var resultado = $.parseJSON(response);
+                   //hAY QUE CONTROLAR SI LO ELIMINA DE VERDAD.
+                   // y si es asi , eliminar los iconos 
+                   LimpiarTD(e);
+
+            }
+        });
+    }
+}
+
+function LimpiarTD(e){
+    // @ Objetivo :
+    // Eliminar lo que continel código de barras . Busca los elementos a eliminar mediante DOM
+    // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
+    var padre=e.parentNode; 
+    var abuelo=padre.parentNode; 
+   padre.innerHTML = "";
+}
 

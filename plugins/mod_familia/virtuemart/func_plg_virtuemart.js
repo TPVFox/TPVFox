@@ -1,8 +1,8 @@
 function  ObtenerDatosFamilia(){
     $('#nombreFamilia').val($('#inputnombre').val());
     var parametros = {
-            "pulsado"    	: 'obtenerIdFamiliaWeb',
-            "idFamiliaTpv"	: $('#inputPadre #combopadre').val()
+            "pulsado"       : 'obtenerIdFamiliaWeb',
+            "idFamiliaTpv"  : $('#inputPadre #combopadre').val()
             };
 
     $.ajax({
@@ -59,10 +59,10 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
                 'idTienda': idTienda,
                 'nombreFamilia': $('#nombreFamilia').val()
             };
-            console.log(ruta_plg_virtuemart);
+            console.log(datos);
             var parametros = {
-            "pulsado"    	: 'modificarFamiliaWeb',
-            "datos"	: JSON.stringify(datos)
+            "pulsado"       : 'modificarFamiliaWeb',
+            "datos" : JSON.stringify(datos)
             };
               $.ajax({
             data       : parametros,
@@ -90,7 +90,7 @@ function modificarFamiliaWeb(idFamilia="", idTienda=""){
                     }
                     
                      
-                }	
+                }   
             });
         }
     }

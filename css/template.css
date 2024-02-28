@@ -12,11 +12,11 @@
     format('svg');
 }
 .navbar{
-	margin-bottom: 0px;
+    margin-bottom: 0px;
 }
 
 .container {
-	width:100%;
+    width:100%;
 }
 
 
@@ -39,7 +39,7 @@ input[type="checkbox"]{
     vertical-align: text-bottom;
 }
 span.circulo {
-	padding: 5px;
+    padding: 5px;
     width: 100%;
     height: 100%;
     background-color:#F8F8F8;
@@ -49,22 +49,22 @@ span.circulo {
 
 }
 .tachado{
-	color: lightgray;
-	text-decoration:line-through;
+    color: lightgray;
+    text-decoration:line-through;
 }
 .pie-ticket {
-	background-color: #ededed;
-	padding: 1%;
+    background-color: #ededed;
+    padding: 1%;
 }
 
 .fondo{
-	background-color: #ADD8E6;
+    background-color: #ADD8E6;
 }
 .rojo{
-	color: red;
+    color: red;
 }
 .producto_codbarras a >h3{
-	color: initial;
+    color: initial;
 
 }
 
@@ -77,12 +77,12 @@ td.pvp{
 
 /** CSS para tabla de buscardo **/
 tbody tr.FilaModal:focus-within{
-	background-color:lightblue;
+    background-color:lightblue;
 }
 
 tbody tr.FilaModal:hover{
-	border: solid #d8d8de 1px;
-	background-color:azure;
+    border: solid #d8d8de 1px;
+    background-color:azure;
 }
 
 
@@ -113,6 +113,10 @@ input[disabled],input[readonly] {
 
 .btn-default {
     background-color: #f4f4f4;
+}
+
+.glyphicon {
+  padding: 0 3px;
 }
 
 .parpadea {

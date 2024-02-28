@@ -25,32 +25,29 @@ include_once $URLCom . '/configuracion.php';
 //~ $Controler->loadDbtpv($BDTpv);
 include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/modulos/mod_familia/funciones.php';
+$Cfamilias = new ClaseFamilias();
 $pulsado = $_POST['pulsado'];
 switch ($pulsado) {
     case 'leerFamilias':
         $idpadre = $_POST['idpadre'];
         $resultado = leerFamilias($idpadre);
-        echo json_encode($resultado);
         break;
 
     case 'leerTodasFamilias':
         $familias = (new ClaseFamilias())->todoslosPadres('', true);
-        echo json_encode($familias['datos']);
+        $resultado = $familias['datos'];
         break;
     case 'grabarFamilia':
-
-// comprobar datos en el lado servidor    
+        // comprobar datos en el lado servidor    
         $idFamilia = $_POST['id'];
         $familiaNombre = $_POST['nombrefamilia'];
         $familiaPadre = $_POST['idpadre'];
         $beneficiomedio = $_POST['beneficiomedio'];
         $mostrar_tpv =  $_POST['mostrar_tpv'];
-
-// COMPROBAR:
-// Que no estan vacios
-// que idpadre es >= 0 y un id existente
-// generar $resultado['error']
-
+        // COMPROBAR:
+        // Que no estan vacios
+        // que idpadre es >= 0 y un id existente
+        // generar $resultado['error']
         $camposfamilia = compact('idFamilia', 'familiaNombre', 'familiaPadre', 'beneficiomedio','mostrar_tpv');
         $resultado = [];
         if ($familiaPadre >= 0) {
@@ -58,7 +55,6 @@ switch ($pulsado) {
             $resultado['insert'] = $familia->grabar($camposfamilia);
             $resultado['error'] = $familia->hayErrorConsulta() ? $familia->getErrorConsulta() : '0';
         }
-        echo json_encode($resultado);
         break;
     case 'borrarFamiliaProducto':
         $idfamilia = $_POST['idfamilia'];
@@ -74,7 +70,6 @@ switch ($pulsado) {
         }
         $resultado['html'] = htmlTablaFamiliaProductos($idfamilia);
         $resultado['error'] = count($listaerror) > 0; // no hay errores. ¿Para que devolver la lista de errores? :-)
-        echo json_encode($resultado);
         break;
 
     case 'borrarFamilias':
@@ -95,9 +90,15 @@ switch ($pulsado) {
             }
         }
         $error = count($listaError) > 0;
-        echo json_encode(compact(['error', 'listaError']));
+        $resultado = compact(['error', 'listaError']);
+        break;
+        
+    case 'eliminarReferenciaFamiliaTienda':
+        $resultado = $Cfamilias->BorrarRelacionFamiliasTiendas($_POST['idFamilia'],$_POST['idTienda']);
         break;
 }
+echo json_encode($resultado);
+
 
 
 
