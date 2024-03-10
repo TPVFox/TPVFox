@@ -119,6 +119,8 @@
                         $permisos['VerWeb'] = 0;// Error que no permito continuar obteniendo datos web y verlos.
                     }
                 }
+            } else {
+                $permisos['VerWeb'] = 0;// NO es un error , simplemen no entro obtuvo tiendaWeb.
             }
         }
        if ($permisos['VerWeb'] == 1) {
@@ -273,10 +275,12 @@
         }
         // Ahora montamos el html del desplegable de familias hijos.
         // Si tiene permisos de SubirHijasWeb  y tiene permisos ver montamos boton Subir hijos juntos.
-        if ($permisos['SubirHijasWeb'] == 1 && $permisos['VerWeb'] == 1 && $control_hijos['NumeroHijos']>0){
+        if ($permisos['SubirHijasWeb'] == 1 && $permisos['VerWeb'] == 1 ){
             if ($control_hijos['sinWeb'] > 0 && $control_hijos['errorWeb'] == 0 ){
                 $bottonSubirHijos='<a class="btn btn-info" onclick="subirHijosWeb('.$id.', '.$idTiendaWeb.')">Subir Hijos Web</a>';
             }
+        }
+        if ($control_hijos['NumeroHijos']>0){
             $htmlFamiliasHijas = htmlTablaFamiliasHijas($familia['hijos'], $idTiendaWeb,$bottonSubirHijos);
         } 
         // La variable idTiendaWeb indica la tienda web, es la que enviamos a htmlFamiliasHijas
@@ -301,7 +305,7 @@
         }
         // Ahora montamos el htmlRelacionesTienda, para poder ver estado y poder eliminarla si fuera necesario.
         $htmlRelacionFamilia ='';
-        if ( count($familia['familiaTienda']) >0){
+        if ( isset($familia['familiaTienda']) && count($familia['familiaTienda']) >0){
           $htmlRelacionFamilia = htmlTablaRefTiendas($familia['familiaTienda'],$ObjVirtuemart->ruta_categoria,$permiso_borrar=0);  
         }
         // Si la familia tiene mostrar_tpv en 1 , lo ponemos en la variables $valor_check para mostrarlo
