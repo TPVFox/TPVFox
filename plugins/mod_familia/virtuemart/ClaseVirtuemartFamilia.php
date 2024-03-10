@@ -86,18 +86,20 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
         return $html;
         
     }
-    public function htmlDatosFamiliaWeb($datos, $combopadres){
+    public function htmlDatosFamiliaWeb($datos){
         $respuesta=array();
         $HostNombre = $this->HostNombre;
-        if ($datos['accion']==='modificar'){
+        if ($datos['accion']==='edit'){
             $textobtn = 'Modificar familia en Web';
             $colorbtn = 'primary';
             $idFamilia_tienda = $datos['idFamilia_tienda'];
+            $nombre = $datos['nombre_familia_tienda'];
         } else {
             // El valor de accion deberia ser "add".
             $textobtn = 'Añadir familia en Web';
             $colorbtn = 'success';
             $idFamilia_tienda = '';
+            $nombre = $datos['nombre'];
 
         }
         $html   ='<script>var ruta_plg_virtuemart = "'.$this->Ruta_plugin.'"</script>';
@@ -119,22 +121,21 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
             .'      </div>'
             .'      <div class="col-md-12">'
             .'          <div class="col-md-7">'
-            .'                <h4> Datos de la familia  en la tienda Web </h4>'
+            .'                <h4> Datos de la familia con id en Web:'.$datos['idFamilia_tienda'].' </h4>'
             .'           </div>'
             .'           
                     </div>
                     <div class="col-md-12">
                     <div class="col-md-5">
                     <label for="inputnombre">Nombre: </label>
-                            <input type="text" nombre="nombreFamilia" id="nombreFamilia" value="'.$datos['nombre'].'"/>
+                            <input type="text" nombre="nombreFamilia" id="nombreFamilia" value="'.$nombre.'"/>
                         </div>
                    
                       <div class="col-md-6">
-                            <div class="ui-widget" id="inputpadreWeb">
-                                <label for="inputpadre">Padre: </label>'
-                                .' <select name="padre" class="form-control " id="combopadreWeb">'
-                                .$combopadres. '<input type="hidden" name="idpadre" id="inputidpadreWeb" value="'
-                                .$datos['id_padre_web'].'"></select>                                                     
+                             <label for="inputnombre">Nombre: </label>
+                            <input type="text" name="idFamiliaPadreWeb" id="inputidpadreWeb" value="'.$datos['id_padre_web'].'" size=4/>
+                            <input type="text" name="nombre_padre_web" id="nombre_padre_web" value="'.$datos['nombre_padre_web'].'"/>
+
                             </div>
                         </div>
                     </div>
@@ -202,13 +203,8 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion{
         $existe_curl =function_exists('curl_version');
         include ($this->ruta_proyecto.'/lib/curl/conexion_curl.php');
         if (isset($respuesta['error_conexion'])){
-            $respuesta['error']=$respuesta['info'];
-            $respuesta['htmlAlerta']='<div class="alert alert-danger">
-                                     <strong>Danger!</strong> Error 2 al añadir la familia a la web.<br/>'
-                                     .$respuesta['error_conexion'].'<br/>Url: '
-                                     .$respuesta['info']['url']
-                                     .'</div>';
-            
+            // Ya que la respuesta APi es un indice error, generamos el mismo, para tratar el mismo
+            $respuesta['error']=$respuesta['error_conexion'];
         }
         return $respuesta;
      }

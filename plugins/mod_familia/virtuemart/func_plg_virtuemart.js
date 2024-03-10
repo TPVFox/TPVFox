@@ -1,46 +1,6 @@
 function  ObtenerDatosFamilia(){
     $('#nombreFamilia').val($('#inputnombre').val());
-    var parametros = {
-            "pulsado"       : 'obtenerIdFamiliaWeb',
-            "idFamiliaTpv"  : $('#inputPadre #combopadre').val()
-            };
-
-    $.ajax({
-        data       : parametros,
-        url        : ruta_plg_virtuemart+'tareas_virtuemart.php',
-        type       : 'post',
-        beforeSend : function () {
-        console.log('********* Envio solicitud de dato id Familia  **************');
-        },
-        success    :  function (response) {
-                console.log('Respuesta de obtener idfamilia relacionada');
-                var resultado = $.parseJSON(response);
-                if (!resultado['idFamiliaWeb']){
-                   // Tuvo que haber un error , por lo que idFamilia
-                    resultado['idFamiliaWeb'] = 0;
-                    if (resultado['html_alerta']){
-                         $('#alertasWeb').html(resultado.html_alerta);
-                    }
-                } else {
-                    var obtengoIndexSelect = $("#combopadreWeb").prop("selectedIndex");
-                    var valorIndexSelect = $("#combopadreWeb option");
-                    var id = resultado['idFamiliaWeb'];
-                    if (valorIndexSelect[obtengoIndexSelect].value !== id){
-                        // Elimino selected de actual seleccion.
-                        $("#combopadreWeb option:selected").removeAttr("selected");
-                        // Añado selected a valor obtenido.
-                        $("#combopadreWeb option[value="+id+"]").attr("selected","selected");
-                        alert ( 'La familia obtenida no es la misma que la que tienes ahora seleccionada \nno se actualiza en esta pantalla, deberas refrescar');
-                    }
-                }
-                console.log(resultado);
-                $('#inputidpadreWeb').val(resultado['idFamiliaWeb']);
-            }
-        });
-    // Ahora debemos llamar a funcion obtener select de combo ya que tiene select que no pertenece.
-    
-    console.log($('#inputpadreWeb #combopadreWeb').val());
-    console.log($('#inputPadre #combopadre').val());
+    // Lo ideal de esta funcion , sería que comprobara de nuevo la familia padre, que sea la misma, sino recargarlo.
 }
 
 

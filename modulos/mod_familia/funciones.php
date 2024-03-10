@@ -88,7 +88,7 @@ function familias2Html($familias) {
     return $resultado;
 }
 
-function familias2Html2($familias,$idTiendaWeb) {
+function htlmLineasFamiliasHijas($familias,$idTiendaWeb) {
     // @ Objetivo
     // Obtener el html lineas de tabla con los datos de las familias
     // [PENDIENTE]
@@ -106,17 +106,19 @@ function familias2Html2($familias,$idTiendaWeb) {
             if ($idTiendaWeb >0 ){
                 foreach ($familia['familiaTienda'] as $tienda){
                     if ( $tienda['idTienda'] === $idTiendaWeb ) {
+                        $titulo = 'Id de familia web '.$tienda['idFamilia_tienda'];
+                        if ($tienda['existes_web']=='OK'){
                         $link = $tienda['link_front_end_categoria'];
                         $color = '';
-                        $titulo = 'Id de familia web '.$tienda['idFamilia_tienda'];
-                        if ($tienda['exites_web'] == 'KO'){
-                            $color = 'style="color:red"';
-                            $titulo = 'ERROR OBTENER '.$titulo;
-                            $link = '';
                         } else {
-                            
+                            $link = '';
+                            if ($tienda['existes_web'] == 'KO'){
+                                $color = 'style="color:red"';
+                                $titulo = 'ERROR OBTENER '.$titulo;
+                              
+                            }
                         }
-                        $html .= '<td>'
+                        $html .= '<td> '
                                 .'<a href="'.$link.'"><span title="'.$titulo.'"'.$color.' class="glyphicon glyphicon-globe"></span></a>'
                                 .'<a class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('. $familia['idFamilia'].','.$idTiendaWeb.',this)"></a>'
                                 .'</td>';
@@ -137,7 +139,7 @@ function htmlTablaFamiliasHijas($familiasHijos,$idTienda, $bottonSubir) {
     //      $familiasHijos -> (array) con todos los datos del hijo
     
    
-    $htmlFamilias = familias2Html2($familiasHijos,$idTienda);
+    $htmlFamilias = htlmLineasFamiliasHijas($familiasHijos,$idTienda);
     $html = '<table id="tfamilias" class="table table-striped">'
             . '<thead>'
             . '<tr>'
@@ -216,7 +218,7 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
             .'</div>';
     return $html;
 }
-function  htmlTablaRefTiendas($crefFamiliasTiendas,$link,$permiso_borrar=0){
+function  htmlTablaRefTiendas($crefTiendas,$link,$permiso_borrar=0){
     // @ Objetivo
     // Montar la tabla html de codbarras
     // @ Parametros
@@ -228,21 +230,41 @@ function  htmlTablaRefTiendas($crefFamiliasTiendas,$link,$permiso_borrar=0){
             .'  <thead>'
             .'      <tr>'
             .'          <th>idTienda</th>'
-            .'          <th>Cref / id </th>'
-            .'          <th>Tipo Tienda</th>'
+            .'          <th>Id de la tienda / id </th>'
             .'          <th>link</th>'
             .'          <th></th>'
             .'      </tr>'
             .'  </thead>';
     if (count($crefTiendas)>0){
         foreach ($crefTiendas as $item=>$crefTienda){
-            if ($crefTienda['tipoTienda'] !=='principal'){
-                // No generamos html de tienda principal ya que no tiene sentido.
                 $html .= htmlLineaRefTienda($item,$crefTienda,$link,$permiso_borrar);
-            }
         }
     }
     $html .= '</table>  ';
     return $html;
 } 
+
+function htmlLineaRefTienda($item,$crefTienda,$link,$permiso_borrar){
+    // @ Objetivo:
+    // Montar linea de proveedores_coste, para añadir o para modificar.
+    // @ Parametros :
+    //      $item -> (int) Numero item
+    //      $crefTienda-> (array) Datos de crefTienda: idTienda,crefTienda,idVirtuemart,...
+    
+    $link = '<a href="'.$link.$crefTienda['idFamilia_tienda'].'">icono</a>';
+    
+    $nuevaFila = '<tr id="ref_tienda_'.$item.'">';
+    $nuevaFila .= '<td>'.$crefTienda['idTienda'].'</td>';
+    $nuevaFila .= '<td>';
+    $nuevaFila .='<small>'.$crefTienda['idFamilia_tienda'].'</small>';
+    $nuevaFila .='</td>';
+    $nuevaFila .= '<td>'.$link.'</td>';
+    $nuevaFila .= '<td>';
+    if ($permiso_borrar != 1){
+        $nuevaFila .='<a id="eliminarref_tienda_'.$item.'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaTienda('.$crefTienda['idFamilia'].','.$crefTienda['idTienda'].',this)"></a>';
+    }
+    $nuevaFila .= '</td></tr>';
+    return $nuevaFila;
+}
+
 

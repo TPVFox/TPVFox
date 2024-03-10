@@ -95,7 +95,9 @@ switch ($pulsado) {
         
     case 'eliminarReferenciaFamiliaTienda':
         $resultado = $Cfamilias->BorrarRelacionFamiliasTiendas($_POST['idFamilia'],$_POST['idTienda']);
+        $respuesta = $resultado;
         break;
+
 }
 echo json_encode($resultado);
 

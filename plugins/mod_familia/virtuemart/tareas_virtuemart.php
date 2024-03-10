@@ -25,34 +25,6 @@ $conf_virtuemart = array(   'parametros'=> $parametros,
                         );
 
 switch ($pulsado) {
-    case 'obtenerIdFamiliaWeb':
-        // Obtenemos el IDFamiliaWeb de tabla familiaTiendas recibiendo el idFamilia tpv
-        // Devolvemos id y una advertencia, si no existiera devolvemos 0 como id
-        $idFamiliaTpv = $_POST['idFamiliaTpv'];
-        $TiendaWeb = $ObjVirtuemart->getTiendaWeb();
-        $idFamiliaWeb = $CFamilia->obtenerRelacionFamilia($TiendaWeb['idTienda'],$idFamiliaTpv);
-        //~ error_log(json_encode($idFamiliaWeb));
-        if (isset($idFamiliaWeb['datos'])){
-           
-            if (count($idFamiliaWeb['datos']) == 1){
-                // Correcta la obtencion de idfamiliaWeb
-                $respuesta['idFamiliaWeb'] = $idFamiliaWeb['datos'][0]['idFamilia_tienda'];
-            } else {
-                // Hay mas una familia relaciona en la web para idFamiliaTpv
-                $tipo    = 'danger';
-                $mensaje = ' Hubo un error en la consulta , no se obtuvo datoa';    
-                $respuesta['html_alerta'] = $CFamilia->montarAdvertencia($tipo,$mensaje,$html='OK');
-            }
-
-        } else {
-            // No obtuvo nada puede ser un error
-            $tipo    = 'danger';
-            $mensaje = ' Hubo un error en la consulta , no se obtuvo id de familia web relacionada';    
-            $respuesta['html_alerta'] = $CFamilia->montarAdvertencia($tipo,$mensaje,$html='OK');
-             
-        }
-        
-    break;
 
     case 'modificarFamiliaWeb':
          // Objetivo es modificar o añadir familia
@@ -74,7 +46,7 @@ switch ($pulsado) {
                  $respuesta['caracteres']=strlen($datos['nombreFamilia']);
                   if(strlen($datos['nombreFamilia'])>180){
                       $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
-                                                    'No se puede modificar el producto por que el nombre es superior a 180 caracteres.'
+                                                    'No se puede modificar familia por que el nombre es superior a 180 caracteres.'
                                                     ,'OK');
                     }else{
                         $datosMod = array (
@@ -87,8 +59,8 @@ switch ($pulsado) {
                         $respuesta['mod']=$modificar;
                         if(isset($modificar['Datos']['error'])){
                              $respuesta['htmlAlerta'] = $CFamilia->montarAdvertencia('danger',
-                                                            'Error de sql : '.$modificarProducto['Datos']['error']
-                                                            .' consulta: '.$modificarProducto['Datos']['consulta']
+                                                            'Error de sql : '.$modificar['Datos']['error']
+                                                            .' consulta: '.$modificar['Datos']['consulta']
                                                             ,'OK');
                            
                         }else{
@@ -99,7 +71,7 @@ switch ($pulsado) {
                     }
             }else{
                 $datos += $conf_virtuemart;
-                $datos['alias']=str_replace(' ', '-', $datosComprobaciones['nombreFamilia']);
+                $datos['alias']=str_replace(' ', '-', $datos['nombreFamilia']);
                 $datos['padre']=$padre;        
                 
                 $datosAdd=json_encode($datos);
