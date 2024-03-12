@@ -9,21 +9,21 @@ include_once ($RutaServidor.$HostNombre. "/clases/ClaseSession.php");
 include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProductos.php';
 
 
-	// Solo creamos objeto si no existe.
-	$thisTpv = new ClaseSession();
-	$BDTpv = $thisTpv->getConexion();
+    // Solo creamos objeto si no existe.
+    $thisTpv = new ClaseSession();
+    $BDTpv = $thisTpv->getConexion();
     $CTArticulos = new ClaseProductos($BDTpv);
     include_once ($RutaServidor.$HostNombre."/plugins/mod_producto/virtuemart/ClaseVirtuemart.php");
     $ObjViruemart = new PluginClaseVirtuemart();
 
-	switch ($pulsado) {
+    switch ($pulsado) {
         case 'modificarDatosWeb':
             // @ Objetivo:
             // Modificar o añadir un producto en la web.
             // ¡¡¡ OJO !!! Hago break para salir del case cuando dectetoun posible error.
             $datos = $_POST['datos'];
             
-			$respuesta = array();
+            $respuesta = array();
             $respuesta['datos']=$datos; // No devolvemos datos para debug.
             $datosComprobaciones=json_decode($datos, true);
             if(strlen($datosComprobaciones['nombre'])>180){
@@ -68,12 +68,6 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
 
             // Ahora comprobamos que exista el iva del producto en la web
             
-            // Ahora ponemos valor variable estado -> string
-            if($datosComprobaciones['estado']==1){
-               $estado="Sin Publicar";
-            }else{
-               $estado="Publicado";
-            }
             if($datosComprobaciones['id']>0){
                 // ----   MODIFICAMOS PRODUCTO EN LA WEB  ---- //
                 // Estamos modificando, modificamos los datos..
@@ -90,7 +84,7 @@ include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseProduc
                 }
                 
                 
-                $modificarArticulosTienda=$CTArticulos->modificarEstadoWeb($datosComprobaciones['idProducto'], $datosComprobaciones['idTiendaWeb'], $estado);
+                $modificarArticulosTienda=$CTArticulos->modificarEstadoWeb($datosComprobaciones['idProducto'],$datosComprobaciones['estado'], $datosComprobaciones['idTiendaWeb']);
                 $respuesta['resul']= $modificarProducto;
                 $respuesta['htmlAlerta']='<div class="alert alert-success">
                                          <strong>Success!</strong> Has modificados los datos del producto.
