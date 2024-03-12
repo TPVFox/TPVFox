@@ -62,7 +62,7 @@
         //         -- Que familias hay en la web que no tenga relacion con tpv (warning)
         
         
-        if ($permisos['VerWeb'] == 1 && $id != 0) {
+        if ($permisos['VerWeb'] == 1 && $id >0) {
             $ObjVirtuemart = $Cfamilias->SetPlugin('ClaseVirtuemartFamilia');
             if(isset($ObjVirtuemart->TiendaWeb) && count($ObjVirtuemart->TiendaWeb)>0){
                 // Obtenemos los datos de la tienda Web del plugin
@@ -86,30 +86,15 @@
                         //           [padre] => 462
                         $todasFamiliasWeb = $t['Datos']['item'];
                         $idsFamiliasWeb = array_column($todasFamiliasWeb,'virtuemart_category_id'); // Array todas familias web en una columna
-                        // Ahora buscamos la relacion con las familias 
-                        foreach ($todasFamiliasWeb as $key => $familiaWeb){
-                            // Si por casual la base de datos web, esta mal creada las categoria, responde con $familiaWeb['virtuemart_category_id]=0 o vacio.
-                            // lo controlamos para que muestre un error y no siga con datos web
-                            if ($familiaWeb['virtuemart_category_id'] > 0){
-                            // Comprobamos si existe relacion de todas las familias Web con tpv
-                                
-                                $existe = $Cfamilias->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
-                                if (!isset($existe['datos'])){
-                                    // Registramos las familias creadas en la web que no tenga relación
-                                    $familiasWebSinRelacion[] = $familiaWeb;
-                                    // Si no existe relacion de una familia web de todas, la eliminamos del array y mostramos una advertencia.
-                                    unset($todasFamiliasWeb[$key]);
-                                } else {
-                                    // Existe relacion familia web con tpv.
-                                    // Añadimos a todasFamiliasWeb el idFamilia de tpv
-                                    $todasFamiliasWeb[$key]['idFamilia'] = $existe['datos'][0]['idFamilia'];
-                                }
-                            } else {
-                                $erroresWeb[] = $Cfamilias->montarAdvertencia('danger',
-                                            'Hay error en la base datos de la web, ya exite categorias que no tienen nombre y id 0.'
-                                            );    
-                                $permisos['VerWeb'] = 0;// Error que no permito continuar obteniendo datos web y verlos.
-                            }
+                        // Ahora buscamos la relacion con las familias web y tienda
+                        $r = $Cfamilias->anhadirRelacionArrayTiendaFamilia($todasFamiliasWeb,$idTiendaWeb);
+                        if ( isset($r['familiasWebSinRelacion'])){
+                            $familiasWebSinRelacion = $r['familiasWebSinRelacion'];
+                        }
+                        $todasFamiliasWeb = $r['todasFamiliasWeb'];
+                        if (isset($r['error'])){
+                            $erroresWeb[]= $r['error'];
+                            $permisos['VerWeb'] = 0;// Error que no permito continuar obteniendo datos web y verlos.
                         }
                     } else {
                      // Si conecto,pero no obtuvo items, por lo que debesmos informar que no se obtuvo ninguna familia
@@ -277,7 +262,12 @@
         // Si tiene permisos de SubirHijasWeb  y tiene permisos ver montamos boton Subir hijos juntos.
         if ($permisos['SubirHijasWeb'] == 1 && $permisos['VerWeb'] == 1 ){
             if ($control_hijos['sinWeb'] > 0 && $control_hijos['errorWeb'] == 0 ){
-                $bottonSubirHijos='<a class="btn btn-info" onclick="subirHijosWeb('.$id.', '.$idTiendaWeb.')">Subir Hijos Web</a>';
+                // Si familia no está creada en la web no permitimos subir hijos
+                if ($datos_familia_web['accion'] == 'edit'){
+                    $bottonSubirHijos='<a class="btn btn-info" onclick="subirHijosWeb('.$id.', '.$idTiendaWeb.')">Subir Hijos Web</a>';
+                } else {
+                    $bottonSubirHijos= 'No permite subir sino existe en web la familia actual';
+                }
             }
         }
         if ($control_hijos['NumeroHijos']>0){
@@ -295,9 +285,15 @@
                     if( $datos_familia_web['accion']=='add' || ($control_hijos['sinWeb'] >0 && $control_hijos['errorWeb'] == 0)){
                         // Obtenemos columna de nombre.
                         $nombresFamiliasWebSinRelacion = array_column($familiasWebSinRelacion,'nombre');
+                        $html_sin_relacion ='<ul>';
+                        foreach ($familiasWebSinRelacion as $SinRelacion){
+                            $html_sin_relacion .= '<li>Id_web:'.$SinRelacion['virtuemart_category_id'].' '.$SinRelacion['nombre'].'</li>';
+                        }
+                        $html_sin_relacion.='</ul>';
+
                         $erroresWeb[] =  $Cfamilias->montarAdvertencia('warning',
-                                    'En la web existe <b>'.count($nombresFamiliasWebSinRelacion).'</b> familia(s):<b>'.implode(',',$nombresFamiliasWebSinRelacion).'</b><br/>'
-                                    .'No tiene relacion con tpv, por este motivo no está en el select de la web'
+                                    'En la web existe <b>'.count($nombresFamiliasWebSinRelacion).'</b> familia(s) sin relacion con tpv:<br/>'
+                                    .$html_sin_relacion
                                     );
                     }
                 } 
@@ -305,17 +301,17 @@
         }
         // Ahora montamos el htmlRelacionesTienda, para poder ver estado y poder eliminarla si fuera necesario.
         $htmlRelacionFamilia ='';
-        if ( isset($familia['familiaTienda']) && count($familia['familiaTienda']) >0){
+        //~ if ( isset($familia['familiaTienda']) && count($familia['familiaTienda']) >0){
           $htmlRelacionFamilia = htmlTablaRefTiendas($familia['familiaTienda'],$ObjVirtuemart->ruta_categoria,$permiso_borrar=0);  
-        }
+        //~ }
         // Si la familia tiene mostrar_tpv en 1 , lo ponemos en la variables $valor_check para mostrarlo
         $valor_check = 'value="0"';
         if ($familia['mostrar_tpv'] === '1'){
             $valor_check = 'value="1" checked';
         }
-        // Crear relacion famiias padre 
+        //~ // Crear relacion famiias padre 
         //~ echo '<pre>';
-        //~ print_r($todasFamiliasWeb);
+        //~ print_r($familiasWebSinRelacion);
         //~ echo '</pre>';
         ?>
 <!DOCTYPE html>
@@ -329,9 +325,15 @@
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.css" type="text/css">
         <link rel="stylesheet" href="<?php echo $HostNombre; ?>/modulos/mod_familia/familias.css" type="text/css">
         <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
-        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
         <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
+
+        <script>
+            var familia=<?php echo json_encode($familia);?>;
+            var idTiendaWeb = <?php echo $idTiendaWeb;?>;
+
         
+        </script>
     </head>
     <body>
         <?php
@@ -471,7 +473,11 @@
             }
         ?>
         </div>
+        <!--fin de div container-->
+        <?php // Incluimos paginas modales
+        echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+        include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+        ?>
 </div>   
-<script src="<?php echo $HostNombre; ?>/modulos/mod_familia/funciones.js"></script>        
 </body>
 </html>

@@ -19,10 +19,6 @@
 /* ===============  REALIZAMOS CONEXIONES  =============== */
 include_once './../../inicial.php';
 include_once $URLCom . '/configuracion.php';
-//~ include_once $URLCom . '/modulos/mod_conexion/conexionBaseDatos.php';
-//~ include_once $URLCom . '/controllers/Controladores.php';
-//~ $Controler = new ControladorComun;
-//~ $Controler->loadDbtpv($BDTpv);
 include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 include_once $URLCom . '/modulos/mod_familia/funciones.php';
 $Cfamilias = new ClaseFamilias();
@@ -95,7 +91,40 @@ switch ($pulsado) {
         
     case 'eliminarReferenciaFamiliaTienda':
         $resultado = $Cfamilias->BorrarRelacionFamiliasTiendas($_POST['idFamilia'],$_POST['idTienda']);
-        $respuesta = $resultado;
+        break;
+        
+    case 'anhadirRefTiendaWebDirecta':
+        $idFamilia = $_POST['idFamilia'];
+        $idFamiliaWeb = $_POST['idFamiliaTienda'];
+        $idTienda = $_POST['idTienda'];
+        // Comprobamos si idFamiliaWeb realmente no tiene relacion
+        $resultado['comprobacion']= 'KO';
+        if ($ClasePermisos->getAccion('VerFamiliaWeb',array('modulo'=>'mod_familia','vista'=>'familia.php'))== 1 && $idFamilia > 0 ){
+            $ObjVirtuemart = $Cfamilias->SetPlugin('ClaseVirtuemartFamilia');
+            if($idFamiliaWeb>0){
+                $t = $ObjVirtuemart->todasFamilias();
+                if (isset($t['error'])){
+                  $resultado['error']=$Cfamilias->montarAdvertencia('danger',
+                                        'Error de conexion con el siguiente error:<br/>'.json_encode($t['error'])
+                                        );
+                } else {
+                    if (isset($t['Datos']['item'])){
+                        $r = $Cfamilias->anhadirRelacionArrayTiendaFamilia($t['Datos']['item'],$idTienda);
+                        if ( isset($r['familiasWebSinRelacion'])){
+                            foreach ($r['familiasWebSinRelacion'] as $familiaSinRelacion){
+                                if ($idFamiliaWeb == $familiaSinRelacion['virtuemart_category_id']){
+                                    $resultado['comprobacion']= 'OK';
+                                }  
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ($resultado['comprobacion']=='OK'){
+            // Ahora grabamos relacion de familia nueva
+            $resultado['insert'] = $Cfamilias->guardarRelacionFamiliasTiendas($idFamilia,$idTienda,$idFamiliaWeb);
+        }
         break;
 
 }

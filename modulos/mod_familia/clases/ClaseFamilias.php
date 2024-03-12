@@ -141,6 +141,14 @@ class ClaseFamilias extends Modelo {
             return $consulta;
         }
     }
+    
+    public function guardarRelacionFamiliasTiendas($idFamilia,$idTienda,$idFamiliaWeb) {
+        $sql = 'INSERT INTO familiasTienda  (idFamilia,idTienda,idFamilia_tienda) VALUES ('.$idFamilia.','.$idTienda.','.$idFamiliaWeb.')';
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+    }
 
     public function buscarPorId($idFamilia) {
         $sql = 'select familiaNombre from familias where idFamilia=' . $idFamilia;
@@ -395,6 +403,43 @@ class ClaseFamilias extends Modelo {
 
 
         return $combo;
+    }
+    
+    public function anhadirRelacionArrayTiendaFamilia($todasFamiliasWeb,$idTiendaWeb){
+        // Con este metodo, devolvemos el mismo array con idFamilia de Tpv relacionado y eliminamos los que no tienen realacion
+        // Luego devolvemos ademas:
+        //    - Array de familias que hay en la web que no tienen relacion 
+        //    - Y advertencia de error en la base datos si el id de familia de tiendaWeb es 0
+        foreach ($todasFamiliasWeb as $key => $familiaWeb){
+            // Si por casual la base de datos web, esta mal creada las categoria, responde con $familiaWeb['virtuemart_category_id]=0 o vacio.
+            // lo controlamos para que muestre un error y no siga con datos web
+            if ($familiaWeb['virtuemart_category_id'] > 0 && $idTiendaWeb>0 ){
+            // Comprobamos si existe relacion de todas las familias Web con tpv
+                $existe = $this->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
+                if (!isset($existe['datos'])){
+                    // Registramos las familias creadas en la web que no tenga relación
+                    $familiasWebSinRelacion[] = $familiaWeb;
+                    // Si no existe relacion de una familia web de todas, la eliminamos del array y mostramos una advertencia.
+                    unset($todasFamiliasWeb[$key]);
+                } else {
+                    // Existe relacion familia web con tpv.
+                    // Añadimos a todasFamiliasWeb el idFamilia de tpv
+                    $todasFamiliasWeb[$key]['idFamilia'] = $existe['datos'][0]['idFamilia'];
+                }
+            } else {
+                $errores[] = $Cfamilias->montarAdvertencia('danger',
+                            'Hay error en la base datos de la web, ya exite categorias que no tienen nombre y id 0.'
+                            );    
+            }
+        }
+        $respuesta = array( 'todasFamiliasWeb' => $todasFamiliasWeb);
+        if (isset($familiasWebSinRelacion)){
+            $respuesta['familiasWebSinRelacion'] = $familiasWebSinRelacion;
+        }
+        if (isset($error)){
+            $respuesta['errorWeb'] = $error;
+        }
+        return $respuesta;
     }
 
     // ------------------- METODOS COMUNES ----------------------  //

@@ -225,14 +225,18 @@ function  htmlTablaRefTiendas($crefTiendas,$link,$permiso_borrar=0){
     //      //      $crefTiendas-> (array) de Arrays con datos de productos en otras tiendas.
     //  Link: index.php?option=com_virtuemart&view=category&virtuemart_category_id=   a vista web
     //  Link: index.php?option=com_virtuemart&view=category&task=edit&cid=            a administador
-    
-    $html =  '<table id="tproveedor" class="table table-striped">'
+    $btnAnhadir = '';
+    if (count($crefTiendas) == 0){
+            $btnAnhadir ='<a  title="Añade una referencia directa a una familia de la web"'
+                        .'id="addIdRefTienda" class="glyphicon glyphicon-plus" onclick="HtmlRefFamiliaTienda()"></a>';
+    }
+    $html =  '<table id="tReferenciaTienda" class="table table-striped">'
             .'  <thead>'
             .'      <tr>'
             .'          <th>idTienda</th>'
             .'          <th>Id de la tienda / id </th>'
             .'          <th>link</th>'
-            .'          <th></th>'
+            .'          <th>'.$btnAnhadir
             .'      </tr>'
             .'  </thead>';
     if (count($crefTiendas)>0){

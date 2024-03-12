@@ -22,6 +22,56 @@ $(function () {
 
 });
 
+function HtmlRefFamiliaTienda(){
+    // Mostramos caja para poner el id de familia en web directamente
+    var titulo = 'Añadir referencia directa de familia de tienda';
+    var html = '<input type="text" name="idFamiliaTienda" id="idFamiliaTienda"  class="form-control" placeholder="Id de la familia tienda web">'+
+                '<button class="btn btn-primary" type="button" id="btn-fam-grabar" onclick="addRefFamiliaTienda()">Guardar</button>';
+    abrirModal(titulo,html);
+
+}
+
+function addRefFamiliaTienda(idFamilia){
+    console.log($('#idFamiliaTienda').val());    
+    console.log(idTiendaWeb);
+    console.log(familia.idFamilia);
+    if ($('#idFamiliaTienda').val()>0) {
+        var parametros = {
+            pulsado:        'anhadirRefTiendaWebDirecta',
+            idFamiliaTienda:$('#idFamiliaTienda').val(),
+            idTienda:       idTiendaWeb,
+            idFamilia:      familia.idFamilia
+        }
+         $.ajax({
+                data       : parametros,
+                url        : 'tareas.php',
+                type       : 'post',
+                beforeSend : function () {
+                console.log('********* Añadir registro familia tienda web directo **************');
+                },
+                success    :  function (response) {
+                    console.log('Respuesta de añadir registro de Familia de tienda web directo');
+                    var resultado = $.parseJSON(response);
+                    // Deberia añadir td o refrescar pagina
+                    if (resultado.comprobacion == 'OK'){
+                        location.reload(true);
+                    }
+
+                }
+            });
+    }
+    
+    
+    
+    
+    
+    
+    
+}
+
+
+
+
 function EliminarFamiliasSeleccionadas(){
         var seleccion = seleccionados();
         if (seleccion.length > 0) {
