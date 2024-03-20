@@ -301,9 +301,10 @@
         }
         // Ahora montamos el htmlRelacionesTienda, para poder ver estado y poder eliminarla si fuera necesario.
         $htmlRelacionFamilia ='';
-        //~ if ( isset($familia['familiaTienda']) && count($familia['familiaTienda']) >0){
-          $htmlRelacionFamilia = htmlTablaRefTiendas($familia['familiaTienda'],$ObjVirtuemart->ruta_categoria,$permiso_borrar=0);  
-        //~ }
+        if ( isset($familia['familiaTienda']) ){
+            $htmlRelacionFamilia = htmlTablaRefTiendas($familia['familiaTienda'],$ObjVirtuemart->ruta_categoria,$permiso_borrar=0);  
+
+        }
         // Si la familia tiene mostrar_tpv en 1 , lo ponemos en la variables $valor_check para mostrarlo
         $valor_check = 'value="0"';
         if ($familia['mostrar_tpv'] === '1'){
