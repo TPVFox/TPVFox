@@ -132,7 +132,8 @@
             } else {
                 //~ // Hay relacion con una o mas tiendas y no hubo erroresWeb
                 // por eso hacemos foreach, ya que puede haber mas de una.
-                foreach ($familia['familiaTienda'] as $f){
+                foreach ($familia['familiaTienda'] as $k=>$f){
+                    $familia['familiaTienda'][$k]['estado'] = 0; // Posibles estado 0=>'No publicado' , 1='Publicado', -1 =' Error'
                     if ($f['idTienda']==$idTiendaWeb){
                         $datos_familia_web = array ('idFamilia' => $f['idFamilia'],
                                                     'idTienda' => $idTiendaWeb,
@@ -148,10 +149,12 @@
                                                 ,'La familia actual tienes relacion pero no existe en la web, realmente.'
                                                 );
                               $datos_familia_web['nombre_familia_tienda']='No existe';
+                              $familia['familiaTienda'][$k]['estado'] = -1;
                         } else {
                             if (count($familia['familiaTienda'])>0){
                                 // Guardamos en datos_familia_web el nombre utiliza esa familia
                                 $datos_familia_web['nombre_familia_tienda'] = $todasFamiliasWeb[$Num_indice]['nombre'];
+                                $familia['familiaTienda'][$k]['estado'] = $todasFamiliasWeb[$Num_indice]['published'];
                             } else {
                                 // Como no tiene relacion creada, ponemos el nombre tienda el mismo
                                 $datos_familia_web['nombre_familia_tienda'] = $datos_familia_web['nombre'];
@@ -218,13 +221,13 @@
             foreach ($familia['hijos'] as $key=>$hijo){
                 if (count($hijo['familiaTienda']) == 1){
                     // Si hay 1 relación continuamos, compramos que exita en listado ids de familias de la Web (idsFamiliasWeb)
-                    $OK = FALSE;
+                    $Num_indice = FALSE;
                     if ($idsFamiliasWeb != 0){
                         // Compruebo si existe idsFamiliasweb, ya que si vamos comprobar que existe relacion de hijos, lo necesitamos.
-                        $OK = in_array($hijo['familiaTienda'][0]['idFamilia_tienda'], $idsFamiliasWeb);
+                        $Num_indice = array_search($hijo['familiaTienda'][0]['idFamilia_tienda'], $idsFamiliasWeb);
                     }
-                    if ($OK === FALSE){    
-                        $familia['hijos'][$key]['familiaTienda'][0]['existes_web']='KO';
+                    if ($Num_indice === FALSE){    
+                        $familia['hijos'][$key]['familiaTienda'][0]['estado']='-1';
                         // Boqueamos botton de subir hijos, ya que existe una relación y no existe en la web, hay que eliminarla 
                         // primero antes de subir mas hijos.
                         $control_hijos['errorWeb'] += 1; // Suma uno
@@ -237,7 +240,7 @@
                     } else {
                         // Si existe en los ids entonces creamos link_front_end_categoria
                         $control_hijos['conWeb'] += 1; // Suma uno
-                        $familia['hijos'][$key]['familiaTienda'][0]['existes_web']='OK';
+                        $familia['hijos'][$key]['familiaTienda'][0]['estado']=$todasFamiliasWeb[$Num_indice]['published'];
                         $familia['hijos'][$key]['familiaTienda'][0]['link_front_end_categoria']=$ObjVirtuemart->ruta_categoria.$hijo['familiaTienda'][0]['idFamilia_tienda'];
                     }
 
@@ -258,6 +261,7 @@
                 }
             }
         }
+        
         // Ahora montamos el html del desplegable de familias hijos.
         // Si tiene permisos de SubirHijasWeb  y tiene permisos ver montamos boton Subir hijos juntos.
         if ($permisos['SubirHijasWeb'] == 1 && $permisos['VerWeb'] == 1 ){
@@ -303,7 +307,6 @@
         $htmlRelacionFamilia ='';
         if ( isset($familia['familiaTienda']) ){
             $htmlRelacionFamilia = htmlTablaRefTiendas($familia['familiaTienda'],$ObjVirtuemart->ruta_categoria,$permiso_borrar=0);  
-
         }
         // Si la familia tiene mostrar_tpv en 1 , lo ponemos en la variables $valor_check para mostrarlo
         $valor_check = 'value="0"';
