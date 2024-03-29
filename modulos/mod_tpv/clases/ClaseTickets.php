@@ -391,8 +391,8 @@ class ClaseTickets extends ClaseSession {
 
         // Preparamos el <<<  pie   >>>  del ticket
         $respuesta['pie-datos'] =str_repeat("-",42)."\n";
-        if ($deglose == null){
-           // marcamos error en registro
+        if ($desglose == null){
+           // marcamos posible error en registro
            error_log('ClaseTickets-Desglose al imprimir es null en ticket:'.$cabecera['Serie'].'-'.$cabecera['Numticket']);
         }
         foreach ($desglose as $index=>$valor){
