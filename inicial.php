@@ -31,6 +31,7 @@ $error_conf = '';
     }
 	
     include_once ($URLCom. "/clases/ClaseSession.php");
+	include_once ($URLCom. "/app/helpers.php");
 
 	// Solo creamos objeto si no existe.
 	
