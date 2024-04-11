@@ -210,7 +210,8 @@ class ClaseProveedor extends TFModelo{
                 $sql='SELECT i.* , t.Su_numero,t.idTienda, t.estado, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva) 
                 as sumarIva, t.Fecha as fecha   from albproIva as i  
                 left JOIN albprot as t on t.id=i.idalbpro   where idalbpro  
-                in ('.$ids.')  GROUP BY idalbpro ;';
+                in ('.$ids.')  GROUP BY idalbpro ORDER BY fecha;';
+
                 $resumenBases=$this->consulta($sql);
                 if(isset($resumenBases['error'])){
                      $respuesta['error'][]= $this->montarAdvertencia('danner','Error al obtener el resumen de las bases de albaranes encontrados.<br/>'
