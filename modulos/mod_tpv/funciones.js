@@ -632,7 +632,6 @@ function controladorAcciones(caja,accion){
         break;
         
         case 'recalcular_ticket':
-            
             var n_producto = parseInt(caja.fila)-1;
             // Comprobamos que el valor puesto sea un numero decimal y que sea inferior a 9999
             if (comprobarNumero(caja.darValor()) && caja.darValor() < 9999){
@@ -734,9 +733,17 @@ function controladorAcciones(caja,accion){
         
         case 'cerrar_ticket':
             console.log(' Entro en contralador de acciones, cerrar ticket');
-            CobrarAceptar.parametros.pulsado_intro = 'Si';
-            // Ahora grabamos y cerramos ticket
-            cerrarTicket()
+            var entregado = parseFloat($('#entrega').val());
+            if (comprobarNumero(entregado)){
+                CobrarAceptar.parametros.pulsado_intro = 'Si';
+                // Ahora grabamos y cerramos ticket
+                cerrarTicket()
+            } else {
+                alert('Algo no esta bien, lo entregado..!!!');
+                $('#entrega').val('');
+		ponerFocus('entrega');
+
+            }
         break;
         
         case 'focus_entrega':
