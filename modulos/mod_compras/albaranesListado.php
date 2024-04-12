@@ -27,8 +27,7 @@ $todosTemporal=array_reverse($todosTemporal);
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array( 'a.Numalbpro','b.nombrecomercial');
 $NPaginado->SetCamposControler($campos);
-$NPaginado->SetOrderConsulta(['a.Fecha DESC', 'a.Numalbpro DESC']);
-
+$NPaginado->SetOrderConsulta('a.Numalbpro');
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 $CantidadRegistros=0;
@@ -40,7 +39,6 @@ $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
-
 $albaranesDef=$a['Items'];
 	if (isset($a['error'])){
 		$errores[]=array ( 'tipo'=>'Danger!',
