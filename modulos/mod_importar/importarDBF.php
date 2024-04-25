@@ -120,12 +120,17 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     var inicio = <?php echo $registros_fusionado;?> ;
     var total = <?php echo $tabla_info['info']['Rows']; ?>;
     var idBar = '2';
-    BarraProceso(inicio,total,idBar);
+    if (inicio > 0){
+        BarraProceso(inicio,total,idBar);
+    }
     if (estado !== 'Fusionado'){
         $(document).ready(function(){
             //Cada 10 segundos se ejecutará la función refrescar
             setTimeout(refrescar, 10000);
         });
+        if (inicio == 0){
+            alert('Está fusionando pero inicio es 0');
+        }
         function refrescar(){
             //Actualiza la el div con los datos de imagenes.php
             location.reload();

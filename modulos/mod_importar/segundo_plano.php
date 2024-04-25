@@ -27,14 +27,21 @@ $reg_log = $configImportar->reg_log;
 
 //  =======   Inicio  importacion    ================= //
 // Compruebo si el estado del ultimo registro esta Creado , sino no hacemos nada...
+error_log('fichero de registro'.$fichero_registro);
+error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= '." \n\r",3,$fichero_registro);
+error_log('Estado actual:'.$datos_registro['estado']."\n\r",3,$fichero_registro);
+
+
 if ($datos_registro['estado'] === 'Creado'){
-    error_log('====== Empezo a importar '.date("Y-m-d H:i:s").' ======= '." \n\r",3,$fichero_registro);
     // En produccion se envia registro inicio 0 al ultimo, pero puede
     // interesar fraccionarlo si es muy grande, para evitar una sobrecarga de memoria o
     // DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
     $registro_inicial = 0;
     $registro_final = $datos_registro['Registros_originales'];
     $instruccion = 'python '.$URLCom.'/lib/py/leerDbf1.py 2>&1 -f '.$fichero.' -i '.$registro_inicial.' -e '.$registro_final;
+    error_log('Registro Inicial de importacion:'.$registro_inicial."\n\r",3,$fichero_registro);
+
+
     exec($instruccion, $output,$entero);
     // Recuerda que $output es un array de todas las lineas obtenidad en .py
     // tambien recuerda que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py
@@ -80,7 +87,7 @@ if ($datos_registro['estado'] === 'Creado'){
                 if (gettype($r) === 'boolean'){
                     $errores++;
                     if ($reg_log['importar']['error'] === 'Si'){
-                        error_log('Error linea:'.$i.' Campo Principal:'.$l[$campo_principal],3,$fichero_registro);
+                        error_log('Error linea:'.$i.' Campo Principal:'.$l[$campo_principal]." \n\r",3,$fichero_registro);
                         if ($reg_log['importar']['sql'] === 'Si'){
                             $e=$importarDbf->getFallo();
                             // Volvemos ejecutar insertar para obtener el sql.
@@ -105,6 +112,8 @@ if ($datos_registro['estado'] === 'Creado'){
         error_log('Output:'.$output." \n\r",3,$fichero_registro);
         exit();
     }
+    error_log('Registro Final de importacion:'.$registro_final."\n\r",3,$fichero_registro);
+
     // Ahora registramos nulos y errores
     $e = $importarDbf->anhadirNulosErrores($datos_registro['id'],$nulos,$errores);
     if ($e === false ){
