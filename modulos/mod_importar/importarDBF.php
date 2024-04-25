@@ -16,6 +16,8 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
         exec("php -f ./segundo_plano.php > /dev/null &");
         // Ejecutamos... por lo que
         $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
+        error_log('Deberia estar ejecuntado en segundo_plano.php');
+
 
     }
     $Num_registros_estado = $importarDbf->contarRegistrosPorEstado(); // Obtener datos importacion.
