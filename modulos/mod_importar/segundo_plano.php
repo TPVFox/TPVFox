@@ -163,7 +163,10 @@ if ($datos_registro['estado'] === 'Importado'){
             $estado = $importarDbf->ControllerNewUpdate($producto);
         }
         if ($reg_log['fusionar']['Codigo_y_estado'] === 'Si'){
-            error_log('codigo:'.$producto['CODIGO'].' estado:'.$estado." \n\r",3,$fichero_registro);
+            // Solo vamos marcar en el regisro todos menos los iguales
+            if ($estado !== 'igual'){
+                error_log('codigo:'.$producto['CODIGO'].' estado:'.$estado." \n\r",3,$fichero_registro);
+            }
         }
         $cambioEstadoImport = $importarDbf->cambioEstadoImportado($producto['CODIGO'],$estado);
         if ($cambioEstadoImport === false){

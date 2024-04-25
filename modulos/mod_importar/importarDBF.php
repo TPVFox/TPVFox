@@ -11,14 +11,14 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     $estado = $datos_registro['estado'];
     // Ahora compruebo si ya se esta ejecuntado el fichero segundo plano
     $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
-    error_log('Compruebo si se esta ejecutando valor:'.$ejecutando);
     if ($ejecutando === 0){
+        error_log('Compruebo si se esta ejecutando valor:'.$ejecutando);
         exec("php -f ./segundo_plano.php > /dev/null &");
         // Ejecutamos... por lo que
         $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
-        error_log('Deberia estar ejecuntado en segundo_plano.php');
-
-
+        if ($ejecutando === 0) {
+            error_log('No inicia php segundo_plano.php');
+        }
     }
     $Num_registros_estado = $importarDbf->contarRegistrosPorEstado(); // Obtener datos importacion.
     $tabla_info = $importarDbf->InfoTabla('modulo_importar_ARTICULO');
