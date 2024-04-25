@@ -1,7 +1,8 @@
 <?php
 include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
-$importarDbf = new ImportarDbf();
+$ruta_segura = $thisTpv->getRutaSegura();
+$importarDbf = new ImportarDbf($ruta_segura);
 // Obtenemos los datos del ultimo registro de Tabla importacion, para saber nombre fichero y registros originales.
 $dregistro = $importarDbf->ultimoRegistro();
 $datos_registro =$dregistro['datos'][0];
@@ -10,7 +11,7 @@ $dir_subida = $thisTpv->getRutaUpload();
 $fichero = $dir_subida.'/'.$datos_registro['name'];
 
 // Montamos nombre fichero_registro.
-$ruta_segura = $thisTpv->getRutaSegura();
+
 $fichero_registro = $importarDbf->nombreFicheroRegistro($ruta_segura);
 
 //En filtros sin valor tanto en importar como fusionar no filtra nada.

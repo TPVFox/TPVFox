@@ -3,8 +3,10 @@ include_once $URLCom.'/clases/ClaseTFModelo.php';
 include_once $URLCom.'/modulos/mod_importar/clases/ClaseConfigImportar.php';
 
 Class ImportarDbf extends TFModelo {
-    public function __construct() {
+    public $ruta_segura;
+    public function __construct($ruta) {
         $this->configImportar = new ConfigImportar();
+        $this->ruta_segura = $this->nombreFicheroRegistro($ruta); // 
     }
    
     public function registroImportar($datos){
@@ -21,7 +23,7 @@ Class ImportarDbf extends TFModelo {
         if ($id === false){
             // Algo fallo
             $respuesta = $this->getFallo();
-            error_log('Tipo respuesta'.gettype($respuesta).'valor:'.json_encode($respuesta));
+            error_log('Tipo respuesta'.gettype($respuesta).'valor:'.json_encode($respuesta)."\n\r",3,$this->ruta_segura);
         } else {
             $respuesta = $id;
         }
@@ -99,7 +101,7 @@ Class ImportarDbf extends TFModelo {
         // @ Devuelve.
         // $error = 1 si es un error, 0 si fue correcto.
         // $datos 0 $errores
-       	$instruccion = 'python '.$URLCom.'/lib/py/leerEstrucDbf2.py 2>&1 -f '.$fichero;
+        $instruccion = 'python '.$URLCom.'/lib/py/leerEstrucDbf2.py 2>&1 -f '.$fichero;
         $resultado = array();
         $output = array(); 
 
@@ -249,7 +251,7 @@ Class ImportarDbf extends TFModelo {
         }
 
         if ($respuesta === false){
-            error_log( 'Hubo un error en metodo actualizarArticuloTpvfox');
+            error_log( 'Hubo un error en metodo actualizarArticuloTpvfox'."\n\r",3,$this->ruta_segura);
         }
         return $respuesta;
     }
@@ -347,30 +349,30 @@ Class ImportarDbf extends TFModelo {
                             } else {
                                 if ($reg_log_dif === 'Si'){
                                     // Registramos error_log la comparacion.
-                                    error_log('Producto:'.json_encode($p));
-                                    error_log('Articulo tpvfox:'.json_encode($articulo));
+                                    error_log('Producto:'.json_encode($p)."\n\r",3,$this->ruta_segura);
+                                    error_log('Articulo tpvfox:'.json_encode($articulo)."\n\r",3,$this->ruta_segura);
                                     $d = array_diff($articulo,$p);
-                                    error_log('Differencia.'.json_encode($d));
+                                    error_log('Differencia.'.json_encode($d)."\n\r",3,$this->ruta_segura);
                                 }
                                 // Hay que hacer update ya que no estan iguales: Actualizado
                                 $p['pvpSiva'] = number_format($producto['PVENTA'],4); // Para meter costes en milesima centimos.
                                 $respuesta = $this->actualizarArticuloTpvfox($p,$idArticulo);
                                 if ($respuesta ===false){
                                     // Algo fallo a la hora update.
-                                    error_log('Error en actualizacion:'.json_encode(parent::getFallo()));
+                                    error_log('Error en actualizacion:'.json_encode(parent::getFallo())."\n\r",3,$this->ruta_segura);
                                     $estado = 'error'; // Ya que lo había cambiado antes.
                                 }
                             }
                         } else {
-                            error_log('============ Se obtuvo mas de un producto con ese codigo en tpvfox ');
+                            error_log('============ Se obtuvo mas de un producto con ese codigo en tpvfox '."\n\r",3,$this->ruta_segura);
                             // Aquí realmente no es un error de consulta por lo que metodo getFallo no funcionaria.. por lo auq e
                         }
                     } else {
-                        error_log('=================Error en consulta :'.$consulta['datos']);
+                        error_log('=================Error en consulta :'.$consulta['datos']."\n\r",3,$this->ruta_segura);
                     }
                 } else {
                     // Quiere decir que hay mas de un producto o 0 con ese CODIGO,  marcamos error.
-                    error_log( ' El CODIGO:'.$producto['CODIGO'].' se encontraron '.count($A['datos']).' no voy comprobar nada, lo marco estado ERROR');
+                    error_log( ' El CODIGO:'.$producto['CODIGO'].' se encontraron '.count($A['datos']).' no voy comprobar nada, lo marco estado ERROR'."\n\r",3,$this->ruta_segura);
                 }
             } else {
                 $estado = 'filtrado';
@@ -400,12 +402,12 @@ Class ImportarDbf extends TFModelo {
                     $iN = $this->insertarNuevo($p);
                     if (isset($iN['error'])){
                         // Hubo un error al insertar.
-                        error_log('Error al insertar:'.$p['crefTienda'].'--->'.json_encode(parent::getFallo()));
+                        error_log('Error al insertar:'.$p['crefTienda'].'--->'.json_encode(parent::getFallo())."\n\r",3,$this->ruta_segura);
                     }
                 } else {
                     // Hubo algun error, por lo que no creamos y ponemos como error.
                     $estado = 'error';
-                    error_log('Hubo un error al comprobar un producto nuevo con el CODIGO: '.$p['crefTienda'].'       ERRORES:'. implode(',',$error));
+                    error_log('Hubo un error al comprobar un producto nuevo con el CODIGO: '.$p['crefTienda'].'       ERRORES:'. implode(',',$error)."\n\r",3,$this->ruta_segura);
                 }
             } else {
                 $estado = 'filtrado';
@@ -523,11 +525,11 @@ Class ImportarDbf extends TFModelo {
         $filtros = $conf->filtros;
         $valor = $filtros['fusionar'][$accion]['valor'];
         if ( $valor !==''){
-		$campo = $filtros['fusionar'][$accion]['nombre_campo'];
-			if ($registro[$campo]=== $valor){
-				$respuesta = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
-			}
-		}
+        $campo = $filtros['fusionar'][$accion]['nombre_campo'];
+            if ($registro[$campo]=== $valor){
+                $respuesta = 'filtrado'; // Si entra aqui, este registro ya no vamos comprobar nada.
+            }
+        }
         return $respuesta;
     }
 
@@ -598,7 +600,7 @@ Class ImportarDbf extends TFModelo {
 
     }
 
-    public function nombreFicheroRegistro($ruta_segura){
+    public function nombreFicheroRegistro($ruta){
         // @ Objetivo:
         // Crear fichero con la ruta completa para registrar log.
         $dregistro = $this->ultimoRegistro();
@@ -606,7 +608,7 @@ Class ImportarDbf extends TFModelo {
         $c = strlen($datos_registro['name'])-4;
         $e = array(":", "-", " ");
         $dtime = str_replace($e,"",$datos_registro['fecha_inicio']);
-        $fichero_registro = $ruta_segura.'/'.mb_strcut($datos_registro['name'],0,$c).'_'.$dtime.'.log';
+        $fichero_registro = $ruta.'/'.mb_strcut($datos_registro['name'],0,$c).'_'.$dtime.'.log';
         return $fichero_registro;
     }
 

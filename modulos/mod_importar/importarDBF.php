@@ -1,7 +1,8 @@
 <?php
 include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
-$importarDbf = new ImportarDbf();
+$ruta_segura = $thisTpv->getRutaSegura();
+$importarDbf = new ImportarDbf($ruta_segura);
 $mensajes=array();
 $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fusionado', aqui solo debería llegar cuano este en alguno de esos estados.
 // Obtenemos el ultimo registro

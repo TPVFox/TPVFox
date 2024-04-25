@@ -4,11 +4,11 @@
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	Importar ficheros de DBF
+ * @Descripcion Importar ficheros de DBF
  *  */
-		// Objetivo de esta aplicacion es:
-		//	- Copiar DBF y guardar en directorio de copias de seguridad.
-		// 	- Importar los datos copiados a MYSQL.
+        // Objetivo de esta aplicacion es:
+        //  - Copiar DBF y guardar en directorio de copias de seguridad.
+        //  - Importar los datos copiados a MYSQL.
         //  - Poner estado importado si es un producto nuevo.
         //  - Poner estado actualizaco si cambio alguno de los campos siguiente
         //              - Precio
@@ -18,7 +18,8 @@
      
 include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
-$importarDbf = new ImportarDbf();
+$ruta_segura = $thisTpv->getRutaSegura();
+$importarDbf = new ImportarDbf($ruta_segura);
 $link = '';
 // Ultimo registro
 $dregistro = $importarDbf->ultimoRegistro();
@@ -43,7 +44,7 @@ if ($datos_registro['id'] >0){
 
 
 <div class="container">
-	<div class="col-md-12">
+    <div class="col-md-12">
         <?php echo $link; ?>
         <h1>Subir fichero de articulos</h1>
         <p>Subimos fichero dbf no puede exceder lo indica tu php.ini</p>
@@ -68,7 +69,7 @@ if ($datos_registro['id'] >0){
         }
         ?>
         </form>
-	</div>	
+    </div>  
 </div>
 </body>
 </html>

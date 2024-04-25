@@ -11,7 +11,8 @@
 $pulsado = $_POST['pulsado'];
 include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
-$importarDbf = new ImportarDbf();
+$ruta_segura = $thisTpv->getRutaSegura();
+$importarDbf = new ImportarDbf($ruta_segura);
 
 
  switch ($pulsado) {
@@ -19,7 +20,7 @@ $importarDbf = new ImportarDbf();
     case 'borrar_tabla':
         $respuesta = $importarDbf->EliminarTabla();
         error_log('Borrado'.json_encode($respuesta));
-	break;
+    break;
 
     case 'borrar_fichero':
             
@@ -31,7 +32,7 @@ $importarDbf = new ImportarDbf();
         error_log('Borrado'.json_encode($respuesta));
     break;
 
-	
+    
 }
  
 /* ===============  CERRAMOS CONEXIONES  ===============*/

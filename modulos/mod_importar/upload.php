@@ -2,7 +2,8 @@
 /* Ahora vamos mover el fichero subido, crear la tabla y importar los datos */
 include_once './../../inicial.php';
 include_once './clases/ClaseImportarDbf.php';
-$importarDbf        = new ImportarDbf();
+$ruta_segura = $thisTpv->getRutaSegura();
+$importarDbf        = new ImportarDbf($ruta_segura);
 $mensajes           = array();
 $errores            = array();
 $btn_eliminar_fichero = '';
