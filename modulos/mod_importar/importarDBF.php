@@ -11,7 +11,7 @@ $estado = '';// Los posibles estado del registro son 'Creado','Importado' y 'Fus
     $estado = $datos_registro['estado'];
     // Ahora compruebo si ya se esta ejecuntado el fichero segundo plano
     $ejecutando = $importarDbf->comprobarSiEjecutaSegundoplano();
-    
+    error_log('Compruebo si se esta ejecutando valor:'.$ejecutando);
     if ($ejecutando === 0){
         exec("php -f ./segundo_plano.php > /dev/null &");
         // Ejecutamos... por lo que
