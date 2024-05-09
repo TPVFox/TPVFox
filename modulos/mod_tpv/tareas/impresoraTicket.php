@@ -16,69 +16,77 @@
 require  $URLCom.'/lib/escpos-php/autoload.php';
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
+use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\CapabilityProfile;
 use Mike42\Escpos\CapabilityProfiles\DefaultCapabilityProfile;
 $profile = DefaultCapabilityProfile::getInstance();
 
-$connector = new FilePrintConnector($ruta_impresora);
 
+if (preg_match('/^\//',$ruta_impresora)){
+    $connector = new FilePrintConnector($ruta_impresora);    
+} else {
+    $data = parse_url($ruta_impresora)
+    // $connector = new NetworkPrintConnector("192.168.4.3", 9100);
+    $connector = new NetworkPrintConnector($data["host"],$data["port"]);
+
+}
 $printer = new Printer($connector,$profile);
 // Ahora obtenemos Code Pages CP1252 que contiene el simbolo Euro
 $codes = $profile -> getCodePages();
 foreach ($codes as $table => $name){
-	if (strtolower($name -> getId()) == 'cp1252'){
-		// Obtenemos la numero de la tabla que es CP1252 para imprimir Euro.
-		// Voy a utilizar varios codepage en el ticket
-		$numeroIdCodigoPage = $table;
-		
-	}
+    if (strtolower($name -> getId()) == 'cp1252'){
+        // Obtenemos la numero de la tabla que es CP1252 para imprimir Euro.
+        // Voy a utilizar varios codepage en el ticket
+        $numeroIdCodigoPage = $table;
+        
+    }
 }
 
 /* Initialize */
-				$printer -> initialize();
-				// Reseteamos CODE PAGE para imprimir correctamente carateres
-				$printer -> selectCharacterTable();
+                $printer -> initialize();
+                // Reseteamos CODE PAGE para imprimir correctamente carateres
+                $printer -> selectCharacterTable();
 
-				$printer -> setJustification(Printer::JUSTIFY_CENTER);
-				$printer -> setTextSize(4, 2);
-				$printer -> text($datosImpresion['cabecera1']);
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text($datosImpresion['cabecera1-datos']);
+                $printer -> setJustification(Printer::JUSTIFY_CENTER);
+                $printer -> setTextSize(4, 2);
+                $printer -> text($datosImpresion['cabecera1']);
+                $printer -> selectPrintMode(); // Reset
+                $printer -> text($datosImpresion['cabecera1-datos']);
 
-				$printer -> setTextSize(2,1);
-				$printer -> text($datosImpresion['cabecera2']);
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text($datosImpresion['cabecera2-datos']);
-				
-				$printer -> selectPrintMode(); // Reset
+                $printer -> setTextSize(2,1);
+                $printer -> text($datosImpresion['cabecera2']);
+                $printer -> selectPrintMode(); // Reset
+                $printer -> text($datosImpresion['cabecera2-datos']);
+                
+                $printer -> selectPrintMode(); // Reset
 
-				$printer -> text($datosImpresion['body']);
-				$printer -> text($datosImpresion['pie-datos']);
-				$printer -> setJustification(Printer::JUSTIFY_RIGHT);
-				$printer -> text('Total:');
-				$printer -> setTextSize(2,2);
-				// cambiamos Code Page a CP1252 para imprima € que es el chr(128) 
-				$printer -> selectCharacterTable($numeroIdCodigoPage);
+                $printer -> text($datosImpresion['body']);
+                $printer -> text($datosImpresion['pie-datos']);
+                $printer -> setJustification(Printer::JUSTIFY_RIGHT);
+                $printer -> text('Total:');
+                $printer -> setTextSize(2,2);
+                // cambiamos Code Page a CP1252 para imprima € que es el chr(128) 
+                $printer -> selectCharacterTable($numeroIdCodigoPage);
 
-				$printer -> text($datosImpresion['pie-total'].chr(128)."\n");
-				$printer -> selectPrintMode(); // Reset
-				$printer -> text('Forma pago:');
-				$printer -> text($datosImpresion['pie-formaPago']."  - Entregado:");
-				$printer -> text($datosImpresion['pie-entregado']."\n");
+                $printer -> text($datosImpresion['pie-total'].chr(128)."\n");
+                $printer -> selectPrintMode(); // Reset
+                $printer -> text('Forma pago:');
+                $printer -> text($datosImpresion['pie-formaPago']."  - Entregado:");
+                $printer -> text($datosImpresion['pie-entregado']."\n");
 
-				$printer -> text('Cambio:');
-				$printer -> text($datosImpresion['pie-cambio']."\n");
+                $printer -> text('Cambio:');
+                $printer -> text($datosImpresion['pie-cambio']."\n");
 
-				$printer -> selectPrintMode(); // Reset
-				$printer -> setJustification(Printer::JUSTIFY_CENTER);
-				$printer -> text($datosImpresion['pie-datos2']."\n");
-				$printer -> text(' '."\n"."\n");
+                $printer -> selectPrintMode(); // Reset
+                $printer -> setJustification(Printer::JUSTIFY_CENTER);
+                $printer -> text($datosImpresion['pie-datos2']."\n");
                 $printer -> text(' '."\n"."\n");
-				$printer -> text(' '."\n"."\n");
+                $printer -> text(' '."\n"."\n");
+                $printer -> text(' '."\n"."\n");
 
                 // La opcion corte, solo es SI
                 if ($configuracion['corte_tickets']==='Si'){
                     $printer -> cut();
                 }
-				$printer -> close();
-				
+                $printer -> close();
+                

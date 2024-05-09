@@ -5,7 +5,7 @@
  * @copyright   Copyright (C) 2017 TpvOlalla de Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero ,
- * @Descripcion	Funciones en php para modulo TPV
+ * @Descripcion Funciones en php para modulo TPV
  * */
 include_once './../../inicial.php';
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
@@ -14,13 +14,13 @@ include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
 
 function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     // @ Objetivo:
-    // 	Es buscar por Referencia / Codbarras / Descripcion nombre.
+    //  Es buscar por Referencia / Codbarras / Descripcion nombre.
     //  tanto buscamos identicos como Likes 
     // @ Parametros:
-    //		campoAbuscar-> indicamos que campo estamos buscando.
-    //		busqueda -- string a buscar, puede contener varias palabras
-    //		BDTpv-> conexion a la base datos.
-    //		vuelta = 1, para buscar algo identico, si viene con 2 busca con %like% segunda llamada
+    //      campoAbuscar-> indicamos que campo estamos buscando.
+    //      busqueda -- string a buscar, puede contener varias palabras
+    //      BDTpv-> conexion a la base datos.
+    //      vuelta = 1, para buscar algo identico, si viene con 2 busca con %like% segunda llamada
     $resultado = array();
     $palabras = array();
     $products = array();
@@ -49,7 +49,7 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv) {
     }
     $resultado['palabras'] = $palabras;
 
-    //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
+    //si vuelta es distinto de 1 es que entra por 2da vez busca %likes% 
     $busquedas = array();
 
     if (count($palabras) > 0) {
@@ -116,10 +116,10 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda) {
 
     $resultado['encontrados'] = count($productos);
     $resultado['html'] = "<script type='text/javascript'>
-					// Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos" .
+                    // Ahora debemos añadir parametro campo a objeto de cajaBusquedaProductos" .
             "cajaBusquedaproductos.parametros.campo.__defineSetter__ =" . "'" . $campoAbuscar . "';
-						idN.parametros.campo.__defineSetter__ =" . "'" . $campoAbuscar . "';
-						</script>";
+                        idN.parametros.campo.__defineSetter__ =" . "'" . $campoAbuscar . "';
+                        </script>";
     $resultado['html'] .= '<label>Busqueda por ' . $id_input . '</label>';
     // Utilizo el metodo onkeydown ya que encuentro que onKeyup no funciona en igual con todas las teclas.
 
@@ -281,11 +281,11 @@ function htmlCobrar($total, $configuracion) {
 }
 
 function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total) {
-    // @ Objetivo: 	Guardar datos en tabla temporal de tickets.
+    // @ Objetivo:  Guardar datos en tabla temporal de tickets.
     // @ Parametros:
-    // 	$BDTpv -> Conexion a base de datos.
-    // 	$productos -> Array de productos añadidos a ticket
-    // 	$cabecera _> Array con datos de la cabecera.	
+    //  $BDTpv -> Conexion a base de datos.
+    //  $productos -> Array de productos añadidos a ticket
+    //  $cabecera _> Array con datos de la cabecera.    
     $resultado = array();
     // Tomamos el valor de la fecha actual.
     $fecha = date("Y-m-d H:i:s");
@@ -340,7 +340,7 @@ function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total) {
         }
     }
     $resultado['NumeroTicket'] = $numTicket;
-    //~ $resultado['productos'] = $productos_json;	
+    //~ $resultado['productos'] = $productos_json;  
     $resultado['productos'] = $PrepProductos;
     return $resultado;
 }
@@ -348,7 +348,7 @@ function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total) {
 function recalculoTotales($productos) {
     // @ Objetivo recalcular los totales y desglose del ticket
     // @ Parametro:
-    // 	$productos (array) no objeto.
+    //  $productos (array) no objeto.
     $respuesta = array();
     $desglose = array();
     $ivas = array();
@@ -469,7 +469,7 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
     }
     //Comprobamos si el campo unidad esta vacío, en caso de que lo este, la convertimos en 1
     if ($product->unidad == ''){
-	$product->unidad =1;
+    $product->unidad =1;
     }
     // Creamos importe --> 
     $importe = $product->pvpconiva * $product->unidad;
@@ -521,10 +521,10 @@ function htmlLineaTicket($producto, $num_item, $CONF_campoPeso) {
 function MaquetarFecha($fecha, $tipo = 'dmy') {
     // @ Objetivo formatear una una fecha y obtener al tipo indicado
     // @ Parametros
-    // 	$fecha : Dato de fecha
-    //	$tipo : Pueder ser 
-    //				HM -> Hora Minuto
-    //				dmy -> Dia Mes Año
+    //  $fecha : Dato de fecha
+    //  $tipo : Pueder ser 
+    //              HM -> Hora Minuto
+    //              dmy -> Dia Mes Año
     // Creamos array de fecha
     $fechaArray = date_parse($fecha);
     $horaMinuto = sprintf("%'.02d", $fechaArray['hour']) . ':' . sprintf("%'.02d", $fechaArray['minute']);
@@ -541,10 +541,10 @@ function ObtenerNumIndices($BDTpv, $campo, $idUsuario, $idTienda, $incrementar =
     // @ Objetivo 
     // Obtener el numero tickets a utilizar en las tablas tickets y si lo indicamos a la funcion podemos incrementarlo.
     // @ Parametros
-    // 	 $campo: (String) `Numtempticket`,`Numticket` , segun se la tabla que utilicemos.
-    // 	 $idUsuario ->(int); 
-    // 	 $idTienda 	->(int);
-    // 	 $incrementar ---> booleano ( lo utilizamos para indicar a la funcion que incremente el numeros de ticket en el registro y campo indicado.
+    //   $campo: (String) `Numtempticket`,`Numticket` , segun se la tabla que utilicemos.
+    //   $idUsuario ->(int); 
+    //   $idTienda  ->(int);
+    //   $incrementar ---> booleano ( lo utilizamos para indicar a la funcion que incremente el numeros de ticket en el registro y campo indicado.
     // Hay que tener en cuenta que tenemos un registro por Usuario y Tienda para llevar un control numeros ticket. 
     $sql = 'SELECT ' . $campo . ' FROM `indices` WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario;
     $resp = $BDTpv->query($sql);
@@ -576,38 +576,38 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose) {
     // @ Objetivo:
     // Grabar el ticketCerrado (Cobrado) y cambiar el estado ticketTemporal.
     // @ Parametros:
-    // 		$cabecera : Array que trae ->
-    // 				$cabecera['total']
-    //				$cabecera['entregado']
-    //				$cabecera['formaPago']
-    //				$cabecera['idTienda']
-    // 				$cabecera['idCliente']
-    //				$cabecera['idUsuario']
-    //				$cabecera['estadoTicket']
-    //				$cabecera['numTickTemporal'] 
-    //				$cabecera['cambio'] 
-    // 		$productos . Array de Objetos que trae ->
-    //				[0] Indice producto.
-    // 					producto.id;
-    //					productos.cref;
-    //					productos.cdetalle;
-    //					productos.pvpconiva;
-    //					productos.ccodebar
-    //					productos.ctipoiva 
-    //					productos.unidad 
-    // 					productos.estado;
-    //					productos.nfila
-    // 		$desglose -> Arrayque trae ->
-    //				["10"]["BaseYiva"] -> Subtotal
-    //					  ["base"] -> Base
-    //					  ["iva"]: -> Importe Iva
-    //				["4"]...  El orden puede ser cualquiera de los ivas y no tiene que porquetodos.. 
-    //				["21"] ...
+    //      $cabecera : Array que trae ->
+    //              $cabecera['total']
+    //              $cabecera['entregado']
+    //              $cabecera['formaPago']
+    //              $cabecera['idTienda']
+    //              $cabecera['idCliente']
+    //              $cabecera['idUsuario']
+    //              $cabecera['estadoTicket']
+    //              $cabecera['numTickTemporal'] 
+    //              $cabecera['cambio'] 
+    //      $productos . Array de Objetos que trae ->
+    //              [0] Indice producto.
+    //                  producto.id;
+    //                  productos.cref;
+    //                  productos.cdetalle;
+    //                  productos.pvpconiva;
+    //                  productos.ccodebar
+    //                  productos.ctipoiva 
+    //                  productos.unidad 
+    //                  productos.estado;
+    //                  productos.nfila
+    //      $desglose -> Arrayque trae ->
+    //              ["10"]["BaseYiva"] -> Subtotal
+    //                    ["base"] -> Base
+    //                    ["iva"]: -> Importe Iva
+    //              ["4"]...  El orden puede ser cualquiera de los ivas y no tiene que porquetodos.. 
+    //              ["21"] ...
     // Recuerda que tenemos que obtener el numticket en el que va el usuario.
     // por logica solo podrá utilizar la aplicación un usuario en una sola tienda a la vez.:-)
     // La fecha y hora ( timedate) la del momento de cobrar.
     // Campo de tabla ticketst 
-    // id 	, Numticket , Numtempticket ,Fecha 	datetime, idUsuario, idCliente, estado, formaPago, entregado
+    // id   , Numticket , Numtempticket ,Fecha  datetime, idUsuario, idCliente, estado, formaPago, entregado
     $SqlTickets = array(); // Creamos array para SQL
     $Impresion = array(); // Creamos array para luego enviar imprimir
     $fecha = date("Y-m-d H:i:s");
@@ -660,7 +660,7 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose) {
             . ', `iva`,nfila,estadoLinea) VALUES ' . $valores;
 
 
-    // Preparamos SQl para Consulta para ticketstiva	
+    // Preparamos SQl para Consulta para ticketstiva    
     if (count($desglose) > 0) {
         // En tickets con valor 0 , no hay datos desglose..
         $iva = array();
@@ -711,8 +711,16 @@ function ComprobarImpresoraTickets($ruta_impresora) {
     // @ Devuelve:
     //   boreano-> true (correcto) , false (no la encuentra)
     $respuesta = false;
-    if (shell_exec('ls ' . $ruta_impresora)) {
-        $respuesta = true;
+    if (preg_match('/^\//',$ruta_impresora)){
+        if (shell_exec('ls ' . $ruta_impresora)) {
+            $respuesta = true;
+        }
+    } else {
+        $data = parse_url($ruta_impresora);
+        $test_conn= @fsockopen($data['host'],$data['port'],$errno, $errstr,1);
+        if (is_resource($test_conn)){
+            $respuesta = true;
+        }
     }
     return $respuesta;
 }
@@ -759,7 +767,7 @@ function ObtenerRefWebProductos($BDTpv, $productos, $idWeb) {
     // @ Objetivo 
     // Obtener el idVirtuemart del producto que utilizamos en virtuemart
     // @ Parametros
-    // 	 $productos-> Array de objetos.
+    //   $productos-> Array de objetos.
     // Montamos where para buscar los idArticulo de los productos.
     $resultado = array();
     $wheres = array();
@@ -834,8 +842,8 @@ function htmlFechaNueva($tickets){
     }
     return $resultado;
 }
-/* * *****************************************************************************	
- *  			FUNCIONES REPETIDAS Y COMUNES EN OTROS MODULOS: CIERRES Y TPV	 		*
+/* * *****************************************************************************  
+ *              FUNCIONES REPETIDAS Y COMUNES EN OTROS MODULOS: CIERRES Y TPV           *
  * ****************************************************************************** */
 
 function BuscarTienda($BDTpv, $idWeb) {
@@ -880,9 +888,9 @@ function baseIva($BDTpv, $idticketst) {
 function BusquedaClientes($busqueda, $BDTpv, $tabla,$dedonde) {
     // @ Objetivo es buscar los clientes 
     // @ Parametros
-    // 	$busqueda --> Lo que vamos a buscar
-    // 	$BDTpv--> Conexion
-    //	$tabla--> tabla donde buscar.
+    //  $busqueda --> Lo que vamos a buscar
+    //  $BDTpv--> Conexion
+    //  $tabla--> tabla donde buscar.
     // Campos que vamos a Buscar: 'Nombre','razonsocial','nif','telefono','movil'
     $resultado = array();
     // Separamos la busqueda en varias palabras
@@ -945,8 +953,8 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
     // @ Objetivo:
     // Montar el hmtl para mostrar con los clientes si los hubiera.
     // @ parametros:
-    // 		$busqueda -> El valor a buscar,aunque puede venir vacio.. 
-    //		$dedonde  -> Nos indica de donde viene.
+    //      $busqueda -> El valor a buscar,aunque puede venir vacio.. 
+    //      $dedonde  -> Nos indica de donde viene.
     //               (tpv y cerrados)
     $html= '<label>Busqueda Cliente en ' . $dedonde . '</label>'
             . '<input id="cajaBusquedacliente" name="valorCliente" placeholder="Buscar"'
@@ -954,7 +962,7 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
             . '" onkeydown="controlEventos(event)" type="text">';
 
     if (count($clientes) > 10) {
-		$html.= '<span> Se muestra 12 clientes de '.count($clientes).'</span>';
+        $html.= '<span> Se muestra 12 clientes de '.count($clientes).'</span>';
     }
         $html.= '<table class="table table-striped"><thead>'
             . ' <th></th>' //cabecera blanca para boton agregar
@@ -964,12 +972,12 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
             . '</thead><tbody>';
     if (count($clientes) > 0) {
         $contador_inactivo = 0;
-		foreach ($clientes as $key=>$cliente){
+        foreach ($clientes as $key=>$cliente){
             $clase_inactiva = '';
-			if ($cliente['estado']!=='Activo'){
-				$clase_inactiva = ' danger';
-				$contador_inactivo++;
-			} 
+            if ($cliente['estado']!=='Activo'){
+                $clase_inactiva = ' danger';
+                $contador_inactivo++;
+            } 
 
             $razonsocial_nombre = $cliente['nombre'] . ' - ' . $cliente['razonsocial'];
             $datos = "'" . $cliente['idClientes'] . "','" . addslashes(htmlentities($razonsocial_nombre, ENT_COMPAT)) . "'";
@@ -988,7 +996,7 @@ function htmlClientes($busqueda, $dedonde, $clientes = array()) {
             }
         }
         if ($contador_inactivo>0){
-            $html.=	' <div class="alert alert-danger">'
+            $html.= ' <div class="alert alert-danger">'
                 .'Recuerda que los clientes INACTIVOS están Rojo, no se puede añadir</div> ';
         }
     }
