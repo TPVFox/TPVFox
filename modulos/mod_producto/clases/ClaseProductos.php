@@ -1095,14 +1095,16 @@ class ClaseProductos extends ClaseTablaArticulos{
         }
         if(!$bandera){
             $sql=array();
-            $sql[1]='delete from articulos where idArticulo='.$id;
-            $sql[2]='delete from articulosTiendas where idArticulo='.$id;
-            $sql[3]='delete from articulosClientes where idArticulo='.$id;
-            $sql[4]='delete from articulosCodigoBarras where idArticulo='.$id;
-            $sql[5]='delete from articulosFamilias where idArticulo='.$id;
-            $sql[6]='delete from articulosPrecios where idArticulo='.$id;
-            $sql[7]='delete from articulosProveedores where idArticulo='.$id;
-            $sql[8]='delete from articulosStocks where idArticulo='.$id;
+            $sql[]='delete from articulosTiendas where idArticulo='.$id;
+            $sql[]='delete from articulosClientes where idArticulo='.$id;
+            $sql[]='delete from articulosCodigoBarras where idArticulo='.$id;
+            $sql[]='delete from articulosFamilias where idArticulo='.$id;
+            $sql[]='delete from articulosPrecios where idArticulo='.$id;
+            $sql[]='delete from articulosProveedores where idArticulo='.$id;
+            $sql[]='delete from articulosStocks where idArticulo='.$id;
+            $sql[]='delete from historico_precios where idArticulo='.$id;
+            $sql[]='delete from articulos where idArticulo='.$id;
+
             foreach ($sql as $consulta){
                 $eliminar =$this->Consulta_insert_update($consulta);
                 if(isset($eliminar['error'])){
