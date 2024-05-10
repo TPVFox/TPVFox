@@ -25,8 +25,7 @@ $profile = DefaultCapabilityProfile::getInstance();
 if (preg_match('/^\//',$ruta_impresora)){
     $connector = new FilePrintConnector($ruta_impresora);    
 } else {
-    $data = parse_url($ruta_impresora)
-    // $connector = new NetworkPrintConnector("192.168.4.3", 9100);
+    $data = parse_url($ruta_impresora);
     $connector = new NetworkPrintConnector($data["host"],$data["port"]);
 
 }
