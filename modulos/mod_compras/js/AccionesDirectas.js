@@ -190,6 +190,9 @@ function controladorAcciones(caja,accion, tecla){
 				ponerFocus(d_focus);
 			}
 		break;
+		case 'Saltar_SuNumero':
+			ponerFocus(salto_linea);
+		break
 
         case 'Saltar_Siguiente':
             ObtenerFocus(caja);

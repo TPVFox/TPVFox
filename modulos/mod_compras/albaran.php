@@ -22,7 +22,7 @@ $titulo = "Albarán de proveedor: ";
 // [accion] -> editar,ver
 $estado = 'Nuevo';
 
-$fecha = date('d-m-Y');
+$fecha= date('d-m-Y');
 $idAlbaranTemporal = 0;
 $idAlbaran = 0;
 $idProveedor = "";
@@ -450,7 +450,7 @@ if ($estado === "Nuevo") {
 $title_fecha = ' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
 echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
     . $estilos['input_factur'] . ' value="' . $fecha . '" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)" '
-    . $pattern_numerico . $title_fecha . '/>';
+    . $pattern_numerico . $title_fecha . '  autofocus />';
 ?>
                     </div>
                     <div class="col-md-3">
@@ -484,7 +484,7 @@ echo '<div class="col-md-2">
 echo '<div class="col-md-10">
                             <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
     . 'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-    . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" >'
+    . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
     . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
     . ' onclick="buscarProveedor(' . "'" . 'albaran' . "'" . ',Proveedor.value)"></a>
                          </div>';
@@ -497,12 +497,12 @@ echo '<div class="col-md-10">
                         <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero; ?>"
                         size="10" <?php echo $estilos['evento_cambio']; ?>
                         onkeydown="controlEventos(event)"
-                        data-obj= "CajaSuNumero" <?php echo $estilos['input_factur']; ?> autofocus/>
+                        data-obj= "CajaSuNumero" <?php echo $estilos['input_factur']; ?> />
                 </div>
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
                         <?php
-echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" '
+echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "cajafechaVenci"'
     . $estilos['input_factur'] . ' value="' . $fechaVencimiento . '" onkeydown="controlEventos(event)" '
     . $pattern_numerico . $title_fecha . '>';
 ?>

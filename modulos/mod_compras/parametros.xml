@@ -36,6 +36,7 @@
 		<caja_input>
 			<nombre id_input="suNumero">CajaSuNumero</nombre>
 			<teclas>
+				<action tecla="13">Saltar_SuNumero</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
@@ -228,9 +229,6 @@
 				<estado>Si</estado>
 			</before>
 		</caja_input>	
-		Descripcion_Fila
-						
-
 		<caja_input>
 			<nombre id_input="numPedido">numPedido</nombre>
 			<teclas>
@@ -276,7 +274,7 @@
 			</before>
 		</caja_input>
 <caja_input>
-			<nombre id_input="fechaVenci">fechaVenci</nombre>
+			<nombre id_input="fechaVenci">cajafechaVenci</nombre>
 			<teclas>
 				<action tecla="13">selectFormas</action>	
 			</teclas>

@@ -408,7 +408,11 @@ function comprobarAdjunto(dedonde){
 					if (resultado.bandera == 1){
                         // Ponemos focus en entrada adjunto.
                         mostrarDivAdjunto();
-						ponerFocus('numPedido');
+                        if (dedonde == 'factura'){
+                            ponerFocus('numPedido');
+                        } else {
+						    ponerFocus('suNumero');
+                        }
 					}else{
                         ponerFocus( ObtenerFocusDefectoEntradaLinea());
 					}
