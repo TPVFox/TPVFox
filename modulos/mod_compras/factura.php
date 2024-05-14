@@ -296,6 +296,7 @@
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
 	var albaranes =[];
+    var salto_linea = 'ReferenciaPro'; // Valor por defecto
 <?php 
 	if (isset($idFacturaTemporal)|| isset($idFactura)){ 
 		if (isset($productos)){
@@ -384,12 +385,10 @@
         </div>
         <div class="col-md-4 text-right" >
             <?php
-            if ($estado != "Contabilizado" && $accion != "ver"){?>
-            <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-             <?php echo htmlSelectConfiguracionSalto();
+            if ($estado != "Contabilizado" && $accion != "ver"){
                 // El btn cancelar solo se crea si el estado es "Nuevo"
-                // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
-                if ($estado != "Nuevo"){
+                // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal                
+                if ($estado != "Nuevo"){                    
                     $estilos['btn_cancelar'] = ' style="display:none;"';
                     // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
                 }

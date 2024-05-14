@@ -7,6 +7,7 @@
 // aunque están mezcladas.
 
 
+
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 	// @Objetivo: Añadir o modificar el coste de un producto
 	// @Parametros: 
@@ -499,6 +500,7 @@ function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
         },
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de html fila pedidos');
+            console.log(datos.campo);
             var resultado =  $.parseJSON(response); 
             var nuevafila = resultado['html'];
             $("#tabla").prepend(nuevafila);
@@ -1132,35 +1134,33 @@ function ObtenerCajaSiguiente(idCaja){
     }
     return d_focus;
 }
-
-function ObtenerFocusDefectoEntradaLinea(){
-	var valor = $("#salto").val();
-	switch(valor){
-		case '0':
-			d_focus='Referencia';
-		break;
-		case '1':
+function cambiarValorSaltoLinea(campo){
+    switch(campo){
+		case 'a.idArticulo':
 			d_focus='idArticulo';
 		break;
-		case '2':
+		case 'at.crefTienda':
 			d_focus='Referencia';
 		break;
-		case '3':
+		case 'p.crefProveedor':
 			d_focus='ReferenciaPro';
 		break;
-		case '4':
+		case 'ac.codBarras':
 			d_focus='Codbarras';
 		break;
-		case '5':
+		case 'a.articulo_name':
 			d_focus='Descripcion';
 		break;
-		default:
-			d_focus='Referencia';
-		break;
-		
-	}
-    return d_focus;
+    }
+return d_focus;
+
 }
+
+function ObtenerFocusDefectoEntradaLinea(){    
+    return salto_linea;
+}
+
+
 
 function abrirIncidenciasAdjuntas(id, modulo, dedonde){
     var parametros = {

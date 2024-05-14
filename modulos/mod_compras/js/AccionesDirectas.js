@@ -269,6 +269,9 @@ function AccionBuscarProductos (caja,event){
     idcaja = caja.id_input;
     campo = caja.darParametro('campo');
     busqueda = caja.darValor();
+	
+	salto_linea= cambiarValorSaltoLinea(campo);
+	console.log('Campo:'+campo);
     dedonde = caja.darParametro('dedonde');
    	if (busqueda !== "" || idcaja === "Descripcion"){
         // Solo ejecutamos si hay datos de busqueda.

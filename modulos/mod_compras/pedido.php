@@ -262,6 +262,7 @@
 		cabecera['fecha'] = '<?php echo $fecha;?>';
 		 // Si no hay datos GET es 'Nuevo';
 	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+    var salto_linea = 'ReferenciaPro'; // Valor por defecto
 	<?php 
 	$i= 0;
 	if (isset($productos)){
@@ -355,9 +356,8 @@
 			</div>
             <div class="col-md-4 text-right" >
             <?php
-            if ($estado != "Facturado" || $accion != "ver"){?>
-                <span class="glyphicon glyphicon-cog" title="Escoje casilla de salto"></span>
-                <?php echo htmlSelectConfiguracionSalto();
+            if ($estado != "Facturado" || $accion != "ver"){
+                
                 // El btn cancelar solo se crea si el estado es "Nuevo"
                 // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
                 if ($estado != "Nuevo"){
