@@ -594,7 +594,7 @@ function addTemporal(dedonde=""){
 				// Creo funcion para restear totales.	
 				resetearTotales();
 				total = parseFloat(resultado['totales']['total'])
-				$('.totalImporte').html(total.toFixed(2));
+				//$('.totalImporte').html(total.toFixed(2));
 				$('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
 				
 			}
@@ -1022,7 +1022,7 @@ function pintamosTotales (DesgloseTotal) {
 	// Quiere decir que hay datos a mostrar en pie.
 	total = parseFloat(DesgloseTotal['totales']['total']) // varible global.
 	$('.totalImporte').html(total.toFixed(2));
-	// Ahora tengo que pintar los ivas.
+	// Ahora tengo que pintar los ivas.    
 	var desgloseIvas = [];
 	desgloseIvas.push(DesgloseTotal['totales']['desglose']);
 	// Ahora recorremos array desglose

@@ -399,7 +399,7 @@ function htmlLineaProducto($producto, $dedonde,$solo_lectura=''){
                             .'<td><input class="unidad" id="Unidad_Fila_'.$producto['nfila']
                             .'" type="text" data-obj="Unidad_Fila"  '
                             .' pattern="[-+]?[0-9]*[.]?[0-9]+" name="unidad[]" placeholder="unidad"'
-                            .' size="3"  value="'.$cant.'" '.$solo_lectura.' '
+                            .' size="4"  value="'.$cant.'" '.$solo_lectura.' '
                             .$estadoInput.' onkeydown="controlEventos(event)" '
                             .' onBlur="controlEventos(event)"/></td>'
                             .'<td class="pvp">'.$html_coste.'</td>'
@@ -698,7 +698,18 @@ function htmlTotales($Datostotales){
 		.'<td> Totales </td>'
 		.'<td>'.number_format($totalBase,2).'</td>'
 		.'<td>'.number_format($totaliva,2).'</td>'
-		.'</tr>';
+		.'</tr>'
+
+		. '<tr>'
+		. '<td>            <h3>TOTAL</h3></td>
+					   <td colspan="2">
+					<div class="totalImporte" style="font-size: 3em;">'
+		. (isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : '')
+		.'</div>'
+		. '</td>'
+		. '</tr>';
+	
+
 	}
 	return $htmlIvas;
 }

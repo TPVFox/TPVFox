@@ -425,7 +425,7 @@ if (isset($incidencias) && count($incidencias) > 0) {
 if ($estado != "Facturado" && $accion != "ver") {
     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
     echo '<input class="btn btn-primary" ' . $estilos['btn_guardar']
-        . ' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
+        . ' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G">';
 }
 ?>
         </div>
@@ -553,7 +553,7 @@ if (isset($datosAlbaran['Pedidos'])) {
             </table>
         </div>
         <!-- Tabla de lineas de productos -->
-	<div>
+	    <div>
             <div>
                 <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo']; ?>>
                     <div class="form-group">
@@ -574,6 +574,8 @@ if (isset($datosAlbaran['Pedidos'])) {
                 </div>
 
             </div>
+
+            <div class="col-md-9">
             <table id="tabla" class="table table-striped">
                 <thead>
                   <tr>
@@ -615,8 +617,10 @@ if (isset($productos)) {
 ?>
                 </tbody>
               </table>
-        </div>
-        <div class="col-md-10 col-md-offset-2 pie-ticket">
+            </div>
+        
+        <div class="col-md-3 pie-ticket">
+            <div class="col-md-12">
             <table id="tabla-pie" class="col-md-6">
             <thead>
                 <tr>
@@ -632,16 +636,18 @@ if (isset($Datostotales)) {
     echo $htmlIvas['html'];
 }
 ?>
-            </tbody>
-            </table>
-            <div class="col-md-6">
-                <div class="col-md-4">
-                <h3>TOTAL</h3>
-                </div>
-                <div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+<!-- <tr>
+    <td>            <h3>TOTAL</h3></td>
+                   <td colspan="2">
+                <div class="totalImporte" style="font-size: 3em;">
                     <?php echo (isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : ''); ?>
                 </div>
+</td>
+</tr> -->
+            </tbody>
+            </table>
             </div>
+        </div>
         </div>
     </div>
     </form>
