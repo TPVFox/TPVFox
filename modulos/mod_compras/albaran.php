@@ -475,20 +475,20 @@ if (isset($errores)) {
 
 
             <div class="col-md-12">
-                    <label class="text-center">Proveedor</label>
-                    <?php
-echo '<div class="col-md-2">
-                            <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
-    . $idProveedor . '" ' . $estilos['pro_readonly'] . ' size="2" onkeydown="controlEventos(event)" placeholder="id">
-                        </div>';
-echo '<div class="col-md-10">
-                            <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
-    . 'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-    . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
-    . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
-    . ' onclick="buscarProveedor(' . "'" . 'albaran' . "'" . ',Proveedor.value)"></a>
-                         </div>';
-?>
+                <label class="text-center">Proveedor</label>
+                <?php
+                    echo '<div class="col-md-2">
+                                                <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
+                        . $idProveedor . '" ' . $estilos['pro_readonly'] . ' size="2" onkeydown="controlEventos(event)" placeholder="id">
+                                            </div>';
+                    echo '<div class="col-md-10">
+                                                <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
+                        . 'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
+                        . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
+                        . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
+                        . ' onclick="buscarProveedor(' . "'" . 'albaran' . "'" . ',Proveedor.value)"></a>
+                                            </div>';
+                ?>
             </div>
 
             <div class="col-md-12">
@@ -502,10 +502,10 @@ echo '<div class="col-md-10">
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
                         <?php
-echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "cajafechaVenci"'
-    . $estilos['input_factur'] . ' value="' . $fechaVencimiento . '" onkeydown="controlEventos(event)" '
-    . $pattern_numerico . $title_fecha . '>';
-?>
+                        echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "cajafechaVenci"'
+                            . $estilos['input_factur'] . ' value="' . $fechaVencimiento . '" onkeydown="controlEventos(event)" '
+                            . $pattern_numerico . $title_fecha . '>';
+                        ?>
                 </div>
                 <div class="col-md-4">
                     <label>Forma de pago:</label>
@@ -519,15 +519,14 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
                         </select>
                     </div>
                 </div>
-
-
             </div>
 
         </div>
         <div class="col-md-5 bg-warning div_adjunto">
             <?php
-if ($accion !== 'ver') {
-    ?>
+            if ($accion !== 'ver') 
+            {
+            ?>
                 <label id="numPedidoT">Número del pedido:</label>
                 <input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)" <?php echo $estilos['input_factur']; ?>>
                 <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
@@ -576,7 +575,7 @@ if ($accion !== 'ver') {
             </div>
 
             <div class="col-lg-9">
-            <table id="tabla" class="table table-striped">
+                <table id="tabla" class="table table-striped">
                 <thead>
                   <tr>
                     <th>L</th>
@@ -616,11 +615,11 @@ if ($accion !== 'ver') {
                     }
                     ?>
                 </tbody>
-              </table>
+                </table>
             </div>
         
-        <div class="col-lg-3 pie-ticket">
-            <div class="col-lg-12">
+            <div class="col-lg-3 pie-ticket">
+                <div class="col-lg-12">
                 <table id="tabla-pie" class="col-md-12">
                 <thead>
                     <tr>
@@ -639,9 +638,11 @@ if ($accion !== 'ver') {
 
                 </tbody>
                 </table>
+                </div>
             </div>
         </div>
-</form>
+    </div>
+    </form>
 </div>
     <?php // Incluimos paginas modales
 echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
