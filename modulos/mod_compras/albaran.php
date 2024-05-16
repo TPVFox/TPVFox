@@ -552,8 +552,7 @@ if (isset($errores)) {
             </table>
         </div>
         <!-- Tabla de lineas de productos -->
-        <div>
-            <div>
+        <div class="col-md-12">
                 <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo']; ?>>
                     <div class="form-group">
                         <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
@@ -572,55 +571,54 @@ if (isset($errores)) {
                     </div>
                 </div>
 
-            </div>
 
             <div class="col-lg-9">
                 <table id="tabla" class="table table-striped">
                 <thead>
-                  <tr>
-                    <th>L</th>
-                    <th>Num Pedido</th>
-                    <th>Id Articulo</th>
-                    <th>Referencia</th>
-                    <th>Referencia Proveedor</th>
-                    <th>Cod Barras</th>
-                    <th>Descripcion</th>
-                    <th>Unid</th>
-                    <th>Coste</th>
-                    <th>Iva</th>
-                    <th>Importe</th>
-                    <th><a onclick="ocultarcolumnaImporteIva()"><span class="glyphicon glyphicon glyphicon-eye-open ocultar"></span></a></th>
-                    <th></th>
-                  </tr>
+                <tr>
+                <th>L</th>
+                <th>Num Pedido</th>
+                <th>Id Articulo</th>
+                <th>Referencia</th>
+                <th>Referencia Proveedor</th>
+                <th>Cod Barras</th>
+                <th>Descripcion</th>
+                <th>Unid</th>
+                <th>Coste</th>
+                <th>Iva</th>
+                <th>Importe</th>
+                <th><a onclick="ocultarcolumnaImporteIva()"><span class="glyphicon glyphicon glyphicon-eye-open ocultar"></span></a></th>
+                <th></th>
+                </tr>
 
                 </thead>
                 <tbody>
-                    <?php
-                    //Recorremos los productos y vamos escribiendo las lineas.
-                    if (isset($productos)) {
-                        $id_pedido_anterior = '0';
-                        foreach (array_reverse($productos) as $producto) {
-                            // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
-                            if (isset($producto['idpedpro']) && $producto['idpedpro'] !== $id_pedido_anterior) {
-                                // Si numero pedido es distinto a $id_pedido_anterior,
-                                // entonces debemos obtener linea de adjunto para poner en productos.
-                                echo $pedido_html_linea_producto[$producto['idpedpro']];
-                            }
-                            // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
-                            $id_pedido_anterior = (isset($producto['idpedpro'])) ? $producto['idpedpro'] : '0';
-
-                            $html = htmlLineaProducto($producto, "albaran", $estilos['readonly']);
-                            echo $html['html'];
+                <?php
+                //Recorremos los productos y vamos escribiendo las lineas.
+                if (isset($productos)) {
+                    $id_pedido_anterior = '0';
+                    foreach (array_reverse($productos) as $producto) {
+                        // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
+                        if (isset($producto['idpedpro']) && $producto['idpedpro'] !== $id_pedido_anterior) {
+                            // Si numero pedido es distinto a $id_pedido_anterior,
+                            // entonces debemos obtener linea de adjunto para poner en productos.
+                            echo $pedido_html_linea_producto[$producto['idpedpro']];
                         }
+                        // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
+                        $id_pedido_anterior = (isset($producto['idpedpro'])) ? $producto['idpedpro'] : '0';
+
+                        $html = htmlLineaProducto($producto, "albaran", $estilos['readonly']);
+                        echo $html['html'];
                     }
-                    ?>
+                }
+                ?>
                 </tbody>
                 </table>
             </div>
         
             <div class="col-lg-3 pie-ticket">
                 <div class="col-lg-12">
-                <table id="tabla-pie" class="col-md-12">
+                <table id="tabla-pie" class="table">
                 <thead>
                     <tr>
                         <th>Tipo</th>
