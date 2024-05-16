@@ -1022,35 +1022,12 @@ function resetearTotales(){
 	$('.totalImporte').html('');
 }
 
-function pintamosTotales (DesgloseTotal) {
-	// Quiere decir que hay datos a mostrar en pie.
-	total = parseFloat(DesgloseTotal['totales']['total']) // varible global.
-	$('.totalImporte').html(total.toFixed(2));
-	// Ahora tengo que pintar los ivas.    
-	var desgloseIvas = [];
-	desgloseIvas.push(DesgloseTotal['totales']['desglose']);
-	// Ahora recorremos array desglose
-	desgloseIvas.forEach(function(desglose){
-        // mostramos los tipos ivas , bases y importes.
-        var tipos = Object.keys(desglose);
-        for (index in tipos){
-            var iva = tipos[index];
-            console.log(desglose[iva].base);
-            console.log(parseInt(iva));
-            $('#line'+parseInt(iva)).css('display','');
-            $('#tipo'+parseInt(iva)).html(parseInt(iva)+'%');
-            $('#base'+parseInt(iva)).html(desglose[iva].base); 
-            $('#iva'+parseInt(iva)).html(desglose[iva].iva);
-        }
-	});
-}
-
 
 function mensajeCancelar(idTemporal, dedonde){
 	var mensaje = confirm("Estas  seguro que quieres cancelar");
 	if (mensaje) {
 		if (idTemporal=="0"){
-			alert("No puedes cancelar si está guardado");
+			alert("No puedes BORRAR TEMPORAL si aun no existe, pulsa volver");
 		}else{
 			var parametros = {
 				"pulsado"   : 'cancelarTemporal',
@@ -1085,23 +1062,13 @@ function mensajeCancelar(idTemporal, dedonde){
                 }
 			});
 		}
-	}else{
-		switch(dedonde){
-			case 'pedido':
-				location.href="pedidosListado.php";
-			break;
-			case 'albaran':
-				location.href="albaranesListado.php";
-			break;
-			case 'factura':
-				location.href="facturasListado.php";
-			break;
-		}
-	}
+        
+	} 
+    
 }
 
 function SiTieneValorCajaCabecera(caja){
-            alert(caja.id_input);
+            console.log('Estoy en funciones SiTieneValorCaja:Tiene valor cja '+caja.id_input);
 
     switch(caja.id_input){
         case 'id_proveedor':

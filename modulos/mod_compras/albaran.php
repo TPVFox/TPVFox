@@ -231,7 +231,7 @@ if (count($errores) == 0) {
                     $datosAlbaran['Pedidos'][$key]['nfila'] = $key + 1;
                     // ========                 JS_datos_pedidos                    ======== //
                     $JS_datos_pedidos .= 'datos=' . json_encode($datosAlbaran['Pedidos'][$key]) . ';'
-                        . 'pedidos.push(datos);';
+                                            .'pedidos.push(datos);';
                     // ========               $html_adjuntos                        ======== //
                     $h = lineaAdjunto($datosAlbaran['Pedidos'][$key], "albaran", $accion);
                     $html_adjuntos .= $h['html'];
@@ -323,23 +323,23 @@ if ($idAlbaranTemporal === 0) {
 <head>
     <?php include_once $URLCom . '/head.php';?>
 
-	<script type="text/javascript">
-	// Esta variable global la necesita para montar la lineas.
-	// En configuracion podemos definir SI / NO
-	<?php echo 'var configuracion=' . json_encode($configuracionArchivo) . ';'; ?>
-	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $creado_por['id']; ?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['idTienda'] = <?php echo $Tienda['idTienda']; ?>;
-		cabecera['estado'] ='<?php echo $estado; ?>'; // Si no hay datos GET es 'Nuevo'
-		cabecera['idTemporal'] = <?php echo $idAlbaranTemporal; ?>;
-		cabecera['idReal'] ='<?php echo $idAlbaran; ?>';
-		cabecera['idProveedor'] ='<?php echo $idProveedor; ?>';
-		cabecera['fecha'] = '<?php echo $fecha; ?>';
-		cabecera['hora'] = '<?php echo $hora; ?>';
-		cabecera['suNumero']='<?php echo $suNumero; ?>';
-		 // Si no hay datos GET es 'Nuevo';
-	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
-	var pedidos =[];
+    <script type="text/javascript">
+    // Esta variable global la necesita para montar la lineas.
+    // En configuracion podemos definir SI / NO
+    <?php echo 'var configuracion=' . json_encode($configuracionArchivo) . ';'; ?>
+    var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+        cabecera['idUsuario'] = <?php echo $creado_por['id']; ?>; // Tuve que adelantar la carga, sino funcionaria js.
+        cabecera['idTienda'] = <?php echo $Tienda['idTienda']; ?>;
+        cabecera['estado'] ='<?php echo $estado; ?>'; // Si no hay datos GET es 'Nuevo'
+        cabecera['idTemporal'] = <?php echo $idAlbaranTemporal; ?>;
+        cabecera['idReal'] ='<?php echo $idAlbaran; ?>';
+        cabecera['idProveedor'] ='<?php echo $idProveedor; ?>';
+        cabecera['fecha'] = '<?php echo $fecha; ?>';
+        cabecera['hora'] = '<?php echo $hora; ?>';
+        cabecera['suNumero']='<?php echo $suNumero; ?>';
+         // Si no hay datos GET es 'Nuevo';
+    var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+    var pedidos =[];
     var salto_linea = 'ReferenciaPro'; // Valor por defecto
 <?php
 if (isset($idAlbaranTemporal) || isset($idAlbaran)) {
@@ -351,8 +351,8 @@ if (isset($idAlbaranTemporal) || isset($idAlbaran)) {
 <?php
 // cambiamos estado y cantidad de producto creado si fuera necesario.
             if ($product['estado'] !== 'Activo') {
-                ?>	productos[<?php echo $k; ?>].estado=<?php echo '"' . $product['estado'] . '"'; ?>;
-				<?php
+                ?>  productos[<?php echo $k; ?>].estado=<?php echo '"' . $product['estado'] . '"'; ?>;
+                <?php
 }
         }
     }
@@ -366,16 +366,16 @@ if (isset($idAlbaranTemporal) || isset($idAlbaran)) {
 </script>
 </head>
 <body>
-	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
 <?php
 include_once $URLCom . '/modulos/mod_menu/menu.php';
 ?>
 <script type="text/javascript">
-	<?php
+    <?php
 if (isset($_POST['Cancelar'])) {
     ?>
         mensajeCancelar(<?php echo $idAlbaranTemporal; ?>, <?php echo "'" . $dedonde . "'"; ?>);
@@ -389,7 +389,7 @@ echo $VarJS;
     }
 </script>
 <div class="container">
-	<?php
+    <?php
 if (isset($errores)) {
     foreach ($errores as $comprobaciones) {
         echo $CAlb->montarAdvertencia($comprobaciones['tipo'], $comprobaciones['mensaje'], 'OK');
@@ -400,67 +400,67 @@ if (isset($errores)) {
 }
 ?>
     <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-    <?php
-echo '<h3 class="text-center">' . $titulo;
-if ($accion !== 'ver') {
-    echo ' temporal:' . '<input type="text" readonly size ="4" name="idTemporal" value="' . $idAlbaranTemporal . '">';
-}
-echo '</h3>';
-?>
-
+    <?php 
+    echo '<h3 class="text-center">'.$titulo;
+    if ($accion !=='ver'){
+        echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idAlbaranTemporal.'">';
+    }
+    echo '</h3>';
+    ?>
+    
     <div class="col-md-12">
         <div class="col-md-8" >
             <?php echo $Controler->getHtmlLinkVolver('Volver');
-// Botones de incidencias.
-if ($idAlbaran > 0) {
-    echo '<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia(' . "'" . $dedonde
-        . "'" . ' , configuracion, 0 ,' . $idAlbaran
-        . ');" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
-}
-if (isset($incidencias) && count($incidencias) > 0) {
-    echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
-        . $idAlbaran . " ,'mod_compras', 'albaran'"
-        . ')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
-}
-if ($estado != "Facturado" && $accion != "ver") {
-    // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
-    echo '<input class="btn btn-primary" ' . $estilos['btn_guardar']
-        . ' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G">';
-}
-?>
+            // Botones de incidencias.
+            if($idAlbaran>0){
+                echo '<input class="btn btn-warning" size="12" onclick="abrirModalIndicencia('."'".$dedonde
+                    ."'".' , configuracion, 0 ,'.$idAlbaran
+                    .');" value="Añadir incidencia " name="addIncidencia" id="addIncidencia">';
+            }
+            if( isset($incidencias) && count( $incidencias)> 0){
+                echo ' <input class="btn btn-info" size="15" onclick="abrirIncidenciasAdjuntas('
+                    .$idAlbaran." ,'mod_compras', 'albaran'"
+                    .')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
+            }
+            if ($estado != "Facturado" && $accion != "ver"){
+                    // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
+                 echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
+                 . ' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G">';
+            }
+            ?>
         </div>
         <div class="col-md-4 text-right" >
             <?php
 
-if ($estado === "Nuevo") {
-    // El btn cancelar solo se crea si el estado es "Nuevo"
-    // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
-    echo '<input type="submit" class="btn btn-danger" value="Cancelar" ' . $estilos['btn_cancelar'] . ' name="Cancelar" id="bCancelar">';
-}
-?>
+            if ($estado === "Nuevo" ){
+                // El btn cancelar solo se crea si el estado es "Nuevo"
+                // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
+                echo '<input type="submit" class="btn btn-danger" value="Borrar Temporal" '.$estilos['btn_cancelar'].' name="Cancelar" id="bCancelar">';
+            }
+            ?>
         </div>
     </div>
     <div class="row" >
         <div class="col-md-7">
 
-        <div class="col-md-12">
+            <div class="col-md-12">
                     <div class="col-md-3">
                         <label>Fecha albarán:</label>
                         <?php $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
-$title_fecha = ' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
-echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
-    . $estilos['input_factur'] . ' value="' . $fecha . '" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)" '
-    . $pattern_numerico . $title_fecha . '  autofocus />';
-?>
+                        $title_fecha = ' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
+                        echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
+                            . $estilos['input_factur'] . ' value="' . $fecha . '" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)" '
+                            . $pattern_numerico . $title_fecha . '  autofocus />';
+                        ?>
                     </div>
                     <div class="col-md-3">
                         <label>Hora de entrega:</label>
                         <?php
-echo '<input type="time" id="hora" ' . $estilos['input_factur'] . ' value="' . $hora . '" '
-    . ' data-obj= "cajaHora" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)"  name="hora" size="5"'
-    . ' max="24:00" min="00:00" '
-    . $pattern_numerico . ' placeholder="HH:MM" title=" Formato de entrada HH:MM">';
-?>
+                        echo '<input type="time" id="hora" ' . $estilos['input_factur'] . ' value="' . $hora . '" '
+                            . ' data-obj= "cajaHora" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)"  name="hora" size="5"'
+                            . ' max="24:00" min="00:00" '
+                            . $pattern_numerico . ' placeholder="HH:MM" title=" Formato de entrada HH:MM">';
+                        ?>
                     </div>
                     <div class="col-md-3">
                         <label>Estado:</label>
@@ -510,12 +510,12 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
                 <div class="col-md-4">
                     <label>Forma de pago:</label>
                     <div id="formaspago">
-                        <select name='formaVenci' id='formaVenci' <?php echo $estilos['select_factur']; ?>>
-                    <?php
-if (isset($textoFormaPago)) {
-    echo $textoFormaPago['html'];
-}
-?>
+                        <select name='formaVenci' id='formaVenci' <?php echo   $estilos['select_factur'];?>>
+                    <?php 
+                    if(isset ($textoFormaPago)){
+                            echo $textoFormaPago['html'];
+                    }
+                    ?>
                         </select>
                     </div>
                 </div>
@@ -532,8 +532,8 @@ if ($accion !== 'ver') {
                 <input type="text" id="numPedido" name="numPedido" value="" size="5" placeholder='Num' data-obj= "numPedido" onkeydown="controlEventos(event)" <?php echo $estilos['input_factur']; ?>>
                 <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
             <?php
-}?>
-            <table class="table" id="tablaPedidos">
+            } ?>
+            <table  class="col-md-12" id="tablaPedidos"> 
                 <thead>
                 <tr>
                     <td><b>Número</b></td>
@@ -543,17 +543,17 @@ if ($accion !== 'ver') {
                     <td></td>
                 </tr>
                 </thead>
-                <?php
-if (isset($datosAlbaran['Pedidos'])) {
-    if ($html_adjuntos != '') {
-        echo $html_adjuntos;
-    }
-}
-?>
+                <?php 
+                if (isset($datosAlbaran['Pedidos'])){
+                    if( $html_adjuntos != ''){
+                        echo  $html_adjuntos;
+                    }
+                }
+                ?>
             </table>
         </div>
         <!-- Tabla de lineas de productos -->
-	    <div>
+        <div>
             <div>
                 <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo']; ?>>
                     <div class="form-group">
@@ -563,7 +563,7 @@ if (isset($datosAlbaran['Pedidos'])) {
                         <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
                     </div>
                     <div class="form-group">
-                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value=""onkeydown="controlEventos(event)">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
                     </div>
                     <div class="form-group">
                         <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
@@ -575,7 +575,7 @@ if (isset($datosAlbaran['Pedidos'])) {
 
             </div>
 
-            <div class="col-md-9">
+            <div class="col-lg-9">
             <table id="tabla" class="table table-striped">
                 <thead>
                   <tr>
@@ -597,60 +597,51 @@ if (isset($datosAlbaran['Pedidos'])) {
                 </thead>
                 <tbody>
                     <?php
-//Recorremos los productos y vamos escribiendo las lineas.
-if (isset($productos)) {
-    $id_pedido_anterior = '0';
-    foreach (array_reverse($productos) as $producto) {
-        // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
-        if (isset($producto['idpedpro']) && $producto['idpedpro'] !== $id_pedido_anterior) {
-            // Si numero pedido es distinto a $id_pedido_anterior,
-            // entonces debemos obtener linea de adjunto para poner en productos.
-            echo $pedido_html_linea_producto[$producto['idpedpro']];
-        }
-        // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
-        $id_pedido_anterior = (isset($producto['idpedpro'])) ? $producto['idpedpro'] : '0';
+                    //Recorremos los productos y vamos escribiendo las lineas.
+                    if (isset($productos)) {
+                        $id_pedido_anterior = '0';
+                        foreach (array_reverse($productos) as $producto) {
+                            // Ahora tengo que controlar si son lineas de adjunto, para añadir linea de adjunto.
+                            if (isset($producto['idpedpro']) && $producto['idpedpro'] !== $id_pedido_anterior) {
+                                // Si numero pedido es distinto a $id_pedido_anterior,
+                                // entonces debemos obtener linea de adjunto para poner en productos.
+                                echo $pedido_html_linea_producto[$producto['idpedpro']];
+                            }
+                            // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
+                            $id_pedido_anterior = (isset($producto['idpedpro'])) ? $producto['idpedpro'] : '0';
 
-        $html = htmlLineaProducto($producto, "albaran", $estilos['readonly']);
-        echo $html['html'];
-    }
-}
-?>
+                            $html = htmlLineaProducto($producto, "albaran", $estilos['readonly']);
+                            echo $html['html'];
+                        }
+                    }
+                    ?>
                 </tbody>
               </table>
             </div>
         
-        <div class="col-md-3 pie-ticket">
-            <div class="col-md-12">
-            <table id="tabla-pie" class="col-md-6">
-            <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>Base</th>
-                    <th>IVA</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-if (isset($Datostotales)) {
-    $htmlIvas = htmlTotales($Datostotales);
-    echo $htmlIvas['html'];
-}
-?>
-<!-- <tr>
-    <td>            <h3>TOTAL</h3></td>
-                   <td colspan="2">
-                <div class="totalImporte" style="font-size: 3em;">
-                    <?php echo (isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : ''); ?>
-                </div>
-</td>
-</tr> -->
-            </tbody>
-            </table>
+        <div class="col-lg-3 pie-ticket">
+            <div class="col-lg-12">
+                <table id="tabla-pie" class="col-md-12">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Base</th>
+                        <th>IVA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if (isset($Datostotales)) {
+                        $htmlIvas = htmlTotales($Datostotales);
+                        echo $htmlIvas['html'];
+                    }
+                    ?>
+
+                </tbody>
+                </table>
             </div>
         </div>
-        </div>
-    </div>
-    </form>
+</form>
 </div>
     <?php // Incluimos paginas modales
 echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';

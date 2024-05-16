@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
@@ -280,6 +277,12 @@
         // Una vez se cree temporal, con javascript se quita style
     }
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include_once $URLCom . '/head.php';?>
+
 	<script type="text/javascript">
 	// Esta variable global la necesita para montar la lineas.
 	// En configuracion podemos definir SI / NO
@@ -379,7 +382,7 @@
             if ($estado != "Contabilizado" || $accion != "ver"){
                 // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                 echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
-                    .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
+                    .' type="submit" value="Guardar" name="Guardar" id="bGuardar"  accesskey="G"/>';
             }
             ?>
         </div>
@@ -393,32 +396,13 @@
                     // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
                 }
                 echo '<input type="submit" class="btn btn-danger"'
-                    .$estilos['btn_cancelar']. ' value="Cancelar" name="Cancelar" id="bCancelar">';
+                    .$estilos['btn_cancelar']. ' value="Borrar temporal" name="Cancelar" id="bCancelar">';
             }
             ?>
         </div>
     </div>
     <div class="row" >
         <div class="col-md-7">
-            <div class="col-md-12">
-                    <label class="text-center">Proveedor</label>
-                    <?php
-                    echo '<div class="col-md-2">
-                            <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
-                            .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
-                        </div>';
-                    echo '<div class="col-md-8">
-                            <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
-                            .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >
-                         </div>';
-                         
-                    echo   '<div class="col-md-2">
-                                <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
-                                .' onclick="buscarProveedor('."'".'factura'."'".',Proveedor.value)"></a>
-                          </div>';
-                    ?>
-            </div>
             <div class="col-md-12">
 				<div class="col-md-4">
 					<label>Fecha:</label>
@@ -440,6 +424,25 @@
 				</div>
             </div>
             <div class="col-md-12">
+                    <label class="text-center">Proveedor</label>
+                    <?php
+                    echo '<div class="col-md-2">
+                            <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
+                            .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
+                        </div>';
+                    echo '<div class="col-md-8">
+                            <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
+                            .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
+                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" accesskey="P" />
+                         </div>';
+                         
+                    echo   '<div class="col-md-2">
+                                <a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
+                                .' onclick="buscarProveedor('."'".'factura'."'".',Proveedor.value)"></a>
+                          </div>';
+                    ?>
+            </div>
+            <div class="col-md-12">
                 <div class="col-md-4">
 					<label>Su número:</label>
                     <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero;?>" size="10" <?php echo $estilos['evento_cambio'];?> onkeydown="controlEventos(event)" data-obj= "CajaSuNumero" <?php echo $estilos['input_factur'];?>>
@@ -447,10 +450,10 @@
                 <div class="col-md-4">
                         <label>Fecha vencimiento:</label>
                         <?php
-                             echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" '
-                                . $estilos['input_factur'].' value="'.$fechaVencimiento.'" onkeydown="controlEventos(event)" '
-                                . $pattern_numerico.$title_fecha.'>';
-                        ?>
+echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "cajafechaVenci"'
+    . $estilos['input_factur'] . ' value="' . $fechaVencimiento . '" onkeydown="controlEventos(event)" '
+    . $pattern_numerico . $title_fecha . '>';
+?>
                 </div>
                 <div class="col-md-4">
                     <label>Forma de pago:</label>
@@ -466,7 +469,7 @@
                 </div>
             </div>
 	</div>
-	<div class="col-md-5 adjunto" >
+        <div class="col-md-5 bg-info div_adjunto">
         <?php
         if ($accion !=='ver'){
         ?>
@@ -553,17 +556,9 @@
 		</tbody>
 	  </table>
 	</div>
-	<?php 
-	if (isset($DatosTotales)){
-		?>
-		<script type="text/javascript">
-			total = <?php echo $Datostotales['total'];?>;
-		</script>
-		<?php
-	}
-	?>
-	<div class="col-md-10 col-md-offset-2 pie-ticket">
-		<table id="tabla-pie" class="col-md-6">
+        <div class="col-lg-3 pie-ticket">
+            <div class="col-lg-12">
+		<table id="tabla-pie">
 		<thead>
 			<tr>
 				<th>Tipo</th>
@@ -580,14 +575,6 @@
 			  ?>
 		</tbody>
 		</table>
-		<div class="col-md-6">
-			<div class="col-md-4">
-			<h3>TOTAL</h3>
-			</div>
-			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
-			</div>
-		</div>
 	</div>
 </div>
 </form>

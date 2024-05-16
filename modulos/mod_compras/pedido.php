@@ -1,46 +1,46 @@
 <?php
-	include_once './../../inicial.php';
-	//Carga de archivos php necesarios
-	include_once $URLCom.'/modulos/mod_compras/funciones.php';
-	include_once $URLCom.'/controllers/Controladores.php';
-	include_once $URLCom.'/clases/Proveedores.php';
+    include_once './../../inicial.php';
+    //Carga de archivos php necesarios
+    include_once $URLCom.'/modulos/mod_compras/funciones.php';
+    include_once $URLCom.'/controllers/Controladores.php';
+    include_once $URLCom.'/clases/Proveedores.php';
 
-	include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
-	include_once ($URLCom.'/controllers/parametros.php');
-	//Carga de clases necesarias
-	$ClasesParametros = new ClaseParametros('parametros.xml');
-	$Cproveedor=new Proveedores($BDTpv);
-	$Cpedido=new PedidosCompras($BDTpv);
-	$Controler = new ControladorComun; 
-	$Controler->loadDbtpv($BDTpv);
-	//Inicializar las variables
-	$dedonde="pedido";
-	$titulo="Pedido de Proveedor:";
-	// Valores por defecto de estado y accion.
-	// [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
-	// [accion] -> editar,ver
+    include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
+    include_once ($URLCom.'/controllers/parametros.php');
+    //Carga de clases necesarias
+    $ClasesParametros = new ClaseParametros('parametros.xml');
+    $Cproveedor=new Proveedores($BDTpv);
+    $Cpedido=new PedidosCompras($BDTpv);
+    $Controler = new ControladorComun; 
+    $Controler->loadDbtpv($BDTpv);
+    //Inicializar las variables
+    $dedonde="pedido";
+    $titulo="Pedido de Proveedor:";
+    // Valores por defecto de estado y accion.
+    // [estado] -> Nuevo,Sin Guardar,Guardado,Facturado.
+    // [accion] -> editar,ver
     $estado='Nuevo';
     // Si existe accion, variable es $accion , sino es "editar"
     $accion = (isset($_GET['accion']))? $_GET['accion'] : 'editar';
-	$fecha=date('d-m-Y');
-	$idPedidoTemporal=0;
+    $fecha=date('d-m-Y');
+    $idPedidoTemporal=0;
     $idPedido=0;
-	$idProveedor='';
-	$nombreProveedor='';
-	$Datostotales=array();
+    $idProveedor='';
+    $nombreProveedor='';
+    $Datostotales=array();
     $errores = array();
-	$inciden=0;
-	//Cargamos la configuración por defecto y las acciones de las cajas 
-	$parametros = $ClasesParametros->getRoot();
-	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
-	$configuracionArchivo=array();
-	foreach ($configuracion['incidencias'] as $config){
-		if(get_object_vars($config)['dedonde']==$dedonde){
-			array_push($configuracionArchivo, $config);
-		}
-	}
+    $inciden=0;
+    //Cargamos la configuración por defecto y las acciones de las cajas 
+    $parametros = $ClasesParametros->getRoot();
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+    $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+    $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_compras',$Usuario['id']);
+    $configuracionArchivo=array();
+    foreach ($configuracion['incidencias'] as $config){
+        if(get_object_vars($config)['dedonde']==$dedonde){
+            array_push($configuracionArchivo, $config);
+        }
+    }
     // Por GET recibimos uno o varios parametros:
     //  [id] cuando editamos o vemos un pedido pulsando en listado.
     //  [temporal] cuando pulsamos en cuadro pedidos temporales.
@@ -207,7 +207,7 @@
         $html_albaran .='</span>';
     }
     // Añadimos al titulo el estado
-	$titulo .= ' '.$idPedido.$html_albaran.' - '.$accion;
+    $titulo .= ' '.$idPedido.$html_albaran.' - '.$accion;
     // ============= Creamos variables de estilos para cada estado y accion =================== //
     $estilos = array ( 'readonly'       => '',
                        'styleNo'        => 'style="display:none;"',
@@ -249,41 +249,41 @@
 <script type="text/javascript">
     <?php
     // Esta variable global la necesita para montar la lineas.
-	// En configuracion podemos definir SI / NO
-	echo 'var configuracion='.json_encode($configuracionArchivo).';';
-    ?>	
-	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-		cabecera['estado'] ='<?php echo $estado ;?>'; 
-		cabecera['idTemporal'] = '<?php echo $idPedidoTemporal;?>';
-		cabecera['idReal'] = '<?php echo $idPedido ;?>';
-		cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
-		cabecera['fecha'] = '<?php echo $fecha;?>';
-		 // Si no hay datos GET es 'Nuevo';
-	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+    // En configuracion podemos definir SI / NO
+    echo 'var configuracion='.json_encode($configuracionArchivo).';';
+    ?>  
+    var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+        cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+        cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
+        cabecera['estado'] ='<?php echo $estado ;?>'; 
+        cabecera['idTemporal'] = '<?php echo $idPedidoTemporal;?>';
+        cabecera['idReal'] = '<?php echo $idPedido ;?>';
+        cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
+        cabecera['fecha'] = '<?php echo $fecha;?>';
+         // Si no hay datos GET es 'Nuevo';
+    var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
     var salto_linea = 'ReferenciaPro'; // Valor por defecto
-	<?php 
-	$i= 0;
-	if (isset($productos)){
-		if ($productos){
-			foreach($productos as $product){
-	?>
-			datos=<?php echo json_encode($product); ?>;
-			productos.push(datos);
-	<?php //cambiamos estado y cantidad de producto creado si fuera necesario.
-				if (isset ($product->estado)){
-					if ($product['estado'] !== 'Activo'){
-					?>
+    <?php 
+    $i= 0;
+    if (isset($productos)){
+        if ($productos){
+            foreach($productos as $product){
+    ?>
+            datos=<?php echo json_encode($product); ?>;
+            productos.push(datos);
+    <?php //cambiamos estado y cantidad de producto creado si fuera necesario.
+                if (isset ($product->estado)){
+                    if ($product['estado'] !== 'Activo'){
+                    ?>
                         productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
-					<?php
-					}
-				}
-				$i++;
-			 }
-		 }	
-	 }
-	?>
+                    <?php
+                    }
+                }
+                $i++;
+             }
+         }  
+     }
+    ?>
 </script>
 </head>
 <body>
@@ -297,11 +297,11 @@
 ?>
 <script type="text/javascript">
     <?php
-	if (isset($_POST['Cancelar'])){
-	?>
+    if (isset($_POST['Cancelar'])){
+    ?>
         mensajeCancelar(<?php echo $idPedidoTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
     <?php
-	}
+    }
     echo $VarJS;
     ?>
     function anular(e) {
@@ -311,7 +311,7 @@
 </script>
 <div class="container">
     <?php
-	if (isset($errores)){
+    if (isset($errores)){
         foreach ($errores as $comprobaciones){
             echo $Cpedido->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
             if ($comprobaciones['tipo'] === 'danger'){
@@ -320,17 +320,17 @@
         }
     }
     ?>
-	<form  action="" method="post" name="formProducto" onkeypress="return anular(event)">
+    <form  action="" method="post" name="formProducto" onkeypress="return anular(event)">
     <?php 
     echo '<h3 class="text-center">'.$titulo;
     if ($accion !=='ver'){
         echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idPedidoTemporal.'">';
     }
     echo '</h3>';
-	?>
+    ?>
     
-		<div class="col-md-12">
-			<div class="col-md-8" >
+        <div class="col-md-12">
+            <div class="col-md-8" >
                 <?php echo $Controler->getHtmlLinkVolver('Volver');
             // Botones de incidencias.
                 if($idPedido>0){
@@ -350,10 +350,10 @@
                 if ($accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                     echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
-                            .' type="submit" value="Guardar" name="Guardar" id="bGuardar">';
+                            .' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G"/>';
                 }
                 ?>
-			</div>
+            </div>
             <div class="col-md-4 text-right" >
             <?php
             if ($estado != "Facturado" || $accion != "ver"){
@@ -365,15 +365,36 @@
                     // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
                 }
                 echo '<input type="submit" class="btn btn-danger"'
-                    .$estilos['btn_cancelar']. 'value="Cancelar" name="Cancelar" id="bCancelar">';
+                    .$estilos['btn_cancelar']. 'value="Borrar Temporal" name="Cancelar" id="bCancelar">';
             }
             ?>
             </div>
            
-		</div>
+        </div>
     <div class="row" >
-	<div class="col-md-7">
-	            <div class="col-md-12">
+    <div class="col-md-7">
+                <div class="col-md-12">
+            <div class="col-md-3">
+                <label>Fecha Pedido:</label>
+                 <?php
+                    $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
+                    $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
+                    echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
+                        . $estilos['input_factur'].' value="'.$fecha.'" '.$estilos['evento_cambio'].' onkeydown="controlEventos(event)" '
+                        . $pattern_numerico.$title_fecha.'/>';
+                    ?>
+            </div>
+            <div class="col-md-3">
+                <label>Estado:</label>
+                <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
+            </div>
+            <div class="col-md-3">
+                <label>Creado por:</label>
+                <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="13" readonly>
+            </div>
+            
+        </div>
+                <div class="col-md-12">
                     <label class="text-center">Proveedor</label>
                     <?php
                     echo '<div class="col-md-2">
@@ -383,37 +404,16 @@
                     echo '<div class="col-md-10">
                             <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
                             .'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
-                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" >'
+                            .$nombreProveedor.'" '.$estilos['pro_readonly'].' size="60" accesskey="P" />'
                             .'<a id="buscar" '.$estilos['pro_styleNo'].' class="btn glyphicon glyphicon-search buscar"'
                             .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
                          </div>';
                     ?>
             </div>
-	            <div class="col-md-12">
-			<div class="col-md-3">
-				<label>Fecha Pedido:</label>
-                 <?php
-                    $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
-                    $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
-                    echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
-                        . $estilos['input_factur'].' value="'.$fecha.'" '.$estilos['evento_cambio'].' onkeydown="controlEventos(event)" '
-                        . $pattern_numerico.$title_fecha.'/>';
-                    ?>
-			</div>
-			<div class="col-md-3">
-				<label>Estado:</label>
-				<input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
-			</div>
-			<div class="col-md-3">
-				<label>Creado por:</label>
-				<input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="13" readonly>
-			</div>
-			
-		</div>
-		
-	</div>
-	<!-- Tabla de lineas de productos -->
-	<div>
+        
+    </div>
+    <!-- Tabla de lineas de productos -->
+    <div>
             <div>
                 <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo'];?>>  
                     <div class="form-group">
@@ -423,7 +423,7 @@
                         <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
                     </div>
                     <div class="form-group">
-                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value=""onkeydown="controlEventos(event)">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
                     </div>
                     <div class="form-group">
                         <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
@@ -434,71 +434,62 @@
                 </div>
 
             </div>
-		<table id="tabla" class="table table-striped" >
-			<thead>
+            <div class="col-lg-9">
+        <table id="tabla" class="table table-striped" >
+            <thead>
             <tr>
-				<th>L</th>
-				<th>Id Articulo</th>
-				<th>Referencia</th>
-				<th>Referencia Proveedor</th>
-				<th>Cod Barras</th>
-				<th>Descripcion</th>
-				<th>Unid</th>
-				<th>Coste</th>
-				<th>Iva</th>
-				<th>Importe</th>
-				<th></th>
-			</tr>
-			</thead>
-			<tbody>
-				<?php 
-				if (isset($productos)){
-					foreach (array_reverse($productos) as $producto){
-						$h=htmlLineaProducto($producto, "pedido",$estilos['readonly']);
-						echo $h['html'];
-					}
-				}
-			?>
-			</tbody>
-	  </table>
-	</div>
-	<?php 
-	if (isset($DatosTotales)){
-		?>
-		<script type="text/javascript">
-			total = <?php echo $Datostotales['total'];?>;
-		</script>
-		<?php
-	}
-	?>
-	<div class="col-md-10 col-md-offset-2 pie-ticket">
-		<table id="tabla-pie" class="col-md-6">
-		<thead>
-			<tr>
-				<th>Tipo</th>
-				<th>Base</th>
-				<th>IVA</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php 
-			echo $htmlIvas['html']; ?>
-		</tbody>
-		</table>
-		<div class="col-md-6">
-			<div class="col-md-4">
-			<h3>TOTAL</h3>
-			</div>
-			<div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-				<?php echo (isset($Datostotales['total']) ? number_format ($Datostotales['total'],2, '.', '') : '');?>
-			</div>
-		</div>
-	</div>
-</form>
+                <th>L</th>
+                <th>Id Articulo</th>
+                <th>Referencia</th>
+                <th>Referencia Proveedor</th>
+                <th>Cod Barras</th>
+                <th>Descripcion</th>
+                <th>Unid</th>
+                <th>Coste</th>
+                <th>Iva</th>
+                <th>Importe</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                <?php 
+                if (isset($productos)){
+                    foreach (array_reverse($productos) as $producto){
+                        $h=htmlLineaProducto($producto, "pedido",$estilos['readonly']);
+                        echo $h['html'];
+                    }
+                }
+            ?>
+            </tbody>
+      </table>
+    </div>
+        <div class="col-lg-3 pie-ticket">
+            <table id="tabla-pie" class="col-md-12">
+            <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Base</th>
+                <th>IVA</th>
+            </tr>
+            </thead>
+            <tbody>
+                <?php
+                if (isset($Datostotales)) {
+                    $htmlIvas = htmlTotales($Datostotales);
+                    echo $htmlIvas['html'];
+                }
+                ?>
+
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    </form>
 </div>
-<?php // Incluimos paginas modales
- echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+    <?php // Incluimos paginas modales
+echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
+include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
 ?>
 </body>
 </html>

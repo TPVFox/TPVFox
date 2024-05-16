@@ -28,6 +28,7 @@
 		<caja_input>
 			<nombre id_input="hora">cajaHora</nombre>
 			<teclas>
+                <action tecla="13">Saltar_Siguiente</action>
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">pedido</parametro>
