@@ -163,7 +163,7 @@ function SeleccionarTodos(){
 }
 
 function imprimirSeleccion(id){
-    if ($('.table tbody input').is(':checked') ) {
+    if ($('.table tbody input').is(':checked') && $('.table tbody input').not([style="display:none"]) ) {		
         var idProductos =TfObtenerCheck('chekArticulo');
         var parametros = {
             "pulsado"    		:   'imprimirListadoProductos',
