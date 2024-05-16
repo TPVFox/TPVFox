@@ -425,7 +425,7 @@ if (isset($errores)) {
             if ($estado != "Facturado" && $accion != "ver"){
                     // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                  echo '<input class="btn btn-primary" '.$estilos['btn_guardar']
-                 . ' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G">';
+                 . ' type="submit" value="Guardar  (Alt+G)" name="Guardar" id="bGuardar" accesskey="G">';
             }
             ?>
         </div>
@@ -450,7 +450,7 @@ if (isset($errores)) {
                         $title_fecha = ' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                         echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
                             . $estilos['input_factur'] . ' value="' . $fecha . '" ' . $estilos['evento_cambio'] . ' onkeydown="controlEventos(event)" '
-                            . $pattern_numerico . $title_fecha . '  autofocus />';
+                            . $pattern_numerico . $title_fecha . (($estado === "Nuevo")?'  autofocus' : '').' />';
                         ?>
                     </div>
                     <div class="col-md-3">
@@ -483,7 +483,7 @@ if (isset($errores)) {
                                             </div>';
                     echo '<div class="col-md-10">
                                                 <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
-                        . 'placeholder="Nombre de proveedor" onkeydown="controlEventos(event)" value="'
+                        . 'placeholder="Nombre de proveedor (Alt+P)" onkeydown="controlEventos(event)" value="'
                         . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
                         . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
                         . ' onclick="buscarProveedor(' . "'" . 'albaran' . "'" . ',Proveedor.value)"></a>

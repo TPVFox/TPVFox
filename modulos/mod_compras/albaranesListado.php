@@ -84,7 +84,7 @@ $albaranesDef=$a['Items'];
             <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                  echo '<a class="btn btn-default" href="./albaran.php">Añadir</a>';
+                  echo '<a class="btn btn-default" href="./albaran.php" accesskey="A" >Añadir (Alt+A)</a>';
                 }
                 if($ClasePermisos->getAccion("Ver")==1){
                     echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'albaran'."'".')">Ver</button>';
