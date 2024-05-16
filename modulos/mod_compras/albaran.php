@@ -265,11 +265,6 @@ if (isset($_POST['Guardar'])) {
 
     if (count($guardar) == 0) {
         header('Location: albaranesListado.php');
-        // Debug
-        // Comentar linea anterior y mostrar por pantalla post
-        //~ echo '<pre>';
-        //~ print_r($_POST);
-        //~ echo '</pre>';
     } else {
         // Hubo errores o advertencias.
         foreach ($guardar as $error) {
@@ -522,7 +517,7 @@ if (isset($errores)) {
             </div>
 
         </div>
-        <div class="col-md-5 bg-warning div_adjunto">
+        <div class="col-md-5 bg-success div_adjunto">
             <?php
             if ($accion !== 'ver') 
             {
@@ -532,7 +527,7 @@ if (isset($errores)) {
                 <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('albaran')"></a>
             <?php
             } ?>
-            <table  class="col-md-12" id="tablaPedidos"> 
+            <table  class="table" id="tablaPedidos"> 
                 <thead>
                 <tr>
                     <td><b>Número</b></td>
@@ -617,7 +612,6 @@ if (isset($errores)) {
             </div>
         
             <div class="col-lg-3 pie-ticket">
-                <div class="col-lg-12">
                 <table id="tabla-pie" class="table">
                 <thead>
                     <tr>
@@ -636,7 +630,6 @@ if (isset($errores)) {
 
                 </tbody>
                 </table>
-                </div>
             </div>
         </div>
     </div>

@@ -322,11 +322,7 @@
     ?>
     <form  action="" method="post" name="formProducto" onkeypress="return anular(event)">
     <?php 
-    echo '<h3 class="text-center">'.$titulo;
-    if ($accion !=='ver'){
-        echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idPedidoTemporal.'">';
-    }
-    echo '</h3>';
+    echo '<h3 class="text-center">'.$titulo.'</h3>';
     ?>
     
         <div class="col-md-12">
@@ -357,13 +353,10 @@
             <div class="col-md-4 text-right" >
             <?php
             if ($estado != "Facturado" || $accion != "ver"){
-                
-                // El btn cancelar solo se crea si el estado es "Nuevo"
-                // pero solo se muestra cuando hay un temporal, ya que no tiene sentido mostrarlo si no hay temporal
-                if ($estado != "Nuevo"){
-                    $estilos['btn_cancelar'] = 'style="display:none;"';
-                    // Se cambia con javascript cuando creamos el temporal y el estado es Nuevo.
-                }
+                // Mostramos input temporal
+                echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idPedidoTemporal.'">';
+            }
+            if ($estado == "Nuevo"){
                 echo '<input type="submit" class="btn btn-danger"'
                     .$estilos['btn_cancelar']. 'value="Borrar Temporal" name="Cancelar" id="bCancelar">';
             }
@@ -415,7 +408,7 @@
     <!-- Tabla de lineas de productos -->
     <div>
             <div>
-                <div class="col-md-12 form-inline bg-success" id="Row0" <?php echo $estilos['styleNo'];?>>  
+                <div class="col-md-12 form-inline bg-warning" id="Row0" <?php echo $estilos['styleNo'];?>>  
                     <div class="form-group">
                         <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
                     </div>

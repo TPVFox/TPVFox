@@ -1,7 +1,6 @@
 <?php
 	include_once './../../inicial.php';
 	//Carga de archivos php necesarios
-    include_once $URLCom.'/head.php';
     include_once $URLCom.'/modulos/mod_compras/funciones.php';
     include_once $URLCom.'/controllers/Controladores.php';
     include_once $URLCom.'/clases/Proveedores.php';
@@ -478,7 +477,7 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
             <a id="buscarPedido" class="glyphicon glyphicon-search buscar" onclick="buscarAdjunto('factura')"></a>
         <?php
         } ?>
-            <table  class="col-md-12" id="tablaPedidos"> 
+            <table  class="table" id="tablaPedidos"> 
 				<thead>
                 <tr>
                     <td><b>Número</b></td>
@@ -499,7 +498,25 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
 			</table>
 	</div>
 	<!-- Tabla de lineas de productos -->
-	<div>
+        <div class="col-md-12">
+                <div class="col-md-12 form-inline bg-info" id="Row0" <?php echo $estilos['styleNo']; ?>>
+                    <div class="form-group">
+                        <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
+                    </div>
+                    <div class="form-group">
+                        <input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)">
+                    </div>
+                </div>
+            <div class="col-lg-9">
 		<table id="tabla" class="table table-striped">
 		<thead>
 		  <tr>
@@ -516,15 +533,6 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
 			<th>Importe</th>
 			<th></th>
 		  </tr>
-		  <tr id="Row0" <?php echo $estilos['styleNo'];?>>  
-			<td id="C0_Linea" ></td>
-			<td id="C0_Linea" ></td>
-			<td><input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)"></td>
-			<td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Referencia" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)"></td>
-			<td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-			<td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)"></td>
-		</tr>
 		</thead>
 		<tbody>
 			<?php 
@@ -557,8 +565,7 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
 	  </table>
 	</div>
         <div class="col-lg-3 pie-ticket">
-            <div class="col-lg-12">
-		<table id="tabla-pie">
+                <table id="tabla-pie" class="table">
 		<thead>
 			<tr>
 				<th>Tipo</th>
@@ -573,10 +580,11 @@ echo '<input type="date" name="fechaVenci" id="fechaVenci" size="8" data-obj= "c
 				echo $htmlIvas['html'];
 			}
 			  ?>
-		</tbody>
-		</table>
-	</div>
-</div>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </form>
 </div>
 <?php // Incluimos paginas modales
