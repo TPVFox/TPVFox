@@ -311,6 +311,8 @@ if ($idAlbaranTemporal === 0) {
     $estilos['btn_guardar'] = 'style="display:none;"';
     // Una vez se cree temporal, con javascript se quita style
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -556,7 +558,8 @@ if (isset($errores)) {
                         <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
                     </div>
                     <div class="form-group">
-                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
+                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value=""
+                         onkeydown="controlEventos(event)"<?php echo (($estado != "Nuevo")?'  autofocus' : '');?>>
                     </div>
                     <div class="form-group">
                         <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">

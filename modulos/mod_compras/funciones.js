@@ -435,7 +435,11 @@ function comprobarFecha(caja,event){
         if (fecha_caja > hoy){
             alert('La fecha es superior a hoy');
         } else {
-            saltarHora(caja);
+            if (productos.length == 0 ){
+                saltarHora(caja);
+            } else  {
+                ponerFocus(salto_linea);
+            }
         }
     }
         
