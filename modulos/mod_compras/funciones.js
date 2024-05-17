@@ -365,7 +365,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                         //Para poder empezar a meter articulos
                         ponerFocus("idArticulo");
                     }
-                    mostrarFila();
+                    mostrarFilaProveedor(dedonde);
                     
                 }else{
                     //Si no mostramos un modal con los proveedores según la busqueda
@@ -375,7 +375,10 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     if (idcaja !=='cajaBusquedaproveedor'){
                         focusAlLanzarModal('cajaBusquedaproveedor');
                     } else {
-                        ponerFocus('cajaBusquedaproveedor');
+                        // Vine modal , por lo que debemos saber si tiene resultado y poner focus en el primero
+                        if (resultado.Nitems >0 ){
+                            ponerFocus('N_0');
+                        }
                     }
             }
         }
@@ -413,8 +416,6 @@ function comprobarAdjunto(dedonde){
                         } else {
                             ponerFocus('suNumero');
                         }
-                    }else{
-                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
                     }
                 }
         }
@@ -979,11 +980,15 @@ function AgregarAdjunto(datos, dedonde){
     });
 }
 
-function mostrarFila(){
+function mostrarFilaProveedor(dedonde){
     //@Objetivo: Mostrar la fila principal de articulos
-    console.log("mostrar fila");
     $("#Row0").removeAttr("style") ;
-    ponerFocus( ObtenerFocusDefectoEntradaLinea());
+    console.log(dedonde)
+    if (dedonde == "albaran"){
+        ponerFocus('suNumero');   
+    } else {
+        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+    }
 }
 
 function mostrarDivAdjunto(){
@@ -1107,6 +1112,15 @@ function ObtenerCajaSiguiente(idCaja){
         case 'Codbarras':
             d_focus = 'Descripcion';
         break;
+        
+        case 'hora':
+            if (productos.length > 0){
+                // Deberia saltar a linea entrada producto por defecto
+                d_focus= salto_linea;
+            } else  {
+                d_focus='Proveedor';
+                
+            }
     }
     return d_focus;
 }
