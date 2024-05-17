@@ -16,11 +16,11 @@ $CArticulo=new Articulos($BDTpv);
 //Guardamos en un array los datos de los albaranes temporales
 $todosTemporal=$CAlb->TodosTemporal();
 if (isset($todosTemporal['error'])){
-	$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $todosTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
+    $errores[0]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $todosTemporal['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                                 );
 }
 $todosTemporal=array_reverse($todosTemporal);
 // ===========    Paginacion  ====================== //
@@ -40,27 +40,27 @@ $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
 $albaranesDef=$a['Items'];
-	if (isset($a['error'])){
-		$errores[]=array ( 'tipo'=>'Danger!',
-								 'dato' => $a['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-	}
+    if (isset($a['error'])){
+        $errores[]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $a['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                                 );
+    }
     if (count($albaranesDef)==0){
-		$errores[]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes albaranes guardados!'
-								 );
-	}
+        $errores[]=array ( 'tipo'=>'Warning!',
+                                 'dato' => '',
+                                 'class'=>'alert alert-warning',
+                                 'mensaje' => 'No tienes albaranes guardados!'
+                                 );
+    }
 ?>
 <!DOCTYPE html>
 <html>
 <head>
  <?php include_once $URLCom.'/head.php';?>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-   	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 
@@ -68,15 +68,15 @@ $albaranesDef=$a['Items'];
 <body>
 <?php
     include_once $URLCom.'/modulos/mod_menu/menu.php';
-	if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
-	}
-	?>
-	<div class="container">
+    if (isset($errores)){
+        foreach($errores as $error){
+                echo '<div class="'.$error['class'].'">'
+                . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                . '</div>';
+        }
+    }
+    ?>
+    <div class="container">
         <div class="col-md-12 text-center">
             <h2>Albaranes de proveedores</h2>
         </div>
@@ -142,14 +142,14 @@ $albaranesDef=$a['Items'];
                     ?>
                     </tbody>
                 </table>
-                </div>	
+                </div>  
         </div>
         <div class="col-md-9">
             <p>
              -Albaranes encontrados BD local filtrados:
                 <?php echo $CantidadRegistros; ?>
             </p>
-            <?php 	// Mostramos paginacion 
+            <?php   // Mostramos paginacion 
             echo $htmlPG;
             //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
             ?>
@@ -203,11 +203,7 @@ $albaranesDef=$a['Items'];
                         <td>
                             <?php
                             if($ClasePermisos->getAccion("Modificar")==1 && $albaran['estado']!=='Facturado'){
-                                $accion='';
-                                if ($albaran['estado']==="Sin Guardar"){
-                                    $accion ='&accion=editar';
-                                }
-                                echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].$accion.'"></a>';
+                                echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id='.$albaran['id'].'&accion=editar"></a>';
                             }
                             ?>
                         </td>

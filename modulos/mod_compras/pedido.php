@@ -243,25 +243,27 @@
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <?php  include_once $URLCom.'/head.php'; ?>
 
-<script type="text/javascript">
+    <script type="text/javascript">
     <?php
     // Esta variable global la necesita para montar la lineas.
     // En configuracion podemos definir SI / NO
     echo 'var configuracion='.json_encode($configuracionArchivo).';';
-    ?>  
+    ?>
     var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-        cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-        cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; 
-        cabecera['estado'] ='<?php echo $estado ;?>'; 
-        cabecera['idTemporal'] = '<?php echo $idPedidoTemporal;?>';
-        cabecera['idReal'] = '<?php echo $idPedido ;?>';
-        cabecera['idProveedor'] ='<?php echo $idProveedor;?>';
-        cabecera['fecha'] = '<?php echo $fecha;?>';
-         // Si no hay datos GET es 'Nuevo';
-    var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
+    cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
+    cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>;
+    cabecera['estado'] = '<?php echo $estado ;?>';
+    cabecera['idTemporal'] = '<?php echo $idPedidoTemporal;?>';
+    cabecera['idReal'] = '<?php echo $idPedido ;?>';
+    cabecera['idProveedor'] = '<?php echo $idProveedor;?>';
+    cabecera['fecha'] = '<?php echo $fecha;?>';
+    // Si no hay datos GET es 'Nuevo';
+    var
+    productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
     var salto_linea = 'ReferenciaPro'; // Valor por defecto
     <?php 
     $i= 0;
@@ -269,14 +271,14 @@
         if ($productos){
             foreach($productos as $product){
     ?>
-            datos=<?php echo json_encode($product); ?>;
-            productos.push(datos);
+    datos = <?php echo json_encode($product); ?>;
+    productos.push(datos);
     <?php //cambiamos estado y cantidad de producto creado si fuera necesario.
                 if (isset ($product->estado)){
                     if ($product['estado'] !== 'Activo'){
                     ?>
-                        productos[<?php echo $i;?>].estado=<?php echo'"'.$product['estado'].'"';?>;
-                    <?php
+    productos[<?php echo $i;?>].estado = <?php echo'"'.$product['estado'].'"';?>;
+    <?php
                     }
                 }
                 $i++;
@@ -284,33 +286,35 @@
          }  
      }
     ?>
-</script>
+    </script>
 </head>
+
 <body>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-<?php
+    <?php
      include_once $URLCom.'/modulos/mod_menu/menu.php';
 ?>
-<script type="text/javascript">
+    <script type="text/javascript">
     <?php
     if (isset($_POST['Cancelar'])){
     ?>
-        mensajeCancelar(<?php echo $idPedidoTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
+    mensajeCancelar(<?php echo $idPedidoTemporal;?>, <?php echo "'".$dedonde."'"; ?>);
     <?php
     }
     echo $VarJS;
     ?>
+
     function anular(e) {
         tecla = (document.all) ? e.keyCode : e.which;
         return (tecla != 13);
     }
-</script>
-<div class="container">
-    <?php
+    </script>
+    <div class="container">
+        <?php
     if (isset($errores)){
         foreach ($errores as $comprobaciones){
             echo $Cpedido->montarAdvertencia($comprobaciones['tipo'],$comprobaciones['mensaje'],'OK');
@@ -320,14 +324,14 @@
         }
     }
     ?>
-    <form  action="" method="post" name="formProducto" onkeypress="return anular(event)">
-    <?php 
+        <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+            <?php 
     echo '<h3 class="text-center">'.$titulo.'</h3>';
     ?>
-    
-        <div class="col-md-12">
-            <div class="col-md-8" >
-                <?php echo $Controler->getHtmlLinkVolver('Volver');
+
+            <div class="col-md-12">
+                <div class="col-md-8">
+                    <?php echo $Controler->getHtmlLinkVolver('Volver');
             // Botones de incidencias.
                 if($idPedido>0){
                     echo '<input class="btn btn-warning" size="12" 
@@ -349,9 +353,9 @@
                             .' type="submit" value="Guardar" name="Guardar" id="bGuardar" accesskey="G"/>';
                 }
                 ?>
-            </div>
-            <div class="col-md-4 text-right" >
-            <?php
+                </div>
+                <div class="col-md-4 text-right">
+                    <?php
             if ($estado != "Facturado" || $accion != "ver"){
                 // Mostramos input temporal
                 echo ' temporal:'.'<input type="text" readonly size ="4" name="idTemporal" value="'.$idPedidoTemporal.'">';
@@ -361,35 +365,36 @@
                     .$estilos['btn_cancelar']. 'value="Borrar Temporal" name="Cancelar" id="bCancelar">';
             }
             ?>
+                </div>
+
             </div>
-           
-        </div>
-    <div class="row" >
-    <div class="col-md-7">
-                <div class="col-md-12">
-            <div class="col-md-3">
-                <label>Fecha Pedido:</label>
-                 <?php
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="col-md-12">
+                        <div class="col-md-3">
+                            <label>Fecha Pedido:</label>
+                            <?php
                     $pattern_numerico = ' pattern="[0-9]{2}-[0-9]{2}-[0-9]{4}" ';
                     $title_fecha =' placeholder="dd-mm-yyyy" title=" Formato de entrada dd-mm-yyyy"';
                     echo '<input type="text" name="fecha" id="fecha" size="8" data-obj= "cajaFecha" '
                         . $estilos['input_factur'].' value="'.$fecha.'" '.$estilos['evento_cambio'].' onkeydown="controlEventos(event)" '
                         . $pattern_numerico.$title_fecha.'/>';
                     ?>
-            </div>
-            <div class="col-md-3">
-                <label>Estado:</label>
-                <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
-            </div>
-            <div class="col-md-3">
-                <label>Creado por:</label>
-                <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="13" readonly>
-            </div>
-            
-        </div>
-                <div class="col-md-12">
-                    <label class="text-center">Proveedor</label>
-                    <?php
+                        </div>
+                        <div class="col-md-3">
+                            <label>Estado:</label>
+                            <input type="text" id="estado" name="estado" value="<?php echo $estado;?>" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Creado por:</label>
+                            <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>"
+                                size="13" readonly>
+                        </div>
+
+                    </div>
+                    <div class="col-md-12">
+                        <label class="text-center">Proveedor</label>
+                        <?php
                     echo '<div class="col-md-2">
                             <input type="text" id="id_proveedor" name="id_proveedor" data-obj= "cajaIdProveedor" value="'
                             .$idProveedor.'" '.$estilos['pro_readonly'].' size="2" onkeydown="controlEventos(event)" placeholder="id">
@@ -402,50 +407,56 @@
                             .' onclick="buscarProveedor('."'".'albaran'."'".',Proveedor.value)"></a>
                          </div>';
                     ?>
-            </div>
-        
-    </div>
-    <!-- Tabla de lineas de productos -->
-    <div>
-            <div>
-                <div class="col-md-12 form-inline bg-warning" id="Row0" <?php echo $estilos['styleNo'];?>>  
-                    <div class="form-group">
-                        <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo" data-obj= "cajaidArticulo" size="4" value=""  onkeydown="controlEventos(event)">
                     </div>
-                    <div class="form-group">
-                        <input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
-                    </div>
-                    <div class="form-group">
-                        <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor" data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
-                    </div>
-                    <div class="form-group">
-                        <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)">
-                    </div>
-                    <div class="form-group">
-                        <input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)">
-                    </div>
-                </div>
 
-            </div>
-            <div class="col-lg-9">
-        <table id="tabla" class="table table-striped" >
-            <thead>
-            <tr>
-                <th>L</th>
-                <th>Id Articulo</th>
-                <th>Referencia</th>
-                <th>Referencia Proveedor</th>
-                <th>Cod Barras</th>
-                <th>Descripcion</th>
-                <th>Unid</th>
-                <th>Coste</th>
-                <th>Iva</th>
-                <th>Importe</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-                <?php 
+                </div>
+                <!-- Tabla de lineas de productos -->
+                <div>
+                    <div>
+                        <div class="col-md-12 form-inline bg-warning" id="Row0" <?php echo $estilos['styleNo'];?>>
+                            <div class="form-group">
+                                <input id="idArticulo" type="text" name="idArticulo" placeholder="idArticulo"
+                                    data-obj="cajaidArticulo" size="4" value="" onkeydown="controlEventos(event)">
+                            </div>
+                            <div class="form-group">
+                                <input id="Referencia" type="text" name="Referencia" placeholder="Referencia"
+                                    data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)">
+                            </div>
+                            <div class="form-group">
+                                <input id="ReferenciaPro" type="text" name="ReferenciaPro" placeholder="Ref_proveedor"
+                                    data-obj="cajaReferenciaPro" size="10" value="" onkeydown="controlEventos(event)">
+                            </div>
+                            <div class="form-group">
+                                <input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras"
+                                    data-obj="cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras"
+                                    onkeydown="controlEventos(event)">
+                            </div>
+                            <div class="form-group">
+                                <input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion"
+                                    data-obj="cajaDescripcion" size="17" value="" onkeydown="controlEventos(event)">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-9">
+                        <table id="tabla" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>L</th>
+                                    <th>Id Articulo</th>
+                                    <th>Referencia</th>
+                                    <th>Referencia Proveedor</th>
+                                    <th>Cod Barras</th>
+                                    <th>Descripcion</th>
+                                    <th>Unid</th>
+                                    <th>Coste</th>
+                                    <th>Iva</th>
+                                    <th>Importe</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
                 if (isset($productos)){
                     foreach (array_reverse($productos) as $producto){
                         $h=htmlLineaProducto($producto, "pedido",$estilos['readonly']);
@@ -453,36 +464,37 @@
                     }
                 }
             ?>
-            </tbody>
-      </table>
-    </div>
-        <div class="col-lg-3 pie-ticket">
-            <table id="tabla-pie" class="col-md-12">
-            <thead>
-            <tr>
-                <th>Tipo</th>
-                <th>Base</th>
-                <th>IVA</th>
-            </tr>
-            </thead>
-            <tbody>
-                <?php
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-lg-3 pie-ticket">
+                        <table id="tabla-pie" class="col-md-12">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Base</th>
+                                    <th>IVA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
                 if (isset($Datostotales)) {
                     $htmlIvas = htmlTotales($Datostotales);
                     echo $htmlIvas['html'];
                 }
                 ?>
 
-            </tbody>
-            </table>
-        </div>
-        </div>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-    </form>
-</div>
     <?php // Incluimos paginas modales
 echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
 include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
 ?>
 </body>
+
 </html>

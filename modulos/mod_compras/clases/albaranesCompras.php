@@ -57,8 +57,8 @@ class AlbaranesCompras extends ClaseCompras {
         $U = json_encode($pedidos);
         $PrepPedidos = $this->db->real_escape_string($U);
         $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , Fecha, 
-		idProveedor,  Productos, Pedidos , Su_numero) VALUES 
-		(' . $idUsuario . ' , ' . $idTienda . ' , "' . $estado . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
+        idProveedor,  Productos, Pedidos , Su_numero) VALUES 
+        (' . $idUsuario . ' , ' . $idTienda . ' , "' . $estado . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
                 . $PrepProductos . '" , "' . $PrepPedidos . '", "' . $suNumero . '")';
         $smt= parent::consulta($sql);
         if (gettype($smt)!=='array') {
@@ -132,23 +132,23 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-	public function eliminarTemporal($idTemporal, $idAlbaran =0){
-		//@Objetivo :
+    public function eliminarTemporal($idTemporal, $idAlbaran =0){
+        //@Objetivo :
         // Eliminar temporal, tanto si recibe idTemporal o idPedido
-		if ($idAlbaran>0){
-			$sql='DELETE FROM albproltemporales WHERE Numalbpro='.$idAlbaran;
-		}else{
-			$sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
-		}
-		$smt=parent::consulta($sql);
-		if (gettype($smt)==='array'){
-				$respuesta['error']=$smt['error'];
-				$respuesta['consulta']=$smt['consulta'];
-		}else {
+        if ($idAlbaran>0){
+            $sql='DELETE FROM albproltemporales WHERE Numalbpro='.$idAlbaran;
+        }else{
+            $sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
+        }
+        $smt=parent::consulta($sql);
+        if (gettype($smt)==='array'){
+                $respuesta['error']=$smt['error'];
+                $respuesta['consulta']=$smt['consulta'];
+        }else {
             $respuesta['valores_insert'] = $this->affected_rows;
         }
         return $respuesta;
-	}
+    }
 
     public function eliminarAlbaranTablas($idAlbaran,$tabla = '') {
         //@ Objetivo:
@@ -262,7 +262,7 @@ class AlbaranesCompras extends ClaseCompras {
             $stock = new alArticulosStocks();
             $values = array();
             $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
-					cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
+                    cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
                     $i++;
@@ -348,8 +348,8 @@ class AlbaranesCompras extends ClaseCompras {
         //Obtener todos los albaranes temporales o la de un solo albaran
         $respuesta = array();
         $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total, 
-			b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
-			as b on tem.idProveedor=b.idProveedor';
+            b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
+            as b on tem.idProveedor=b.idProveedor';
         if ($idAlbaran > 0){
             // buscamos solos temporales para ese albaran.
             // [OJO] El campo que tenemos en temporal es NumalbPro pero debe se idalbpro
@@ -375,8 +375,8 @@ class AlbaranesCompras extends ClaseCompras {
         //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
         $respuesta = array();
         $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
-		a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
-		a.idProveedor =b.idProveedor  ' . $limite;
+        a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
+        a.idProveedor =b.idProveedor  ' . $limite;
         $smt = parent::consulta($sql);
         if (gettype($smt)==='array') {
             $respuesta = $smt; 
@@ -420,13 +420,13 @@ class AlbaranesCompras extends ClaseCompras {
                         );
         }
         $pedidos=$this->PedidosAlbaranes($id);
-		if (isset($pedidos['error'])){
-			array_push($this->errores,$this->montarAdvertencia(
+        if (isset($pedidos['error'])){
+            array_push($this->errores,$this->montarAdvertencia(
                                         'danger',
                                         'Error 4 en base datos.Consulta:'.json_encode($pedidos['consulta'])
                                 )
                         );
-		}
+        }
         if (count($this->errores)===0 ){
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos']=$productos;
@@ -478,7 +478,7 @@ class AlbaranesCompras extends ClaseCompras {
         } else {
             while ($result = $smt->fetch_assoc()) {
                 $respuesta[] = $result;
-			}
+            }
         }
         return $respuesta;
     }
@@ -545,9 +545,9 @@ class AlbaranesCompras extends ClaseCompras {
         // $numAlbaran -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
         // $estado -> Lo pedidos queremos buscar segun su estado.
         $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
-			  a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
-			  INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . ' 
-			  and a.estado="'.$estado.'"';
+              a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
+              INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . ' 
+              and a.estado="'.$estado.'"';
         if ($numAlbaran > 0){
             $sql .=' and a.Numalbpro=' . $numAlbaran ;
         }
@@ -585,12 +585,12 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
     
-    public function NumfacturaDeAlbaran($numAlbaran){	
-		$tabla='albprofac';
-		$where='`numAlbaran`='.$numAlbaran;
-		$albaran = parent::SelectUnResult($tabla, $where);
-		return $albaran;
-	}
+    public function NumfacturaDeAlbaran($numAlbaran){   
+        $tabla='albprofac';
+        $where='`numAlbaran`='.$numAlbaran;
+        $albaran = parent::SelectUnResult($tabla, $where);
+        return $albaran;
+    }
 
     public function ComprobarFecha($fecha){
         // @Objetivo:
@@ -773,7 +773,8 @@ class AlbaranesCompras extends ClaseCompras {
             if (!isset($posible_duplicado['error'])){
                 $OK ='OK';
                 if (count($posible_duplicado)>1){
-                     $OK = 'Hay mas de un temporal con el mismo numero albaran.';
+                     $OK = 'Hay mas de un temporal con el mismo numero albaran.Con los siguientes idtemporal:'
+                     .json_encode(array_column($posible_duplicado, 'id'));
                 } else {
                     // Hay uno solo.
                     if ($numAlbaranTemp > 0) {
