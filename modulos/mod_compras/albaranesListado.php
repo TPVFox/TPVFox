@@ -32,22 +32,22 @@ $NPaginado->SetOrderConsulta('a.Numalbpro');
 $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 $CantidadRegistros=0;
 // Obtenemos la cantidad registros 
-$a = $CAlb->TodosAlbaranesLimite($filtro);
-$CantidadRegistros = count($a['Items']);
+$listado = $CAlb->TodosAlbaranesLimite($filtro);
+$CantidadRegistros = count($listado['Items']);
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$a=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
-$albaranesDef=$a['Items'];
-    if (isset($a['error'])){
+$listado=$CAlb->TodosAlbaranesLimite($filtro.$NPaginado->GetLimitConsulta());
+$ListadoAlbaranes=$listado['Items'];
+    if (isset($listado['error'])){
         $errores[]=array ( 'tipo'=>'Danger!',
-                                 'dato' => $a['consulta'],
+                                 'dato' => $listado['consulta'],
                                  'class'=>'alert alert-danger',
                                  'mensaje' => 'ERROR EN LA BASE DE DATOS!'
                                  );
     }
-    if (count($albaranesDef)==0){
+    if (count($ListadoAlbaranes)==0){
         $errores[]=array ( 'tipo'=>'Warning!',
                                  'dato' => '',
                                  'class'=>'alert alert-warning',
@@ -63,7 +63,6 @@ $albaranesDef=$a['Items'];
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-
 </head>
 <body>
 <?php
@@ -179,7 +178,7 @@ $albaranesDef=$a['Items'];
                 <tbody>
                     <?php 
                     $checkUser = 0;
-                    foreach ($albaranesDef as $albaran){
+                    foreach ($ListadoAlbaranes as $albaran){
                         $iconoCostes='';
                         $checkUser++;
                         $totaliva=$CAlb->sumarIva($albaran['Numalbpro']);

@@ -28,22 +28,21 @@
     $idFacturaTemporal = 0;
     $idFactura = 0;
     $idProveedor = "";
-    $formaPago = 0;
-    $suNumero = "";
     $nombreProveedor = "";
-    $fechaVencimiento = "";
     $Datostotales = array();
     $errores = array();
+    $creado_por = array();
+    $formaPago = 0;
+    $suNumero = "";
+    $fechaVencimiento = "";
     $albaran_html_linea_producto = array();
     $JS_datos_albaranes = '';
     $html_adjuntos = '';
-    $albaranes = array();
-    $creado_por = array();
     //Cargamos la configuración por defecto y las acciones de las cajas
     $parametros = $ClasesParametros->getRoot();
     foreach ($parametros->cajas_input->caja_input as $caja) {
         // Ahora cambiamos el parametros por defecto que tiene dedonde = pedido y le ponemos albaran
-        $caja->parametros->parametro[0] = "factura";
+        $caja->parametros->parametro[0] = $dedonde;
     }
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -89,22 +88,20 @@
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idFactura > 0){
         // Comprobamos si existe temporal del idFactura 
-        $c = $CFac->comprobarTemporalIdFacpro($idFactura);
-        if (isset($c['idTemporal']) && $c['idTemporal'] !== NULL){
+        $temporales= $CFac->comprobarTemporalIdFacpro($idFactura);
+        // Si existe numero albaran, comprobamos cuantos temporales tiene Factura y si tiene uno obtenemos el numero.
+        if (isset($temporales['idTemporal']) && $temporales['idTemporal'] !== null) {
             // Existe un temporal de este pedido por lo que cargo ese temporal.
-            $idFacturaTemporal = $c['idTemporal'];
-            $idFactura = 0 ; // Lo pongo en 0 para ejecute la parte temporal
-            $_GET['tActual'] = $idFacturaTemporal;
-            if ($accion !== 'temporal'){
-                // Si entro sin accion temporal, NO PERMITO EDITAR.
-                // YA PROVABLEMENTE ESTAN EDITANDO.
+            $idFacturaTemporal = $temporales['idTemporal'];
+            if ($accion !== 'editar' && $accion !== 'ver') {
                 $accion = 'ver';
                 // Creo alert
-                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, hay un temporal");</script>';
+                echo '<script>alert("No se permite editar, ya que alguien esta editandolo, ya que hay un temporal");</script>';
             }
         } else {
-            if (count($c)>0){
-                 $errores= $c;
+            if (count($temporales)>0){
+                array_push($errores,
+                    $CAlb->montarAdvertencia( 'danger',$temporales));
             }
         }
     }
@@ -131,31 +128,32 @@
         //   -Cuando pulsamos guardar.
         $datosFactura=$CFac->buscarFacturaTemporal($idFacturaTemporal);
         if (isset($datosFactura['error'])){
-                array_push($errores,$CFac->montarAdvertencia(
-                                'danger',
-                                'Error 1.1 en base datos.Consulta:'.json_encode($datosFactura['consulta'])
-                        )
-                );
+            array_push($errores,$CFac->montarAdvertencia(
+                'danger',
+                'Error 1.1 en base datos.Consulta:'.json_encode($datosFactura['consulta'])
+            )
+            );
         } else {
             // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
-            $datosFactura['FechaVencimiento'] ='0000-00-00';
             $datosFactura['Productos'] = json_decode($datosFactura['Productos'],true);
             $idFactura = $datosFactura['numfacpro'];
             $estado=$datosFactura['estadoFacPro'];
+	    $datosFactura['FechaVencimiento'] ='0000-00-00';
+
         }
     }
-    
     if (count($errores) == 0){
         // Si no hay errores graves continuamos.
-        if (!isset($datosFactura)){
-            // Es que nuevo.
+        if ($estado == 'Nuevo' && !isset($datosFactura)) {
+            // SI es NUEVO.
             $datosFactura = array();
             $datosFactura['Fecha']="0000-00-00 00:00:00";
             $datosFactura['Su_numero'] = '';
             $datosFactura['idProveedor'] = 0;
+            $accion = 'editar';
             $creado_por = $Usuario;
         }else {
-            // Si no es nuevo
+            // No es NUEVO
             $idProveedor=$datosFactura['idProveedor'];
             $proveedor=$Cproveedor->buscarProveedorId($idProveedor);
             $nombreProveedor=$proveedor['nombrecomercial'];
@@ -249,15 +247,15 @@
                 $_POST['fechaVenci'] = '0000-00-00';
             }
             $guardar=$CFac->guardarFactura();
-			if (count($guardar)==0){
-                header('Location: facturasListado.php');
-            }else{
-                // Hubo errores o advertencias.
-                foreach ($guardar as $error){
-                    array_push($errores,$error);
-                }
+        if (count($guardar) == 0) {
+            header('Location: facturasListado.php');
+        } else {
+            // Hubo errores o advertencias.
+            foreach ($guardar as $error) {
+                array_push($errores, $error);
             }
-	}
+        }
+    }
     // ============                 Montamos el titulo                      ==================== //
     $html_f='';
     if(isset($numFactura)){

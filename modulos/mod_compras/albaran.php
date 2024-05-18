@@ -42,7 +42,7 @@
     $parametros = $ClasesParametros->getRoot();
     foreach ($parametros->cajas_input->caja_input as $caja) {
         // Ahora cambiamos el parametros por defecto que tiene dedonde = pedido y le ponemos albaran
-        $caja->parametros->parametro[0] = "albaran";
+        $caja->parametros->parametro[0] = $dedonde;
     }
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -117,7 +117,7 @@
                 if ($datosAlbaran['estado'] == "Facturado") {
                     // Cambiamos accion, ya que solo puede ser ver.
                     $accion = 'ver';
-                    // Obtenemos los datos de factura.
+                    // Obtenemos los datos de factura si el albaran está facturado.
                     $numFactura = $CAlb->NumfacturaDeAlbaran($idAlbaran);
                     if (isset($numFactura['error'])) {
                         array_push($errores, $CAlb->montarAdvertencia(

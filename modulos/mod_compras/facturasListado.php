@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
 <?php
 include_once './../../inicial.php';
-include_once $URLCom.'/head.php';
 include_once $URLCom.'/modulos/mod_compras/funciones.php';
 include_once $URLCom.'/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom.'/controllers/Controladores.php';
@@ -18,11 +14,11 @@ $CFac=new FacturasCompras($BDTpv);
 //Guardamos en un array todos los datos de las facturas temporales
 $todosTemporal=$CFac->TodosTemporal();
 if (isset($todosTemporal['error'])){
-	$errores[0]=array ( 'tipo'=>'Danger!',
-								 'dato' => $todosTemporal['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
+    $errores[0]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $todosTemporal['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                                 );
 }
 $todosTemporal=array_reverse($todosTemporal);
 // ===========    Paginacion  ====================== //
@@ -34,47 +30,49 @@ $NPaginado->SetOrderConsulta('a.Numfacpro');
 $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 $CantidadRegistros=0;
 // Obtenemos la cantidad registros 
-$f = $CFac->TodosFacturaLimite($filtro);
-$CantidadRegistros = count($f['Items']);
+$listado = $CFac->TodosFacturaLimite($filtro);
+$CantidadRegistros = count($listado['Items']);
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$f = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
-
-$facturasDef=$f['Items'];
-	if (isset($f['error'])){
-		$errores[]=array ( 'tipo'=>'Danger!',
-								 'dato' => $f['consulta'],
-								 'class'=>'alert alert-danger',
-								 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
-								 );
-	}
-    if (count($facturasDef)==0){
-		$errores[]=array ( 'tipo'=>'Warning!',
-								 'dato' => '',
-								 'class'=>'alert alert-warning',
-								 'mensaje' => 'No tienes facturas guardados!'
-								 );
-	}
+$listado = $CFac->TodosFacturaLimite($filtro.$NPaginado->GetLimitConsulta());
+$ListadoFacturas=$listado['Items'];
+    if (isset($listado['error'])){
+        $errores[]=array ( 'tipo'=>'Danger!',
+                                 'dato' => $listado['consulta'],
+                                 'class'=>'alert alert-danger',
+                                 'mensaje' => 'ERROR EN LA BASE DE DATOS!'
+                                 );
+    }
+    if (count($ListadoFacturas)==0){
+        $errores[]=array ( 'tipo'=>'Warning!',
+                                 'dato' => '',
+                                 'class'=>'alert alert-warning',
+                                 'mensaje' => 'No tienes facturas guardados!'
+                                 );
+    }
 ?>
-
+<!DOCTYPE html>
+<html>
+<head>
+ <?php include_once $URLCom.'/head.php';?>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
+   <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+   <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 </head>
 <body>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-   	<script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
 <?php
-     include_once $URLCom.'/modulos/mod_menu/menu.php';
-	if (isset($errores)){
-		foreach($errores as $error){
-				echo '<div class="'.$error['class'].'">'
-				. '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
-				. '</div>';
-		}
-	}
-	?>
+    include_once $URLCom.'/modulos/mod_menu/menu.php';
+    if (isset($errores)){
+        foreach($errores as $error){
+                echo '<div class="'.$error['class'].'">'
+                . '<strong>'.$error['tipo'].' </strong> '.$error['mensaje'].' <br>Sentencia: '.$error['dato']
+                . '</div>';
+        }
+    }
+    ?>
     <div class="container">
         <div class="col-md-12 text-center">
             <h2>Facturas de proveedores</h2>
@@ -83,7 +81,13 @@ $facturasDef=$f['Items'];
             <h4> Opciones generales</h4>
             <?php 
                 if($ClasePermisos->getAccion("Crear")==1){
-                    echo '<a class="btn btn-default" href="./factura.php">Añadir</a>';
+                    echo '<a class="btn btn-default" href="./factura.php" accesskey="A" >Añadir (Alt+A)</a>';
+                }
+                if($ClasePermisos->getAccion("Ver")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Ver'."','".'factura'."'".')">Ver</button>';
+                }
+                if($ClasePermisos->getAccion("Modificar")==1){
+                    echo '<button class="btn btn-default" onclick="metodoClick('."'".'Modificar'."','".'factura'."'".')">Modificar</button>';
                 }
             ?>
             <div class="col-md-12">
@@ -95,11 +99,9 @@ $facturasDef=$f['Items'];
                         <th>Pro.</th>
                         <th>Total</th>
                     </tr>
-                    
                 </thead>
                 <tbody>
                     <?php
-                    
                 if (isset($todosTemporal)){
                     foreach ($todosTemporal as $temporal){
                         $numTemporal="";
@@ -126,7 +128,7 @@ $facturasDef=$f['Items'];
              -Facturas encontrados BD local filtrados:
                 <?php echo $CantidadRegistros; ?>
             </p>
-            <?php 	// Mostramos paginacion 
+            <?php   // Mostramos paginacion 
                 echo $htmlPG;
             //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
             ?>
@@ -156,7 +158,7 @@ $facturasDef=$f['Items'];
                 <tbody>
             <?php 
                 $checkUser = 0;
-                foreach ($facturasDef as $factura){
+                foreach ($ListadoFacturas as $factura){
                     $checkUser++;
                     $totaliva=$CFac->sumarIva($factura['Numfacpro']);
                     $totalBase="0.00";
@@ -177,13 +179,10 @@ $facturasDef=$f['Items'];
                             ?>
                         </td>
                         <td>
-                        <?php 
-                        if($ClasePermisos->getAccion("Modificar")==1 ){
-                            $accion='';
-                            if ($factura['estado']==="Sin Guardar"){
-                                $accion ='&accion=temporal';
-                            }
-                            echo '<a class="glyphicon glyphicon-pencil" href="./factura.php?id='.$factura['id'].$accion.'"></a>';
+                            <?php
+                            if($ClasePermisos->getAccion("Modificar")==1 && $factura['estado']!=='Contabilizado'){
+                            
+                            echo '<a class="glyphicon glyphicon-pencil" href="./factura.php?id='.$factura['id'].'&accion=editar"></a>';
                         }
                         ?>
                         </td>
@@ -203,27 +202,31 @@ $facturasDef=$f['Items'];
                         <?php 
                         $clas_estado ='';
                         if ($factura['estado']!=="Sin Guardar"){
-                            $linkFactura = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" '.
+                            $linkImprimir = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" '.
                                     "onclick='imprimir(".$factura['id'].
                                     ' , "factura" , '.$Tienda['idTienda'].")'></a>";
                             
                         }else {
                             // Color danger cuando es Sin Guardar
                             $clas_estado = ' class="alert-danger"';
-                            $linkFactura= '';
-                        } 
+                            $linkImprimir= '';
+                        }                    
                         echo '<td'.$clas_estado.'>'
-                                .$factura['estado'].$linkFactura;
+                                .$factura['estado'].$linkImprimir;
                         echo '</td>';
                         ?>
-                    </tr>
-                <?php
-                }
-                ?>
+                        </tr>
+                        <?php
+                    }
+                    ?>
                 </tbody>
             </table>
             </div>
         </div>
     </div>
+    <?php // Incluimos paginas modales
+    echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+    include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+    ?>
 </body>
 </html>

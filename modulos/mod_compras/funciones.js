@@ -217,6 +217,9 @@ function metodoClick(pulsado,adonde=''){
             
             if (pulsado == 'Ver'){
                 accion='&accion=ver';
+            } else {
+                accion='&accion=editar';
+
             }
             // Ahora Redirijo al id de adonde conla accion que indiquemos
             window.location.href = './'+adonde+'.php?id='+checkID[0]+accion;
