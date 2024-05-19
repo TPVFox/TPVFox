@@ -170,7 +170,7 @@ function modificarEstado(dedonde, estado, id=""){
 
 function modalAlbaranesCambioEstado(){
     // @ Objetivo:
-    // Seleccionar el nuevo estado a poner
+    // Abre Modal para Seleccionar el nuevo estado a poner en la seleccion listado
     // @ Parametros:
     // No hay
     // @ Devuelve:
@@ -585,12 +585,7 @@ function addTemporal(dedonde=""){
                 alert(JSON.stringify(resultado.error));
             }else{
                 if (resultado.id > 0){
-                    // Este codigo será comun pero de momento lo diferencio pedido.
-                    if (dedonde=="pedido"){
-                        history.pushState(null,'','?temporal='+resultado.id);
-                    }else{
-                        history.pushState(null,'','?tActual='+resultado.id);
-                    }
+                    history.pushState(null,'','?tActual='+resultado.id);
                     $("input[name='idTemporal']").val(resultado.id);
                     if (cabecera.idTemporal == 0) {
                         // En estado Nuevo de pedido, hay que quitar el style atributo btn-guardar.
@@ -606,7 +601,6 @@ function addTemporal(dedonde=""){
                 // Creo funcion para restear totales.   
                 resetearTotales();
                 total = parseFloat(resultado['totales']['total'])
-                //$('.totalImporte').html(total.toFixed(2));
                 $('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
                 
             }
@@ -834,7 +828,7 @@ function cambiarEstadoProductosAdjunto(dedonde,estado,numRegistro){
 }
 function cambiarEstadoVariosAlbaranes(){
     // @ Objetivo:
-    // Cambiar estado de varios albaranes.
+    // Cambiar estado de varios albaranes de Listados.
     // @ Parametros :
     // Array con uno o varios ids de albaranes a cambiar estado.
     console.log('Entro en cambiar estado de varios albaranes');

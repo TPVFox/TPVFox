@@ -118,7 +118,7 @@ $pedidosDef=$p['Items'];
                                 if ($temporal['idPedpro']){
                                     $numTemporal=$temporal['Numpedpro'];
                                  }
-                                $url = 'pedido.php?temporal='.$temporal['id'];
+                                $url = 'pedido.php?tActual='.$temporal['id'];
                                 $tdl = '<td style="cursor:pointer" onclick="redireccionA('
                                         ."'".$url."'".')" title="Pedido con numero temporal:'
                                         .$temporal['id'].'">';
@@ -191,29 +191,21 @@ $pedidosDef=$p['Items'];
                     <tr>
                         <td class="rowUsuario">
                             <?php
-                            $check_name = 'checkUsu'.$checkUser;
+                            $check_name = 'checkUsu'.$checkUser; // El prefijo esta mal, debería corregirlo en todas la aplicacion
                             echo '<input type="checkbox" id="'.$check_name.'" name="'.$check_name.'" value="'.$pedido['id'].'" class="check_pedido">';
                             ?>
                         </td>
                         <td>
                             <?php 
-                            if($ClasePermisos->getAccion("Modificar")==1 && $pedido['estado']=='Guardado' ){
-                                $accion='';
-                                if ($pedido['estado']==="Sin Guardar"){
-                                    $accion ='&accion=temporal';
-                                } else {
-                                    // Solo muestro si esta Guardado 
-                                    echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].$accion.'"></a>';
-                                }
+                            if($ClasePermisos->getAccion("Modificar")==1 && $pedido['estado']!=='Facturado' ){
+                                echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id='.$pedido['id'].'&accion=editar"></a>';
                             }
                             ?>
-                         </td>
+                        </td>
                         <td>
-                            <?php 
-                            if($ClasePermisos->getAccion("Ver")==1){
-                                ?>
-                                <a class="glyphicon glyphicon-eye-open" href='./pedido.php?id=<?php echo $pedido['id'];?>&accion=ver'></a>
-                                <?php 
+                        <?php 
+                        if($ClasePermisos->getAccion("Ver") == 1){
+                                echo '<a class="glyphicon glyphicon-eye-open" href="./pedido.php?id='.$pedido['id'].'&accion=ver"></a>';
                             }
                             ?>
                         </td>
