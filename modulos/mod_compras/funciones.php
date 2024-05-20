@@ -173,7 +173,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
                         .$producto['ultimoCoste']."',".$producto['idArticulo'].", '".$dedonde."' , ".
                         "'".addslashes(htmlspecialchars($producto['ref_prov'],ENT_COMPAT))."' , '".$producto['coste']."' , '"
                         .$producto['fechaActualizacion']."'";
-            if(strlen($producto['ref_prov'])==0){
+            if(strlen($producto['ref_prov'])==0 && strlen($producto['coste'])==0 ){
                 $style='style="opacity:0.5;"';
             }
             if($producto['estadoTabla']=="Baja"){
@@ -192,9 +192,6 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
             }else{
                 $html .= '<td>'.htmlspecialchars($producto['crefTienda'], ENT_QUOTES).'</td>';  
             }       
-            if(strlen($producto['coste'])==0){
-                $style='style="opacity:0.5;"';
-            }
             
             $html   .= '<td>'.htmlspecialchars($producto['articulo_name'], ENT_QUOTES).'</td>'
                     . '<td '.$style.'>'.$producto['ultimoCoste'].'</td>'
