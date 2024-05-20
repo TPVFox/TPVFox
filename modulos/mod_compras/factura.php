@@ -136,8 +136,8 @@
         } else {
             // Preparamos datos que no viene o que vienen distintos cuando es un temporal.
             $datosDocumento['Productos'] = json_decode($datosDocumento['Productos'], true);
-            $idDocumento = $datosDocumento['Numalbpro'];
-            $estado = $datosDocumento['estadoAlbPro'];
+            $idDocumento = $datosDocumento['numfacpro'];
+            $estado = $datosDocumento['estadoFacPro'];
             $datosDocumento['FechaVencimiento'] = '0000-00-00';
 
         }
