@@ -1,8 +1,13 @@
 <?php 
 
 include_once $URLCom.'/clases/ClaseTFModelo.php';
+include_once $URLCom.'/clases/traits/MontarAdvertenciaTrait.php';
 
 class ClaseProveedor extends TFModelo{
+
+    use MontarAdvertenciaTrait;
+
+
     public $adjuntos = array('facturas' => array('datos' =>array()),
                              'albaranes'=> array('datos' =>array()),
                              'pedidos'  => array('datos' =>array())
@@ -427,15 +432,15 @@ class ClaseProveedor extends TFModelo{
     // - modulos.                                                  //
     // ----------------------------------------------------------  //
     
-    public function montarAdvertencia($tipo,$mensaje){
-        // @ Objetivo:
-        // Montar array para error
-        $advertencia = array ( 'tipo'    =>$tipo,
-                          'mensaje' => $mensaje
-                        );
-        return $advertencia;
+    // public function montarAdvertencia($tipo,$mensaje){
+    //     // @ Objetivo:
+    //     // Montar array para error
+    //     $advertencia = array ( 'tipo'    =>$tipo,
+    //                       'mensaje' => $mensaje
+    //                     );
+    //     return $advertencia;
 
-    }
+    // }
 
 
     public function comprobarExisteValorCampo($generales,$campos,$descarte=array()){
@@ -481,8 +486,7 @@ class ClaseProveedor extends TFModelo{
 
         }
         return $respuesta;
-    }
-    
+    }    
 }
 
 ?>

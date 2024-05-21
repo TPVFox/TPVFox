@@ -2,9 +2,12 @@
 include_once $URLCom.'/clases/FormasPago.php';
 include_once $URLCom.'/clases/TiposVencimiento.php';
 include_once $URLCom.'/clases/ClaseTFModelo.php';
-
+include_once $URLCom.'/clases/traits/MontarAdvertenciaTrait.php';
 
 class ClaseCliente extends TFModelo{
+
+    use MontarAdvertenciaTrait;
+
     protected $tabla = 'clientes';
     public $adjuntos = array('tickets'      => array('datos' =>array()),
                              'facturas'     => array('datos' =>array()),
@@ -528,16 +531,17 @@ class ClaseCliente extends TFModelo{
     // - comun del core, ya que pienso son necesarios para mas  -  //
     // - modulos.                                                  //
     // ----------------------------------------------------------  //
-    
-     public function montarAdvertencia($tipo,$mensaje){
-        // @ Objetivo:
-        // Montar array para error
-        $advertencia = array ( 'tipo'    =>$tipo,
-                          'mensaje' => $mensaje
-        );
-        return $advertencia;
 
-    }
+    // Trait Alagoro 21/5/2024
+    //  public function montarAdvertencia($tipo,$mensaje){
+    //     // @ Objetivo:
+    //     // Montar array para error
+    //     $advertencia = array ( 'tipo'    =>$tipo,
+    //                       'mensaje' => $mensaje
+    //     );
+    //     return $advertencia;
+
+    // }
 
 
     public function comprobarExisteValorCampo($generales,$campos,$descarte=array()){

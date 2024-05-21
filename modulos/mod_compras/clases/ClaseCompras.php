@@ -1,7 +1,7 @@
 <?php
 // Clase base para modulo de compras.
 include_once $URLCom.'/clases/articulos.php';
-include_once $URLCom.'/modulos/traits/MontarAdvertenciaTrait.php';
+include_once $URLCom.'/clases/traits/MontarAdvertenciaTrait.php';
 
 class ClaseCompras {
     
@@ -37,7 +37,7 @@ class ClaseCompras {
 	public function htmlPendientes(){
 		
 	}
-    
+
 	public function sumarIvaBases($from_where){
 		//Función para sumar los ivas de un pedido
 		$db=$this->db;
