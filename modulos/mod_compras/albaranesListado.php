@@ -33,7 +33,7 @@ $NPaginado->SetOrderConsulta('a.Numalbpro');
 $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 $CantidadRegistros=0;
 // Obtenemos la cantidad registros 
-$listado = $CAlb->CuentaTodosAlbaranesLimite();
+$listado = $CAlb->CuentaTodosAlbaranesLimite($filtro);
 
 //$listado = $CAlb->TodosAlbaranesLimite($filtro);
 $CantidadRegistros = $listado['contador'];  // count($listado['Items']);

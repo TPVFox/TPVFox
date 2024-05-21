@@ -374,8 +374,10 @@ class AlbaranesCompras extends ClaseCompras {
         //@Objetivo:
         //Contamos todos los albaranes de la tabla principal pero con un límite para la paginación
         $respuesta = array();
-        $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a' . ($limite ? :'');
-        $smt = parent::consulta($sql);
+        $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a LEFT JOIN proveedores as b on 
+        a.idProveedor =b.idProveedor  '  . ($limite ? :'');
+        $smt = parent::consulta($sql); 
+        
         $result = $smt->fetch_assoc();
         
         $respuesta['contador'] = $result ? $result['contador'] : 0;
