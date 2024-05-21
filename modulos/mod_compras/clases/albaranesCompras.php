@@ -370,6 +370,21 @@ class AlbaranesCompras extends ClaseCompras {
 
     }
 
+     public function CuentaTodosAlbaranesLimite($limite='') {
+        //@Objetivo:
+        //Contamos todos los albaranes de la tabla principal pero con un límite para la paginación
+        $respuesta = array();
+        $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a' . ($limite ? :'');
+        $smt = parent::consulta($sql);
+        $result = $smt->fetch_assoc();
+        
+        $respuesta['contador'] = $result ? $result['contador'] : 0;
+        $respuesta['consulta'] = $sql;
+        $respuesta['limite'] = $limite;
+        
+        return $respuesta;
+    }
+
     public function TodosAlbaranesLimite($limite) {
         //@Objetivo:
         //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación

@@ -28,12 +28,15 @@ $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array( 'a.Numalbpro','b.nombrecomercial');
 $NPaginado->SetCamposControler($campos);
 $NPaginado->SetOrderConsulta('a.Numalbpro');
+
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro= $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 $CantidadRegistros=0;
 // Obtenemos la cantidad registros 
-$listado = $CAlb->TodosAlbaranesLimite($filtro);
-$CantidadRegistros = count($listado['Items']);
+$listado = $CAlb->CuentaTodosAlbaranesLimite();
+
+//$listado = $CAlb->TodosAlbaranesLimite($filtro);
+$CantidadRegistros = $listado['contador'];  // count($listado['Items']);
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
