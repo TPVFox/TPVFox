@@ -1,13 +1,19 @@
 <?php
 // Clase base para modulo de compras.
 include_once $URLCom.'/clases/articulos.php';
+include_once $URLCom.'/modulos/traits/MontarAdvertenciaTrait.php';
 
-class ClaseCompras
-{
-	public $db; //(Objeto) Es la conexion;
+class ClaseCompras {
+    
+    use MontarAdvertenciaTrait;
+
+    public $db; //(Objeto) Es la conexion;
 	public $affected_rows; // Numero filas que afecto la consulta, se guarda cuando hacemos una consulta.
     public $insert_id; // id del registro insertado. ( ojo.. como sabe que el campo es id)
-	public function consulta($sql){
+
+
+
+    public function consulta($sql){
 		// Realizamos la consulta.
 		$db = $this->db;
 		$smt = $db->query($sql);
@@ -31,6 +37,7 @@ class ClaseCompras
 	public function htmlPendientes(){
 		
 	}
+    
 	public function sumarIvaBases($from_where){
 		//Función para sumar los ivas de un pedido
 		$db=$this->db;
@@ -257,33 +264,35 @@ class ClaseCompras
         return $datosUsuario;
     }
 
-    public function montarAdvertencia($tipo,$mensaje,$html='KO'){
-        // @ Objetivo:
-        // Montar array para error/advertencia , tb podemos devolver el html
-        // @ Parametros
-        //  $tipo -> (string) Indica tipo error/advertencia puede ser : danger,warning,success y info
-        //  $mensaje -> puede ser string o array. Este ultimos es comodo por ejemplo en las cosultas.
-        //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
-        // @ Devolvemos
-        //  Array ( tipo, mensaje ) o html con advertencia o error.
-        $advertencia = array ( 'tipo'    =>$tipo,
-                          'mensaje' => $mensaje
-                        );
-        if ($html === 'OK'){
-            $advertencia = '<div class="alert alert-'.$tipo.'">'
-                          . '<strong>'.$tipo.' </strong><br/> ';
-                    if (is_array($mensaje)){
-                        $p = print_r($mensaje,TRUE);
-                        $advertencia .= '<pre>'.$p.'</pre>';
-                    } else {
-                        $advertencia .= $mensaje;
-                    }
-                    $advertencia .= '</div>';
 
-        }
+    // Se pasa a un trait
+    // public function montarAdvertencia($tipo,$mensaje,$html='KO'){
+    //     // @ Objetivo:
+    //     // Montar array para error/advertencia , tb podemos devolver el html
+    //     // @ Parametros
+    //     //  $tipo -> (string) Indica tipo error/advertencia puede ser : danger,warning,success y info
+    //     //  $mensaje -> puede ser string o array. Este ultimos es comodo por ejemplo en las cosultas.
+    //     //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
+    //     // @ Devolvemos
+    //     //  Array ( tipo, mensaje ) o html con advertencia o error.
+    //     $advertencia = array ( 'tipo'    =>$tipo,
+    //                       'mensaje' => $mensaje
+    //                     );
+    //     if ($html === 'OK'){
+    //         $advertencia = '<div class="alert alert-'.$tipo.'">'
+    //                       . '<strong>'.$tipo.' </strong><br/> ';
+    //                 if (is_array($mensaje)){
+    //                     $p = print_r($mensaje,TRUE);
+    //                     $advertencia .= '<pre>'.$p.'</pre>';
+    //                 } else {
+    //                     $advertencia .= $mensaje;
+    //                 }
+    //                 $advertencia .= '</div>';
+
+    //     }
                         
-        return $advertencia;
-    }
+    //     return $advertencia;
+    // }
     
 }
 ?>
