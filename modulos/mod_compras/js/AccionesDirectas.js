@@ -297,7 +297,8 @@ function AccionBuscarProductos (caja,event){
             success    :  function (response) {
                 console.log('******** Respuesta de FUNCION -> buscarProducto *********');
                 var resultado =  $.parseJSON(response);
-                if (resultado.Nitems ===1){
+                console.log(idcaja);
+                if (resultado.Nitems ===1 && idcaja!='cajaBusqueda'){
                     // Si recibe un solo resultado
                     // Lo añadimos a productos.
                     // Llamamos addpedidotemporeal
