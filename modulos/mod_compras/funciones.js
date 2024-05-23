@@ -440,6 +440,7 @@ function comprobarFecha(caja,event){
             alert('La fecha es superior a hoy');
         } else {
             if (productos.length == 0 ){
+                
                 saltarHora(caja);
             } else  {
                 ponerFocus(salto_linea);
@@ -599,7 +600,6 @@ function addTemporal(dedonde=""){
                     }
                 }
                 // Creo funcion para restear totales.   
-                resetearTotales();
                 total = parseFloat(resultado['totales']['total'])
                 $('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
                 
@@ -630,11 +630,8 @@ function saltarHora(caja){
         cabecera.fecha=caja.darValor();
     }
     var d_focus = 'hora';
-    if(caja.darParametro('dedonde')=='factura'){
-        var d_focus = 'suNumero';
-    }
-    if(caja.darParametro('dedonde')=='pedido'){
-        var d_focus = 'id_proveedor';
+    if(caja.darParametro('dedonde')!=='albaran'){
+        var d_focus = 'Proveedor';
     }
     ponerFocus(d_focus);
 }
@@ -1012,20 +1009,6 @@ function mover_down(fila,prefijo){
     } else {
         ponerFocus(d_focus);
     }
-}
-
-function resetearTotales(){
-    // Funcion para resetear totales.
-    $('#tipo4').html('');
-    $('#tipo10').html('');
-    $('#tipo21').html('');
-    $('#base4').html('');
-    $('#base10').html('');
-    $('#base21').html('');
-    $('#iva4').html('');
-    $('#iva10').html('');
-    $('#iva21').html('');
-    $('.totalImporte').html('');
 }
 
 

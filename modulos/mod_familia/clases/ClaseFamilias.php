@@ -45,7 +45,18 @@ class ClaseFamilias extends Modelo {
         return $Obj;
 
     }
-
+    public function buscarAscendientes($idFamilia,$ascendientes = []){
+     // @ Objetivo es buscar los ancestos de una familia
+     $f = $this->leer($idFamilia);
+     $familia = $f['datos'][0];
+     $ascendientes[] = $familia['familiaPadre'];
+     if ($familia['familiaPadre'] !=0){
+         $ascendientes = $this->buscarAscendientes($familia['familiaPadre'],$ascendientes);
+     }
+     
+    return $ascendientes;
+        
+    }
 
     public function buscardescendientes($idfamilia) {
         $resultado = [];
