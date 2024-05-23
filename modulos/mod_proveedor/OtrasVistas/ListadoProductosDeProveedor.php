@@ -189,6 +189,7 @@
             $script_ObjVirtuemart = $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
         }
+
         ?>
 
 <!DOCTYPE html>
@@ -312,7 +313,7 @@
                             $htmlFamilia  .='<span class="label label-info">'.$familia['familiaNombre'].'</span>';
                         }       
                         echo
-                            '<tr class="'.$lineaRoja.' Row'.$idEstado.$claseFamilias.'">
+                            '<tr class="'.$lineaRoja.' Row_'.$idEstado.$claseFamilias.'">
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="'.$producto['idArticulo'].'">
                                 <td>'.$producto['idArticulo'].'</td>
                                 <td>'.$link_producto.'</td>

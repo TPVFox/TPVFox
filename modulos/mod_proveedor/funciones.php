@@ -129,7 +129,7 @@ function obtenerIndexEstado ($estados, $nombre_estado){
     $index ='';
     if (count($estados)>0){
         foreach ($estados as $k=>$estado){
-            if ($nombre_estado=$estado['nombre']){
+            if ($nombre_estado == $estado['nombre']){
                 $index = $k;
             }
         }

@@ -93,7 +93,7 @@ function filtroEstado(input, id) {
     if (input.value == '1') {
         // Ocultamos
         $(input).val('0');
-        var x = document.getElementsByClassName('Row' + id);
+        var x = document.getElementsByClassName('Row_' + id);
 
         for (var i = 0; i < x.length; i++) {
             x[i].style.display = "none";
@@ -103,7 +103,7 @@ function filtroEstado(input, id) {
     } else {
         // Mostramos
         $(input).val('1');
-        var x = document.getElementsByClassName('Row' + id);
+        var x = document.getElementsByClassName('Row_' + id);
         for (var i = 0; i < x.length; i++) {
             x[i].removeAttribute("style");
         }
