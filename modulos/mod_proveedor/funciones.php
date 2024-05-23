@@ -91,6 +91,21 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
      
 }
 
+function htmlNombreClasesLinea($ids,$clase){
+    // @ Objetivo 
+    // Montar nombres seguidor "Nombre_N " de clases de  un array
+    // @ Parametros
+    $clase_linea ='';
+    foreach ($ids as $id){
+        if ($id>0){
+            $clase_linea .= $clase.'_'.$id.' ';
+        }
+    }
+    return $clase_linea ;
+
+}
+
+
 
 function comprobarFechas($fechaIni, $fechaFin){
     //@Objetivo: comprobar las fechas de busqueda de resumen 
@@ -108,6 +123,19 @@ function comprobarFechas($fechaIni, $fechaFin){
         $resultado['fechaFin']=$fechaFin;
     }
     return $resultado;
+}
+
+function obtenerIndexEstado ($estados, $nombre_estado){
+    $index ='';
+    if (count($estados)>0){
+        foreach ($estados as $k=>$estado){
+            if ($nombre_estado=$estado['nombre']){
+                $index = $k;
+            }
+        }
+        
+    }
+    return $index;
 }
 
 

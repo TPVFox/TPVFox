@@ -48,7 +48,6 @@
         if ($ProductosPrincipales['NItems']>0){
             $estados = [];
             $productos = [];
-            $indice_familias = [];
             foreach ($ProductosPrincipales['Items'] as $key => $item){
                 // Obtenemos datos producto, para añadir nombre Codbarras.
                 $productos[$key] =$CTArticulos->GetProducto($item['idArticulo']);  
@@ -87,10 +86,13 @@
                 }              
             }
         }
+        // Convertimos estado array con indice
+        // y montamos html check
+        
+        
+        $estados_index = [];
         $i=0;
-        $html_estados = [];
         foreach ($estados as $estado=>$cantidad){
-            $i++;
             // Recuerda que la estado en texto pueden ser varias palabras, por eso ponemos index
             $html = '<div class="checkbox">
                         <label title="'.$estado.'">
@@ -99,7 +101,8 @@
                         .$estado.'<span class="badge">'.$cantidad.'</span>
                     </label>
                     </div>';
-            $html_estados[] =$html;
+            $estados_index[] = array('nombre' =>$estado, 'cantidad_productos'=>$cantidad,'html_check'=>$html);
+            $i++;
         }
         // Ahora tenemos buscar cada unn los ascendentes de cada familiaProducto si existe
         // Si no existe tenemos crearlo y buscar el nombre, y añadir nivel de los cremoas.
@@ -167,20 +170,18 @@
                 $html_familias .= '<div class="Nivel'.$n.'"><h5>Nivel '.$n.'</h5>';
                 foreach ($familiasPorNiveles[$n] as $id){
                     $familia = $familiasProductos[$id];
-                    $n_p = $n-1;
-                    $padre = $familiasProductos[$id]['ascendentes'][$n_p];
+                    $clases_padres = htmlNombreClasesLinea($familiasProductos[$id]['ascendentes'],'Padre');
                     $html_familias .= '
                     <label title="'.$familia['familiaNombre'].'">
-                    <input type="checkbox" class="Padre_'.$padre.'" value="1" id="Familia_'.$familia['idFamilia']
-                    .'" onchange="filtroFamilias(this,'.$familia['idFamilia'].' , '.$padre.')'
+                    <input type="checkbox" class="'.$clases_padres.'" value="1" id="Familia_'.$familia['idFamilia']
+                    .'" onchange="filtroFamilias(this,'.$familia['idFamilia'].')'
                     .'" checked="">'.$familia['familiaNombre'].' </label>';     
                 }
                 $html_familias .= '----------------------------------------'.'<br/>';
                 $html_familias .= '</div>';
             }
             $html_familias .= '</div>';
-            // dump($familiasPorNiveles);
-            //dump($familiasProductos[3]);
+          
         }
         // Obtenemos plugin virtuemart.
         if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
@@ -248,8 +249,8 @@
                         echo '<br/><br/><a onclick="imprimirSeleccion('.$id.')">Imprimir selección</a>';
                         echo '</div>';
                         echo '<div><h4>Filtrar por estado:</h4>';
-                        foreach ($html_estados as $estado){
-                            echo $estado;
+                        foreach ($estados_index as $estado){
+                            echo $estado['html_check'];
                         }
                         echo '<h4>Filtrar por Familias:</h4>';
                         echo $html_familias;
@@ -304,11 +305,14 @@
                         $htmlFamilia = "";
                         $claseFamilias = "";
                         foreach($producto['familias'] as $familia){
+                            $idEstado = obtenerIndexEstado($estados_index,$producto['estado']);
+                            $idFamilia =$familia['idFamilia']; 
+                            $claseFamilias = htmlNombreClasesLinea($familiasProductos[$idFamilia]['ascendentes'],' Familia');
                             $claseFamilias .=' Familia_'.$familia['idFamilia'];
                             $htmlFamilia  .='<span class="label label-info">'.$familia['familiaNombre'].'</span>';
                         }       
                         echo
-                            '<tr class="'.$lineaRoja.' Row'.$claseFamilias.'">
+                            '<tr class="'.$lineaRoja.' Row'.$idEstado.$claseFamilias.'">
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="'.$producto['idArticulo'].'">
                                 <td>'.$producto['idArticulo'].'</td>
                                 <td>'.$link_producto.'</td>
