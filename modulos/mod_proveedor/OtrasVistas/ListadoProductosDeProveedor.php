@@ -189,7 +189,6 @@
             $script_ObjVirtuemart = $ObjVirtuemart->htmlJava();
             $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
         }
-
         ?>
 
 <!DOCTYPE html>
@@ -197,6 +196,7 @@
     <head>
     <?php
         include_once $URLCom.'/head.php';
+        echo $script_ObjVirtuemart
     ?>
     <script src="<?php echo $HostNombre; ?>/lib/js/tpvfoxSinExport.js"></script>   
     <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
@@ -338,18 +338,18 @@
                                 }
                                 echo '</td>
                                 <td>'.$producto['estado'].'</td>
-                                <td>'.$link_mayor.'<td>'
-                                .'<td id="idProducto_estadoWeb_'.$producto['idArticulo'].'" class="icono_web despublicado">';
+                                <td>'.$link_mayor.'<td>
+                                <td id="idProducto_estadoWeb_'.$producto['idArticulo'].'" class="icono_web despublicado">';
 
-                                            if($CTArticulos->GetReferenciasTiendas()){
-                                                foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
-                                                    if($ref['idVirtuemart']>0){
-                                                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                                                        $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
-                                                        echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
-                                                    }
-                                                }
-                                            } 
+                                if(isset($producto['ref_tiendas'])){
+                                    foreach ($producto['ref_tiendas'] as $ref){
+                                        if($ref['idVirtuemart'] > 0 ){
+                                            $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
+                                            echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
+                                        }
+                                    }
+
+                                } 
                                      
                                 echo'</td>
                             </tr>';
@@ -361,6 +361,20 @@
             </div>
         </div>
         <script>
+        <?php
+        if( isset($tiendaWeb['idTienda'])){
+                if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                    if (isset($productos)) {
+                ?>
+                        $(document).ready(function() {
+                            obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
+                        });
+                <?php
+                    }
+                }
+            }
+        ?>
+       
         catchEvents();
     </script>
     </body>
