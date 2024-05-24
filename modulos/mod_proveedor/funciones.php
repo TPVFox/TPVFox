@@ -23,16 +23,16 @@ function verSelec($BDTpv,$idSelec,$tabla){
 
 
 
-function htmlTablaGeneral($datos, $HostNombre, $dedonde){
+function htmlTablaGeneral($datos, $HostNombre, $tipoDoc){
     if(count($datos)>0){
-        switch($dedonde){
+        switch($tipoDoc){
                 case 'facturas':
                     $url=$HostNombre.'/modulos/mod_compras/factura.php?id=';
                     $resumen="";
                 break;
                 case 'albaranes':
                     $url=$HostNombre.'/modulos/mod_compras/albaran.php?id=';
-                    $resumen='<input type="text" class="btn btn-info" onclick="resumen('."'".$dedonde."'".', '.$datos[0]['idProveedor'].')" value="Resumen" name="Resumen" >';
+                    $resumen='<input type="text" class="btn btn-info" onclick="abrirResumen('.$datos[0]['idProveedor'].",'".$tipoDoc."'".')" value="Resumen" name="Resumen" >';
                 break;
                 case 'pedidos':
                     $url=$HostNombre.'/modulos/mod_compras/pedido.php?id=';
@@ -58,7 +58,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde){
             }
             $html.='</tbody></table>';
     }else{
-        $html='<div class="alert alert-info">Este proveedor no tiene '.$dedonde.'</div>';
+        $html='<div class="alert alert-info">Este proveedor no tiene '.$tipoDoc.'</div>';
     }
     
     return $html;

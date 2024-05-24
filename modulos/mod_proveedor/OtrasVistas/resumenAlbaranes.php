@@ -8,6 +8,8 @@
         //~ $ClasesParametros = new ClaseParametros('../parametros.xml');  
         $CTArticulos = new ClaseProductos($BDTpv);
         $CProveedor= new ClaseProveedor();
+        $Controler = new ControladorComun;
+
         // $fechaInicial="";
         // $fechaFinal="";
         $style='style="display:none;"';
@@ -130,8 +132,10 @@
                     <h2 class="text-center"> <?php echo $titulo;?></h2>
             </div>
             <div class="col-md-12" >
+                <div class="col-md-12">
+                    <?php echo $Controler->getHtmlLinkVolver('Volver');?>
+                </div>
                 <div class="col-md-3 " >
-                    <a href="<?php echo $HostNombre.'/modulos/mod_proveedor/proveedor.php?id='.$id;?>">Volver Atrás</a>
                     <a  class="btn btn-primary"  onclick="imprimirResumen('albaran', '<?php echo $id; ?>', '<?php echo $fechaInicial;?>', '<?php echo $fechaFinal;?>')">Imprimir resumen</a>
                     <h4><u>DATOS DEL PROVEEDOR</u></h4>
                     <b>ID: </b><?php echo $id;?></br>

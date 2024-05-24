@@ -59,13 +59,26 @@ function metodoClick(pulsado) {
             }
             window.location.href = './OtrasVistas/ListadoProductosDeProveedor.php?id=' + checkID[0];
             break;
+        case 'ResumenAlbaranes':
+            console.log('Entro en ResumenAlbaranes');
+            // Cargamos variable global ar checkID = [];
+            VerIdSeleccionado();
+            if (checkID.length > 1 || checkID.length === 0) {
+                alert('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+                return
+            }
+            abrirResumen(checkID[0]);
+            break;
 
     }
 }
 
-function resumen(dedonde, idProveedor) {
-
-    window.location.href = './OtrasVistas/resumenAlbaranes.php?id=' + idProveedor;
+function abrirResumen(idProveedor,tipoDoc ='') {
+    var parametros ='';
+    if (tipoDoc !=''){
+        parametros= '&tipoDoc='+tipoDoc;
+    }
+    window.location.href = './OtrasVistas/resumenAlbaranes.php?id=' + idProveedor + parametros;
 }
 
 function imprimirResumen(dedonde, id, fechaInicial, fechaFinal) {
@@ -189,22 +202,22 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
     // @ Parametros:
     //      ids_productos = (array) ids de la los productos de tpv.
     //      id_web = (int) con el id de la tienda web.
-	var parametros = {
-		"pulsado"       : 'obtenerEstadoProductoWeb',
-		"ids_productos" : ids_productos,
+    var parametros = {
+        "pulsado"       : 'obtenerEstadoProductoWeb',
+        "ids_productos" : ids_productos,
         "id_tiendaWeb"  : id_tiendaWeb
-	};
-	$.ajax({
-		data       : parametros,
-		url        : '../tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  Obteniendo Estado de productos de la web  ****************');
-		},
-		success    :  function (response) {
-			console.log('Respuesta de Obtener Estado de productos de la web');
-			var resultado =  $.parseJSON(response);
-			resultado.forEach(function(producto) {
+    };
+    $.ajax({
+        data       : parametros,
+        url        : '../tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+            console.log('*********  Obteniendo Estado de productos de la web  ****************');
+        },
+        success    :  function (response) {
+            console.log('Respuesta de Obtener Estado de productos de la web');
+            var resultado =  $.parseJSON(response);
+            resultado.forEach(function(producto) {
                 // Los estado 0 son sin publicar.
                 if (producto.estado === "1"){
                     $("#idProducto_estadoWeb_"+producto.idArticulo).removeClass( "icono_web despublicado" );
@@ -215,6 +228,6 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
                     .addClass('icono_web error_estadoWeb') ;       
                 }
             });
-		}
-	});
+        }
+    });
 }
