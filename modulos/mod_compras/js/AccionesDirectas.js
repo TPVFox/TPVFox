@@ -96,14 +96,13 @@ function controladorAcciones(caja,accion, tecla){
         case 'mover_down':
             // Controlamos si numero fila es correcto.
             var nueva_fila = 0;
-            if(caja.id_input=="cajaBusquedaproveedor" || caja.id_input=="cajaBusqueda"){
-                ponerFocus('N_0');
-            }else{
+            
                 if ( isNaN(caja.fila) === false){
                     nueva_fila = parseInt(caja.fila)+1;
                 } 
+                console.log(caja);
                 mover_down(nueva_fila,caja.darParametro('prefijo'));
-            }
+            
         break;
 
         case 'mover_up':
