@@ -991,26 +991,12 @@ function mostrarDivAdjunto(){
 
 function mover_up(fila,prefijo){
     var d_focus = prefijo+fila;
-    console.log(prefijo,fila);
-        // Segun prefijo de la caja seleccionamos o pones focus.[AHORA SOLO SELECCIONAMOS]
-    //~ if ( prefijo === 'Unidad_Fila_'){
-        // Seleccionamos
-        ponerSelect(d_focus);
-    //~ } else {
-        //~ ponerFocus(d_focus);
-    //~ }
+        ponerFocus(d_focus);
 }
 
 function mover_down(fila,prefijo){
     var d_focus = prefijo+fila;
-    console.log(prefijo,fila)
-    // Segun prefijo de la caja seleccionamos o pones focus.
-    //~ if ( prefijo === 'Unidad_Fila_'){
-        // Seleccionamos
-        ponerSelect(d_focus);
-    //~ } else {
-        //~ ponerFocus(d_focus);
-    //~ }
+    ponerFocus(d_focus);
 }
 
 

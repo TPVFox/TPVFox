@@ -95,13 +95,11 @@ function controladorAcciones(caja,accion, tecla){
         
         case 'mover_down':
             // Controlamos si numero fila es correcto.
-            var nueva_fila = 0;
-            
-                if ( isNaN(caja.fila) === false){
-                    nueva_fila = parseInt(caja.fila)+1;
-                } 
-                console.log(caja);
-                mover_down(nueva_fila,caja.darParametro('prefijo'));
+            var nueva_fila = 0;            
+            if ( isNaN(caja.fila) === false){
+                nueva_fila = parseInt(caja.fila)+1;
+            } 
+            mover_down(nueva_fila,caja.darParametro('prefijo'));
             
         break;
 
@@ -324,12 +322,7 @@ function AccionBuscarProductos (caja,event){
                             var d_focus = 'N_0';
                             ponerFocus(d_focus);
                         } else {
-                            if (resultado.Nitems == 0){
-                                ponesFocus('cajaBusqueda');
-                            } else {
-                                focusAlLanzarModal('cajaBusqueda');
-                            }
-                            
+                            focusAlLanzarModal('cajaBusqueda');
                         }
                     }
                 }

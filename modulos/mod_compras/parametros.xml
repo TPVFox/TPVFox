@@ -107,7 +107,7 @@
             <parametros>
                 <parametro nombre="dedonde">cerrados</parametro>
                 <parametro nombre="campo"></parametro>
-                <parametro nombre="prefijo">Fila_</parametro>
+                <parametro nombre="prefijo">N_</parametro>
             </parametros>
             <after>
                 <estado>Si</estado>
@@ -116,25 +116,7 @@
                 <estado>Si</estado>
             </before>
         </caja_input>
-        <caja_input>
-            <nombre id_input="Proveedor_Fila_">Proveedor_Fila</nombre>
-            <teclas>
-                <action tecla="40">mover_down</action>
-                <action tecla="38">mover_up</action>
-                <action tecla="13">AccionAddProveedorProducto</action>
-            </teclas>
-            <parametros>
-                <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo"></parametro>
-                <parametro nombre="prefijo">Proveedor_Fila_</parametro>
-            </parametros>
-            <after>
-                <estado>Si</estado>
-            </after>
-            <before>
-                <estado>Si</estado>
-            </before>
-        </caja_input>
+        
         <caja_input>
             <nombre id_input="Referencia">cajaReferencia</nombre>
             <teclas>
