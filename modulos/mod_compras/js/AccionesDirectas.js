@@ -57,24 +57,31 @@ function controladorAcciones(caja,accion, tecla){
         break
         
         case 'recalcular_totalProducto':
-            // recuerda que lo productos empizan 0 y las filas 1
-            var nfila = parseInt(caja.fila)-1;
-            var valor_anterior = productos[nfila].nunidades;
-            productos[nfila].nunidades = caja.darValor();
-            productos[nfila].ncant = caja.darValor();
-            if (valor_anterior !== productos[nfila].nunidades){
-                // Comprobamos si cambio valor , sino no hacemos nada.
-                recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
-                addTemporal(caja.darParametro('dedonde'));
-            }
-            if (caja.tipo_event !== "blur"){
-                if (caja.darParametro('dedonde') == "pedido"){
-                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                }else{
-                    d_focus='ultimo_coste_'+parseInt(caja.fila);
-                    ponerSelect(d_focus);
+            // Compruebo que sea correcto
+            if (comprobarDecimalNumber(caja.darValor())){
+                // recuerda que lo productos empizan 0 y las filas 1
+                var nfila = parseInt(caja.fila)-1;
+                var valor_anterior = productos[nfila].nunidades;
+                productos[nfila].nunidades = caja.darValor();
+                
+                productos[nfila].ncant = caja.darValor();
+                if (valor_anterior !== productos[nfila].nunidades){
+                    // Comprobamos si cambio valor , sino no hacemos nada.
+                    recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
+                    addTemporal(caja.darParametro('dedonde'));
                 }
+                if (caja.tipo_event !== "blur"){
+                    if (caja.darParametro('dedonde') == "pedido"){
+                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                    }else{
+                        d_focus='ultimo_coste_'+parseInt(caja.fila);
+                        ponerSelect(d_focus);
+                    }
+                }
+            }  else {
+                // Debería advertir que esta mal el numero de la caja
             }
+            
         break;
         
         case 'cambio_descripcion':

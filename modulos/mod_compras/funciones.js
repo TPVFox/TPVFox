@@ -450,6 +450,15 @@ function comprobarFecha(caja,event){
         
 }
 
+function comprobarDecimalNumber(value) {
+    // Comprobamos que sea un numero 0 decimal
+    valor = value*1;
+    if (isNaN(valor)){
+       valor = false; 
+    }
+  return valor;
+}
+
 function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_articulo){
     // @ Objetivo
     // Comprobamos:
