@@ -121,18 +121,19 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
         // Obtengo el id de la tienda Web
         $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-        if (count($tiendaWeb) >0){
-                // Se conecta a la web y obtiene los datos de producto cruzado
-                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
-                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-                if (isset($datosWebCompletos['errores'])) {
-                        $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
-                } else  {
-                    if ($idVirtuemart>0 ) { 
-                       $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
-                    }
+        if (count($tiendaWeb) >0 && $Producto['idArticulo'] > 0){
+            // Se conecta a la web y obtiene los datos de producto cruzado
+            // Obtenemos ademas los ivas de la web para poder hacer la relación , por eso se hace la consulta igualmente aunque idVirtuemart sea 0
+            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
+            // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+            if (isset($datosWebCompletos['errores'])) {
+                    $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
+            } else  {
+                if ($idVirtuemart>0 ) { 
+                   // Cambiamos el registro en local de la relacion y ponemos los datos actualizados.
+                   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
                 }
-           
+            }
         }
     }
 }
@@ -407,11 +408,11 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                             
                                 <div class="panel-group">
                                     <?php
-                                    if(isset( $datosWebCompletos['htmlnotificaciones']['html'])){
+                                    if(isset( $datosWebCompletos['htmlnotificaciones'])){
                                          $num = 6; // Numero collapse;
                                             $titulo = 'Notificaciones de clientes:<span class="num_notificaciones">'
                                                     .$datosWebCompletos['num_notificaciones'].'</span>';
-                                            echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']['html']);
+                                            echo  htmlPanelDesplegable($num,$titulo,$datosWebCompletos['htmlnotificaciones']);
                                     }
                                     if (isset($datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'])){
                                             echo $datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'];
