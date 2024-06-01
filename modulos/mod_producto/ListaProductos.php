@@ -179,15 +179,6 @@
 
     <body>
         <?php include_once $URLCom.'/modulos/mod_menu/menu.php'; ?>
-        <script type="text/javascript">
-            setTimeout(function()
-            {   //pongo un tiempo de focus ya que sino no funciona correctamente
-                jQuery('#buscar').focus(); 
-            }, 50);
-        </script>
-       
-        
-
         <div class="container">
             <?php
             // Control de errores..
@@ -310,7 +301,7 @@
                         <div class="form-group ClaseBuscar col-md-4">
                             <label>Buscar por:
                             <select onchange="GuardarBusqueda(event);" name="SelectBusqueda" id="sel1"> <?php echo $htmlConfiguracion['htmlOption']; ?> </select></label>
-                            <input id="buscar" type="text" name="buscar" size="25" value="<?php echo $NPaginado->GetBusqueda(); ?>">
+                            <input id="buscar" type="text" name="buscar" autofocus size="25" value="<?php echo $NPaginado->GetBusqueda(); ?>">
                             <input type="submit" value="buscar">
                         </div>
                         <div id="familiasDiv" class="col-md-3">
@@ -353,6 +344,7 @@
                         <?php
                         // Generamos Script con array de los productos de esta pagina para poder ejecutar ajax
                         // para comprobar el estado en la web.
+                        
                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
                                 if( isset($tiendaWeb['idTienda'])){
@@ -476,22 +468,28 @@
                                             <?php 
                                         if(isset($tiendaWeb)){
                                             if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
-                                            ?>
-                                            <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>" class="icono_web despublicado">
-                                            <?php
-                                            if($CTArticulos->GetReferenciasTiendas()){
-                                                foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
-                                                    if($ref['idVirtuemart']>0){
-                                                        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-                                                        $link=  $ObjVirtuemart->ruta_producto.$ref['idVirtuemart'];
-                                                        echo '  <a target="_blank" class="glyphicon glyphicon-globe" href="'.$link.'"></a>';
+                                                $icono_link = '';
+                                                $class_icono = '';
+                                                if($CTArticulos->GetReferenciasTiendas()){
+                                                    foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
+                                                        if($ref['idVirtuemart']>0){
+                                                            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                                                            $icono_link='<a target="_blank" title="Estado:'.$ref['estado'].' Actualizacion estado'
+                                                                        .$ref['fechaModificacion'].'" class="glyphicon glyphicon-globe" href="'
+                                                                        .$ObjVirtuemart->ruta_producto.$ref['idVirtuemart'].'"></a>';
+                                                            // Ahora ponemos clase segun el estado que este el producto en la web
+                                                            if ($ref['estado'] == 'Sin Publicar'){
+                                                              $class_icono = 'icono_web despublicado';  
+                                                              
+                                                            }
+                                                        }
                                                     }
-                                                }
-                                            } 
-                                     
-                                            ?>
-                                            
-                                            </td>
+                                                } 
+                                                ?>
+                                                <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>" class="<?php echo $class_icono;?>">
+                                                    <?php echo $icono_link;?>
+                                                
+                                                </td>
                                             <?php
                                             }
                                         }
@@ -512,7 +510,6 @@
         <?php // Incluimos paginas modales
         echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
         include $URLCom.'/plugins/modal/ventanaModal.php';
-        
         ?>
         <div class="loader"></div>
         <script>

@@ -111,27 +111,29 @@ if( isset($Producto['ref_tiendas'])){
 }  
 if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     // Sino tiene permisos ya no hacemos consulta a la web.
-    $datosWebCompletos=array();
-    // Creo el objeto de plugin Virtuemart.
-    $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
-    // Cargo caja_input de parametros de plugin de virtuemart.
-    $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
-    $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
-    $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
-    // Obtengo el id de la tienda Web
-    $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
-    if (count($tiendaWeb) >0){
-            // Se conecta a la web y obtiene los datos de producto cruzado
-            $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
-            // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
-            if (isset($datosWebCompletos['errores'])) {
-                    $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
-            } else  {
-                if ($idVirtuemart>0 ) { 
-                   $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+    if($ClasePermisos->getModulo("mod_virtuemart")==1){
+        $datosWebCompletos=array();
+        // Creo el objeto de plugin Virtuemart.
+        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+        // Cargo caja_input de parametros de plugin de virtuemart.
+        $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
+        $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
+        $OtrosVarJS = $Controler->ObtenerCajasInputParametros($parametrosVirtuemart);
+        // Obtengo el id de la tienda Web
+        $tiendaWeb=$ObjVirtuemart->getTiendaWeb();
+        if (count($tiendaWeb) >0){
+                // Se conecta a la web y obtiene los datos de producto cruzado
+                $datosWebCompletos=$ObjVirtuemart->datosCompletosTiendaWeb($idVirtuemart,$Producto['iva'],$Producto['idArticulo'],$tiendaWeb['idTienda']);
+                // Esto para comprobaciones iva... ??? Es correcto , si esto se hace JSON, no por POST.
+                if (isset($datosWebCompletos['errores'])) {
+                        $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
+                } else  {
+                    if ($idVirtuemart>0 ) { 
+                       $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
+                    }
                 }
-            }
-       
+           
+        }
     }
 }
 // ==========		Montamos  html que mostramos. 			============ //

@@ -60,7 +60,7 @@ class PluginClaseVirtuemart extends ClaseConexion{
 		// Objetivo obtener datos de la tabla tienda para poder cargar el select de tienda On Line.
 		$BDTpv = parent::getConexion();
 		$resultado = array();
-        $sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web' and estado='Ativo'";
+        $sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web' and estado='Activo'";
 		$resultado['consulta'] = $sql;
 		if ($consulta = $BDTpv->query($sql)){
 			// Ahora debemos comprobar que cuantos registros obtenemos , si no hay ninguno
