@@ -148,7 +148,7 @@ class ClaseSession extends ClaseConexion{
 	 
 	 function comprobarTienda($BDTpv){
 		$resultado = array();
-		$sql = 'SELECT tipoTienda,idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE estado="activo"';
+		$sql = 'SELECT tipoTienda,idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE estado="Activo"';
 		$res = $BDTpv->query($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){

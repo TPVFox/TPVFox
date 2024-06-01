@@ -1234,17 +1234,4 @@ function sumar_reduce ($result, $item)
     $result['ventas'] +=  $item['ventas'];
     return $result;
 }
-
 ?>
-
-
-
-
-
-
-
-
-
-
-
-

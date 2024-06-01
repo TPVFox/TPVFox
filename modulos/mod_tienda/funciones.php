@@ -37,7 +37,7 @@ function htmlEstados($estado_actual){
                 'porDefecto' => 'selected' // Indicamos por defecto
                 ),
         '1' => array(
-                'valor' =>'activo',
+                'valor' =>'Activo',
                 'porDefecto' =>  ''
                 )
     );
