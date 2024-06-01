@@ -440,6 +440,7 @@ function comprobarFecha(caja,event){
             alert('La fecha es superior a hoy');
         } else {
             if (productos.length == 0 ){
+                
                 saltarHora(caja);
             } else  {
                 ponerFocus(salto_linea);
@@ -447,6 +448,15 @@ function comprobarFecha(caja,event){
         }
     }
         
+}
+
+function comprobarDecimalNumber(value) {
+    // Comprobamos que sea un numero 0 decimal
+    valor = value*1;
+    if (isNaN(valor)){
+       valor = false; 
+    }
+  return valor;
 }
 
 function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_articulo){
@@ -599,7 +609,6 @@ function addTemporal(dedonde=""){
                     }
                 }
                 // Creo funcion para restear totales.   
-                resetearTotales();
                 total = parseFloat(resultado['totales']['total'])
                 $('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
                 
@@ -630,11 +639,8 @@ function saltarHora(caja){
         cabecera.fecha=caja.darValor();
     }
     var d_focus = 'hora';
-    if(caja.darParametro('dedonde')=='factura'){
-        var d_focus = 'suNumero';
-    }
-    if(caja.darParametro('dedonde')=='pedido'){
-        var d_focus = 'id_proveedor';
+    if(caja.darParametro('dedonde')!=='albaran'){
+        var d_focus = 'Proveedor';
     }
     ponerFocus(d_focus);
 }
@@ -994,38 +1000,12 @@ function mostrarDivAdjunto(){
 
 function mover_up(fila,prefijo){
     var d_focus = prefijo+fila;
-        // Segun prefijo de la caja seleccionamos o pones focus.[AHORA SOLO SELECCIONAMOS]
-    //~ if ( prefijo === 'Unidad_Fila_'){
-        // Seleccionamos
-        ponerSelect(d_focus);
-    //~ } else {
-        //~ ponerFocus(d_focus);
-    //~ }
+        ponerFocus(d_focus);
 }
 
 function mover_down(fila,prefijo){
     var d_focus = prefijo+fila;
-    // Segun prefijo de la caja seleccionamos o pones focus.
-    if ( prefijo === 'Unidad_Fila_'){
-        // Seleccionamos
-        ponerSelect(d_focus);
-    } else {
-        ponerFocus(d_focus);
-    }
-}
-
-function resetearTotales(){
-    // Funcion para resetear totales.
-    $('#tipo4').html('');
-    $('#tipo10').html('');
-    $('#tipo21').html('');
-    $('#base4').html('');
-    $('#base10').html('');
-    $('#base21').html('');
-    $('#iva4').html('');
-    $('#iva10').html('');
-    $('#iva21').html('');
-    $('.totalImporte').html('');
+    ponerFocus(d_focus);
 }
 
 

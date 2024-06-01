@@ -57,24 +57,31 @@ function controladorAcciones(caja,accion, tecla){
         break
         
         case 'recalcular_totalProducto':
-            // recuerda que lo productos empizan 0 y las filas 1
-            var nfila = parseInt(caja.fila)-1;
-            var valor_anterior = productos[nfila].nunidades;
-            productos[nfila].nunidades = caja.darValor();
-            productos[nfila].ncant = caja.darValor();
-            if (valor_anterior !== productos[nfila].nunidades){
-                // Comprobamos si cambio valor , sino no hacemos nada.
-                recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
-                addTemporal(caja.darParametro('dedonde'));
-            }
-            if (caja.tipo_event !== "blur"){
-                if (caja.darParametro('dedonde') == "pedido"){
-                    ponerFocus( ObtenerFocusDefectoEntradaLinea());
-                }else{
-                    d_focus='ultimo_coste_'+parseInt(caja.fila);
-                    ponerSelect(d_focus);
+            // Compruebo que sea correcto
+            if (comprobarDecimalNumber(caja.darValor())){
+                // recuerda que lo productos empizan 0 y las filas 1
+                var nfila = parseInt(caja.fila)-1;
+                var valor_anterior = productos[nfila].nunidades;
+                productos[nfila].nunidades = caja.darValor();
+                
+                productos[nfila].ncant = caja.darValor();
+                if (valor_anterior !== productos[nfila].nunidades){
+                    // Comprobamos si cambio valor , sino no hacemos nada.
+                    recalculoImporte(productos[nfila].nunidades, nfila, caja.darParametro('dedonde'));
+                    addTemporal(caja.darParametro('dedonde'));
                 }
+                if (caja.tipo_event !== "blur"){
+                    if (caja.darParametro('dedonde') == "pedido"){
+                        ponerFocus( ObtenerFocusDefectoEntradaLinea());
+                    }else{
+                        d_focus='ultimo_coste_'+parseInt(caja.fila);
+                        ponerSelect(d_focus);
+                    }
+                }
+            }  else {
+                // Debería advertir que esta mal el numero de la caja
             }
+            
         break;
         
         case 'cambio_descripcion':
@@ -95,15 +102,12 @@ function controladorAcciones(caja,accion, tecla){
         
         case 'mover_down':
             // Controlamos si numero fila es correcto.
-            var nueva_fila = 0;
-            if(caja.id_input=="cajaBusquedaproveedor" || caja.id_input=="cajaBusqueda"){
-                ponerFocus('N_0');
-            }else{
-                if ( isNaN(caja.fila) === false){
-                    nueva_fila = parseInt(caja.fila)+1;
-                } 
-                mover_down(nueva_fila,caja.darParametro('prefijo'));
-            }
+            var nueva_fila = 0;            
+            if ( isNaN(caja.fila) === false){
+                nueva_fila = parseInt(caja.fila)+1;
+            } 
+            mover_down(nueva_fila,caja.darParametro('prefijo'));
+            
         break;
 
         case 'mover_up':
@@ -297,7 +301,8 @@ function AccionBuscarProductos (caja,event){
             success    :  function (response) {
                 console.log('******** Respuesta de FUNCION -> buscarProducto *********');
                 var resultado =  $.parseJSON(response);
-                if (resultado.Nitems ===1){
+                console.log(idcaja);
+                if (resultado.Nitems ===1 && idcaja!='cajaBusqueda'){
                     // Si recibe un solo resultado
                     // Lo añadimos a productos.
                     // Llamamos addpedidotemporeal
@@ -324,12 +329,7 @@ function AccionBuscarProductos (caja,event){
                             var d_focus = 'N_0';
                             ponerFocus(d_focus);
                         } else {
-                            if (resultado.Nitems == 0){
-                                ponesFocus('cajaBusqueda');
-                            } else {
-                                focusAlLanzarModal('cajaBusqueda');
-                            }
-                            
+                            focusAlLanzarModal('cajaBusqueda');
                         }
                     }
                 }
