@@ -4,8 +4,8 @@
  * @copyright   Copyright (C) 2017 TpvFox Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	Importar o exportar ficheros de web Joomla
- * */	
+ * @Descripcion Importar o exportar ficheros de web Joomla
+ * */   
 
  // Gestion de errores
  // error = [String] No permito continuar.
@@ -21,19 +21,21 @@
  
 // Obtenemos los datos de la conexion con servidor remoto.
 // Primero comprobamos si existe curl en nuestro servidor.
-		$existe_curl =function_exists('curl_version');
-		if ($existe_curl === FALSE){
-			echo '<pre>';
-			print_r(' No exite curl');
-			echo '</pre>';
-			exit();
-		}
+        $existe_curl =function_exists('curl_version');
+        if ($existe_curl === FALSE){
+            echo '<pre>';
+            print_r(' No exite curl');
+            echo '</pre>';
+            exit();
+        }
 
 
 //Creamos una variable iniciando curl, pasándole la url
 
 $ch = curl_init($ruta);
- 
+ // 
+curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+
 //especificamos el POST (tambien podemos hacer peticiones enviando datos por GET
 curl_setopt ($ch, CURLOPT_POST, 1);
  

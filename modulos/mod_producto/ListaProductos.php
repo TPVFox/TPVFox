@@ -7,6 +7,7 @@
     include_once ($URLCom .'/controllers/parametros.php');
     include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
     include_once $URLCom.'/clases/Proveedores.php';
+    
     $OtrosVarJS ='';
     $htmlplugins = array();
     $CTArticulos = new ClaseProductos($BDTpv);
@@ -17,18 +18,15 @@
     $Controler->loadDbtpv($BDTpv);
     $id_tienda_principal = $Tienda['idTienda'];
     // Cargamos el plugin que nos interesa.
-
     //  Fin de carga de plugins.
-
     // Inicializo varibles por defecto.
-   
     $ClasesParametros = new ClaseParametros('parametros.xml');
     $parametros = $ClasesParametros->getRoot();
     // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
     // Parametro de configuracion para indicar que por defecto no filtramos los productos seleccionados.
     $conf_defecto['filtro']->valor = 'No';
-
+ 
     // Ahora compruebo productos_seleccion:
     $botonSeleccion=0;
     $prod_seleccion = array('NItems' => 0, 'display' => '');
@@ -62,7 +60,6 @@
         );
         $CTArticulos->SetComprobaciones($error);
     }
-
     // Montar select Estado y añadir a configuracion seleccion estado.
     $option_sinFiltrar = '<option value="Sin Filtrar">Sin Filtrar</option>';
     if (!isset($configuracion['estado_filtro'])){
@@ -108,7 +105,6 @@
     } else {
         $NPaginado->SetCantidadRegistros($CantidadRegistros);
     }
-  
     $htmlPG = '';
     if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
         $htmlPG = $NPaginado->htmlPaginado();
@@ -183,12 +179,12 @@
 
     <body>
         <?php include_once $URLCom.'/modulos/mod_menu/menu.php'; ?>
-		<script type="text/javascript">
-			setTimeout(function()
+        <script type="text/javascript">
+            setTimeout(function()
             {   //pongo un tiempo de focus ya que sino no funciona correctamente
                 jQuery('#buscar').focus(); 
             }, 50);
-		</script>
+        </script>
        
         
 
@@ -514,11 +510,10 @@
         </div>
         <!-- Modal -->
         <?php // Incluimos paginas modales
-		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-		include $URLCom.'/plugins/modal/ventanaModal.php';
-		?>
+        echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+        include $URLCom.'/plugins/modal/ventanaModal.php';
         
-        </div>
+        ?>
         <div class="loader"></div>
         <script>
         <?php 
@@ -536,14 +531,16 @@
         <?php
         // Solo ejecutamos si hay producto y hay web,
         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
-            if( isset($tiendaWeb['idTienda'])){
-                if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
-                    if (isset($productos)) {
-                ?>
-                        $(document).ready(function() {
-                            obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
-                        });
-                <?php
+            if($ClasePermisos->getModulo("mod_virtuemart")==1){
+                if( isset($tiendaWeb['idTienda'])){
+                    if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+                        if (isset($productos)) {
+                    ?>
+                            $(document).ready(function() {
+                                obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb);
+                            });
+                    <?php
+                        }
                     }
                 }
             }
@@ -586,5 +583,6 @@
     display:none;
 }
 </style>
+
     </body>
 </html>
