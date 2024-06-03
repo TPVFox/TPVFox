@@ -12,7 +12,7 @@ $fechaFinal=$_POST['fechaFinal'];
 $errores=array();
 $textoFechas="";
 $style = array( 'C'=>'style="text-align:center;"',
-				'R'=>'style="text-align:right"',
+				'R'=>'style="text-align:right;"',
 				'L'=>'style="text-align:left;"'
 );
 
@@ -79,11 +79,13 @@ foreach($productos as $producto){
 	$costeiva=number_format ($producto['costeSiva'],2);
 	$html.='
 		<tr>
-		<td><font size="8">'.$producto[idArticulo].'</font></td>
+		<td><font size="8">'.$producto['idArticulo'].'</font></td>
 		<td>';
-		if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
-		  $html.='*';
-		}
+        if (isset($p['proveedor_principal']['idProveedor'])){
+            if ($p['proveedor_principal']['idProveedor'] == $idProveedor ){
+              $html.='*';
+            }
+        }
 		$tcF8 = '<td '.$style['C'].'><font size="8">';
 		$html.= '</td>
 		<td WIDTH="50%"><font size="8">'. $cdetalle.'</font></td>'
@@ -107,10 +109,8 @@ EOD;
 			foreach($arrayNums['desglose'] as $desglose){
 				$totalLinea=$desglose['sumBase']+$desglose['sumiva'];
 				$totalDesglose=$totalDesglose+$totalLinea;
-				$html.=<<<EOD
-<tr><td $style[R]>$desglose[iva]%</td><td $style[R]>$desglose[sumBase]</td>
-<td $style[R]>$desglose[sumiva]</td><td $style[R]>$totalLinea</td></tr>
-EOD;
+				$html.= '<tr><td '.$style['R'].'>'.$desglose['iva'].'%</td><td '.$style['R'].'>'.$desglose['sumBase']
+                .'</td><td '.$style['R'].'>'.$desglose['sumiva'].'</td><td '.$style['R'].'>'.$totalLinea.'</td></tr>';
 			}
 		$html.=<<<EOD
 		<tr><td></td><td></td><td>TOTAL:</td><td><b>$totalDesglose</b></td></tr></table><h3>Listado de Albaranes</h3>
