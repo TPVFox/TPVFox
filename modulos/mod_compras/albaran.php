@@ -84,6 +84,12 @@
             'Hay parametro get,distinto a tActual,accion,id:' . json_encode($_GET))
         );
     }
+    // Compruebo si accion es editar y tiene permisos
+    if ($accion =='editar'){
+        if ($ClasePermisos->getAccion("Modificar",array('modulo'=>'mod_compras','vista'=>'albaranesListado.php')) == 0){
+            $accion = 'ver';
+        }    
+    }
     
     // ---------- Posible errores o advertencias mostrar     ------------------- //
     if ($idDocumento > 0) {
