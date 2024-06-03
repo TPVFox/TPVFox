@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_tareas_cron" descripcion="Tareas cron" permiso="0">
+    <vista nombre="index.php" descripcion="Listado Usuario" permiso="0"></vista>		
+</modulo>

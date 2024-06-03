@@ -22,6 +22,7 @@
         <item_nivel_2 descripcion="Facturas" modulo="mod_venta" vista="facturasListado.php"></item_nivel_2>
     </item_nivel_1>
     <item_nivel_1 descripcion="Sistema">
+        <item_nivel_2 descripcion="Tareas" modulo="mod_tareas_cron" vista="index.php"></item_nivel_2>
         <item_nivel_2 descripcion="Importar" modulo="mod_importar" vista="Importar.php"></item_nivel_2>
         <item_nivel_2 descripcion="Virtuemart" modulo="mod_virtuemart" vista="Acciones_virtuemart.php"></item_nivel_2>
         <item_nivel_2 descripcion="Usuarios" modulo="mod_usuario" vista="ListaUsuarios.php"></item_nivel_2>
