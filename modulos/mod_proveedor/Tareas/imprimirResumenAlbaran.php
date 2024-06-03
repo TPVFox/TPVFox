@@ -64,7 +64,7 @@ $html = '<table WIDTH="80%" border="1px">
 <th>ID</th>
 <th width="3%">P</th>
 <th width="50%">PRODUCTO</th>
-<th '.$style[C].'>NºC</th>
+<th '.$style['C'].'>NºC</th>
 <th>Uds</th>
 <th>Coste</th>
 <th width="6%">CM</th>
