@@ -7,5 +7,6 @@ CREATE TABLE tareas_cron (
  `periodo` INT(11) NOT NULL , 
  `ruta` VARCHAR(50) NOT NULL ,
  `ultima_ejecucion` DATE NULL, 
+ `estado` INT(2) NOT NULL DEFAULT 1, 
  PRIMARY KEY (`id`)
  ) ENGINE = InnoDB;

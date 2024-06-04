@@ -2,8 +2,6 @@
 
 trait MontarAdvertenciaTrait
 {
-    const   ADVERTENCIA_TIPO_ERROR = 'danger',
-            ADVERTENCIA_TIPO_EXITO = 'success';
 
     public function montarAdvertencia($tipo, $mensaje, $html = 'KO')
     {
