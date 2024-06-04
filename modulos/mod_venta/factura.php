@@ -258,12 +258,12 @@
                             $_POST['idReal']        = $datosFactura['Numfaccli'];
                             $_POST['productos']     = $datosFactura_guardada['Productos'];
                             $_POST['idCliente']     = $datosFactura_guardada['idCliente'];
-                $_POST['dedonde']       = $dedonde;
+                            $_POST['dedonde']       = $dedonde;
                             // Los albaranes de factura directa hay que prepararlos para ser un adjunto
                             $pAdjuntos = prepararAdjuntos(json_decode($datosFactura_guardada['Albaranes'],true),$dedonde,$accion);
                             $_POST['albaranes']     = $pAdjuntos['adjuntos'];
                             // Para añadir el temporal de copia de los datos si hubo error.
-                            include_once $URLCom.'/modulos/mod_venta/tareas/AddFacturaTemporal.php';
+                            include_once $URLCom.'/modulos/mod_venta/tareas/AddTemporal.php';
                             $errores[]=$CFac->montarAdvertencia('danger',
                                                 'HUBO ERROR AL GRABAR !! <br/>'
                                                 .'El error, es el o los anteriores.</br>'

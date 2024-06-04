@@ -1,7 +1,10 @@
 <?php
 // Clase base para modulo de compras.
+include_once $URLCom.'/clases/traits/MontarAdvertenciaTrait.php';
+
 class ClaseVentas {
-	
+    use MontarAdvertenciaTrait;
+
 	public $db; //(Objeto) Es la conexion;
 	public $affected_rows; // Numero filas que afecto la consulta, se guarda cuando hacemos una consulta.
     public $insert_id; // id del registro insertado. ( ojo.. como sabe que el campo es id)

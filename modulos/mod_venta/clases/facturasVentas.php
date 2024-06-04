@@ -323,10 +323,11 @@ class FacturasVentas extends ClaseVentas{
 		//Eliminar todos los registros de un id de factura real
 		$respuesta=array();
 		$db=$this->db;
-		$sql[0]='DELETE FROM  facclit where id='.$idFactura ;
-		$sql[1]='DELETE FROM  facclilinea where idfaccli ='.$idFactura ;
-		$sql[2]='DELETE FROM faccliIva where idfaccli ='.$idFactura ;
-		$sql[3]='DELETE FROM albclifac where idFactura  ='.$idFactura ;	
+		$sql[0]='DELETE FROM  facclilinea where idfaccli ='.$idFactura ;
+		$sql[1]='DELETE FROM faccliIva where idfaccli ='.$idFactura ;
+		$sql[2]='DELETE FROM albclifac where idFactura  ='.$idFactura ;	
+        $sql[3]='DELETE FROM  facclit where id='.$idFactura ;
+
 		foreach($sql as $consulta){
 			$smt=$this->consulta($consulta);
 			if (gettype($smt)==='array'){
