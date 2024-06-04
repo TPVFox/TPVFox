@@ -9,6 +9,10 @@ require_once $URLCom.'/lib/PHPMailer/src/PHPMailer.php';
 require_once $URLCom.'/lib/PHPMailer/src/Exception.php';
 require_once $URLCom.'/lib/PHPMailer/src/SMTP.php';
 
+include_once $URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php';
+
+//dd($URLCom);
+
 //~ class Mailer extends PHPMailer {
 
     /**
@@ -38,7 +42,8 @@ class CorreoElectronico {
 
 
     static public function leerConfiguracion(){
-        include_once __DIR__.'/../modulos/mod_tienda/clases/ClaseTienda.php';
+        // include_once __DIR__.'/../modulos/mod_tienda/clases/ClaseTienda.php';
+
         $CTienda = new ClaseTienda();
        
         $res = $CTienda->tiendaPrincipal();
@@ -48,7 +53,7 @@ class CorreoElectronico {
         return $datosServidor;
     }
 
-    static public function enviar($destinatario, $mensaje, $asunto, $adjunto){
+    static public function enviar($destinatario, $mensaje, $asunto, $adjuntos=null){
         // @ Objetivo:
         // Envia email desde el correo que indicamos en configuracion de tienda (a nivel Base datos)
         // Ademas de enviar email destinatario, se sube a la bandeja enviado del correo de la tienda.
@@ -80,7 +85,14 @@ class CorreoElectronico {
             
         
             //Attachments
-            $mail->addAttachment($adjunto);         //Add attachments
+            if($adjuntos){
+                if(!is_array($adjuntos)){
+                    $adjuntos = [$adjuntos];
+                }
+                foreach ($adjuntos as $indice => $adjunto) {
+                    $mail->addAttachment($adjunto);         //Add attachments
+                }            
+            }
             //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
         
             //Content

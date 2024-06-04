@@ -4,15 +4,31 @@ include_once $URLCom . '/clases/ClaseTFModelo.php';
 
 class MTareasCron extends TFModelo
 {
+    const ESTADO_ACTIVO = 1,
+    ESTADO_EN_PROCESO = 2,
+    ESTADO_BAJA = 0;
+
+    private array $textosEstado = [
+        'Baja',
+        'activo',
+        'En proceso',
+        
+    ];
+
     private array $tareaCron = [];
 
+    public function textoEstado($estado = 1)
+    {
+        return $this->textosEstado[$estado];
+    }
+    
     public function __construct()
     {
         $this->tabla = 'tareas_cron';
         $this->_initTareaCron();
     }
 
-    protected function _initTareaCron() : void
+    protected function _initTareaCron(): void
     {
         $this->tareaCron = [
             'id' => null,
@@ -20,14 +36,27 @@ class MTareasCron extends TFModelo
             'periodo' => '',
             'ruta' => '',
             'ultima_ejecucion' => null,
+            'estado' => self::ESTADO_ACTIVO,
         ];
 
     }
 
-    public function getTareas()
+    public function getTareas($estado='')
     {
         $sql = 'SELECT * FROM ' . $this->tabla;
+        
         return $this->consulta($sql)['datos'];
+    }
+
+    public function getTareasActivas()
+    {
+
+        $sql = 'SELECT * FROM ' . $this->tabla
+        . ' WHERE estado = 1';
+
+        
+        return $this->consulta($sql)['datos'];
+
     }
 
     public function initTareaCron()
@@ -54,4 +83,13 @@ class MTareasCron extends TFModelo
         return $this->insert($datos);
     }
 
+    public function updateEstado($tareaId,$estado=Self::ESTADO_ACTIVO){
+        $sql = 'UPDATE  ' . $this->tabla . ' SET estado='.$estado.' WHERE id=' . $tareaId;
+        return $this->consultaDML($sql);
+    }
+
+    public function updateFechaEjecucion($tareaId, $withEstadoActivo=true){        
+        $sql = 'UPDATE  ' . $this->tabla . ' SET ultima_ejecucion="'.date_create('now')->format('Y-m-d').'", estado='.Self::ESTADO_ACTIVO.' WHERE id=' . $tareaId;
+        return $this->consultaDML($sql);
+    }
 }
