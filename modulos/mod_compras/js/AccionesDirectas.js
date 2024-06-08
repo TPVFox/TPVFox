@@ -195,6 +195,8 @@ function controladorAcciones(caja,accion, tecla){
             }
         break;
         case 'Saltar_SuNumero':
+            var dato = caja.darValor();
+            cabecera.suNumero = dato;
             ponerFocus(salto_linea);
         break
 

@@ -445,6 +445,7 @@ function comprobarFecha(caja,event){
             } else  {
                 ponerFocus(salto_linea);
             }
+            cabecera.fecha=caja.darValor();
         }
     }
         
