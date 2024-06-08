@@ -35,12 +35,16 @@ foreach ($def_dedonde as $key=>$def){
         // Ahora obtenemos datos y productos con los metodos de la clase de donde venga (factura, albaran, pedido)
         $datos=$clase->$metodoDatos($id);
         $productosAdjuntos=$clase->$metodoProductos($id);
-        $numero= $numero=$datos[$campo];
+        $numero=$datos[$campo];
+        $SuNumero = '';
+        if (isset($datos['Su_numero'])){
+            $SuNumero = $datos['Su_numero'];
+        }
     }
 }
 
-
 if ($dedonde=="factura"){
+    $SuNumero = $datos['Su_num_factura'];
     $adjuntos=$CFac->albaranesFactura($id);
     if ($adjuntos){
          $modifAdjunto=modificarArrayAdjunto($adjuntos, $BDTpv, "factura");
@@ -105,7 +109,7 @@ if (isset ($date)){
 $cabecera=  '<table>
                 <tr>
                     <td><font size="20">'.$texto.'</font></td>
-                    <td><font size="9"><b>Número:</b>'.$numero.'<br><b>Fecha:</b>'.$fecha.'</font></td>
+                    <td><font size="9"><b>Número:</b>'.$numero.' <b>Su Numero:</b>'.$SuNumero.'<br><b>Fecha:</b>'.$fecha.'</font></td>
                 </tr>
             </table>'.
             '<hr style="color:black ; cap:0;join:0;dash:1;phase:0;"/>'.
