@@ -305,9 +305,10 @@ class PedidosVentas extends ClaseVentas{
 		//Eliminar los registros de in id de pedido real
 		$db=$this->db;
 		$respuesta=array();
-        $sql[0]='DELETE FROM pedclit where id='.$idPedido ;
-		$sql[1]='DELETE FROM pedclilinea where idpedcli='.$idPedido ;
-		$sql[2]='DELETE FROM pedcliIva where idpedcli='.$idPedido ;
+		$sql[]='DELETE FROM pedclilinea where idpedcli='.$idPedido ;
+		$sql[]='DELETE FROM pedcliIva where idpedcli='.$idPedido ;
+        $sql[]='DELETE FROM pedclit where id='.$idPedido ;  
+
         
 
 		foreach ($sql as $consulta){

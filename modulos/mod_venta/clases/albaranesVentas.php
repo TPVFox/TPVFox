@@ -363,10 +363,11 @@ class AlbaranesVentas extends ClaseVentas {
         $db = $this->db;
         $albaran = $this->datosAlbaran($idAlbaran);
         $lineasAlbaran = $this->ProductosAlbaran($idAlbaran);
-        $sql[] = 'DELETE FROM albclit where id=' . $idAlbaran;
         $sql[] = 'DELETE FROM albclilinea where idalbcli =' . $idAlbaran;
         $sql[] = 'DELETE FROM albcliIva where idalbcli =' . $idAlbaran;
         $sql[] = 'DELETE FROM pedcliAlb where idAlbaran =' . $idAlbaran;
+        $sql[] = 'DELETE FROM albclit where id=' . $idAlbaran;
+
         foreach ($sql as $consulta) {
             $smt = $this->consulta($consulta);
             if (gettype($smt) === 'array') {
