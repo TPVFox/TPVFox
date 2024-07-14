@@ -2,11 +2,13 @@
 
 class Tarea1
 {
+
     public function execute()
     {
-        error_log('llego');
-        exec("php -v > resultado.txt &");
 
-        //evento_termine(idtarea);
+        //$fecha = date_parse(getdate());
+        exec("php -v > resultado.txt &");
+        
+        //header("Location: TareaTerminada.php?tarea=1");
     }
 }

@@ -77,14 +77,28 @@ class CTareasCron
                 if ($this->tareasCron->existe($datos['id'])) {
                     $tarea = $this->tareasCron->actualizar($this->tareaCron);
                 } else {
-                    $erroresValidacion['id.notfound'] = 'Tarea no encontrada';  
+                    $erroresValidacion['id.notfound'] = 'Tarea no encontrada';
                 }
             } else {
+                $this->tareaCron['id']=null;
                 $tarea = $this->tareasCron->crear($this->tareaCron);
             }
 
         }
         return [$tarea, $erroresValidacion];
+    }
+
+    public function eliminar(int $tareaId = 0)
+    {
+        $erroresValidacion = [];
+
+        if ($this->tareasCron->existe($tareaId)) {
+            $tarea = $this->tareasCron->eliminar($tareaId);
+        } else {
+            $erroresValidacion['id.notfound'] = 'Tarea no encontrada';
+        }
+
+        return [$erroresValidacion];
     }
 
     // public function modificar($tareaid, $datos)

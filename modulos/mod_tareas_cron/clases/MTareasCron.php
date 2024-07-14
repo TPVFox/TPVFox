@@ -81,31 +81,35 @@ class MTareasCron extends TFModelo
         return $this->tareaCron;
     }
 
-    public function find(int $tareaid)
+    public function find(int $tareaId)
     {
         $this->_initTareaCron();
-        $sql = 'SELECT * FROM ' . $this->tabla . ' WHERE id=' . $tareaid . ' LIMIT 1';
+        $sql = 'SELECT * FROM ' . $this->tabla . ' WHERE id=' . $tareaId . ' LIMIT 1';
         $resultado = $this->consulta($sql);
         $resultado = $resultado['datos'] ? ($resultado['datos'][0]) : [];
-
         if ($resultado) {
             foreach ($this->tareaCron as $indice => $valor) {
                 $this->tareaCron[$indice] = $resultado[$indice];
             }
         }
-
         return $this->tareaCron;
     }
 
     public function crear($datos)
-    {
+    {        
         return $this->insert($datos);
     }
 
-    public function actualizar($datos, $tareaid = null)
+   public function actualizar($datos, $tareaId = null)
     {
-        $tareaid = $tareaid ?: $datos['id'];
-        return $this->update($datos, ['id =' . $tareaid], false, true);
+        $tareaId = $tareaId ?: $datos['id'];
+        return $this->update($datos, ['id =' . $tareaId], false, true);
+    }
+
+    public function eliminar($tareaId = 0)
+    {        
+        $sql = 'DELETE FROM  ' . $this->tabla . ' WHERE id=' . $tareaId;
+        return $this->consultaDML($sql);
     }
 
     public function updateEstado($tareaId, $estado = Self::ESTADO_ACTIVO)

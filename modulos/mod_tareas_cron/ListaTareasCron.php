@@ -3,15 +3,20 @@
 include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
 
-include_once $URLCom . '/clases/CorreoElectronico.php';
+//include_once $URLCom . '/clases/CorreoElectronico.php';
 
 $CTareasCron = new CTareasCron();
 if (isset($_GET['accion'])) {
     $accion = $_GET['accion'];
-
     switch ($accion) {
         case 'correo':
-            $resultadoCorreo = CorreoElectronico::enviar('informatica@alagoro.com', 'Este es un correo automatico', 'Importante para el resto de tu vida');
+//            $resultadoCorreo = CorreoElectronico::enviarSimple('informatica@alagoro.com', 'Este es un correo automatico', 'Importante para el resto de tu vida');
+            break;
+        case 'eliminar':
+            if (isset($_GET['tareaid'])) {
+                $tareaid = $_GET['tareaid'];
+                $resultado = $CTareasCron->eliminar($tareaid);                
+            }
             break;
     }
 }
@@ -67,7 +72,11 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                         <a class="btn btn-primary" href="TareaCron.php?accion=modificar&tarea=<?php echo $tareaCron['id'] ?>">Edit</a>
                         <button class="btn btn-info" type="button" onclick="metodoClick('btn-ejecutar-cron',this)"
                         data-tareaid="<?php echo $tareaCron['id'] ?>"
-                        <?php if($tareaCron['estado'] != MTareasCron::ESTADO_ACTIVO){ echo('disabled'); } ?>>Ejecutar</button> </td>
+                        <?php if ($tareaCron['estado'] != MTareasCron::ESTADO_ACTIVO) {echo ('disabled');}?>>Ejecutar</button>
+                        <button class="btn btn-danger" type="button" onclick="metodoClick('btn-eliminar',this)"
+                        data-tareaid="<?php echo $tareaCron['id'] ?>"
+                        data-tarea-nombre="<?php echo $tareaCron['nombre'] ?>"
+                        data-url="<?php echo 'ListaTareasCron.php?accion=eliminar&tareaid=' . $tareaCron['id'] ?>">Eliminar</button> </td>
                     </tr>
                 <?php }?>
 			</div>
