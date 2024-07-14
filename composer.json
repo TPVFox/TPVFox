@@ -1,0 +1,9 @@
+{
+    "autoload": {
+        "files": [
+            "app/helpers.php",
+            "app/TareasCron/LoginListener.php"
+        ]
+    }
+
+}

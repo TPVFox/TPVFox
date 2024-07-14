@@ -19,3 +19,17 @@ if (!function_exists('dump')) {
         echo '</pre>';
     }
 }
+
+if (!function_exists('mostrarError')) {
+    function mostrarError($respuesta)
+    {
+        return '<pre>' . print_r($respuesta) . '</pre>';
+    }
+}
+
+if (!function_exists('entreComillas')) {
+    function entreComillas($cadena, $comillas='"')
+    {
+        return $comillas . $cadena . $comillas;
+    }
+}

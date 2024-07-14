@@ -59,9 +59,10 @@
                     }
                     ?>
                 </ul>
+                
                 <div class="nav navbar-nav navbar-right">
                     <a href="<?php echo $HostNombre;?>/modulos/mod_usuario/usuario.php?id=<?php echo $Usuario['id']?>&inicio=1" style="color:black;"><span class="glyphicon glyphicon-user"></span><?php echo $Usuario['login'];?></a>
-                    <?php
+                    <?php                    
                     if ($_SESSION['estadoTpv'] == "Correcto"){
                         echo '<a href="'.$HostNombre.'/plugins/controlUser/modalUsuario.php?tipo=cerrar'.'">Cerrar</a>';
                     }   
