@@ -82,8 +82,8 @@ class CorreoElectronico
             $mail->SMTPAuth = $configuracion['SMTPAuth']; //Enable SMTP authentication
             $mail->Username = $configuracion['SMTPUsuario']; //SMTP username
             $mail->Password = $configuracion['SMTPPassword']; //SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
-            //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            //$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;   // esto no funciona con mailtrap.io
             $mail->Port = $configuracion['SMTPPort']; //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
             //Recipients
