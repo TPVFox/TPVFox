@@ -26,3 +26,10 @@ if (!function_exists('mostrarError')) {
         return '<pre>' . print_r($respuesta) . '</pre>';
     }
 }
+
+if (!function_exists('entreComillas')) {
+    function entreComillas($cadena, $comillas='"')
+    {
+        return $comillas . $cadena . $comillas;
+    }
+}

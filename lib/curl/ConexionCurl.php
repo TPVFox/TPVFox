@@ -49,24 +49,32 @@ class ConexionCurl
     public function setTimeout($timeout = 6)
     {
         curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
+
+        return $this;
     }
 
 //especificamos el POST (tambien podemos hacer peticiones enviando datos por GET
     public function setPost($method = 1)
     {
         curl_setopt($ch, CURLOPT_POST, $method);
+
+        return $this;
     }
 
 //le decimos qué paramáetros enviamos (pares nombre/valor, también acepta un array)
     public function setParametros($parametros)
     {
         curl_setopt($this->ch, CURLOPT_POSTFIELDS, $parametros);
+
+        return $this;
     }
 
 //le decimos que queremos recoger una respuesta (si no esperas respuesta, ponlo a false)
     public function setRespuesta($queremosRespuesta = true)
     {
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, $queremosRespuesta);
+
+        return $this;
     }
 
 //recogemos la respuesta

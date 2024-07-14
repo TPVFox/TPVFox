@@ -17,7 +17,10 @@ class TareasCron
         //error_log(json_encode($tareas));
         if ($tareas) {
             foreach ($tareas as $tarea) {
-                if ($tarea['ultima_ejecucion']) {
+                $ruta = './tareas/'.$tarea['nombre_clase'].'.php';
+                if (file_exists($ruta)) {            
+
+                    if ($tarea['ultima_ejecucion']) {
                     $datetime1 = date_create($tarea['ultima_ejecucion']);
                     $datetime2 = date_create();
                     $intervalo = date_diff($datetime1, $datetime2);
@@ -31,14 +34,25 @@ class TareasCron
                 } else {
                     $ejecutar = true;
                 }
+                //if($ejecutar)
                 $tareaCron->updateEstado($tarea['id'], MTareasCron::ESTADO_EN_PROCESO);
-                
-                $objeto = new $tarea['ruta']();
+
+                include_once $ruta;
+                if (!class_exists($tarea['nombre_clase'], false)) {
+                    error_log("No carga la clase: ".$tarea['nombre_clase']);
+                }
+                                        
+                $objeto = new $tarea['nombre_clase']();
                 $objeto->execute();
+
                 $tareaCron->updateFechaEjecucion($tarea['id']);
                 //$tareaCron->updateEstado($tarea['id']);
                 error_log($tarea['ruta']);
                 error_log($ejecutar);
+            } else {
+                $tareaCron->updateEstado($tarea['id'], MTareasCron::ESTADO_FICHERO_NO_ENCONTRADO);
+                error_log('fichero no encontrado-->'.$tarea['ruta']);
+            }
             }
         }
     }

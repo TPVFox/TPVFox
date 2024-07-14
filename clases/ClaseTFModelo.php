@@ -26,6 +26,7 @@ class TFModelo extends ModeloP
         if ($smt) {
             $respuesta['datos'] = $smt;
         } else {
+            $respuesta['datos']=null;      ////  ¡¡¡OJO!!! esto se hace en 07/2024 y puede estropear cosas anteriores ;-)
             if ($this->getErrorConsulta() != '0') {
                 $respuesta['error'] = $this->getErrorConsulta();
             }
@@ -44,8 +45,8 @@ class TFModelo extends ModeloP
         // $ respuesta  = false si hubo error, que podemos recuperar con $this->getFallo.
         //               array() con affected_rows y insert_id
         $db = parent::getDbo();
-
         $smt = $db->query($sql);
+        
         // $smt = Puede ser false o true en Delete,Insert,Update....
         if ($smt === false) {
             // hubo un error, lo añadimos a errores.
@@ -57,8 +58,7 @@ class TFModelo extends ModeloP
             $respuesta = array();
             $respuesta['affected_rows'] = $db->affected_rows; // devolvemos cuantos fueron afectados
             $respuesta['insert_id'] = $db->insert_id;
-        }
-
+        }        
         return $respuesta;
     }
 
@@ -72,16 +72,16 @@ class TFModelo extends ModeloP
             . ' SET ' . $insertString;
         if ($soloSQL) {
             $respuesta = $sql;
-        } else {
+        } else {            
             $r = self::consultaDML($sql);
             if ($r !== false) {
                 $respuesta = $r['insert_id'];
-            }
+            }            
         }
         return $respuesta;
     }
 
-    protected function update($datos, $condicion, $soloSQL = false)
+    protected function update($datos, $condicion, $soloSQL = false, $deleteNull=false)
     {
         // @Objetivo
 
@@ -91,24 +91,21 @@ class TFModelo extends ModeloP
 
         // @ Nota:
         // La tabla es la que tenemos asignada en propiedad tabla.
-        $respuesta = false;
-
-        $updateString = $this->stringSet($datos);
+        $respuesta = false;                
+        $updateString = $this->stringSet($datos, $deleteNull);
         $updateWhere = $this->stringCondicion($condicion);
         $sql = 'UPDATE ' . $this->tabla
             . ' SET ' . $updateString
             . ' WHERE ' . $updateWhere;
-
         if ($soloSQL) {
             $respuesta = $sql;
         } else {
-            $r = self::consultaDML($sql);
+            $r = self::consultaDML($sql);            
             if ($r !== false) {
                 $respuesta = $r['affected_rows'];
             }
         }
         return $respuesta;
-
     }
 
     protected function setTabla($tabla)
