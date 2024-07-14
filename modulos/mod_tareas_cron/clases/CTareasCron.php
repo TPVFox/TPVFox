@@ -2,6 +2,7 @@
 
 include_once 'MTareasCron.php';
 include_once $URLCom . '/clases/traits/MontarAdvertenciaTrait.php';
+
 class CTareasCron
 {
 
@@ -22,9 +23,14 @@ class CTareasCron
         return $this->tareasCron->getTareas();
     }
 
+    public function leer($tareaid = 0)
+    {
+        return $this->tareasCron->leer((int) $tareaid);
+    }
+
     public function edit(int $tareaid = 0)
     {
-        return $this->tareasCron->find($tareaid);
+        $this->tareaCron = $this->tareasCron->find($tareaid);
     }
 
     public function crear(): void
@@ -33,24 +39,25 @@ class CTareasCron
     }
 
     protected function validar($datos): array
-    {        
+    {
         $errores = [];
         if (empty($datos['nombre'])) {
-            $errores['nombre'] = 'No puede ser vacío';
-        }        
-        if (empty($datos['ruta'])) {
-            $errores['ruta'] = 'No puede ser vacío';
+            $errores['nombre.empty'] = 'No puede ser vacío';
         }
-        if (!is_int($datos['periodo'])) {
+        if (empty($datos['nombre_clase'])) {
+            $errores['nombre_clase.empty'] = 'No puede ser vacío';
+        }
+
+        if (!is_numeric($datos['periodo'])) {
             $errores['periodo'] = 'Sólo números, por favor';
         }
 
         if (strlen('nombre') > 50) {
-            $errores['nombre'] = 'Longitud máxima 50';
+            $errores['nombre.max'] = 'Longitud máxima 50';
         }
-        
-        if (strlen('ruta') > 50) {
-            $errores['ruta'] = 'Longitud máxima 50';
+
+        if (strlen('nombre_clase') > 50) {
+            $errores['nombre_clase.max'] = 'Longitud máxima 50';
         }
 
         return $errores;
@@ -59,18 +66,42 @@ class CTareasCron
     public function guardar($datos)
     {
         $tarea = [];
-        $validacion = $this->validar($datos);
-        if (count($validacion) == 0) {
+        $erroresValidacion = $this->validar($datos);
+        if (count($erroresValidacion) == 0) {
             foreach ($this->tareaCron as $indice => $valor) {
                 if (array_key_exists($indice, $datos)) {
                     $this->tareaCron[$indice] = $datos[$indice];
                 }
             }
+            if ($datos['id']) {
+                if ($this->tareasCron->existe($datos['id'])) {
+                    $tarea = $this->tareasCron->actualizar($this->tareaCron);
+                } else {
+                    $erroresValidacion['id.notfound'] = 'Tarea no encontrada';  
+                }
+            } else {
+                $tarea = $this->tareasCron->crear($this->tareaCron);
+            }
 
-            $tarea = $this->tareasCron->crear($this->tareaCron);
         }
-        return [$tarea, $validacion];
+        return [$tarea, $erroresValidacion];
     }
+
+    // public function modificar($tareaid, $datos)
+    // {
+    //     $tarea = [];
+    //     $erroresValidacion = $this->validar($datos);
+    //     if (count($erroresValidacion) == 0) {
+    //         foreach ($this->tareaCron as $indice => $valor) {
+    //             if (array_key_exists($indice, $datos)) {
+    //                 $this->tareaCron[$indice] = $datos[$indice];
+    //             }
+    //         }
+
+    //         $tarea = $this->tareasCron->actualizar($this->tareaCron);
+    //     }
+    //     return [$tarea, $erroresValidacion];
+    // }
 
     public function tareasCron(): MTareasCron
     {

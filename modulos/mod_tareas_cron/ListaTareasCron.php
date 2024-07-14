@@ -11,14 +11,14 @@ if (isset($_GET['accion'])) {
 
     switch ($accion) {
         case 'correo':
-            $resultadoCorreo = CorreoElectronico::enviar('informatica@alagoro.com','Este es un correo automatico','Importante para el resto de tu vida');            
+            $resultadoCorreo = CorreoElectronico::enviar('informatica@alagoro.com', 'Este es un correo automatico', 'Importante para el resto de tu vida');
             break;
     }
 }
 $tareasCron = $CTareasCron->list();
 ?>
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
     <?php include_once $URLCom . '/head.php';?>
@@ -48,26 +48,28 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                             <th></th>
                             <th>Nombre</th>
                             <th>Período (minutos)</th>
-                            <th>Ruta</th>
+                            <th>Clase</th>
                             <th>Última ejecución</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
-                    <?php
-foreach ($tareasCron as $tareaCron) {
-    ?>
+                <?php foreach ($tareasCron as $tareaCron) {?>
                     <tr>
                         <td><input class="rowCheck" type="checkbox" name="informe" value="1">
                         <td><?php echo $tareaCron['nombre'] ?></td>
                         <td><?php echo $tareaCron['periodo'] ?> </td>
-                        <td><?php echo $tareaCron['ruta'] ?> </td>
+                        <td><?php echo $tareaCron['nombre_clase'] ?></td>
                         <td><?php echo $tareaCron['ultima_ejecucion'] ?> </td>
                         <td><?php echo $CTareasCron->tareasCron()->textoEstado($tareaCron['estado']) ?> </td>
+                        <td>
+                        <a class="btn btn-primary" href="TareaCron.php?accion=modificar&tarea=<?php echo $tareaCron['id'] ?>">Edit</a>
+                        <button class="btn btn-info" type="button" onclick="metodoClick('btn-ejecutar-cron',this)"
+                        data-tareaid="<?php echo $tareaCron['id'] ?>"
+                        <?php if($tareaCron['estado'] != MTareasCron::ESTADO_ACTIVO){ echo('disabled'); } ?>>Ejecutar</button> </td>
                     </tr>
-                    <?php
-}
-?>
+                <?php }?>
 			</div>
 		</div>
 	</div>
@@ -78,16 +80,18 @@ foreach ($tareasCron as $tareaCron) {
 	var checkID = [];
 	</script>
     <!-- Cargamos funciones de modulo. -->
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_/funciones.js" type="module"></script>
+    <!-- <script src="<?php echo $HostNombre; ?>/modulos/mod_/funciones.js" type="module"></script> -->
     <?php
-    if(isset($resultadoCorreo)){
-        dump($resultadoCorreo);
-        if($resultadoCorreo == 1){
-            $CTareasCron->montarAdvertencia('success','Enviado con éxito','OK');
-        }
+if (isset($resultadoCorreo)) {
+    dump($resultadoCorreo);
+    if ($resultadoCorreo == 1) {
+        $CTareasCron->montarAdvertencia('success', 'Enviado con éxito', 'OK');
     }
+}
 echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
 include $URLCom . '/plugins/modal/ventanaModal.php';
 ?>
+<!-- <script src="clases/claseTareasCron.js"></script> -->
+<script src="funciones.js"></script>
 </body>
 </html>

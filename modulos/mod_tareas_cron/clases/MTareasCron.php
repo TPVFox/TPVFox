@@ -6,13 +6,15 @@ class MTareasCron extends TFModelo
 {
     const ESTADO_ACTIVO = 1,
     ESTADO_EN_PROCESO = 2,
-    ESTADO_BAJA = 0;
+    ESTADO_BAJA = 0,
+    ESTADO_FICHERO_NO_ENCONTRADO = 3;
 
     private array $textosEstado = [
         'Baja',
         'activo',
         'En proceso',
-        
+        'Fichero no encontrado',
+
     ];
 
     private array $tareaCron = [];
@@ -21,7 +23,7 @@ class MTareasCron extends TFModelo
     {
         return $this->textosEstado[$estado];
     }
-    
+
     public function __construct()
     {
         $this->tabla = 'tareas_cron';
@@ -34,17 +36,32 @@ class MTareasCron extends TFModelo
             'id' => null,
             'nombre' => '',
             'periodo' => '',
-            'ruta' => '',
+            'nombre_clase' => '',
             'ultima_ejecucion' => null,
             'estado' => self::ESTADO_ACTIVO,
         ];
 
     }
 
-    public function getTareas($estado='')
+    public function leer(int $id = 0)
+    {
+        $sql = 'SELECT * FROM ' . $this->tabla . ' WHERE id= ' . $id;
+
+        return $this->consulta($sql)['datos'] ? $this->consulta($sql)['datos'][0] : null;
+    }
+
+    public function existe(int $id = 0)
+    {
+        $sql = 'SELECT count(id) AS contador FROM ' . $this->tabla . ' WHERE id= ' . $id;
+        $resultado = $this->consulta($sql)['datos'] ? $this->consulta($sql)['datos'][0] : ['contador' => null];
+
+        return $resultado['contador'];
+    }
+
+    public function getTareas($estado = '')
     {
         $sql = 'SELECT * FROM ' . $this->tabla;
-        
+
         return $this->consulta($sql)['datos'];
     }
 
@@ -52,9 +69,8 @@ class MTareasCron extends TFModelo
     {
 
         $sql = 'SELECT * FROM ' . $this->tabla
-        . ' WHERE estado = 1';
+            . ' WHERE estado = 1';
 
-        
         return $this->consulta($sql)['datos'];
 
     }
@@ -68,13 +84,16 @@ class MTareasCron extends TFModelo
     public function find(int $tareaid)
     {
         $this->_initTareaCron();
-        $sql = 'SELECT * FROM ' . $this->tabla . ' WHERE id=' . $tareaid;
-        $resultado = $this->consulta($sql)['datos'];
+        $sql = 'SELECT * FROM ' . $this->tabla . ' WHERE id=' . $tareaid . ' LIMIT 1';
+        $resultado = $this->consulta($sql);
+        $resultado = $resultado['datos'] ? ($resultado['datos'][0]) : [];
+
         if ($resultado) {
-            foreach ($tareaCron as $indice => $valor) {
+            foreach ($this->tareaCron as $indice => $valor) {
                 $this->tareaCron[$indice] = $resultado[$indice];
             }
         }
+
         return $this->tareaCron;
     }
 
@@ -83,13 +102,21 @@ class MTareasCron extends TFModelo
         return $this->insert($datos);
     }
 
-    public function updateEstado($tareaId,$estado=Self::ESTADO_ACTIVO){
-        $sql = 'UPDATE  ' . $this->tabla . ' SET estado='.$estado.' WHERE id=' . $tareaId;
+    public function actualizar($datos, $tareaid = null)
+    {
+        $tareaid = $tareaid ?: $datos['id'];
+        return $this->update($datos, ['id =' . $tareaid], false, true);
+    }
+
+    public function updateEstado($tareaId, $estado = Self::ESTADO_ACTIVO)
+    {
+        $sql = 'UPDATE  ' . $this->tabla . ' SET estado=' . $estado . ' WHERE id=' . $tareaId;
         return $this->consultaDML($sql);
     }
 
-    public function updateFechaEjecucion($tareaId, $withEstadoActivo=true){        
-        $sql = 'UPDATE  ' . $this->tabla . ' SET ultima_ejecucion="'.date_create('now')->format('Y-m-d').'", estado='.Self::ESTADO_ACTIVO.' WHERE id=' . $tareaId;
+    public function updateFechaEjecucion($tareaId, $withEstadoActivo = true)
+    {
+        $sql = 'UPDATE  ' . $this->tabla . ' SET ultima_ejecucion="' . date_create('now')->format('Y-m-d') . '", estado=' . Self::ESTADO_ACTIVO . ' WHERE id=' . $tareaId;
         return $this->consultaDML($sql);
     }
 }
