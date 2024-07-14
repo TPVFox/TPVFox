@@ -32,6 +32,17 @@ function botonEjecutarCron(boton) {
 
 }
 
+function eliminarTarea(objeto){
+    var boton = $(objeto);
+    let tareaid = boton.data('tareaid');
+    let tareanombre = boton.data('tarea-nombre');
+    let url = boton.data('url');
+
+    if(confirm('Eliminar tarea '+tareaid+': '+tareanombre)){
+        window.location.href = url;
+    }
+}
+
 function metodoClick(pulsado, objeto) {
     // @ Objetivo:
     //  Controlas los click en listadoproductos.
@@ -47,6 +58,9 @@ function metodoClick(pulsado, objeto) {
             // Cargamos variable global ar checkID = [];
             var boton = $(objeto);
             botonEjecutarCron(boton);
+            break;
+        case 'btn-eliminar':                        
+            eliminarTarea(objeto);
             break;
     }
 }

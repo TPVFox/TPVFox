@@ -56,7 +56,62 @@ class CorreoElectronico
 
     public static function enviarSimple($destinatario, $mensaje, $asunto, $adjuntos = null)
     {
-        return Self::enviar($destinatario, $mensaje, $asunto, $adjuntos, $false);
+        $respuesta = array();
+
+        $configuracion = CorreoElectronico::leerConfiguracion();
+
+        $mail = new PHPMailer(true);
+
+        try {
+            //Server settings
+            $mail->SMTPDebug = SMTP::DEBUG_OFF; //SMTP::DEBUG_SERVER;   Asi muestra respuesta.
+            $mail->isSMTP(); //Send using SMTP
+            $mail->Host = $configuracion['host']; //Set the SMTP server to send through
+            $mail->SMTPAuth = $configuracion['SMTPAuth']; //Enable SMTP authentication
+            $mail->Username = $configuracion['SMTPUsuario']; //SMTP username
+            $mail->Password = $configuracion['SMTPPassword']; //SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            //Enable implicit TLS encryption depende del servidor.
+            //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;   // esto no funciona con mailtrap.io
+            $mail->Port = $configuracion['SMTPPort']; //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+            //Recipients
+            $mail->setFrom($configuracion['emailTienda'], $configuracion['nombreRemitente']);
+            $mail->addAddress($destinatario); //Add a recipient
+            //Name is optionaldd($mail);
+
+            //Attachments
+            if ($adjuntos) {
+                if (!is_array($adjuntos)) {
+                    $adjuntos = [$adjuntos];
+                }
+                foreach ($adjuntos as $indice => $adjunto) {
+                    $mail->addAttachment($adjunto); //Add attachments
+                }
+            }
+            //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+
+            //Content
+            $mail->isHTML(true); //Set email format to HTML
+            $mail->Subject = $asunto; //'Here is the subject';
+            $mensaje = $mensaje . '<br/><br/><br/>' . $configuracion['nombreRemitente'];
+            $mail->Body = $mensaje; // 'This is the HTML message body <b>in bold!</b>';
+
+            $result = $mail->send();
+
+            if ($result) {
+                // Fue correcto el envio.
+                $respuesta['envio_destinatario'] = 'OK';
+
+            } else {
+                $respuesta['envio_destinatario'] = 'KO';
+                $respuesta['error_envio'] = 'Error en $mail->send():' . json_encode($result);
+            }
+
+        } catch (Exception $e) {
+            $respuesta['envio_destinatario'] = 'KO';
+            $respuesta['error_envio'] = 'Error en Mailer (Exception=Respuesta de $mail->send():' . $mail->ErrorInfo;
+        }
+        return $respuesta;
     }
 
     public static function enviar($destinatario, $mensaje, $asunto, $adjuntos = null, $guardarEnEnviados = true)
@@ -89,7 +144,7 @@ class CorreoElectronico
             //Recipients
             $mail->setFrom($configuracion['emailTienda'], $configuracion['nombreRemitente']);
             $mail->addAddress($destinatario); //Add a recipient
-            //Name is optional
+            //Name is optionaldd($mail);
 
             //Attachments
             if ($adjuntos) {

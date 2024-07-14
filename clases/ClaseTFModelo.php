@@ -69,7 +69,7 @@ class TFModelo extends ModeloP
         $insertString = $this->stringSet($datos, true);
         
         $sql = 'INSERT ' . $this->tabla
-            . ' SET ' . $insertString;
+            . ' SET ' . $insertString;            
         if ($soloSQL) {
             $respuesta = $sql;
         } else {            
