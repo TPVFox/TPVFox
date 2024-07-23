@@ -12,10 +12,11 @@ class MAcumuladoCompra extends TFModelo
 
     public function leer()
     {
-        $sql = 'SELECT lineas.idArticulo AS idarticulo, YEAR(albaranes.Fecha) as year, MONTH(albaranes.Fecha) as mes, IF(SUM(ncant) <> 0, SUM(costeSiva * ncant)/SUM(ncant),0) as costemedio, SUM(ncant) as cantidad ';
+        $sql = 'SELECT lineas.idArticulo AS idarticulo, YEAR(albaranes.Fecha) as year, MONTH(albaranes.Fecha) as month,';
+        $sql .= ' SUM(costeSiva) as coste, IF( SUM(ncant) <> 0, (SUM(costeSiva * ncant)/SUM(ncant)),0) as costemedio, SUM(ncant) as cantidad ';
         $sql .= 'FROM `albprolinea` as lineas';
-        $sql .= ' LEFT OUTER JOIN albprot as albaranes ON (albaranes.id=lineas.idalbpro) GROUP BY idarticulo, year, mes';
-        $sql .= ' ORDER BY idarticulo, year, mes';
+        $sql .= ' LEFT OUTER JOIN albprot as albaranes ON (albaranes.id=lineas.idalbpro) GROUP BY idarticulo, year, month';
+        $sql .= ' ORDER BY idarticulo, year, month';
         return $this->consulta($sql);
     }
 
@@ -26,8 +27,10 @@ class MAcumuladoCompra extends TFModelo
 
     public function actualizar($acumulado)
     {
-        $datosKey = $this->desglosaDatosPorNombre($acumulado, ['year', 'mes', 'idarticulo']);
-        $datos = $this->desglosaNoDatosPorNombre($acumulado, ['year', 'mes', 'idarticulo']);
+        $datos['id']=null;        
+        $datosKey = $this->desglosaDatosPorNombre($acumulado, ['year', 'month', 'idarticulo']);
+        $datos = $this->desglosaNoDatosPorNombre($acumulado, ['year', 'month', 'idarticulo']);
+        $datos['update_at'] = date(FORMATO_FECHA_MYSQL);
         return $this->insertOrUpdate($datosKey, $datos);
     }
 

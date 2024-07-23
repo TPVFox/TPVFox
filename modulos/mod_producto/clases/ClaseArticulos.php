@@ -25,6 +25,20 @@ class alArticulos extends Modelo
         $this->tabla = 'articulos';
     }
 
+
+    public function insert($datos, $soloSQL = false) {
+
+        return parent::insert($datos, $soloSQL);
+    }
+
+    public function update($datos, $condicion, $soloSQL = false) {
+        return parent::update($datos, $condicion, $soloSQL);
+    }
+
+
+
+
+
     public function leer($idArticulo = 0, $inicio = 1, $pagina = 100)
     {
         $sql = 'SELECT * '

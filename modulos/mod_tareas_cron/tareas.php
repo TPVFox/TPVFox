@@ -5,11 +5,8 @@
 
 include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
-include_once $URLCom . '/clases/Log.php';
 
 $CTareasCron = new CTareasCron();
-dd('aqui');
-Log::init($RutaDatos);
 
 $mensaje_cabecera = 'Crear Tarea';
 
