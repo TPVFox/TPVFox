@@ -28,8 +28,7 @@ class AcumuladoComprasTarea
     }
 
     public function volcarAcumulados(array $acumulados)
-    {
-        error_log('Volcar acumulados ' . PHP_EOL);
+    {        
         if (count($acumulados) > 0) {
             $articulo = new alArticulos();
             $suma_cantidad = 0;
