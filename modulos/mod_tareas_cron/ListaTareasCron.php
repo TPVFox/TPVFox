@@ -4,8 +4,9 @@ include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
 
 //include_once $URLCom . '/clases/CorreoElectronico.php';
-dump('-- -1--->'.$RutaDatos);
+
 $CTareasCron = new CTareasCron($RutaDatos);
+
 if (isset($_GET['accion'])) {
     $accion = $_GET['accion'];
     switch ($accion) {

@@ -21,19 +21,19 @@ CREATE TABLE tareas_cron (
 -- Estructura de tabla para la tabla `acumulado_ventas`
 --
 
-DROP TABLE IF EXISTS `acumulado_ventas`;
-CREATE TABLE `acumulado_ventas` (
+DROP TABLE IF EXISTS `acumulado_compras`;
+CREATE TABLE `acumulado_compras` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `year` smallint(4) UNSIGNED NOT NULL,
   `month` tinyint(2) UNSIGNED NOT NULL,
-  `update_at` date NOT NULL,
   `idArticulo` int(11) NOT NULL,
   `cantidad` decimal(17,6) NOT NULL,
   `coste` decimal(17,6) NOT NULL,
   `costemedio` double NOT NULL,
+  `update_at` date NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-ALTER TABLE `acumulado_ventas` ADD CONSTRAINT `articulo` FOREIGN KEY (`idArticulo`) REFERENCES `articulos`(`idArticulo`) ;
+ALTER TABLE `acumulado_compras` ADD CONSTRAINT `articulo` FOREIGN KEY (`idArticulo`) REFERENCES `articulos`(`idArticulo`) ;
 
-ALTER TABLE `tpvfox`.`acumulado_ventas` ADD UNIQUE `year_month_articulo` (`year`, `month`, `idArticulo`);
+ALTER TABLE `tpvfox`.`acumulado_compras` ADD UNIQUE `year_month_articulo` (`year`, `month`, `idArticulo`);

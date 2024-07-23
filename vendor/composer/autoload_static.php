@@ -11,20 +11,6 @@ class ComposerStaticInit478a82d0d3440dbddec24b5ecdb42f28
         'cb448fe80403f97d94e3bae336b30119' => __DIR__ . '/../..' . '/app/TareasCron/LoginListener.php',
     );
 
-    public static $prefixLengthsPsr4 = array (
-        'C' => 
-        array (
-            'Clases\\' => 7,
-        ),
-    );
-
-    public static $prefixDirsPsr4 = array (
-        'Clases\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/clases',
-        ),
-    );
-
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
@@ -32,8 +18,6 @@ class ComposerStaticInit478a82d0d3440dbddec24b5ecdb42f28
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit478a82d0d3440dbddec24b5ecdb42f28::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit478a82d0d3440dbddec24b5ecdb42f28::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit478a82d0d3440dbddec24b5ecdb42f28::$classMap;
 
         }, null, ClassLoader::class);

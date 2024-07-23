@@ -66,8 +66,14 @@ class TFModelo extends ModeloP
     public function insertOrUpdate($datosKey, $datos, $soloSQL = false)
     {
 
-        $sql = $this->insert($datosKey + $datos, true);
-        $sql .= 'ON DUPLICATE KEY ' . $this->update($datos, $datosKey, true, false, true);
+        $sql = ' SELECT count(id) as contador FROM ' . $this->tabla . ' WHERE ' . $this->arrayToStringCondicion($datosKey);
+        $resultado = $this->consulta($sql);
+
+        if ($resultado['datos'][0]['contador'] > 0) {
+            $sql2 = $this->update($datos, $datosKey, false, true, true);
+        } else {
+            $sql2 = $this->insert($datosKey + $datos);
+        }
 
         return $sql;
     }
@@ -104,8 +110,6 @@ class TFModelo extends ModeloP
         $respuesta = false;
         $updateString = $this->stringSet($datos, $deleteNull);
         $updateWhere = $desglosaCondicion ? $this->arrayToStringCondicion($condicion) : $this->stringCondicion($condicion);
-        error_log('update \n');
-        error_log(json_encode($condicion));
         $sql = 'UPDATE ' . $this->tabla
             . ' SET ' . $updateString
             . ' WHERE ' . $updateWhere;
@@ -267,7 +271,7 @@ class TFModelo extends ModeloP
     }
 
     public function eliminar($id = 0)
-    {        
+    {
         $sql = 'DELETE FROM  ' . $this->tabla . ' WHERE id=' . $id;
         return $this->consultaDML($sql);
     }

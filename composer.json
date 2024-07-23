@@ -1,9 +1,5 @@
 {
     "autoload": {
-        "psr-4": {
-            "Clases\\": "clases/"            
-        },
-
         "files": [
             "app/helpers.php",
             "app/TareasCron/LoginListener.php"
