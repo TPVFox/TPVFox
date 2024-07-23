@@ -1,9 +1,15 @@
 
 <?php
+
+
+
 include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
+include_once $URLCom . '/clases/Log.php';
 
 $CTareasCron = new CTareasCron();
+dd('aqui');
+Log::init($RutaDatos);
 
 $mensaje_cabecera = 'Crear Tarea';
 
@@ -17,8 +23,8 @@ if (isset($_GET['tareaid'])) {
 
         if (file_exists($ruta)) {            
             include_once($ruta);
-            $tarea = 'tarea1';
-            $objeto = new $tarea();            
+            
+            $objeto = new ($tarea['nombre_clase'])($tareaid);
             $objeto->execute();
         } else {
             $CTareasCron->tareasCron()->updateEstado($tareaid, MTareasCron::ESTADO_FICHERO_NO_ENCONTRADO);

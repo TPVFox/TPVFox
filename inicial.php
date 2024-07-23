@@ -1,4 +1,5 @@
 <?php
+
 /* Este fichero lo utilizamos para cargar lo necesario para el funcionamiento.
  * Normalmente ya lo cargamos en head,  pero muchas veces es necesario cargarlo antes de head.
  * Incluso cuando cargamos en tareas , es necesario , asi no cargamos el head que no es necesario.
@@ -44,5 +45,3 @@ $error_conf = '';
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
     $ClasePermisos=$thisTpv->permisos;
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
-    
-	

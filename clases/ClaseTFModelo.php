@@ -5,7 +5,7 @@
  */
 
 require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
-
+include_once $URLCom . '/clases/traits/DesglosaDatosPorNombreTrait.php';
 /**
  * Description of claseModelo
  *
@@ -13,11 +13,12 @@ require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  */
 class TFModelo extends ModeloP
 {
-
     protected $tabla; // La tabla tenemos asignarla con setTabla
     protected $fallo = ['descripcion' => 0, 'consulta' => '', 'time_error' => '']; // error = 0 que no hubo.
 
-    protected function consulta($sql)
+    use DesglosaDatosPorNombreTrait;
+
+    public function consulta($sql)
     {
         // Realizamos la consulta.
         $smt = parent::consulta($sql);
@@ -26,7 +27,7 @@ class TFModelo extends ModeloP
         if ($smt) {
             $respuesta['datos'] = $smt;
         } else {
-            $respuesta['datos']=null;      ////  ¡¡¡OJO!!! esto se hace en 07/2024 y puede estropear cosas anteriores ;-)
+            $respuesta['datos'] = null; ////  ¡¡¡OJO!!! esto se hace en 07/2024 y puede estropear cosas anteriores ;-)
             if ($this->getErrorConsulta() != '0') {
                 $respuesta['error'] = $this->getErrorConsulta();
             }
@@ -46,7 +47,7 @@ class TFModelo extends ModeloP
         //               array() con affected_rows y insert_id
         $db = parent::getDbo();
         $smt = $db->query($sql);
-        
+
         // $smt = Puede ser false o true en Delete,Insert,Update....
         if ($smt === false) {
             // hubo un error, lo añadimos a errores.
@@ -58,8 +59,17 @@ class TFModelo extends ModeloP
             $respuesta = array();
             $respuesta['affected_rows'] = $db->affected_rows; // devolvemos cuantos fueron afectados
             $respuesta['insert_id'] = $db->insert_id;
-        }        
+        }
         return $respuesta;
+    }
+
+    public function insertOrUpdate($datosKey, $datos, $soloSQL = false)
+    {
+
+        $sql = $this->insert($datosKey + $datos, true);
+        $sql .= 'ON DUPLICATE KEY ' . $this->update($datos, $datosKey, true, false, true);
+
+        return $sql;
     }
 
     protected function insert($datos, $soloSQL = false)
@@ -67,21 +77,21 @@ class TFModelo extends ModeloP
         $respuesta = false;
         // No queremos SETs de valores nulos
         $insertString = $this->stringSet($datos, true);
-        
+
         $sql = 'INSERT ' . $this->tabla
-            . ' SET ' . $insertString;            
+            . ' SET ' . $insertString;
         if ($soloSQL) {
             $respuesta = $sql;
-        } else {            
+        } else {
             $r = self::consultaDML($sql);
             if ($r !== false) {
                 $respuesta = $r['insert_id'];
-            }            
+            }
         }
         return $respuesta;
     }
 
-    protected function update($datos, $condicion, $soloSQL = false, $deleteNull=false)
+    protected function update($datos, $condicion, $soloSQL = false, $deleteNull = false, $desglosaCondicion = false)
     {
         // @Objetivo
 
@@ -91,16 +101,18 @@ class TFModelo extends ModeloP
 
         // @ Nota:
         // La tabla es la que tenemos asignada en propiedad tabla.
-        $respuesta = false;                
+        $respuesta = false;
         $updateString = $this->stringSet($datos, $deleteNull);
-        $updateWhere = $this->stringCondicion($condicion);
+        $updateWhere = $desglosaCondicion ? $this->arrayToStringCondicion($condicion) : $this->stringCondicion($condicion);
+        error_log('update \n');
+        error_log(json_encode($condicion));
         $sql = 'UPDATE ' . $this->tabla
             . ' SET ' . $updateString
             . ' WHERE ' . $updateWhere;
         if ($soloSQL) {
             $respuesta = $sql;
         } else {
-            $r = self::consultaDML($sql);            
+            $r = self::consultaDML($sql);
             if ($r !== false) {
                 $respuesta = $r['affected_rows'];
             }
@@ -170,6 +182,29 @@ class TFModelo extends ModeloP
         return $stringCondicion;
     }
 
+    protected function arrayToStringCondicion($condiciones, $operador = 'AND')
+    {
+        // @ Objetivo:
+        //   De un array devolver un string con los valores, separados por AND para condicion update de mysql
+        //  $a = ['coche'=>'seat','moto'=>'BMW','avion'=>'spitfire']
+        // "coche = 'seat' AND moto='BMW' AND avion='spitfire'"
+        // @ Parametros:
+        //   $condiciones = Array: columnas sql y valores.
+        //   $operador = 'AND' por defecto si no viene, o 'OR'
+        // @ Devuelve:
+        //   String con las condiciones separadas AND
+
+        $stringCondicion = '';
+        if (is_array($condiciones)) {
+            $stringCondicion = [];
+            foreach ($condiciones as $indice => $valor) {
+                $stringCondicion[] = $indice . ' = ' . entrecomillas($valor);
+            }
+            $stringCondicion = implode(' ' . $operador . ' ', $stringCondicion);
+        }
+        return $stringCondicion;
+    }
+
     public function InfoTabla($tabla, $tipo_campo = 'si')
     {
         // Funcion que nos proporciona informacion de la tabla que le indicamos
@@ -221,6 +256,20 @@ class TFModelo extends ModeloP
         // Devolvemos la conexion para versiones anteriores de modelos.
         return parent::getDbo();
 
+    }
+
+    public function existe(int $id = 0)
+    {
+        $sql = 'SELECT count(id) AS contador FROM ' . $this->tabla . ' WHERE id= ' . $id;
+        $resultado = $this->consulta($sql)['datos'] ? $this->consulta($sql)['datos'][0] : ['contador' => null];
+
+        return $resultado['contador'];
+    }
+
+    public function eliminar($id = 0)
+    {        
+        $sql = 'DELETE FROM  ' . $this->tabla . ' WHERE id=' . $id;
+        return $this->consultaDML($sql);
     }
 
 }
