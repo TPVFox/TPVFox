@@ -4,8 +4,8 @@ include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
 
 //include_once $URLCom . '/clases/CorreoElectronico.php';
-
-$CTareasCron = new CTareasCron();
+dump('-- -1--->'.$RutaDatos);
+$CTareasCron = new CTareasCron($RutaDatos);
 if (isset($_GET['accion'])) {
     $accion = $_GET['accion'];
     switch ($accion) {
@@ -69,6 +69,7 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                         <td><?php echo $tareaCron['ultima_ejecucion'] ?> </td>
                         <td><?php echo $CTareasCron->tareasCron()->textoEstado($tareaCron['estado']) ?> </td>
                         <td>
+
                         <a class="btn btn-primary" href="TareaCron.php?accion=modificar&tarea=<?php echo $tareaCron['id'] ?>">Edit</a>
                         <button class="btn btn-info" type="button" onclick="metodoClick('btn-ejecutar-cron',this)"
                         data-tareaid="<?php echo $tareaCron['id'] ?>"

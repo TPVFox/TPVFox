@@ -19,7 +19,8 @@ function botonEjecutarCron(boton) {
             }
         },
         error: function (request, textStatus, error) {
-            var errores = request.responseJSON.errors;
+            var errores = request.responseJSON;
+            showNotification('bg-deep-orange', 'Hola', 'top', 'right', '', '', '3000', false);
             if (!errores) {
                 errores = [];
                 errores[0] = "AJAX error: " + textStatus + ' : ' + error;

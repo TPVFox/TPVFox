@@ -1,5 +1,7 @@
 <?php
 
+use Clases\Log;
+
 include_once 'MTareasCron.php';
 include_once $URLCom . '/clases/traits/MontarAdvertenciaTrait.php';
 
@@ -11,15 +13,18 @@ class CTareasCron
     protected MTareasCron $tareasCron;
 
     public $tareaCron;
+    protected $logger;
 
-    public function __construct()
+    public function __construct($ruta_datos = '')
     {
         $this->tareasCron = new MTareasCron();
-        $this->tareaCron = $this->tareasCron->initTareaCron();
+        $this->tareaCron = $this->tareasCron->initTareaCron();        
+        dump('--0--->'.$ruta_datos);
+        $this->logger = new Log($ruta_datos);
     }
 
     public function list()
-    {
+    {        
         return $this->tareasCron->getTareas();
     }
 
@@ -30,11 +35,13 @@ class CTareasCron
 
     public function edit(int $tareaid = 0)
     {
+        $this->logger->log('Editar Tarea');
         $this->tareaCron = $this->tareasCron->find($tareaid);
     }
 
     public function crear(): void
     {
+        $this->logger->log('Crear Tarea');
         $this->tareaCron = $this->tareasCron->initTareaCron;
     }
 
