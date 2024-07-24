@@ -112,9 +112,9 @@ class MTareasCron extends TFModelo
         return $this->consultaDML($sql);
     }
 
-    public function updateEstado($estado = Self::ESTADO_ACTIVO)
+    public function updateEstado($estado = Self::ESTADO_ACTIVO, $id=0)
     {
-        $tareaId = $this->tareaCron['id'];
+        $tareaId = $id != 0 ? $id : $this->tareaCron['id'];
         $sql = 'UPDATE  ' . $this->tabla . ' SET estado=' . $estado . ' WHERE id=' . $tareaId;
         return $this->consultaDML($sql);
     }

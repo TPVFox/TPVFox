@@ -46,7 +46,7 @@ class ClaseConexion{
 	}
 
     public function getRutaUpload(){
-        include ($this->ruta_proyecto.'/configuracion.php');
+        include_once ($this->ruta_proyecto.'/configuracion.php');
         return $ruta_upload;
     }
 

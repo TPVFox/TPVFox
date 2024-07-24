@@ -3,18 +3,18 @@
 
 
 
-include_once './../../inicial.php';
+include_once '/var/www/tpv/tpvfox/inicial_comandos.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
 
 $CTareasCron = new CTareasCron();
 
-$mensaje_cabecera = 'Crear Tarea';
+error_log('pasamos por tareas.php --------------          ');
+var_dump($argv);
 
-if (isset($_GET['tareaid'])) {
-    $tareaid = $_GET['tareaid'];
+    $tareaid = $argv[1];
 
     $tarea = $CTareasCron->leer($tareaid);
-    
+var_dump($tarea)    ;
     if ($tarea) {
         $ruta = './tareas/'.$tarea['nombre_clase'].'.php';
 
@@ -30,6 +30,6 @@ if (isset($_GET['tareaid'])) {
     } else {
         echo json_encode(['data' => $tarea]);
     }
-}
+
 
 // Que pasa si no se devuelve nada ??

@@ -1,5 +1,11 @@
 <?php
 
+var_dump('------------------------------------------------------------------------');
+var_dump(file_exists(__DIR__ . '/../../../inicial_cron.php'));
+include_once __DIR__ . '/../../../inicial_cron.php';
+var_dump($URLCom);
+var_dump('------------------------------------------------------------------------');
+exit();
 include_once $URLCom . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/MTareasCron.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/MAcumuladoCompra.php';
@@ -19,6 +25,7 @@ class AcumuladoComprasTarea
 
     public function execute()
     {
+        error_log('pasamos por execute() --------------          ');
         $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);
         $acumulados = $this->acumulado_compra->leer();
         $datos_acumulados = $acumulados['datos'];
@@ -28,7 +35,7 @@ class AcumuladoComprasTarea
     }
 
     public function volcarAcumulados(array $acumulados)
-    {        
+    {
         if (count($acumulados) > 0) {
             $articulo = new alArticulos();
             $suma_cantidad = 0;
@@ -38,8 +45,8 @@ class AcumuladoComprasTarea
                 if ($acumulado['idarticulo'] != $idarticulo) {
                     if ($suma_cantidad != 0) {
                         //Grabar acumulado
-                        $resultado = $articulo->update(['costepromedio' => $suma_coste / $suma_cantidad], ['IdArticulo = '.$idarticulo]);
-                        
+                        $resultado = $articulo->update(['costepromedio' => $suma_coste / $suma_cantidad], ['IdArticulo = ' . $idarticulo]);
+
                     }
                     //inicializar acumulado
                     $suma_cantidad = 0;
@@ -52,9 +59,6 @@ class AcumuladoComprasTarea
                 $this->acumulado_compra->actualizar($acumulado);
 
             }
-            // $coste_medio = $suma_cantidad != 0 ? ($suma_coste / $suma_cantidad) : 0;
-            // $articulo = new alArticulos();
-            // $articulo->update(['costepromedio'=>$coste_medio],['IdArticulo'=>1]);
         }
     }
 }

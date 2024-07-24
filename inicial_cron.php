@@ -8,14 +8,13 @@
 
 
 
-define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
-define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
+// define('FORMATO_FECHA_ES', 'd-m-Y H:m:s');
+// define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 
 $Ruta = __DIR__.'/';
+
 $error_conf = '';
-var_dump('existe configuracion ------------------------------------ '. $Ruta);
-	if (file_exists($Ruta.'configuracion.php')){
-	
+	if (file_exists($Ruta.'configuracion.php')){		
 		include_once ($Ruta.'configuracion.php');
 		if (file_exists($RutaServidor . $HostNombre)){
 			$URLCom = $RutaServidor . $HostNombre;
@@ -27,23 +26,20 @@ var_dump('existe configuracion ------------------------------------ '. $Ruta);
 	}
     if ($error_conf !== ''){
         // hubo un error
-        echo '<pre>';
-			print_r($error_conf);
-		echo '</pre>';
+        error_log($error_conf);
 		exit();
-    }
-	
-    include_once ($URLCom. "/clases/ClaseSession.php");
+    }	
+    // include_once ($URLCom. "/clases/ClaseSession.php");
 	include_once ($URLCom. "/app/helpers.php");
 
 	// Solo creamos objeto si no existe.
 	
-	$thisTpv = new ClaseSession();
-	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. 
+	// $thisTpv = new ClaseSession();
+	// $BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. 
    
-	// [PENDIENTE ] Eliminar mod_conexion/conexionBaseDatos , falta arreglar mod_importar
-	//~ $thisTpv->comprobarEstado();
+	// // [PENDIENTE ] Eliminar mod_conexion/conexionBaseDatos , falta arreglar mod_importar
+	// //~ $thisTpv->comprobarEstado();
 
-	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
-    $ClasePermisos=$thisTpv->permisos;
-	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
+	// $Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
+    // $ClasePermisos=$thisTpv->permisos;
+	// $Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
