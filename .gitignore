@@ -4,3 +4,5 @@ configuracion.php
 # Ignoramos el contenido de carpetas de empresas dentro estatico, pera evitar problema a la hora compartir.
 /estatico/carpintero/
 vendor/
+app/cron/comando_schedule.sh
+

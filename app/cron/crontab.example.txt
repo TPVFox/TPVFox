@@ -1,0 +1,1 @@
+* * * * * /var/www/tpvfox/cron/comando_schedule.sh >> /dev/null 2>&1
