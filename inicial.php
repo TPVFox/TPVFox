@@ -13,7 +13,7 @@ define('FORMATO_FECHA_MYSQL', 'Y-m-d H:m:s');
 
 $Ruta = __DIR__.'/';
 $error_conf = '';
-var_dump('existe configuracion ------------------------------------ '. $Ruta);
+
 	if (file_exists($Ruta.'configuracion.php')){	
 		include_once ($Ruta.'configuracion.php');
 		if (file_exists($RutaServidor . $HostNombre)){
@@ -37,7 +37,7 @@ var_dump('existe configuracion ------------------------------------ '. $Ruta);
 	include_once ($URLCom. "/app/helpers.php");
 
 	// Solo creamos objeto si no existe.
-	
+	if(!isset($thisTpv)){
 	$thisTpv = new ClaseSession();
 	$BDTpv = $thisTpv->getConexion(); // Para la antigua conexion. 
    
@@ -47,3 +47,4 @@ var_dump('existe configuracion ------------------------------------ '. $Ruta);
 	$Usuario= (isset($_SESSION['usuarioTpv']) ? $_SESSION['usuarioTpv'] : array('id'=>0, 'group_id'=>0,'login' =>'invitado'));
     $ClasePermisos=$thisTpv->permisos;
 	$Tienda = (isset($_SESSION['tiendaTpv']) ? $_SESSION['tiendaTpv']: array('razonsocial'=>''));
+	}
