@@ -14,7 +14,7 @@ var_dump($argv);
     $tareaid = $argv[1];
 
     $tarea = $CTareasCron->leer($tareaid);
-var_dump($tarea)    ;
+
     if ($tarea) {
         $ruta = './tareas/'.$tarea['nombre_clase'].'.php';
 

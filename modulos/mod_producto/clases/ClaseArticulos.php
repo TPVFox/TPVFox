@@ -7,6 +7,11 @@
  * @Descripción
  */
 
+if (!isset($RutaServidor)) {
+    $real_path = realpath(__DIR__ . '/../../../');
+    include $real_path . '/configuracion.php';
+}
+
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
 include_once 'ClaseArticulosStocks.php';
 
@@ -25,19 +30,16 @@ class alArticulos extends Modelo
         $this->tabla = 'articulos';
     }
 
-
-    public function insert($datos, $soloSQL = false) {
+    public function insert($datos, $soloSQL = false)
+    {
 
         return parent::insert($datos, $soloSQL);
     }
 
-    public function update($datos, $condicion, $soloSQL = false) {
+    public function update($datos, $condicion, $soloSQL = false)
+    {
         return parent::update($datos, $condicion, $soloSQL);
     }
-
-
-
-
 
     public function leer($idArticulo = 0, $inicio = 1, $pagina = 100)
     {

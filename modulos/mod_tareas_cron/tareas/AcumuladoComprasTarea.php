@@ -1,11 +1,20 @@
 <?php
 
-var_dump('------------------------------------------------------------------------');
-var_dump(file_exists(__DIR__ . '/../../../inicial_cron.php'));
-include_once __DIR__ . '/../../../inicial_cron.php';
-var_dump($URLCom);
-var_dump('------------------------------------------------------------------------');
-exit();
+// var_dump('------------------------------------------------------------------------');
+// $real_path = realpath(__DIR__ . '/../../../');
+// var_dump($real_path);
+// include_once $real_path.'/inicial.php';
+// $URLCom = $real_path;
+// // var_dump('ellll');
+// var_dump($URLCom);
+// var_dump('------------------------------------------------------------------------');
+
+if(!isset($URLCom)){
+    var_dump('------------------------------------------------------------------------');
+    $URLCom = realpath(__DIR__ . '/../../../');
+    var_dump('------------------------------------------------------------------------');
+}
+
 include_once $URLCom . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/MTareasCron.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/MAcumuladoCompra.php';
@@ -13,11 +22,12 @@ include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulos.php';
 
 class AcumuladoComprasTarea
 {
+
     protected MTareasCron $tarea;
-    protected MAcumuladoCompra $acumulado_compra;
+    protected MAcumuladoCompra $acumulado_compra;    
 
     public function __construct(int $tareaid = 0)
-    {
+    {        
         $this->tarea = new MTareasCron();
         $this->tarea->find($tareaid);
         $this->acumulado_compra = new MAcumuladoCompra();
@@ -26,7 +36,7 @@ class AcumuladoComprasTarea
     public function execute()
     {
         error_log('pasamos por execute() --------------          ');
-        $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);
+        $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);        
         $acumulados = $this->acumulado_compra->leer();
         $datos_acumulados = $acumulados['datos'];
         $this->volcarAcumulados($datos_acumulados);

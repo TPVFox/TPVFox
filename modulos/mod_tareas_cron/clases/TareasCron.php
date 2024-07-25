@@ -4,6 +4,8 @@ include_once __DIR__.'/../../../inicial.php';
 //include_once 'inicial.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/MTareasCron.php';
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
+//
+
 class TareasCron
 {
     protected $URLCom;
@@ -24,7 +26,6 @@ class TareasCron
         if ($tareas) {
             foreach ($tareas as $tarea) {
                 $ruta = $this->URLCom . '/modulos/mod_tareas_cron/tareas/' . $tarea['nombre_clase'] . '.php';
-                var_dump($ruta);
                 if (file_exists($ruta)) {
                     if ($tarea['ultima_ejecucion']) {
                         $datetime1 = date_create($tarea['ultima_ejecucion']);
@@ -41,16 +42,18 @@ class TareasCron
                         $ejecutar = true;
                     }
                     if ($ejecutar) {
-                        error_log('ejecutar');
-                        //$tareaCron->updateEstado(MTareasCron::ESTADO_EN_PROCESO, $tarea['id']);
+                        error_log('ejecutar');                        
+                        var_dump('estoy:'.$ruta);
+
                         include_once $ruta;
                         if (!class_exists($tarea['nombre_clase'], false)) {
                             error_log("No carga la clase: " . $tarea['nombre_clase']);
                         } else {
                             var_dump('ejecutando---->' . $tarea['nombre_clase'] . PHP_EOL);
-                            // $objeto = new $tarea['nombre_clase']();
-                            // $objeto->execute();                        
-                            $tareaCron->updateEstado(MTareasCron::ESTADO_ACTIVO, $tarea['id']);
+                            var_dump($tarea['id']);
+                            $objeto = new $tarea['nombre_clase']($tarea['id']);
+                            $objeto->execute();                        
+                            //$tareaCron->updateEstado(MTareasCron::ESTADO_ACTIVO, $tarea['id']);
                         //         $tareaCron->updateFechaEjecucion($tarea['id']);
                         //         //$tareaCron->updateEstado($tarea['id']);
                         //         error_log($tarea['ruta']);
