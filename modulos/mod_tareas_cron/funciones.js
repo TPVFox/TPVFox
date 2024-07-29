@@ -11,10 +11,12 @@ function botonEjecutarCron(boton) {
     $.ajax({
         data: parametros,
         url: 'tareas.php',
-        type: 'get',
+        type: 'post',
         success: function (response) {
-            if (response.data) {
-                console.log('exito->'.response.data);
+            if (response) {
+            var resultado =  $.parseJSON(response);  
+                  
+                console.log(resultado);
                 //$('#contactoModal').modal('hide');
             }
         },

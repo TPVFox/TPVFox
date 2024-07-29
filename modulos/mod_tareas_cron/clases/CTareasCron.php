@@ -10,7 +10,7 @@ class CTareasCron
 
     use MontarAdvertenciaTrait;
 
-    protected MTareasCron $tareasCron;
+    public MTareasCron $tareasCron;
 
     public $tareaCron;
     protected $logger;
@@ -51,8 +51,11 @@ class CTareasCron
             $errores['nombre_clase.empty'] = 'No puede ser vacío';
         }
 
-        if (!is_numeric($datos['periodo'])) {
+        if (!is_numeric($datos['cantidad_periodo'])) {
             $errores['periodo'] = 'Sólo números, por favor';
+        }
+        if (!is_numeric($datos['tipo_periodo'])) {
+            $errores['periodo'] = 'Sólo valores del rango válido, por favor';
         }
 
         if (strlen('nombre') > 50) {

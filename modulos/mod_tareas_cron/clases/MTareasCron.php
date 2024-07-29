@@ -9,6 +9,11 @@ class MTareasCron extends TFModelo
     ESTADO_BAJA = 0,
     ESTADO_FICHERO_NO_ENCONTRADO = 3;
 
+    const PERIODO_MINUTOS = 1,
+    PERIODO_HORAS = 2,
+    PERIODO_DIAS = 3,
+    PERIODO_MESES = 4;
+
     private array $textosEstado = [
         'Baja',
         'activo',
@@ -17,11 +22,29 @@ class MTareasCron extends TFModelo
 
     ];
 
+    private array $textosPeriodo = [
+        1=>'Minutos',
+        2=>'Horas',
+        3=>'Días',
+        4=>'Meses',
+
+    ];
+
     private array $tareaCron = [];
 
     public function textoEstado($estado = 1)
     {
         return $this->textosEstado[$estado];
+    }
+
+    public function textoPeriodo($tipo_periodo = 1)
+    {
+        return $this->textosPeriodo[$tipo_periodo];
+    }
+
+    public function getTipoPeriodos()
+    {
+        return $this->textosPeriodo;
     }
 
     public function __construct()
@@ -35,8 +58,10 @@ class MTareasCron extends TFModelo
         $this->tareaCron = [
             'id' => null,
             'nombre' => '',
-            'periodo' => '',
+            'cantidad_periodo' => '',
+            'tipo_periodo' => self::PERIODO_MINUTOS,
             'nombre_clase' => '',
+            'inicio_ejecucion' => date(FORMATO_FECHA_ES),
             'ultima_ejecucion' => null,
             'estado' => self::ESTADO_ACTIVO,
         ];
