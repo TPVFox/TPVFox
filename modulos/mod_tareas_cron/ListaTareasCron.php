@@ -53,8 +53,9 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                         <tr>
                             <th></th>
                             <th>Nombre</th>
-                            <th>Período (minutos)</th>
+                            <th>Período </th>
                             <th>Clase</th>
+                            <th>Inicio ejecución</th>
                             <th>Última ejecución</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -65,8 +66,9 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                     <tr>
                         <td><input class="rowCheck" type="checkbox" name="informe" value="1">
                         <td><?php echo $tareaCron['nombre'] ?></td>
-                        <td><?php echo $tareaCron['periodo'] ?> </td>
+                        <td><?php echo $tareaCron['cantidad_periodo'] ?> <?php echo $CTareasCron->tareasCron->textoPeriodo($tareaCron['tipo_periodo']) ?></td>
                         <td><?php echo $tareaCron['nombre_clase'] ?></td>
+                        <td><?php echo date_format( date_create($tareaCron['inicio_ejecucion']),'d/m/Y') ?> </td>
                         <td><?php echo $tareaCron['ultima_ejecucion'] ?> </td>
                         <td><?php echo $CTareasCron->tareasCron()->textoEstado($tareaCron['estado']) ?> </td>
                         <td>

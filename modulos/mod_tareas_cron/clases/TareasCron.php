@@ -15,6 +15,27 @@ class TareasCron
         $this->URLCom = $urlcom;
     }
 
+
+private function periodo_to_minutos($cantidad = 0, $tipo){
+
+    
+    switch($tipo){
+        case 2: //Horas
+            $cantidad = $cantidad * 60;
+            break;
+        case 3: //dias
+            $cantidad = $cantidad * 24 * 60;
+            break;
+        case 3: //meses
+            $cantidad = $cantidad * 30 * 24 * 60;
+            break;
+        }
+
+    return $cantidad;
+
+}
+
+
     public function execute(): void
     {
         error_log('Paso por aqui-ClaseTareasCron-->' . time());
@@ -25,19 +46,26 @@ class TareasCron
         error_log(json_encode($tareas));
         if ($tareas) {
             foreach ($tareas as $tarea) {
-                $ruta = $this->URLCom . '/modulos/mod_tareas_cron/tareas/' . $tarea['nombre_clase'] . '.php';
+                $ruta = $this->URLCom . '/modulos/mod_tareas_cron/tareas/' . $tarea['nombre_clase'] . '.php';                
                 if (file_exists($ruta)) {
+                    $ejecutqar = false;
                     if ($tarea['ultima_ejecucion']) {
+                        $fecha_inicio = date_create($tarea['inicio_ejecucion']);
                         $datetime1 = date_create($tarea['ultima_ejecucion']);
+                        if($datetime1 >= $fecha_inicio){
                         $datetime2 = date_create();
                         $intervalo = date_diff($datetime1, $datetime2);
-                        error_log(json_encode($intervalo));
+                        
+                        $minutos_periodo = $this->periodo_to_minutos($tarea['cantidad_periodo'], $tarea['tipo_periodo']);
 
                         $minutos = $intervalo->days * 24 * 60;
                         $minutos += $intervalo->h * 60;
                         $minutos += $intervalo->i;
-                        error_log(json_encode($minutos));
-                        $ejecutar = $minutos >= $tarea['periodo'];
+                        
+                        $ejecutar = $minutos >= $minutos_periodo;
+                        error_log( $ruta);
+                        error_log( $ejecutar ? 'SI ejecutar' : 'NO ejecutar');
+                        }
                     } else {
                         $ejecutar = true;
                     }
