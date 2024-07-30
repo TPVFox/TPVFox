@@ -35,12 +35,13 @@ class AcumuladoComprasTarea
 
     public function execute()
     {
-        error_log('pasamos por execute() --------------          ');
+        error_log('pasamos por execute() ------AcumuladoComprasTarea--------          ');
+        error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']);
         $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);        
         $acumulados = $this->acumulado_compra->leer();
         $datos_acumulados = $acumulados['datos'];
         $this->volcarAcumulados($datos_acumulados);
-        $this->tarea->updateEstado(MTareasCron::ESTADO_ACTIVO);
+        $this->tarea->updateFechaEjecucion(($this->tarea->getTareaCron())['id']);
         //ejecutaFinTarea('AcumuladoComprasTarea');
     }
 

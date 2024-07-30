@@ -7,7 +7,8 @@ class MTareasCron extends TFModelo
     const ESTADO_ACTIVO = 1,
     ESTADO_EN_PROCESO = 2,
     ESTADO_BAJA = 0,
-    ESTADO_FICHERO_NO_ENCONTRADO = 3;
+    ESTADO_FICHERO_NO_ENCONTRADO = 3,
+    ESTADO_ERROR_EN_PROCESO = 4;
 
     const PERIODO_MINUTOS = 1,
     PERIODO_HORAS = 2,
@@ -66,6 +67,10 @@ class MTareasCron extends TFModelo
             'estado' => self::ESTADO_ACTIVO,
         ];
 
+    }
+
+    public function getTareaCron(){
+        return $this->tareaCron;
     }
 
     public function leer(int $id = 0)
@@ -146,7 +151,12 @@ class MTareasCron extends TFModelo
 
     public function updateFechaEjecucion($tareaId, $withEstadoActivo = true)
     {
-        $sql = 'UPDATE  ' . $this->tabla . ' SET ultima_ejecucion="' . date_create('now')->format('Y-m-d') . '", estado=' . Self::ESTADO_ACTIVO . ' WHERE id=' . $tareaId;
+        $sql = 'UPDATE  ' . $this->tabla . ' SET ultima_ejecucion="' . date(FORMATO_FECHA_MYSQL) . '"';
+        if($withEstadoActivo){
+            $sql .= ', estado=' . Self::ESTADO_ACTIVO;
+        }
+        $sql .= ' WHERE id=' . $tareaId;
+        
         return $this->consultaDML($sql);
     }
     

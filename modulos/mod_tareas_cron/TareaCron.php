@@ -73,7 +73,7 @@ if (isset($errores) && count($errores) > 0) {
   			        </div>
                     <div class="col-2">
                         <label for="periodo" >Período:</label>
-                        <input name="cantidad_periodo" id="periodo" value="<?php echo $CTareasCron?->tareaCron['periodo'] ?>" />
+                        <input name="cantidad_periodo" id="periodo" value="<?php echo $CTareasCron?->tareaCron['cantidad_periodo'] ?>" />
   			        </div>
                     <div class="col-3">
                         <label for="select_tipo_periodo" >Tipo de Período:</label>
