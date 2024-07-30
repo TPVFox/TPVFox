@@ -18,12 +18,13 @@ if ($tarea) {
         include_once $ruta;
         $objeto = new ($tarea['nombre_clase'])($tareaid);
         $objeto->execute();
+        $respuesta = ['mensaje' => 'ejecutado --->' . $ruta, 'error'=>0];
     } else {
         $CTareasCron->tareasCron()->updateEstado($tareaid, MTareasCron::ESTADO_FICHERO_NO_ENCONTRADO);
         $respuesta = ['mensaje' => 'NO ejecutable --->' . $ruta, 'error'=>1];
     }
 } else {
-    $respuesta = ['data' => $tarea, 'error'=>0];
+    $respuesta = ['data' => $tarea, 'error'=>2];
 }
 echo json_encode($respuesta);
 // Que pasa si no se devuelve nada ??

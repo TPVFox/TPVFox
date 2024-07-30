@@ -13,7 +13,7 @@ class MAcumuladoCompra extends TFModelo
     public function leer()
     {
         $sql = 'SELECT lineas.idArticulo AS idarticulo, YEAR(albaranes.Fecha) as year, MONTH(albaranes.Fecha) as month,';
-        $sql .= ' SUM(costeSiva) as coste, IF( SUM(ncant) <> 0, (SUM(costeSiva * ncant)/SUM(ncant)),0) as costemedio, SUM(ncant) as cantidad ';
+        $sql .= 'IF( SUM(ncant) <> 0, (SUM(costeSiva * ncant)/SUM(ncant)), 0) as costemedio, SUM(ncant) as cantidad ';
         $sql .= 'FROM `albprolinea` as lineas';
         $sql .= ' LEFT OUTER JOIN albprot as albaranes ON (albaranes.id=lineas.idalbpro) GROUP BY idarticulo, year, month';
         $sql .= ' ORDER BY idarticulo, year, month';

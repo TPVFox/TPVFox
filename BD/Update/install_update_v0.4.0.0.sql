@@ -8,7 +8,7 @@ CREATE TABLE tareas_cron (
  `tipo_periodo` INT(2) NOT NULL , 
  `nombre_clase` VARCHAR(50) NOT NULL ,
  `inicio_ejecucion` DATE NOT NULL, 
- `ultima_ejecucion` DATE NULL, 
+ `ultima_ejecucion` DATETIME NULL, 
  `estado` INT(2) NOT NULL DEFAULT 1, 
  PRIMARY KEY (`id`)
  ) ENGINE = InnoDB;
@@ -29,8 +29,7 @@ CREATE TABLE `acumulado_compras` (
   `year` smallint(4) UNSIGNED NOT NULL,
   `month` tinyint(2) UNSIGNED NOT NULL,
   `idArticulo` int(11) NOT NULL,
-  `cantidad` decimal(17,6) NOT NULL,
-  `coste` decimal(17,6) NOT NULL,
+  `cantidad` decimal(17,6) NOT NULL,  
   `costemedio` double NOT NULL,
   `update_at` date NOT NULL,
   PRIMARY KEY (`id`)
@@ -39,3 +38,14 @@ CREATE TABLE `acumulado_compras` (
 ALTER TABLE `acumulado_compras` ADD CONSTRAINT `articulo` FOREIGN KEY (`idArticulo`) REFERENCES `articulos`(`idArticulo`) ;
 
 ALTER TABLE `tpvfox`.`acumulado_compras` ADD UNIQUE `year_month_articulo` (`year`, `month`, `idArticulo`);
+
+DROP TABLE IF EXISTS `diario_cron`;
+CREATE TABLE `diario_cron` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(150) NOT NULL ,
+  `ejecucion` TIMESTAMP NOT NULL, 
+  `tarea_id` int(11) NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `diario_cron` ADD CONSTRAINT `diario_cron_tarea` FOREIGN KEY (`tarea_id`) REFERENCES `tareas_cron` (`id`) ;
