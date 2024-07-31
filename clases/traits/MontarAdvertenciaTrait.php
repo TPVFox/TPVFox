@@ -2,7 +2,6 @@
 
 trait MontarAdvertenciaTrait
 {
-
     public function montarAdvertencia($tipo, $mensaje, $html = 'KO')
     {
         // @ Objetivo:
