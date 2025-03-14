@@ -37,7 +37,7 @@ CREATE TABLE `acumulado_compras` (
 
 ALTER TABLE `acumulado_compras` ADD CONSTRAINT `articulo` FOREIGN KEY (`idArticulo`) REFERENCES `articulos`(`idArticulo`) ;
 
-ALTER TABLE `tpvfox`.`acumulado_compras` ADD UNIQUE `year_month_articulo` (`year`, `month`, `idArticulo`);
+ALTER TABLE `acumulado_compras` ADD UNIQUE `year_month_articulo` (`year`, `month`, `idArticulo`);
 
 DROP TABLE IF EXISTS `diario_cron`;
 CREATE TABLE `diario_cron` (
