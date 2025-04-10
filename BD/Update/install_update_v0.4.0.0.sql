@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `diario_cron`;
 CREATE TABLE `diario_cron` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion` VARCHAR(150) NOT NULL ,
-  `ejecucion` TIMESTAMP NOT NULL, 
+  `ejecucion` TIMESTAMP NOT NULL DEFAULT current_timestamp(), 
   `tarea_id` int(11) NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
