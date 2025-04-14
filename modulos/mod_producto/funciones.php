@@ -669,51 +669,67 @@ function htmlBuscarProveedor($busqueda,$dedonde, $proveedores,$descartados){
     //      $provedores -> (array) Con o sin datos de los proveedores que encontramos.
     //      $descartados-> (array) Con o sin datos de los proveedores descartados, porque ya los tiene añadidos.
     $resultado = array();
-    $resultado['encontrados'] = count($proveedores);
-    $resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
-                    .'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
-                    .'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda
-                    .'" onkeydown="controlEventos(event)" type="text">';
+    if (!is_null($proveedores)){
+        $resultado['encontrados'] = count($proveedores);
+        $resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
+                        .'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
+                        .'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda
+                        .'" onkeydown="controlEventos(event)" type="text">';
+                    
+        if (count($proveedores)>10){
+            $resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
+        }
+        $resultado['html'] .= '<table class="table table-striped"><thead>'
+                            . ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
+        if (count($proveedores)>0){
+            $contad = 0;
+            foreach ($proveedores as $proveedor){  
                 
-    if (count($proveedores)>10){
-        $resultado['html'] .= '<span>10 proveedores de '.count($proveedores).'</span>';
-    }
-    $resultado['html'] .= '<table class="table table-striped"><thead>'
-                        . ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
-    if (count($proveedores)>0){
-        $contad = 0;
-        foreach ($proveedores as $proveedor){  
-            
-            $razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
-            $datos =    "'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
-            $idFila = 'Fila_'.$contad;
-            $resultado['html']  .= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('
-                                ."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">'
-                                .'<td id="C'.$contad.'_Lin" >'
-                                .'<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
-                                .'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
-                                . '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
-                                . '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
-                                . '<td>'.$proveedor['nif'].'</td>'
-                                .'</tr>';
-            $contad = $contad +1;
-            if ($contad === 10){
-                break;
+                $razonsocial_nombre=$proveedor['nombrecomercial'].' - '.$proveedor['razonsocial'];
+                $datos =    "'".$proveedor['idProveedor']."','".addslashes(htmlentities($razonsocial_nombre,ENT_COMPAT))."'";
+                $idFila = 'Fila_'.$contad;
+                $resultado['html']  .= '<tr class="FilaModal" id="'.$idFila.'" onclick="seleccionProveedor('
+                                    ."'".$dedonde."'".' , '."'".$proveedor['idProveedor']."'".')">'
+                                    .'<td id="C'.$contad.'_Lin" >'
+                                    .'<input id="N_'.$contad.'" name="filaproveedor" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+                                    .'<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+                                    . '<td>'.htmlspecialchars($proveedor['nombrecomercial'],ENT_QUOTES).'</td>'
+                                    . '<td>'.htmlentities($proveedor['razonsocial'],ENT_QUOTES).'</td>'
+                                    . '<td>'.$proveedor['nif'].'</td>'
+                                    .'</tr>';
+                $contad = $contad +1;
+                if ($contad === 10){
+                    break;
+                }
+                
             }
-            
-        }
-    } 
-    $resultado['html'] .='</tbody></table>';
-    // Ahora mostramos los proveedores descartados.
-    
-    if (count($descartados) > 0){
-        $resultado['html'] .='<div class="alert alert-danger">'
-                            .'<h4>Proveedores descartados porque ya existen</h4>';
-        foreach ($descartados as $descartado){
-            $resultado['html'] .='<p>'.$descartado['nombrecomercial'].' - '.$descartado['razonsocial'].'</p>';
-        }
-        $resultado['html'] .='</div>';
+        } 
+        $resultado['html'] .='</tbody></table>';
+        // Ahora mostramos los proveedores descartados.
+        
+        if (count($descartados) > 0){
+            $resultado['html'] .='<div class="alert alert-danger">'
+                                .'<h4>Proveedores descartados porque ya existen</h4>';
+            foreach ($descartados as $descartado){
+                $resultado['html'] .='<p>'.$descartado['nombrecomercial'].' - '.$descartado['razonsocial'].'</p>';
+            }
+            $resultado['html'] .='</div>';
 
+        }
+    } else {
+        $resultado['html'] = '<label>Busqueda Proveedor en '.$dedonde.'</label>'
+                        .'<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
+                        .'size="13" data-obj="cajaBusquedaproveedor" value="'.$busqueda
+                        .'" onkeydown="controlEventos(event)" type="text">';
+         
+        $resultado['html'] .= '<table class="table table-striped"><thead>'
+                            . ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
+
+        $resultado['html'] .='</tbody></table>';
+        $resultado['html'] .='<div class="alert alert-danger">'
+                                .'<h4>No existe ningun proveedor valido con los terminos de busqueda</h4>';
+        $resultado['html'] .='<p>'.$busqueda.'</p>';
+        $resultado['html'] .='</div>';
     }
     // Ahora generamos objetos de filas.
     // Objetos queremos controlar.
