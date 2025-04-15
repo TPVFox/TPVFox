@@ -62,7 +62,8 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                         </tr>
                     </thead>
 
-                <?php foreach ($tareasCron as $tareaCron) {?>
+                <?php if(isset($tareasCron)) {
+					foreach ($tareasCron as $tareaCron) {?>
                     <tr>
                         <td><input class="rowCheck" type="checkbox" name="informe" value="1">
                         <td><?php echo $tareaCron['nombre'] ?></td>
@@ -82,7 +83,7 @@ include_once $URLCom . '/modulos/mod_menu/menu.php';
                         data-tarea-nombre="<?php echo $tareaCron['nombre'] ?>"
                         data-url="<?php echo 'ListaTareasCron.php?accion=eliminar&tareaid=' . $tareaCron['id'] ?>">Eliminar</button> </td>
                     </tr>
-                <?php }?>
+                <?php }}?>
 			</div>
 		</div>
 	</div>
