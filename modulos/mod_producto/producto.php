@@ -83,18 +83,54 @@ if ( !isset($Producto['proveedores_costes'])) {
     }
 } 
 // ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
+$albaranes_ultimo = $CTArticulos->getUltimoPrecioCompra($Producto['idArticulo']);
 $proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
 
 // Ahora comprobamos si el coste ultimo es correcto.
-if (number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
-    $success = array ( 'tipo'=>'warning',
-                         'mensaje' =>'El ultimo coste, se acaba de actualizar, coste_actual: '
-                         .$Producto['ultimoCoste']. ' y coste_ultimo real:'.$proveedores_costes['coste_ultimo'],
-                         'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
-                        );
-    $Producto['comprobaciones'][] = $success;
-    // Ahora cambiamos el coste_ultimo
-    $Producto['ultimoCoste'] = $proveedores_costes['coste_ultimo'];			
+if (isset($albaranes_ultimo) ||   isset($proveedores_costes['coste_ultimo'])){
+    // Verificamos que no hemos actualizado el coste de producto
+    $actualizado = false;
+    $valor_actualizado = 0.00;
+    // Comprobamos el precio del producto con el albaran
+    if (isset($albaranes_ultimo) &&
+        number_format($albaranes_ultimo,2) != number_format($Producto['ultimoCoste'],2)){
+        $success = array ( 'tipo'=>'warning',
+                            'mensaje' =>'El ultimo coste, se acaba de actualizar con respecto al ultimo precio del albaran, coste_actual: '
+                            .$Producto['ultimoCoste']. ' y coste_ultimo real: '.$albaranes_ultimo,
+                            'dato' => array($albaranes_ultimo,$Producto['ultimoCoste'])
+                            );
+        // Ahora cambiamos el coste_ultimo
+        $valor_actualizado = $albaranes_ultimo;
+        $Producto['comprobaciones'][] = $success;
+        $actualizado = true;			
+    }
+    // Comprobamos el precio del producto con el proveedor y damos un aviso del estado
+    if (isset($proveedores_costes['coste_ultimo']) &&
+        $actualizado &&
+        number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
+        $success = array ( 'tipo'=>'warning',
+                            'mensaje' =>'El proveedor tiene un precio de tarifa que no coincide con el coste actual, coste_actual: '
+                            .$Producto['ultimoCoste']. ' y coste_ultimo real: '.$proveedores_costes['coste_ultimo'],
+                            'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
+                            );
+        $Producto['comprobaciones'][] = $success;
+    }
+    // Comprobamos el precio del producto con el proveedor y actualizamos el precio del producto
+    if (isset($proveedores_costes['coste_ultimo']) &&
+        !$actualizado &&
+        number_format($proveedores_costes['coste_ultimo'],2) != number_format($Producto['ultimoCoste'],2)){
+        $success = array ( 'tipo'=>'warning',
+                            'mensaje' =>'El ultimo coste,  se acaba de actualizar con respecto al precio del proveedor, coste_actual: '
+                            .$Producto['ultimoCoste']. ' y coste_ultimo real: '.$proveedores_costes['coste_ultimo'],
+                            'dato' => array($proveedores_costes['coste_ultimo'],$Producto['ultimoCoste'])
+                            );
+        $Producto['comprobaciones'][] = $success;
+        // Ahora cambiamos el coste_ultimo
+        $valor_actualizado = $proveedores_costes['coste_ultimo'];			
+    }
+    if ($valor_actualizado != 0.00){
+        $Producto['ultimoCoste'] = $valor_actualizado;
+    }
 }
 
 // Cargamos el plugin que nos interesa.

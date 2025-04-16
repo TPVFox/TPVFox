@@ -216,6 +216,35 @@ class ClaseProductos extends ClaseTablaArticulos{
 
     }
 
+    public function getUltimoPrecioCompra($idArticulo){
+        // @ Objetivo
+        // Obtener el ultimo precio de compra de un producto.
+        $idArticulo = intval($idArticulo); // asumiendo que es numérico
+        $sql = "
+            SELECT costeSIva 
+            FROM (
+                SELECT 
+                    ROW_NUMBER() OVER (PARTITION BY idArticulo ORDER BY fecha DESC ) AS row_num,
+                    fecha,
+                    idArticulo,
+                    costeSIva 
+                FROM albprolinea AS lineas
+                LEFT OUTER JOIN albprot AS albaranes 
+                    ON albaranes.id = lineas.idalbpro
+                WHERE idArticulo = $idArticulo
+            ) AS ranked
+            WHERE row_num = 1
+        ";
+    
+        $respuesta = parent::Consulta($sql);
+        
+        if (!empty($respuesta['Items'][0]['costeSIva'])) {
+            return round(floatval($respuesta['Items'][0]['costeSIva']), 2);
+        }
+    
+        return null;
+    }
+
     public function cambiarTienda($id){
         // @Objetivo
         // Cambiar el id de la tienda , por si queremos buscar en otras tiendas simplemente.
