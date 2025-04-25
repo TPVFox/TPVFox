@@ -107,8 +107,14 @@ function controladorAcciones(caja,accion, tecla){
 			// Comprobamos si cambio valor , sino no hacemos nada.
 			console.log('¿de donde?');
 			console.log(caja.darParametro('dedonde'));
-			productos[nfila].nunidades = caja.darValor();
-			productos[nfila].ncant=caja.darValor();
+			// Comprobamos si es un numero correcto.
+			if (comprobarNumero(caja.darValor())){
+				productos[nfila].nunidades = caja.darValor();
+				productos[nfila].ncant=caja.darValor();
+			} else {
+                alert( ' No es correcto el numero');
+                $('#'+caja.id_input).val('1');
+            }
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
 			if (caja.tipo_event !== "blur"){
                 ponerFocus( ObtenerFocusDefectoEntradaLinea());
@@ -117,17 +123,21 @@ function controladorAcciones(caja,accion, tecla){
 		
 		case 'recalcular_precioSiva':
 			var nfila = parseInt(caja.fila)-1;
-			productos[nfila].precioCiva = caja.darValor();
-			var divisor = 1 + productos[nfila].iva / 100;
-			var pvpSiva = productos[nfila].precioCiva / divisor;
-			pvpSiva = pvpSiva.toFixed(2);
-			productos[nfila].pvpSiva = pvpSiva;
-			
-			var id = '#pvpSiva_'+productos[nfila].nfila;	
-			$(id).html(pvpSiva);
+			if (comprobarNumero(caja.darValor())){
+				productos[nfila].precioCiva = caja.darValor();
+				var divisor = 1 + productos[nfila].iva / 100;
+				var pvpSiva = productos[nfila].precioCiva / divisor;
+				pvpSiva = pvpSiva.toFixed(2);
+				productos[nfila].pvpSiva = pvpSiva;
+				
+				var id = '#pvpSiva_'+productos[nfila].nfila;	
+				$(id).html(pvpSiva);
 
+			} else {
+                alert( ' No es correcto el numero');
+                $('#'+caja.id_input).val(productos[nfila].precioCiva);
+            }
 			recalculoImporte(productos[nfila].nunidades,nfila, caja.darParametro('dedonde'));
-
 
 		break;
         
@@ -379,4 +389,24 @@ function ponerSelect (destino_focus){
 		jQuery('#'+destino_focus.toString()).select(); 
 	}, 50); 
 
+}
+
+function comprobarNumero(valor){
+    // Objetivo validar un numero decimal tanto positivo , como negativo.
+    var RE = /^\-?\d*\.?\d*$/;
+    console.log(typeof valor);
+    if (typeof valor === 'string'){
+        if (valor.substr(-10,1) === '0'){
+            if (valor.substr(-10,2) !== '0.'){
+                // Comprobamos que el siguiente numero es . sino genera un error.
+                return false;
+            }
+        }
+    }
+    if (RE.test(valor)) {
+        return true;
+    } else {
+        return false;
+    }
+    
 }
