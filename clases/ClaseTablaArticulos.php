@@ -32,6 +32,8 @@ class ClaseTablaArticulos{
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal = array(); // Array con datos del proveedor principal
     public $productos_historico;
+	public $albaranes = array(); // Array de albaranes del producto
+	public $pedidos = array(); // Array de pedidos del producto
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
 	public $ref_tiendas = array() ; // (array) Se utiliza para guardar las referencias distintas tiendas.
     public $stocks = array('stockMin' =>0,'stockMax'=>0,'stockOn'=>0);
@@ -176,7 +178,10 @@ class ClaseTablaArticulos{
 			// Obtenemos Codbarras a las que pertenece ese producto
 			$this->ObtenerCodbarrasProducto($this->idArticulo);
             $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
-                        
+            // Obtenemos lista de albaranes para el producto
+			$this->ObtenerAlbaranesProducto($this->idArticulo);
+			// Obtenemos lista de pedidos para el producto
+			$this->ObtenerPedidosProducto($this->idArticulo);            
 			// Por ultimo realizamos comprobaciones.
 			$this->Comprobaciones();
 		}
@@ -447,7 +452,57 @@ class ClaseTablaArticulos{
 			}
 		}
 	}
+	public function ObtenerAlbaranesProducto($id){
+		// Objetivo:
+		// Obtener los albaranes de un producto.
+		// @ Parametro:
+		// 		$id -> (int) Id del producto.
+		// @ Devuelve:
+		// 		Array con los albaranes del producto.
+		$sql = "SELECT
+					albprolinea.*, 
+				    albprot.*, 
+    				proveedores.razonsocial
+				FROM albprolinea 
+				INNER JOIN albprot ON albprolinea.idalbpro = albprot.id
+				INNER JOIN proveedores ON albprot.idProveedor = proveedores.idProveedor
+				WHERE idArticulo = $id
+				ORDER BY Fecha DESC
+				LIMIT 15;
+				";
+        $consulta = $this->Consulta($sql);
+        if(isset($consulta['Items'])){
+            $this->albaranes=$consulta['Items'];
+        } else {
+            $this->albaranes = array();
+        }
+	}
+	public function ObtenerPedidosProducto($id){
+		// Objetivo:
+		// Obtener los pedidos de un producto.
+		// @ Parametro:
+		// 		$id -> (int) Id del producto.
+		// @ Devuelve:
+		// 		Array con los pedidos del producto.
 	
+		$sql = "SELECT
+					pedprolinea.*, 
+				    pedprot.*, 
+					proveedores.razonsocial
+				FROM pedprolinea 
+				INNER JOIN pedprot ON pedprolinea.idpedpro = pedprot.id
+				INNER JOIN proveedores ON pedprot.idProveedor = proveedores.idProveedor
+				WHERE idArticulo = $id
+				ORDER BY Fecha DESC
+				LIMIT 15;
+				";
+		$consulta = $this->Consulta($sql);
+		if(isset($consulta['Items'])){
+			$this->pedidos=$consulta['Items'];
+		} else {
+			$this->pedidos = array();
+		}
+	}
 	public function SetComprobaciones($error){
 		// Objetivo 
 		// Añadir al array una comprobacion.

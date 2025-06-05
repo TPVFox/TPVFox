@@ -234,6 +234,64 @@ function  htmlTablaProveedoresCostes($proveedores,$borrar_ref_prov){
     return $html;
 } 
 
+function htmlTablaAlbaranes($albaranes){
+    $lineas=0;
+    $html =  '<table id="thitorico" class="table table-striped">'
+            .'      <thead>'
+            .'          <tr>'
+            .'              <th>Fecha</th>'
+            .'              <th>Nº Albaran</th>'
+            .'              <th>Proveedor</th>'
+            .'              <th>Coste</th>'
+            .'              <th>Estado</th>'
+            .'              <th></th>'
+            .'          </tr>'
+            .'      </thead>';
+            if(isset($albaranes)){
+                $lineas=$lineas+1;
+                foreach ($albaranes as $albaran){
+                    $html.='<tr>'
+                            .'<td>'.date_format(date_create($albaran['Fecha']), 'd-m-Y').'</td>'
+                            .'<td>'.$albaran['Numalbpro'].'</td>'
+                            .'<td>'.$albaran['razonsocial'].'</td>'
+                            .'<td>'.$albaran['costeSiva'].'</td>'
+                            .'<td>'.$albaran['estado'].'</td>'
+                            .'<td><a class=
+                            "glyphicon glyphicon-new-window" href="../../modulos/mod_compras/albaran.php?id='.$albaran['Numalbpro'].'&accion=ver"></a></tr>';
+                }
+            }
+            $html .= '</table>  ';
+    return $html;
+}
+
+function htmlTablaPedidos($pedidos){
+    $lineas=0;
+    $html =  '<table id="thitorico" class="table table-striped">'
+            .'      <thead>'
+            .'          <tr>'
+            .'              <th>Fecha</th>'
+            .'              <th>Nº pedido</th>'
+            .'              <th>Proveedor</th>'
+            .'              <th>Coste</th>'
+            .'              <th>Estado</th>'
+            .'              <th></th>'
+            .'          </tr>'
+            .'      </thead>';
+            if(isset($pedidos)){
+                $lineas=$lineas+1;
+                foreach ($pedidos as $pedido){
+                    $html.='<tr>'
+                            .'<td>'.date_format(date_create($pedido['Fecha']), 'd-m-Y').'</td>'
+                            .'<td>'.$pedido['id'].'</td>'
+                            .'<td>'.$pedido['razonsocial'].'</td>'
+                            .'<td>'.$pedido['costeSiva'].'</td>'
+                            .'<td>'.$pedido['estado'].'</td>'
+                            .'<td><a class="glyphicon glyphicon-new-window" href="../../modulos/mod_compras/pedido.php?id='.$pedido['id'].'&accion=ver"></a></tr>';
+                }
+            }
+            $html .= '</table>  ';
+    return $html;
+}
 
 function  htmlTablaRefTiendas($crefTiendas,$link,$permiso_borrar=0){
     // @ Objetivo

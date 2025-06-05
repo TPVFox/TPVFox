@@ -206,12 +206,18 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     $htmltabla[] = array (  'titulo' => 'Proveedores - Costes',
                                     'html' => htmlTablaProveedoresCostes($proveedores_costes['proveedores'],$borrar_ref_prov)
                                 );
+    $htmltabla[] = array (  'titulo' => 'Albaranes de Compra',
+                                    'html' => htmlTablaAlbaranes($Producto['albaranes'])
+                                );
+    $htmltabla[] = array (  'titulo' => 'Pedidos de Compra',
+                                    'html' => htmlTablaPedidos($Producto['pedidos'])
+                                );
     $htmltabla[] = array (  'titulo' => 'Familias',
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
-    //~ echo '<pre>';
-    //~ print_r($datosWebCompletos);
-    //~ echo '</pre>';
+    // echo '<pre>';
+    // print_r($Producto);
+    // echo '</pre>';
     if (isset ( $datosWebCompletos['datosWeb']) == true && !isset($datosWebCompletos['errores']) ){
         if ($datosWebCompletos['datosWeb']['estado'] == 0 ){
         $linkVirtuemart = 'No esta publicado';
