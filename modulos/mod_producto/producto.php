@@ -234,6 +234,47 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     $htmltabla[] = array (  'titulo' => 'Historico Precios.<span class="glyphicon glyphicon-info-sign" title="Ultimos 15 cambios precios"></span>',
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
                                 );
+
+    if (isset($cambio_precio) & !isset($relacion_balanza['error'])){
+        include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
+        $traductorBalanza = new ClaseComunicacionBalanza();
+        $idBalanza = 1;
+        foreach ($relacion_balanza as $relacion){
+            if ($relacion['idBalanza'] == $idBalanza){
+                $datosH2 = array(
+                    'codigo' => $Producto['cref_tienda_principal'], //Obligatorio
+                    'nombre' => $Producto['articulo_name'], //Obligatorio
+                    'precio' => $Producto['pvpCiva'], //Obligatorio
+                    'PLU' => $relacion_balanza[0]['plu'],
+                );
+                $datosH3 = array(
+                    'codigo' => $Producto['cref_tienda_principal'], //Obligatorio
+                    'tipoProducto' => $Producto['tipo'], //Obligatorio
+                    'iva' => $Producto['iva'], //Obligatorio
+                    'seccion' => $relacion_balanza[0]['tecla'],
+                );
+                $traductorBalanza->setH2Data($datosH2);
+                $traductorBalanza->setH3Data($datosH3);
+                $salida = $traductorBalanza->traducirH2();
+                $salida .= $traductorBalanza->traducirH3();
+                
+                file_put_contents($RutaServidor . $rutatmp ."/filetx", $salida);
+
+                // Comprobamos si existe baltty
+                $directorioBalanza = $RutaServidor . $rutatmp;
+                $traductorBalanza->setRutaBalanza($directorioBalanza);
+                $traductorBalanza->ejecutarDriverBalanza();
+
+
+                // También mostrar en pantalla
+                echo "<pre>";
+                print_r($salida);
+                print_r($traductorBalanza->getAlertas());
+                echo "</pre>";
+                break;
+            }
+        }
+    }
  // -------------- Obtenemos de parametros cajas con sus acciones en JS ---------------  //
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
 ?>

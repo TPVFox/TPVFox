@@ -57,6 +57,9 @@ if ($id >0 ){
 		
 		
 		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$Usuario['id']);
+		if ($comprobaciones['pvpCiva_antes'] !== $comprobaciones['pvpCiva_nuevo']){
+			$cambio_precio = true;
+		}
 		foreach ($comprobaciones['mensajes'] as $mensaje){
 			$preparados['comprobaciones'][]= $mensaje;
 		}
