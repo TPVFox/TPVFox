@@ -13,7 +13,7 @@ class ClaseComunicacionBalanza {
     // Propiedad de la ruta de la balanza
     protected $rutaBalanza = ''; // Ruta de la balanza, por defecto es /dev/ttyUSB0
     // Propiedad ruta de logs de la balanza
-    protected $rutaLogs = '/logs/'; // Ruta donde se guardan los logs de la balanza
+    protected $rutaLogs = '/logs'; // Ruta donde se guardan los logs de la balanza
     // Propiedad ultimo estado de la balanza
     protected $ultimoEstado = ''; // Último estado de la balanza, se actualiza con el resultado de la última comunicación
     // Propiedad tiempo de espera para comunicaciones entre balanza
@@ -59,8 +59,8 @@ class ClaseComunicacionBalanza {
     ];
     public function setRutaBalanza(string $ruta): void {
         // Establecemos la ruta de la balanza
-        $this->rutaBalanza = $ruta . '/';
-        $this->rutaLogs = $ruta . '/logs/'; // Establecemos la ruta de los logs
+        $this->rutaBalanza = $ruta;
+        $this->rutaLogs = $ruta . '/logs'; // Establecemos la ruta de los logs
     }
     // Definimos el metodo setH2Data para establecer los datos del registro H2
     public function setH2Data(array $data): void {
@@ -334,7 +334,7 @@ class ClaseComunicacionBalanza {
             $this->alertas[] = "El driver baltty está instalado en: {$rutaBaltty}";
             return $rutaBaltty; // El driver baltty está instalado y en el PATH
         } else {
-            $this->alertas[] = "El driver baltty no está instalado o no se encuentra en el PATH del sistema.";
+            $this->alertas[] = "El driver baltty no está instalado o no se encuentra en el PATH del sistema. {$ruta}";
             $rutaBaltty = null; // No se encontró el driver baltty
             return $rutaBaltty; // El driver baltty no está instalado o no se encuentra en el PATH
         }
@@ -415,7 +415,7 @@ class ClaseComunicacionBalanza {
             return false;
         }
         // Dierectorio en el que se ubica el archivo de log de la balanza
-        $logFile = $directorioBalanza . '/logs/BalttyEstadoBalanzas.log';
+        $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
         if (!file_exists($logFile)) {
             $this->alertas[] = "El archivo de log de la balanza no existe: {$logFile}";
             return false; // El archivo de log no existe

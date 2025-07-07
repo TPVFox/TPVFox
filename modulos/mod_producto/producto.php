@@ -258,20 +258,20 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 $traductorBalanza->setH3Data($datosH3);
                 $salida = $traductorBalanza->traducirH2();
                 $salida .= $traductorBalanza->traducirH3();
-                
-                file_put_contents($RutaServidor . $rutatmp . $ruta_balanza . "/filetx", $salida);
-
-                // Comprobamos si existe baltty
+    
                 $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+
+                file_put_contents($directorioBalanza . "/filetx", $salida);
+
                 $traductorBalanza->setRutaBalanza($directorioBalanza);
                 $traductorBalanza->ejecutarDriverBalanza();
 
 
                 // También mostrar en pantalla
-                // echo "<pre>";
-                // print_r($salida);
-                // print_r($traductorBalanza->getAlertas());
-                // echo "</pre>";
+                echo "<pre>";
+                print_r($salida);
+                print_r($traductorBalanza->getAlertas());
+                echo "</pre>";
                 break;
             }
         }
