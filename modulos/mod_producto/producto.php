@@ -241,6 +241,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         $idBalanza = 1;
         foreach ($relacion_balanza as $relacion){
             if ($relacion['idBalanza'] == $idBalanza){
+                $ruta_balanza = '/balanza';
                 $datosH2 = array(
                     'codigo' => $Producto['cref_tienda_principal'], //Obligatorio
                     'nombre' => $Producto['articulo_name'], //Obligatorio
@@ -258,19 +259,19 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 $salida = $traductorBalanza->traducirH2();
                 $salida .= $traductorBalanza->traducirH3();
                 
-                file_put_contents($RutaServidor . $rutatmp ."/filetx", $salida);
+                file_put_contents($RutaServidor . $rutatmp . $ruta_balanza . "/filetx", $salida);
 
                 // Comprobamos si existe baltty
-                $directorioBalanza = $RutaServidor . $rutatmp;
+                $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
                 $traductorBalanza->setRutaBalanza($directorioBalanza);
                 $traductorBalanza->ejecutarDriverBalanza();
 
 
                 // También mostrar en pantalla
-                echo "<pre>";
-                print_r($salida);
-                print_r($traductorBalanza->getAlertas());
-                echo "</pre>";
+                // echo "<pre>";
+                // print_r($salida);
+                // print_r($traductorBalanza->getAlertas());
+                // echo "</pre>";
                 break;
             }
         }

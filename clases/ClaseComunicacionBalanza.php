@@ -59,7 +59,7 @@ class ClaseComunicacionBalanza {
     ];
     public function setRutaBalanza(string $ruta): void {
         // Establecemos la ruta de la balanza
-        $this->rutaBalanza = $ruta . '/balanza/';
+        $this->rutaBalanza = $ruta . '/';
         $this->rutaLogs = $ruta . '/logs/'; // Establecemos la ruta de los logs
     }
     // Definimos el metodo setH2Data para establecer los datos del registro H2
