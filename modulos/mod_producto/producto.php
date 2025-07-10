@@ -280,10 +280,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         $traductorBalanza->ejecutarDriverBalanza();
 
         // También mostrar en pantalla
-        echo "<pre>";
-        print_r($salida);
-        print_r($traductorBalanza->getAlertas());
-        echo "</pre>";
+        // echo "<pre>";
+        // print_r($salida);
+        // print_r($traductorBalanza->getAlertas());
+        // echo "</pre>";
     }
  // -------------- Obtenemos de parametros cajas con sus acciones en JS ---------------  //
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
