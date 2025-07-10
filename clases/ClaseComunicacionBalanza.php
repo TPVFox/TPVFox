@@ -222,7 +222,7 @@ class ClaseComunicacionBalanza {
         $H2 .= str_repeat("0", 30); // 30 dígitos nulos (N/A)
         $H2 .= str_repeat("-", 20); // 20 dígitos no transmitibles
         // Tranforma a ISO-8859-1
-        $H2 = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $H2);
+        $H2 = iconv('UTF-8', 'CP850//IGNORE', $H2);
         return $H2 . "\n"; // Retornamos la etiqueta H2 con un salto de línea
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta H3
@@ -296,7 +296,7 @@ class ClaseComunicacionBalanza {
         $H3 .= str_repeat("0", 24); // 24 dígitos nulos (N/A)
         $H3 .= str_repeat("-", 20); // 20 dígitos no transmitibles
         // Tranforma a ISO-8859-1
-        $H3 = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $H3);
+        $H3 = iconv('UTF-8', 'CP850//IGNORE', $H3);
         return $H3 . "\n"; // Retornamos la etiqueta H3
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta DS
@@ -327,63 +327,50 @@ class ClaseComunicacionBalanza {
         $DS .= "0";
         $DS .= str_repeat(" ", 85); // 24 digitos nulos (N/A): 0
         $DS .= str_repeat("-", 20); // 20 digitos no transmitribles: -
-        // Tranforma a ISO-8859-1
-        $DS = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $DS);
+        // Convertimos el texto a CP850 si no es binario
+        $DS = iconv('UTF-8', 'CP850//IGNORE', $DS);
         return $DS . "\n"; // Retornamos la etiqueta DS con un salto de línea
     }
-    // Metodo para verificar si baltty se esta instalado y en el PATH del sistema
+    // Metodo para verificar si baltty está instalado y es ejecutable en el directorio de la balanza
     public function verificarDriverBalanza(): ?string {
-        // Verificamos si el comando baltty está disponible en el sistema
-        $ruta = $this->rutaBalanza . '/baltty'; // Ruta del driver baltty
+        $rutaBaltty = $this->rutaBalanza . '/baltty';
         if (is_file($ruta) && is_executable($ruta)) {
-            $rutaBaltty = $ruta;
-            $this->alertas[] = "El driver baltty está instalado en: {$rutaBaltty}";
-            return $rutaBaltty; // El driver baltty está instalado y en el PATH
+            $this->alertas[] = "El driver baltty está instalado en: {$ruta}";
+            return $rutaBaltty;
         } else {
-            $this->alertas[] = "El driver baltty no está instalado o no se encuentra en el PATH del sistema. {$ruta}";
-            error_log("ERROR: El driver baltty no está instalado o no se encuentra en el PATH del sistema. {$ruta} [" . date('Y-m-d H:i:s') . "]");
-            $rutaBaltty = null; // No se encontró el driver baltty
-            return $rutaBaltty; // El driver baltty no está instalado o no se encuentra en el PATH
+            $this->alertas[] = "El driver baltty no está instalado o no es ejecutable en: {$ruta}";
+            error_log("ERROR: El driver baltty no está instalado o no es ejecutable en: {$ruta} [" . date('Y-m-d H:i:s') . "]");
+            return null;
         }
     }
-    // Metodo para verificar si baltty se está ejectuando, desde que directorio se ejectuta
+    // Metodo para reiniciar baltty si se está ejecutando: se paran los procesos de baltty en ejecución
     public function reiniciarBalanzaEnEjecucion(): bool {
-        // Verificamos si el comando baltty está en ejecución
         $output = [];
-        $return_var = 0;
         $rutaBaltty = $this->verificarDriverBalanza();
-        // Comprobamos si la rutaBaltty está en ejecución
         if ($rutaBaltty === null) {
             $this->alertas[] = "No se puede verificar si baltty está en ejecución porque no está instalado.";
             error_log("ERROR: No se puede verificar si baltty está en ejecución porque no está instalado. [" . date('Y-m-d H:i:s') . "]");
-            return false; // No se puede verificar si baltty está en ejecución si no está instalado
+            return false;
         }
         $cmd = "pgrep -f " . escapeshellarg($rutaBaltty);
-        exec($cmd, $output, $return_var);
-        // Verificamos si el comando se ejecutó correctamente
-        if ($return_var !== 0) {
-            $this->alertas[] = "Error al verificar si baltty está en ejecución: " . implode("\n", $output) . " Código de retorno: {$return_var}";
-            error_log("ERROR: " . implode("\n", $output) . " Código de retorno: {$return_var} [" . date('Y-m-d H:i:s') . "]");
-            return false; // Hubo un error al verificar si baltty está en ejecución
-        }
-        // Output contiene el PID del proceso baltty si está en ejecución
-        $pid = array_map('trim', $output); // Limpiamos los espacios en blanco de los PIDs
+        exec($cmd, $output);
         $found = false;
-        foreach ($pid as $p) {
-            if (!empty($p)) {
-                exec("kill {$p}"); // Terminamos el proceso baltty usando interpolación
+        foreach ($output as $p) {
+            $p = trim($p);
+            if (!empty($p) && ctype_digit($p)) {
+                exec("kill " . escapeshellarg($p));
                 $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
-                error_log("ERROR: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
+                error_log("INFO: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
                 $found = true;
             }
         }
-        return $found; // Devuelve true si al menos un proceso fue terminado, false si no había ninguno
+        return $found;
     }
     // Método para ejecutar baltty desde el directorio de la balanza
-    // Baltty es un comando sencillo que se ejecuta desde un directorio especifico. 
-    // Se puede ejecutar como Ballty log para que gener registro en el directorio de logs en el que se ejecuta
+    // Baltty es un comando sencillo que se ejecuta desde un directorio específico.
+    // Se puede ejecutar como baltty log para que genere registro en el directorio de logs en el que se ejecuta
     public function ejecutarDriverBalanza(): bool {
-        $directorioBalanza = $this->rutaBalanza; // Directorio de la balanza
+        $directorioBalanza = $this->rutaBalanza;
         // Verificamos si el directorio de la balanza existe
         if (!is_dir($directorioBalanza)) {
             $mensaje = "El directorio de la balanza no existe: {$directorioBalanza}";
@@ -397,16 +384,10 @@ class ClaseComunicacionBalanza {
             $mensaje = "No se puede ejecutar baltty porque no está instalado.";
             $this->alertas[] = $mensaje;
             error_log("ERROR: {$mensaje} Ruta buscada: {$directorioBalanza}/baltty [" . date('Y-m-d H:i:s') . "]");
-            return false; // No se puede ejecutar baltty si no está instalado
+            return false;
         }
-        // Verificamos si baltty ya se está ejecutando
-        if (!$this->reiniciarBalanzaEnEjecucion()) {
-            $mensaje = "No se pudo reiniciar el driver baltty o no estaba en ejecución.";
-            $this->alertas[] = $mensaje;
-            error_log("INFO: {$mensaje} Ruta: {$rutaBaltty} [" . date('Y-m-d H:i:s') . "]");
-            $this->estadoLogBalanza($rutaBaltty); // Verificamos el estado de la balanza
-            return false; // No se puede ejecutar baltty si no se pudo reiniciar correctamente
-        }
+        // Intentamos reiniciar cualquier proceso baltty en ejecución
+        $this->reiniciarBalanzaEnEjecucion();
         // Cambiamos al directorio de la balanza
         if (!@chdir($directorioBalanza)) {
             $mensaje = "No se pudo cambiar al directorio de la balanza: {$directorioBalanza}";
@@ -414,88 +395,84 @@ class ClaseComunicacionBalanza {
             error_log("ERROR: {$mensaje} [" . date('Y-m-d H:i:s') . "]");
             return false;
         }
-        // Ejecutamos el comando baltty
-        // Dado que vamos a ejecutar baltty dejamos en  blanco el archivo log antes de ejecutar el comando para evitar errores de ejecución
-        if (!file_exists($this->rutaLogs)) {
-            // Si el directorio de logs creamos alerta de que necesita crearse
+        // Verificamos el directorio de logs
+        if (!is_dir($this->rutaLogs)) {
             $mensaje = "El directorio de logs no existe: {$this->rutaLogs}. Por favor, créalo antes de ejecutar baltty.";
             $this->alertas[] = $mensaje;
             error_log("ERROR: {$mensaje} [" . date('Y-m-d H:i:s') . "]");
-            return false; // No se puede ejecutar baltty si no existe el directorio de logs
-        } else {
-            // Si el directorio de logs existe, limpiamos el archivo Baltty.log
-            $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
-            if (file_exists($logFile)) {
-                file_put_contents($logFile, ''); // Limpiamos el archivo de log
-            } else {
-                // Si no existe el archivo de log, lo creamos
-                touch($logFile);
-            }
+            return false;
         }
-        $output = [];
-        $return_var = 0;
-        $cmd = $rutaBaltty . ' log > /dev/null 2>&1 &'; // Ejecutamos baltty en modo log
-        exec($cmd, $output, $return_var);
-        // Esperamos 1 segundo para asegurarnos de que el comando se ejecute correctamente
-        sleep(0.5);
-        // Verificamos si la comunicación de la balanza se ha establecido correctamente
-        $this->estadoLogBalanza($rutaBaltty); // Verificamos el estado de la balanza
-        if ($return_var === 0) {
-            return true; // El comando se ejecutó correctamente
+        // Limpiamos o creamos el archivo de log
+        $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
+        if (file_exists($logFile)) {
+            file_put_contents($logFile, '');
         } else {
-            $mensaje = "Error al ejecutar baltty: " . implode("\n", $output) . " Código de retorno: {$return_var}";
+            touch($logFile);
+        }
+        // Ejecutamos baltty en modo log
+        $cmd = escapeshellcmd($rutaBaltty) . ' log > /dev/null 2>&1 &';
+        exec($cmd);
+        // Esperamos un segundo para que baltty inicie y genere el log
+        sleep(1);
+        // Verificamos el estado de la balanza
+        $this->estadoLogBalanza($rutaBaltty);
+        // Comprobamos si baltty está corriendo correctamente
+        if ($this->verificarEstadoBalanza()) {
+            return true;
+         } else {
+            $mensaje = "Error al ejecutar baltty o la balanza no respondió correctamente.";
             $this->alertas[] = $mensaje;
             error_log("ERROR: {$mensaje} [" . date('Y-m-d H:i:s') . "]");
-            return false; // Hubo un error al ejecutar el comando
+            return false;
         }
     }
     // Método para verificar si la balanza establece comunicación con el sistema
     // Desde el directorio de la balanza si se ejecuta baltty en modo log se genera un archivo en /logs/BalttyEstadoBalanzas.log
     // Este archivo puede contener "La balanza rechaza la comunicación" o "Balanza OK"
     public function verificarEstadoBalanza(): bool {
-        $directorioBalanza = $this->rutaBalanza; // Directorio de la balanza
-        // Verificamos si el directorio de la balanza existe
+        $directorioBalanza = $this->rutaBalanza;
         if (!is_dir($directorioBalanza)) {
             $this->alertas[] = "El directorio de la balanza no existe: {$directorioBalanza}";
             error_log("ERROR: El directorio de la balanza no existe: {$directorioBalanza} [" . date('Y-m-d H:i:s') . "]");
             return false;
         }
-        // Directorio en el que se ubica el archivo de log de la balanza
         $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
         if (!file_exists($logFile)) {
             $this->alertas[] = "El archivo de log de la balanza no existe: {$logFile}";
             error_log("ERROR: El archivo de log de la balanza no existe: {$logFile} [" . date('Y-m-d H:i:s') . "]");
-            return false; // El archivo de log no existe
-        } else {
-            // Tenemos que leer el $logFile de la balanza y pasarlo a la variable $logContent teniendo cuidado de que acentos y ñ se conserven
-            $logContent = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            if ($logContent !== false) {
-                // Convertimos a UTF-8 si es necesario (por si el archivo está en otra codificación)
-                foreach ($logContent as &$line) {
-                    $line = mb_convert_encoding($line, 'UTF-8', mb_detect_encoding($line, 'UTF-8,ISO-8859-1,ISO-8859-15', true));
-                }
-                unset($line);
-            }
-
-            if ($logContent === false) {
-                $this->alertas[] = "No se pudo leer el archivo de log de la balanza: {$logFile}";
-                error_log("ERROR: No se pudo leer el archivo de log de la balanza: {$logFile} [" . date('Y-m-d H:i:s') . "]");
-                return false; // No se pudo leer el archivo de log
-            }
-            foreach ($logContent as $line) {
-                if (strpos($line, 'La balanza rechaza la comunicación') !== false) {
-                    $this->alertas[] = "La balanza rechaza la comunicación.";
-                    error_log("ERROR: La balanza rechaza la comunicación. Línea: {$line} [" . date('Y-m-d H:i:s') . "]");
-                    return false; // La balanza no establece comunicación
-                } elseif (strpos($line, 'Balanza OK') !== false) {
-                    return true; // La balanza establece comunicación correctamente
-                }
-                $this->alertas[] =  $line;
-            }
-            $this->alertas[] = "No se pudo determinar el estado de la balanza.";
-            error_log("ERROR: No se pudo determinar el estado de la balanza. Archivo: {$logFile} [" . date('Y-m-d H:i:s') . "]");
-            return false; // No se pudo determinar el estado de la balanza
+            return false;
         }
+
+        $logContent = @file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($logContent === false) {
+            $this->alertas[] = "No se pudo leer el archivo de log de la balanza: {$logFile}";
+            error_log("ERROR: No se pudo leer el archivo de log de la balanza: {$logFile} [" . date('Y-m-d H:i:s') . "]");
+            return false;
+        }
+
+        // Convertimos cada línea a UTF-8 si es necesario
+        foreach ($logContent as &$line) {
+            $encoding = mb_detect_encoding($line, ['UTF-8', 'ISO-8859-1', 'ISO-8859-15'], true);
+            if ($encoding !== 'UTF-8') {
+                $line = mb_convert_encoding($line, 'UTF-8', $encoding);
+            }
+        }
+        unset($line);
+
+        foreach ($logContent as $line) {
+            if (strpos($line, 'La balanza rechaza la comunicación') !== false) {
+                $this->alertas[] = "La balanza rechaza la comunicación.";
+                error_log("ERROR: La balanza rechaza la comunicación. Línea: {$line} [" . date('Y-m-d H:i:s') . "]");
+                return false;
+            }
+            if (strpos($line, 'Balanza OK') !== false) {
+                return true;
+            }
+        }
+
+        $this->alertas[] = "No se pudo determinar el estado de la balanza.";
+        error_log("ERROR: No se pudo determinar el estado de la balanza. Archivo: {$logFile} [" . date('Y-m-d H:i:s') . "]");
+        return false;
     }
     
 
@@ -531,18 +508,24 @@ class ClaseComunicacionBalanza {
             return str_pad($valorStr, $longitud, $relleno, STR_PAD_RIGHT);
         }
     }
+    // Metodo para verificar el estado de la balanza leyendo el log de baltty
+    // Si la balanza no se ha ejecutado correctamente, se terminan los procesos de baltty en ejecución
+    // y se genera una alerta con el estado de la balanza.
     protected function estadoLogBalanza($rutaDriver) {
         if ($this->verificarEstadoBalanza()) {
             $this->alertas[] = "La balanza se ha ejecutado correctamente.";
         } else {
             $this->alertas[] = "La balanza no se ha ejecutado correctamente.";
             error_log("ERROR: La balanza no se ha ejecutado correctamente. [" . date('Y-m-d H:i:s') . "]");
-            exec('pgrep -f ' . $rutaDriver, $output); // Obtenemos el PID del proceso baltty
+            $output = [];
+            exec('pgrep -f ' . escapeshellarg($rutaDriver), $output); // Obtenemos el PID del proceso baltty
             $pid = array_map('trim', $output); // Limpiamos los espacios en blanco de los PIDs
             foreach ($pid as $p) {
-                exec('kill ' . $p); // Terminamos el proceso baltty
-                $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
-                error_log("ERROR: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
+                if (!empty($p) && ctype_digit($p)) {
+                    exec('kill ' . escapeshellarg($p)); // Terminamos el proceso baltty
+                    $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
+                    error_log("ERROR: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
+                }
             }
             if (empty($pid)) {
                 error_log("ERROR: No se encontraron procesos baltty para terminar. [" . date('Y-m-d H:i:s') . "]");
