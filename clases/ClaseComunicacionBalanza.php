@@ -347,52 +347,37 @@ class ClaseComunicacionBalanza {
         }
     }
     // Metodo para verificar si baltty se está ejectuando, desde que directorio se ejectuta
-    public function verificarBalanzaEnEjecucion(): bool {
+    public function reiniciarBalanzaEnEjecucion(): bool {
         // Verificamos si el comando baltty está en ejecución
         $output = [];
         $return_var = 0;
         $rutaBaltty = $this->verificarDriverBalanza();
+        // Comprobamos si la rutaBaltty está en ejecución
         if ($rutaBaltty === null) {
-            $mensaje = "No se puede verificar si el driver baltty está en ejecución porque no está instalado.";
-            $this->alertas[] = $mensaje;
-            error_log("ERROR: {$mensaje} Ruta buscada: {$this->rutaBalanza}/baltty [" . date('Y-m-d H:i:s') . "]");
+            $this->alertas[] = "No se puede verificar si baltty está en ejecución porque no está instalado.";
+            error_log("ERROR: No se puede verificar si baltty está en ejecución porque no está instalado. [" . date('Y-m-d H:i:s') . "]");
             return false; // No se puede verificar si baltty está en ejecución si no está instalado
-        } else {
-            exec('pgrep -af baltty', $output, $return_var);
-            if ($return_var !== 0) {
-                error_log("ERROR: Fallo al ejecutar 'pgrep -af baltty'. Código de retorno: {$return_var}. Output: " . implode(" | ", $output) . " [" . date('Y-m-d H:i:s') . "]");
+        }
+        $cmd = "pgrep -f " . escapeshellarg($rutaBaltty);
+        exec($cmd, $output, $return_var);
+        // Verificamos si el comando se ejecutó correctamente
+        if ($return_var !== 0) {
+            $this->alertas[] = "Error al verificar si baltty está en ejecución: " . implode("\n", $output) . " Código de retorno: {$return_var}";
+            error_log("ERROR: " . implode("\n", $output) . " Código de retorno: {$return_var} [" . date('Y-m-d H:i:s') . "]");
+            return false; // Hubo un error al verificar si baltty está en ejecución
+        }
+        // Output contiene el PID del proceso baltty si está en ejecución
+        $pid = array_map('trim', $output); // Limpiamos los espacios en blanco de los PIDs
+        $found = false;
+        foreach ($pid as $p) {
+            if (!empty($p)) {
+                exec("kill {$p}"); // Terminamos el proceso baltty usando interpolación
+                $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
+                error_log("ERROR: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
+                $found = true;
             }
         }
-        // Verificamos el contenido de la salida del comando contega nuestra ruta de balanza
-        // Filtramos las líneas que contienen la ruta del baltty y extraemos solo el PID
-        $output = array_filter($output, function($line) use ($rutaBaltty) {
-            return strpos($line, $rutaBaltty) !== false;
-        });
-        // Extraemos solo el PID de cada línea (formato: "PID ruta/comando ...")
-        $output = array_map(function($line) {
-            $parts = preg_split('/\s+/', trim($line), 2);
-            return $parts[0] ?? '';
-        }, $output);
-        // Eliminamos posibles vacíos
-        $output = array_filter($output);
-        // Si output tiene un valor
-        if (empty($output)) {
-            $mensaje = "El driver baltty no está en ejecución.";
-            $this->alertas[] = $mensaje;
-            error_log("INFO: {$mensaje} [" . date('Y-m-d H:i:s') . "] Ruta baltty verificada: {$rutaBaltty}");
-            return false; // El driver baltty no está en ejecución
-        } elseif (count($output) === 1) {
-            // Solo hay un proceso, esto es incorrecto, hay que matarlo
-            $pid = reset($output);
-            exec('kill ' . escapeshellarg($pid));
-            $mensaje = "Solo hay un proceso baltty en ejecución (PID: {$pid}). Proceso terminado porque la ejecución es incorrecta.";
-            $this->alertas[] = $mensaje;
-            error_log("ERROR: {$mensaje} [" . date('Y-m-d H:i:s') . "]");
-            return false; // No está correctamente ejecutado
-        } else {
-            $this->alertas[] = "El driver baltty está en ejecución correctamente. (PIDs: " . implode(", ", $output) . ")";
-            return true; // El driver baltty está en ejecución correctamente (2 procesos)
-        }
+        return $found; // Devuelve true si al menos un proceso fue terminado, false si no había ninguno
     }
     // Método para ejecutar baltty desde el directorio de la balanza
     // Baltty es un comando sencillo que se ejecuta desde un directorio especifico. 
@@ -415,7 +400,7 @@ class ClaseComunicacionBalanza {
             return false; // No se puede ejecutar baltty si no está instalado
         }
         // Verificamos si baltty ya se está ejecutando
-        if ($this->verificarBalanzaEnEjecucion()) {
+        if ($this->reiniciarBalanzaEnEjecucion()) {
             $mensaje = "El driver baltty ya está en ejecución.";
             $this->alertas[] = $mensaje;
             error_log("INFO: {$mensaje} Ruta: {$rutaBaltty} [" . date('Y-m-d H:i:s') . "]");

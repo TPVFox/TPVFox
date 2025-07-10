@@ -268,6 +268,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         };
         $traductorBalanza->setH2Data($datosH2);
         $traductorBalanza->setH3Data($datosH3);
+        error_log('Datos a enviar a balanza: ' . json_encode($datosH2) . json_encode($datosH3));
         $salida = $traductorBalanza->traducirH2();
         $salida .= $traductorBalanza->traducirH3();
 
