@@ -239,6 +239,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
         $traductorBalanza = new ClaseComunicacionBalanza();
         $idBalanza = 1;
+        $ruta_balanza = '/balanza';
         $datosH2 = array(
             'codigo' => $Producto['cref_tienda_principal'], // Obligatorio
             'nombre' => $Producto['articulo_name'], // Obligatorio
@@ -267,7 +268,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         };
         $traductorBalanza->setH2Data($datosH2);
         $traductorBalanza->setH3Data($datosH3);
-        $salida = $traductorBalanza->traducirH2();
+        $salida = $traductorBalanza->traducirH2();ruta_balanza
         $salida .= $traductorBalanza->traducirH3();
 
         $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
