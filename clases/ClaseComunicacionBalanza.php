@@ -400,12 +400,12 @@ class ClaseComunicacionBalanza {
             return false; // No se puede ejecutar baltty si no está instalado
         }
         // Verificamos si baltty ya se está ejecutando
-        if ($this->reiniciarBalanzaEnEjecucion()) {
-            $mensaje = "El driver baltty ya está en ejecución.";
+        if (!$this->reiniciarBalanzaEnEjecucion()) {
+            $mensaje = "No se pudo reiniciar el driver baltty o no estaba en ejecución.";
             $this->alertas[] = $mensaje;
             error_log("INFO: {$mensaje} Ruta: {$rutaBaltty} [" . date('Y-m-d H:i:s') . "]");
             $this->estadoLogBalanza($rutaBaltty); // Verificamos el estado de la balanza
-            return false; // No se puede ejecutar baltty si ya está en ejecución
+            return false; // No se puede ejecutar baltty si no se pudo reiniciar correctamente
         }
         // Cambiamos al directorio de la balanza
         if (!@chdir($directorioBalanza)) {
@@ -437,7 +437,7 @@ class ClaseComunicacionBalanza {
         $cmd = $rutaBaltty . ' log > /dev/null 2>&1 &'; // Ejecutamos baltty en modo log
         exec($cmd, $output, $return_var);
         // Esperamos 1 segundo para asegurarnos de que el comando se ejecute correctamente
-        sleep(1);
+        sleep(0.5);
         // Verificamos si la comunicación de la balanza se ha establecido correctamente
         $this->estadoLogBalanza($rutaBaltty); // Verificamos el estado de la balanza
         if ($return_var === 0) {
