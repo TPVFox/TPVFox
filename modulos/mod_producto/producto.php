@@ -268,7 +268,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         };
         $traductorBalanza->setH2Data($datosH2);
         $traductorBalanza->setH3Data($datosH3);
-        $salida = $traductorBalanza->traducirH2();ruta_balanza
+        $salida = $traductorBalanza->traducirH2();
         $salida .= $traductorBalanza->traducirH3();
 
         $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
