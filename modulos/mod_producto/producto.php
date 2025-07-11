@@ -272,7 +272,6 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza: " . json_encode($datosH2) . json_encode($datosH3));
         $salida = $traductorBalanza->traducirH2();
         $salida .= $traductorBalanza->traducirH3();
-
         $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
 
         file_put_contents($directorioBalanza . "/filetx", $salida);
@@ -283,7 +282,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         // También mostrar en pantalla
         // echo "<pre>";
         // print_r($salida);
-        // print_r($traductorBalanza->getAlertas());
+        //print_r($traductorBalanza->getAlertas());
         // echo "</pre>";
     }
  // -------------- Obtenemos de parametros cajas con sus acciones en JS ---------------  //

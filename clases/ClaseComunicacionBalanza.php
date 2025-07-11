@@ -221,8 +221,6 @@ class ClaseComunicacionBalanza {
         $H2 .= $this->formatearCampo($this->dataH2['precioCoste'], 6, 'precioCoste');
         $H2 .= str_repeat("0", 30); // 30 dígitos nulos (N/A)
         $H2 .= str_repeat("-", 20); // 20 dígitos no transmitibles
-        // Tranforma a ISO-8859-1
-        $H2 = iconv('UTF-8', 'CP850//IGNORE', $H2);
         return $H2 . "\n"; // Retornamos la etiqueta H2 con un salto de línea
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta H3
@@ -295,8 +293,6 @@ class ClaseComunicacionBalanza {
         $H3 .= "00"; // 2 dígitos de control
         $H3 .= str_repeat("0", 24); // 24 dígitos nulos (N/A)
         $H3 .= str_repeat("-", 20); // 20 dígitos no transmitibles
-        // Tranforma a ISO-8859-1
-        $H3 = iconv('UTF-8', 'CP850//IGNORE', $H3);
         return $H3 . "\n"; // Retornamos la etiqueta H3
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta DS
@@ -327,19 +323,17 @@ class ClaseComunicacionBalanza {
         $DS .= "0";
         $DS .= str_repeat(" ", 85); // 24 digitos nulos (N/A): 0
         $DS .= str_repeat("-", 20); // 20 digitos no transmitribles: -
-        // Convertimos el texto a CP850 si no es binario
-        $DS = iconv('UTF-8', 'CP850//IGNORE', $DS);
         return $DS . "\n"; // Retornamos la etiqueta DS con un salto de línea
     }
     // Metodo para verificar si baltty está instalado y es ejecutable en el directorio de la balanza
     public function verificarDriverBalanza(): ?string {
         $rutaBaltty = $this->rutaBalanza . '/baltty';
-        if (is_file($ruta) && is_executable($ruta)) {
-            $this->alertas[] = "El driver baltty está instalado en: {$ruta}";
+        if (is_file($rutaBaltty) && is_executable($rutaBaltty)) {
+            $this->alertas[] = "El driver baltty está instalado en: {$rutaBaltty}";
             return $rutaBaltty;
         } else {
-            $this->alertas[] = "El driver baltty no está instalado o no es ejecutable en: {$ruta}";
-            error_log("ERROR: El driver baltty no está instalado o no es ejecutable en: {$ruta} [" . date('Y-m-d H:i:s') . "]");
+            $this->alertas[] = "El driver baltty no está instalado o no es ejecutable en: {$rutaBaltty}";
+            error_log("ERROR: El driver baltty no está instalado o no es ejecutable en: {$rutaBaltty} [" . date('Y-m-d H:i:s') . "]");
             return null;
         }
     }
@@ -487,6 +481,14 @@ class ClaseComunicacionBalanza {
         $nombre = str_replace(array("\n", "\r", "\t", '"'), ' ', $nombre);
         // Eliminar símbolos excepto letras, números, espacios y la Ñ/ñ
         $nombre = preg_replace('/[^\p{L}\p{N}\s]/u', '', $nombre);
+        // Sustituir Ñ/ñ por NH
+        $nombre = str_replace(['Ñ', 'ñ'], 'NH', $nombre);
+        // Sustituir letras acentuadas por la misma letra sin acento
+        $nombre = strtr($nombre, [
+            'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U',
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+            'Ü' => 'U', 'ü' => 'u'
+        ]);
         // Eliminar dobles espacios
         $nombre = preg_replace('/\s+/', ' ', $nombre);
         // Eliminar espacios al comienzo y al final
