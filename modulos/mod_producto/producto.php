@@ -235,55 +235,113 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
                                 );
 
-    if (isset($cambio_precio) && $Producto['tipo'] == 'peso') {
+    if ($precioNuevo && $Producto['tipo'] == 'peso') {
         include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
         $traductorBalanza = new ClaseComunicacionBalanza();
         $idBalanza = 1;
         $ruta_balanza = '/balanza';
-        $datosH2 = array(
-            'codigo' => $Producto['cref_tienda_principal'], // Obligatorio
-            'nombre' => $Producto['articulo_name'], // Obligatorio
-            'precio' => $Producto['pvpCiva'], // Obligatorio
-            'PLU' => '',
-        );
-        $datosH3 = array(
-            'codigo' => $Producto['cref_tienda_principal'], // Obligatorio
-            'tipoProducto' => $Producto['tipo'], // Obligatorio
-            'iva' => $Producto['iva'], // Obligatorio
-            'seccion' => '',
-        );
-        // Actualmente se comprueba que si el producto tiene una balanza relacionada
-        // Si es nuestra balanza 1 se completa los parametros PLU y sección
-        // En el futuro se hace una consulta para recibir todas las configuraciones de las balanzas asociadas a un productos.        
-        if (!isset($relacion_balanza['error'])) {
-            foreach ($relacion_balanza as $relacion) {
-                if ($relacion['idBalanza'] == $idBalanza) {
-                    // Si hay varias relaciones, puedes enviar varias veces o solo la primera, según lógica de negocio
-                    $ruta_balanza = '/balanza';
-                    $datosH2['PLU'] = $relacion['plu'];
-                    $datosH3['seccion'] = $relacion['tecla'];
-                    break;
+        $ComunicacionBalanza = array('Comprobaciones' => array());
+        $faltanDatos = [];
+
+        if (empty($Producto['cref_tienda_principal'])) {
+            $faltanDatos[] = 'Referencia principal (cref_tienda_principal)';
+        } elseif (!is_numeric($Producto['cref_tienda_principal'])) {
+            $faltanDatos[] = 'Referencia principal (cref_tienda_principal)';
+            $ComunicacionBalanza['Comprobaciones'][] = array(
+                'tipo' => 'warning',
+                'mensaje' => 'La referencia principal debe ser numérica. Valor recibido: ' . $Producto['cref_tienda_principal'],
+                'dato' => array($Producto['cref_tienda_principal'])
+            );
+            error_log('El dato cref_tienda_principal debe ser numérico, valor recibido: ' . $Producto['cref_tienda_principal']);
+        }
+        if (empty($Producto['articulo_name'])) {
+            $faltanDatos[] = 'Nombre producto (articulo_name)';
+        }
+        if (!isset($Producto['pvpCiva'])) {
+            $faltanDatos[] = 'Precio con IVA (pvpCiva)';
+        }
+        if (empty($Producto['tipo'])) {
+            $faltanDatos[] = 'Tipo de producto (tipo)';
+        }
+        if (!isset($Producto['iva'])) {
+            $faltanDatos[] = 'IVA (iva)';
+        }
+        if (!empty($faltanDatos)) {
+            $ComunicacionBalanza['Comprobaciones'][] = array(
+                'tipo' => 'warning',
+                'mensaje' => 'Faltan datos obligatorios para la comunicación con la balanza: ' . implode(', ', $faltanDatos),
+                'dato' => $faltanDatos
+            );
+            error_log('Faltan datos obligatorios para la comunicación con la balanza: ' . implode(', ', $faltanDatos));
+        } else {
+            $datosH2 = array(
+                'codigo' => $Producto['cref_tienda_principal'],
+                'nombre' => $Producto['articulo_name'],
+                'precio' => $Producto['pvpCiva'],
+                'PLU' => '',
+            );
+            $datosH3 = array(
+                'codigo' => $Producto['cref_tienda_principal'],
+                'tipoProducto' => $Producto['tipo'],
+                'iva' => $Producto['iva'],
+                'seccion' => '',
+            );
+            if (!isset($relacion_balanza['error'])) {
+                foreach ($relacion_balanza as $relacion) {
+                    if ($relacion['idBalanza'] == $idBalanza) {
+                        $ruta_balanza = '/balanza';
+                        $datosH2['PLU'] = $relacion['plu'];
+                        $datosH3['seccion'] = $relacion['tecla'];
+                        break;
+                    }
                 }
             }
-        };
-        $traductorBalanza->setH2Data($datosH2);
-        $traductorBalanza->setH3Data($datosH3);
-        // Obtener usuario y fecha/hora actual
-        error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza: " . json_encode($datosH2) . json_encode($datosH3));
-        $salida = $traductorBalanza->traducirH2();
-        $salida .= $traductorBalanza->traducirH3();
-        $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+            $traductorBalanza->setH2Data($datosH2);
+            $traductorBalanza->setH3Data($datosH3);
+            error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza: " . json_encode($datosH2) . json_encode($datosH3));
+            $salida = $traductorBalanza->traducirH2();
+            $salida .= $traductorBalanza->traducirH3();
+            $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
 
-        file_put_contents($directorioBalanza . "/filetx", $salida);
-
-        $traductorBalanza->setRutaBalanza($directorioBalanza);
-        $traductorBalanza->ejecutarDriverBalanza();
-
-        // También mostrar en pantalla
-        // echo "<pre>";
-        // print_r($salida);
-        //print_r($traductorBalanza->getAlertas());
-        // echo "</pre>";
+            $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
+            if ($resultado === false) {
+                $ComunicacionBalanza['Comprobaciones'][] = array(
+                    'tipo' => 'warning',
+                    'mensaje' => 'Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx",
+                    'dato' => array($directorioBalanza . "/filetx")
+                );
+                error_log('No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx");
+            } else {
+                $traductorBalanza->setRutaBalanza($directorioBalanza);
+                $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
+                if ($ejecucion === false) {
+                    $ComunicacionBalanza['Comprobaciones'][] = array(
+                        'tipo' => 'warning',
+                        'mensaje' => 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza.',
+                        'dato' => array()
+                    );
+                    error_log('Fallo al ejecutar el driver de la balanza.');
+                } else {
+                    $ComunicacionBalanza['Comprobaciones'][] = array(
+                        'tipo' => 'success',
+                        'mensaje' => 'Comunicación con la balanza realizada correctamente.',
+                        'dato' => array($datosH2, $datosH3)
+                    );
+                }
+                // Si hay alertas del traductor, añadirlas como warning
+                // $alertas = $traductorBalanza->getAlertas();
+                // if (!empty($alertas)) {
+                //     foreach ($alertas as $alerta) {
+                //         $ComunicacionBalanza['Comprobaciones'][] = array(
+                //             'tipo' => 'warning',
+                //             'mensaje' => $alerta,
+                //             'dato' => array()
+                //         );
+                //     }
+                // }
+            }
+        }
+        // Mostrar avisos en pantalla
     }
  // -------------- Obtenemos de parametros cajas con sus acciones en JS ---------------  //
     $VarJS = $Controler->ObtenerCajasInputParametros($parametros).$OtrosVarJS;
@@ -330,6 +388,12 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 				return;
 				}
 			}
+
+            if (!empty($ComunicacionBalanza['Comprobaciones'])) {
+                foreach ($ComunicacionBalanza['Comprobaciones'] as $comprobacion) {
+                    echo '<div class="alert alert-'.$comprobacion['tipo'].'">'.$comprobacion['mensaje'].'</div>';
+                }
+            }
 			?>
 			<h2 class="text-center"> <?php echo $titulo;?></h2>
 			<form method="post" name="formProducto" onkeypress="return anular(event)">

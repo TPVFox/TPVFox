@@ -57,8 +57,13 @@ if ($id >0 ){
 		
 		
 		$comprobaciones = $CTArticulos->ComprobarNuevosPreciosProducto($id,$DatosPostProducto,$Usuario['id']);
-		if ($comprobaciones['pvpCiva_antes'] !== $comprobaciones['pvpCiva_nuevo']){
-			$cambio_precio = true;
+		// Formateamos ambos valores a 2 decimales para comparar correctamente
+		$pvpCiva_antes = number_format((float)$comprobaciones['pvpCiva_antes'], 2, '.', '');
+		$pvpCiva_nuevo = number_format((float)$comprobaciones['pvpCiva_nuevo'], 2, '.', '');
+		if ($pvpCiva_antes !== $pvpCiva_nuevo){
+			$precioNuevo = true;
+		} else {
+			$precioNuevo = false;
 		}
 		foreach ($comprobaciones['mensajes'] as $mensaje){
 			$preparados['comprobaciones'][]= $mensaje;
