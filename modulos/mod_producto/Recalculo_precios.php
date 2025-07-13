@@ -35,6 +35,29 @@
 			$id=$_GET['id'];
 			$estado="";
 			$fechaCreacion=date('Y-m-d');
+            // Existe algun producto dentro de $productosHistoricos que tenga tipo peso en la tabla articulos
+            $productosPeso = array();
+            foreach ($productosHistoricos as $producto) {
+                $tipo = $CArticulo->getTipoArticulo($producto['idArticulo']);
+                // Simplificamos el array para asocia idArticulo con tipo
+                $productosPeso[$producto['idArticulo']] = $tipo[$producto['idArticulo']];
+            }
+            // Si hay algún producto con tipo peso, se procede a la comunicación con la balanza
+            // Buscar si algún producto tiene tipo 'peso'
+            $hayPeso = false;
+            foreach ($productosPeso as $tipo) {
+                if ($tipo === 'peso') {
+                $hayPeso = true;
+                break;
+                }
+            }
+            if ($hayPeso) {
+                include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
+                $traductorBalanza = new ClaseComunicacionBalanza();
+                $idBalanza = 1; // ID de la balanza a utilizar
+                $ruta_balanza = '/balanza';
+                $salidaBalanza = '';
+            }            
             foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
 					$idArticulo=$producto['idArticulo'];
@@ -72,14 +95,62 @@
 						);
 						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
-					}
+                        // Aqui se hacen las tareas para comunicar con la balanza
+                        if ($productosPeso[$producto['idArticulo']] === 'peso') {
+                            $datosH2 = array(
+                                'codigo' => $producto['id'],
+                                'nombre' => $datosArticulo['articulo_name'],
+                                'precio' => $pvpRecomendadoCiva,
+                                'PLU' => '',
+                            );
+                            $datosH3 = array(
+                                'codigo' => $producto['id'],
+                                'tipoProducto' => $productosPeso[$producto['idArticulo']],
+                                'iva' => $datosArticulo['iva'],
+                                'seccion' => '',
+                            );
+                            $balanzas = $CArticulo->getBalanzaAsociada($producto['idArticulo']);
+                            // Si hay balanzas asociadas ajustar valores
+                            if (count($balanzas) > 0) {
+                                foreach ($balanzas as $balanza) {
+                                    $datosH2['PLU'] = $balanza['PLU'];
+                                    $datosH2['tecla'] = $balanza['Tecla'];
+                                    // Si la tecla es 0, definimos modo de comunicación L
+                                    // if ($balanza['Tecla'] == 0) {
+                                    //    $traductorBalanza->setModoComunicacion('L');
+                                    //}
+                                    //$datosH2['idBalanza'] = $balanza['idBalanza'];
+                                    // Aqui deberiamos asignar grupo y direccion de la balanza La balanza 2 tiene gupo 0 y dirección 50
+                                    $traductorBalanza->setH2Data($datosH2);
+                                    $traductorBalanza->setH3Data($datosH3);
+
+                                    $salidaBalanza .= $traductorBalanza->traducirH2();
+                                    $salidaBalanza .= $traductorBalanza->traducirH3();
+                                }
+                            }
+                        }
+ 					}
 				}
                 if($producto['estado']=="Pendiente" || $producto['estado']=="Sin revisar" || $producto['estado']=="Sin Cambios"){
                     $i++;
                 }
 				$estado="";
 			}
-			 $modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
+			$modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
+            if ($hayPeso) {
+                $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+                
+                file_put_contents($directorioBalanza . "/filetx", $salidaBalanza);
+
+                $traductorBalanza->setRutaBalanza($directorioBalanza);
+                $traductorBalanza->ejecutarDriverBalanza();
+
+                $alertas = $traductorBalanza->getAlertas();
+                echo '<pre>';
+                print_r($salidaBalanza);
+                print_r($alertas);
+                echo '</pre>';
+            }
 		}
 		?>
 <!DOCTYPE html>
@@ -224,4 +295,11 @@
             </form>
 		</div>
 	</body>	
+
+<?php
+
+
+
+        
+?>
 </html>
