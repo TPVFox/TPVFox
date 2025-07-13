@@ -222,6 +222,41 @@ class Articulos{
             return $respuesta;
         }
     }
+
+	// Este metodo consulta en la tabla articulos si existe un producto en el que tipo sea peso.
+	public function getTipoArticulo($idArticulo){
+		$db = $this->db;
+		$respuesta = array();
+		$sql = 'SELECT tipo FROM articulos WHERE idArticulo = '.$idArticulo;
+		$smt = $this->consulta($sql);
+		if (gettype($smt) === 'array') {
+			$respuesta = $smt;
+		} else {
+			if ($result = $smt->fetch_assoc()) {
+				$respuesta[$idArticulo] = $result['tipo'];
+			}
+		}
+		return $respuesta;
+	}
+
+
+    // Definimos todas la funcion para tomar los datos de las balanzas asociadas a un articulo
+    public function getBalanzaAsociada($idArticulo): array {
+        // Este metodo consulta en la tabla articulos si existe un producto en el que tipo sea peso.
+		$db = $this->db;
+        $respuesta = array();
+        $sql = 'SELECT idBalanza, PLU, Tecla FROM modulo_balanza_plus WHERE idArticulo = ' . $idArticulo;
+        $smt = $this->consulta($sql);
+        if (gettype($smt) === 'array') {
+            // Hubo error, devolvemos array con error y consulta.
+            $respuesta = $smt;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result);
+            }
+        }
+        return $respuesta;
+    }
 }
 
 
