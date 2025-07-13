@@ -24,6 +24,8 @@ class ClaseComunicacionBalanza {
     protected $grupo = 0;
     // Propiedad direccion de balanza por defecto 0. Actualmente es un valor fijo pero abria que evaluar si incluir una tabla con dirección de cada balanza.
     protected $direccion = 0;
+    // Propiedad para definir el modo de comunicación de la balanza;
+    protected $modoComunicacion = 'H'; // Modo de comunicación con balanzas que utilizan el protocolo H2/H3 tambien puede se 'L';
     // Sistema de alertas interno para la clase
     protected $alertas = [];
     // Definición la estructura de datos para el registro H2
@@ -62,6 +64,29 @@ class ClaseComunicacionBalanza {
         $this->rutaBalanza = $ruta;
         $this->rutaLogs = $ruta . '/logs'; // Establecemos la ruta de los logs
     }
+    // Definimos los metodos para asignar grupo y direccion de la balanza
+    public function setGrupo(int $grupo): void {
+        // Establecemos el grupo de la balanza
+        $this->grupo = $grupo;
+    }
+    public function setDireccion(int $direccion): void {
+        // Establecemos la dirección de la balanza
+        $this->direccion = $direccion;
+    }
+    // Cambiar el modo de comunicación de L a H
+    public function setModoComunicacion(string $modo): void {
+        // Establecemos el modo de comunicación de la balanza
+        if (in_array($modo, ['H', 'L'])) {
+            $this->modoComunicacion = $modo;
+        } else {
+            throw new InvalidArgumentException('Modo de comunicación no válido. Debe ser "H" o "L".');
+        }
+    }
+    public function getModoComunicacion(): string {
+        // Retornamos el modo de comunicación actual
+        return $this->modoComunicacion;
+    }
+
     // Definimos el metodo setH2Data para establecer los datos del registro H2
     public function setH2Data(array $data): void {
         // Validamos que los datos necesarios esten presentes
@@ -198,7 +223,7 @@ class ClaseComunicacionBalanza {
         }
         // Construimos la etiqueta H2
         $H2 = $this->formatearCampo($this->grupo, 2, 'grupo');
-        $H2 .= "H2"; // Clave de registro
+        $H2 .= $this->modoComunicacion . "2"; // Clave de registro
         $H2 .= $this->formatearCampo($this->direccion, 2, 'direccion');
         $H2 .= "A" . $this->formatearCampo($this->dataH2['codigo'], 6, 'codigo');
         $H2 .= $this->formatearCampo($this->dataH2['PLU'], 3, 'PLU');
@@ -231,7 +256,7 @@ class ClaseComunicacionBalanza {
         }
         // Construimos la etiqueta H3
         $H3 = $this->formatearCampo($this->grupo, 2, 'grupo');
-        $H3 .= "H3"; // Clave de registro
+        $H3 .= $this->modoComunicacion . "3"; // Clave de registro
         $H3 .= $this->formatearCampo($this->direccion, 2, 'direccion');
         $H3 .= $this->formatearCampo($this->dataH3['codigo'], 6, 'codigo');
         // Tipo de producto (0: Pesado, 1: Unidad, etc.)
