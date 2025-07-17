@@ -136,7 +136,7 @@ function  htmlTablaBalanza($relacion_balanza){
         foreach ($relacion_balanza as $item=>$balanza){
             $html .=    '<tr><td>'.$balanza['idBalanza']
                             .'<td>'.$balanza['plu'].'</td>'
-                            .'<td>'.$balanza['tecla'].'</td>'
+                            .'<td>'.$balanza['seccion'].'</td>'
                             .'<td><a id="eliminar_'.$balanza['id'].'" class="glyphicon glyphicon-trash" onclick="EliminarReferenciaBalanza('
                             .$balanza['id'].',this)"></a></td>'
                         .'</tr>';

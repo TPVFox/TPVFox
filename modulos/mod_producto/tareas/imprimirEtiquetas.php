@@ -12,7 +12,13 @@ $respuesta = array();
                 if (!isset($relacion_balanza['error'])){
                     // Quiere decir que se obtuvo algun registro.Array ['idBalanza']['plu']['tecla']
                     // demomento tomamos solo plu y del primer item.
-                    $productos[$key]['plu'] = $relacion_balanza[0]['plu'];
+					if (isset($relacion_balanza[0]['seccion']) && $relacion_balanza[0]['seccion'] != '') {
+						// Si tiene seccion, la ponemos como plu.
+						$productos[$key]['plu'] = $relacion_balanza[0]['seccion'] . '-' . $relacion_balanza[0]['plu'];
+					} else {
+						// Si no tiene seccion, ponemos el plu normal.
+						$productos[$key]['plu'] = $relacion_balanza[0]['plu'];
+					}
                 }
             }
 		}

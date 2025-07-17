@@ -22,12 +22,12 @@ function AgregarBalanza(){
     if(nombreBalanza=="" || modeloBalanza==""){
         alert("Quedan campos IMPORTANTES sin cubrir!!");
     }else{
-        var teclas=$('#teclas').val();
+        var secciones=$('#secciones').val();
         var parametros={
             "pulsado"    	: 'addBalanza',
             'nombreBalanza' : nombreBalanza,
             'modeloBalanza' : modeloBalanza,
-            'teclas'         :teclas
+            'secciones'         :secciones
         }
         console.log(parametros);
         $.ajax({
@@ -50,10 +50,10 @@ function AgregarBalanza(){
 
 function htmlPlu(idBalanza){
     //@Objetivo: Generar el html con los campos para añadir un plu
-    var teclas=$('#teclas').val();
+    var secciones=$('#secciones').val();
     var parametros={
             "pulsado"    	: 'htmlPlu',
-            'teclas'    :teclas,
+            'secciones'    :secciones,
             'idBalanza':idBalanza
         }
     $.ajax({
@@ -71,7 +71,7 @@ function htmlPlu(idBalanza){
 		}
 	});
 }
-function controladorAcciones(caja, accion, tecla){
+function controladorAcciones(caja, accion, seccion){
      console.log (' Controlador Acciones: ' +accion);
       switch(accion) {
           case 'BuscarProducto':
@@ -135,7 +135,7 @@ function addPlu(idBalanza){
     var plu=$('#plu').val();
     var cref=$('#referencia').val();
     var articulo_name=$('#nombreProducto').val();
-    var tecla=$('#teclaPlu').val();
+    var seccion=$('#seccionPLU').val();
     var pvpCiva = $('#precioConIva').val();
     if(id=="" || plu =="" ){
         alert("Quedan campos sin cubrir");
@@ -146,7 +146,7 @@ function addPlu(idBalanza){
             "plu"           : plu,
             "cref"          : cref,
             "articulo_name" : articulo_name,
-            "tecla"         : tecla,
+            "seccion"         : seccion,
             "idBalanza"     : idBalanza,
             "pvpCiva"       : pvpCiva
         };
@@ -170,7 +170,7 @@ function addPlu(idBalanza){
                 $('#referencia').val("");
                 $('#codBarras').val("");
                 $('#plu').val("");
-                $('#teclaPlu').val("");
+                $('#seccionPlu').val("");
                 $('#precioConIva').val("");
             }
 		}
@@ -241,13 +241,13 @@ function ModificarBalanza(id){
     if(nombreBalanza=="" || modeloBalanza==""){
         alert("Quedan campos IMPORTANTES sin cubrir!!");
     }else{
-        var teclas=$('#teclas').val();
+        var secciones=$('#secciones').val();
         var parametros = {
             "pulsado"   : 'modificarBalanza',
             "idBalanza": id,
             "nombre":nombreBalanza,
             "modelo":modeloBalanza,
-            'tecla':teclas
+            'seccion':seccion
         };
          $.ajax({
 		data       : parametros,

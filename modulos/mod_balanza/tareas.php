@@ -13,7 +13,7 @@ switch ($pulsado) {
         $datos=array(
             'nombreBalanza'=>$_POST['nombreBalanza'],
             'modeloBalanza'=>$_POST['modeloBalanza'],
-            'teclas'        =>$_POST['teclas']
+            'secciones'        =>$_POST['secciones']
         );
         $html="";
         $addBalanza=$CBalanza->addBalanza($datos);
@@ -32,9 +32,9 @@ switch ($pulsado) {
     break;
     case 'htmlPlu':
     //OBjetivo: OBjetivo llamar a la función htmlAddPlu que devuelve el html para añadir un plu
-        $tecla=$_POST['teclas'];
+        $seccion=$_POST['secciones'];
         $idBalanza=$_POST['idBalanza'];
-        $html=htmlAddPLU($tecla, $idBalanza);
+        $html=htmlAddPLU($seccion, $idBalanza);
         $respuesta['html']=$html;
     break;
     case 'buscarProducto':
@@ -74,10 +74,10 @@ switch ($pulsado) {
         $crefTienda = $_POST['cref'];
         $articulo_name = $_POST['articulo_name'];
         $pvpCiva = $_POST['pvpCiva'];
-        if(isset($_POST['tecla'])){
-            $tecla = $_POST['tecla'];
+        if(isset($_POST['seccion'])){
+            $seccion = $_POST['seccion'];
         }else{
-            $tecla = "";
+            $seccion = "";
         }
         
         $idArticulo=$_POST['idArticulo'];
@@ -86,10 +86,10 @@ switch ($pulsado) {
             $respuesta['error']='Ya existe el producto con id:'.$buscarPlu['datos']['0']['idArticulo'].' ese mismo plu en la balanza';
             $respuesta['buscarPlu'] = json_encode($buscarPlu);
         }else{
-            $addPlu=$CBalanza->addPlu($plu, $idBalanza, $tecla, $idArticulo);
+            $addPlu=$CBalanza->addPlu($plu, $idBalanza, $seccion, $idArticulo);
             $datos=array(
             'plu'=> $plu,
-            'tecla'=> $tecla,
+            'seccion'=> $seccion,
             'idArticulo'=>$idArticulo,
             'articulo_name' => $articulo_name,
             'crefTienda' => $crefTienda,
@@ -119,7 +119,7 @@ switch ($pulsado) {
     break;
     case 'modificarBalanza':
     //@OBjetivo: Modificar los datos de la balanza
-        $modificarBalanza=$CBalanza->modificarBalanza($_POST['idBalanza'], $_POST['nombre'], $_POST['modelo'], $_POST['tecla']);
+        $modificarBalanza=$CBalanza->modificarBalanza($_POST['idBalanza'], $_POST['nombre'], $_POST['modelo'], $_POST['seccion']);
         $respuesta['modif']=$modificarBalanza;
     break;
 }

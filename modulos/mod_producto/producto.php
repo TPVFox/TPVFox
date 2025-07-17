@@ -190,7 +190,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     }
     $htmltabla = array();
     if ( $ClasePermisos->getModulo('mod_balanza') == 1) {
-        // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
+        // Ahora obtenemos los las plu y secciones de las balanza en los que esté este producto.
         $relacion_balanza = $CTArticulos->obtenerTeclaBalanzas($id);
         if (!isset($relacion_balanza['error'])){
             // Quiere decir que se obtuvo algun registro.
@@ -291,7 +291,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                     if ($relacion['idBalanza'] == $idBalanza) {
                         $ruta_balanza = '/balanza';
                         $datosH2['PLU'] = $relacion['plu'];
-                        $datosH3['seccion'] = $relacion['tecla'];
+                        $datosH3['seccion'] = $relacion['seccion'];
                         break;
                     }
                 }

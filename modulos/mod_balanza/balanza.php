@@ -28,7 +28,7 @@
                 $datosBalanza=$CBalanza->datosBalanza($id);
                 $nombreBalanza=$datosBalanza['datos'][0]['nombreBalanza'];
                 $modeloBalanza=$datosBalanza['datos'][0]['modelo'];
-                $htmlTecla=htmlTecla($datosBalanza['datos'][0]['conTecla']);
+                $htmlTecla=htmlTecla($datosBalanza['datos'][0]['conSeccion']);
                 
                 //faltra select con las opciones de tecla
                 
@@ -82,7 +82,7 @@
                 </div>
                 <div class="col-md-12">
                     <label>Teclas en la balanza</label>
-                    <select id="teclas" name="teclas">
+                    <select id="secciones" name="secciones">
                         <?php echo $htmlTecla;?>
                     </select>
                 </div>

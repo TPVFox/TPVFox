@@ -27,9 +27,9 @@ class ClaseBalanza  extends Modelo  {
 
     public function addBalanza($datos){
         //@OBjetivo: añadir una balanza nueva
-        //Parametros: datos de la balanza: nombre, modelo y si tiene tecla o no
-        $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conTecla`) VALUES ("'.$datos['nombreBalanza'].'", 
-        "'.$datos['modeloBalanza'].'", "'.$datos['teclas'].'")';
+        //Parametros: datos de la balanza: nombre, modelo y si tiene seccion o no
+        $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conSeccion`) VALUES ("'.$datos['nombreBalanza'].'", 
+        "'.$datos['modeloBalanza'].'", "'.$datos['secciones'].'")';
         $consulta = $this->consultaDML($sql);
        
         if (isset($consulta['error'])) {
@@ -56,7 +56,7 @@ class ClaseBalanza  extends Modelo  {
         //Objetivo: Obtener los plu de la balanza con todos los datos que necesitamos para mostrar
         //Parametros:
         //  idBalanza: id de la balanza
-        //  filtro: Filtro por el que vamos a ordenar, puede ser por tecla o por número de plu
+        //  filtro: Filtro por el que vamos a ordenar, puede ser por seccion o por número de plu
          $sql ='Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a 
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t 
          on t.idArticulo=b.idArticulo and t.idTienda ='.$this->idTienda.' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
@@ -104,12 +104,12 @@ class ClaseBalanza  extends Modelo  {
         $resultado = $this->consulta($sql);
         return $resultado;
     }
-    public function addPlu($plu, $idBalanza, $tecla, $idArticulo){
+    public function addPlu($plu, $idBalanza, $seccion, $idArticulo){
         //#Objetivo: añadir plu
-        // Evitar error tecla:
-        $tecla = intval($tecla);
-        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `tecla`, `idArticulo`)
-         VALUES ('.$idBalanza.', "'.$plu.'", "'.$tecla.'", '.$idArticulo.')';
+        // Evitar error seccion:
+        $seccion = intval($seccion);
+        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `seccion`, `idArticulo`)
+         VALUES ('.$idBalanza.', "'.$plu.'", "'.$seccion.'", '.$idArticulo.')';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
@@ -123,9 +123,9 @@ class ClaseBalanza  extends Modelo  {
             return $consulta;
         }
     }
-    public function modificarBalanza($id, $nombre, $modelo, $tecla){
+    public function modificarBalanza($id, $nombre, $modelo, $seccion){
         //@Objetivo: modificar los datos de una balanza
-        $sql='UPDATE `modulo_balanza` SET `nombreBalanza`="'.$nombre.'",`modelo`="'.$modelo.'",`conTecla`="'.$tecla.'"
+        $sql='UPDATE `modulo_balanza` SET `nombreBalanza`="'.$nombre.'",`modelo`="'.$modelo.'",`conSeccion`="'.$seccion.'"
          WHERE `idBalanza`='.$id;
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {

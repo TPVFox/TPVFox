@@ -74,7 +74,7 @@ function htmlLineaPlu( $plu, $idBalanza){
 				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
 				.$plu['plu'].'</td>'
 				
-                .'<td>'.$plu['tecla'].'</td>'
+                .'<td>'.$plu['seccion'].'</td>'
                 .'<td>'.$plu['idArticulo'].'</td>'
                 .'<td>'.$plu['crefTienda'].'</td>'
                 .'<td>'.$plu['articulo_name'].'</td>'
@@ -87,10 +87,10 @@ function htmlLineaPlu( $plu, $idBalanza){
                 
 	return $nuevaFila;
 }
-function htmlAddPLU($tecla, $idBalanza){
+function htmlAddPLU($seccion, $idBalanza){
     //@OBjetivo_: devolver html con los datos para poder añadir plu
     $style_none = ' ';
-    if($tecla=='no'){
+    if($seccion=='no'){
         $style_none = 'style="display:none"';
     }
 
@@ -101,7 +101,7 @@ function htmlAddPLU($tecla, $idBalanza){
             .'</div>'
             .'<div class="col-md-12" '.$style_none.'>'
                .'<label>Tecla:</label>'
-               .'<input type="text" name="teclaPlu" id="teclaPlu" value="" >';
+               .'<input type="text" name="seccionPlu" id="seccionPlu" value="" >';
     
     $html.='</div>'
             .'<div>'
@@ -223,10 +223,10 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
     <p><label>Filtrar por: </label><select id="filtroBalanza" >';
     if($opcionSelect=='a.plu'){
         $htmlBalanza.='<option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
-            <option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+            <option value="a.seccion" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
         </select></p>';
     }else{
-         $htmlBalanza.='<option value="a.tecla" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+         $htmlBalanza.='<option value="a.seccion" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
         <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
         </select></p>';
     }
@@ -254,14 +254,14 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
         }
         $html.='<tr '.$class.'>
             <td>'.$plu['plu'].'</td>
-            <td>'.$plu['tecla'].'</td>
+            <td>'.$plu['seccion'].'</td>
             <td>'.$plu['idArticulo'].'</td>
             <td>'.$plu['articulo_name'].'</td>
             <td>'.$plu['crefTienda'].'</td>
             <td>'.number_format($plu['pvpCiva'],2).'</td>
             <td>'.$imagen.'</td>
         </tr>';
-        // Comprobamos que va correlatio plu, pero esto es valido plu, pero para tecla ???
+        // Comprobamos que va correlatio plu, pero esto es valido plu, pero para seccion ???
         $sigIndice=$indice+1;
         if(isset($datosplu[$sigIndice])){
             // Si hay plu no utilizados mostramos advertencia.
@@ -277,15 +277,15 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
     $resultado['htmlBalanza']= $htmlBalanza;
     return $resultado;
 }
-function htmlTecla($tecla){
-    //@Objetivo: html con las opciones de la tecla
-    if($tecla=="si"){
+function htmlTecla($seccion){
+    //@Objetivo: html con las opciones de la seccion
+    if($seccion=="si"){
         $html ='<option value="si" selected="selected">Si</option>';
   
     }else{
         $html ='<option value="si">Si</option>';
     }
-    if($tecla=="no"){
+    if($seccion=="no"){
          $html .='<option value="no" selected="selected">No</option>';
     } else {
          $html .='<option value="no">No</option>';
