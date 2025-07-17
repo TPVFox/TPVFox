@@ -238,13 +238,22 @@ class ClaseComunicacionBalanza {
         // Rellenar a 60 caracteres multibyte correctamente
         $nombre_padded = $nombre . str_repeat(' ', 60 - mb_strlen($nombre, 'UTF-8'));
         $H2 .= $nombre_padded; // Nombre del producto (60 caracteres)
+        // Si es modelo L se añaden 12 espacios más
+        if ($this->modoComunicacion === 'L') {
+            $H2 .= str_repeat(' ', 12); // Añadimos 12 espacios adicionales
+        }
         $H2 .= "00"; // 2 dígitos de control
         $H2 .= $this->formatearCampo($this->dataH2['precio'], 6, 'precio');
         $H2 .= "00"; // 2 dígitos de control
         $H2 .= $this->formatearCampo($this->dataH2['precioOferta'], 6, 'precioOferta');
         $H2 .= "00"; // 2 dígitos de control
         $H2 .= $this->formatearCampo($this->dataH2['precioCoste'], 6, 'precioCoste');
-        $H2 .= str_repeat("0", 30); // 30 dígitos nulos (N/A)
+        //si es modelo M se añaden 30 digitos nutlo el modelo L solo 18
+        if ($this->modoComunicacion === 'M') {
+            $H2 .= str_repeat("0", 30); // 30 dígitos nulos (N/A)
+        } else {
+            $H2 .= str_repeat("0", 18); // 18 dígitos nulos (N/A)
+        }
         $H2 .= str_repeat("-", 20); // 20 dígitos no transmitibles
         return $H2 . "\n"; // Retornamos la etiqueta H2 con un salto de línea
     }

@@ -128,10 +128,10 @@
                                         // Aqui deberiamos asignar grupo y direccion de la balanza La balanza 2 tiene gupo 0 y dirección 50
                                     }
                                     $traductorBalanza->setH2Data($datosH2);
-                                    $traductorBalanza->setH3Data($datosH3);
+                                    //$traductorBalanza->setH3Data($datosH3);
 
                                     $salidaBalanza .= $traductorBalanza->traducirH2();
-                                    $salidaBalanza .= $traductorBalanza->traducirH3();
+                                    //$salidaBalanza .= $traductorBalanza->traducirH3();
                                 }
                             }
                         }
