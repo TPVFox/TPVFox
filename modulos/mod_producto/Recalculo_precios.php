@@ -152,10 +152,10 @@
                 $traductorBalanza->ejecutarDriverBalanza();
 
                 $alertas = $traductorBalanza->getAlertas();
-                echo '<pre>';
-                print_r($salidaBalanza);
-                print_r($alertas);
-                echo '</pre>';
+                // echo '<pre>';
+                // print_r($salidaBalanza);
+                // print_r($alertas);
+                // echo '</pre>';
             }
 		}
 		?>
