@@ -54,9 +54,13 @@
             if ($hayPeso) {
                 include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
                 $traductorBalanza = new ClaseComunicacionBalanza();
-                $idBalanza = 1; // ID de la balanza a utilizar
-                $ruta_balanza = '/balanza';
+                $idBalanza = 2; // ID de la balanza a utilizar
+                $ruta_balanza = '/balanza2';
                 $salidaBalanza = '';
+                $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L
+                // asignar gupo 0 dirección 50 a la balanza
+                $traductorBalanza->setGrupo(0);
+                $traductorBalanza->setDireccion(50);
             }            
             foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
@@ -98,7 +102,7 @@
                         // Aqui se hacen las tareas para comunicar con la balanza
                         if ($productosPeso[$producto['idArticulo']] === 'peso') {
                             $datosH2 = array(
-                                'codigo' => $producto['id'],
+                                'codigo' => $datosArticulo['crefTienda'],
                                 'nombre' => $datosArticulo['articulo_name'],
                                 'precio' => $pvpRecomendadoCiva,
                                 'PLU' => '',
@@ -113,14 +117,16 @@
                             // Si hay balanzas asociadas ajustar valores
                             if (count($balanzas) > 0) {
                                 foreach ($balanzas as $balanza) {
-                                    $datosH2['PLU'] = $balanza['PLU'];
-                                    $datosH2['tecla'] = $balanza['Tecla'];
-                                    // Si la tecla es 0, definimos modo de comunicación L
-                                    // if ($balanza['Tecla'] == 0) {
-                                    //    $traductorBalanza->setModoComunicacion('L');
-                                    //}
-                                    //$datosH2['idBalanza'] = $balanza['idBalanza'];
-                                    // Aqui deberiamos asignar grupo y direccion de la balanza La balanza 2 tiene gupo 0 y dirección 50
+                                    if ($balanza['idBalanza'] == $idBalanza) {
+                                        $datosH2['PLU'] = $balanza['PLU'];
+                                        $datosH2['tecla'] = $balanza['Tecla'];
+                                        // Si la tecla es 0, definimos modo de comunicación L
+                                        // if ($balanza['Tecla'] == 0) {
+                                        //    $traductorBalanza->setModoComunicacion('L');
+                                        //}
+                                        //$datosH2['idBalanza'] = $balanza['idBalanza'];
+                                        // Aqui deberiamos asignar grupo y direccion de la balanza La balanza 2 tiene gupo 0 y dirección 50
+                                    }
                                     $traductorBalanza->setH2Data($datosH2);
                                     $traductorBalanza->setH3Data($datosH3);
 
