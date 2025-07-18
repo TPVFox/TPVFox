@@ -325,29 +325,36 @@ function ModificarBalanza(id) {
     }
 }
 
-function CrearDirectioBalanza() {
-    var id = document.getElementById('idBalanza').value;
-    var nombre = document.getElementById('nombreBalanza').value;
-    var modoDirectorio = document.getElementById('modoDirectorio').value;
+function CrearDirectorioBalanza(idBalanza) {
+    //@Objetivo: Crear el directorio de una balanza
+    var nombre = $('#nombreBalanza').val();
+    var modoDirectorio = $('#modoDirectorio').val();
+
+    var parametros = {
+        "pulsado": "crearDirectorioBalanza",
+        "idBalanza": idBalanza,
+        "nombre": nombre,
+        "modoDirectorio": modoDirectorio
+    };
 
     $('#directorioMsg').text('Creando directorio...');
     $.ajax({
+        data: parametros,
         url: 'tareas.php',
-        type: 'POST',
-        data: {
-            id: id,
-            nombre: nombre,
-            modoDirectorio: modoDirectorio
+        type: 'post',
+        beforeSend: function () {
+            console.log('*********  enviando crear directorio balanza ****************');
         },
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
+        success: function (response) {
+            console.log('Respuesta de crear directorio balanza');
+            var resultado = $.parseJSON(response);
+            if (resultado.success) {
                 $('#directorioMsg').text('Directorio creado correctamente.');
             } else {
-                $('#directorioMsg').text('Error: ' + response.message);
+                $('#directorioMsg').text('Error: ' + resultado.message);
             }
         },
-        error: function() {
+        error: function () {
             $('#directorioMsg').text('Error en la solicitud AJAX.');
         }
     });
