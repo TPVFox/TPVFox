@@ -236,7 +236,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                 );
 
     if ($precioNuevo && $Producto['tipo'] == 'peso') {
-        include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
+        include_once $URLCom.'/modulo/mod_balanza/clases/ClaseComunicacionBalanza.php';
         $traductorBalanza = new ClaseComunicacionBalanza();
         $idBalanza = 1;
         $ruta_balanza = '/balanza';

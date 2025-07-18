@@ -52,7 +52,7 @@
                 }
             }
             if ($hayPeso) {
-                include_once $URLCom.'/clases/ClaseComunicacionBalanza.php';
+                include_once $URLCom.'/modulo/mod_balanza/clases/ClaseComunicacionBalanza.php';
                 $traductorBalanza = new ClaseComunicacionBalanza();
                 $idBalanza = 2; // ID de la balanza a utilizar
                 $ruta_balanza = '/balanza2';
