@@ -14,9 +14,9 @@ function metodoClick(pulsado,adonde){
         break;
     }
 }
+
 function AgregarBalanza() {
     //@Objetivo: Agregar una nueva balanza con validaciones adicionales
-
     var nombreBalanza = $('#nombreBalanza').val().trim();
     var modeloBalanza = $('#modeloBalanza').val().trim();
     var secciones = $('#secciones').val();
@@ -24,58 +24,56 @@ function AgregarBalanza() {
     var direccion = $('#direccionBalanza').val().trim();
     var ip = $('#ipBalanza').val().trim();
 
- 
+    // Validar todos los campos con las funciones de validación
+    var mensajes = [];
+    var respuesta;
 
-    // Validar grupo, dirección e IP: si alguno tiene valor, todos deben tenerlo
-    var algunoGrupo = grupo || direccion || ip;
-    console.log(algunoGrupo);
-    if (algunoGrupo && (!grupo || !direccion || !ip)) {
-        alert("Si completa Grupo, Dirección o IP, debe completar los tres campos.");
-        return;
-    }
-    if (ip) {
-        // Validar formato IP: 4 grupos de 1-3 dígitos, sin ceros a la izquierda, cada grupo <= 255
-        var ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
-        if (!ipRegex.test(ip)) {
-            alert("La IP debe tener el formato correcto (ej: 192.168.4.23), sin ceros a la izquierda y cada grupo de 1 a 3 dígitos.");
-            return;
-        }
-    }
-    // Validar que Grupo y Dirección sea un numero de no más de 2 digitios. Si lo tiene 1 digito transformalo y añadir un 0 a la izquierda
-    if (grupo && !/^\d{1,2}$/.test(grupo)) {
-        alert("El Grupo debe ser un número de 1 o 2 dígitos.");
-        return;
-    }
-    if (direccion && !/^\d{1,2}$/.test(direccion)) {
-        alert("La Dirección debe ser un número de 1 o 2 dígitos.");
-        return;
-    }
+    respuesta = validarCamposBalanza(nombreBalanza, modeloBalanza, secciones);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
 
-    var parametros = {
-        "pulsado": "addBalanza",
-        "nombreBalanza": nombreBalanza,
-        "modeloBalanza": modeloBalanza,
-        "secciones": secciones,
-        "Grupo": grupo,
-        "Direccion": direccion,
-        "IP": ip,
-        "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
-    };
-    console.log(parametros);
-    $.ajax({
-        data: parametros,
-        url: 'tareas.php',
-        type: 'post',
-        beforeSend: function () {
-            console.log('*********  enviando datos para add balanzas ****************');
-        },
-        success: function (response) {
-            console.log('Repuesta de add balanzas');
-            var resultado = $.parseJSON(response);
-            console.log(resultado);
-            window.location = "ListaBalanzas.php";
-        }
-    });
+    respuesta = validarGrupoDireccionIp(grupo, direccion, ip);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarFormatoIp(ip);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(grupo, "Grupo");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(direccion, "Dirección");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    if (mensajes.length == 0) {
+
+        // Si todos los campos son válidos, enviar los datos al servidor
+        var parametros = {
+            "pulsado": "addBalanza",
+            "nombreBalanza": nombreBalanza,
+            "modeloBalanza": modeloBalanza,
+            "secciones": secciones,
+            "Grupo": grupo,
+            "Direccion": direccion,
+            "IP": ip,
+            "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
+        };
+        $.ajax({
+            data: parametros,
+            url: 'tareas.php',
+            type: 'post',
+            beforeSend: function () {
+                console.log('*********  enviando datos para add balanzas ****************');
+            },
+            success: function (response) {
+                console.log('Repuesta de add balanzas');
+                var resultado = $.parseJSON(response);
+                console.log(resultado);
+                window.location = "ListaBalanzas.php";
+            }
+        });
+    } else {
+        // Si hay mensajes de error, mostrarlos al usuario
+        alert(mensajes.join("\n"));
+    }
 }
 
 
@@ -266,8 +264,8 @@ function mostrarDatosBalanza(idBalanza){
 }
 
 
-function ModificarBalanza(id){
-    //@Objetivo: Modificar los datos de una balanza
+function ModificarBalanza(id) {
+    //@Objetivo: Modificar los datos de una balanza con validaciones adicionales
     var nombreBalanza = $('#nombreBalanza').val().trim();
     var modeloBalanza = $('#modeloBalanza').val().trim();
     var secciones = $('#secciones').val();
@@ -275,63 +273,60 @@ function ModificarBalanza(id){
     var direccion = $('#direccionBalanza').val().trim();
     var ip = $('#ipBalanza').val().trim();
 
-    if(nombreBalanza === "" || modeloBalanza === ""){
-        alert("Quedan campos IMPORTANTES sin cubrir!!");
-        return;
-    }
+    // Validar todos los campos con las funciones de validación
+    var mensajes = [];
+    var respuesta;
 
-    // Validar grupo, dirección e IP: si alguno tiene valor, todos deben tenerlo
-    var algunoGrupo = grupo || direccion || ip;
-    if (algunoGrupo && (!grupo || !direccion || !ip)) {
-        alert("Si completa Grupo, Dirección o IP, debe completar los tres campos.");
-        return;
-    }
-    if (ip) {
-        // Validar formato IP: 4 grupos de 1-3 dígitos, sin ceros a la izquierda, cada grupo <= 255
-        var ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
-        if (!ipRegex.test(ip)) {
-            alert("La IP debe tener el formato correcto (ej: 192.168.4.23), sin ceros a la izquierda y cada grupo de 1 a 3 dígitos.");
-            return;
-        }
-    }
-    // Validar que Grupo y Dirección sea un numero de no más de 2 dígitos. Si lo tiene 1 digito transformalo y añadir un 0 a la izquierda
-    if (grupo && !/^\d{1,2}$/.test(grupo)) {
-        alert("El Grupo debe ser un número de 1 o 2 dígitos.");
-        return;
-    }
-    if (direccion && !/^\d{1,2}$/.test(direccion)) {
-        alert("La Dirección debe ser un número de 1 o 2 dígitos.");
-        return;
-    }
+    respuesta = validarCamposBalanza(nombreBalanza, modeloBalanza, secciones);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
 
-    var parametros = {
-        "pulsado": "modificarBalanza",
-        "idBalanza": id,
-        "nombreBalanza": nombreBalanza,
-        "modeloBalanza": modeloBalanza,
-        "secciones": secciones,
-        "Grupo": grupo,
-        "Direccion": direccion,
-        "IP": ip,
-        "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
-    };
-    $.ajax({
-        data: parametros,
-        url: 'tareas.php',
-        type: 'post',
-        beforeSend: function () {
-            console.log('*********  enviando modificar datos balanzas ****************');
-        },
-        success: function (response) {
-            console.log('Repuesta de modificar datos balanza');
-            var resultado = $.parseJSON(response);
-            window.location = "ListaBalanzas.php";
-        }
-    });
+    respuesta = validarGrupoDireccionIp(grupo, direccion, ip);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarFormatoIp(ip);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(grupo, "Grupo");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(direccion, "Dirección");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    if (mensajes.length == 0) {
+        // Si todos los campos son válidos, enviar los datos al servidor
+        var parametros = {
+            "pulsado": "modificarBalanza",
+            "idBalanza": id,
+            "nombreBalanza": nombreBalanza,
+            "modeloBalanza": modeloBalanza,
+            "secciones": secciones,
+            "Grupo": grupo,
+            "Direccion": direccion,
+            "IP": ip,
+            "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
+        };
+        $.ajax({
+            data: parametros,
+            url: 'tareas.php',
+            type: 'post',
+            beforeSend: function () {
+                console.log('*********  enviando modificar datos balanzas ****************');
+            },
+            success: function (response) {
+                console.log('Repuesta de modificar datos balanza');
+                var resultado = $.parseJSON(response);
+                console.log(resultado);
+                window.location = "ListaBalanzas.php";
+            }
+        });
+    } else {
+        // Si hay mensajes de error, mostrarlos al usuario
+        alert(mensajes.join("\n"));
+    }
 }
 
 function CrearDirectioBalanza() {
-    var id = <?php echo json_encode($id); ?>;
+    var id = document.getElementById('idBalanza').value;
     var nombre = document.getElementById('nombreBalanza').value;
     var modoDirectorio = document.getElementById('modoDirectorio').value;
 
@@ -364,6 +359,38 @@ function validarCamposBalanza(nombreBalanza, modeloBalanza, secciones) {
     var respuesta = {};
     if (!nombreBalanza || !modeloBalanza || !secciones) {
         respuesta["Texto"] = "Debe completar Nombre Balanza, Modelo Balanza y Secciones.";
+    }
+    return respuesta;
+}
+
+function validarGrupoDireccionIp(grupo, direccion, ip) {
+    //@Objetivo: Validar que si se completa Grupo, Dirección o IP, se completen los tres campos
+    // Validar que si alguno de los campos Grupo, Dirección o IP tiene valor, todos deben tenerlo
+    var respuesta = {};
+    if ((grupo || direccion || ip) && (!grupo || !direccion || !ip)) {
+        respuesta["Texto"] = "Si completa Grupo, Dirección o IP, debe completar los tres campos.";
+    }
+    return respuesta;
+}
+
+function validarFormatoIp(ip) {
+    // @Objetivo: Validar el formato de la IP
+    // La IP debe tener el formato correcto: 4 grupos de 1-3 dígitos, sin ceros a la izquierda, cada grupo <= 255
+    var respuesta = {};
+    if (ip) {
+        var ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+        if (!ipRegex.test(ip)) {
+            respuesta["Texto"] = "La IP debe tener el formato correcto (ej: 192.168.4.23), sin ceros a la izquierda y cada grupo de 1 a 3 dígitos.";
+        }
+    }
+    return respuesta;
+}
+
+function validarNumeroDosDigitos(valor, campoNombre) {
+    // @Objetivo: Validar que el valor sea un número de 1 o 2 dígitos
+    var respuesta = {};
+    if (valor && !/^\d{1,2}$/.test(valor)) {
+        respuesta["Texto"] = "El " + campoNombre + " debe ser un número de 1 o 2 dígitos.";
     }
     return respuesta;
 }
