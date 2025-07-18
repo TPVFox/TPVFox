@@ -33,8 +33,12 @@
                     <h4> Balanzas</h4>
                     <h5> Opciones para una selección</h5>
                     <ul class="nav nav-pills nav-stacked">
-                          <li><a href="#section2" onclick="metodoClick('AgregarBalanza');";>Añadir</a></li>
-                          <li><a href="#section2" onclick="metodoClick('VerBalanza', 'balanza');";>Modificar</a></li>
+                        <?php if ($ClasePermisos->getAccion("crear")): ?>
+                            <li><a href="#section2" onclick="metodoClick('AgregarBalanza');">Añadir</a></li>
+                        <?php endif; ?>
+                        <?php if ($ClasePermisos->getAccion("modificar") || $ClasePermisos->getAccion("crear")): ?>
+                            <li><a href="#section2" onclick="metodoClick('VerBalanza', 'balanza');">Modificar</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
                 <div class="nav">

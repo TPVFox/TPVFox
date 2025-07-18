@@ -3,61 +3,54 @@ include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 
 class ClaseBalanza  extends Modelo  {
 
-    public $idTienda; // (int) Id de la tienda , por defecto es la principal, pero se podrá cambiar.
-    
+    public $idTienda;
+
     public function __construct($conexion='')
-	{
-        // Obtenemos la tienda principal
+    {
         $this->ObtenerTiendaPrincipal();
     }
 
     public function ObtenerTiendaPrincipal(){
-		// Objetivo:
-		// Obtener la tienda principal y guardarla en propiedad tienda.
-		// [NOTA] -> Asi no hace falta mandar siempre idTienda
-		$Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
-		$respuesta = $this->consulta($Sql);
-		if (count($respuesta['datos']) === 1){
-			// Quiere decir que obtuvo un dato solo..
-			$this->idTienda = $respuesta['datos'][0]['idTienda'];
-           
-		}
-	}
-
+        $Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
+        $respuesta = $this->consulta($Sql);
+        if (count($respuesta['datos']) === 1){
+            $this->idTienda = $respuesta['datos'][0]['idTienda'];
+        }
+    }
 
     public function addBalanza($datos){
-        //@OBjetivo: añadir una balanza nueva
-        //Parametros: datos de la balanza: nombre, modelo y si tiene seccion o no
-        $sql='INSERT INTO `modulo_balanza`(`nombreBalanza`, `modelo`, `conSeccion`) VALUES ("'.$datos['nombreBalanza'].'", 
-        "'.$datos['modeloBalanza'].'", "'.$datos['secciones'].'")';
+        // Ahora se esperan los nuevos campos en $datos
+        $sql = 'INSERT INTO `modulo_balanza`
+            (`nombreBalanza`, `modelo`, `conSeccion`, `Grupo`, `Dirección`, `IP`, `soloPLUS`)
+            VALUES (
+                "'.$datos['nombreBalanza'].'",
+                "'.$datos['modeloBalanza'].'",
+                "'.$datos['secciones'].'",
+                '.intval($datos['Grupo']).',
+                '.intval($datos['Direccion']).',
+                "'.$datos['IP'].'",
+                '.(isset($datos['soloPLUS']) ? intval($datos['soloPLUS']) : 1).'
+            )';
         $consulta = $this->consultaDML($sql);
-       
         if (isset($consulta['error'])) {
             return $consulta;
         }
-       
     }
 
-   
     public function todasBalanzas(){
-        //@objetivo: Mostrar todos los datos de todas las balanza
-        $sql='SELECT * from modulo_balanza ';
+        $sql='SELECT * from modulo_balanza';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+
     public function datosBalanza($idBalanza){
-        //@Objetivo: Mostrar datos de una balanza en concreto
         $sql='SELECT * from modulo_balanza where idBalanza='.$idBalanza;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
-    
+
     public function pluDeBalanza($idBalanza, $filtro){
-        //Objetivo: Obtener los plu de la balanza con todos los datos que necesitamos para mostrar
-        //Parametros:
-        //  idBalanza: id de la balanza
-        //  filtro: Filtro por el que vamos a ordenar, puede ser por seccion o por número de plu
-         $sql ='Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a 
+        $sql ='Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a 
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t 
          on t.idArticulo=b.idArticulo and t.idTienda ='.$this->idTienda.' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
          left join proveedores as pro on pro.idProveedor=b.idProveedor
@@ -65,48 +58,46 @@ class ClaseBalanza  extends Modelo  {
          order by '.$filtro.' asc';
         
         $plus = $this->consulta($sql);
-        // Ahora comprobamos si hay alguno repetido en esta balanza.
+
+        // Controlar si no hay plus para la balanza
+        if (empty($plus['datos'])) {
+            $plus['datos'] = [];
+            $plus['mensaje'] = 'No hay PLUs para esta balanza.';
+            return $plus;
+        }
+
         $idsProductos = array_column($plus['datos'], 'idArticulo');
-        // Eliminamos si hay duplicados con
         $idsProductosUnicos = array_unique($idsProductos);
         $duplicado = array();
         if (count($idsProductos) !== count($idsProductosUnicos)){
-            // Obtenemos la diferencia, es decir aquellos registros duplicados.
             $duplicado = array_diff_assoc($idsProductos,$idsProductosUnicos);
         }
         if (count($duplicado)>0 ){
-            // Hay duplicados, por lo que marcamos UNO DE ELLOS. Ojo solo puedo marcar uno.. sin recorrer todos plus
             foreach ($duplicado as $key=>$valor){
                 $plus['datos'][$key]['duplicado'] = 'KO';
-                
             }
         }
-
         $resultado = $plus;
         return $resultado;
     }
+
     public function buscarArticuloCampo($busqueda){
-        //@ Objetivo:
-        // Buscar Articulos según el campo
-                $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
+        $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
                 from articulos as a LEFT JOIN articulosTiendas as b on a.idArticulo=b.idArticulo LEFT JOIN
                 articulosCodigoBarras as c on a.idArticulo=c.idArticulo LEFT join tiendas as d on 
                 b.idTienda=d.idTienda  left join articulosPrecios as p on p.idArticulo=a.idArticulo 
                 where d.tipoTienda="principal" and '.$busqueda;
-
         $resultado = $this->consulta($sql);
         return $resultado;
     }
-    
+
     public function buscarPluEnBalanza($plu, $idBalanza){
-        //@OBjetivo: Buscar un plu en la balanza, para que en una balanza no tenga dos plu iguales
         $sql='select * from modulo_balanza_plus where idBalanza='.$idBalanza.' and plu="'.$plu.'"';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
+
     public function addPlu($plu, $idBalanza, $seccion, $idArticulo){
-        //#Objetivo: añadir plu
-        // Evitar error seccion:
         $seccion = intval($seccion);
         $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `seccion`, `idArticulo`)
          VALUES ('.$idBalanza.', "'.$plu.'", "'.$seccion.'", '.$idArticulo.')';
@@ -115,24 +106,70 @@ class ClaseBalanza  extends Modelo  {
             return $consulta;
         }
     }
+
     public function eliminarplu($idBalanza, $plu){
-        //@Objetivo: eliminar plu
         $sql='DELETE FROM `modulo_balanza_plus` WHERE idBalanza='.$idBalanza.' and plu="'.$plu.'"';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
-    public function modificarBalanza($id, $nombre, $modelo, $seccion){
-        //@Objetivo: modificar los datos de una balanza
-        $sql='UPDATE `modulo_balanza` SET `nombreBalanza`="'.$nombre.'",`modelo`="'.$modelo.'",`conSeccion`="'.$seccion.'"
-         WHERE `idBalanza`='.$id;
+
+    public function modificarBalanza($idBalanza, $datos){
+        // Obtener datos actuales de la balanza
+        $balanzaActual = $this->datosBalanza(intval($idBalanza));
+        if (empty($balanzaActual['datos'][0])) {
+            return ['error' => 'Balanza no encontrada'];
+        }
+        $actual = $balanzaActual['datos'][0];
+
+        // Campos que pueden ser modificados
+        $campos = [
+            'nombreBalanza' => 'nombreBalanza',
+            'modeloBalanza' => 'modelo',
+            'secciones'     => 'conSeccion',
+            'Grupo'         => 'Grupo',
+            'Direccion'     => 'Dirección',
+            'IP'            => 'IP',
+            'soloPLUS'      => 'soloPLUS'
+        ];
+
+        // Construir SET solo con los campos que han cambiado
+        $set = [];
+        foreach ($campos as $key => $columna) {
+            $nuevoValor = isset($datos[$key]) ? $datos[$key] : null;
+            $valorActual = isset($actual[$columna]) ? $actual[$columna] : null;
+
+            // Normalizar valores numéricos
+            if (in_array($key, ['Grupo', 'Direccion', 'soloPLUS'])) {
+                $nuevoValor = intval($nuevoValor);
+                $valorActual = intval($valorActual);
+            }
+
+            // Si el valor ha cambiado, añadirlo al SET
+            if ($nuevoValor !== null && $nuevoValor !== $valorActual) {
+                if (in_array($key, ['Grupo', 'Direccion', 'soloPLUS'])) {
+                    $set[] = "`$columna` = $nuevoValor";
+                } else {
+                    $set[] = "`$columna` = \"".$this->escapeString($nuevoValor)."\"";
+                }
+            }
+        }
+
+        if (empty($set)) {
+            return ['mensaje' => 'No hay cambios para actualizar'];
+        }
+
+        $sql = 'UPDATE `modulo_balanza` SET '.implode(', ', $set).' WHERE `idBalanza` = '.intval($idBalanza);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
+
+    // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)
+    private function escapeString($str) {
+        return addslashes($str);
+    }
 }
-
-
 ?>

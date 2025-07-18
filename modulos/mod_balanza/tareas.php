@@ -11,9 +11,13 @@ switch ($pulsado) {
     case 'addBalanza':
         //@Objetivo: Añadir una balanza nueva
         $datos=array(
-            'nombreBalanza'=>$_POST['nombreBalanza'],
-            'modeloBalanza'=>$_POST['modeloBalanza'],
-            'secciones'        =>$_POST['secciones']
+            'nombreBalanza' => $_POST['nombreBalanza'],
+            'modeloBalanza' => $_POST['modeloBalanza'],
+            'secciones'     => $_POST['secciones'],
+            'Grupo'         => $_POST['Grupo'],
+            'Direccion'     => $_POST['Direccion'],
+            'IP'            => $_POST['IP'],
+            'soloPLUS'      => isset($_POST['soloPLUS']) ? 1 : 0
         );
         $html="";
         $addBalanza=$CBalanza->addBalanza($datos);
@@ -118,9 +122,18 @@ switch ($pulsado) {
         }
     break;
     case 'modificarBalanza':
-    //@OBjetivo: Modificar los datos de la balanza
-        $modificarBalanza=$CBalanza->modificarBalanza($_POST['idBalanza'], $_POST['nombre'], $_POST['modelo'], $_POST['seccion']);
-        $respuesta['modif']=$modificarBalanza;
+    //@Objetivo: Modificar los datos de la balanza con el nuevo formato de datos
+        $datos = array(
+            'nombreBalanza' => $_POST['nombreBalanza'],
+            'modeloBalanza' => $_POST['modeloBalanza'],
+            'secciones'     => $_POST['secciones'],
+            'Grupo'         => $_POST['Grupo'],
+            'Direccion'     => $_POST['Direccion'],
+            'IP'            => $_POST['IP'],
+            'soloPLUS'      => isset($_POST['soloPLUS']) ? 1 : 0
+        );
+        $modificarBalanza = $CBalanza->modificarBalanza($_POST['idBalanza'], $datos);
+        $respuesta['modif'] = $modificarBalanza;
     break;
 }
 echo json_encode($respuesta);
