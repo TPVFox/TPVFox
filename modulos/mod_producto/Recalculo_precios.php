@@ -52,8 +52,10 @@
                 }
             }
             if ($hayPeso) {
-                include_once $URLCom.'/modulo/mod_balanza/clases/ClaseComunicacionBalanza.php';
+                include_once $URLCom.'/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
+                include_once $URLCom.'/modulos/mod_balanza/clases/ComunicacionBalanza.php';
                 $traductorBalanza = new ClaseComunicacionBalanza();
+                $CBalanza = new ComunicacionBalanza($BDTpv);
                 $idBalanza = 2; // ID de la balanza a utilizar
                 $ruta_balanza = '/balanza2';
                 $salidaBalanza = '';
@@ -113,14 +115,14 @@
                                 'iva' => $datosArticulo['iva'],
                                 'seccion' => '',
                             );
-                            $balanzas = $CArticulo->getBalanzaAsociada($producto['idArticulo']);
+                            $balanzas = $CBalanza->getBalanzasPorArticulo($producto['idArticulo']);
                             // Si hay balanzas asociadas ajustar valores
                             if (count($balanzas) > 0) {
                                 foreach ($balanzas as $balanza) {
                                     if ($balanza['idBalanza'] == $idBalanza) {
-                                        $datosH2['PLU'] = $balanza['PLU'];
-                                        $datosH2['tecla'] = $balanza['Tecla'];
-                                        // Si la tecla es 0, definimos modo de comunicación L
+                                        $datosH2['PLU'] = $balanza['plu'];
+                                        $datosH2['tecla'] = $balanza['seccion'];
+                                        // Si la seccion es 0, definimos modo de comunicación L
                                         // if ($balanza['Tecla'] == 0) {
                                         //    $traductorBalanza->setModoComunicacion('L');
                                         //}
