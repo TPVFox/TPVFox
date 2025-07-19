@@ -539,10 +539,12 @@ class ClaseComunicacionBalanza {
             $valorStr = substr($valorStr, 0, $longitud);
         }
         if ($tipo === 'izquierda') {
-            return str_pad($valorStr, $longitud, $relleno, STR_PAD_LEFT);
+            $valorStr = str_pad($valorStr, $longitud, $relleno, STR_PAD_LEFT);
         } else {
-            return str_pad($valorStr, $longitud, $relleno, STR_PAD_RIGHT);
+            $valorStr = str_pad($valorStr, $longitud, $relleno, STR_PAD_RIGHT);
         }
+        return $valorStr;
+        
     }
     // Metodo para verificar el estado de la balanza leyendo el log de baltty
     // Si la balanza no se ha ejecutado correctamente, se terminan los procesos de baltty en ejecución
@@ -568,6 +570,76 @@ class ClaseComunicacionBalanza {
             }
         }
     }
+    // Metodo para crear el directorio de la balanza si no existe
+    public function crearDirectorioBalanza($datos) {
+        $formato = $datos['modoDirectorio'] ?? 'Balctrol';
+        switch ($formato) {
+            case 'Balctrol':
+                $this->comprobarCrearDirectorio($this->rutaBalanza);
+                $fileBalctrol = $this->rutaBalanza . '/balctrol';
+                $this->comprobarCrearArchivo($fileBalctrol);
+                // Escribimo los nuevos datos en el archivo balctrol
+                $this->crearFicheroConfiguracionDibal($fileBalctrol, $datos);
+                $fileTx = $this->rutaBalanza . '/filetx';
+                $this->comprobarCrearArchivo($fileTx);
+                $this->comprobarCrearDirectorio($this->rutaLogs);
+                $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
+                $this->comprobarCrearArchivo($logFile);
+                return ['mensaje' => 'No hay cambios para actualizar'];
+            break;
+        }
+    }
+    // metodo privado pra comrpobar si existen directorio y si no existe crearlo. Devolver un aviso
+    private function comprobarCrearDirectorio(string $directorio): void {
+        if (!is_dir($directorio)) {
+            if (mkdir($directorio, 0755, true)) {
+                $this->alertas[] = "Directorio creado: {$directorio}";
+            } else {
+                $this->alertas[] = "Error al crear el directorio: {$directorio}";
+                error_log("ERROR: Error al crear el directorio: {$directorio} [" . date('Y-m-d H:i:s') . "]");
+            }
+        } else {
+            $this->alertas[] = "El directorio ya existe: {$directorio}";
+        }
+    }
+    // Método para combrobar si existe un archivo y si no existe crearlo
+    private function comprobarCrearArchivo(string $archivo): void {
+        if (!file_exists($archivo)) {
+            if (touch($archivo)) {
+                $this->alertas[] = "Archivo creado: {$archivo}";
+            } else {
+                $this->alertas[] = "Error al crear el archivo: {$archivo}";
+                error_log("ERROR: Error al crear el archivo: {$archivo} [" . date('Y-m-d H:i:s') . "]");
+            }
+        } else {
+            $this->alertas[] = "El archivo ya existe: {$archivo}";
+        }
+    }
 
+    private function crearFicheroConfiguracionDibal(string $rutaArchivo, array $config): bool {
+        $contenido = <<<EOT
+        DT = {$this->rutaBalanza}/
+        TC = 1
+        DI = {$config['ipPc']}
+        PR = 3001
+        BD = {$config['direccionBalanza']} {$config['ipBalanza']} 3000
+        TX = {$this->rutaBalanza}/filetx 141
+        RX = {$this->rutaBalanza}/filerx 151
+        BL = {$config['grupoBalanza']} {$config['serieH']}
+        BH = {$config['grupoBalanza']} {$config['serieTipo']}
+        PM = 3
+        EB = 0
+        SL = 0
+        SI = 0
+        EOT;
 
+        if (file_put_contents($rutaArchivo, $contenido) !== false) {
+            $this->alertas[] = "Fichero de configuración creado: {$rutaArchivo}";
+            return true;
+        } else {
+            $this->alertas[] = "Error al crear el fichero de configuración: {$rutaArchivo}";
+            error_log("ERROR: Error al crear el fichero de configuración: {$rutaArchivo} [" . date('Y-m-d H:i:s') . "]");
+            return false;
+        }
+    }
 }
