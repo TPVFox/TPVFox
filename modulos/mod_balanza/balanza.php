@@ -195,7 +195,7 @@ $htmlplus = htmlTablaPlus($plus, $id);
         <div class="col-12 col-lg-8" id="infoCol">
             <div class="p-3 bg-white rounded shadow-sm h-100">
                 <div class="panel-group">
-                    <?php echo htmlPanelDesplegable(1, 'PLUs', $htmlplus); ?>
+                    <?php echo htmlPanelDesplegable(1, 'PLUs', $htmlplus, $id); ?>
                 </div>
             </div>
         </div>

@@ -207,6 +207,11 @@ switch ($pulsado) {
         $respuesta['success'] = empty($errores);
         $respuesta['errores'] = $errores;
     break;
+    case 'mostrarArticulosPeso':
+        $idBalanza = intval($_POST['idBalanza']);
+        $articulos = $CBalanza->getArticulosPesoSinPLU($idBalanza);
+        $respuesta['html'] = htmlArticulosPeso($articulos, $idBalanza);
+    break;
 }
 echo json_encode($respuesta);
 ?>

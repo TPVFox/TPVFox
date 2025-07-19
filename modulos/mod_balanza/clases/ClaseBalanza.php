@@ -198,6 +198,24 @@ class ClaseBalanza  extends Modelo  {
         return false; // Si no se encuentra la balanza, asumimos que no usa secciones
     }
 
+    public function getArticulosPesoSinPLU($idBalanza) {
+        // Devuelve artículos de tipo 'peso' que NO están en modulo_balanza_plus para esta balanza y solo de la tienda principal
+        $sql = "SELECT a.idArticulo, a.articulo_name, t.crefTienda, c.codBarras, p.pvpCiva, pro.nombrecomercial
+                FROM articulos a
+                INNER JOIN articulosTiendas t ON t.idArticulo = a.idArticulo
+                INNER JOIN tiendas d ON t.idTienda = d.idTienda AND d.tipoTienda = 'principal'
+                LEFT JOIN articulosCodigoBarras c ON c.idArticulo = a.idArticulo
+                LEFT JOIN articulosPrecios p ON p.idArticulo = a.idArticulo
+                LEFT JOIN proveedores pro ON pro.idProveedor = a.idProveedor
+                WHERE a.tipo = 'peso'
+                AND a.idArticulo NOT IN (
+                    SELECT idArticulo FROM modulo_balanza_plus WHERE idBalanza = $idBalanza
+                )
+                GROUP BY a.idArticulo";
+        $res = $this->consulta($sql);
+        return $res['datos'] ?? [];
+    }
+
     // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)
     private function escapeString($str) {
         return addslashes($str);

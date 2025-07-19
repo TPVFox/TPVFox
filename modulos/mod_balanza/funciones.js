@@ -571,3 +571,58 @@ function guardarPlu(idArticulo, idBalanza) {
         }
     });
 }
+
+function mostrarArticulosPeso(idBalanza) {
+    console.log('mostrarArticulosPeso: solicitando artículos de peso para balanza', idBalanza);
+    $.ajax({
+        url: 'tareas.php',
+        type: 'post',
+        data: {
+            pulsado: 'mostrarArticulosPeso',
+            idBalanza: idBalanza
+        },
+        beforeSend: function() {
+            console.log('mostrarArticulosPeso: enviando petición AJAX...');
+        },
+        success: function(response) {
+            console.log('mostrarArticulosPeso: respuesta recibida');
+            var resultado = $.parseJSON(response);
+            console.log('mostrarArticulosPeso: resultado parseado', resultado);
+            $('#addArticuloPeso').html(resultado.html); // Asegúrate de tener este <tr> en tu tabla
+        },
+        error: function(xhr, status, error) {
+            console.error('mostrarArticulosPeso: error en la petición AJAX', status, error);
+        }
+    });
+}
+
+function addArticuloPeso(idArticulo, idBalanza) {
+    console.log('addArticuloPeso: idArticulo =', idArticulo, ', idBalanza =', idBalanza);
+    var plu = prompt("Introduce el PLU para este artículo:");
+    if (plu) {
+        console.log('addArticuloPeso: PLU introducido =', plu);
+        $.ajax({
+            url: 'tareas.php',
+            type: 'post',
+            data: {
+                pulsado: 'addPlu',
+                idArticulo: idArticulo,
+                plu: plu,
+                idBalanza: idBalanza
+            },
+            beforeSend: function() {
+                console.log('addArticuloPeso: enviando petición AJAX para añadir PLU...');
+            },
+            success: function(response) {
+                console.log('addArticuloPeso: respuesta recibida', response);
+                mostrarDatosBalanza(idBalanza);
+                mostrarArticulosPeso(idBalanza);
+            },
+            error: function(xhr, status, error) {
+                console.error('addArticuloPeso: error en la petición AJAX', status, error);
+            }
+        });
+    } else {
+        console.log('addArticuloPeso: operación cancelada o PLU vacío');
+    }
+}

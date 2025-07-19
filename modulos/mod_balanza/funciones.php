@@ -1,83 +1,84 @@
 <?php 
 include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
-function htmlPanelDesplegable($num_desplegable,$titulo,$body){
-	// @ Objetivo:
-	// Montar html de desplegable.
-	// @ Parametros:
-	// 		$num_desplegable -> (int) que indica el numero deplegable para un correcto funcionamiento.
-	// 		$titulo-> (string) El titulo que se muestra en desplegable
-	// 		$body-> (String) lo que contiene el desplegable.
-	// Ejemplo tomado de:
-	// https://www.w3schools.com/bootstrap/tryit.asp?filename=trybs_collapsible_panel&stacked=h 
-	
-	$collapse = 'collapse'.$num_desplegable;
-	$html ='<div class="panel panel-default">'
-			.		'<div class="panel-heading">'
-			.			'<h2 class="panel-title">'
-			.			'<a data-toggle="collapse" href="#'.$collapse.'">'
-			.			$titulo.'</a>'
-			.			'</h2>'
-			.		'</div>'
-			.		'<div id="'.$collapse.'" class="panel-collapse collapse">'
-			.			'<div class="panel-body">'
-			.				$body
-			.			'</div>'
-			.		'</div>'
-			.'</div>';
-	return $html;
-	 
+function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza) {
+    // @ Objetivo: Montar html de desplegable con mejor visualización (Bootstrap 3/4 compatible)
+    $collapse = 'collapse' . $num_desplegable;
+    // Mejorado: estructura más limpia, accesibilidad y flexibilidad
+    $html = '<div class="panel panel-default" style="margin-bottom:20px;">'
+        . '<div class="panel-heading" style="background:#f5f5f5;">'
+        . '<h4 class="panel-title" style="font-size:16px;">'
+        . '<a data-toggle="collapse" href="#' . $collapse . '" aria-expanded="true" aria-controls="' . $collapse . '" style="display:block;text-decoration:none;">'
+        . '<span class="glyphicon glyphicon-menu-down" style="margin-right:8px;"></span>'
+        . htmlspecialchars($titulo)
+        . '</a>'
+        . '</h4>'
+        . '</div>'
+        . '<div id="' . $collapse . '" class="panel-collapse collapse in">'
+        . '<div class="panel-body" style="background:#fff;">'
+        . '<div class="row" style="margin-bottom:10px;">'
+        . '  <div class="col-xs-12 col-sm-6" style="padding-bottom:5px;">'
+        . ($idBalanza != 0
+            ? '    <button id="agregar" type="button" class="btn btn-success btn-xs" onclick="htmlPlu(' . $idBalanza . ')">'
+            . '      <span class="glyphicon glyphicon-plus"></span> Añadir'
+            . '    </button>'
+            . '    <button id="agregarArtPeso" type="button" class="btn btn-info btn-xs" onclick="mostrarArticulosPeso(' . $idBalanza . ')">'
+            . '      <span class="glyphicon glyphicon-plus"></span> Añadir Artículo Peso'
+            . '    </button>'
+            : ''
+        )
+        . '  </div>'
+        . '</div>'
+        . '<div id="addPlu"></div>'
+        . '<div id="addArticuloPeso"></div>'
+        . $body
+        . '</div>'
+        . '</div>'
+        . '</div>';
+    return $html;
 }
-function htmlTablaPlus($plus, $id){
-    // @ Objetivo
-    // Montar la tabla html de plu
-    // @ Parametros
+
+function htmlTablaPlus($plus, $id) {
+    // Mejorar visualización tabla PLUs
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($id);
-    $html = '<table id="tPlus" class="table table-striped">'
-        . '    <thead>'
-        . '        <tr>'
-        . '            <th>'
-        . '                <a id="agregar" onclick="htmlPlu(' . $id . ')">Añadir'
-        . '                    <span class="glyphicon glyphicon-plus"></span>'
-        . '                </a>'
-        . '            </th>'
-        . '        </tr>'
-        . '        <tr id="addPlu" colspan="2"></tr>'
-        . '        <tr>'
-        . '            <th>Plus</th>'
-        . '            <th>'
-        . '                <a id="btnModificarTodos" class="btn btn-primary btn-xs" onclick="toggleEditarTodos()">'
-        . '                    Modificar <span class="glyphicon glyphicon-pencil"></span>'
-        . '                </a>'
-        . '                <a id="btnGuardarTodos" class="btn btn-success btn-xs" style="display:none;" onclick="guardarTodos('.$id.')">'
-        . '                    Guardar <span class="glyphicon glyphicon-floppy-disk"></span>'
-        . '                </a>'
-        . '            </th>'
-        . '        </tr>'
-        . '        <tr>'
-        . '            <th>PLU</th>'
-        . ($Secciones ? '            <th>Sección</th>' : '')
-        . '            <th>idArticulo</th>'
-        . '            <th>Referencia</th>'
-        . '            <th>Nombre</th>'
-        . '            <th>PVP</th>'
-        . '            <th>Proveedor</th>'
-        . '            <th></th>'
-        . '            <th>Acciones</th>'
-        . '        </tr>'
-        . '    </thead>'
-        . '    <tbody>';
+    $html = '<div class="table-responsive">'
+        . '<table id="tPlus" class="table table-striped table-bordered table-hover" style="background:#fff;">'
+        . '<thead class="thead-dark">'
+        . '<tr>'
+        . '<th>Plus</th>'
+        . '<th>'
+        . '<a id="btnModificarTodos" class="btn btn-primary btn-xs" onclick="toggleEditarTodos()">'
+        . 'Modificar <span class="glyphicon glyphicon-pencil"></span>'
+        . '</a>'
+        . '<a id="btnGuardarTodos" class="btn btn-success btn-xs" style="display:none;" onclick="guardarTodos(' . $id . ')">'
+        . 'Guardar <span class="glyphicon glyphicon-floppy-disk"></span>'
+        . '</a>'
+        . '</th>'
+        . '</tr>'
+        . '<tr style="background:#f5f5f5;">'
+        . '<th>PLU</th>'
+        . ($Secciones ? '<th>Sección</th>' : '')
+        . '<th>idArticulo</th>'
+        . '<th>Referencia</th>'
+        . '<th>Nombre</th>'
+        . '<th>PVP</th>'
+        . '<th>Proveedor</th>'
+        . '<th></th>'
+        . '<th>Acciones</th>'
+        . '</tr>'
+        . '</thead>'
+        . '<tbody>';
     if (count($plus) > 0) {
         foreach ($plus as $item => $valor) {
             $html .= htmlLineaPluEditable($valor, $id);
         }
     }
-    $html .= '</tbody> </table>';
+    $html .= '</tbody></table></div>';
     return $html;
 }
 
 // Nueva función para permitir edición de PLU y Tecla
-function htmlLineaPluEditable($plu, $idBalanza){
+function htmlLineaPluEditable($plu, $idBalanza) {
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($idBalanza);
     $imagen = '';
@@ -85,23 +86,63 @@ function htmlLineaPluEditable($plu, $idBalanza){
         $imagen = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
     }
     $nuevaFila = '<tr id="plu_' . $plu['idArticulo'] . '">'
-        . '<td><input type="text" id="editPlu_' . $plu['idArticulo'] . '" value="' . $plu['plu'] . '" class="form-control" readonly></td>'
-        . ($Secciones ? '<td><input type="text" id="editTecla_' . $plu['idArticulo'] . '" value="' . htmlspecialchars($plu['seccion']) . '" class="form-control" readonly></td>' : '')
+        . '<td><input type="text" id="editPlu_' . $plu['idArticulo'] . '" value="' . $plu['plu'] . '" class="form-control input-sm" readonly style="width:70px;"></td>'
+        . ($Secciones ? '<td><input type="text" id="editTecla_' . $plu['idArticulo'] . '" value="' . htmlspecialchars($plu['seccion']) . '" class="form-control input-sm" readonly style="width:70px;"></td>' : '')
         . '<td>' . $plu['idArticulo'] . '</td>'
-        . '<td>' . $plu['crefTienda'] . '</td>'
-        . '<td>' . $plu['articulo_name'] . '</td>'
-        . '<td>' . number_format($plu['pvpCiva'], 2) . '</td>'
-        . '<td>' . $plu['nombrecomercial'] . '</td>'
-        . '<td>' . $imagen . '</td>'
-        . '<td>'
-        . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
-        . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
-        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(\'' . $plu['idArticulo'] . '\', ' . $idBalanza . ')"></a> '
+        . '<td>' . htmlspecialchars($plu['crefTienda']) . '</td>'
+        . '<td>' . htmlspecialchars($plu['articulo_name']) . '</td>'
+        . '<td style="text-align:right;">' . number_format($plu['pvpCiva'], 2) . '</td>'
+        . '<td>' . htmlspecialchars($plu['nombrecomercial']) . '</td>'
+        . '<td style="text-align:center;">' . $imagen . '</td>'
+        . '<td style="white-space:nowrap;">'
+        . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" style="margin-right:8px;cursor:pointer;" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
+        . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;margin-right:8px;cursor:pointer;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
+        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['idArticulo'] . '\', ' . $idBalanza . ')"></a>'
         . '</td>'
         . '</tr>';
     return $nuevaFila;
 }
 
+function htmlArticulosPeso($articulos, $idBalanza) {
+    $html = '<div class="table-responsive">'
+        . '<table id="tArticulosPeso" class="table table-striped table-bordered table-hover" style="background:#fff;">'
+        . '<thead class="thead-dark">'
+        . '<tr style="background:#f5f5f5;">'
+        . '<th style="text-align:center; vertical-align:middle;">ID Artículo</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Nombre</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Referencia</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Cod. Barras</th>'
+        . '<th style="text-align:center; vertical-align:middle;">PVP C/Iva</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Proveedor</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Acciones</th>'
+        . '</tr>' . "\n"
+        . '</thead>'
+        . '<tbody>';
+    if (!empty($articulos)) {
+        foreach ($articulos as $valor) {
+            $html .= htmlAñadirArticulo($valor, $idBalanza) . "\n";
+        }
+    } else {
+        $html .= '<tr><td colspan="7" class="text-center text-muted" style="background:#fcfcfc;">No hay artículos de peso disponibles.</td></tr>' . "\n";
+    }
+    $html .= '</tbody></table></div>';
+    return $html;
+}
+
+function htmlAñadirArticulo($articulo, $idBalanza) {
+    $nuevaFila = '<tr>'
+        . '<td style="text-align:center; vertical-align:middle;">' . $articulo['idArticulo'] . '</td>'
+        . '<td style="vertical-align:middle;">' . htmlspecialchars($articulo['articulo_name'], ENT_QUOTES) . '</td>'
+        . '<td style="vertical-align:middle;">' . htmlspecialchars($articulo['crefTienda'], ENT_QUOTES) . '</td>'
+        . '<td style="vertical-align:middle;">' . htmlspecialchars($articulo['codBarras'], ENT_QUOTES) . '</td>'
+        . '<td style="text-align:right; vertical-align:middle;">' . number_format($articulo['pvpCiva'], 2) . '</td>'
+        . '<td style="vertical-align:middle;">' . htmlspecialchars($articulo['nombrecomercial'], ENT_QUOTES) . '</td>'
+        . '<td style="text-align:center; vertical-align:middle;">'
+        . '<a class="btn btn-success btn-xs" title="Añadir a balanza" onclick="addArticuloPeso(' . $articulo['idArticulo'] . ', ' . $idBalanza . ')">'
+        . '<span class="glyphicon glyphicon-plus"></span> Añadir</a></td>'
+        . '</tr>' . "\n";
+    return $nuevaFila;
+}
 function htmlLineaPlu( $plu, $idBalanza){
     //@OBjetivo: imprimir las lineas de plus de una balanza con los datos de un articulo
     $imagen= '';
