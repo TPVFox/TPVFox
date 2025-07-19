@@ -120,8 +120,21 @@ function htmlArticulosPeso($articulos, $idBalanza) {
         . '<th style="text-align:center; vertical-align:middle;">Cod. Barras</th>'
         . '<th style="text-align:center; vertical-align:middle;">PVP C/Iva</th>'
         . '<th style="text-align:center; vertical-align:middle;">Proveedor</th>'
-        . '<th style="text-align:center; vertical-align:middle;">Acciones</th>'
+        . '<th style="text-align:center; vertical-align:middle;">Acciones '
+        . '<button id="toggleFiltrosArtPeso" type="button" class="btn btn-default btn-xs" style="margin-left:5px;" onclick="toggleFiltrosArtPeso()">'
+        . '<span class="glyphicon glyphicon-filter"></span> Filtros</button>'
+        . '</th>'
         . '</tr>' . "\n"
+        // Fila de filtros, oculta por defecto
+        . '<tr class="filtros" style="display:none;">'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="0"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="1"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="2"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="3"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="4"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="5"></th>'
+        . '<th></th>'
+        . '</tr>'
         . '</thead>'
         . '<tbody>';
     if (!empty($articulos)) {
