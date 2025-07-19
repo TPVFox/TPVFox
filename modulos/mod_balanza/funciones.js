@@ -232,35 +232,35 @@ function eliminarPlu(plu, idBalanza){
 }
 
 function mostrarDatosBalanza(idBalanza){
-    //@Objetivo: MOstrar los datos de un balanza(todos los plu y datos del articulo)
+    //@Objetivo: Mostrar los datos de una balanza (todos los plu y datos del articulo)
      
-     if($('#filtroBalanza').val()){
-         var filtro=$('#filtroBalanza').val();
-     }else{
-         var filtro='a.plu';
-     }
-     console.log(filtro);
+    var filtro = $('#filtroBalanza').val() ? $('#filtroBalanza').val() : 'a.plu';
+    console.log(filtro);
     var parametros = {
-            "pulsado"   : 'mostrarDatosBalanza',
-            "idBalanza": idBalanza,
-            "filtro"    :filtro
-        };
+        "pulsado": 'mostrarDatosBalanza',
+        "idBalanza": idBalanza,
+        "filtro": filtro
+    };
     $.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  enviando mostrar datos balanza ****************');
-		},
-		success    :  function (response) {
-			console.log('Repuesta de mostrar datos balanza');
-			var resultado =  $.parseJSON(response);
+        data: parametros,
+        url: 'tareas.php',
+        type: 'post',
+        beforeSend: function () {
+            console.log('*********  enviando mostrar datos balanza ****************');
+        },
+        success: function (response) {
+            console.log('Repuesta de mostrar datos balanza');
+            var resultado = $.parseJSON(response);
             $('.tablaPrincipal tbody tr').remove();
             $('#infoBalanza').html(resultado['htmlDatosBalanza']);
-            $( "#infoBalanza" ).addClass( "bg-success" )
+            $("#infoBalanza").addClass("bg-success");
             $('.tablaPrincipal tbody').append(resultado['html']);
-		}
-	});
+
+            // Activar el checkbox correspondiente a la balanza seleccionada
+            $('.check_balanza').prop('checked', false); // desmarcar todos
+            $('.check_balanza[value="' + idBalanza + '"]').prop('checked', true);
+        }
+    });
 }
 
 
@@ -327,17 +327,27 @@ function ModificarBalanza(id) {
 
 function CrearDirectorioBalanza(idBalanza) {
     //@Objetivo: Crear el directorio de una balanza
-    var nombre = $('#nombreBalanza').val();
+    var nombreBalanza = $('#nombreBalanza').val().trim();
+    var ipBalanza = $('#ipBalanza').val();
+    var grupoBalanza = $('#grupoBalanza').val();
+    var direccionBalanza = $('#direccionBalanza').val();
+    var ipPc = $('#ipPc').val();
+    var serieH = $('#serieH').val();
+    var serieTipo = $('#serieTipo').val();
     var modoDirectorio = $('#modoDirectorio').val();
 
     var parametros = {
         "pulsado": "crearDirectorioBalanza",
+        "nombreBalanza": nombreBalanza,
         "idBalanza": idBalanza,
-        "nombre": nombre,
+        "ipBalanza": ipBalanza,
+        "grupoBalanza": grupoBalanza,
+        "direccionBalanza": direccionBalanza,
+        "ipPc": ipPc,
+        "serieH": serieH,
+        "serieTipo": serieTipo,
         "modoDirectorio": modoDirectorio
     };
-
-    $('#directorioMsg').text('Creando directorio...');
     $.ajax({
         data: parametros,
         url: 'tareas.php',
@@ -346,16 +356,10 @@ function CrearDirectorioBalanza(idBalanza) {
             console.log('*********  enviando crear directorio balanza ****************');
         },
         success: function (response) {
-            console.log('Respuesta de crear directorio balanza');
+            console.log('Repuesta de crear directorio balanza');
             var resultado = $.parseJSON(response);
-            if (resultado.success) {
-                $('#directorioMsg').text('Directorio creado correctamente.');
-            } else {
-                $('#directorioMsg').text('Error: ' + resultado.message);
-            }
-        },
-        error: function () {
-            $('#directorioMsg').text('Error en la solicitud AJAX.');
+            console.log(resultado);
+            window.location = "ListaBalanzas.php";
         }
     });
 }
@@ -400,4 +404,170 @@ function validarNumeroDosDigitos(valor, campoNombre) {
         respuesta["Texto"] = "El " + campoNombre + " debe ser un número de 1 o 2 dígitos.";
     }
     return respuesta;
+}
+
+
+function toggleIpPcInput(revert = false) {
+    var modo = document.getElementById('modoDirectorio').value;
+    console.log("Modo seleccionado: " + modo);
+    // Asegúrate de que los elementos tengan la clase 'ipPcGroup'
+    var ipPcGroups = document.querySelectorAll('.ipPcGroup');
+    ipPcGroups.forEach(function(ipPcGroup) {
+            if (modo === 'Balctrol') {
+                ipPcGroup.style.display = '';
+            } else {
+                ipPcGroup.style.display = 'none';
+            }
+    });
+}
+
+function modificarPlu(idArticulo, idBalanza) {
+    const $pluInput = $('#editPlu_' + idArticulo);
+    const $teclaInput = $('#editTecla_' + idArticulo);
+    const $btnEditar = $('#modificar_' + idArticulo);
+    const $btnGuardar = $('#guardar_' + idArticulo);
+
+    // Guardar valores originales si no existen
+    if ($pluInput.data('original') === undefined) {
+        $pluInput.data('original', $pluInput.val());
+    }
+    if ($teclaInput.length && $teclaInput.data('original') === undefined) {
+        $teclaInput.data('original', $teclaInput.val());
+    }
+
+    // Si ya está editable y no hay cambios, desactiva edición
+    if (!$pluInput.prop('readonly') && !pluInputsModificados(idArticulo)) {
+        $pluInput.prop('readonly', true);
+        $teclaInput.prop('readonly', true);
+        $btnEditar.show();
+        $btnGuardar.hide();
+        $pluInput.add($teclaInput).off('input._pluEdit keydown._pluEdit');
+        return;
+    }
+
+    // Hacer editables
+    $pluInput.prop('readonly', false);
+    $teclaInput.prop('readonly', false);
+
+    // Mostrar solo el botón editar
+    $btnEditar.show();
+    $btnGuardar.hide();
+
+    // Evento para detectar cambios
+    $pluInput.add($teclaInput)
+        .off('input._pluEdit keydown._pluEdit')
+        .on('input._pluEdit', function () {
+            if (pluInputsModificados(idArticulo)) {
+                $btnEditar.hide();
+                $btnGuardar.show();
+            } else {
+                $btnEditar.show();
+                $btnGuardar.hide();
+            }
+        })
+        .on('keydown._pluEdit', function (e) {
+            if (e.key === "Enter" && pluInputsModificados(idArticulo)) {
+                guardarPlu(idArticulo, idBalanza);
+            }
+        });
+}
+
+// Devuelve true si algún input fue modificado respecto a su valor original
+function pluInputsModificados(idArticulo) {
+    const $pluInput = $('#editPlu_' + idArticulo);
+    const $teclaInput = $('#editTecla_' + idArticulo);
+    let modificado = false;
+    if ($pluInput.val() !== $pluInput.data('original')) modificado = true;
+    if ($teclaInput.length && $teclaInput.val() !== $teclaInput.data('original')) modificado = true;
+    return modificado;
+}
+
+// Deshabilita la edición y restaura valores originales si no se guardó
+function cancelarEdicionPlu(idArticulo) {
+    const $pluInput = $('#editPlu_' + idArticulo);
+    const $teclaInput = $('#editTecla_' + idArticulo);
+    const $btnEditar = $('#modificar_' + idArticulo);
+    const $btnGuardar = $('#guardar_' + idArticulo);
+
+    // Restaurar valores originales
+    $pluInput.val($pluInput.data('original')).prop('readonly', true);
+    if ($teclaInput.length) {
+        $teclaInput.val($teclaInput.data('original')).prop('readonly', true);
+    }
+
+    // Botones
+    $btnEditar.show();
+    $btnGuardar.hide();
+
+    // Quitar eventos
+    $pluInput.add($teclaInput).off('input._pluEdit');
+}
+
+// Habilita/deshabilita la edición de todos los PLUs
+function toggleEditarTodos() {
+    var editando = $('#btnModificarTodos').data('editando') || false;
+    console.log('toggleEditarTodos: Estado actual editando:', editando);
+    if (!editando) {
+        // Habilitar edición
+        console.log('toggleEditarTodos: Habilitando edición de todos los PLUs');
+        $('input[id^="editPlu_"]').prop('readonly', false);
+        $('input[id^="editTecla_"]').prop('readonly', false);
+        $('#btnModificarTodos').hide();
+        $('#btnGuardarTodos').show();
+        $('#btnModificarTodos').data('editando', true);
+    } else {
+        // Deshabilitar edición
+        console.log('toggleEditarTodos: Deshabilitando edición de todos los PLUs');
+        $('input[id^="editPlu_"]').prop('readonly', true);
+        $('input[id^="editTecla_"]').prop('readonly', true);
+        $('#btnModificarTodos').show();
+        $('#btnGuardarTodos').hide();
+        $('#btnModificarTodos').data('editando', false);
+    }
+}
+
+function guardarTodos(idBalanza) {
+    var datos = [];
+    $('tr[id^="plu_"]').each(function() {
+        var idArticulo = this.id.replace('plu_', '');
+        var plu = $('#editPlu_' + idArticulo).val();
+        var seccion = $('#editTecla_' + idArticulo).length ? $('#editTecla_' + idArticulo).val() : null;
+        datos.push({
+            idArticulo: idArticulo,
+            plu: plu,
+            seccion: seccion
+        });
+    });
+$.ajax({
+    url: 'tareas.php',
+    type: 'post',
+    data: {
+        pulsado: 'guardarTodosPlus',
+        datos: datos, // sin JSON.stringify
+        idBalanza: idBalanza
+    },
+    success: function(response) {
+        location.reload();
+    }
+});
+}
+
+function guardarPlu(idArticulo, idBalanza) {
+    var plu = $('#editPlu_' + idArticulo).val();
+    var seccion = $('#editTecla_' + idArticulo).length ? $('#editTecla_' + idArticulo).val() : null;
+    $.ajax({
+        url: 'tareas.php',
+        type: 'post',
+        data: {
+            pulsado: 'guardarPlu',
+            idArticulo: idArticulo,
+            plu: plu,
+            seccion: seccion,
+            idBalanza: idBalanza
+        },
+        success: function(response) {
+            // Puedes refrescar la tabla o mostrar un mensaje
+            location.reload();
+        }
+    });
 }

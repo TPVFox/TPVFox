@@ -107,6 +107,27 @@ class ClaseBalanza  extends Modelo  {
         }
     }
 
+    public function updatePlu($idArticulo, $idBalanza, $plu, $seccion) {
+        $seccion = intval($seccion);
+        $sql = 'UPDATE `modulo_balanza_plus` 
+                SET `plu` = "'.$plu.'", `seccion` = "'.$seccion.'" 
+                WHERE `idArticulo` = '.$idArticulo.' AND `idBalanza` = '.$idBalanza;
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return ['success' => true];
+    }
+
+    public function obtenerPluActual($idBalanza, $idArticulo) {
+        $sql = 'SELECT plu, seccion FROM modulo_balanza_plus WHERE idBalanza = '.intval($idBalanza).' AND idArticulo = '.intval($idArticulo);
+        $resultado = $this->consulta($sql);
+        if (!empty($resultado['datos'][0])) {
+            return $resultado['datos'][0];
+        }
+        return null;
+    }
+
     public function eliminarplu($idBalanza, $plu){
         $sql='DELETE FROM `modulo_balanza_plus` WHERE idBalanza='.$idBalanza.' and plu="'.$plu.'"';
         $consulta = $this->consultaDML($sql);
@@ -165,6 +186,16 @@ class ClaseBalanza  extends Modelo  {
         if (isset($consulta['error'])) {
             return $consulta;
         }
+    }
+
+    // Funcion para saber si una balanza usa secciones
+    public function usaSecciones($idBalanza){
+        $sql = 'SELECT conSeccion FROM `modulo_balanza` WHERE idBalanza = '.intval($idBalanza);
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos'][0]['conSeccion'])) {
+            return strtolower($resultado['datos'][0]['conSeccion']) === 'si';
+        }
+        return false; // Si no se encuentra la balanza, asumimos que no usa secciones
     }
 
     // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)

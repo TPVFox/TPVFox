@@ -1,4 +1,5 @@
 <?php 
+include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
 function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	// @ Objetivo:
 	// Montar html de desplegable.
@@ -26,42 +27,80 @@ function htmlPanelDesplegable($num_desplegable,$titulo,$body){
 	return $html;
 	 
 }
-function  htmlTablaPlus($plus, $id){
-	// @ Objetivo
-	// Montar la tabla html de plu
-	// @ Parametros
-	$html =	 '<table id="tPlus" class="table table-striped">'
-			.'		<thead>'
-			.'			<tr>'
-			.'				<th>Plus</th>'
-			.'				<th>'.'<a id="agregar" onclick="htmlPlu('.$id.')">Añadir'
-			.'					<span class="glyphicon glyphicon-plus"></span>'
-			.'					</a>'
-			.'				</th>'
-			.'			</tr>'
-            .'          <tr  id="addPlu" colspan="2">
-                        
-                        </tr>' 
-            .'          <tr>'
-            .'          <th>PLU</th>'
-            .'          <th>Tecla</th>'
-            .'          <th>idArticulo</th>'
-            .'          <th>Referencia</th>'
-            .'          <th>Nombre</th>'
-            .'          <th>PVP</th>'
-            .'          <th>Proveedor</th>'
-            .'          <th></th>'
-            .'          </tr>' 
-			.'		</thead>'
-			.'		<tbody>';
-	if (count($plus)>0){
-		foreach ($plus as $item=>$valor){
-			$html .= htmlLineaPlu($valor , $id);
-		}
-	}
-	$html .= '</tbody> </table>	';
-	return $html;
-} 
+function htmlTablaPlus($plus, $id){
+    // @ Objetivo
+    // Montar la tabla html de plu
+    // @ Parametros
+    $CBalanza = new ClaseBalanza();
+    $Secciones = $CBalanza->usaSecciones($id);
+    $html = '<table id="tPlus" class="table table-striped">'
+        . '    <thead>'
+        . '        <tr>'
+        . '            <th>'
+        . '                <a id="agregar" onclick="htmlPlu(' . $id . ')">Añadir'
+        . '                    <span class="glyphicon glyphicon-plus"></span>'
+        . '                </a>'
+        . '            </th>'
+        . '        </tr>'
+        . '        <tr id="addPlu" colspan="2"></tr>'
+        . '        <tr>'
+        . '            <th>Plus</th>'
+        . '            <th>'
+        . '                <a id="btnModificarTodos" class="btn btn-primary btn-xs" onclick="toggleEditarTodos()">'
+        . '                    Modificar <span class="glyphicon glyphicon-pencil"></span>'
+        . '                </a>'
+        . '                <a id="btnGuardarTodos" class="btn btn-success btn-xs" style="display:none;" onclick="guardarTodos('.$id.')">'
+        . '                    Guardar <span class="glyphicon glyphicon-floppy-disk"></span>'
+        . '                </a>'
+        . '            </th>'
+        . '        </tr>'
+        . '        <tr>'
+        . '            <th>PLU</th>'
+        . ($Secciones ? '            <th>Sección</th>' : '')
+        . '            <th>idArticulo</th>'
+        . '            <th>Referencia</th>'
+        . '            <th>Nombre</th>'
+        . '            <th>PVP</th>'
+        . '            <th>Proveedor</th>'
+        . '            <th></th>'
+        . '            <th>Acciones</th>'
+        . '        </tr>'
+        . '    </thead>'
+        . '    <tbody>';
+    if (count($plus) > 0) {
+        foreach ($plus as $item => $valor) {
+            $html .= htmlLineaPluEditable($valor, $id);
+        }
+    }
+    $html .= '</tbody> </table>';
+    return $html;
+}
+
+// Nueva función para permitir edición de PLU y Tecla
+function htmlLineaPluEditable($plu, $idBalanza){
+    $CBalanza = new ClaseBalanza();
+    $Secciones = $CBalanza->usaSecciones($idBalanza);
+    $imagen = '';
+    if ($plu['tipo'] === 'peso') {
+        $imagen = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+    }
+    $nuevaFila = '<tr id="plu_' . $plu['idArticulo'] . '">'
+        . '<td><input type="text" id="editPlu_' . $plu['idArticulo'] . '" value="' . $plu['plu'] . '" class="form-control" readonly></td>'
+        . ($Secciones ? '<td><input type="text" id="editTecla_' . $plu['idArticulo'] . '" value="' . htmlspecialchars($plu['seccion']) . '" class="form-control" readonly></td>' : '')
+        . '<td>' . $plu['idArticulo'] . '</td>'
+        . '<td>' . $plu['crefTienda'] . '</td>'
+        . '<td>' . $plu['articulo_name'] . '</td>'
+        . '<td>' . number_format($plu['pvpCiva'], 2) . '</td>'
+        . '<td>' . $plu['nombrecomercial'] . '</td>'
+        . '<td>' . $imagen . '</td>'
+        . '<td>'
+        . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
+        . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
+        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(\'' . $plu['idArticulo'] . '\', ' . $idBalanza . ')"></a> '
+        . '</td>'
+        . '</tr>';
+    return $nuevaFila;
+}
 
 function htmlLineaPlu( $plu, $idBalanza){
     //@OBjetivo: imprimir las lineas de plus de una balanza con los datos de un articulo
