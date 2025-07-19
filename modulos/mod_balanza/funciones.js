@@ -626,3 +626,29 @@ function addArticuloPeso(idArticulo, idBalanza) {
         console.log('addArticuloPeso: operación cancelada o PLU vacío');
     }
 }
+
+function cerrarConfigAvanzada() {
+    var panel = document.getElementById('panelConfigAvanzada');
+    if (panel) panel.style.display = 'none';
+}
+
+function abrirConfigAvanzada() {
+    var panel = document.getElementById('panelConfigAvanzada');
+    if (panel) panel.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('btnAbrirConfigAvanzada');
+    var panel = document.getElementById('panelConfigAvanzada');
+    if (btn && panel) {
+        btn.onclick = abrirConfigAvanzada;
+        // Cerrar con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") cerrarConfigAvanzada();
+        });
+        // Cerrar al hacer click fuera del panel
+        panel.addEventListener('click', function(e) {
+            if (e.target === panel) cerrarConfigAvanzada();
+        });
+    }
+});
