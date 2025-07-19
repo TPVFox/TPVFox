@@ -596,6 +596,27 @@ function mostrarArticulosPeso(idBalanza) {
     });
 }
 
+function mostrarTablaPluAdd(idBalanza) {
+    htmlPlu(idBalanza); // Debe rellenar #addPlu
+    $('#agregar').hide();
+    $('#mostrarTablaPlus').show();
+    $('#addPlu').show();
+}
+function toggleTablaPlus() {
+    $('#addPlu').toggle();
+}
+
+// Para Artículos Peso
+function mostrarTablaArtPesoAdd(idBalanza) {
+    mostrarArticulosPeso(idBalanza); // Debe rellenar #addArticuloPeso
+    $('#agregarArtPeso').hide();
+    $('#mostrarTablaArtPeso').show();
+    $('#addArticuloPeso').show();
+}
+function toggleTablaArtPeso() {
+    $('#addArticuloPeso').toggle();
+}
+
 function addArticuloPeso(idArticulo, idBalanza) {
     console.log('addArticuloPeso: idArticulo =', idArticulo, ', idBalanza =', idBalanza);
     var plu = prompt("Introduce el PLU para este artículo:");
