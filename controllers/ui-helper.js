@@ -39,7 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             var targetId = this.getAttribute('data-toggle-panel');
             var target = document.getElementById(targetId);
-            if (!target) return;
+            if (!target) {
+                console.log('[ui-helper] Panel objetivo no encontrado:', targetId);
+                return;
+            }
 
             var otherPanelId = this.getAttribute('data-other-panel');
             var otherPanel = otherPanelId ? document.getElementById(otherPanelId) : null;
@@ -53,28 +56,77 @@ document.addEventListener('DOMContentLoaded', function() {
             var isHidden = target.style.display === 'none' || window.getComputedStyle(target).display === 'none';
 
             if (isHidden) {
-                // Mostrar este panel y agrandarlo
+                console.log('[ui-helper] Mostrando panel:', targetId);
                 target.style.display = '';
-                if (expandClass) target.className = expandClass;
+                if (expandClass) {
+                    target.className = expandClass;
+                    console.log('[ui-helper] Clase expandida aplicada a', targetId, ':', expandClass);
+                }
                 this.textContent = textHide;
+                console.log('[ui-helper] Texto del botón cambiado a:', textHide);
 
-                // Ocultar el otro panel si existe y expandirlo
                 if (otherPanel) {
                     otherPanel.style.display = '';
-                    if (otherExpandClass) otherPanel.className = otherExpandClass;
+                    if (otherExpandClass) {
+                        otherPanel.className = otherExpandClass;
+                        console.log('[ui-helper] Clase expandida aplicada a', otherPanelId, ':', otherExpandClass);
+                    }
+                    console.log('[ui-helper] Otro panel mostrado:', otherPanelId);
                 }
             } else {
-                // Ocultar este panel
+                console.log('[ui-helper] Ocultando panel:', targetId);
                 target.style.display = 'none';
-                if (collapseClass) target.className = collapseClass;
+                if (collapseClass) {
+                    target.className = collapseClass;
+                    console.log('[ui-helper] Clase colapsada aplicada a', targetId, ':', collapseClass);
+                }
                 this.textContent = textShow;
+                console.log('[ui-helper] Texto del botón cambiado a:', textShow);
 
-                // Expandir el otro panel si existe
                 if (otherPanel) {
                     otherPanel.style.display = '';
-                    if (otherCollapseClass) otherPanel.className = otherCollapseClass;
+                    if (otherCollapseClass) {
+                        otherPanel.className = otherCollapseClass;
+                        console.log('[ui-helper] Clase colapsada aplicada a', otherPanelId, ':', otherCollapseClass);
+                    }
+                    console.log('[ui-helper] Otro panel expandido:', otherPanelId);
                 }
             }
         });
+    });
+});
+
+// Mostrar/ocultar la fila de filtros de cualquier tabla filtrable
+$(document).on('click', '.toggle-filtros', function() {
+    var $tabla = $(this).closest('table');
+    var $filtros = $tabla.find('tr.filtros');
+    $filtros.toggle();
+    console.log('Toggle filtros:', $tabla.attr('id') || $tabla[0], 'Visible:', $filtros.is(':visible'));
+    if ($filtros.is(':hidden')) {
+        $tabla.find('.filtro-col').val('');
+        $tabla.find('tbody tr').show();
+        console.log('Filtros ocultos, limpiando inputs y mostrando todas las filas');
+    }
+});
+
+// Filtro rápido por columna para cualquier tabla con clase .tabla-filtrable
+$(document).on('input', '.tabla-filtrable .filtro-col', function() {
+    var $tabla = $(this).closest('table');
+    var $inputs = $tabla.find('.filtro-col');
+    console.log('Filtrando tabla:', $tabla.attr('id') || $tabla[0]);
+    $tabla.find('tbody tr').each(function() {
+        var $row = $(this);
+        var mostrar = true;
+        $inputs.each(function(idx, input) {
+            var val = $(input).val().toLowerCase();
+            var cell = $row.find('td').eq(idx).text().toLowerCase();
+            if (val && cell.indexOf(val) === -1) {
+                mostrar = false;
+            }
+        });
+        $row.toggle(mostrar);
+        if (mostrar) {
+            console.log('Mostrando fila:', $row.index());
+        }
     });
 });
