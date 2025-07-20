@@ -341,9 +341,9 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 if (!isset($balanza['relacionada'])) {
                     $balanza['relacionada'] = false; // Añadir campo 'relacionada' si no existe
                 }
-                echo '<pre>';
-                echo print_r($balanza);
-                echo '</pre>'; 
+                // echo '<pre>';
+                // echo print_r($balanza);
+                //echo '</pre>'; 
                 // Ajustar ruta y datos según la balanza actual
                 // La ruta de la balanza es el nombre de la balanza sin espacios seguido del id
                 $ruta_balanza_actual = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
@@ -376,9 +376,9 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza (ID {$balanza['idBalanza']}): " . json_encode($datosH2) . json_encode($datosH3));
                 $salida = $traductorBalanza->traducirH2();
                 $salida .= $traductorBalanza->traducirH3();
-                echo '<pre>';
-                echo print_r($salida);
-                echo '</pre>';
+                // echo '<pre>';
+                // echo print_r($salida);
+                // echo '</pre>';
 
                 $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
                 if ($resultado === false) {
