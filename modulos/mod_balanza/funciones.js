@@ -706,20 +706,28 @@ function verificarYEliminarBalanza(idBalanza) {
                     window.location.href = './balanza.php?id=' + idBalanza;
                 }
             } else {
-                if (confirm("¿Está seguro de que desea eliminar la balanza seleccionada?")) {
-                    $.ajax({
-                        url: 'tareas.php',
-                        type: 'post',
-                        data: {
-                            pulsado: 'eliminarBalanza',
-                            idBalanza: idBalanza
-                        },
-                        success: function(resp) {
-                            window.location.reload();
-                        }
-                    });
-                }
+                confirmarYEliminarBalanza(idBalanza);
             }
         }
     });
+}
+
+function confirmarYEliminarBalanza(idBalanza) {
+    if (confirm("¿Está seguro de que desea eliminar la balanza seleccionada?")) {
+        $.ajax({
+            url: 'tareas.php',
+            type: 'post',
+            data: {
+                pulsado: 'eliminarBalanza',
+                idBalanza: idBalanza
+            },
+            success: function(resp) {
+                if (window.location.pathname.endsWith('ListaBalanzas.php')) {
+                    window.location.reload();
+                } else {
+                    window.location.href = 'ListaBalanzas.php';
+                }
+            }
+        });
+    }
 }

@@ -117,6 +117,14 @@
                 data-text-hide="Ocultar configuración">
                 Ocultar configuración
             </button>
+            <?php if ($id > 0 && empty($plus)): ?>
+                <button
+                    class="btn btn-danger mb-2 mb-md-0"
+                    type="button"
+                    onclick="confirmarYEliminarBalanza(<?php echo $id; ?>)">
+                    Eliminar balanza
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="row gx-4 gy-4">
