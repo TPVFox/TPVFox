@@ -135,7 +135,6 @@ class ClaseBalanza  extends Modelo  {
             return $consulta;
         }
     }
-
     public function modificarBalanza($idBalanza, $datos){
         // Obtener datos actuales de la balanza
         $balanzaActual = $this->datosBalanza(intval($idBalanza));
@@ -144,36 +143,20 @@ class ClaseBalanza  extends Modelo  {
         }
         $actual = $balanzaActual['datos'][0];
 
-        // Campos que pueden ser modificados
+        // Solo los campos solicitados
         $campos = [
-            'nombreBalanza' => 'nombreBalanza',
-            'modeloBalanza' => 'modelo',
-            'secciones'     => 'conSeccion',
-            'Grupo'         => 'Grupo',
-            'Direccion'     => 'Dirección',
-            'IP'            => 'IP',
-            'soloPLUS'      => 'soloPLUS'
+            'nombreBalanza'   => 'nombreBalanza',
+            'modeloBalanza'   => 'modelo',
+            'secciones'       => 'conSeccion'
         ];
 
-        // Construir SET solo con los campos que han cambiado
         $set = [];
         foreach ($campos as $key => $columna) {
             $nuevoValor = isset($datos[$key]) ? $datos[$key] : null;
             $valorActual = isset($actual[$columna]) ? $actual[$columna] : null;
 
-            // Normalizar valores numéricos
-            if (in_array($key, ['Grupo', 'Direccion', 'soloPLUS'])) {
-                $nuevoValor = intval($nuevoValor);
-                $valorActual = intval($valorActual);
-            }
-
-            // Si el valor ha cambiado, añadirlo al SET
             if ($nuevoValor !== null && $nuevoValor !== $valorActual) {
-                if (in_array($key, ['Grupo', 'Direccion', 'soloPLUS'])) {
-                    $set[] = "`$columna` = $nuevoValor";
-                } else {
-                    $set[] = "`$columna` = \"".$this->escapeString($nuevoValor)."\"";
-                }
+                $set[] = "`$columna` = \"" . $this->escapeString($nuevoValor) . "\"";
             }
         }
 
@@ -181,11 +164,12 @@ class ClaseBalanza  extends Modelo  {
             return ['mensaje' => 'No hay cambios para actualizar'];
         }
 
-        $sql = 'UPDATE `modulo_balanza` SET '.implode(', ', $set).' WHERE `idBalanza` = '.intval($idBalanza);
+        $sql = 'UPDATE `modulo_balanza` SET ' . implode(', ', $set) . ' WHERE `idBalanza` = ' . intval($idBalanza);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
+        return ['success' => true];
     }
 
     // Funcion para saber si una balanza usa secciones
@@ -229,6 +213,54 @@ class ClaseBalanza  extends Modelo  {
     public function eliminarBalanza($idBalanza) {
         // Eliminar la balanza
         $sql = 'DELETE FROM `modulo_balanza` WHERE idBalanza = '.intval($idBalanza);
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return ['success' => true];
+    }
+
+    // Función para obtener todas las balanzas 0 soloPlus
+    public function obtenerBalanzasEnvio() {
+        $sql = 'SELECT * FROM `modulo_balanza` WHERE soloPLUS = 0';
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            return $resultado['datos']; // Retorna las balanzas encontradas
+        }
+        return []; // Retorna un array vacío si no hay balanzas
+    }
+
+    public function guardarConfigAvanzada($idBalanza, $datos) {
+        // Mapear los nombres recibidos a los nombres de columna reales
+        $map = [
+            'ipBalanza'      => 'IP',
+            'grupoBalanza'   => 'Grupo',
+            'direccionBalanza' => 'Dirección',
+            'soloPLUS'       => 'soloPLUS'
+        ];
+
+        $set = [];
+        foreach ($map as $key => $columna) {
+            if (isset($datos[$key])) {
+                if (in_array($columna, ['Grupo', 'Dirección', 'soloPLUS'])) {
+                    $set[] = "`$columna` = " . intval($datos[$key]);
+                } else {
+                    $set[] = "`$columna` = '" . $this->escapeString($datos[$key]) . "'";
+                }
+            }
+        }
+
+        // Log para depuración
+        error_log('guardarConfigAvanzada - idBalanza: ' . $idBalanza . ' - datos: ' . json_encode($datos));
+        error_log('guardarConfigAvanzada - SQL SET: ' . implode(', ', $set));
+
+        if (empty($set)) {
+            return ['mensaje' => 'No hay cambios para actualizar'];
+        }
+
+        $sql = 'UPDATE `modulo_balanza` SET ' . implode(', ', $set) . ' WHERE `idBalanza` = ' . intval($idBalanza);
+        error_log('guardarConfigAvanzada - SQL: ' . $sql);
+
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;

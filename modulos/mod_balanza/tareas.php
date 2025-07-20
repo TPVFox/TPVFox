@@ -123,15 +123,12 @@ switch ($pulsado) {
         }
     break;
     case 'modificarBalanza':
-    //@Objetivo: Modificar los datos de la balanza con el nuevo formato de datos
+        //@Objetivo: Modificar solo los datos principales de la balanza
         $datos = array(
+            'idBalanza'     => $_POST['idBalanza'],
             'nombreBalanza' => $_POST['nombreBalanza'],
             'modeloBalanza' => $_POST['modeloBalanza'],
-            'secciones'     => $_POST['secciones'],
-            'Grupo'         => $_POST['Grupo'],
-            'Direccion'     => $_POST['Direccion'],
-            'IP'            => $_POST['IP'],
-            'soloPLUS'      => isset($_POST['soloPLUS']) ? 1 : 0
+            'secciones'     => $_POST['secciones']
         );
         $modificarBalanza = $CBalanza->modificarBalanza($_POST['idBalanza'], $datos);
         $respuesta['modif'] = $modificarBalanza;
@@ -231,6 +228,30 @@ switch ($pulsado) {
             $respuesta['mensaje'] = 'Error al eliminar la balanza: ' . $respuesta['eliminar']['error'];
         } else {
             $respuesta['mensaje'] = 'Balanza eliminada correctamente.';
+        }
+    break;
+    case 'guardarConfigAvanzada':
+        // Guardar configuración avanzada de la balanza
+        $idBalanza = intval($_POST['idBalanza']);
+        $ipBalanza = $_POST['ipBalanza'];
+        $grupoBalanza = $_POST['grupoBalanza'];
+        $direccionBalanza = $_POST['direccionBalanza'];
+        $soloPLUS = $_POST['soloPLUS'];
+
+        $datosConfig = array(
+            'idBalanza' => $idBalanza,
+            'ipBalanza' => $ipBalanza,
+            'grupoBalanza' => $grupoBalanza,
+            'direccionBalanza' => $direccionBalanza,
+            'soloPLUS' => $soloPLUS
+        );
+
+        $respuesta['guardarConfig'] = $CBalanza->guardarConfigAvanzada($idBalanza, $datosConfig);
+        if (isset($respuesta['guardarConfig']['error'])) {
+            $respuesta['mensaje'] = 'Error al guardar la configuración avanzada: ' . $respuesta['guardarConfig']['error'];
+        } else {
+            error_log("Configuración avanzada guardada correctamente.");
+            $respuesta['mensaje'] = 'Configuración avanzada guardada correctamente.';   
         }
     break;
 }

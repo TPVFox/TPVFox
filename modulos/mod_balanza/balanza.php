@@ -216,8 +216,10 @@
                                             </div>
                                         </div>
 
+                                        
                                         <div class="form-group">
                                             <button type="button" class="btn btn-success" id="crearDirectorioBtn" onclick="CrearDirectorioBalanza(<?php echo $id ?>)">Crear directorio de balanza</button>
+                                            <button type="button" class="btn btn-primary ml-2" id="guardarConfigAvanzadaBtn" onclick="guardarConfigAvanzada(<?php echo $id ?>)">Guardar configuración avanzada</button>
                                         </div>
                                     </div>
                                 </div>

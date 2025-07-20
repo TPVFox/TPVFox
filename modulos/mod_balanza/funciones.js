@@ -277,62 +277,39 @@ function mostrarDatosBalanza(idBalanza){
 
 
 function ModificarBalanza(id) {
-    //@Objetivo: Modificar los datos de una balanza con validaciones adicionales
+    //@Objetivo: Modificar solo los datos principales de una balanza
     var nombreBalanza = $('#nombreBalanza').val().trim();
     var modeloBalanza = $('#modeloBalanza').val().trim();
     var secciones = $('#secciones').val();
-    var grupo = $('#grupoBalanza').val().trim();
-    var direccion = $('#direccionBalanza').val().trim();
-    var ip = $('#ipBalanza').val().trim();
 
-    // Validar todos los campos con las funciones de validación
+    // Validar campos obligatorios
     var mensajes = [];
-    var respuesta;
-
-    respuesta = validarCamposBalanza(nombreBalanza, modeloBalanza, secciones);
+    var respuesta = validarCamposBalanza(nombreBalanza, modeloBalanza, secciones);
     if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
 
-    respuesta = validarGrupoDireccionIp(grupo, direccion, ip);
-    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
-
-    respuesta = validarFormatoIp(ip);
-    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
-
-    respuesta = validarNumeroDosDigitos(grupo, "Grupo");
-    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
-
-    respuesta = validarNumeroDosDigitos(direccion, "Dirección");
-    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
-
-    if (mensajes.length == 0) {
-        // Si todos los campos son válidos, enviar los datos al servidor
+    if (mensajes.length === 0) {
         var parametros = {
             "pulsado": "modificarBalanza",
             "idBalanza": id,
             "nombreBalanza": nombreBalanza,
             "modeloBalanza": modeloBalanza,
-            "secciones": secciones,
-            "Grupo": grupo,
-            "Direccion": direccion,
-            "IP": ip,
-            "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
+            "secciones": secciones
         };
         $.ajax({
             data: parametros,
             url: 'tareas.php',
             type: 'post',
             beforeSend: function () {
-                console.log('*********  enviando modificar datos balanzas ****************');
+                console.log('*********  enviando modificar datos principales balanza ****************');
             },
             success: function (response) {
-                console.log('Repuesta de modificar datos balanza');
+                console.log('Respuesta de modificar datos principales balanza');
                 var resultado = $.parseJSON(response);
                 console.log(resultado);
                 window.location = "ListaBalanzas.php";
             }
         });
     } else {
-        // Si hay mensajes de error, mostrarlos al usuario
         alert(mensajes.join("\n"));
     }
 }
@@ -729,5 +706,62 @@ function confirmarYEliminarBalanza(idBalanza) {
                 }
             }
         });
+    }
+}
+
+
+function guardarConfigAvanzada(idBalanza) {
+    //@Objetivo: Guardar la configuración avanzada de la balanza con validaciones adicionales
+    var ipBalanza = $('#ipBalanza').val().trim();
+    var grupoBalanza = $('#grupoBalanza').val().trim();
+    var direccionBalanza = $('#direccionBalanza').val().trim();
+    var soloPLUS = $('#soloPLUS').is(':checked') ? 1 : 0;
+    var modoDirectorio = $('#modoDirectorio').val();
+    var ipPc = $('#ipPc').val().trim();
+    var serieH = $('#serieH').val().trim();
+    var serieTipo = $('#serieTipo').val().trim();
+
+    // Validar campos necesarios
+    var mensajes = [];
+    var respuesta;
+
+    respuesta = validarGrupoDireccionIp(grupoBalanza, direccionBalanza, ipBalanza);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarFormatoIp(ipBalanza);
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(grupoBalanza, "Grupo");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    respuesta = validarNumeroDosDigitos(direccionBalanza, "Dirección");
+    if (respuesta["Texto"]) mensajes.push(respuesta["Texto"]);
+
+    if (mensajes.length === 0) {
+        var parametros = {
+            "pulsado": "guardarConfigAvanzada",
+            "idBalanza": idBalanza,
+            "ipBalanza": ipBalanza,
+            "grupoBalanza": grupoBalanza,
+            "direccionBalanza": direccionBalanza,
+            "soloPLUS": $('#soloPLUS').is(':checked') ? 1 : 0
+        };
+        console.log('Guardando configuración avanzada:', parametros);
+        $.ajax({
+            data: parametros,
+            url: 'tareas.php',
+            type: 'post',
+            beforeSend: function () {
+                console.log('*********  enviando guardar configuración avanzada balanza ****************');
+            },
+            success: function (response) {
+                var resultado = $.parseJSON(response);
+            },
+            error: function () {
+                alert('Error de comunicación con el servidor');
+            }
+        });
+    } else {
+        alert(mensajes.join("\n"));
     }
 }
