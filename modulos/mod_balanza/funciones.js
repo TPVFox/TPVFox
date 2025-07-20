@@ -674,28 +674,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function toggleFiltrosArtPeso() {
-    $('#tArticulosPeso .filtros').toggle();
-    // Limpiar los filtros al ocultar
-    if ($('#tArticulosPeso .filtros').is(':hidden')) {
-        $('#tArticulosPeso .filtro-col').val('');
-        $('#tArticulosPeso tbody tr').show();
-    }
+function mostrarBotonOcultarLista() {
+    document.getElementById('btnOcultarLista').style.display = '';
 }
-
-// Filtro rápido por columna para la tabla de artículos de peso
-$(document).on('input', '#tArticulosPeso .filtro-col', function() {
-    var $inputs = $('#tArticulosPeso .filtro-col');
-    $('#tArticulosPeso tbody tr').each(function() {
-        var $row = $(this);
-        var mostrar = true;
-        $inputs.each(function(idx, input) {
-            var val = $(input).val().toLowerCase();
-            var cell = $row.find('td').eq(idx).text().toLowerCase();
-            if (val && cell.indexOf(val) === -1) {
-                mostrar = false;
-            }
-        });
-        $row.toggle(mostrar);
-    });
-});

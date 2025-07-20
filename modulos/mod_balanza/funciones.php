@@ -48,7 +48,7 @@ function htmlTablaPlus($plus, $id) {
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($id);
     $html = '<div class="table-responsive">'
-        . '<table id="tPlus" class="table table-striped table-bordered table-hover" style="background:#fff;">'
+        . '<table id="tPlus" class="table table-striped table-bordered table-hover tabla-filtrable" style="background:#fff;">'
         . '<thead class="thead-dark">'
         . '<tr>'
         . '<th>Plus</th>'
@@ -70,7 +70,25 @@ function htmlTablaPlus($plus, $id) {
         . '<th>PVP</th>'
         . '<th>Proveedor</th>'
         . '<th></th>'
-        . '<th>Acciones</th>'
+        . '<th>Acciones '
+        . '<button type="button" class="btn btn-default btn-xs toggle-filtros" style="margin-left:5px;">'
+        . '<span class="glyphicon glyphicon-filter"></span> Filtros</button>'
+        . '</th>'
+        . '</tr>'
+        // Fila de filtros (debe tener el mismo número de columnas)
+        . '<tr class="filtros" style="display:none;">'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>';
+    if ($Secciones) {
+        $html .= '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>';
+    }
+    $html .=
+        '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th></th>'
+        . '<th></th>'
         . '</tr>'
         . '</thead>'
         . '<tbody>';
@@ -111,8 +129,9 @@ function htmlLineaPluEditable($plu, $idBalanza) {
 
 function htmlArticulosPeso($articulos, $idBalanza) {
     $html = '<div class="table-responsive">'
-        . '<table id="tArticulosPeso" class="table table-striped table-bordered table-hover" style="background:#fff;">'
+        . '<table id="tArticulosPeso" class="table table-striped table-bordered table-hover tabla-filtrable" style="background:#fff;">'
         . '<thead class="thead-dark">'
+        // Fila de encabezados
         . '<tr style="background:#f5f5f5;">'
         . '<th style="text-align:center; vertical-align:middle;">ID Artículo</th>'
         . '<th style="text-align:center; vertical-align:middle;">Nombre</th>'
@@ -121,18 +140,18 @@ function htmlArticulosPeso($articulos, $idBalanza) {
         . '<th style="text-align:center; vertical-align:middle;">PVP C/Iva</th>'
         . '<th style="text-align:center; vertical-align:middle;">Proveedor</th>'
         . '<th style="text-align:center; vertical-align:middle;">Acciones '
-        . '<button id="toggleFiltrosArtPeso" type="button" class="btn btn-default btn-xs" style="margin-left:5px;" onclick="toggleFiltrosArtPeso()">'
+        . '<button type="button" class="btn btn-default btn-xs toggle-filtros" style="margin-left:5px;">'
         . '<span class="glyphicon glyphicon-filter"></span> Filtros</button>'
         . '</th>'
-        . '</tr>' . "\n"
-        // Fila de filtros, oculta por defecto
+        . '</tr>'
+        // Fila de filtros (debe tener el mismo número de columnas)
         . '<tr class="filtros" style="display:none;">'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="0"></th>'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="1"></th>'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="2"></th>'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="3"></th>'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="4"></th>'
-        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar" data-col="5"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
         . '<th></th>'
         . '</tr>'
         . '</thead>'
@@ -329,7 +348,6 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
         <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
         </select></p>';
     }
-   
     $html.='<tr>
             <td><b>PLU</b></td>
             <td><b>Tecla</b></td>
