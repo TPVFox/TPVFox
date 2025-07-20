@@ -248,8 +248,8 @@ class ClaseComunicacionBalanza {
         $H2 .= $this->formatearCampo($this->dataH2['precioOferta'], 6, 'precioOferta');
         $H2 .= "00"; // 2 dígitos de control
         $H2 .= $this->formatearCampo($this->dataH2['precioCoste'], 6, 'precioCoste');
-        //si es modelo M se añaden 30 digitos nutlo el modelo L solo 18
-        if ($this->modoComunicacion === 'M') {
+        //si es modelo H se añaden 30 digitos nutlo el modelo L solo 18
+        if ($this->modoComunicacion === 'H') {
             $H2 .= str_repeat("0", 30); // 30 dígitos nulos (N/A)
         } else {
             $H2 .= str_repeat("0", 18); // 18 dígitos nulos (N/A)
