@@ -215,9 +215,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     $htmltabla[] = array (  'titulo' => 'Familias',
                                     'html' => htmlTablaFamilias($Producto['familias'], $id)
                                 );
-    // echo '<pre>';
-    // print_r($Producto);
-    // echo '</pre>';
+
     if (isset ( $datosWebCompletos['datosWeb']) == true && !isset($datosWebCompletos['errores']) ){
         if ($datosWebCompletos['datosWeb']['estado'] == 0 ){
         $linkVirtuemart = 'No esta publicado';
@@ -236,13 +234,8 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                 );
 
     if ($precioNuevo && $Producto['tipo'] == 'peso') {
-        include_once $URLCom.'/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
-        $traductorBalanza = new ClaseComunicacionBalanza();
-        $idBalanza = 1;
-        $ruta_balanza = '/balanza';
         $ComunicacionBalanza = array('Comprobaciones' => array());
         $faltanDatos = [];
-
         if (empty($Producto['cref_tienda_principal'])) {
             $faltanDatos[] = 'Referencia principal (cref_tienda_principal)';
         } elseif (!is_numeric($Producto['cref_tienda_principal'])) {
@@ -274,6 +267,16 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
             );
             error_log('Faltan datos obligatorios para la comunicación con la balanza: ' . implode(', ', $faltanDatos));
         } else {
+            include_once $URLCom.'/modulos/mod_balanza/clases/ClaseBalanza.php';
+            include_once $URLCom.'/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
+            $traductorBalanza = new ClaseComunicacionBalanza();
+            $CBalanza = new ClaseBalanza();
+            // Recibir todas las balanzas que permiten el envio de otros PLUs
+            $balanzas = $CBalanza->obtenerBalanzasEnvio();
+            // Tomar aquellas balanzas que Permitir el envio de otros PLUs
+            $idBalanza = 1;
+            $ruta_balanza = '/balanza';
+
             $datosH2 = array(
                 'codigo' => $Producto['cref_tienda_principal'],
                 'nombre' => $Producto['articulo_name'],
@@ -288,6 +291,29 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
             );
             if (!isset($relacion_balanza['error'])) {
                 foreach ($relacion_balanza as $relacion) {
+                    // Añadir la información de la balanza al array de balanzas
+                    if ($relacion['idBalanza'] > 0) {
+                        $añadirBalanza = $CBalanza->datosBalanza($relacion['idBalanza'])['datos'][0];
+                        $existe = false;
+                        foreach ($balanzas as $balanza) {
+                            if ($balanza['idBalanza'] == $añadirBalanza['idBalanza']) {
+                                $existe = true;
+                                // Añadir campo 'relacionada' al array de balanzas si existe
+                                foreach ($balanzas as &$balanzaExistente) {
+                                    if ($balanzaExistente['idBalanza'] == $añadirBalanza['idBalanza']) {
+                                        $balanzaExistente['relacionada'] = true;
+                                        break;
+                                    }
+                                }
+                                unset($balanzaExistente);
+                                break;
+                            }
+                        }
+                        if (!$existe) {
+                            $añadirBalanza['relacionada'] = true; // Indica que la balanza está relacionada con el producto
+                            $balanzas[] = $añadirBalanza;
+                        }
+                    }
                     if ($relacion['idBalanza'] == $idBalanza) {
                         $ruta_balanza = '/balanza';
                         $datosH2['PLU'] = $relacion['plu'];
@@ -296,49 +322,101 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                     }
                 }
             }
-            $traductorBalanza->setH2Data($datosH2);
-            $traductorBalanza->setH3Data($datosH3);
-            error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza: " . json_encode($datosH2) . json_encode($datosH3));
-            $salida = $traductorBalanza->traducirH2();
-            $salida .= $traductorBalanza->traducirH3();
-            $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+            foreach ($balanzas as $balanza) {
+                /*
+                 [0] => Array
+                    (
+                        [idBalanza] => 1
+                        [nombreBalanza] => Carniceria DIGITAL SCALAS
+                        [modelo] => DM1Z
+                        [conSeccion] => no
+                        [Grupo] => 0
+                        [Dirección] => 50
+                        [IP] => 192.168.4.3
+                        [soloPLUS] => 0
+                        [relacionada] => 1
+                    )
+                */
+                // Verificar si la balanza tiene el campo 'relacionada' si no lo tiene añadirselo como false
+                if (!isset($balanza['relacionada'])) {
+                    $balanza['relacionada'] = false; // Añadir campo 'relacionada' si no existe
+                }
+                echo '<pre>';
+                echo print_r($balanza);
+                echo '</pre>'; 
+                // Ajustar ruta y datos según la balanza actual
+                // La ruta de la balanza es el nombre de la balanza sin espacios seguido del id
+                $ruta_balanza_actual = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
+                $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza_actual;
+                // Asignar Grupo y dirección
+                $traductorBalanza->setGrupo($balanza['Grupo']);
+                $traductorBalanza->setDireccion($balanza['Dirección']);
+                // Si la balanza tiene campos específicos para PLU o sección, se pueden ajustar aquí
+                // Si la balanza está relacionada, siempre añadir el PLU.
+                if (!empty($relacion_balanza) && is_array($relacion_balanza)) {
+                    foreach ($relacion_balanza as $relacion) {
+                        if ($relacion['idBalanza'] == $balanza['idBalanza']) {
+                            $datosH2['PLU'] = $relacion['plu'];
+                            // Si la balanza tiene sección (conSeccion == 'si'), añadir la sección.
+                            if (isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si') {
+                                $datosH3['seccion'] = $relacion['seccion'];
+                            }
+                            break;
+                        }
+                    }
+                }
+                // Si la balanza no tiene sección se debe cambiar a modo de comunicación L
+                if (strtolower($balanza['conSeccion']) !== 'si') {
+                    $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L
+                } else {
+                    $traductorBalanza->setModoComunicacion('H'); // Modo de comunicación H
+                }
+                $traductorBalanza->setH2Data($datosH2);
+                $traductorBalanza->setH3Data($datosH3);
+                error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza (ID {$balanza['idBalanza']}): " . json_encode($datosH2) . json_encode($datosH3));
+                $salida = $traductorBalanza->traducirH2();
+                $salida .= $traductorBalanza->traducirH3();
+                echo '<pre>';
+                echo print_r($salida);
+                echo '</pre>';
 
-            $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
-            if ($resultado === false) {
-                $ComunicacionBalanza['Comprobaciones'][] = array(
-                    'tipo' => 'warning',
-                    'mensaje' => 'Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx",
-                    'dato' => array($directorioBalanza . "/filetx")
-                );
-                error_log('No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx");
-            } else {
-                $traductorBalanza->setRutaBalanza($directorioBalanza);
-                $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
-                if ($ejecucion === false) {
+                $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
+                if ($resultado === false) {
                     $ComunicacionBalanza['Comprobaciones'][] = array(
                         'tipo' => 'warning',
-                        'mensaje' => 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza.',
-                        'dato' => array()
+                        'mensaje' => 'Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx",
+                        'dato' => array($directorioBalanza . "/filetx")
                     );
-                    error_log('Fallo al ejecutar el driver de la balanza.');
+                    error_log('No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx");
                 } else {
-                    $ComunicacionBalanza['Comprobaciones'][] = array(
-                        'tipo' => 'success',
-                        'mensaje' => 'Comunicación con la balanza realizada correctamente.',
-                        'dato' => array($datosH2, $datosH3)
-                    );
+                    $traductorBalanza->setRutaBalanza($directorioBalanza);
+                    $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
+                    if ($ejecucion === false) {
+                        $ComunicacionBalanza['Comprobaciones'][] = array(
+                            'tipo' => 'warning',
+                            'mensaje' => 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').',
+                            'dato' => array()
+                        );
+                        error_log('Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').');
+                    } else {
+                        $ComunicacionBalanza['Comprobaciones'][] = array(
+                            'tipo' => 'success',
+                            'mensaje' => 'Comunicación con la balanza (ID '.$balanza['idBalanza'].') realizada correctamente.',
+                            'dato' => array($datosH2, $datosH3)
+                        );
+                    }
+                    // Si hay alertas del traductor, añadirlas como warning
+                    // $alertas = $traductorBalanza->getAlertas();
+                    // if (!empty($alertas)) {
+                    //      foreach ($alertas as $alerta) {
+                    //          $ComunicacionBalanza['Comprobaciones'][] = array(
+                    //              'tipo' => 'warning',
+                    //              'mensaje' => $alerta,
+                    //              'dato' => array()
+                    //          );
+                    //      }
+                    //  }
                 }
-                // Si hay alertas del traductor, añadirlas como warning
-                // $alertas = $traductorBalanza->getAlertas();
-                // if (!empty($alertas)) {
-                //     foreach ($alertas as $alerta) {
-                //         $ComunicacionBalanza['Comprobaciones'][] = array(
-                //             'tipo' => 'warning',
-                //             'mensaje' => $alerta,
-                //             'dato' => array()
-                //         );
-                //     }
-                // }
             }
         }
         // Mostrar avisos en pantalla
