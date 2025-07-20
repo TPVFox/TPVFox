@@ -216,6 +216,26 @@ class ClaseBalanza  extends Modelo  {
         return $res['datos'] ?? [];
     }
 
+    public function tienePlusAsociados($idBalanza) {
+        // Verifica si hay PLUs asociados a la balanza
+        $sql = 'SELECT COUNT(*) as total FROM modulo_balanza_plus WHERE idBalanza = '.intval($idBalanza);
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos'][0]['total']) && $resultado['datos'][0]['total'] > 0) {
+            return true; // Tiene PLUs asociados
+        }
+        return false; // No tiene PLUs asociados
+    }
+
+    public function eliminarBalanza($idBalanza) {
+        // Eliminar la balanza
+        $sql = 'DELETE FROM `modulo_balanza` WHERE idBalanza = '.intval($idBalanza);
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return ['success' => true];
+    }
+
     // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)
     private function escapeString($str) {
         return addslashes($str);

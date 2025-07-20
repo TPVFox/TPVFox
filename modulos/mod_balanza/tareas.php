@@ -212,6 +212,27 @@ switch ($pulsado) {
         $articulos = $CBalanza->getArticulosPesoSinPLU($idBalanza);
         $respuesta['html'] = htmlArticulosPeso($articulos, $idBalanza);
     break;
+    case 'tienePlusAsociados':
+        // Verificar si la balanza tiene PLUs asociados
+        $idBalanza = intval($_POST['idBalanza']);
+        $tienePlus = $CBalanza->tienePlusAsociados($idBalanza);
+        $respuesta['tienePlus'] = $tienePlus;
+        if ($tienePlus) {
+            $respuesta['mensaje'] = 'La balanza tiene PLUs asociados, no se puede eliminar.';
+        } else {
+            $respuesta['mensaje'] = 'La balanza no tiene PLUs asociados, se puede eliminar.';
+        }
+    break;
+    case 'eliminarBalanza':
+        // Eliminar balanza
+        $idBalanza = intval($_POST['idBalanza']);
+        $respuesta['eliminar'] = $CBalanza->eliminarBalanza($idBalanza);
+        if (isset($respuesta['eliminar']['error'])) {
+            $respuesta['mensaje'] = 'Error al eliminar la balanza: ' . $respuesta['eliminar']['error'];
+        } else {
+            $respuesta['mensaje'] = 'Balanza eliminada correctamente.';
+        }
+    break;
 }
 echo json_encode($respuesta);
 ?>

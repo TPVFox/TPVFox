@@ -59,6 +59,13 @@
                         <?php if ($ClasePermisos->getAccion("modificar") || $ClasePermisos->getAccion("crear")): ?>
                             <li><a href="#section2" onclick="metodoClick('VerBalanza', 'balanza');">Modificar</a></li>
                         <?php endif; ?>
+                        <?php if ($ClasePermisos->getAccion("crear")): ?>
+                            <li>
+                                <a href="#section2" onclick="metodoClick('EliminarBalanza', 'balanza');">
+                                    Eliminar <span title="Solo disponible si la balanza no tiene plus asociados">*</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
                 <div class="nav">

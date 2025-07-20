@@ -1,17 +1,25 @@
-function metodoClick(pulsado,adonde){
-    switch(pulsado) {
+function metodoClick(pulsado, adonde) {
+    switch (pulsado) {
         case 'AgregarBalanza':
             window.location.href = './balanza.php';
-        break;
+            break;
         case 'VerBalanza':
             var checkIds = TfObtenerCheck('check_balanza');
             if (!checkIds || checkIds.length === 0) {
-            alert("Debe seleccionar una balanza.");
-            return;
+                alert("Debe seleccionar una balanza.");
+                return;
             }
             console.log(checkIds);
             window.location.href = './' + adonde + '.php?id=' + checkIds[0];
-        break;
+            break;
+        case 'EliminarBalanza':
+            var checkIds = TfObtenerCheck('check_balanza');
+            if (!checkIds || checkIds.length === 0) {
+                alert("Debe seleccionar al menos una balanza.");
+                return;
+            }
+            verificarYEliminarBalanza(checkIds[0]);
+            break;
     }
 }
 
@@ -232,10 +240,11 @@ function eliminarPlu(plu, idBalanza){
 }
 
 function mostrarDatosBalanza(idBalanza){
-    //@Objetivo: Mostrar los datos de una balanza (todos los plu y datos del articulo)
-     
+    // Marcar el checkbox correspondiente
+    $('.check_balanza').prop('checked', false); // Desmarcar todos
+    $('.check_balanza[value="' + idBalanza + '"]').prop('checked', true);
+
     var filtro = $('#filtroBalanza').val() ? $('#filtroBalanza').val() : 'a.plu';
-    console.log(filtro);
     var parametros = {
         "pulsado": 'mostrarDatosBalanza',
         "idBalanza": idBalanza,
@@ -249,16 +258,19 @@ function mostrarDatosBalanza(idBalanza){
             console.log('*********  enviando mostrar datos balanza ****************');
         },
         success: function (response) {
-            console.log('Repuesta de mostrar datos balanza');
             var resultado = $.parseJSON(response);
-            $('.tablaPrincipal tbody tr').remove();
+            // Limpiar antes de insertar para evitar duplicados
+            $('#infoBalanza').empty();
+            $('.tablaPrincipal thead').empty();
+            $('.tablaPrincipal tbody').empty();
+
             $('#infoBalanza').html(resultado['htmlDatosBalanza']);
             $("#infoBalanza").addClass("bg-success");
-            $('.tablaPrincipal tbody').append(resultado['html']);
 
-            // Activar el checkbox correspondiente a la balanza seleccionada
-            $('.check_balanza').prop('checked', false); // desmarcar todos
-            $('.check_balanza[value="' + idBalanza + '"]').prop('checked', true);
+            // Si el backend devuelve una tabla completa, inserta en un div, no en tbody
+            // Si solo devuelve filas, usa tbody
+            // Aquí asumimos que devuelve filas:
+            $('.tablaPrincipal tbody').append(resultado['html']);
         }
     });
 }
@@ -676,4 +688,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function mostrarBotonOcultarLista() {
     document.getElementById('btnOcultarLista').style.display = '';
+}
+
+function verificarYEliminarBalanza(idBalanza) {
+    $.ajax({
+        url: 'tareas.php',
+        type: 'post',
+        data: {
+            pulsado: 'tienePlusAsociados',
+            idBalanza: idBalanza
+        },
+        success: function(response) {
+            var resultado = $.parseJSON(response);
+            if (resultado.tienePlus) {
+                alert(resultado.mensaje);
+                if (confirm("¿Desea modificar la balanza en lugar de eliminarla?")) {
+                    window.location.href = './balanza.php?id=' + idBalanza;
+                }
+            } else {
+                if (confirm("¿Está seguro de que desea eliminar la balanza seleccionada?")) {
+                    $.ajax({
+                        url: 'tareas.php',
+                        type: 'post',
+                        data: {
+                            pulsado: 'eliminarBalanza',
+                            idBalanza: idBalanza
+                        },
+                        success: function(resp) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
+        }
+    });
 }
