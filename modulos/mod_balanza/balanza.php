@@ -108,9 +108,9 @@
                 type="button"
                 data-toggle-panel="configCol"
                 data-other-panel="infoCol"
-                data-expand-class="col-12 col-lg-4 mb-4"
+                data-expand-class="col-12 col-lg-2 mb-2"
                 data-collapse-class="col-12"
-                data-other-expand-class="col-12 col-lg-8"
+                data-other-expand-class="col-12 col-lg-10"
                 data-other-collapse-class="col-12"
                 data-text-show="Mostrar configuración"
                 data-text-hide="Ocultar configuración">
@@ -120,9 +120,9 @@
 
         <div class="row gx-4 gy-4">
             <!-- Col 1: Formulario -->
-            <div class="col-12 col-lg-4 mb-4" id="configCol">
+            <div class="col-12 col-lg-2 mb-2" id="configCol">
                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                    <h5 class="mb-4">Datos de la balanza con ID: <?php echo $id ?></h5>
+                    <h5 class="mb-3">Datos de la balanza con ID: <?php echo $id ?></h5>
                     <form>
                         <div class="form-group">
                             <label for="nombreBalanza">Nombre de la balanza</label>
@@ -219,7 +219,7 @@
                 </div>
             </div>
             <!-- Col 2: PLUs Section -->
-            <div class="col-12 col-lg-8" id="infoCol">
+            <div class="col-12 col-lg-10" id="infoCol">
                 <div class="p-3 bg-white rounded shadow-sm h-100">
                     <div class="panel-group">
                         <?php echo htmlPanelDesplegable(1, 'PLUs', $htmlplus, $id); ?>
