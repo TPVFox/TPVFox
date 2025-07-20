@@ -58,6 +58,7 @@
     <script type="text/javascript">
         <?php echo $VarJS; ?>
     </script>
+    <script src="<?php echo $HostNombre; ?>/controllers/ui-helper.js"></script>
     <style>
         body {
             background: #f8f9fa;
@@ -228,7 +229,6 @@
             </div>
         </div>
     </div>
-    <script src="<?php echo $HostNombre; ?>/controllers/ui-helper.js"></script>
     <?php
     echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
     include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
