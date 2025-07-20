@@ -348,15 +348,34 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
         <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
         </select></p>';
     }
-    $html.='<tr>
-            <td><b>PLU</b></td>
-            <td><b>Tecla</b></td>
-            <td><b>idArticulo</b></td>
-            <td><b>Descripción</b></td>
-            <td><b>Referencia</b></td>
-            <td><b>PVP</b></td>
-            <td><b>Tipo</b></td>
-        </tr>';
+    // Encabezados de la tabla principal (filtrable)
+    $html .= '<div class="table-responsive">'
+        . '<table id="tablaListadoPrincipal" class="table table-striped table-bordered table-hover tabla-filtrable" style="background:#fff;">'
+        . '<thead class="thead-dark">'
+        . '<tr style="background:#f5f5f5;">'
+        . '<th><b>PLU</b></th>'
+        . '<th><b>Tecla</b></th>'
+        . '<th><b>idArticulo</b></th>'
+        . '<th><b>Descripción</b></th>'
+        . '<th><b>Referencia</b></th>'
+        . '<th><b>PVP</b></th>'
+        . '<th><b>Tipo</b> '
+        . '<button type="button" class="btn btn-default btn-xs toggle-filtros" style="margin-left:5px;">'
+        . '<span class="glyphicon glyphicon-filter"></span> Filtros</button>'
+        . '</th>'
+        . '</tr>'
+        // Fila de filtros (debe tener el mismo número de columnas)
+        . '<tr class="filtros" style="display:none;">'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th><input type="text" class="form-control input-sm filtro-col" placeholder="Filtrar"></th>'
+        . '<th></th>'
+        . '</tr>'
+        . '</thead>'
+        . '<tbody>';
         $indice=0;
     foreach ($datosplu as $plu){
         $espacio="";
