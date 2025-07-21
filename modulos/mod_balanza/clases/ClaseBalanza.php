@@ -230,6 +230,18 @@ class ClaseBalanza  extends Modelo  {
         return []; // Retorna un array vacío si no hay balanzas
     }
 
+    // Función para obtener una balanza a partir de un ID de Articulo
+    public function obtenerBalanzaPorIdArticulo($idArticulo) {
+        $sql = 'SELECT b.* FROM `modulo_balanza_plus` p
+                INNER JOIN `modulo_balanza` b ON p.idBalanza = b.idBalanza
+                WHERE p.idArticulo = '.intval($idArticulo);
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            return $resultado['datos']; // Devuelve todas las valanzas encontradas
+        }
+        return null; // Retorna null si no se encuentra la balanza
+    }
+
     public function guardarConfigAvanzada($idBalanza, $datos) {
         // Mapear los nombres recibidos a los nombres de columna reales
         $map = [

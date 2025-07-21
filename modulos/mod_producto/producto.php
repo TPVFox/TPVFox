@@ -314,12 +314,6 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                             $balanzas[] = $añadirBalanza;
                         }
                     }
-                    if ($relacion['idBalanza'] == $idBalanza) {
-                        $ruta_balanza = '/balanza';
-                        $datosH2['PLU'] = $relacion['plu'];
-                        $datosH3['seccion'] = $relacion['seccion'];
-                        break;
-                    }
                 }
             }
             foreach ($balanzas as $balanza) {

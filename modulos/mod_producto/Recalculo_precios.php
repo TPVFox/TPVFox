@@ -53,16 +53,18 @@
             }
             if ($hayPeso) {
                 include_once $URLCom.'/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
-                include_once $URLCom.'/modulos/mod_balanza/clases/ComunicacionBalanza.php';
+                include_once $URLCom.'/modulos/mod_balanza/clases/ClaseBalanza.php';
                 $traductorBalanza = new ClaseComunicacionBalanza();
-                $CBalanza = new ComunicacionBalanza($BDTpv);
+                $CBalanza = new ClaseBalanza($BDTpv);
+                $balanzas = $CBalanza->obtenerBalanzasEnvio();
                 $idBalanza = 2; // ID de la balanza a utilizar
                 $ruta_balanza = '/balanza2';
-                $salidaBalanza = '';
-                $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L
+                $salidaBalanza = []; // Array que almacena 1 salida por balanza
+                // Mover al final a la traducción
+                $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L!
                 // asignar gupo 0 dirección 50 a la balanza
-                $traductorBalanza->setGrupo(0);
-                $traductorBalanza->setDireccion(50);
+                $traductorBalanza->setGrupo(0);//!
+                $traductorBalanza->setDireccion(50);//!
             }            
             foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
@@ -103,6 +105,39 @@
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
                         // Aqui se hacen las tareas para comunicar con la balanza
                         if ($productosPeso[$producto['idArticulo']] === 'peso') {
+                            // Comprobar que balanza o balanzas tiene asociadas el producto
+                            $balanzasProducto = $CBalanza->obtenerBalanzaPorIdArticulo($datosHistorico['idArticulo']);
+                            foreach ($balanzas as &$balanzaExistente) {
+                                $balanzaExistente['relacionada'] = false; // Inicialmente no relacionada
+                                foreach ($balanzasProducto as $balanzaProducto) {
+                                    if ($balanzaExistente['idBalanza'] == $balanzaProducto['idBalanza']) {
+                                        $balanzaExistente['relacionada'] = true;
+                                        break;
+                                    }
+                                    unset($balanzaExistente);
+                                    break;
+                                }
+                            }
+                            // Añadir balanzasProducto que no estén en $balanzas
+                            foreach ($balanzasProducto as $balanzaProducto) {
+                                $existe = false;
+                                foreach ($balanzas as $balanzaExistente) {
+                                    if ($balanzaExistente['idBalanza'] == $balanzaProducto['idBalanza']) {
+                                        $existe = true;
+                                        $balanzaExistente['relacionada'] = true;
+                                        break;
+                                    }
+                                }
+                                if (!$existe) {
+                                    $balanzaProducto['relacionada'] = true;
+                                    $balanzas[] = $balanzaProducto;
+                                }
+                            }
+                            $balanzasUnicas = [];
+                            foreach ($balanzas as $balanza) {
+                                $balanzasUnicas[$balanza['idBalanza']] = $balanza;
+                            }
+                            $balanzas = array_values($balanzasUnicas);
                             $datosH2 = array(
                                 'codigo' => $datosArticulo['crefTienda'],
                                 'nombre' => $datosArticulo['articulo_name'],
@@ -115,26 +150,53 @@
                                 'iva' => $datosArticulo['iva'],
                                 'seccion' => '',
                             );
-                            $balanzas = $CBalanza->getBalanzasPorArticulo($producto['idArticulo']);
-                            // Si hay balanzas asociadas ajustar valores
-                            if (count($balanzas) > 0) {
-                                foreach ($balanzas as $balanza) {
-                                    if ($balanza['idBalanza'] == $idBalanza) {
-                                        $datosH2['PLU'] = $balanza['plu'];
-                                        $datosH2['tecla'] = $balanza['seccion'];
-                                        // Si la seccion es 0, definimos modo de comunicación L
-                                        // if ($balanza['Tecla'] == 0) {
-                                        //    $traductorBalanza->setModoComunicacion('L');
-                                        //}
-                                        //$datosH2['idBalanza'] = $balanza['idBalanza'];
-                                        // Aqui deberiamos asignar grupo y direccion de la balanza La balanza 2 tiene gupo 0 y dirección 50
+                            // Para cada balanza traducimos los datos
+                            foreach ($balanzas as $balanza) {
+                                /*
+                                [0] => Array
+                                    (
+                                        [idBalanza] => 1
+                                        [nombreBalanza] => Carniceria DIGITAL SCALAS
+                                        [modelo] => DM1Z
+                                        [conSeccion] => no
+                                        [Grupo] => 0
+                                        [Dirección] => 50
+                                        [IP] => 192.168.4.3
+                                        [soloPLUS] => 0
+                                        [relacionada] => 1
+                                    )
+                                */
+                                // Asignamos dirección y grupo de la balanza
+                                $traductorBalanza->setGrupo($balanza['Grupo']);
+                                $traductorBalanza->setDireccion($balanza['Dirección']);
+                                // Si la balanza tiene campos específicos para PLU o sección, se pueden ajustar aquí
+                                // Si la balanza está relacionada, siempre añadir el PLU.
+                                if ($balanza['relacionada']) {
+                                    $relacion = $CBalanza->obtenerPluActual( $balanza['idBalanza'],$datosHistorico['idArticulo']);
+                                    echo '<pre>';
+                                    print_r($relacion);
+                                    echo '</pre>';
+                                    $datosH2['PLU'] = $relacion['plu'];
+                                    // Si la balanza tiene sección (conSeccion == 'si'), añadir la sección.
+                                    if (isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si') {
+                                        $datosH3['seccion'] = $relacion['seccion'];
                                     }
-                                    $traductorBalanza->setH2Data($datosH2);
-                                    //$traductorBalanza->setH3Data($datosH3);
-
-                                    $salidaBalanza .= $traductorBalanza->traducirH2();
-                                    //$salidaBalanza .= $traductorBalanza->traducirH3();
+                                } 
+                                // Si la balanza no tiene sección se debe cambiar a modo de comunicación L
+                                if (strtolower($balanza['conSeccion']) !== 'si') {
+                                    $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L
+                                } else {
+                                    $traductorBalanza->setModoComunicacion('H'); // Modo de comunicación H
                                 }
+                                $traductorBalanza->setH2Data($datosH2);
+                                $traductorBalanza->setH3Data($datosH3);
+                                error_log('['.$_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza (ID {$balanza['idBalanza']}): " . json_encode($datosH2) . json_encode($datosH3));
+                                if (!isset($salidaBalanza[$balanza['idBalanza']])) {
+                                    $salidaBalanza[$balanza['idBalanza']] = '';
+                                }
+                                $salidaBalanza[$balanza['idBalanza']] .= (string)$traductorBalanza->traducirH2();
+                                $salidaBalanza[$balanza['idBalanza']] .= (string)$traductorBalanza->traducirH3();
+ 
                             }
                         }
  					}
@@ -146,18 +208,42 @@
 			}
 			$modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
             if ($hayPeso) {
-                $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
-                
-                file_put_contents($directorioBalanza . "/filetx", $salidaBalanza);
+                foreach ($balanzas as $balanza) {
+                    // Definimos la ruta de la balanza
+                    $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
+                    $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza_actual;
+                    $traductorBalanza->setRutaBalanza($ruta_balanza);
 
-                $traductorBalanza->setRutaBalanza($directorioBalanza);
-                $traductorBalanza->ejecutarDriverBalanza();
-
-                $alertas = $traductorBalanza->getAlertas();
-                // echo '<pre>';
-                // print_r($salidaBalanza);
-                // print_r($alertas);
-                // echo '</pre>';
+                    $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+                    
+                    $salida = $salidaBalanza[$balanza['idBalanza']];
+                    $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
+                    if ($resultado === false) {
+                        $ComunicacionBalanza['Comprobaciones'][] = array(
+                            'tipo' => 'warning',
+                            'mensaje' => 'Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx",
+                            'dato' => array($directorioBalanza . "/filetx")
+                        );
+                        error_log('No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx");
+                    } else {
+                        $traductorBalanza->setRutaBalanza($directorioBalanza);
+                        $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
+                        if ($ejecucion === false) {
+                            $ComunicacionBalanza['Comprobaciones'][] = array(
+                                'tipo' => 'warning',
+                                'mensaje' => 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').',
+                                'dato' => array()
+                            );
+                            error_log('Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').');
+                        } else {
+                            $ComunicacionBalanza['Comprobaciones'][] = array(
+                                'tipo' => 'success',
+                                'mensaje' => 'Comunicación con la balanza (ID '.$balanza['idBalanza'].') realizada correctamente.',
+                                'dato' => array($datosH2, $datosH3)
+                            );
+                        }
+                    }
+                }
             }
 		}
 		?>
