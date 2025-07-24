@@ -201,8 +201,8 @@
                                                 <label for="serieH">Serie H</label>
                                                 <select class="form-control" id="serieH" name="serieH">
                                                     <option value="">Seleccione...</option>
-                                                    <option value="0" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'si') ? 'selected' : ''; ?>>Sí</option>
-                                                    <option value="1" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'no') ? 'selected' : ''; ?>>No</option>
+                                                    <option value="1" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'si') ? 'selected' : ''; ?>>Sí</option>
+                                                    <option value="0" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'no') ? 'selected' : ''; ?>>No</option>
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6">
@@ -211,7 +211,7 @@
                                                     <option value="">Seleccione...</option>
                                                     <option value="0" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'A') ? 'selected' : ''; ?>>A</option>
                                                     <option value="1" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'L') ? 'selected' : ''; ?>>L</option>
-                                                    <option value="2 tickets" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'L tickets') ? 'selected' : ''; ?>>L tickets</option>
+                                                    <option value="2" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'L tickets') ? 'selected' : ''; ?>>L tickets</option>
                                                 </select>
                                             </div>
                                         </div>

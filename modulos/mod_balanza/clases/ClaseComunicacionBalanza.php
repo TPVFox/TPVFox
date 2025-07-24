@@ -617,21 +617,102 @@ class ClaseComunicacionBalanza {
     }
 
     private function crearFicheroConfiguracionDibal(string $rutaArchivo, array $config): bool {
+        // Generamos el contenido en UTF-8
         $contenido = <<<EOT
+        #----------------------------------------------------------------------------------------------
+        #	FICHERO DE CONFIGURACION PARA BALANZAS DIBAL
+        #----------------------------------------------------------------------------------------------
+
+        #----------------------------------------------------------------------------------------------
+        #	DIRECTORIO DE TRABAJO
+        #----------------------------------------------------------------------------------------------
         DT = {$this->rutaBalanza}/
+
+        #----------------------------------------------------------------------------------------------
+        #	TIPO DE COMUNICACION	
+        #		0 - RS-232
+        #		1 - TCP-IP TCP
+        #		2 - TCP-IP UDP
+        #----------------------------------------------------------------------------------------------
         TC = 1
+
+        #----------------------------------------------------------------------------------------------
+        #	DIRECCION IP DEL PC
+        #----------------------------------------------------------------------------------------------
         DI = {$config['ipPc']}
+
+        #----------------------------------------------------------------------------------------------
+        #	Configuracion para TCP
+        #	PUERTO DE RECEPCION
+        #----------------------------------------------------------------------------------------------
         PR = 3001
-        BD = {$config['direccionBalanza']} {$config['ipBalanza']} 3000
+
+        #GRUPOBAL		BALANZA			DIRECCCION TCPIP   PUERTO PC-TX 
+        #--------		---------		-----------------  ------------  
+        BD = {$config['grupoBalanza']} {$config['ipBalanza']} 3000
+
+        #----------------------------------------------------------------------------------------------
+        #	FICHERO TX					LONGITUD DEL REGISTRO
+        #----------------------------------------------------------------------------------------------
         TX = {$this->rutaBalanza}/filetx 141
+
+        #----------------------------------------------------------------------------------------------
+        #	FICHERO RX					LONGITUD DEL REGISTRO
+        #----------------------------------------------------------------------------------------------
         RX = {$this->rutaBalanza}/filerx 151
-        BL = {$config['grupoBalanza']} {$config['serieH']}
-        BH = {$config['grupoBalanza']} {$config['serieTipo']}
+
+        #----------------------------------------------------------------------------------------------
+        #	TRADUCCION MENSAJES:
+        #	0:Balanza Serie A, M-3XX, M-4XX, Suprema. No se traducen los mensajes.
+        #	1:Balanza Serie L. Se traducen mensajes de A a L.
+        #	2:Balanza Serie L. Se traducen mensajes de A a L y ademas, los registros LA a 25.
+        #----------------------------------------------------------------------------------------------
+        #GRUPOBAL		DIRECCION		TRADUCCION MENSAJES
+        #--------		---------		-------------------
+        BL = {$config['direccionBalanza']} {$config['serieTipo']}
+        #BL = 			02		    		0
+
+        #----------------------------------------------------------------------------------------------
+        #	TIPO DE BALANZA:
+        #	0:Balanza no Serie H.
+        #	1:Balanza Serie H.
+        #----------------------------------------------------------------------------------------------
+        #GRUPOBAL		DIRECCION		TIPO DE BALANZA
+        #--------		---------		---------------
+        BH = {$config['direccionBalanza']} {$config['serieH']}
+        #BH = 			02						1
+
+        #----------------------------------------------------------------------------------------------
+        #	POSICION MARCA DE ENVIADO (*)
+        #----------------------------------------------------------------------------------------------
         PM = 3
+
+        #----------------------------------------------------------------------------------------------
+        #	ENVIA EN BYTES
+        #	0: En ASCII
+        #	1: En Bytes(Para logos imprescindible en bytes ya que es un fichero binario)
+        #----------------------------------------------------------------------------------------------
         EB = 0
+
+        #----------------------------------------------------------------------------------------------
+        #	SALTO DE LINEA
+        #	0: LF(0x0A) Unix, Mac OS X.
+        #	1: CRLF(0x0D,0x0A) DOS,Windows
+        #	2: CR(0x0D) Mac(Versiones antiguas).
+        #----------------------------------------------------------------------------------------------
         SL = 0
+
+        #-----------------------------------------------------------------------------------------------
+        #	CAPTURAR SEÑAL SIGINT (CTRL+C)
+        #	0: Capturar(Defecto). Baltty se cerrara al recibir una señal SIGINT
+        #	1: No capturar. Baltty no se cerrara al recibir una señal SIGINT.
+        #-------------------------------------------------------------------------------------------------
         SI = 0
+
         EOT;
+
+        // Convertimos el contenido a ISO-8859-15 antes de escribirlo
+        $contenido = mb_convert_encoding($contenido, 'ISO-8859-15', 'UTF-8');
 
         if (file_put_contents($rutaArchivo, $contenido) !== false) {
             $this->alertas[] = "Fichero de configuración creado: {$rutaArchivo}";
