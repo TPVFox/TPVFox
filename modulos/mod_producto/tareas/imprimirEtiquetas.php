@@ -10,9 +10,8 @@ $respuesta = array();
                 // Ahora obtenemos los las teclas de las balanza en los que esté este producto.
                 $relacion_balanza = $NCArticulo->obtenerTeclaBalanzas($articulo['idArticulo']);
                 if (!isset($relacion_balanza['error'])){
-                    // Quiere decir que se obtuvo algun registro.Array ['idBalanza']['plu']['tecla']
-                    // demomento tomamos solo plu y del primer item.
-					if (isset($relacion_balanza[0]['seccion']) && $relacion_balanza[0]['seccion'] != '') {
+                    // Usamos el metodo usaSecciones de Clasebalanza.php para saber si tiene sección o no
+					if ($CBalanza->usaSecciones($relacion_balanza[0]['idBalanza'])) {
 						// Si tiene seccion, la ponemos como plu.
 						$productos[$key]['plu'] = $relacion_balanza[0]['seccion'] . '-' . $relacion_balanza[0]['plu'];
 					} else {

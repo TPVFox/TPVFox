@@ -32,6 +32,10 @@ include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
 $CFamilia=new ClaseFamilias($BDTpv);
 include_once $URLCom.'/clases/Proveedores.php';
 $CProveedor=new Proveedores($BDTpv);
+
+
+include_once $URLCom.'/modulos/mod_balanza/clases/ClaseBalanza.php';
+$CBalanza = new ClaseBalanza($BDTpv);
 $respuesta = array();
 
 switch ($pulsado) {
