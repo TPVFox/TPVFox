@@ -173,9 +173,9 @@
                                 // Si la balanza está relacionada, siempre añadir el PLU.
                                 if ($balanza['relacionada']) {
                                     $relacion = $CBalanza->obtenerPluActual( $balanza['idBalanza'],$datosHistorico['idArticulo']);
-                                    echo '<pre>';
-                                    print_r($relacion);
-                                    echo '</pre>';
+                                    //echo '<pre>';
+                                    //print_r($relacion);
+                                    //echo '</pre>';
                                     $datosH2['PLU'] = $relacion['plu'];
                                     // Si la balanza tiene sección (conSeccion == 'si'), añadir la sección.
                                     if (isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si') {
