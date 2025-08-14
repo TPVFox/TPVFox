@@ -106,8 +106,19 @@ switch ($pulsado) {
         }
     break;
     case 'eliminarPlu':
-    //@OBjetivo: eliminar plu
-        $eliminar=$CBalanza->eliminarplu($_POST['idBalanza'], $_POST['plu']);
+    //@Objetivo: eliminar plu
+        $plu = $_POST['plu'];
+        $idBalanza = $_POST['idBalanza'];
+        $eliminar = $CBalanza->eliminarplu($idBalanza, $plu);
+
+        if (isset($eliminar['error']) && $eliminar['error'] !== "0") {
+            $respuesta['success'] = false;
+            $respuesta['mensaje'] = 'Error al eliminar el PLU: ' . $eliminar['error'];
+        } else {
+            $respuesta['success'] = true;
+            $respuesta['mensaje'] = 'PLU eliminado correctamente.';
+            $respuesta['plu'] = $plu;
+        }
     break;
     case 'mostrarDatosBalanza':
     //@Objetivo: Mostrar los datos de una balanza con los plu

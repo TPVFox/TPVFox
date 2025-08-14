@@ -218,25 +218,25 @@ function addPlu(idBalanza){
 function eliminarPlu(plu, idBalanza){
     //@Objetivo_eliminar plu
     var parametros = {
-            "pulsado"   : 'eliminarPlu',
-            "plu"    : plu,
-            "idBalanza": idBalanza
-        };
+        "pulsado": 'eliminarPlu',
+        "plu": plu,
+        "idBalanza": idBalanza
+    };
     $.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-			console.log('*********  enviando add plu ****************');
-		},
-		success    :  function (response) {
-			console.log('Repuesta de add plu');
-			var resultado =  $.parseJSON(response);
-            $('#plu_'+plu).remove();
-            console.log('#plu_'+plu);
-		}
-	});
-       
+        data: parametros,
+        url: 'tareas.php',
+        type: 'post',
+        beforeSend: function () {
+            console.log('*********  enviando eliminar plu ****************');
+        },
+        success: function (response) {
+            console.log('Repuesta de eliminar plu');
+            var resultado = $.parseJSON(response);
+            $('#plu_' + plu).remove();
+            console.log('#plu_' + plu);
+            location.reload();
+        }
+    });
 }
 
 function mostrarDatosBalanza(idBalanza){

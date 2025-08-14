@@ -121,7 +121,7 @@ function htmlLineaPluEditable($plu, $idBalanza) {
         . '<td style="white-space:nowrap;">'
         . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" style="margin-right:8px;cursor:pointer;" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
         . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;margin-right:8px;cursor:pointer;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
-        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['idArticulo'] . '\', ' . $idBalanza . ')"></a>'
+        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['plu'] . '\', ' . $idBalanza . ')"></a>'
         . '</td>'
         . '</tr>';
     return $nuevaFila;
