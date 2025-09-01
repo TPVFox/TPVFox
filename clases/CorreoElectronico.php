@@ -98,7 +98,7 @@ class CorreoElectronico {
                   $mail_string = $mail->getSentMIMEMessage();
                   //Aqui hay que tener encuenta imap y smtp puede usar datos diferentes.
                   //mas info: https://gist.github.com/DavidRockin/b4867fd0b5bb687f5af1
-                  $folder = "INBOX.Sent" ; // Location to save the email
+                  $folder = "Sent" ; // Location to save the email
                   $imapStream = imap_open("{" . $mail->Host . ":993/imap/ssl}".$folder, $mail->Username, $mail->Password);
                   $respuesta_imap = imap_append($imapStream, "{" . $mail->Host . ":993}" . $folder, $mail_string);
                   // En instruccion anterior con un parametro mas podemos controlar si esta LEIDO , IMPORTANTE O MAS..
