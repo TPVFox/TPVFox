@@ -76,8 +76,16 @@ switch ($pulsado) {
 		// @ Parametros:
 		//      ids_productos = (array) ids de la los productos de tpv.
 		//      id_web = (int) con el id de la tienda web.
-		$ids_productos  = $_POST['ids_productos'];
-		$id_tiendaWeb   = $_POST['id_tiendaWeb'];
+        $ids_productos = isset($_POST['ids_productos']) && is_array($_POST['ids_productos'])
+            ? $_POST['ids_productos']
+            : array();
+
+        $id_tiendaWeb = isset($_POST['id_tiendaWeb']) ? (int) $_POST['id_tiendaWeb'] : 0;
+
+        if (empty($ids_productos)) {
+            $respuesta = array('error' => 'No products specified', 'ids_productos' => $ids_productos);
+            break;
+        }
 		// @ Devolvemos:
 		// array con los ids_productos y si estado
 		$ObjVirtuemart = $NCArticulo->SetPlugin('ClaseVirtuemart');         // Creo el objeto de plugin Virtuemart.
