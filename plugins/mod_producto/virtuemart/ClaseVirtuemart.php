@@ -450,7 +450,6 @@ class PluginClaseVirtuemart extends ClaseConexion{
         }
        
    }
-   
     public function datosCompletosTiendaWeb($idVirtuemart,$ivaProducto,$idProducto,$idTiendaWeb){
         // Objetivo
         // Es obtener todos los datos del producto en la web.
@@ -461,71 +460,102 @@ class PluginClaseVirtuemart extends ClaseConexion{
         $respuesta=array();
         // Ahora obtengo datos del producto de la web.
         $datosProductoVirtual=$this->ObtenerDatosDeProducto($idVirtuemart);
-        // Comprobamos si fue correcto
-        if ($idVirtuemart >0 && !isset($datosProductoVirtual['Datos'])){
-             // Hubo un error ya que tiene idVirtuemart pero no obtuvo los datos.
-            $error=array(
-            'tipo'=>'danger',
-            'mensaje'=>'Hubo un error al intentar obtener el producto con idVirtuemart:'.$idVirtuemart
-            );
-            $respuesta['errores'] =$error;
-        } else {
-            // Tambien obtenemos todos los ivas de la  web.
-            $ivasWeb=$datosProductoVirtual['Datos']['ivasWeb']['items'];
-            $respuesta['ivasWeb'] = $ivasWeb; 
-            if ($idVirtuemart == 0) {
-                // Cuando no existe la relacion en tpv con la tienda (articuloTienda)
-                $id_iva_web= 0;
-                $iva = 0;
-                foreach ($ivasWeb as $iva_web){
-                    // buscamos el iva que tiene el producto, para enviar id del iva de la web.
-                    if ( number_format($iva_web['calc_value'],2) == number_format($ivaProducto,2)){
-                        $id_iva_web = $iva_web['virtuemart_calc_id'];
-                        $iva = number_format($ivaProducto,2);
-                    }
-                }
 
-                $datosWeb = array(
-                                'idVirtual'     => 0,
-                                'estado'        => 0,
-                                'articulo_name' => "",
-                                'refTienda'     => "",
-                                'codBarra'      => "",
-                                'precioSiva'    => 0,
-                                'idIva'         => $id_iva_web,
-                                'alias'         => "",
-                                'iva'           =>".$iva."
-                            );
-            } else {
-                if (!isset( $respuesta['errores']) ){
-                    $datosWeb = $datosProductoVirtual['Datos']['datosProducto']['item'];
-                    $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart,$datosWeb['estado']);
-                    $notificacionesUnProducto = $this->ObtenerNotificacionesProducto($idVirtuemart);
-                    $respuesta['num_notificaciones'] = $this->num_notificaciones;
-                    if (isset ($notificacionesUnProducto['Datos']['items'])){
-                        if ($respuesta['num_notificaciones'] == 0) {
-                                $html = '<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
-                        } else {
-                            $html =$this->htmlNotificacionesProducto($notificacionesUnProducto['Datos']['items']);
-                        }
-                    } else {
-                        $html='<div class="alert alert-danger">Error de SQL: '.$notificacionesUnProducto['Datos']['error'].'</div>';
-                    }
-                    $respuesta['htmlnotificaciones'] = $html;
-                    // Comprobamos si el iva del producto es el mismo en tpv que en la web
-                    // Asi advertimos al usuario que algo esta mal..
-                    $r =$this->comprobarIvas($ivaProducto, $datosWeb['iva']);
-                    if ($r !== null && count($r) >0){
-                        $respuesta['errores'] =$r;
-                    }
-                } else {
-                    $datosWeb = null ; // Devuelvo un null 
+        // Comprobamos si fue correcto: guardas defensivas para evitar warnings por índices inexistentes
+        if ($idVirtuemart > 0 && (!is_array($datosProductoVirtual) || !isset($datosProductoVirtual['Datos']))) {
+            // Hubo un error ya que tiene idVirtuemart pero no obtuvo los datos.
+            $error = array(
+                'tipo' => 'danger',
+                'mensaje' => 'Hubo un error al intentar obtener el producto con idVirtuemart:'.$idVirtuemart
+            );
+            $respuesta['errores'] = $error;
+            return $respuesta;
+        }
+
+        // Intentamos obtener los ivas de forma segura
+        $ivasWeb = array();
+        if (isset($datosProductoVirtual['Datos']['ivasWeb']['items']) && is_array($datosProductoVirtual['Datos']['ivasWeb']['items'])) {
+            $ivasWeb = $datosProductoVirtual['Datos']['ivasWeb']['items'];
+        } else {
+            // Si no hay ivas, devolvemos error controlado
+            $respuesta['errores'] = array(
+                'tipo' => 'danger',
+                'mensaje' => 'No se han obtenido los ivas de la web o la respuesta está malformada.'
+            );
+            // devolvemos al menos la estructura esperada para evitar más warnings
+            $respuesta['ivasWeb'] = array();
+            return $respuesta;
+        }
+
+        $respuesta['ivasWeb'] = $ivasWeb;
+
+        if ($idVirtuemart == 0) {
+            // Cuando no existe la relacion en tpv con la tienda (articuloTienda)
+            $id_iva_web= 0;
+            $iva = 0;
+            foreach ($ivasWeb as $iva_web){
+                // buscamos el iva que tiene el producto, para enviar id del iva de la web.
+                if ( number_format($iva_web['calc_value'],2) == number_format($ivaProducto,2)){
+                    $id_iva_web = $iva_web['virtuemart_calc_id'];
+                    $iva = number_format($ivaProducto,2);
                 }
             }
-            $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
-            if ($datosWeb !== null){
-                $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
+
+            $datosWeb = array(
+                            'idVirtual'     => 0,
+                            'estado'        => 0,
+                            'articulo_name' => "",
+                            'refTienda'     => "",
+                            'codBarra'      => "",
+                            'precioSiva'    => 0,
+                            'idIva'         => $id_iva_web,
+                            'alias'         => "",
+                            'iva'           =>".$iva."
+                        );
+        } else {
+            // Para idVirtuemart > 0 nos aseguramos de que los datos estén donde esperamos
+            if (!isset($datosProductoVirtual['Datos']['datosProducto']['item']) || !is_array($datosProductoVirtual['Datos']['datosProducto']['item'])) {
+                $respuesta['errores'] = array(
+                    'tipo' => 'danger',
+                    'mensaje' => 'Los datos del producto devueltos por la web no tienen la estructura esperada.'
+                );
+                $respuesta['datosWeb'] = null;
+                return $respuesta;
             }
+
+            $datosWeb = $datosProductoVirtual['Datos']['datosProducto']['item'];
+            $respuesta['htmlsLinksVirtuemart']=$this->btnLinkProducto($idVirtuemart, isset($datosWeb['estado']) ? $datosWeb['estado'] : 0);
+            $notificacionesUnProducto = $this->ObtenerNotificacionesProducto($idVirtuemart);
+            $respuesta['num_notificaciones'] = $this->num_notificaciones;
+            if (isset ($notificacionesUnProducto['Datos']['items'])){
+                if ($respuesta['num_notificaciones'] == 0) {
+                        $html = '<div class="alert alert-info">Este producto no tiene notificaciones de Clientes</div>';
+                } else {
+                    $html =$this->htmlNotificacionesProducto($notificacionesUnProducto['Datos']['items']);
+                }
+            } else {
+                $html='<div class="alert alert-danger">Error de SQL: '.(isset($notificacionesUnProducto['Datos']['error']) ? $notificacionesUnProducto['Datos']['error'] : 'Respuesta malformada').'</div>';
+            }
+            $respuesta['htmlnotificaciones'] = $html;
+
+            // Comprobamos si el iva del producto es el mismo en tpv que en la web (validando existencia)
+            $ivaWebParaComprobar = isset($datosWeb['iva']) ? $datosWeb['iva'] : null;
+            if ($ivaWebParaComprobar !== null) {
+                $r = $this->comprobarIvas($ivaProducto, $ivaWebParaComprobar);
+                if ($r !== null && count($r) >0){
+                    $respuesta['errores'] = $r;
+                }
+            } else {
+                $respuesta['errores'] = array(
+                    'tipo' => 'warning',
+                    'mensaje' => 'No se pudo leer el iva del producto en la web para comparar.'
+                );
+            }
+        }
+
+        $respuesta['datosWeb'] = $datosWeb; // Nos lo devolvemos.
+        if ($datosWeb !== null){
+            $respuesta['htmlproducto']=$this->htmlDatosProductoSeleccionado($datosWeb,$ivasWeb,$idProducto,$idTiendaWeb,$ivaProducto);
         }
        return $respuesta;
     }
