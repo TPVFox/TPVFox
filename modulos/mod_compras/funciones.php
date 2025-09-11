@@ -203,7 +203,7 @@ function htmlProductos($productos,$id_input,$campoAbuscar,$busqueda, $dedonde){
                 break;
             }
         }
-        $html.'</tbody></table>';
+        $html .= '</tbody></table>';
     }
     return $html;       
 }
@@ -527,18 +527,23 @@ function lineaAdjunto($adjunto, $dedonde,$accion ='editar'){
         }
         $respuesta['html'] .='<tr id="lineaP'.($adjunto['nfila']).'" '.$classtr.'>';
         if (isset($adjunto['NumAdjunto'])){
-        $respuesta['html'] .='<td>'.$adjunto['NumAdjunto'].'</td>';
+            if ($dedonde == "factura") {
+                $href = "./albaran.php?id=" . $adjunto['NumAdjunto'] . "&accion=ver";
+            } else {
+                $href = "./pedido.php?id=" . $adjunto['NumAdjunto'] . "&accion=ver";
+            }
+            $respuesta['html'] .= '<td><a href="'.$href.'">'.$adjunto['NumAdjunto'].'</a></td>';
         }
-        if($dedonde=="factura"){
+        if ($dedonde == "factura"){
             $a = (isset($adjunto['Su_numero']))? $adjunto['Su_numero'] : '';
             $respuesta['html'].='<td>'.$a.'</td>';
         }
-        $date=date_create($adjunto['fecha']);
-        $fecha=date_format($date,'d-m-Y');
+        $date = date_create($adjunto['fecha']);
+        $fecha = date_format($date,'d-m-Y');
         $totalSiva = (isset($adjunto['totalSiva']))? $adjunto['totalSiva'] : '0.00';
-        $respuesta['html'] .='<td>'.$fecha.'</td>'.
-                             '<td>'.number_format ($totalSiva,2, '.', '').'</td>'.
-                            '<td>'.$adjunto['total'].'</td>';
+        $respuesta['html'] .= '<td>'.$fecha.'</td>'.
+                             '<td>'.number_format($totalSiva,2, '.', '').'</td>'.
+                             '<td>'.$adjunto['total'].'</td>';
         
         if ($accion !=='ver'){
             $respuesta['html'].=$btnELiminar_Retornar;
@@ -916,11 +921,11 @@ function htmlDatosAdjuntoProductos($datos,$dedonde){
         $suNumero=$datos['Su_numero'];
     }
     if ($dedonde === 'albaran'){
-        $n_adjunto = '<strong>NºPedido:';
+        $n_adjunto = '<strong>NºPedido: <a href="./pedido.php?id='. $datos['NumAdjunto'].'&accion=ver">';
     } else {
-        $n_adjunto = '<strong>NºAlbaran:';
+        $n_adjunto = '<strong>NºAlbaran: <a href="./albaran.php?id='. $datos['NumAdjunto'].'&accion=ver">';
     }
-    $n_adjunto .= $datos['NumAdjunto'].'</strong>';
+    $n_adjunto .= $datos['NumAdjunto'].'</a></strong>';
         $respuesta='<tr class="success">
             <td colspan="2">'.$n_adjunto .'</td>
             <td colspan="3"><strong>Su número:'.$suNumero.'</strong></td>
