@@ -152,6 +152,7 @@ $ListadoFacturas=$listado['Items'];
                         <th>BASE</th>
                         <th>IVA</th>
                         <th>TOTAL</th>
+                        <th>ID PROV</th>
                         <th>ESTADO</th>
                     </tr>
                 </thead>
@@ -199,6 +200,7 @@ $ListadoFacturas=$listado['Items'];
                         <td><?php echo $totalBase;?></td>
                         <td><?php echo $importeIva;?></td>
                         <td><?php echo $factura['total'];?></td>
+                        <td><?php echo $factura['idProveedor'];?></td>
                         <?php 
                         $clas_estado ='';
                         if ($factura['estado']!=="Sin Guardar"){
