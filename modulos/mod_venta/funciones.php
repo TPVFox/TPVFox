@@ -802,11 +802,15 @@ EOD;
 <table WIDTH="70%" border="1px"><tr><th ALIGN="center">Tipo</th><th ALIGN="center">Base</th><th ALIGN="center">Importe de IVA</th></tr>
 EOD;
 	if (isset($Datostotales)){
-		// Montamos ivas y bases
-		foreach ($Datostotales['desglose'] as  $iva => $basesYivas){
-            $base= number_format($basesYivas['base'],2);
-            $importe_iva = number_format($basesYivas['iva'],2);
-            $imprimir['html'].=<<<EOD
+		// Montamos ivas y bases en orden numérico fijo (ascendente) para que siempre salgan en el mismo orden
+		if (isset($Datostotales['desglose']) && is_array($Datostotales['desglose'])) {
+			$ivas = array_keys($Datostotales['desglose']);
+			sort($ivas, SORT_NUMERIC);
+			foreach ($ivas as $iva) {
+				$basesYivas = $Datostotales['desglose'][$iva];
+				$base = number_format($basesYivas['base'], 2);
+				$importe_iva = number_format($basesYivas['iva'], 2);
+				$imprimir['html'] .= <<<EOD
 <tr><td ALIGN="right">$iva % &nbsp;</td><td ALIGN="right">$base &nbsp;</td><td ALIGN="right">$importe_iva &nbsp;</td></tr>
 EOD;
 		}
