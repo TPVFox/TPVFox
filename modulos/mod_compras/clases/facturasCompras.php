@@ -693,6 +693,92 @@ class FacturasCompras extends ClaseCompras{
         }
         return $errores;
     }
+    // @Objetivo:
+    //  Si no se incluye idProveedor se obtiene la primera factura de todas las facturas.
+    //  Si se incluye idProveedor se obtiene la primera factura de un proveedor.
+    // @Devuelve:
+    //  Numero de factura o 0 si no hay facturas.
+    public function getPrimeraFactura($idProveedor = 0){
+        $sql = 'SELECT Numfacpro FROM facprot ';
+        if ($idProveedor > 0){
+            $sql .= ' where idProveedor ='.$idProveedor;
+        }
+        $sql .= ' order by Numfacpro asc limit 1';
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;       
+        } else {
+            if ($result = $smt->fetch_assoc()) {
+                $respuesta = $result['Numfacpro'];
+            } else {
+                $respuesta = 0; // No hay facturas
+            }
+        }
+        return $respuesta;
+    }
+    // @Objetivo:
+    //  Si no se incluye idProveedor se obtiene la ultima factura de todas las facturas.
+    //  Si se incluye idProveedor se obtiene la ultima factura de un proveedor.
+    // @Devuelve:
+    //  Numero de factura o 0 si no hay facturas.
+    public function getUltimaFactura($idProveedor = 0){
+        $sql = 'SELECT Numfacpro FROM facprot ';
+        if ($idProveedor > 0){
+            $sql .= ' where idProveedor ='.$idProveedor;
+        }
+        $sql .= ' order by Numfacpro desc limit 1';
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;       
+        } else {
+            if ($result = $smt->fetch_assoc()) {
+                $respuesta = $result['Numfacpro'];
+            } else {
+                $respuesta = 0; // No hay facturas
+            }
+        }
+        return $respuesta;
+    }    
+    // @Objetivo:
+    // Obtener la anterior o la siguiente factura de un proveedor indicado
+    // @Devuelve:
+    //  Numero de factura o 0 si no hay facturas.
+    public function getFacturaAnteriorSiguiente($idFactura, $idProveedor = 0, $tipo = 'anterior'){
+        $sql = 'SELECT Numfacpro FROM facprot ';
+        if ($idProveedor > 0){
+            $sql .= ' where idProveedor ='.$idProveedor;
+            if ($tipo === 'anterior'){
+                $sql .= ' and Numfacpro < '.$idFactura;
+                $sql .= ' order by Numfacpro desc limit 1';
+            } else {
+                $sql .= ' and Numfacpro > '.$idFactura;
+                $sql .= ' order by Numfacpro asc limit 1';
+            }
+        } else {
+            if ($tipo === 'anterior'){
+                $sql .= ' where Numfacpro < '.$idFactura;
+                $sql .= ' order by Numfacpro desc limit 1';
+            } else {
+                $sql .= ' where Numfacpro > '.$idFactura;
+                $sql .= ' order by Numfacpro asc limit 1';
+            }
+        }
+        $smt = parent::consulta($sql);
+        if (gettype($smt)==='array') {
+            // Hubo error devolvemos array (error,consulta)
+            $respuesta = $smt;       
+        } else {
+            if ($result = $smt->fetch_assoc()) {
+                $respuesta = $result['Numfacpro'];
+            } else {
+                $respuesta = 0; // No hay facturas
+            }
+        }
+        return $respuesta;
+    }
+
 
     
 }

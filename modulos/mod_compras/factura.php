@@ -386,6 +386,57 @@
         <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
             <?php 
         echo '<h3 class="text-center">'.$titulo.'</h3>';
+        //Botones avanzar y retroceder generales
+        if ($idDocumento>0 && $accion != "editar"){
+            $primeraF = $CFac->getPrimeraFactura();
+            $ultimaF  = $CFac->getUltimaFactura();
+            $primeraP = $CFac->getPrimeraFactura($idProveedor);
+            $ultimaP = $CFac->getUltimaFactura($idProveedor);
+
+            $botones = '';
+            if ($idDocumento != $primeraF){
+            // Botón retroceder (más pequeño)
+            $botones .= '<a class="nohistory" href="factura.php?id='
+                .($idDocumento-1).'&accion=ver" title="Factura Anterior">'
+                .'<span class="glyphicon glyphicon-step-backward"></span></a> ';
+            }
+            $botones .= ' Global ';
+            if ($idDocumento != $ultimaF){
+            // Botón avanzar (más pequeño)
+            $botones .= '<a class="nohistory" href="./factura.php?id='
+                .($idDocumento+1).'&accion=ver" title="Factura Siguiente">'
+                .'<span class="glyphicon glyphicon-step-forward"></span></a>';
+            }
+            $botones .= ' |';
+            if ($idDocumento != $primeraP){
+                //obtener la anterior factura de ese proveedor
+                $anteriorP = $CFac->getFacturaAnteriorSiguiente($idDocumento, $idProveedor, 'anterior');
+                if ($anteriorP !== false){
+                    $botones .= ' <a class="nohistory" href="factura.php?id='
+                    .$anteriorP.'&accion=ver" title="Factura Anterior de este proveedor">'
+                    .'<span class="glyphicon glyphicon-backward"></span></a> ';
+                }
+            }
+            $botones .= ' Proveedor ';
+
+            if ($idDocumento != $ultimaP){
+                //obtener la siguiente factura de ese proveedor
+                $siguienteP = $CFac->getFacturaAnteriorSiguiente($idDocumento, $idProveedor, 'siguiente');
+                if ($siguienteP !== false){
+                    $botones .= ' <a class="nohistory" href="factura.php?id='
+                    .$siguienteP.'&accion=ver" title="Factura Siguiente de este proveedor">'
+                    .'<span class="glyphicon glyphicon-forward"></span></a> ';
+                }
+            }
+
+            // Centrar los botones respecto al título
+            if ($botones !== ''){
+            echo '<div class="text-center" style="margin-top:6px;"><div style="display:inline-block;">'
+                .$botones
+                .'</div></div>';
+            }
+        }
+
 
         ?>
 
@@ -634,5 +685,22 @@ echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
 include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
 ?>
 </body>
+<!-- solo si es ver -->
+<?php
+if ($accion === 'ver') {
+?>
+<script>
+    // Elimina el parámetro historyJS de la URL actual
+function removeHistoryJSParam() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("historyJS");
+  window.history.replaceState({}, document.title, url.toString());
+}
 
+// Llamar a esta función después de cada navegación
+removeHistoryJSParam();
+</script>
+<?php
+}
+?>
 </html>
