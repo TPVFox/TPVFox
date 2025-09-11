@@ -745,6 +745,7 @@ function montarHTMLimprimir($id , $BDTpv, $dedonde, $datosTienda){
                             .'<font size="9"><b>Direccion:</b>'.$datosTienda['direccion'].'</font><br>'
                             .'<font size="9"><b>NIF: </b>'.$datosTienda['nif'].'</font><br>'
                             .'<font size="9"><b>Teléfono: </b>'.$datosTienda['telefono'].'</font><br>'
+                            .'<font size="7"><b>IDRef.: </b>'.$idCliente.'</font><br>'
                             .'</td>'
                             .'<td>'
                             .'<font size="9"><b>Datos de Cliente:</b></font><br>'
