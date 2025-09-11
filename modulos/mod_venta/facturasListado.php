@@ -164,6 +164,7 @@ if (isset($errores)){
                     <th>BASE</th>
                     <th>IVA</th>
                     <th>TOTAL</th>
+                    <th>ID CLI</th>
                     <th>ESTADO</th>
                 </tr>
             </thead>
@@ -205,6 +206,7 @@ if (isset($errores)){
                     <td><?php echo $totalBase;?></td>
                     <td><?php echo $importeIva;?></td>
                     <td><?php echo $factura['total'];?></td>
+                    <td><?php echo $factura['idCliente'];?></td>
                     <td>
                         <?php
                         echo $factura['estado'];

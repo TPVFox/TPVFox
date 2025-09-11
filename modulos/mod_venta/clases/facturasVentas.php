@@ -179,7 +179,7 @@ class FacturasVentas extends ClaseVentas{
 	public function TodosFacturaFiltro($filtro){
 		//@Objetivo:
 		//Mostrar los datos principales de todas las facturas con el filtro de paginacion 
-		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado 
+		$sql = 'SELECT a.id , a.Numfaccli , a.Fecha , b.Nombre, a.total, a.estado, a.idCliente 
 		FROM `facclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  '.$filtro;
 		$smt=$this->consulta($sql);
 		if (gettype($smt)==='array'){
