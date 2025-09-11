@@ -813,6 +813,7 @@ EOD;
 				$imprimir['html'] .= <<<EOD
 <tr><td ALIGN="right">$iva % &nbsp;</td><td ALIGN="right">$base &nbsp;</td><td ALIGN="right">$importe_iva &nbsp;</td></tr>
 EOD;
+			}
 		}
 	}
 	$imprimir['html'] .='</table>';
