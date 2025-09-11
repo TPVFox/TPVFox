@@ -121,6 +121,7 @@ $cabecera=  '<table>
                         '<font size="9"><b>Direccion:</b>'.$datosTienda['direccion'].'</font><br>'.
                         '<font size="9"><b>NIF: </b>'.$datosTienda['nif'].'</font><br>'.
                         '<font size="9"><b>Teléfono: </b>'.$datosTienda['telefono'].'</font><br>'.
+                        '<font size="7"><b>IDRef: </b>'.$datos['idProveedor'].'</font><br>'.
                     '</td>'.
                     '<td>'.
                         '<font size="9"><b>Datos de Proveedor:</b></font><br>'.
