@@ -218,8 +218,8 @@ function htmlAddPLU($seccion, $idBalanza){
 				.'<input type="text" name="plu" id="plu" value="" >'
             .'</div>'
             .'<div class="col-md-12" '.$style_none.'>'
-               .'<label>Tecla:</label>'
-               .'<input type="text" name="seccionPlu" id="seccionPlu" value="" >';
+               .'<label>Sección:</label>'
+               .'<input type="text" name="seccion" id="seccion" value="" >';
     
     $html.='</div>'
             .'<div>'

@@ -87,8 +87,22 @@ switch ($pulsado) {
         
         $idArticulo=$_POST['idArticulo'];
         $buscarPlu=$CBalanza->buscarPluEnBalanza($plu, $idBalanza);
-        if(isset($buscarPlu['datos'])){
-            $respuesta['error']='Ya existe el producto con id:'.$buscarPlu['datos']['0']['idArticulo'].' ese mismo plu en la balanza';
+        $datosBalanza=$CBalanza->datosBalanza($idBalanza);
+        $samePlu = [];
+        foreach ($buscarPlu['datos'] as $pluData){
+            if ($datosBalanza['datos'][0]['conSeccion'] == "si") {
+                if($pluData['plu'] == $plu && $pluData['seccion'] == $seccion){
+                    $samePlu[] = $pluData;
+                }
+            } else {
+                if($pluData['plu'] == $plu){
+                    $samePlu[] = $pluData;
+                }
+            }
+        }
+
+        if(count($samePlu) > 0){
+            $respuesta['error']='Ya existe el producto con id:'.$samePlu[0]['idArticulo'].' ese mismo plu en la balanza';
             $respuesta['buscarPlu'] = json_encode($buscarPlu);
         }else{
             $addPlu=$CBalanza->addPlu($plu, $idBalanza, $seccion, $idArticulo);

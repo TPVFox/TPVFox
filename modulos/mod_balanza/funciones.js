@@ -172,7 +172,7 @@ function addPlu(idBalanza){
     var plu=$('#plu').val();
     var cref=$('#referencia').val();
     var articulo_name=$('#nombreProducto').val();
-    var seccion=$('#seccionPLU').val();
+    var seccion=$('#seccion').val();
     var pvpCiva = $('#precioConIva').val();
     if(id=="" || plu =="" ){
         alert("Quedan campos sin cubrir");
@@ -207,7 +207,7 @@ function addPlu(idBalanza){
                 $('#referencia').val("");
                 $('#codBarras').val("");
                 $('#plu').val("");
-                $('#seccionPlu').val("");
+                $('#seccion').val("");
                 $('#precioConIva').val("");
             }
 		}
