@@ -614,6 +614,7 @@ function imprimir(id, dedonde){
 function imprimirEtiquetas(dedonde){
 	var idProductos =TfObtenerCheck('checkSelect'); // funcion de lib/js/tpvfox.js
     var tamano=$("#tamanhos option:selected").val();
+	var teclaOReferencia = $("#teclaOReferencia option:selected").val();
     var inputs_cantidades = TfObtenerObjetos('cantidadEtiquetas');
     var productos = [];
     // Ahora mostamos productos con id y valores de cantidad de etiquetas.
@@ -635,6 +636,7 @@ function imprimirEtiquetas(dedonde){
 		"pulsado"    		: 'imprimirEtiquetas',
 		"dedonde"			:dedonde,
 		"tamano"			:tamano,
+		"teclaOReferencia"	:teclaOReferencia,
 		"productos"			:JSON.stringify(productos)
 	};
 	$.ajax({

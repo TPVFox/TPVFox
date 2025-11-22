@@ -17,6 +17,7 @@
         $Nproductos[$key]['articulo_name']  = $articulo['articulo_name'];
         $Nproductos[$key]['stock']          = $articulo['stocks']['stockOn'];
         $Nproductos[$key]['tipo']           = $articulo['tipo'];
+        $Nproductos[$key]['cref_tienda_principal']          = $articulo['cref_tienda_principal'];
         $Nproductos[$key]['td_acciones']    ='<a onclick="selecionarItemProducto('
                                             .$articulo['idArticulo'].",'".$dedonde."'".')">'
                                             .'<span class="glyphicon glyphicon-trash"></span>'

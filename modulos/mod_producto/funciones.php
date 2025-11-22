@@ -866,9 +866,13 @@ function ImprimirEtiquetas($productos,$tipo,$balanza=''){
             $imprimir['html'].='<td align="center" style="'.$medida['height'].'" >';
             // Obtenemos primera linea
             $plu = '';
-            if ($balanza !==''){
-                if (isset($producto['plu'])){
-                    $plu = $producto['plu'];
+            if ($balanza !== ''){
+                if ($balanza == 2){
+                    if (isset($producto['plu'])){
+                        $plu = $producto['plu'];
+                    }
+                } elseif ($balanza == 3){
+                    $plu = $producto['cref_tienda_principal'];
                 }
             }
             $Linea1 = htmlEtiquetaLinea1($producto,$medida);
