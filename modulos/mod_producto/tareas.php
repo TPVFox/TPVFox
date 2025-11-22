@@ -270,23 +270,20 @@ switch ($pulsado) {
     break;
 
     case 'imprimir':
-		// De momento no puedo pasar a tareas ya devuelve un fichero ... 
+		// De momento solo se usa para Recalculo
 		$id=$_POST['id'];
-		$dedonde="Recalculo";
-		$nombreTmp=$dedonde."recalculo.pdf";
-        if ($_POST['bandera']==1){
-			$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-		}else{
-			$dedonde="albaran";
-			$htmlImprimir=montarHTMLimprimirSinGuardar($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-			
-		}
-		$cabecera=$htmlImprimir['cabecera'];
-		$html=$htmlImprimir['html'];
-		include_once $URLCom.'/clases/imprimir.php';
+		$dedonde=$_POST['dedonde'];
+        if ($dedonde == 'Recalculo'){
+            $nombreTmp=$dedonde."recalculo.pdf";
+            include_once $URLCom.'/modulos/mod_producto/tareas/imprimirRecalculo.php';
+            //$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
+        }
+        $cabecera=$htmlImprimir['cabecera'];
+        $html=$htmlImprimir['html'];
+        include_once $URLCom.'/clases/imprimir.php';
         include_once $URLCom.'/controllers/planImprimirRe.php';
-		$ficheroCompleto=$rutatmp.'/'.$nombreTmp;
-		$respuesta['fichero']=$ficheroCompleto;
+        $ficheroCompleto=$rutatmp.'/'.$nombreTmp;
+        $respuesta['fichero']=$ficheroCompleto;
         //~ $respuesta['html']=$html;
 	break;
     

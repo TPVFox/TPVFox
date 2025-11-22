@@ -21,7 +21,7 @@
         $i=1;
         if (isset($_GET['id'])){
 			$id=$_GET['id'];
-			$dedonde="albaran";
+			$dedonde="Recalculo";
 			$subtitulo='de '.$dedonde.' :'.$id;
 			$titulo=$titulo.' '.$subtitulo;
 			$datosAlbaran=$CAlbaran->datosAlbaran($id);
@@ -208,6 +208,7 @@
 			}
 			$modificarHistorico=$CArticulo->modificarEstadosHistorico($id, $dedonde );
             if ($hayPeso) {
+                $mensaje = '';
                 foreach ($balanzas as $balanza) {
                     // Definimos la ruta de la balanza
                     $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
@@ -219,31 +220,33 @@
                     $salida = $salidaBalanza[$balanza['idBalanza']];
                     $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
                     if ($resultado === false) {
+                        $mensaje = "Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza.";
                         $ComunicacionBalanza['Comprobaciones'][] = array(
                             'tipo' => 'warning',
-                            'mensaje' => 'Error grave de Comunicación: No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx",
+                            'mensaje' => $mensaje . " " . $directorioBalanza . "/filetx",
                             'dato' => array($directorioBalanza . "/filetx")
                         );
-                        error_log('No se pudo escribir el fichero de comunicación con la balanza en ' . $directorioBalanza . "/filetx");
                     } else {
                         $traductorBalanza->setRutaBalanza($directorioBalanza);
                         $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
                         if ($ejecucion === false) {
+                            $mensaje = "Error grave de Comunicación: Fallo al ejecutar el driver de la balanza ID ".$balanza['idBalanza'].".";
                             $ComunicacionBalanza['Comprobaciones'][] = array(
                                 'tipo' => 'warning',
-                                'mensaje' => 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').',
+                                'mensaje' => $mensaje,
                                 'dato' => array()
                             );
-                            error_log('Fallo al ejecutar el driver de la balanza (ID '.$balanza['idBalanza'].').');
                         } else {
+                            $mensaje = "Comunicación con la balanza ID ".$balanza['idBalanza']." realizada correctamente.";
                             $ComunicacionBalanza['Comprobaciones'][] = array(
                                 'tipo' => 'success',
-                                'mensaje' => 'Comunicación con la balanza (ID '.$balanza['idBalanza'].') realizada correctamente.',
+                                'mensaje' => $mensaje,
                                 'dato' => array($datosH2, $datosH3)
                             );
                         }
                     }
                 }
+                $VarJS .= 'var comunicacionBalanzas ="' . $mensaje . '"' . ";\n";
             }
 		}
 		?>
@@ -274,11 +277,6 @@
               mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
             <?php
           }
-          if (isset($_POST['Imprimir'])){
-            ?>
-             imprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
-            <?php	
-            }
           ?>
         </script>
 		<div class="container">
@@ -289,7 +287,6 @@
                          pero esto tendrá cambiar, ya que el recalculo se podrá acceder desde varios sitios -->
                     <a class="text-right" href="<?php echo $ruta_volver;?>">Volver Atrás</a>
                     <input type="submit" value="Guardar" name="Guardar" id="Guardar" onclick="">
-                    <input type="submit" value="Imprimir" name="Imprimir" id="Imprimir" onclick="">
                 </div>
                 <div class="col-md-12">
                     <div class="col-md-2">
