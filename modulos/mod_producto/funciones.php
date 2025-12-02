@@ -750,7 +750,7 @@ function htmlEtiquetaLineaNombre($producto,$medida,$plu=''){
         // Creamos tabla solo si tiene imprimir plu
         $linea .='<table '.$medida['width'].'>'
         .'<tr><td '.$medida['width_tecla'].'>'
-        .'<font size="10 em" align="left">Tecla:<br></font><font size="'.$emTecla.' em" align="left"><b>'
+        .'<font size="10 em" align="left">'.$medida['teclaOReferencia'].':<br></font><font size="'.$emTecla.' em" align="left"><b>'
         .$plu.'</b></font> '
         .'</td><td>';
     }
@@ -795,7 +795,7 @@ function ObtenerMedidasEtiquetas($tipo) {
                                         'etiquetas_columna' => 1,
                                         'height' => 'height:375px;',
                                         'width' => 'width="790px"',
-                                        'width_tecla' => 'width="100px"',
+                                        'width_tecla' => 'width="130px"',
                                         'font_precio' => 200,
                                         'font_tecla' => 45,
                                         'font_nombre' => 30,
@@ -840,7 +840,7 @@ function ObtenerMedidasEtiquetas($tipo) {
     
 }
 
-function ImprimirEtiquetas($productos,$tipo,$balanza=''){
+function ImprimirEtiquetas($productos,$tipo,$teclaOReferencia=''){
     //@objetivo: imprimir las etiquetas de tamaño A5 
     //@Parametros: 
     //  $Productos: listado de productos que vamos a imprimir
@@ -866,13 +866,17 @@ function ImprimirEtiquetas($productos,$tipo,$balanza=''){
             $imprimir['html'].='<td align="center" style="'.$medida['height'].'" >';
             // Obtenemos primera linea
             $plu = '';
-            if ($balanza !== ''){
-                if ($balanza == 2){
+            if ($teclaOReferencia !== ''){
+                if ($teclaOReferencia == 2){
                     if (isset($producto['plu'])){
                         $plu = $producto['plu'];
+                        $medida['teclaOReferencia'] = 'Tecla'; 
+
                     }
-                } elseif ($balanza == 3){
+                } elseif ($teclaOReferencia == 3){
                     $plu = $producto['cref_tienda_principal'];
+                    $medida['teclaOReferencia'] = 'Referencia';
+
                 }
             }
             $Linea1 = htmlEtiquetaLinea1($producto,$medida);
