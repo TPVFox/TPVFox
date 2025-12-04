@@ -1,0 +1,59 @@
+<parametros>  
+    <configuracion>  
+        <!-- Número de registros diarios requeridos -->  
+        <registros_diarios descripcion="Número de registros por día">2</registros_diarios>  
+          
+        <!-- Configuración de cada registro -->  
+        <registro1 hora="08:00" forzar="Si" descripcion="Registro matutino"></registro1>  
+        <registro2 hora="20:00" forzar="Si" descripcion="Registro nocturno"></registro2>  
+        <registro3 hora="" forzar="No" descripcion="Registro extra (opcional)"></registro3>  
+        <registro4 hora="" forzar="No" descripcion="Registro extra (opcional)"></registro4>  
+          
+        <!-- Alertas de temperatura -->  
+        <alerta_maxima valor="25" descripcion="Temperatura máxima alerta"></alerta_maxima>  
+        <alerta_minima valor="18" descripcion="Temperatura mínima alerta"></alerta_minima>  
+          
+        <!-- Otras configuraciones -->  
+        <dias_historico valor="30" descripcion="Días de historial a mostrar por defecto"></dias_historico>  
+        <auto_guardar valor="Si" descripcion="Auto-guardar registros temporales"></auto_guardar>  
+    </configuracion>  
+      
+    <cajas_input data-obj="id_input">  
+        <caja_input>  
+            <nombre id_input="idDispositivo">cajaIdDispositivo</nombre>  
+            <teclas>  
+                <action tecla="13">buscarDispositivo</action>  
+                <action tecla="40">saltar_temperatura</action>  
+            </teclas>  
+            <parametros>  
+                <parametro nombre="dedonde">temperatura</parametro>  
+            </parametros>  
+        </caja_input>  
+          
+        <caja_input>  
+            <nombre id_input="temperatura">cajaTemperatura</nombre>  
+            <teclas>  
+                <action tecla="13">guardarRegistro</action>  
+                <action tecla="38">saltar_idDispositivo</action>  
+            </teclas>  
+            <parametros>  
+                <parametro nombre="dedonde">temperatura</parametro>  
+            </parametros>  
+        </caja_input>  
+          
+        <caja_input>  
+            <nombre id_input="cajaBusquedaDispositivo">cajaBusquedaDispositivo</nombre>  
+            <teclas>  
+                <action tecla="13">buscarDispositivo</action>  
+                <action tecla="40">mover_down</action>  
+                <action tecla="27">CerrarModal</action>  
+            </teclas>  
+            <parametros>  
+                <parametro nombre="dedonde">popup</parametro>  
+            </parametros>  
+            <before>  
+                <estado>Si</estado>  
+            </before>  
+        </caja_input>  
+    </cajas_input>  
+</parametros>
