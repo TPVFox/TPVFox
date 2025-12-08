@@ -1,10 +1,10 @@
 <?php
-include_once("./../../../inicial.php");
-include_once("./../../../configuracion.php");
+include_once($URLCom . "/inicial.php");
+include_once($URLCom . "/configuracion.php");
 include_once($URLCom . '/controllers/parametros.php');
 include_once $URLCom . '/controllers/Controladores.php';
 
-$ClasesParametros = new ClaseParametros('../parametros.xml');
+$ClasesParametros = new ClaseParametros('parametros.xml');
 $Controler = new ControladorComun;
 $Controler->loadDbtpv($BDTpv);
 
@@ -62,7 +62,7 @@ $config = $parametros->configuracion;
         <!-- Boton Volver (Derecha) -->
         <div style="text-align:right; margin-bottom:20px;">
             <a href="<?php echo $HostNombre . '/modulos/mod_temperaturas/temperatura.php'; ?>" class="btn btn-default">
-                <i class="fas fa-arrow-left"></i> Volver a Temperaturas
+                <i class="fas fa-arrow-left"></i> Cerrar configuración
             </a>
         </div>
 
