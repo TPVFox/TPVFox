@@ -1,5 +1,20 @@
-# Ignorar el contenido de las carpetas log y cache
+# Ignorar archivo de configuración local
 configuracion.php
-/nbproject/
-# Ignoramos el contenido de carpetas de empresas dentro estatico, pera evitar problema a la hora compartir.
-/estatico/carpintero/
+
+# Ignorar carpeta nbproject (NetBeans)
+nbproject/
+
+# Ignorar carpetas cache en cualquier nivel
+cache/
+*/cache/
+**/cache/
+
+# Ignorar logs
+log/
+logs/
+**/log/
+**/logs/
+
+# Ignorar carpetas de empresas dentro /estatico/
+estatico/carpintero/
+estatico/*/
