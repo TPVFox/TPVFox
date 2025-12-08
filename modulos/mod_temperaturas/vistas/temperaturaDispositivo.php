@@ -15,8 +15,8 @@
     <div class="form-group">
         <label for="deviceStatus">Estado:</label>
         <select class="form-control" id="deviceStatus" name="deviceStatus">
-            <option value="active">Activo</option>
-            <option value="inactive">Inactivo</option>
+            <option value="1">Activo</option>
+            <option value="2">Inactivo</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Guardar dispositivo</button>
