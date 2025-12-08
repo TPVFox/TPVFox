@@ -59,6 +59,14 @@ $config = $parametros->configuracion;
             </div>
         <?php endif; ?>
         
+        <!-- Boton Volver (Derecha) -->
+        <div style="text-align:right; margin-bottom:20px;">
+            <a href="<?php echo $HostNombre . '/modulos/mod_temperaturas/temperatura.php'; ?>" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Volver a Temperaturas
+            </a>
+        </div>
+
+        <div style="margin-bottom:20px;">
         <form method="POST" action="">
             <!-- Registros Diarios -->
             <div class="panel panel-default">
