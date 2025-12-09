@@ -28,5 +28,17 @@ class ClaseTemperatura extends Modelo
             return $consulta;
         }
         return $consulta['datos'];
-    }   
+    }
+    // Añadir temperaturas para varios dispositivos
+    public function addTemperaturas($datosArray){
+        foreach ($datosArray as $datos) {
+            $sql = "INSERT INTO " . $this->tablaTemperaturas . " (idDispositivo, temperatura, idUsuario, fechaRegistro) VALUES (
+                " . $datos['idDispositivo'] . ",
+                " . $datos['temperatura'] . ",
+                " . $datos['idUsuario'] . ",
+                NOW()
+            )";
+            $consulta = $this->consultaDML($sql);
+        }
+    }
 }

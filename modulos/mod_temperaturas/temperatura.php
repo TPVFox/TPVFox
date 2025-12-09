@@ -31,6 +31,29 @@ if (isset($_POST['action'])){
 
             echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
         break;
+        case 'update_temperaturas':
+            // Procesar el formulario de actualización de temperaturas
+            $idUsuario = intval($_POST['idUsuario']);
+            $temperaturas = $_POST['temperatura']; // Array de temperaturas
+            $datosTemperatura = array(); // idDispositivo, temperatura, idUsuario
+
+            foreach ($temperaturas as $idDispositivo => $nuevaTemperatura) {
+                $idDispositivo = intval($idDispositivo);
+                $nuevaTemperatura = floatval($nuevaTemperatura);
+                if ($nuevaTemperatura != 0) { // Solo actualizar si se ha proporcionado una temperatura
+                    $datosTemperatura[] = array(
+                        'idDispositivo' => $idDispositivo,
+                        'temperatura' => $nuevaTemperatura,
+                        'idUsuario' => $idUsuario
+                    );
+                }
+            }
+            if (count($datosTemperatura) > 0) {
+                $ClaseTemperatura->addTemperaturas($datosTemperatura);
+            }
+
+            echo "<div class='alert alert-success'>Temperaturas actualizadas correctamente.</div>";
+        break;
     }
 }
 
