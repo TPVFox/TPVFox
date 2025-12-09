@@ -15,19 +15,23 @@ $dispositivos = $ClaseTemperatura->getDispositivos();
 
 $parametros = $ClasesParametros->getRoot();
 
-if (isset($_POST['deviceName'])) {
-    // Procesar el formulario de nuevo dispositivo
-    $dispositivo = array(
-        'nombre' => $_POST['deviceName'],
-        'ubicacion' => $_POST['deviceLocation'],
-        'estado' => $_POST['deviceStatus']
-    );
-    $ClaseTemperatura->addDispositivo($dispositivo);
+if (isset($_POST['action'])){
+    switch($_POST['action']){
+        case 'save_configuracion':
+            // Procesar el formulario de nuevo dispositivo
+            $dispositivo = array(
+                'nombre' => $_POST['deviceName'],
+                'ubicacion' => $_POST['deviceLocation'],
+                'estado' => $_POST['deviceStatus']
+            );
+            $ClaseTemperatura->addDispositivo($dispositivo);
 
-    // Aquí se debería agregar la lógica para guardar el nuevo dispositivo
-    // Por ejemplo, insertarlo en la base de datos o en un archivo de configuración
+            // Aquí se debería agregar la lógica para guardar el nuevo dispositivo
+            // Por ejemplo, insertarlo en la base de datos o en un archivo de configuración
 
-    echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
+            echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
+        break;
+    }
 }
 
 ?>

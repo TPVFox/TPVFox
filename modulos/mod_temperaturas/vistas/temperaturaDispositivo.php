@@ -4,6 +4,7 @@
  // Incluir formulario para añadir/modificar un dispositivo de temperatura parametros: nombre ubicación y estado.
 ?>
 <form method="post" action="./temperatura.php">
+    <input type="hidden" name="action" value="save_configuracion">
     <div class="form-group">
         <label for="deviceName">Nombre del dispositivo:</label>
         <input type="text" class="form-control" id="deviceName" name="deviceName" required>
