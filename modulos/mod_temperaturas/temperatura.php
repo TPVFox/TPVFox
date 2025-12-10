@@ -5,6 +5,7 @@ include_once("./../../configuracion.php");
 include_once($URLCom . '/controllers/parametros.php');
 include_once $URLCom . '/controllers/Controladores.php';
 include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseTemperatura.php';
+include_once "./funciones.php";
 
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $Controler = new ControladorComun;
@@ -12,6 +13,10 @@ $Controler->loadDbtpv($BDTpv);
 
 $ClaseTemperatura = new ClaseTemperatura($BDTpv);
 $dispositivos = $ClaseTemperatura->getDispositivos();
+$temperaturas = $ClaseTemperatura->getTemperaturas();
+
+// Unir en un solo array la información de dispositivos y sus últimas temperaturas
+$dispositivos = agregarUltimasTemperaturas($dispositivos, $temperaturas);
 
 $parametros = $ClasesParametros->getRoot();
 
@@ -82,17 +87,15 @@ if (isset($_POST['action'])){
             if (isset($_GET['new'])) {
                 include_once("./vistas/temperaturaDispositivo.php");
             }
-            ?>
-        </div>
-        
-        <div class="col-md-9">
-            <?php
             if (isset($_GET['configurar'])) {
                 include_once("./vistas/configurar_parametros.php");
                 echo "<br></br>";
                 echo "<hr>";
             }
             ?>
+        </div>
+        
+        <div class="col-md-9">
             <h4>Dispositivos añadidos</h4>
             <?php
             include_once("./vistas/temperaturaListaDispositivos.php");

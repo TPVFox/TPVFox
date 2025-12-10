@@ -41,4 +41,13 @@ class ClaseTemperatura extends Modelo
             $consulta = $this->consultaDML($sql);
         }
     }
+
+    public function getTemperaturas(){
+        $sql = "SELECT * FROM " . $this->tablaTemperaturas;
+        $consulta = $this->consulta($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return $consulta['datos'];
+    }
 }

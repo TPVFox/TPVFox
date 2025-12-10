@@ -38,15 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $parametros = $ClasesParametros->getRoot();
 $config = $parametros->configuracion;
 ?>
-<!DOCTYPE html>
-<html>
-
-<head>
-    <?php include_once $URLCom . '/head.php'; ?>
-</head>
-
-<body>
-    <?php include_once $URLCom . '/modulos/mod_menu/menu.php'; ?>
     
     <div class="container" style="margin-top:20px;">
         <div class="page-header">
@@ -93,23 +84,23 @@ $config = $parametros->configuracion;
                         $registro = $config->{"registro{$i}"};
                     ?>
                     <div class="row" style="margin-bottom:10px; padding:10px; background:#f8f8f8; border-radius:4px;">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label class="control-label">Registro <?php echo $i; ?></label>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                             <input type="time" 
                                    name="registro<?php echo $i; ?>_hora" 
                                    class="form-control"
                                    value="<?php echo (string)$registro['hora']; ?>"
                                    placeholder="Hora">
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <select name="registro<?php echo $i; ?>_forzar" class="form-control">
                                 <option value="Si" <?php echo ((string)$registro['forzar'] == 'Si') ? 'selected' : ''; ?>>Forzar: Sí</option>
                                 <option value="No" <?php echo ((string)$registro['forzar'] == 'No') ? 'selected' : ''; ?>>Forzar: No</option>
                             </select>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-12">
                             <input type="text" 
                                    name="registro<?php echo $i; ?>_descripcion" 
                                    class="form-control"
@@ -163,5 +154,6 @@ $config = $parametros->configuracion;
     <!-- Optional: Bootstrap JS and dependencies (jQuery) if needed -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</body>
-</html>
+
+
+        </div>

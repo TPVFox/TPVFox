@@ -11,7 +11,7 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
         echo "<tr>";
         echo "<td>" . htmlspecialchars($dispositivo['nombre']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ubicacion']) . "</td>";
-        echo "<td>" . ($dispositivo['estado'] == 1 ? 'Activo' : 'Inactivo') . "</td>";
+        echo "<td>" . htmlspecialchars($dispositivo['estado']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ultimo_registro']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ultima_temperatura']) . " °C</td>";
         echo "<td>";
