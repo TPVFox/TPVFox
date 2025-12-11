@@ -84,7 +84,7 @@ $config = $parametros->configuracion;
                         $registro = $config->{"registro{$i}"};
                     ?>
                     <div class="row" style="margin-bottom:10px; padding:10px; background:#f8f8f8; border-radius:4px;">
-                        <div class="col-sm-4">
+                        <div class="col-sm-12">
                             <label class="control-label">Registro <?php echo $i; ?></label>
                         </div>
                         <div class="col-sm-4">
@@ -100,7 +100,7 @@ $config = $parametros->configuracion;
                                 <option value="No" <?php echo ((string)$registro['forzar'] == 'No') ? 'selected' : ''; ?>>Forzar: No</option>
                             </select>
                         </div>
-                        <div class="col-sm-12">
+                        <div class="col-sm-4">
                             <input type="text" 
                                    name="registro<?php echo $i; ?>_descripcion" 
                                    class="form-control"

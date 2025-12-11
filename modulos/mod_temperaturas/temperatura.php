@@ -31,9 +31,6 @@ if (isset($_POST['action'])){
             );
             $ClaseTemperatura->addDispositivo($dispositivo);
 
-            // Aquí se debería agregar la lógica para guardar el nuevo dispositivo
-            // Por ejemplo, insertarlo en la base de datos o en un archivo de configuración
-
             echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
         break;
         case 'update_temperaturas':
@@ -79,7 +76,7 @@ if (isset($_POST['action'])){
         <div class="col-md-12 text-center">
             <h2>Dispositivos de temperatura</h2>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <h4>Opciones generales</h4>
             <a class="btn btn-default" href="./temperatura.php?new">Añadir</a>
             <a class="btn btn-default" href="./temperatura.php?configurar">Configurar parámetros</a>
@@ -95,11 +92,44 @@ if (isset($_POST['action'])){
             ?>
         </div>
         
-        <div class="col-md-9">
+        <div class="col-md-8">
             <h4>Dispositivos añadidos</h4>
             <?php
             include_once("./vistas/temperaturaListaDispositivos.php");
             ?>
+        </div>
+        <div class="col-md-12">
+            <h4>Histórico de temperaturas</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Dispositivo</th>
+                        <th>Temperatura (°C)</th>
+                        <th>Fecha de Registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($temperaturas as $temp) {
+                        echo "<tr>";
+                        // mostrar nombre y ubicación del dispositivo en lugar de idDispositivo
+                        $dispositivoInfo = array_filter($dispositivos, function($d) use ($temp) {
+                            return $d['idDispositivo'] == $temp['idDispositivo'];
+                        });
+                        $dispositivoInfo = array_values($dispositivoInfo);
+                        if (count($dispositivoInfo) > 0) {
+                            $dispositivoNombre = $dispositivoInfo[0]['nombre'] . " (" . $dispositivoInfo[0]['ubicacion'] . ")";
+                        } else {
+                            $dispositivoNombre = "Desconocido";
+                        }
+                        echo "<td>" . htmlspecialchars($dispositivoNombre) . "</td>";   
+                        echo "<td>" . htmlspecialchars($temp['temperatura']) . " °C</td>";
+                        echo "<td>" . htmlspecialchars($temp['fechaRegistro']) . "</td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
 
 
