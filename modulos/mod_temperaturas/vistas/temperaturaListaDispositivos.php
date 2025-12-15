@@ -4,7 +4,7 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
     echo "<input type='hidden' name='action' value='update_temperaturas'>";
     // hidden input for idUsuario from tabla temperaturas
     echo "<table class='table table-striped'>";
-    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th><th>Nueva Tª</th></tr></thead>";
+    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th><th>Nueva Tª</th><th>Editar</th></tr></thead>";
     echo "<tbody>";
     foreach ($dispositivos as $dispositivo) {
         $id = intval($dispositivo['idDispositivo']);
@@ -18,6 +18,7 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
         // usamos un array: temperatura[<id>]
         echo "<input type='number' name='temperatura[" . $id . "]' step='0.1' min='-50' max='150' placeholder='Nueva Tª' aria-label='Nueva temperatura del dispositivo " . $id . "'>";
         echo "</td>";
+        echo "<td><a class='btn btn-sm btn-default' href='./temperatura.php?edit=" . $id . "'>Editar</a></td>";
         echo "</tr>";
     }
     echo "</tbody>";

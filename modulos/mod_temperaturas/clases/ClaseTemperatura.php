@@ -21,6 +21,27 @@ class ClaseTemperatura extends Modelo
         }
     }
 
+    public function updateDispositivo($id, $datos){
+        $sql = "UPDATE " . $this->tablaDispositivos . " SET 
+            nombre = '" . $datos['nombre'] . "',
+            ubicacion = '" . $datos['ubicacion'] . "',
+            estado = '" . $datos['estado'] . "'
+            WHERE idDispositivo = " . intval($id);
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+    }
+
+    public function getDispositivo($id){
+        $sql = "SELECT * FROM " . $this->tablaDispositivos . " WHERE idDispositivo = " . intval($id);
+        $consulta = $this->consulta($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return $consulta['datos'][0];
+    }
+
     public function getDispositivos(){
         $sql = "SELECT * FROM " . $this->tablaDispositivos;
         $consulta = $this->consulta($sql);

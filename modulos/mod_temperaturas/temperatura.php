@@ -33,6 +33,18 @@ if (isset($_POST['action'])){
 
             echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
         break;
+        case 'update_dispositivo':
+            // Procesar el formulario de edición de dispositivo
+            $idDispositivo = intval($_POST['idDispositivo']);
+            $dispositivo = array(
+                'nombre' => $_POST['deviceName'],
+                'ubicacion' => $_POST['deviceLocation'],
+                'estado' => $_POST['deviceStatus']
+            );
+            $ClaseTemperatura->updateDispositivo($idDispositivo, $dispositivo);
+
+            echo "<div class='alert alert-success'>Dispositivo actualizado correctamente.</div>";
+        break;
         case 'update_temperaturas':
             // Procesar el formulario de actualización de temperaturas
             $idUsuario = intval($_POST['idUsuario']);
@@ -81,7 +93,7 @@ if (isset($_POST['action'])){
             <a class="btn btn-default" href="./temperatura.php?new">Añadir</a>
             <a class="btn btn-default" href="./temperatura.php?configurar">Configurar parámetros</a>
             <?php
-            if (isset($_GET['new'])) {
+            if (isset($_GET['new']) or isset($_GET['edit'])) {
                 include_once("./vistas/temperaturaDispositivo.php");
             }
             if (isset($_GET['configurar'])) {
