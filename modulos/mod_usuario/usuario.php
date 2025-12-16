@@ -103,6 +103,7 @@
 					$tipomensaje = "info";
 					$mensaje = "Nuevo usuario creado.";
 				}
+				$idUsuario = $resp['id'];   // viene del INSERT
 			} else {
 				echo '¿Estás entrando aqui?';
 				// Quiere decir que ya modificamos los datos del ficha del usuario
@@ -116,6 +117,7 @@
 					$tipomensaje = "info";
 					$mensaje = "Su registro de usuario fue editado.";
 				}
+    			$idUsuario = $datos['idUsuario']; // ya existía
 			};
 			$i = 0;
 			foreach ($permisosUsuario as $permisos) {
@@ -126,7 +128,7 @@
 				$mod = $ClasePermisos->modificarPermisoUsuario($permisos, $permiso, $id);
 				$i++;
 			}
-			$id_array = array('id' => $resp['id']);
+			$id_array = array('id' => $idUsuario);
 			$permisosUsuario = $ClasePermisos->getPermisosUsuario($id_array);
 			$permisosUsuario = $permisosUsuario['resultado'];
 			$UsuarioUnico = verSelec($BDTpv, $id_array['id'], $tabla);

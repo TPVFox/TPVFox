@@ -107,7 +107,7 @@ function modificarUsuario($datos,$BDTpv,$tabla){
 	$idUsuario =$datos['idUsuario']; //NO SE MODIFICA autonumerica
 	$grupoid=$datos['grupo'];
 	$estado = $datos['estado'];
-	$id =$datos['idUsuario'];
+	//~$id =$datos['idUsuario'];
 	
 	if ($datos['password'] === 'password'){ //username NO se podra MODIFICAR
 		//no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id. 
