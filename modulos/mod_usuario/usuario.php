@@ -52,13 +52,8 @@
 	);
 	$passwrd = '';
 
-	?>
-</head>
 
-<body>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
-	<?php
-	include_once $URLCom . '/modulos/mod_menu/menu.php';
+
 	// ===========  datos usuario segun id enviado por url============= //
 	if (isset($_GET['id'])) {
 		// Modificar Ficha Usuario
@@ -132,8 +127,18 @@
 			$permisosUsuario = $ClasePermisos->getPermisosUsuario($id_array);
 			$permisosUsuario = $permisosUsuario['resultado'];
 			$UsuarioUnico = verSelec($BDTpv, $id_array['id'], $tabla);
+			// recargar pagina usuario.php?id=$idUsuario
+			header("Location: usuario.php?id=" . $idUsuario);
+			exit();
 		}
 	}
+	?>
+</head>
+
+<body>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_usuario/funciones.js"></script>
+	<?php
+	include_once $URLCom . '/modulos/mod_menu/menu.php';
 	$htmlPermisosUsuario = htmlPermisosUsuario($permisosUsuario, $ClasePermisos->getAccion("permiso"), $ClasePermisos, $usuarios);
 
 	?>
