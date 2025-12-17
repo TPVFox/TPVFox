@@ -4,8 +4,14 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
     echo "<input type='hidden' name='action' value='update_temperaturas'>";
     // hidden input for idUsuario from tabla temperaturas
     echo "<table class='table table-striped'>";
-    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th><th>Nueva Tª</th><th>Editar</th></tr></thead>";
-    echo "<tbody>";
+    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th>";    
+    if (isset($ClasePermisos) && $ClasePermisos->getAccion("registrarTemperatura", $mod_vista)):
+    echo "<th>Nueva Tª</th>";
+    endif;
+    if (isset($ClasePermisos) && $ClasePermisos->getAccion("modificarDispositivo", $mod_vista)):
+    echo "<th>Acciones</th>";
+    endif;
+    echo "</tr></thead><tbody>";
     foreach ($dispositivos as $dispositivo) {
         $id = intval($dispositivo['idDispositivo']);
         echo "<tr>";
@@ -14,16 +20,26 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
         echo "<td>" . htmlspecialchars($dispositivo['estado']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ultimo_registro']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ultima_temperatura']) . " °C</td>";
-        echo "<td>";
-        // usamos un array: temperatura[<id>]
-        echo "<input type='number' name='temperatura[" . $id . "]' step='0.1' min='-50' max='150' placeholder='Nueva Tª' aria-label='Nueva temperatura del dispositivo " . $id . "'>";
-        echo "</td>";
-        echo "<td><a class='btn btn-sm btn-default' href='./temperatura.php?edit=" . $id . "'>Editar</a></td>";
+        if (isset($ClasePermisos) && $ClasePermisos->getAccion("registrarTemperatura", $mod_vista)):
+            echo "<td>";
+            // usamos un array: temperatura[<id>]
+            echo "<input type='number' name='temperatura[" . $id . "]' step='0.1' min='-50' max='150' placeholder='Nueva Tª' aria-label='Nueva temperatura del dispositivo " . $id . "'>";
+            echo "</td>";
+        endif;
+        if (isset($ClasePermisos) && $ClasePermisos->getAccion("modificarDispositivo", $mod_vista)):
+            echo "<td><a class='btn btn-sm btn-default' href='./temperatura.php?edit=" . $id . "'>Editar</a>";
+            if (isset($ClasePermisos) && $ClasePermisos->getAccion("borrarDispositivo", $mod_vista)):
+                echo "<a class='btn btn-sm btn-danger' href='./temperatura.php?delete=" . $id . "' onclick='return confirm(\"¿Estás seguro de que deseas eliminar este dispositivo? Esta acción elimina todos los registros del mismo\");'>Eliminar</a>";
+            endif;
+            echo "</td>";
+        endif;
         echo "</tr>";
     }
     echo "</tbody>";
     echo "</table>";
-    echo "<div style='text-align:right;'><button type='submit' class='btn btn-primary'>Actualizar Temperaturas</button></div>";
+    if (isset($ClasePermisos) && $ClasePermisos->getAccion("registrarTemperatura", $mod_vista)):
+        echo "<div style='text-align:right;'><button type='submit' class='btn btn-primary'>Actualizar Temperaturas</button></div>";
+    endif;
     echo "</form>";
 } else {
     echo "<p>No hay dispositivos de temperatura añadidos.</p>";
