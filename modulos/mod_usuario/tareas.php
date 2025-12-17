@@ -36,8 +36,9 @@ $pulsado = $_POST['pulsado'];
 	break;
     case 'copiarPermisosUsuario':
         $usuarioNuevo=$_POST['usuarioNuevo'];
-       
-        $permisosUsuario=$ClasePermisos->getPermisosUsuario($usuarioNuevo);
+		$id_array = array('id' => $usuarioNuevo);
+
+        $permisosUsuario=$ClasePermisos->getPermisosUsuario($id_array);
         $respuesta['permisosUsuario']=$permisosUsuario;
     break;
 }
