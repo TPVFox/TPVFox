@@ -7,6 +7,8 @@ include_once $URLCom . '/controllers/Controladores.php';
 include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseTemperatura.php';
 include_once "./funciones.php";
 
+$mod_vista = array('vista' => 'temperatura.php', 'modulo' => 'mod_temperaturas');
+
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $Controler = new ControladorComun;
 $Controler->loadDbtpv($BDTpv);
@@ -69,6 +71,8 @@ if (isset($_POST['action'])){
             echo "<div class='alert alert-success'>Temperaturas actualizadas correctamente.</div>";
         break;
     }
+    header("Location: ./temperatura.php");
+    exit();
 }
 
 ?>
@@ -90,7 +94,9 @@ if (isset($_POST['action'])){
         </div>
         <div class="col-md-4">
             <h4>Opciones generales</h4>
+            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("crearDispositivo", $mod_vista)): ?>
             <a class="btn btn-default" href="./temperatura.php?new">Añadir</a>
+            <?php endif; ?>
             <a class="btn btn-default" href="./temperatura.php?configurar">Configurar parámetros</a>
             <?php
             if (isset($_GET['new']) or isset($_GET['edit'])) {
