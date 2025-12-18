@@ -21,7 +21,7 @@
         $i=1;
         if (isset($_GET['id'])){
 			$id=$_GET['id'];
-			$dedonde="Recalculo";
+			$dedonde="albaran";
 			$subtitulo='de '.$dedonde.' :'.$id;
 			$titulo=$titulo.' '.$subtitulo;
 			$datosAlbaran=$CAlbaran->datosAlbaran($id);

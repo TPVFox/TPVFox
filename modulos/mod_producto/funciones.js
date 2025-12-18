@@ -586,12 +586,12 @@ function imprimir(id, dedonde){
 	var mensaje = 'KO';
 	if (typeof comunicacionBalanzas !== 'undefined'){
 		mensaje = comunicacionBalanzas;
-	}
+	};
 	var parametros = {
 		"pulsado"    		: 'imprimir',
 		"dedonde"			:dedonde,
 		"id"				:id,
-		"mensaje"			:mensaje,
+		"mensaje"			:mensaje
 	};
 		$.ajax({
 		data       : parametros,

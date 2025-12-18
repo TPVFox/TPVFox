@@ -272,12 +272,10 @@ switch ($pulsado) {
     case 'imprimir':
 		// De momento solo se usa para Recalculo
 		$id=$_POST['id'];
-		$dedonde=$_POST['dedonde'];
-        if ($dedonde == 'Recalculo'){
-            $nombreTmp=$dedonde."recalculo.pdf";
-            include_once $URLCom.'/modulos/mod_producto/tareas/imprimirRecalculo.php';
-            //$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
-        }
+		$dedonde="Recalculo";       
+        $nombreTmp=$dedonde."recalculo.pdf";
+        include_once $URLCom.'/modulos/mod_producto/tareas/imprimirRecalculo.php';
+        //$htmlImprimir=montarHTMLimprimir($id, $BDTpv, $dedonde, $CArticulo, $CAlbaran, $CProveedor);
         $cabecera=$htmlImprimir['cabecera'];
         $html=$htmlImprimir['html'];
         include_once $URLCom.'/clases/imprimir.php';
