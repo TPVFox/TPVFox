@@ -147,14 +147,23 @@ switch ($pulsado) {
         include_once $URLCom.'/modulos/mod_producto/tareas/htmlModalRegularizacionStock.php';
     break;
 
-    case 'eliminarCoste':
-		$respuesta = array();
+    case 'cambiarEstadoRecalculo':
+        // Con esta  opcion , cambiamos el estado del producto a Sin Cambios o Pendiente, 
+        // Sin Cambios: Queda el registro que no se cambio el PVP aun que si se registro el cambio de Coste.
 		$idArticulo=$_POST['idArticulo'];
 		$dedonde=$_POST['dedonde'];
+        $respuesta['accion']=$_POST['accion'];
 		$id=$_POST['id'];
 		$tipo=$_POST['tipo'];
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo,'Sin Cambios');
+        if ($respuesta['accion']=='eliminar'){
+            $estado= 'Sin Cambios';   
+        }
+        if ($respuesta['accion']=='retorno'){
+            $estado = 'Pendiente';
+        }
+		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo,$estado);
 		$respuesta['sql']=$mod;
+        
     break;
 
     case 'eliminarSeleccion':
@@ -361,15 +370,6 @@ switch ($pulsado) {
             
         }
     break;
-
-    case 'retornarCoste':
-		$idArticulo=$_POST['idArticulo'];
-		$dedonde=$_POST['dedonde'];
-		$id=$_POST['id'];
-		$tipo=$_POST['tipo'];
-		$mod=$CArticulo->modEstadoArticuloHistorico($idArticulo, $id, $dedonde, $tipo, 'Pendiente');
-		$respuesta['sql']=$mod;
-	break;
     
     case 'modalFamiliaProducto':
         $idProducto=0; // Si es cero el POST, se pone valor 0 para obtenga los idsProductos session.

@@ -370,9 +370,9 @@
                                     echo '<td></td>';
                                 }else{
                                     if ($producto['estado']=="Pendiente" ){
-                                        echo '<td class="eliminar"><a onclick="eliminarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-trash"></span></a></td>';
+                                        echo '<td class="eliminar"><a onclick="cambiarEstadoRecalculo('.$producto['idArticulo'].",'albaran',".$id.",'compras',".$i.",'eliminar')".'"><span class="glyphicon glyphicon-trash"></span></a></td>';
                                     }else{
-                                        echo '<td class="eliminar"><a onclick="retornarCoste('.$producto['idArticulo'].', '."'".$dedonde."'".', '.$id.', '."'".'compras'."'".', '.$i.')"><span class="glyphicon glyphicon-export"></span></a></td>';
+                                        echo '<td class="eliminar"><a onclick="cambiarEstadoRecalculo('.$producto['idArticulo'].",'albaran',".$id.",'compras',".$i.",'retorno')".'"><span class="glyphicon glyphicon-export"></span></a></td>';
                                     }
                                 }
                                 echo '</tr>';

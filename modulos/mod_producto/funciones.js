@@ -547,32 +547,6 @@ function comprobarNumero(valor){
     }
 }
 
-
-function retornarCoste(idArticulo, dedonde, id, tipo, fila){
-	var parametros = {
-		"pulsado"    		: 'retornarCoste',
-		"idArticulo"		: idArticulo,
-		"dedonde"			:dedonde,
-		"id"				:id,
-		"tipo"				:tipo
-	};
-	console.log(parametros);
-		$.ajax({
-		data       : parametros,
-		url        : 'tareas.php',
-		type       : 'post',
-		beforeSend : function () {
-		console.log('*********  Modificando eliminar costes  **************');
-		},
-		success    :  function (response) {
-				console.log('Respuesta de eliminar costes ');
-                var resultado = $.parseJSON(response);
-                $("#Row" + fila).removeClass('tachado');
-				$("#Row" + fila +"> .eliminar").html('<a onclick="eliminarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-trash"></span></a>');
-				//return resultado;
-		}	
-	});
-}
 function mensajeImprimir(id, dedonde){
 	var mensaje = confirm("¿Quieres imprimir los precios?");
 	if (mensaje) {
@@ -1160,15 +1134,19 @@ function EliminarReferenciaBalanza(id,e){
     }
 }
 
-function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
-	
+function cambiarEstadoRecalculo(idArticulo, dedonde, id, tipo, fila, accion){
+    //~ Con esta funcion cambiamos estado en la tabal historico_precios,
+    //~ segun desea la persona recalcula, es decir eliminar o retornar la lineas
+    //~ accion puede ser eliminar o retorno
 	var parametros = {
-		"pulsado"    		: 'eliminarCoste',
+		"pulsado"    		: 'cambiarEstadoRecalculo',
 		"idArticulo"		: idArticulo,
 		"dedonde"			:dedonde,
 		"id"				:id,
-		"tipo"				:tipo
+		"tipo"				:tipo,
+        "accion"            :accion
 	};
+
 	console.log(parametros);
 		$.ajax({
 		data       : parametros,
@@ -1180,9 +1158,21 @@ function eliminarCoste(idArticulo, dedonde, id, tipo, fila){
 		success    :  function (response) {
 				console.log('Respuesta de eliminar costes ');
                 var resultado = $.parseJSON(response);
-				$('#Row'+ fila).addClass("tachado");
-				$("#Row" + fila +"> .eliminar").html('<a onclick="retornarCoste('+idArticulo+', '+"'"+dedonde+"'"+', '+id+', '+"'"+tipo+"'"+', '+fila+');"><span class="glyphicon glyphicon-export"></span></a>');
-				//return resultado;
+                if (resultado.accion == 'eliminar'){
+                    var accion= 'retorno';
+                    var icono = 'glyphicon-export';
+                    $('#Row'+ fila).addClass("tachado");
+                    
+                } else  {
+                    var accion= 'eliminar';
+                    var icono = 'glyphicon-trash';
+                    $("#Row" + fila).removeClass('tachado');
+                }
+                $("#Row" + fila + " > .eliminar").html(`
+                      <a onclick="cambiarEstadoRecalculo(${idArticulo}, '${dedonde}', ${id}, '${tipo}', ${fila}, '${accion}');">
+                        <span class="glyphicon ${icono}"></span>
+                      </a>
+                    `);			
 		}	
 	});
 }
