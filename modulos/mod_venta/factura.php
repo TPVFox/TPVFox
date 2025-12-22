@@ -1,4 +1,4 @@
-﻿<?php
+<?php
     // Vista Factura
     // Anotaciones:
     // 1) No permitimos borrar facturas, por lo que campo Numfactucli no tiene sentido, seria el mismo idFactura.
