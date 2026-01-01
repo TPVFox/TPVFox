@@ -8,7 +8,7 @@
         <accion nombre="borrarDispositivo" descripcion="Borrar Dispositivo" permiso="0"></accion>  
           
         <!-- Permisos para registros de temperatura -->  
-        <accion nombre="registrarTemperatura" descripcion="Registrar Temperatura" permiso="0"></accion>  
+        <accion nombre="registrarTemperatura" descripcion="Registrar Temperatura" permiso="1"></accion>  
         <accion nombre="modificarTemperatura" descripcion="Modificar Registro Temperatura" permiso="0"></accion>  
         <accion nombre="borrarTemperatura" descripcion="Borrar Registro Temperatura" permiso="0"></accion>  
     </vista>  
