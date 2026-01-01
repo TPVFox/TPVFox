@@ -35,7 +35,7 @@ switch ($pulsado) {
     case 'contarproductos':
         $tipo = $_POST['tipo'];
         $CReorganizar = new ClaseReorganizar();
-        if (isset($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb)){
+        if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb)>0){
             $TiendaWeb = $CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb;
             $CReorganizar->setIdTiendaWeb($TiendaWeb['idTienda']);
         }
