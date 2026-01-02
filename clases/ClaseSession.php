@@ -88,7 +88,7 @@ class ClaseSession extends ClaseConexion{
 		// Comprobar que los datos metidos en el formulario acceso son correctos.
 		$BDTpv = $this->BDTpv;
 		$encriptada = md5($pwd);// Encriptamos contraseña puesta en formulario.
-		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username="'.$usuario.'"';
+		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username="'.$usuario.'" AND estado="activo"';
 		$res = $BDTpv->query($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)){
