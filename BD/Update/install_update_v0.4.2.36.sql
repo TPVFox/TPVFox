@@ -1,0 +1,1 @@
+ALTER TABLE `proveedores` ADD COLUMN `registro_sanitario` VARCHAR(50);

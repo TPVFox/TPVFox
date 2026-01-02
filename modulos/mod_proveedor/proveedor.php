@@ -147,16 +147,20 @@ include_once $URLCom.'/modulos/mod_menu/menu.php';
 						<input type="text" id="telefono" name="telefono" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['telefono'];?>"   >
 					</div>
 					<div class="col-md-6 form-group">
+						<label>Registro Sanitario:</label>
+						<input type="text" id="registro_sanitario" name="registro_sanitario" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['registro_sanitario'];?>"   >
+					</div>
+					<div class="col-md-6 form-group">
 						<label>Movil:</label>
 						<input type="text" id="movil" name="movil" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['movil'];?>"   >
 					</div>
 					<div class="col-md-6 form-group">
-						<label>Fax:</label>
-						<input type="text" id="fax" name="fax" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['fax'];?>"   >
-					</div>
-					<div class="col-md-6 form-group">
 						<label>Email:</label>
 						<input type="text" id="email" name="email" <?php echo $input_disabled;?> size="40" value="<?php echo $ProveedorUnico['email'];?>"  >
+					</div>
+					<div class="col-md-6 form-group">
+						<label>Fax:</label>
+						<input type="text" id="fax" name="fax" <?php echo $input_disabled;?> value="<?php echo $ProveedorUnico['fax'];?>"   >
 					</div>
 					<div class="col-md-6 form-group">
 						<label>Fecha alta:</label>

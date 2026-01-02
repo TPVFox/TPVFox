@@ -97,6 +97,7 @@
                         <th>NOMBRE COMERCIAL</th>
                         <th>RAZON SOCIAL</th>
                         <th>NIF</th>
+                        <th>Registro Sanitario</th>
                         <th>TELEFONO</th>
                         <th>MOVIL</th>
                         <th>EMAIL</th>
@@ -142,6 +143,7 @@
                     <td><?php echo $proveedor['nombrecomercial']; ?></td>
                     <td><?php echo $proveedor['razonsocial']; ?></td>
                     <td><?php echo $proveedor['nif']; ?></td>
+                    <td><?php echo $proveedor['registro_sanitario']; ?></td>
                     <td><?php echo $proveedor['telefono']; ?></td>
                     <td><?php
                             if (trim($proveedor['movil']) !==''){

@@ -15,6 +15,7 @@ class ClaseProveedor extends TFModelo{
     public $arrayProveedor = array( 'nombrecomercial'   =>'',
                                     'razonsocial'       =>'',
                                     'nif'               =>'',
+                                    'registro_sanitario' =>'',
                                     'direccion'         =>'',
                                     'telefono'          =>'',
                                     'fax'               =>'',
@@ -144,7 +145,7 @@ class ClaseProveedor extends TFModelo{
 		//datos: datos a modificar del provvedor 
 		$sql='UPDATE proveedores SET nombrecomercial="'.$datos['nombrecomercial'].'",
 		razonsocial="'.$datos['razonsocial'].'",nif="'.$datos['nif'].'",direccion="'.$datos['direccion'].'",
-		telefono="'.$datos['telefono'].'",fax="'.$datos['fax'].'",movil="'.$datos['movil'].'",
+		telefono="'.$datos['telefono'].'",registro_sanitario="'.$datos['registro_sanitario'].'",movil="'.$datos['movil'].'",
 		email="'.$datos['email'].'",estado="'.$datos['estado'].'" WHERE idProveedor='.$datos['idProveedor'];
 		$consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){
@@ -163,9 +164,9 @@ class ClaseProveedor extends TFModelo{
 		//Parametros: 
 		//datos del proveedor 
 		$sql='INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`, 
-		`nif`, `direccion`, `telefono`, `fax`, `movil`, `email`, `fecha_creado`, 
+		`nif`, `direccion`, `telefono`, `registro_sanitario`, `fax`, `movil`, `email`, `fecha_creado`, 
 		`estado`) VALUES ("'.$datos['nombrecomercial'].'","'.$datos['razonsocial'].'",
-		"'.$datos['nif'].'","'.$datos['direccion'].'","'.$datos['telefono'].'","'.$datos['fax'].'",
+		"'.$datos['nif'].'","'.$datos['direccion'].'","'.$datos['telefono'].'","'.$datos['registro_sanitario'].'","'.$datos['fax'].'",
 		"'.$datos['movil'].'","'.$datos['email'].'",NOW() , "'.$datos['estado'].'" )';
 		$consulta=$this->consultaDML($sql);
 		if(isset($consulta['error'])){

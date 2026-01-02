@@ -51,7 +51,7 @@ class Proveedores extends TFModelo {
         // Siempre devolvemos un array ...
         // Podemos devolver proveedores o error.
         $proveedores = array();
-        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial, estado FROM proveedores';
+        $sql='SELECT idProveedor, nombrecomercial, nif, razonsocial, estado, registro_sanitario FROM proveedores';
         $smt=$this->consulta($sql);
 		if (isset($smt['datos'])){
 				$proveedores = $smt['datos'];
