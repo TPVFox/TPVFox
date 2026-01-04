@@ -16,6 +16,7 @@ if (isset($idsUsuarios)) {
     $html .= '<h4>Acciones para usuarios seleccionados:</h4>';
     $html .= '<p>Usuarios seleccionados: ' . count($idsUsuarios) . '</p>';
     $html .= '<button class = "btn" onclick="cambiarAnoUsuarios()">Cambiar Año</button>';
+    $html .= '<button class = "btn" onclick="activarUsuarios()">Activar usuarios</button>';
     $html .= '<button class = "btn" onclick="inactivarUsuarios()">Inactivar usuarios</button>';
     $html .= '<button class = "btn" onclick="eliminarUsuarios()">Eliminar usuarios</button>';
     $html .= '<button class = "btn" onclick="asignarGrupoUsuarios()">Asignar Grupo</button>';

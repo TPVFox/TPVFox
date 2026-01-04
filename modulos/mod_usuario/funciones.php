@@ -395,6 +395,36 @@ function htmlEliminarUsuarios($idsUsuarios){
 	$html .= '<button class="btn btn-primary" onclick="confirmarEliminarUsuarios()">Confirmar Eliminación</button>';
 	return $html;
 }
+function htmlActivarUsuarios($idsUsuarios){
+	include_once  __DIR__ . '/clases/claseUsuarios.php';
+	$CUsuario = new ClaseUsuarios();
+	$usuarios = array();
+	foreach ($idsUsuarios as $key => $idUsuario) {
+		if ($idUsuario == 0) {
+			// Eliminar id 0 si está en el array
+			unset($idsUsuarios[$key]);
+		}
+		$nombreUsuario = $CUsuario->getUsuarioNombrePorId($idUsuario);
+		if (isset($nombreUsuario['datos'][0])) {
+			$usuarios[] = array(
+				'id' => $idUsuario,
+				'username' => $nombreUsuario['datos'][0]['nombre']
+			);
+		}
+	}
+	$html = '<h4>Activar Usuarios Seleccionados</h4>';
+	$html .= '<p>Usuarios seleccionados: ' . count($usuarios) . '</p>';
+	// Explicar en que consiste la acción
+	$html .= '<p>Los usuarios:</p><ul>';
+	foreach ($usuarios as $usuario) {
+		$html .= '<li>' . $usuario['username'] . '</li>';
+	}
+	$html .= '</ul>';
+	$html .= '<p>Serán activados y podrán acceder al sistema.</p>';
+	// Formulario para confirmar activación
+	$html .= '<button class="btn btn-primary" onclick="confirmarActivarUsuarios()">Confirmar Activación</button>';
+	return $html;
+}
 
 function eliminarIdAdmin($idsUsuarios){
 	// Eliminar el administador (id=1) del array si está incluido
