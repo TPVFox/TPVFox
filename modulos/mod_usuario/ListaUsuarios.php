@@ -42,9 +42,13 @@
 				<ul class="nav nav-pills nav-stacked"> 
 					<li><a href="#section1" onclick="metodoClick('AgregarUsuario');";>Añadir</a></li>
 					<li><a href="#section2" onclick="metodoClick('VerUsuario');";>Modificar</a></li>
+					<li><a href="#section3" onclick="metodoClick('AccionesMultiples');";>Acciones Múltiples</a>
 									<?php //metodoClick js case pulsado 
 									//agregarUsuario nos lleva a formulario usuario
 									//verUsuario si esta checkado nos lleva vista usuario de ese id
+									//accionesMultiples desplega un popup con acciones a realizar:
+									// - La acción base es Cambiar año (si no hay ningun usuario checheado es la unica que se muetra)
+									// - Acción multple adicional inactivar usuarios seleccionados (si hay un crecheo el popup muestra los usuarios seleccionados)
 												//si NO nos indica que tenemos que elegir uno de la lista ?>
 				</ul>
 				</div>	
@@ -98,6 +102,10 @@
 		</div>
 	</div>
     </div>
-		
+	<?php
+	// incluimos las paginas de modales
+		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
+		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
+	?>
 </body>
 </html>

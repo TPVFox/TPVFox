@@ -41,6 +41,9 @@ $pulsado = $_POST['pulsado'];
         $permisosUsuario=$ClasePermisos->getPermisosUsuario($id_array);
         $respuesta['permisosUsuario']=$permisosUsuario;
     break;
+	case 'accionesMultiplesUsuarios':
+		include_once $URLCom.'/modulos/mod_usuario/tareas/AccionesMultiplesUsuarios.php';
+	break;
 }
 echo json_encode($respuesta);
 return $respuesta;

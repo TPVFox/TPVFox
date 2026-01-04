@@ -20,9 +20,28 @@ function metodoClick(pulsado){
 			window.location.href = './usuario.php';
 			
 			break;
-		
-		
-		
+		case 'AccionesMultiples':
+			console.log('entro en AccionesMultiples');
+			//abrir modal mediante el la función AbrirModal
+			VerIdSeleccionado ();
+			var parametros = {
+				"pulsado"    		: 'accionesMultiplesUsuarios',
+				"idsSeleccionados"	: checkID
+			};
+			$.ajax({
+				data	   : parametros,
+				type	   : 'post',
+				url 	   : 'tareas.php',
+				beforeSend : function () {
+					console.log('*********  Acciones Múltiples Usuarios   **************');
+				},
+				success    :  function (response) {
+					var resultado =  $.parseJSON(response);
+					console.log('Respuesta Acciones Múltiples Usuarios ');
+					abrirModal('Acciones Múltiples Usuarios',resultado.html);
+				}	
+			});
+			break;
 	 }
 } 
 function eliminarConfiguracionModulo(idUsuario, modulo){
