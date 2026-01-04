@@ -395,4 +395,12 @@ function htmlEliminarUsuarios($idsUsuarios){
 	$html .= '<button class="btn btn-primary" onclick="confirmarEliminarUsuarios()">Confirmar Eliminación</button>';
 	return $html;
 }
+
+function eliminarIdAdmin($idsUsuarios){
+	// Eliminar el administador (id=1) del array si está incluido
+	if (($key = array_search(1, $idsUsuarios)) !== false) {
+		unset($idsUsuarios[$key]);
+	}
+	return $idsUsuarios;
+}
 ?>

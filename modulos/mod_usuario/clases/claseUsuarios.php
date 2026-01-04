@@ -75,6 +75,17 @@ class ClaseUsuarios extends modelo{
 		}
 	}
 
+	public function eliminarUsuarios($idsUsuarios){
+		//@Objetivo: Eliminar los usuarios que están en la lista proporcionada
+		//@Parametros:
+		//idsUsuarios: array con los ids de los usuarios que deben ser eliminados
+		$sql='DELETE FROM `usuarios` where id IN ('.implode(",",$idsUsuarios).')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+
 
 }
 
