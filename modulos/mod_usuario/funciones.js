@@ -271,6 +271,26 @@ function activarUsuarios(){
 		}	
 	});
 }
+function confirmarActivarUsuarios(){
+	var parametros = {
+		"pulsado"    		: 'confirmarActivarUsuarios',
+		"idsSeleccionados"	: checkID
+	};
+	$.ajax({
+		data	   : parametros,
+		type	   : 'post',
+		url 	   : 'tareas.php',
+		beforeSend : function () {
+			console.log('*********  Confirmar Activar Usuarios   **************');
+		},
+		success    :  function (response) {
+			var resultado =  $.parseJSON(response);
+			console.log('Respuesta Confirmar Activar Usuarios ');
+			alert(resultado.mensaje);
+			location.reload();
+		}	
+	});
+}
 
 function limpiarSubmenuAccionesMultiplesUsuarios(){
 	$('#submenuAccionesMultiplesUsuarios').html('');

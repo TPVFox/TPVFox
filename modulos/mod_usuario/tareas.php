@@ -117,6 +117,16 @@ $pulsado = $_POST['pulsado'];
 		$html = htmlActivarUsuarios($idsUsuarios);
 		$respuesta['html']=$html;
 	break;
+	case 'confirmarActivarUsuarios':
+		$idsUsuarios = $_POST['idsSeleccionados'];
+		$CUsuarios = new ClaseUsuarios();
+		$respuesta['activarUsuarios'] = $CUsuarios->activarUsuarios($idsUsuarios);
+		if ($respuesta['activarUsuarios']['error'] == '0') {
+		    $respuesta['mensaje'] = 'Operación realizada con éxito.';
+		} else {
+		    $respuesta['mensaje'] = 'Se han producido errores en la operación.';
+		}
+	break;
 }
 echo json_encode($respuesta);
 return $respuesta;
