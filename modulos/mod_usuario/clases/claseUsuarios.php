@@ -44,6 +44,16 @@ class ClaseUsuarios extends modelo{
 		}
 	}
 	public function inactivarUsuarios($idsUsuarios){
+		//@Objetivo: Inactivar los usuarios que están en la lista proporcionada
+		//@Parametros:
+		//idsUsuarios: array con los ids de los usuarios que deben ser inactivados
+		$sql='UPDATE `usuarios` SET `estado` = "inactivo" where id IN ('.implode(",",$idsUsuarios).')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+	public function inactivarRestoUsuarios($idsUsuarios){
 		//@Objetivo: Inactivar los usuarios que no están en la lista proporcionada
 		//@Parametros:
 		//idsUsuarios: array con los ids de los usuarios que deben permanecer activos

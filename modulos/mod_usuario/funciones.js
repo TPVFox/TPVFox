@@ -122,10 +122,6 @@ function copiarPermisosUsuario(){
  */
 function cambiarAnoUsuarios(){
 	limpiarSubmenuAccionesMultiplesUsuarios();
-	// si checkID no tiene id 1 (Administrador), añadirlo al inicio del array
-	if (!checkID.includes(1)) {
-		checkID.unshift(1);
-	}
 	var parametros = {
 		"pulsado"    		: 'cambiarAnoUsuarios',
 		"idsSeleccionados"	: checkID
@@ -195,6 +191,31 @@ function inactivarUsuarios(){
 		}	
 	});
 }
+function confirmarInactivarUsuarios(){
+	// si checkID 1 esta incluido eliminarlo
+	if (checkID.includes(1)) {
+		checkID = checkID.filter(id => id !== 1);
+	}
+	var parametros = {
+		"pulsado"    		: 'confirmarInactivarUsuarios',
+		"idsSeleccionados"	: checkID
+	};
+	$.ajax({
+		data	   : parametros,
+		type	   : 'post',
+		url 	   : 'tareas.php',
+		beforeSend : function () {
+			console.log('*********  Confirmar Inactivar Usuarios   **************');
+		},
+		success    :  function (response) {
+			var resultado =  $.parseJSON(response);
+			console.log('Respuesta Confirmar Inactivar Usuarios ');
+			alert(resultado.mensaje);
+			location.reload();
+		}	
+	});
+}
+
 
 function limpiarSubmenuAccionesMultiplesUsuarios(){
 	$('#submenuAccionesMultiplesUsuarios').html('');
