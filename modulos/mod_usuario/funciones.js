@@ -113,7 +113,32 @@ function copiarPermisosUsuario(){
 		}	
 	});
 }
-
+/**
+ * Funciones para submenuAccionesMultiplesUsuarios
+ * - cambiarAnoUsuarios
+ * - inactivarUsuarios
+ * - eliminarUsuarios
+ * - asignarGrupoUsuarios
+ */
+function cambiarAnoUsuarios(){
+	var parametros = {
+		"pulsado"    		: 'cambiarAnoUsuarios',
+		"idsSeleccionados"	: checkID
+	};
+	$.ajax({
+		data	   : parametros,
+		type	   : 'post',
+		url 	   : 'tareas.php',
+		beforeSend : function () {
+			console.log('*********  Cambiar Año Usuarios   **************');
+		},
+		success    :  function (response) {
+			var resultado =  $.parseJSON(response);
+			console.log('Respuesta Cambiar Año Usuarios ');
+			$('#submenuAccionesMultiplesUsuarios').html(resultado.html);
+		}	
+	});
+}
 
 
 

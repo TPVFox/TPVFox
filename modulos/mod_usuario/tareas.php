@@ -44,6 +44,17 @@ $pulsado = $_POST['pulsado'];
 	case 'accionesMultiplesUsuarios':
 		include_once $URLCom.'/modulos/mod_usuario/tareas/AccionesMultiplesUsuarios.php';
 	break;
+	case 'cambiarAnoUsuarios':
+		$html = '';
+		if (isset($_POST['idsSeleccionados'])){
+		    $idsUsuarios = $_POST['idsSeleccionados'];
+		} else {
+		    $idsUsuarios = array();
+		}
+		$html = htmlCambiarAnoUsuarios($idsUsuarios);
+		$respuesta['html']=$html;
+	break;
+
 }
 echo json_encode($respuesta);
 return $respuesta;

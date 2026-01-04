@@ -1,5 +1,6 @@
 <?php 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+error_log("ClaseUsuarios cargada");
 class ClaseUsuarios extends modelo{
 	
 	public function getConfiguracionModulo($idUsuario){
@@ -25,8 +26,15 @@ class ClaseUsuarios extends modelo{
         $sql='SELECT id, username, `group_id`, `estado`, `nombre` FROM usuarios';
         return $this->consulta($sql);
     }
+	public function getUsuarioNombrePorId($idUsuario){
+		//@Objetivo: Obtener los datos de un usuario por su id
+		//@Parametros:
+		//idUsuario: id del usuario a buscar
+		$sql='SELECT nombre FROM `usuarios` where id='.$idUsuario;
+		return $this->consulta($sql);
+	}
 
-	
+
 }
 
 

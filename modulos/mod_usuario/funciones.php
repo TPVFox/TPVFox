@@ -280,4 +280,52 @@ function htmlPermisosUsuario($permisosUsuario, $admin, $ClasePermisos, $Usuarios
     
     return $html;
 }
+
+// Cambiar año usuarios
+function htmlCambiarAnoUsuarios($idsUsuarios){
+	include_once  __DIR__ . '/clases/claseUsuarios.php';
+	$CUsuario = new ClaseUsuarios();
+	// Añadir al array $usuarios el id del administrador (id=1) si no está ya incluido
+	if (!in_array(1, $idsUsuarios)) {
+		// Añadir el id 1 al inicio del array
+		array_unshift($idsUsuarios, 1);
+	}
+	error_log("IDs Usuarios para cambiar año: " . implode(", ", $idsUsuarios));
+	$usuarios = array();
+	foreach ($idsUsuarios as $key => $idUsuario) {
+		if ($idUsuario == 0) {
+			// Eliminar id 0 si está en el array
+			unset($idsUsuarios[$key]);
+		}
+		$nombreUsuario = $CUsuario->getUsuarioNombrePorId($idUsuario);
+		if (isset($nombreUsuario['datos'][0])) {
+			$usuarios[] = array(
+				'id' => $idUsuario,
+				'username' => $nombreUsuario['datos'][0]['nombre']
+			);
+		}
+	}
+	error_log("Usuarios obtenidos para cambiar año: " . print_r($usuarios, true));
+	$html = '<h4>Cambiar Año Usuarios Seleccionados</h4>';
+	$html .= '<p>Usuarios seleccionados: ' . count($usuarios) . '</p>';
+	// Explicar en que consiste la acción
+	$html .= '<p>Los usuarios:</p><ul>';
+	foreach ($usuarios as $usuario) {
+		error_log("Usuario para cambiar año: " . print_r($usuario, true));
+		$html .= '<li>' . $usuario['username'] . '</li>';
+	}
+	$html .= '</ul>';
+	$html .= '<p>Cambiarán su contraseña a la que elijas. El resto de usuarios se inactivaran.</p>';
+	// Formulario para elegir año
+	$html .= '<p>Nueva Contraseña para usuarios seleccionados:</p>';
+	$html .= '<div class="row">';
+	$html .= '<div class="col-md-6">';
+	$html .= '<input type="text" id="nuevaContrasena" name="nuevaContrasena" value="" placeholder="Nueva Contraseña">';
+	$html .= '</div>';
+	$html .= '<div class="col-md-6">';
+	$html .= '<button class="btn btn-primary" onclick="confirmarCambiarAnoUsuarios()">Confirmar Cambio Año</button>';
+	$html .= '</div>';
+	$html .= '</div>';
+	return $html;
+}
 ?>
