@@ -8,13 +8,13 @@
 // - Eliminar usuarios seleccionados
 // - Asignar grupo a usuarios seleccionados
 if (isset($_POST['idsSeleccionados'])){
-    $usuarios = $_POST['idsSeleccionados'];
+    $idsUsuarios = $_POST['idsSeleccionados'];
 }
 $html = '';
 // Si no hay usuarios no es countable
-if (isset($usuarios)) {
+if (isset($idsUsuarios)) {
     $html .= '<h4>Acciones para usuarios seleccionados:</h4>';
-    $html .= '<p>Usuarios seleccionados: ' . count($usuarios) . '</p>';
+    $html .= '<p>Usuarios seleccionados: ' . count($idsUsuarios) . '</p>';
     $html .= '<button class = "btn" onclick="cambiarAnoUsuarios()">Cambiar Año</button>';
     $html .= '<button class = "btn" onclick="inactivarUsuarios()">Inactivar usuarios</button>';
     $html .= '<button class = "btn" onclick="eliminarUsuarios()">Eliminar usuarios</button>';
