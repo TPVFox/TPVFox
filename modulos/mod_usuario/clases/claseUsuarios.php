@@ -1,6 +1,5 @@
 <?php 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
-error_log("ClaseUsuarios cargada");
 class ClaseUsuarios extends modelo{
 	
 	public function getConfiguracionModulo($idUsuario){
@@ -32,6 +31,38 @@ class ClaseUsuarios extends modelo{
 		//idUsuario: id del usuario a buscar
 		$sql='SELECT nombre FROM `usuarios` where id='.$idUsuario;
 		return $this->consulta($sql);
+	}
+	public function cambiarContraseñaUsuarios($idsUsuarios, $NuevaContraseña){
+		//@Objetivo: Cambiar la contraseña de los usuarios indicados
+		//@Parametros:
+		//idsUsuarios: array con los ids de los usuarios a cambiar la contraseña
+		//NuevaContraseña: nueva contraseña a asignar
+		$sql='UPDATE `usuarios` SET `password` = MD5("'.$NuevaContraseña.'") WHERE id IN ('.implode(",",$idsUsuarios).')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+	public function inactivarUsuarios($idsUsuarios){
+		//@Objetivo: Inactivar los usuarios que no están en la lista proporcionada
+		//@Parametros:
+		//idsUsuarios: array con los ids de los usuarios que deben permanecer activos
+		$sql='UPDATE `usuarios` SET `estado` = "inactivo" where id NOT IN ('.implode(",",$idsUsuarios).')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
+	}
+
+	public function activarUsuarios($idsUsuarios){
+		//@Objetivo: Activar los usuarios que están en la lista proporcionada
+		//@Parametros:
+		//idsUsuarios: array con los ids de los usuarios que deben ser activados
+		$sql='UPDATE `usuarios` SET `estado` = "activo" where id IN ('.implode(",",$idsUsuarios).')';
+		$consulta=$this->consultaDML($sql);
+		if(isset($consulta['error'])){
+			return $consulta;
+		}
 	}
 
 

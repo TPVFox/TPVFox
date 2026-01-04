@@ -54,7 +54,19 @@ $pulsado = $_POST['pulsado'];
 		$html = htmlCambiarAnoUsuarios($idsUsuarios);
 		$respuesta['html']=$html;
 	break;
-
+	case 'confirmarCambiarAnoUsuarios':
+		$idsUsuarios = $_POST['idsSeleccionados'];
+		$CUsuarios = new ClaseUsuarios();
+		$nuevaContraseña = $_POST['nuevaContrasena'];
+		$respuesta['inactivarUsuarios'] = $CUsuarios->inactivarUsuarios($idsUsuarios);
+		$respuesta['cambiarContraseñaUsuarios'] = $CUsuarios->cambiarContraseñaUsuarios($idsUsuarios, $nuevaContraseña);
+		$respuesta['activarUsuarios'] = $CUsuarios->activarUsuarios($idsUsuarios);
+		if ($respuesta['inactivarUsuarios']['error'] == '0' && $respuesta['cambiarContraseñaUsuarios']['error'] == '0' && $respuesta['activarUsuarios']['error'] == '0') {
+		    $respuesta['mensaje'] = 'Operación realizada con éxito.';
+		} else {
+		    $respuesta['mensaje'] = 'Se han producido errores en la operación.';
+		}
+	break;
 }
 echo json_encode($respuesta);
 return $respuesta;

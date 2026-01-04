@@ -139,6 +139,36 @@ function cambiarAnoUsuarios(){
 		}	
 	});
 }
+function confirmarCambiarAnoUsuarios(){
+	var nuevaContrasena = $('#nuevaContrasena').val();
+	if (nuevaContrasena.trim() === '') {
+		alert('Por favor, introduce una nueva contraseña para los usuarios seleccionados.');
+		return;
+	}
+	// si checkID no tiene id 1 (Administrador), añadirlo al inicio del array
+	if (!checkID.includes(1)) {
+		checkID.unshift(1);
+	}
+	var parametros = {
+		"pulsado"    		: 'confirmarCambiarAnoUsuarios',
+		"idsSeleccionados"	: checkID,
+		"nuevaContrasena"	: nuevaContrasena
+	};
+	$.ajax({
+		data	   : parametros,
+		type	   : 'post',
+		url 	   : 'tareas.php',
+		beforeSend : function () {
+			console.log('*********  Confirmar Cambiar Año Usuarios   **************');
+		},
+		success    :  function (response) {
+			var resultado =  $.parseJSON(response);
+			console.log('Respuesta Confirmar Cambiar Año Usuarios ');
+			alert(resultado.mensaje);
+			location.reload();
+		}	
+	});
+}
 
 
 
