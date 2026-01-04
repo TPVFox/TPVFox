@@ -67,6 +67,16 @@ $pulsado = $_POST['pulsado'];
 		    $respuesta['mensaje'] = 'Se han producido errores en la operación.';
 		}
 	break;
+	case 'inactivarUsuarios':
+		$html = '';
+		if (isset($_POST['idsSeleccionados'])){
+		    $idsUsuarios = $_POST['idsSeleccionados'];
+		} else {
+		    $idsUsuarios = array();
+		}
+		$html = htmlInactivarUsuarios($idsUsuarios);
+		$respuesta['html']=$html;
+	break;
 }
 echo json_encode($respuesta);
 return $respuesta;
