@@ -1,146 +1,136 @@
-/* 
- * @Copyright 2018, Alagoro Software. 
+/*
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
-function contarProductosWeb(){
-    var callback = function (respuesta){
-        var obj = JSON.parse(respuesta);
-            if (obj.totalProductos > 0) {
-                var totalProductos = obj.totalProductos;
-                $("#bar1").show();
-                $("#boton_subir_stock").prop("disabled",true);
-                var cantidad=900;
-                if (obj.totalProductos <= 900){
-                    cantidad= obj.totalProductos
-                }
-                SubirStockWeb(0,cantidad, totalProductos,'1');
-            }
-        }   
-    var parametros = {
-        pulsado: 'contarproductos',
-        tipo:'web'
+function contarProductosWeb() {
+  var callback = function (respuesta) {
+    var obj = JSON.parse(respuesta);
+    if (obj.totalProductos > 0) {
+      var totalProductos = obj.totalProductos;
+      $("#bar1").show();
+      $("#boton_subir_stock").prop("disabled", true);
+      var cantidad = 900;
+      if (obj.totalProductos <= 900) {
+        cantidad = obj.totalProductos;
+      }
+      SubirStockWeb(0, cantidad, totalProductos, "1");
     }
+  };
+  var parametros = {
+    pulsado: "contarproductos",
+    tipo: "web",
+  };
 
-    ajaxStock(parametros, callback);
-
+  ajaxStock(parametros, callback);
 }
-
 
 function contarProductosEstoqueables(callback) {
-    var parametros = {
-        pulsado: 'contarproductos',
-        tipo:'tpv'
+  var parametros = {
+    pulsado: "contarproductos",
+    tipo: "tpv",
+  };
+  ajaxStock(parametros, callback);
+}
+
+function RegenerarStock(inicio, pagina, total, idBar) {
+  var parametros = {
+    pulsado: "generastock",
+    inicial: parseInt(inicio),
+    pagina: pagina,
+    totalProductos: total,
+  };
+
+  BarraProceso(inicio, total, idBar);
+  ajaxStock(parametros, function (response) {
+    var obj = JSON.parse(response);
+    if (obj) {
+      elementos = obj.elementos;
+      actual = obj.actual;
+      totalProductos = obj.totalProductos;
+      pagina = obj.pagina;
+
+      console.log(obj.stocks);
+
+      if (elementos > 0) {
+        RegenerarStock(actual, pagina, totalProductos, idBar);
+      } else {
+        $("#boton-stock").prop("disabled", false);
+      }
     }
-    ajaxStock(parametros, callback);
+  });
 }
 
-function RegenerarStock(inicio, pagina, total,idBar) {
+function SubirStockWeb(inicio, cantidad, total, idBar) {
+  var parametros = {
+    pulsado: "subirStockYPrecio",
+    inicial: parseInt(inicio),
+    cantidad: cantidad,
+    totalProductos: total,
+  };
 
-    var parametros = {
-        pulsado : 'generastock',
-        inicial : parseInt(inicio),
-        pagina : pagina,
-        totalProductos : total
-    };
-
-    BarraProceso(inicio,total,idBar);
-    ajaxStock(parametros, function (response) {
-        var obj = JSON.parse(response);
-        if (obj) {
-            elementos = obj.elementos;
-            actual = obj.actual;
-            totalProductos = obj.totalProductos;
-            pagina = obj.pagina;
-            
-            console.log(obj.stocks);
-            
-            if (elementos > 0) {
-                RegenerarStock(actual, pagina, totalProductos, idBar);
-            } else {
-                $("#boton-stock").prop("disabled",false);
-            }
+  BarraProceso(inicio, total, idBar);
+  ajaxStock(parametros, function (response) {
+    var obj = JSON.parse(response);
+    if (obj) {
+      elementos = obj.elementos;
+      actual = obj.actual;
+      totalProductos = obj.totalProductos;
+      if (actual < totalProductos) {
+        cantidad = totalProductos - actual;
+        if (cantidad > 900) {
+          cantidad = 900;
         }
-    });
-}
-
-
-
-function SubirStockWeb(inicio, cantidad, total,idBar) {
-
-    var parametros = {
-        pulsado : 'subirStockYPrecio',
-        inicial : parseInt(inicio),
-        cantidad : cantidad,
-        totalProductos : total
-    };
-
-    BarraProceso(inicio,total,idBar);
-    ajaxStock(parametros, function (response) {
-        var obj = JSON.parse(response);
-        if (obj) {
-            elementos = obj.elementos;
-            actual = obj.actual;
-            totalProductos = obj.totalProductos;
-            if (actual < totalProductos){
-                cantidad = totalProductos-actual;
-                if (cantidad >900){
-                    cantidad= 900;
-                }
-                console.log('elementos:'+elementos.length + ' Cantidad:'+cantidad+' Actual:'+actual);
-                if (elementos.length > 0) {
-                    SubirStockWeb(actual, cantidad, totalProductos, idBar);
-                }
-            } else {
-            // fin
-            BarraProceso(total,total,idBar);
-
-            }
-        } 
-    });
-}
-
-
-
-function reorganizarPermisosModulos(inicial,total) {
-    var parametros = {
-        pulsado : 'reorganizarPermisosModulos',
-        inicial : inicial,
-        total: total
-    };
-    console.log('inicial:'+inicial);
-    $("#boton_limpiar_permisos").prop("disabled",false);
-    BarraProceso(inicial,total,2);
-    ajaxStock(parametros, function (response) {
-        var obj = JSON.parse(response);
-        console.log(obj);
-        inicial = inicial+1;
-        if (inicial < total) {
-            reorganizarPermisosModulos(inicial,total);
-        } else {
-            BarraProceso(inicial,total,2);
+        console.log(
+          "elementos:" +
+            elementos.length +
+            " Cantidad:" +
+            cantidad +
+            " Actual:" +
+            actual
+        );
+        if (elementos.length > 0) {
+          SubirStockWeb(actual, cantidad, totalProductos, idBar);
         }
-     });
-
+      } else {
+        // fin
+        BarraProceso(total, total, idBar);
+      }
+    }
+  });
 }
 
-
-
-
+function reorganizarPermisosModulos(inicial, total) {
+  var parametros = {
+    pulsado: "reorganizarPermisosModulos",
+    inicial: inicial,
+    total: total,
+  };
+  console.log("inicial:" + inicial);
+  $("#boton_limpiar_permisos").prop("disabled", false);
+  BarraProceso(inicial, total, 2);
+  ajaxStock(parametros, function (response) {
+    var obj = JSON.parse(response);
+    console.log(obj);
+    inicial = inicial + 1;
+    if (inicial < total) {
+      reorganizarPermisosModulos(inicial, total);
+    } else {
+      BarraProceso(inicial, total, 2);
+    }
+  });
+}
 
 function ajaxStock(parametros, callback) {
-
-    $.ajax({
-        data: parametros,
-        url: './tareas.php',
-        type: 'post',
-        success: callback,
-        error: function (request, textStatus, error) {
-            console.log(textStatus);
-        }
-    });
+  $.ajax({
+    data: parametros,
+    url: "./tareas.php",
+    type: "post",
+    success: callback,
+    error: function (request, textStatus, error) {
+      console.log(textStatus);
+    },
+  });
 }
-
-
