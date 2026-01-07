@@ -10,7 +10,7 @@
         $total_usuarios = count($CReorganizar->obtenerUsuarios());
         ?>
         <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/reorganizar.js"></script> 
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script> 
     </head>
 
     <body>

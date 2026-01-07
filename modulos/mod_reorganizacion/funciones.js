@@ -134,7 +134,7 @@ function ajaxStock(parametros, callback) {
 
     $.ajax({
         data: parametros,
-        url: './tareasreorganizar.php',
+        url: './tareas.php',
         type: 'post',
         success: callback,
         error: function (request, textStatus, error) {
