@@ -35,6 +35,13 @@ function contarProductosEstoqueables(callback) {
   ajaxStock(parametros, callback);
 }
 
+function contarFamiliasProductos(callback) {
+  var parametros = {
+    pulsado: "contarfamilias",
+  };
+  ajaxStock(parametros, callback);
+}
+
 function RegenerarStock(inicio, pagina, total, idBar) {
   var parametros = {
     pulsado: "generastock",

@@ -49,6 +49,21 @@
                                 </div>
                             </td>
                         </tr>
+                        <!-- Cerrar stock (finalizar año) -->
+                        <tr>
+                            <td><button id="boton-cerrar-stock" class="btn">
+                                    <span class="glyphicon glyphicon-save"> </span>Cerrar Stock</button></td>
+                            <td>Cerrar stock del año actual y cerrar ejercicio creando albaranes de cierre</td>
+                            <td>
+                                <div class="progress" style="margin:0 100px">
+                                    <div id="bar-cerrar-stock" class="progress-bar progress-bar-info"
+                                        role="progressbar" aria-valuenow="0"
+                                        aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                        0 % completado
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                         <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
                             // Solo mostramos si hay web conectada a tienda principal.
                         ?>
@@ -109,6 +124,22 @@
                     $("#bar0").show();
                     $("#boton-stock").prop("disabled", true);
                     RegenerarStock(0, 100, totalProductos, '0');
+                }
+
+            });
+        });
+
+        $("#boton-cerrar-stock").on("click", function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            contarFamiliasProductos(function(respuesta) {
+                var obj = JSON.parse(respuesta);
+                if (obj.totalFamilias > 0) {
+                    var totalFamilias = obj.totalFamilias;
+                    $("#bar-cerrar-stock").show();
+                    $("#boton-cerrar-stock").prop("disabled", true);
+                    //CerrarStockAnoActual(0, 100, totalFamilias, 'cerrar-stock');
                 }
 
             });
