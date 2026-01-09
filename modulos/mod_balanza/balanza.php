@@ -166,7 +166,7 @@
                                         </div>
 
                                         <!-- Grupo y Dirección -->
-                                         <div class="form-row mb-3">
+                                        <div class="form-row mb-3">
                                             <div class="form-group col-md-6">
                                                 <label for="grupoBalanza">Grupo (2 dígitos)</label>
                                                 <input type="text" maxlength="2" class="form-control" name="grupoBalanza" id="grupoBalanza" value="<?php echo $grupoBalanza ?? ''; ?>">
@@ -196,7 +196,7 @@
                                         </div>
 
                                         <!-- Serie H y Serie Tipo -->
-                                         <div class="form-row mb-3">
+                                        <div class="form-row mb-3">
                                             <div class="form-group col-md-6">
                                                 <label for="serieH">Serie H</label>
                                                 <select class="form-control" id="serieH" name="serieH">
@@ -216,7 +216,7 @@
                                             </div>
                                         </div>
 
-                                        
+
                                         <div class="form-group">
                                             <button type="button" class="btn btn-success" id="crearDirectorioBtn" onclick="CrearDirectorioBalanza(<?php echo $id ?>)">Crear directorio de balanza</button>
                                             <button type="button" class="btn btn-primary ml-2" id="guardarConfigAvanzadaBtn" onclick="guardarConfigAvanzada(<?php echo $id ?>)">Guardar configuración avanzada</button>

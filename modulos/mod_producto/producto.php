@@ -5,16 +5,16 @@ include_once $URLCom.'/controllers/Controladores.php';
 include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
 $OtrosVarJS ='';
 // Creo objeto de controlador comun.
-$Controler = new ControladorComun; 
+$Controler = new ControladorComun;
 // Añado la conexion
 $Controler->loadDbtpv($BDTpv);
 // Cargamos los fichero parametros y creamos objeto parametros..
 include_once ($URLCom.'/controllers/parametros.php');
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $parametros = $ClasesParametros->getRoot();
-// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion
 $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-// Creamos objeto de productos		
+// Creamos objeto de productos
 $CTArticulos = new ClaseProductos($BDTpv);
 
 $id = 0 ; // Por  defecto el id a buscar es 0
@@ -38,8 +38,8 @@ if ($_POST){
 // Obtenemos los datos del id, si es 0, quiere decir que es nuevo.
 $Producto = $CTArticulos->GetProducto($id);
 if ( isset($preparados)){
-    // La $preparados se monta en ./tareas/reciboPostProductos.php	
-    // No podemos añadir al producto en recibosPostProducto.php porque cargamos despues el producto 
+    // La $preparados se monta en ./tareas/reciboPostProductos.php
+    // No podemos añadir al producto en recibosPostProducto.php porque cargamos despues el producto
     // y eso hace las comprobaciones reinicien
     if (isset($preparados['comprobaciones'])){
         foreach ($preparados['comprobaciones'] as $comprobacion){
@@ -81,7 +81,7 @@ if ( !isset($Producto['proveedores_costes'])) {
             }
         }
     }
-} 
+}
 // ==========		 Comprobamso el ultimo coste y que proveedor		====  ===== //
 $albaranes_ultimo = $CTArticulos->getUltimoPrecioCompra($Producto['idArticulo']);
 $proveedores_costes = comprobarUltimaCompraProveedor($Producto['proveedores_costes']);
@@ -102,7 +102,7 @@ if (isset($albaranes_ultimo) ||   isset($proveedores_costes['coste_ultimo'])){
         // Ahora cambiamos el coste_ultimo
         $valor_actualizado = $albaranes_ultimo;
         $Producto['comprobaciones'][] = $success;
-        $actualizado = true;			
+        $actualizado = true;
     }
     // Comprobamos el precio del producto con el proveedor y damos un aviso del estado
     if (isset($proveedores_costes['coste_ultimo']) &&
@@ -126,7 +126,7 @@ if (isset($albaranes_ultimo) ||   isset($proveedores_costes['coste_ultimo'])){
                             );
         $Producto['comprobaciones'][] = $success;
         // Ahora cambiamos el coste_ultimo
-        $valor_actualizado = $proveedores_costes['coste_ultimo'];			
+        $valor_actualizado = $proveedores_costes['coste_ultimo'];
     }
     if ($valor_actualizado != 0.00){
         $Producto['ultimoCoste'] = $valor_actualizado;
@@ -143,14 +143,14 @@ if( isset($Producto['ref_tiendas'])){
             $idVirtuemart = $ref['idVirtuemart'];
         }
     }
-  
-}  
+
+}
 if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     // Sino tiene permisos ya no hacemos consulta a la web.
     if($ClasePermisos->getModulo("mod_virtuemart")==1){
         $datosWebCompletos=array();
         // Creo el objeto de plugin Virtuemart.
-        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+        $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
         // Cargo caja_input de parametros de plugin de virtuemart.
         $ClasesParametrosPluginVirtuemart = new ClaseParametros($RutaServidor . $HostNombre . '/plugins/mod_producto/virtuemart/parametros.xml');
         $parametrosVirtuemart = $ClasesParametrosPluginVirtuemart->getRoot();
@@ -165,7 +165,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
             if (isset($datosWebCompletos['errores'])) {
                     $Producto['comprobaciones'][]= $datosWebCompletos['errores'];
             } else  {
-                if ($idVirtuemart>0 ) { 
+                if ($idVirtuemart>0 ) {
                    // Cambiamos el registro en local de la relacion y ponemos los datos actualizados.
                    $cambiarEstado=$CTArticulos->modificarEstadoWeb($id, $datosWebCompletos['datosWeb']['estado'], $tiendaWeb['idTienda']);
                 }
@@ -177,7 +177,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
     if ($id == 0 ) {
         $Producto['iva']=$conf_defecto['iva_predeterminado'];
     }
-    
+
     $htmlIvas = htmlOptionIvas($ivas,$Producto['iva']);
     $htmlTipo=htmlTipoProducto($Producto['tipo']);
     $htmlEstadosProducto =  htmlOptionEstados($posibles_estados_producto,$Producto['estado']);
@@ -337,7 +337,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 }
                 // echo '<pre>';
                 // echo print_r($balanza);
-                //echo '</pre>'; 
+                //echo '</pre>';
                 // Ajustar ruta y datos según la balanza actual
                 // La ruta de la balanza es el nombre de la balanza sin espacios seguido del id
                 $ruta_balanza_actual = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
@@ -425,10 +425,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
         <?php include_once $URLCom.'/head.php'; ?>
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
-        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>    
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
-        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
 		<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
 		<script type="text/javascript">
 		// Objetos cajas de tpv
@@ -442,16 +442,16 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 
 	</head>
 	<body>
-		<?php     
+		<?php
        //~ include_once $URLCom.'/header.php';
        include_once $URLCom.'/modulos/mod_menu/menu.php';
 		?>
 
-     
+
 		<div class="container">
-				
-			<?php 
-			if (isset($Producto['comprobaciones'])){ 
+
+			<?php
+			if (isset($Producto['comprobaciones'])){
 				foreach ($Producto['comprobaciones'] as $comprobaciones){
 					echo '<div class="alert alert-'.$comprobaciones['tipo'].'">'.$comprobaciones['mensaje'].'</div>';
 				}
@@ -489,35 +489,35 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                         </div>
                         <div class="col-md-2">
                             <label class="control-label " > Tipo:</label>
-                            <?php 
+                            <?php
                                 echo $htmlTipo;
                             ?>
                         </div>
                         <div class="col-md-4">
-                           
-                            <?php 
+
+                            <?php
                                 if($id>0){
                                   ?>
                                    <label class="control-label " > Fecha Creación:</label>
                             <input type="date" value="<?php  echo date('Y-m-d', strtotime($Producto['fecha_creado']));?>" disabled />
 
-                                  <?php  
+                                  <?php
                                 }
                               //  echo $htmlTipo;
                             ?>
                         </div>
                     </div>
-                 
+
 					<div class="row">
-						<div class="form-group col-lg-3 ">	
+						<div class="form-group col-lg-3 ">
 							<label class="control-label " > Referencia:</label>
 							<input type="text" id="referencia" name="cref_tienda_principal" size="10" placeholder="referencia producto" data-obj= "cajaReferencia" value="<?php echo $Producto['cref_tienda_principal'];?>" onkeydown="controlEventos(event)"  >
 						</div>
-						<div class="form-group col-lg-9 ">	
+						<div class="form-group col-lg-9 ">
 							<label class="control-label " > Nombre producto:</label>
 							<input type="text" id="nombre" name="articulo_name" placeholder="nombre producto" value="<?php echo $Producto['articulo_name'];?>" data-obj= "cajaNombre" onkeydown="controlEventos(event)"   size="50" required>
 							 <div class="invalid-tooltip-articulo_name" display="none">
-								No permitimos la doble comilla (") 
+								No permitimos la doble comilla (")
 							</div>
 						</div>
 					</div>
@@ -539,12 +539,12 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                         $solo_lectura =  ' readonly';
                                     }
                                 ?>
-                                
-								<input type="text" pattern="[-+]?[0-9]*[.]?[0-9]+" id="coste" size="8" name="ultimoCoste" value=<?php echo '"'.number_format($Producto['ultimoCoste'],2, '.', '').'" '.$solo_lectura;?>  data-obj= "cajaCoste" onkeydown="controlEventos(event)"> 
-								<span class="Euro_grande">€</span> 
+
+								<input type="text" pattern="[-+]?[0-9]*[.]?[0-9]+" id="coste" size="8" name="ultimoCoste" value=<?php echo '"'.number_format($Producto['ultimoCoste'],2, '.', '').'" '.$solo_lectura;?>  data-obj= "cajaCoste" onkeydown="controlEventos(event)">
+								<span class="Euro_grande">€</span>
 							</div>
 						</div>
-						<div class="form-group col-md-4 ">	
+						<div class="form-group col-md-4 ">
 							<label class="control-label " > Iva:</label>
 							<select id="idIva" name="idIva" onchange="recalcularPrecioSegunCosteBeneficio();">
 								<?php echo $htmlIvas; ?>
@@ -554,23 +554,23 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 							<?php // Si es nuevo no se muestra ?>
 							<label class="control-label " >Coste Promedio:</label>
 							<div>
-								<input type="text" id="costepromedio" size="8" name="costepromedio" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly> 
-								<span class="Euro_grande">€</span> 
+								<input type="text" id="costepromedio" size="8" name="costepromedio" placeholder="coste" value="<?php echo number_format($Producto['costepromedio'],2, '.', '');?>"   readonly>
+								<span class="Euro_grande">€</span>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<h4> Precios de venta</h4>
-						<div class="col-md-4 ">	
+						<div class="col-md-4 ">
 								<?php // beneficio solo 2 enteros ?>
 								<label class="control-label-inline " > Beneficio:</label>
 								<input type="text" id="beneficio" size="5" name="beneficio" placeholder="beneficio" data-obj= "cajaBeneficio" onkeydown="controlEventos(event)" value="<?php echo number_format($Producto['beneficio'],2,'.','');?>"   > %
 						</div>
-						<div class="col-md-4 ">	
+						<div class="col-md-4 ">
 							<label class="control-label " > Precio sin Iva:</label>
 							<input type="text" id="pvpSiva" size="10" name="pvpSiva"  data-obj= "cajaPvpSiva" onkeydown="controlEventos(event)" onblur="controlEventos(event)" value="<?php echo number_format($Producto['pvpSiva'],2, '.', '');?>"   >
 						</div>
-						<div class="col-md-4 ">	
+						<div class="col-md-4 ">
 							<label class="control-label " >
 								Precio con Iva:
 							<a onclick="recalcularPrecioSegunCosteBeneficio()">
@@ -583,42 +583,42 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
 
                     <div class="row">
                         <h4> Stock </h4>
-                        <div class="col-md-4 ">	
+                        <div class="col-md-4 ">
                             <label class="control-label-inline " > Mínimo:</label>
-                            <input type="text" id="stockmin" size="5" 
-                                   name="stockmin" placeholder="Stock mínimo" 
-                                   readonly="readonly" 
-                                   data-obj= "cajaStockMin" 
-                                    value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   > 
-                        </div>
-                        <div class="col-md-4 ">	
-                            <label class="control-label " > Máximo:</label>
-                            <input type="text" id="stockmax" size="5" name="stockmax"  
+                            <input type="text" id="stockmin" size="5"
+                                   name="stockmin" placeholder="Stock mínimo"
                                    readonly="readonly"
-                                   data-obj= "cajaStockMax" 
+                                   data-obj= "cajaStockMin"
+                                    value="<?php echo number_format($Producto['stocks']['stockMin'], 2, '.', ''); ?>"   >
+                        </div>
+                        <div class="col-md-4 ">
+                            <label class="control-label " > Máximo:</label>
+                            <input type="text" id="stockmax" size="5" name="stockmax"
+                                   readonly="readonly"
+                                   data-obj= "cajaStockMax"
                                    value="<?php echo number_format($Producto['stocks']['stockMax'], 2, '.', ''); ?>"   >
                         </div>
-                        <div class="col-md-4 ">	
+                        <div class="col-md-4 ">
                             <label class="control-label " >en almacén:</label>
-                            <input type="text" id="stockon" size="5" name="stockon"  
-                                   data-obj= "cajaStockOn" 
-                                   readonly="readonly" 
+                            <input type="text" id="stockon" size="5" name="stockon"
+                                   data-obj= "cajaStockOn"
+                                   readonly="readonly"
                                    value="<?php echo number_format($Producto['stocks']['stockOn'], 2, '.', ''); ?>"   >
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 text-center">
                     <div class="panel-group">
-                        <!-- Inicio collapse de CobBarras --> 
-                        <?php 
+                        <!-- Inicio collapse de CobBarras -->
+                        <?php
                             foreach ($htmltabla as $i=>$h){
                                 echo htmlPanelDesplegable($i,$h['titulo'],$h['html']);
                             }
-                            
+
                          ?>
-                        <!-- Inicio collapse de Referencias Tiendas --> 
+                        <!-- Inicio collapse de Referencias Tiendas -->
                     <!-- Fin de panel-group -->
-                    </div> 
+                    </div>
                     <?php
                     echo '<a class="glyphicon glyphicon-list" href="./DetalleMayor.php?idArticulo='
                             .$Producto['idArticulo'].'">Listado mayor todo el año</a>';?>
@@ -626,15 +626,15 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                 </div>
 			</div>
             </form>
-            <?php 
+            <?php
              if($ClasePermisos->getAccion("verWebEnProducto")==1){
                         if(isset($datosWebCompletos['htmlproducto']['html'])){
-                               echo $datosWebCompletos['htmlproducto']['html']; 
+                               echo $datosWebCompletos['htmlproducto']['html'];
                         }
                         ?>
-                        
+
                          <div class="col-md-6 text-center">
-                            
+
                                 <div class="panel-group">
                                     <?php
                                     if(isset( $datosWebCompletos['htmlnotificaciones'])){
@@ -646,26 +646,26 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                     if (isset($datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'])){
                                             echo $datosWebCompletos['htmlsLinksVirtuemart']['html_backEnd'];
                                     }
-                                    
+
             }
                                      ?>
                                 </div>
                          </div>
-			
+
 		<!--fin de div container-->
 		<?php // Incluimos paginas modales
 		echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
 		include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
 		?>
-        </div> 
+        </div>
      <script type="text/javascript">
-        <?php 
-        if($ClasePermisos->getAccion("modificarStock")==1){ 
+        <?php
+        if($ClasePermisos->getAccion("modificarStock")==1){
             ?>
             $("#stockmin").removeAttr("readonly");
             $("#stockmax").removeAttr("readonly");
-           
-        <?php 
+
+        <?php
         }
         if($ClasePermisos->getAccion("verCodBarras")==0){
             ?>
@@ -678,22 +678,22 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
              $("#tproveedor a").hide();
             $("#tproveedor input").attr("readonly","readonly");
             <?php
-        } 
+        }
         if($ClasePermisos->getAccion("verFamilias")==0){
             ?>
               $("#tfamilias a").hide();
             <?php
         }
-        
+
         if($ClasePermisos->getAccion("verHistoricoPrecios")==0){
             ?>
                $("#thitorico a").hide();
-             <?php 
+             <?php
         }
         ?>
-    </script> 
+    </script>
         <style>
-           
+
 #enlaceIcon{
     height: 2.2em;
 }

@@ -27,7 +27,7 @@ class MAcumuladoCompra extends TFModelo
 
     public function actualizar($acumulado)
     {
-        $datos['id']=null;        
+        $datos['id'] = null;
         $datosKey = $this->desglosaDatosPorNombre($acumulado, ['year', 'month', 'idarticulo']);
         $datos = $this->desglosaNoDatosPorNombre($acumulado, ['year', 'month', 'idarticulo']);
         $datos['update_at'] = date(FORMATO_FECHA_MYSQL);

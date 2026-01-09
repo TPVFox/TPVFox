@@ -12,7 +12,6 @@ class ClaseTienda extends TFModelo
         $sql = 'SELECT * FROM tiendas where tipoTienda="web"';
         $respuesta = parent::Consulta($sql);
         return $respuesta;
-
     }
     public function tiendaPrincipal()
     {
@@ -42,9 +41,9 @@ class ClaseTienda extends TFModelo
     }
 
     public function addTienda($datos)
-    {    
-        
-        ///// Como se hacia en la prehistoria. 
+    {
+
+        ///// Como se hacia en la prehistoria.
         ///
         // $valores = '"' . $datos['tipoTienda'] . '","'
         //     . $datos['razonsocial'] . '","'
@@ -61,10 +60,10 @@ class ClaseTienda extends TFModelo
 
         // $sql = 'INSERT INTO `tiendas` (tipoTienda, razonsocial, nif, telefono,estado,NombreComercial,direccion,emailTienda,nombreEmail,ano,dominio,key_api)
         // VALUES (' . $valores . ')';
-/////////
+        /////////
 
-/// Permite hacer INSERT y UPDATE con el mismo array de datos y si un indice no existe 
-/// no da error
+        /// Permite hacer INSERT y UPDATE con el mismo array de datos y si un indice no existe
+        /// no da error
 
         $sql = 'INSERT INTO `tiendas` ';
         $sql .= 'SET tipoTienda = ' . entreComillas($datos['tipoTienda']);
@@ -79,14 +78,13 @@ class ClaseTienda extends TFModelo
         // $sql .= ', nombreEmail = '.entreComillas($datos['nombreEmail']);
         // $sql .= ', dominio = '.entreComillas($datos['dominio']);
         // $sql .= ', key_api = '.entreComillas($datos['key_api']);
-        
+
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         } else {
             return ModeloP::$db->insert_id;
         }
-
     }
 
     public function modificarTienda($datos)
@@ -94,7 +92,7 @@ class ClaseTienda extends TFModelo
         //@Objetivo:
         //Modificar los datos de un cliente determinado
         //@Parametros:
-        //Datos-> array con todos los datos del cliente 
+        //Datos-> array con todos los datos del cliente
         //id-> id del cliente que se va a modificar (que no está en parámetros, donde está????)
         $respuesta = array();
         $consulta = $this->update($datos, 'idtienda=' . $datos['idtienda']);

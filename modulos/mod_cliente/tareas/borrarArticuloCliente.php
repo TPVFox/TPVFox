@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
 
@@ -22,9 +22,8 @@ $existetarifa = $tarifaCliente->existeArticulo($idcliente, $idarticulo);
 if ($existetarifa) {
     $resultado = $tarifaCliente->update([
         'fechaActualizacion' => date(FORMATO_FECHA_MYSQL),
-        'estado'=> K_TARIFACLIENTE_ESTADO_BORRADO
-    ],['idArticulo= ' . $idarticulo, 'idClientes= ' . $idcliente]);
+        'estado' => K_TARIFACLIENTE_ESTADO_BORRADO
+    ], ['idArticulo= ' . $idarticulo, 'idClientes= ' . $idcliente]);
 }
 
-//~ $resultado['existe'] = $existetarifa 
-
+//~ $resultado['existe'] = $existetarifa

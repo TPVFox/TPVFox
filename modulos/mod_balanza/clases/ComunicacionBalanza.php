@@ -2,36 +2,36 @@
 
 /**
  * Clase ComunicacionBalanza
- * 
+ *
  * Esta clase centraliza todas las consultas y operaciones relacionadas con la comunicación
  * entre el sistema y las balanzas, utilizando consultas MySQL. Permite la gestión de balanzas
  * y sus PLUs asociados, así como la obtención de configuraciones y relaciones con artículos.
- * 
+ *
  * Métodos principales:
  * - getBalanza($idBalanza): Obtiene los datos de una balanza por su ID.
  * - listarBalanzas(): Lista todas las balanzas registradas.
  * - insertarBalanza($datos): Inserta una nueva balanza en la base de datos.
  * - actualizarBalanza($datos, $condicion): Actualiza los datos de una balanza según una condición.
- * 
+ *
  * Métodos para la tabla modulo_balanza_plus:
  * - getPLUsPorBalanza($idBalanza): Obtiene todos los PLUs asociados a una balanza.
  * - insertarPLU($datos): Inserta un nuevo PLU en una balanza.
  * - actualizarPLU($datos, $condicion): Actualiza un PLU existente.
  * - eliminarPLU($condicion): Elimina un PLU según una condición.
- * 
+ *
  * Métodos adicionales:
  * - getBalanzasPorArticulo($idArticulo): Obtiene las balanzas asociadas a un artículo.
  * - getPLUPorArticuloYBalanza($idArticulo, $idBalanza): Obtiene el PLU de un artículo en una balanza específica.
  * - getArticulosPesoPorBalanza($idBalanza): Obtiene los artículos de tipo "peso" asociados a una balanza.
  * - existePLUEnBalanzas($idArticulo): Verifica si un artículo tiene PLU en alguna balanza.
  * - getConfiguracionComunicacion($idBalanza): Obtiene la configuración de comunicación de una balanza.
- * 
+ *
  * Nota: Se recomienda centralizar todas las consultas relacionadas con balanzas en esta clase
  * para una mejor organización y mantenimiento del código.
- * 
+ *
  */
 
-$rutaCompleta = $RutaServidor.$HostNombre;
+$rutaCompleta = $RutaServidor . $HostNombre;
 require_once $rutaCompleta . '/modulos/claseModelo.php';
 
 class ComunicacionBalanza extends Modelo

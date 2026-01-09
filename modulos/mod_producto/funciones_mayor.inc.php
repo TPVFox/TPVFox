@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 include_once './../../inicial.php';
 include $URLCom.'/clases/claseimprimir.php';

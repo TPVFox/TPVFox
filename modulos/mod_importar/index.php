@@ -1,3 +1,2 @@
-<?php 
+<?php
 header('Location: Importar.php');
-?>

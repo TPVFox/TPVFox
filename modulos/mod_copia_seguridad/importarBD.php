@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  * Este archivo contiene la clase Restore_Database que realiza
  * una restauración parcial o completa de cualquier base de datos MySQL dada
@@ -15,7 +16,7 @@ define("DB_NAME", 'tpv');
 define("DB_HOST", 'localhost');
 define("BACKUP_DIR", '../datos/backup/myphp-backup-files'); // Comenta esta línea para usar el mismo directorio de scripts ('.')
 
-/** 
+/**
  * RECOGER NOMBRE ARCHIVO PARA IMPORTAR y poner en backup_file
  */
 
@@ -26,17 +27,19 @@ define("CHARSET", 'utf8');
 /**
  * La clase Restore_Database
  */
-class Restore_Database {
-    var $host;		//Host donde se encuentra la base de datos
-    var $username;	//Nombre de usuario utilizado para conectarse a la base de datos
-    var $passwd;	//Contraseña utilizada para conectarse a la base de datos
-    var $dbName;	//Base de datos para respaldar
-    var $charset;	//Juego de caracteres de la base de datos
+class Restore_Database
+{
+    var $host;        //Host donde se encuentra la base de datos
+    var $username;    //Nombre de usuario utilizado para conectarse a la base de datos
+    var $passwd;    //Contraseña utilizada para conectarse a la base de datos
+    var $dbName;    //Base de datos para respaldar
+    var $charset;    //Juego de caracteres de la base de datos
     var $conn;		//Conexión a la base
     /**
      * Constructor initializes database
      */
-    function __construct($host, $username, $passwd, $dbName, $charset = 'utf8') {
+    function __construct($host, $username, $passwd, $dbName, $charset = 'utf8')
+    {
         $this->host       = $host;
         $this->username   = $username;
         $this->passwd     = $passwd;
@@ -46,7 +49,8 @@ class Restore_Database {
         $this->backupDir  = BACKUP_DIR ? BACKUP_DIR : '.';
         $this->backupFile = BACKUP_FILE ? BACKUP_FILE : null;
     }
-    protected function initializeDatabase() {
+    protected function initializeDatabase()
+    {
         try {
             $conn = mysqli_connect($this->host, $this->username, $this->passwd, $this->dbName);
             if (mysqli_connect_errno()) {
@@ -54,7 +58,7 @@ class Restore_Database {
                 die();
             }
             if (!mysqli_set_charset($conn, $this->charset)) {
-                mysqli_query($conn, 'SET NAMES '.$this->charset);
+                mysqli_query($conn, 'SET NAMES ' . $this->charset);
             }
         } catch (Exception $e) {
             print_r($e->getMessage());
@@ -67,7 +71,8 @@ class Restore_Database {
      * Use '*' para la base de datos completa o 'table1 table2 table3 ...'
      * @param string $ tables
      */
-    public function restoreDb() {
+    public function restoreDb()
+    {
         try {
             $sql = '';
             $multiLineComment = false;
@@ -83,13 +88,13 @@ class Restore_Database {
                 }
             }
             /**
-            * Lea el archivo de respaldo línea por línea
-            */
+             * Lea el archivo de respaldo línea por línea
+             */
             $handle = fopen($backupDir . '/' . $backupFile, "r");
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
                     $line = ltrim(rtrim($line));
-                    if (strlen($line) > 1) { // evitar líneas en blanco 
+                    if (strlen($line) > 1) { // evitar líneas en blanco
                         $lineIsComment = false;
                         if (preg_match('/^\/\*/', $line)) {
                             $multiLineComment = true;
@@ -102,7 +107,7 @@ class Restore_Database {
                             $sql .= $line;
                             if (preg_match('/;$/', $line)) {
                                 // execute query
-                                if(mysqli_query($this->conn, $sql)) {
+                                if (mysqli_query($this->conn, $sql)) {
                                     if (preg_match('/^CREATE TABLE `([^`]+)`/i', $sql, $tableName)) {
                                         $this->obfPrint("Tabla creada con éxito: `" . $tableName[1] . "`");
                                     }
@@ -119,7 +124,7 @@ class Restore_Database {
                 fclose($handle);
             } else {
                 throw new Exception("ERROR: no se pudo abrir el archivo de copia de seguridad " . $backupDir . '/' . $backupFile);
-            } 
+            }
         } catch (Exception $e) {
             print_r($e->getMessage());
             return false;
@@ -134,7 +139,8 @@ class Restore_Database {
      *
      * @return string Nuevo nombre de archivo (sin .gz adjunto y sin directorio de respaldo) si es exitoso, o falso si falla la operación
      */
-    protected function gunzipBackupFile() {
+    protected function gunzipBackupFile()
+    {
         // Elevar este valor puede aumentar el rendimiento
         $bufferSize = 4096; // leer 4kb a la vez
         $error = false;
@@ -147,7 +153,7 @@ class Restore_Database {
                 return false;
             }
         }
-        
+
         // Abrir archivos comprimidos y de destino en modo binario
         if (!$srcFile = gzopen($this->backupDir . '/' . $this->backupFile, 'rb')) {
             return false;
@@ -156,9 +162,9 @@ class Restore_Database {
             return false;
         }
         while (!gzeof($srcFile)) {
-			// Leer bytes de tamaño de búfer
+            // Leer bytes de tamaño de búfer
             // Tanto fwrite como gzread son binarios seguros
-            if(!fwrite($dstFile, gzread($srcFile, $bufferSize))) {
+            if (!fwrite($dstFile, gzread($srcFile, $bufferSize))) {
                 return false;
             }
         }
@@ -172,7 +178,8 @@ class Restore_Database {
      * Imprime un mensaje que fuerza el lavado del búfer de salida
      *
      */
-    public function obfPrint ($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1) {
+    public function obfPrint($msg = '', $lineBreaksBefore = 0, $lineBreaksAfter = 1)
+    {
         if (!$msg) {
             return false;
         }
@@ -185,13 +192,13 @@ class Restore_Database {
         if ($lineBreaksBefore > 0) {
             for ($i = 1; $i <= $lineBreaksBefore; $i++) {
                 $output .= $lineBreak;
-            }                
+            }
         }
         $output .= $msg;
         if ($lineBreaksAfter > 0) {
             for ($i = 1; $i <= $lineBreaksAfter; $i++) {
                 $output .= $lineBreak;
-            }                
+            }
         }
         if (php_sapi_name() == "cli") {
             $output .= "\n";
@@ -215,7 +222,7 @@ if (php_sapi_name() != "cli") {
 }
 $restoreDatabase = new Restore_Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 $result = $restoreDatabase->restoreDb(BACKUP_DIR, BACKUP_FILE) ? 'OK' : 'KO';
-$restoreDatabase->obfPrint("Resultado de la restauración: ".$result, 1);
+$restoreDatabase->obfPrint("Resultado de la restauración: " . $result, 1);
 if (php_sapi_name() != "cli") {
     echo '</div>';
 }

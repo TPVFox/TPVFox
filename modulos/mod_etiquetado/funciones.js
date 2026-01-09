@@ -7,7 +7,7 @@ function metodoClick(pulsado,adonde){
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-			// Ahora redireccionamos 
+			// Ahora redireccionamos
 			window.location.href = './'+adonde+'.php?id='+checkID[0];
 		break;
 		case 'Imprimir':
@@ -18,7 +18,7 @@ function metodoClick(pulsado,adonde){
 		case 'Agregar':
 			console.log('entro en agregar lote');
 			window.location.href = './etiquetaCodBarras.php';
-			
+
 		break;
 	}
 }
@@ -43,7 +43,7 @@ function imprimirEtiquetas(lotes){
 				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				 window.open(resultado);
-			
+
 			}
 		});
 }
@@ -69,7 +69,7 @@ function modificarTipo(tipo){
 	cabecera.tipo=tipo;
 	var bandera=1;
 	if(productos.length>0){
-		for (i=0;i<productos.length;i++){ 
+		for (i=0;i<productos.length;i++){
 				modificarCodigoBarras(i, bandera);
 		}
 	}
@@ -86,11 +86,11 @@ function controladorAcciones(caja, accion, tecla){
 				}else{
 					alert('No has seleccionado TIPO');
 				}
-				
+
 			}else{
 				alert("No has escrito ninguna cantidad");
 			}
-			
+
 		break;
 		case 'BuscarProducto':
 			console.log('Entre en el case de buscar producto');
@@ -108,7 +108,7 @@ function controladorAcciones(caja, accion, tecla){
 				id='nombre_'+caja.fila;
 				destacarCambioCaja(id);
 				$( "#peso_"+caja.fila ).select();
-				
+
 			}else{
 				alert("Error al seleccionar producto");
 			}
@@ -122,7 +122,7 @@ function controladorAcciones(caja, accion, tecla){
 				if(nfila>=0){
 					productos[nfila]['peso']=caja.darValor();
 					modificarCodigoBarras(nfila);
-					
+
 				}else{
 					alert("Error al seleccionar producto");
 				}
@@ -130,7 +130,7 @@ function controladorAcciones(caja, accion, tecla){
 				alert('Error en el formato del número');
 				 $( "#"+caja.id_input ).select();
 			}
-			
+
 		break;
 		case 'modificarNumeroAlbaranProducto':
 			var nfila=caja.fila-1
@@ -155,7 +155,7 @@ function controladorAcciones(caja, accion, tecla){
 		case  'mover_down':
 			console.log("EStoy en mover dow");
 			var nfila=parseInt(caja.fila)+1
-			
+
 			console.log(caja);
 			id=caja.parametros.prefijo+nfila;
 			console.log(id);
@@ -164,7 +164,7 @@ function controladorAcciones(caja, accion, tecla){
 		case 'mover_up':
 			console.log("EStoy en mover up");
 			var nfila=parseInt(caja.fila)-1
-			
+
 			console.log(caja);
 			id=caja.parametros.prefijo+nfila;
 			console.log(id);
@@ -180,7 +180,7 @@ function modificarCodigoBarras(nfila, bandera=""){
 		'pulsado':'modificarCodigoBarras',
 		'tipo':cabecera.tipo,
 		'producto':productos[nfila]
-		
+
 	};
 		$.ajax({
 			data       : parametros,
@@ -191,7 +191,7 @@ function modificarCodigoBarras(nfila, bandera=""){
 			},
 			success    :  function (response) {
 				console.log('Llegue devuelta ModificarCodigoBarras JS');
-				var resultado =  $.parseJSON(response); 
+				var resultado =  $.parseJSON(response);
 				console.log(resultado);
 				productos[nfila]['codBarras']=resultado.codBarras;
 				nfila=nfila+1;
@@ -205,7 +205,7 @@ function modificarCodigoBarras(nfila, bandera=""){
 					destacarCambioCaja(idOrig);
 				}
 				destacarCambioCaja(id);
-					
+
 			}
 		});
 }
@@ -221,7 +221,7 @@ function repetirProducto(unidades, tipo){
 		'fechaCad':cabecera.fechaCad,
 		'productos':productos,
 		'tipo' :	tipo
-		
+
 	};
 	$.ajax({
 			data       : parametros,
@@ -232,7 +232,7 @@ function repetirProducto(unidades, tipo){
 			},
 			success    :  function (response) {
 				console.log('Llegue devuelta repetir productos JS');
-				var resultado =  $.parseJSON(response); 
+				var resultado =  $.parseJSON(response);
 				if(resultado.error){
 					alert(resultado.error);
 				}else{
@@ -259,8 +259,8 @@ function repetirProducto(unidades, tipo){
 					}
 					addEtiquetadoTemporal()
 				}
-				
-				
+
+
 			}
 		});
 }
@@ -300,15 +300,15 @@ function addEtiquetadoTemporal(){
 						cabecera.idTemporal=resultado.idTemporal;
 					}
 				}
-				
+
 			}
 		});
-	
+
 }
 function buscarProducto(valor="", caja=""){
 	//@OBjetivo:
 	//BUscar los datos del producto
-	
+
 	console.log("estoy dento de la función de buscar Producto");
 	console.log(valor);
 	var parametros ={
@@ -343,15 +343,15 @@ function buscarProducto(valor="", caja=""){
 						$('#id_producto').prop('disabled', true);
 						$("#buscar").css("display", "none");
 						$('#unidades').focus();
-						
+
 					}else{
 						var titulo = 'Listado De Productos ';
-						var HtmlProductos=resultado.html; 
+						var HtmlProductos=resultado.html;
 						abrirModal(titulo,HtmlProductos);
 						focusAlLanzarModal('cajaBusquedaproductos');
 					}
 				}
-				
+
 			}
 		});
 }
@@ -400,9 +400,9 @@ function before_constructor(caja){
 //~ function mover_up(fila,prefijo){
 	//~ console.log("entro en mover up");
 	//~ console.log(fila);
-	
+
 	//~ var d_focus = prefijo+fila;
-	
+
 	//~ console.log(d_focus);
 	//~ ponerSelect(d_focus);
 //~ }
@@ -445,7 +445,7 @@ function validarCaja(valor){
 	}else{
 		canDecimal=0;
 	}
-	
+
 	console.log(canEntero);
 	console.log(canDecimal);
 	//Si es unidades
@@ -455,7 +455,7 @@ function validarCaja(valor){
 		}else{
 			var validar=false;
 		}
-		
+
 	}
 	//si es peso
 	if(cabecera.tipo==2){
@@ -464,13 +464,13 @@ function validarCaja(valor){
 		}else{
 			var validar=false;
 		}
-		
+
 	}
 	return validar;
 }
 function contarEtiquetasLote(lotes){
 	//Objetivo:
-	//contar cuantas etiquetas se van a imprimir para avisar al usuario en caso de que no rellene una hoja entera mostrar 
+	//contar cuantas etiquetas se van a imprimir para avisar al usuario en caso de que no rellene una hoja entera mostrar
 	//un alert
 	var parametros ={
 		'pulsado'	: 'contarEtiquetas',
@@ -513,7 +513,7 @@ function destacarCambioCaja(idcaja){
 			"opacity": "0.3"
 		 },2000);
 	t = setTimeout(volverMostrar,2000,idcaja);
-	
+
 }
 function volverMostrar(idcaja){
 	console.log('Entro volver mostrar');
@@ -527,7 +527,7 @@ function findWithAttr(array, attr, value) {
     for(var i = 0; i < (array.length); i += 1) {
         console.log('atributo:'+array[i][attr]);
         console.log(value);
-        
+
         if(array[i][attr] == value) {
              console.log('Entro');
             return i;

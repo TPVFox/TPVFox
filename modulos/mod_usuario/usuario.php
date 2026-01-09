@@ -12,7 +12,7 @@
 	include_once $URLCom . '/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 	//~ include_once $URLCom.'/clases/ClasePermisos.php';
 	$id = (isset($_GET['id']) ? $_GET['id'] : 0); // Valor id es 0 o el get
-	
+
 	$CUsuario = new ClaseUsuarios($BDTpv);
 	$Cincidencias = new ClaseIncidencia($BDTpv);
 	// Se definen las variables ausentes necesarias si id = 0 fuera del if GET
@@ -112,7 +112,7 @@
 					$tipomensaje = "info";
 					$mensaje = "Su registro de usuario fue editado.";
 				}
-    			$idUsuario = $datos['idUsuario']; // ya existía
+				$idUsuario = $datos['idUsuario']; // ya existía
 			};
 			$i = 0;
 			foreach ($permisosUsuario as $permisos) {

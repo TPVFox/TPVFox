@@ -1,35 +1,38 @@
-<?php 
-include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
+<?php
+include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
 
-class ClaseBalanza  extends Modelo  {
+class ClaseBalanza  extends Modelo
+{
 
     public $idTienda;
 
-    public function __construct($conexion='')
+    public function __construct($conexion = '')
     {
         $this->ObtenerTiendaPrincipal();
     }
 
-    public function ObtenerTiendaPrincipal(){
+    public function ObtenerTiendaPrincipal()
+    {
         $Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
         $respuesta = $this->consulta($Sql);
-        if (count($respuesta['datos']) === 1){
+        if (count($respuesta['datos']) === 1) {
             $this->idTienda = $respuesta['datos'][0]['idTienda'];
         }
     }
 
-    public function addBalanza($datos){
+    public function addBalanza($datos)
+    {
         // Ahora se esperan los nuevos campos en $datos
         $sql = 'INSERT INTO `modulo_balanza`
             (`nombreBalanza`, `modelo`, `conSeccion`, `Grupo`, `Dirección`, `IP`, `soloPLUS`)
             VALUES (
-                "'.$datos['nombreBalanza'].'",
-                "'.$datos['modeloBalanza'].'",
-                "'.$datos['secciones'].'",
-                '.intval($datos['Grupo']).',
-                '.intval($datos['Direccion']).',
-                "'.$datos['IP'].'",
-                '.(isset($datos['soloPLUS']) ? intval($datos['soloPLUS']) : 1).'
+                "' . $datos['nombreBalanza'] . '",
+                "' . $datos['modeloBalanza'] . '",
+                "' . $datos['secciones'] . '",
+                ' . intval($datos['Grupo']) . ',
+                ' . intval($datos['Direccion']) . ',
+                "' . $datos['IP'] . '",
+                ' . (isset($datos['soloPLUS']) ? intval($datos['soloPLUS']) : 1) . '
             )';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
@@ -37,26 +40,29 @@ class ClaseBalanza  extends Modelo  {
         }
     }
 
-    public function todasBalanzas(){
-        $sql='SELECT * from modulo_balanza';
+    public function todasBalanzas()
+    {
+        $sql = 'SELECT * from modulo_balanza';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function datosBalanza($idBalanza){
-        $sql='SELECT * from modulo_balanza where idBalanza='.$idBalanza;
+    public function datosBalanza($idBalanza)
+    {
+        $sql = 'SELECT * from modulo_balanza where idBalanza=' . $idBalanza;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function pluDeBalanza($idBalanza, $filtro){
-        $sql ='Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a 
-         inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t 
-         on t.idArticulo=b.idArticulo and t.idTienda ='.$this->idTienda.' inner join articulosPrecios as p on p.idArticulo=a.idArticulo  
+    public function pluDeBalanza($idBalanza, $filtro)
+    {
+        $sql = 'Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a
+         inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t
+         on t.idArticulo=b.idArticulo and t.idTienda =' . $this->idTienda . ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo
          left join proveedores as pro on pro.idProveedor=b.idProveedor
-         where a.idBalanza='.$idBalanza.'
-         order by '.$filtro.' asc';
-        
+         where a.idBalanza=' . $idBalanza . '
+         order by ' . $filtro . ' asc';
+
         $plus = $this->consulta($sql);
 
         // Controlar si no hay plus para la balanza
@@ -69,11 +75,11 @@ class ClaseBalanza  extends Modelo  {
         $idsProductos = array_column($plus['datos'], 'idArticulo');
         $idsProductosUnicos = array_unique($idsProductos);
         $duplicado = array();
-        if (count($idsProductos) !== count($idsProductosUnicos)){
-            $duplicado = array_diff_assoc($idsProductos,$idsProductosUnicos);
+        if (count($idsProductos) !== count($idsProductosUnicos)) {
+            $duplicado = array_diff_assoc($idsProductos, $idsProductosUnicos);
         }
-        if (count($duplicado)>0 ){
-            foreach ($duplicado as $key=>$valor){
+        if (count($duplicado) > 0) {
+            foreach ($duplicado as $key => $valor) {
                 $plus['datos'][$key]['duplicado'] = 'KO';
             }
         }
@@ -81,37 +87,41 @@ class ClaseBalanza  extends Modelo  {
         return $resultado;
     }
 
-    public function buscarArticuloCampo($busqueda){
-        $sql='SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
+    public function buscarArticuloCampo($busqueda)
+    {
+        $sql = 'SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
                 from articulos as a LEFT JOIN articulosTiendas as b on a.idArticulo=b.idArticulo LEFT JOIN
-                articulosCodigoBarras as c on a.idArticulo=c.idArticulo LEFT join tiendas as d on 
-                b.idTienda=d.idTienda  left join articulosPrecios as p on p.idArticulo=a.idArticulo 
-                where d.tipoTienda="principal" and '.$busqueda;
+                articulosCodigoBarras as c on a.idArticulo=c.idArticulo LEFT join tiendas as d on
+                b.idTienda=d.idTienda  left join articulosPrecios as p on p.idArticulo=a.idArticulo
+                where d.tipoTienda="principal" and ' . $busqueda;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function buscarPluEnBalanza($plu, $idBalanza){
-        $sql='select * from modulo_balanza_plus where idBalanza='.$idBalanza.' and plu="'.$plu.'"';
+    public function buscarPluEnBalanza($plu, $idBalanza)
+    {
+        $sql = 'select * from modulo_balanza_plus where idBalanza=' . $idBalanza . ' and plu="' . $plu . '"';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function addPlu($plu, $idBalanza, $seccion, $idArticulo){
+    public function addPlu($plu, $idBalanza, $seccion, $idArticulo)
+    {
         $seccion = intval($seccion);
-        $sql='INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `seccion`, `idArticulo`)
-         VALUES ('.$idBalanza.', "'.$plu.'", "'.$seccion.'", '.$idArticulo.')';
+        $sql = 'INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `seccion`, `idArticulo`)
+         VALUES (' . $idBalanza . ', "' . $plu . '", "' . $seccion . '", ' . $idArticulo . ')';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
 
-    public function updatePlu($idArticulo, $idBalanza, $plu, $seccion) {
+    public function updatePlu($idArticulo, $idBalanza, $plu, $seccion)
+    {
         $seccion = intval($seccion);
-        $sql = 'UPDATE `modulo_balanza_plus` 
-                SET `plu` = "'.$plu.'", `seccion` = "'.$seccion.'" 
-                WHERE `idArticulo` = '.$idArticulo.' AND `idBalanza` = '.$idBalanza;
+        $sql = 'UPDATE `modulo_balanza_plus`
+                SET `plu` = "' . $plu . '", `seccion` = "' . $seccion . '"
+                WHERE `idArticulo` = ' . $idArticulo . ' AND `idBalanza` = ' . $idBalanza;
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
@@ -119,8 +129,9 @@ class ClaseBalanza  extends Modelo  {
         return ['success' => true];
     }
 
-    public function obtenerPluActual($idBalanza, $idArticulo) {
-        $sql = 'SELECT plu, seccion FROM modulo_balanza_plus WHERE idBalanza = '.intval($idBalanza).' AND idArticulo = '.intval($idArticulo);
+    public function obtenerPluActual($idBalanza, $idArticulo)
+    {
+        $sql = 'SELECT plu, seccion FROM modulo_balanza_plus WHERE idBalanza = ' . intval($idBalanza) . ' AND idArticulo = ' . intval($idArticulo);
         $resultado = $this->consulta($sql);
         if (!empty($resultado['datos'][0])) {
             return $resultado['datos'][0];
@@ -128,14 +139,16 @@ class ClaseBalanza  extends Modelo  {
         return null;
     }
 
-    public function eliminarplu($idBalanza, $plu){
-        $sql='DELETE FROM `modulo_balanza_plus` WHERE idBalanza='.$idBalanza.' and plu="'.$plu.'"';
+    public function eliminarplu($idBalanza, $plu)
+    {
+        $sql = 'DELETE FROM `modulo_balanza_plus` WHERE idBalanza=' . $idBalanza . ' and plu="' . $plu . '"';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
-    public function modificarBalanza($idBalanza, $datos){
+    public function modificarBalanza($idBalanza, $datos)
+    {
         // Obtener datos actuales de la balanza
         $balanzaActual = $this->datosBalanza(intval($idBalanza));
         if (empty($balanzaActual['datos'][0])) {
@@ -173,8 +186,9 @@ class ClaseBalanza  extends Modelo  {
     }
 
     // Funcion para saber si una balanza usa secciones
-    public function usaSecciones($idBalanza){
-        $sql = 'SELECT conSeccion FROM `modulo_balanza` WHERE idBalanza = '.intval($idBalanza);
+    public function usaSecciones($idBalanza)
+    {
+        $sql = 'SELECT conSeccion FROM `modulo_balanza` WHERE idBalanza = ' . intval($idBalanza);
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos'][0]['conSeccion'])) {
             return strtolower($resultado['datos'][0]['conSeccion']) === 'si';
@@ -182,7 +196,8 @@ class ClaseBalanza  extends Modelo  {
         return false; // Si no se encuentra la balanza, asumimos que no usa secciones
     }
 
-    public function getArticulosPesoSinPLU($idBalanza) {
+    public function getArticulosPesoSinPLU($idBalanza)
+    {
         // Devuelve artículos de tipo 'peso' que NO están en modulo_balanza_plus para esta balanza y solo de la tienda principal
         $sql = "SELECT a.idArticulo, a.articulo_name, t.crefTienda, c.codBarras, p.pvpCiva, pro.nombrecomercial
                 FROM articulos a
@@ -200,9 +215,10 @@ class ClaseBalanza  extends Modelo  {
         return $res['datos'] ?? [];
     }
 
-    public function tienePlusAsociados($idBalanza) {
+    public function tienePlusAsociados($idBalanza)
+    {
         // Verifica si hay PLUs asociados a la balanza
-        $sql = 'SELECT COUNT(*) as total FROM modulo_balanza_plus WHERE idBalanza = '.intval($idBalanza);
+        $sql = 'SELECT COUNT(*) as total FROM modulo_balanza_plus WHERE idBalanza = ' . intval($idBalanza);
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos'][0]['total']) && $resultado['datos'][0]['total'] > 0) {
             return true; // Tiene PLUs asociados
@@ -210,9 +226,10 @@ class ClaseBalanza  extends Modelo  {
         return false; // No tiene PLUs asociados
     }
 
-    public function eliminarBalanza($idBalanza) {
+    public function eliminarBalanza($idBalanza)
+    {
         // Eliminar la balanza
-        $sql = 'DELETE FROM `modulo_balanza` WHERE idBalanza = '.intval($idBalanza);
+        $sql = 'DELETE FROM `modulo_balanza` WHERE idBalanza = ' . intval($idBalanza);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
@@ -221,7 +238,8 @@ class ClaseBalanza  extends Modelo  {
     }
 
     // Función para obtener todas las balanzas 0 soloPlus
-    public function obtenerBalanzasEnvio() {
+    public function obtenerBalanzasEnvio()
+    {
         $sql = 'SELECT * FROM `modulo_balanza` WHERE soloPLUS = 0';
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
@@ -231,10 +249,11 @@ class ClaseBalanza  extends Modelo  {
     }
 
     // Función para obtener una balanza a partir de un ID de Articulo
-    public function obtenerBalanzaPorIdArticulo($idArticulo) {
+    public function obtenerBalanzaPorIdArticulo($idArticulo)
+    {
         $sql = 'SELECT b.* FROM `modulo_balanza_plus` p
                 INNER JOIN `modulo_balanza` b ON p.idBalanza = b.idBalanza
-                WHERE p.idArticulo = '.intval($idArticulo);
+                WHERE p.idArticulo = ' . intval($idArticulo);
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
             return $resultado['datos']; // Devuelve todas las valanzas encontradas
@@ -242,7 +261,8 @@ class ClaseBalanza  extends Modelo  {
         return null; // Retorna null si no se encuentra la balanza
     }
 
-    public function guardarConfigAvanzada($idBalanza, $datos) {
+    public function guardarConfigAvanzada($idBalanza, $datos)
+    {
         // Mapear los nombres recibidos a los nombres de columna reales
         $map = [
             'ipBalanza'      => 'IP',
@@ -281,8 +301,8 @@ class ClaseBalanza  extends Modelo  {
     }
 
     // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)
-    private function escapeString($str) {
+    private function escapeString($str)
+    {
         return addslashes($str);
     }
 }
-?>

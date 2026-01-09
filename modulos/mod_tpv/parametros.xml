@@ -24,8 +24,8 @@
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">tpv</parametro>
-				<parametro nombre="campo">ac.codBarras</parametro>  
-			</parametros> 
+				<parametro nombre="campo">ac.codBarras</parametro>
+			</parametros>
 		</caja_input>
 		<caja_input>
 			<nombre id_input="Referencia">cajaReferencia</nombre>
@@ -39,8 +39,8 @@
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">tpv</parametro>
-				<parametro nombre="campo">at.crefTienda</parametro>  
-			</parametros> 
+				<parametro nombre="campo">at.crefTienda</parametro>
+			</parametros>
 		</caja_input>
 		<caja_input>
 			<nombre id_input="Descripcion">cajaDescripcion</nombre>
@@ -54,8 +54,8 @@
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">tpv</parametro>
-				<parametro nombre="campo">a.articulo_name</parametro>  
-			</parametros> 
+				<parametro nombre="campo">a.articulo_name</parametro>
+			</parametros>
 		</caja_input>
 		<caja_input>
 			<nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
@@ -67,7 +67,7 @@
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">popup</parametro>
-				<parametro nombre="campo"></parametro>  
+				<parametro nombre="campo"></parametro>
 			</parametros>
 			<before>
 				<estado>Si</estado>
@@ -162,6 +162,6 @@
 				<estado>Si</estado>
 			</after>
 		</caja_input>
-		
+
 	</cajas_input>
 </parametros>

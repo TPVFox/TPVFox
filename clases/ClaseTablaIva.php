@@ -1,16 +1,18 @@
-<?php 
+<?php
 
-class ClaseTablaIva{
+class ClaseTablaIva
+{
 	private $id = 0;
 	private $descripcion = '';
-	private $iva= 0;
-	private $recargo= 0;
+	private $iva = 0;
+	private $recargo = 0;
 	private $db;
 	private $num_rows;
-	
-	public function __construct($conexion =''){
-		// Solo realizamos asignamos 
-		if (gettype($conexion) === 'object'){
+
+	public function __construct($conexion = '')
+	{
+		// Solo realizamos asignamos
+		if (gettype($conexion) === 'object') {
 			$this->db = $conexion;
 			// Obtenemos el numero registros.
 			$sql = 'SELECT count(*) as num_reg FROM iva';
@@ -19,79 +21,88 @@ class ClaseTablaIva{
 			// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 		}
 	}
-	
-	public function conexion($conexion){
+
+	public function conexion($conexion)
+	{
 		$this->__construct($conexion);
 	}
-	
-	
-	public function getNumRows(){
+
+
+	public function getNumRows()
+	{
 		return $this->num_rows;
 	}
-	public function getId(){
+	public function getId()
+	{
 		return $this->id;
 	}
-	public function getDescripcion(){
+	public function getDescripcion()
+	{
 		return $this->descripcion;
 	}
-	public function getIva($id=''){
+	public function getIva($id = '')
+	{
 		// Objetivo:
 		// Obtener el iva con id o sin el..
-		if ($id === ''){
+		if ($id === '') {
 			// Quiere decir que devolvemos el valor propiedad
 			return $this->iva;
 		} else {
 			// Queremos obtener le iva del id indicado.
 			$ivas = $this->todoIvas();
-			foreach ($ivas as $item){
-				if ($item['idIva']===$id){
-				 return $item['iva'];
+			foreach ($ivas as $item) {
+				if ($item['idIva'] === $id) {
+					return $item['iva'];
 				}
 			}
 		}
 	}
-	public function getRecargo(){
+	public function getRecargo()
+	{
 		return $this->recargo;
 	}
-	public function setId($id){
-		$this->id=$id;
+	public function setId($id)
+	{
+		$this->id = $id;
 	}
-	public function setDescripcion($descripcion){
-		$this->descripcion=$descripcion;
+	public function setDescripcion($descripcion)
+	{
+		$this->descripcion = $descripcion;
 	}
-	public function setIva($iva){
-		$this->iva=$iva;
+	public function setIva($iva)
+	{
+		$this->iva = $iva;
 	}
-	public function setRecargo($recargo){
-		$this->recargo=$recargo;
+	public function setRecargo($recargo)
+	{
+		$this->recargo = $recargo;
 	}
-	
-	public function todoIvas(){
+
+	public function todoIvas()
+	{
 		$db = $this->db;
 		$smt = $db->query('SELECT * FROM iva');
 		$ivas = array();
-		while ( $result = $smt->fetch_assoc () ) {
+		while ($result = $smt->fetch_assoc()) {
 			$ivas[] = $result;
 		}
 		return $ivas;
-	
 	}
-	 public function ivasNoPrincipal($ivaPrincipal){
+	public function ivasNoPrincipal($ivaPrincipal)
+	{
 		$db = $this->db;
-		$smt = $db->query ( 'SELECT * FROM iva where iva <>'.$ivaPrincipal );
+		$smt = $db->query('SELECT * FROM iva where iva <>' . $ivaPrincipal);
 		$ivas = array();
-		while ( $result = $smt->fetch_assoc () ) {
+		while ($result = $smt->fetch_assoc()) {
 			$ivas[] = $result;
 		}
 		return $ivas;
-		
 	}
-	
-	public function consulta($sql){
+
+	public function consulta($sql)
+	{
 		$db = $this->db;
 		$smt = $db->query($sql);
 		return $smt;
 	}
-
 }
-?>

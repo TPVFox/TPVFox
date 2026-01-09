@@ -1,10 +1,10 @@
 
 <?php
 /* Fichero de tareas a realizar.
- * 
- * 
+ *
+ *
  * Con el switch al final y variable $pulsado
- * 
+ *
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 
@@ -15,29 +15,27 @@ $ruta_segura = $thisTpv->getRutaSegura();
 $importarDbf = new ImportarDbf($ruta_segura);
 
 
- switch ($pulsado) {
-     
+switch ($pulsado) {
+
     case 'borrar_tabla':
         $respuesta = $importarDbf->EliminarTabla();
-        error_log('Borrado'.json_encode($respuesta));
-    break;
+        error_log('Borrado' . json_encode($respuesta));
+        break;
 
     case 'borrar_fichero':
-            
-    break;
+
+        break;
 
     case 'EliminarUltimoRegistro':
         $id = $_POST['id_ultimo_registro'];
         $respuesta = $importarDbf->EliminarRegistroTabla($id);
-        error_log('Borrado'.json_encode($respuesta));
-    break;
-
-    
+        error_log('Borrado' . json_encode($respuesta));
+        break;
 }
- 
+
 /* ===============  CERRAMOS CONEXIONES  ===============*/
 
 echo json_encode($respuesta)
- 
- 
+
+
 ?>

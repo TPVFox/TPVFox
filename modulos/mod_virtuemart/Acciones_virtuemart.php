@@ -1,37 +1,38 @@
-
 <!DOCTYPE html>
 <html>
+
 <head>
-<?php
+    <?php
     include_once './../../inicial.php';
-    include_once $URLCom.'/head.php';
-    include ($URLCom.'/controllers/Controladores.php');
-    include_once ($URLCom.'/modulos/mod_virtuemart/funciones.php');
-    include_once ($URLCom.'/modulos/mod_tienda/clases/ClaseTienda.php');
-    include_once $URLCom.'/modulos/mod_producto/clases/ClaseProductos.php';
+    include_once $URLCom . '/head.php';
+    include($URLCom . '/controllers/Controladores.php');
+    include_once($URLCom . '/modulos/mod_virtuemart/funciones.php');
+    include_once($URLCom . '/modulos/mod_tienda/clases/ClaseTienda.php');
+    include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
     $CTArticulos = new ClaseProductos($BDTpv);
-    $ClaseTienda=new ClaseTienda($BDTpv);
-	$tiendasWeb=$ClaseTienda->tiendasWeb();
-    include_once ($URLCom.'/controllers/parametros.php');
+    $ClaseTienda = new ClaseTienda($BDTpv);
+    $tiendasWeb = $ClaseTienda->tiendasWeb();
+    include_once($URLCom . '/controllers/parametros.php');
     $ClasesParametros = new ClaseParametros('parametros.xml');
     $parametros = $ClasesParametros->getRoot();
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-   ?>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_virtuemart/funciones.js"></script>
-<script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
+    ?>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_virtuemart/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/funcionesComunes.js"></script>
 
-<?php 
- if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
+    <?php
+    if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
         $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
         echo $ObjVirtuemart->htmlJava();
     }
-?>
+    ?>
 </head>
+
 <body>
-      <?php
-            include_once $URLCom.'/modulos/mod_menu/menu.php';
-            
-        ?>
+    <?php
+    include_once $URLCom . '/modulos/mod_menu/menu.php';
+
+    ?>
     <div class="container">
         <h2 class="text-center">Acciones para realizar en Virtuemart.</h2>
         <div class="col-md-3">
@@ -41,7 +42,7 @@
                 <ol>
                     <li>Añadir los producto que hay virtuemart que no tiene relacion tpv</li>
                     <li>Modificar los datos de tpv obteniendo los datos virtuemart</li>
-                </ol> 
+                </ol>
                 <p><a href="Importar_virtuemart.php">Empezar</a></p>
             </div>
         </div>
@@ -61,7 +62,8 @@
                 <p><a href="Subir_campospersonalizado_peso_virtuemart.php">Empezar</a></p>
             </div>
         </div>
-        
+
     </div>
 </body>
+
 </html>

@@ -32,7 +32,7 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-            </parametros> 
+            </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="suNumero">CajaSuNumero</nombre>
@@ -41,7 +41,7 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-            </parametros> 
+            </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="id_proveedor">cajaIdProveedor</nombre>
@@ -54,7 +54,7 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-            </parametros> 
+            </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="Proveedor">cajaProveedor</nombre>
@@ -68,7 +68,7 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-            </parametros> 
+            </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
@@ -81,8 +81,8 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-            </parametros> 
-            
+            </parametros>
+
         </caja_input>
         <caja_input>
             <nombre id_input="idArticulo">cajaidArticulo</nombre>
@@ -95,9 +95,9 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo">a.idArticulo</parametro>  
-            </parametros> 
-        </caja_input>   
+                <parametro nombre="campo">a.idArticulo</parametro>
+            </parametros>
+        </caja_input>
         <caja_input>
             <nombre id_input="N_">idN</nombre>
             <teclas>
@@ -146,9 +146,9 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo">at.crefTienda</parametro>  
-            </parametros> 
-        </caja_input>   
+                <parametro nombre="campo">at.crefTienda</parametro>
+            </parametros>
+        </caja_input>
         <caja_input>
             <nombre id_input="ReferenciaPro">cajaReferenciaPro</nombre>
             <teclas>
@@ -160,8 +160,8 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo">p.crefProveedor</parametro>  
-            </parametros> 
+                <parametro nombre="campo">p.crefProveedor</parametro>
+            </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="Codbarras">cajaCodBarras</nombre>
@@ -174,9 +174,9 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo">ac.codBarras</parametro>  
-            </parametros> 
-        </caja_input>   
+                <parametro nombre="campo">ac.codBarras</parametro>
+            </parametros>
+        </caja_input>
         <caja_input>
             <nombre id_input="Descripcion">cajaDescripcion</nombre>
             <teclas>
@@ -185,13 +185,13 @@
                 <action tecla="38">Saltar_idProveedor</action>
                 <action tecla="37">Saltar_CodBarras</action>
                 <action tecla="40">saltar_productos</action>
-                
+
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo">a.articulo_name</parametro>  
-            </parametros> 
-        </caja_input>   
+                <parametro nombre="campo">a.articulo_name</parametro>
+            </parametros>
+        </caja_input>
         <caja_input>
             <nombre id_input="Unidad_Fila_">Unidad_Fila</nombre>
             <teclas>
@@ -210,7 +210,7 @@
             <before>
                 <estado>Si</estado>
             </before>
-        </caja_input>   
+        </caja_input>
         <caja_input>
             <nombre id_input="Descripcion_Fila_">Descripcion_Fila</nombre>
             <teclas>
@@ -229,7 +229,7 @@
             <before>
                 <estado>Si</estado>
             </before>
-        </caja_input>   
+        </caja_input>
         <caja_input>
             <nombre id_input="numPedido">numPedido</nombre>
             <teclas>
@@ -239,7 +239,7 @@
                 <parametro nombre="dedonde">albaran</parametro>
                 <parametro nombre="campo"></parametro>
             </parametros>
-        </caja_input>   
+        </caja_input>
         <caja_input>
             <nombre id_input="ultimo_coste_">ultimo_coste</nombre>
             <teclas>
@@ -258,7 +258,7 @@
             <before>
                 <estado>Si</estado>
             </before>
-        </caja_input>   
+        </caja_input>
         <caja_input>
             <nombre id_input="cajaBusqueda">cajaBusquedaproductos</nombre>
             <teclas>
@@ -268,7 +268,7 @@
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">pedido</parametro>
-                <parametro nombre="campo"></parametro>  
+                <parametro nombre="campo"></parametro>
             </parametros>
             <before>
                 <estado>Si</estado>
@@ -277,23 +277,23 @@
 <caja_input>
             <nombre id_input="fechaVenci">cajafechaVenci</nombre>
             <teclas>
-                <action tecla="13">selectFormas</action>    
+                <action tecla="13">selectFormas</action>
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">factura</parametro>
             </parametros>
         </caja_input>
-        
-        
+
+
         <caja_input>
             <nombre id_input="Eimporte">cajaEimporte</nombre>
             <teclas>
-                <action tecla="13">insertarImporte</action> 
+                <action tecla="13">insertarImporte</action>
             </teclas>
                 <parametros>
                     <parametro nombre="dedonde">factura</parametro>
                 </parametros>
         </caja_input>
-        
+
     </cajas_input>
 </parametros>

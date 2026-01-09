@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
 require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
@@ -14,11 +14,13 @@ require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  *
  * @author alagoro
  */
-class Modelo extends ModeloP {
+class Modelo extends ModeloP
+{
 
     protected $tabla;
 
-    protected function consulta($sql) {
+    protected function consulta($sql)
+    {
         // Realizamos la consulta.
         $smt = parent::consulta($sql);
         $respuesta = [];
@@ -33,7 +35,8 @@ class Modelo extends ModeloP {
         return $respuesta;
     }
 
-    protected function consultaDML($sql) {
+    protected function consultaDML($sql)
+    {
         // Realizamos la consulta.
         $smt = parent::consultaDML($sql);
         $respuesta = [];
@@ -44,17 +47,18 @@ class Modelo extends ModeloP {
         return $respuesta;
     }
 
-    protected function insert($datos, $soloSQL = false) {
+    protected function insert($datos, $soloSQL = false)
+    {
 
         parent::_insert($this->tabla, $datos, $soloSQL);
 
         return $this->getSQLConsulta();
     }
 
-    protected function update($datos, $condicion, $soloSQL = false) {
+    protected function update($datos, $condicion, $soloSQL = false)
+    {
         parent::_update($this->tabla, $datos, $condicion, $soloSQL);
 
         return $this->getSQLConsulta();
     }
-
 }

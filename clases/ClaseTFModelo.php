@@ -127,7 +127,6 @@ class TFModelo extends ModeloP
     protected function setTabla($tabla)
     {
         $this->tabla = $tabla;
-
     }
 
     protected function setFallo($sql, $code)
@@ -135,7 +134,6 @@ class TFModelo extends ModeloP
         $this->fallo['consulta'] = $sql;
         $this->fallo['descripcion'] = $code;
         $this->fallo['time_error'] = time();
-
     }
 
     public function getFallo()
@@ -252,14 +250,12 @@ class TFModelo extends ModeloP
         $fila['consulta_info'] = $consulta;
 
         return $fila;
-
     }
 
     public function conexionBDTPV()
     {
         // Devolvemos la conexion para versiones anteriores de modelos.
         return parent::getDbo();
-
     }
 
     public function existe(int $id = 0)
@@ -275,5 +271,4 @@ class TFModelo extends ModeloP
         $sql = 'DELETE FROM  ' . $this->tabla . ' WHERE id=' . $id;
         return $this->consultaDML($sql);
     }
-
 }

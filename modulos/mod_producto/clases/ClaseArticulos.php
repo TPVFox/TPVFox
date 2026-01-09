@@ -22,8 +22,8 @@ include_once 'ClaseArticulosStocks.php';
  */
 class alArticulos extends Modelo
 { // hereda de clase modelo. Hay una clase articulos que hizo Ricardo & Co.
-//    Si no se lee articulo por id, se leen múltiples articulos $pagina o menos
-// empezando en $inicio
+    //    Si no se lee articulo por id, se leen múltiples articulos $pagina o menos
+    // empezando en $inicio
 
     public function __construct()
     {
@@ -294,7 +294,7 @@ class alArticulos extends Modelo
 
         $stock = $comprasalbp - $ventasalbc - $ventastick;
 
-//        $sql = implode(' UNION ', $sqlprepare);
+        //        $sql = implode(' UNION ', $sqlprepare);
         return $stock;
     }
 
@@ -345,5 +345,4 @@ class alArticulos extends Modelo
 
         return $resultado;
     }
-
 }

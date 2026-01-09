@@ -24,47 +24,47 @@ $(function ()
             }
         });
         $('#ventanaModal').on('shown.bs.modal', function() {
-              //@Objetivo: llamar a la librería autocomplete 
+              //@Objetivo: llamar a la librería autocomplete
             $( ".familias" ).combobox({
-                select : function(event, ui){ 
+                select : function(event, ui){
 					var dedonde = $("#ProductoModalDedonde" ).val();
-                    var idProducto= $( "#idProductoModal" ).val();   
-                  
+                    var idProducto= $( "#idProductoModal" ).val();
+
                     if(dedonde==='ListadoProductos'){
 						var botonhtml='<button class="btn btn-primary"'
 									+' onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto
 									+', '+"'"+dedonde+"'"+')">Guardar</button>';
-                        $('#botonEnviar2').html(botonhtml);  
+                        $('#botonEnviar2').html(botonhtml);
                     }else{
 						var botonhtml='<button class="btn btn-primary"'
 									+' onclick="guardarProductoFamilia('+ui.item.value+', '+idProducto
 									+')">Guardar</button>';
-                         $('#botonEnviar').html(botonhtml);  
+                         $('#botonEnviar').html(botonhtml);
                     }
                 },
             });
             $( ".estados" ).combobox({
-                select : function(event, ui){ 
-                    var idProductos= $( "#idProductosModal" ).val();  
+                select : function(event, ui){
+                    var idProductos= $( "#idProductosModal" ).val();
                     var botonhtml='<button class="btn btn-primary" onclick="modificarEstadoProductos('+"'"+ui.item.value+"'"+', '+"'"+idProductos+"'"+')">Guardar</button>';
-                    $('#botonEnviarEstados').html(botonhtml);  
+                    $('#botonEnviarEstados').html(botonhtml);
                 },
             });
         });
-        //@Objetivo: llamar a la librería autocomplete 
+        //@Objetivo: llamar a la librería autocomplete
         if( $("select").hasClass("familiasLista")){
             $( ".familiasLista" ).combobox({
-                select : function(event, ui){ 
+                select : function(event, ui){
                     //~ var idProducto= $( "#idProductoModal" ).val();
                      var botonhtml='<a class="btn btn-primary" onclick="buscarProductosFamilia('+ui.item.value+')">Buscar</a>';
-                   $('#botonEnviar').html(botonhtml);   
+                   $('#botonEnviar').html(botonhtml);
                 },
             });
             $( ".proveedoresLista" ).combobox({
-                select : function(event, ui){ 
+                select : function(event, ui){
                     //~ var idProducto= $( "#idProductoModal" ).val();
                      var botonhtml='<a class="btn btn-primary" onclick="buscarProductosProveedor('+ui.item.value+')">Buscar</a>';
-                   $('#botonEnviarPro').html(botonhtml);   
+                   $('#botonEnviarPro').html(botonhtml);
                 },
             });
         }
@@ -133,7 +133,7 @@ function metodoClick(pulsado,adonde){
 	// @ Objetivo:
 	//  Controlas los click en listadoproductos.
 	// @ parametros:
-	//     adonde : a donde quiero ir o donde quiero permanecer: ListaTickets, ListaProductos.. 
+	//     adonde : a donde quiero ir o donde quiero permanecer: ListaTickets, ListaProductos..
 	console.log("Inicimos switch de control pulsar");
 	switch(pulsado) {
 		case 'VerProducto':
@@ -143,10 +143,10 @@ function metodoClick(pulsado,adonde){
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-			// Ahora redireccionamos 
-			window.location.href = './'+adonde+'.php?id='+checkID[0];			
+			// Ahora redireccionamos
+			window.location.href = './'+adonde+'.php?id='+checkID[0];
         break;
-        
+
 		case 'EtiquetasCodBarras':
 			// Cargamos variable global ar checkID = [];
 			 VerIdSeleccionado ();
@@ -154,19 +154,19 @@ function metodoClick(pulsado,adonde){
 				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return
 			}
-			// Ahora redireccionamos 
-			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];			
+			// Ahora redireccionamos
+			window.location.href = './../mod_etiquetado/'+adonde+'.php?idProducto='+checkID[0];
         break;
-		
+
 		case 'AgregarProducto':
 			console.log('entro en agregar producto');
 			window.location.href = './producto.php';
         break;
-		
+
 		case 'NuevaBusqueda':
 			// Obtenemos puesto en input de Buscar
 			BuscarProducto ();
-			// Ahora redireccionamos 
+			// Ahora redireccionamos
 			if (BProductos !== ''){
 				window.location.href = './'+adonde+'.php?buscar='+BProductos;
 			} else {
@@ -175,7 +175,7 @@ function metodoClick(pulsado,adonde){
 			}
         break;
 	 }
-} 
+}
 
 function agregoCodBarrasVacio(contNuevo){
 	//ajax
@@ -183,7 +183,7 @@ function agregoCodBarrasVacio(contNuevo){
 	//agrego campo codigo barras vacio en html
 	var tablaC=document.getElementById("tcodigo");
 	var cont=tablaC.childElementCount;
-	
+
 	var parametros = {
 		"pulsado"    : 'HtmlCodigoBarrasVacio',
 		"filas": cont
@@ -212,7 +212,7 @@ function controlCodBarras(caja){
 	var codb = caja.darValor();
 	// Ahora debería comprobar si existe este codigo barras en este producto.
 	 $('#tcodigo').find(':input').each(function (id){
-		var stringId='codBarras_'+id; 
+		var stringId='codBarras_'+id;
 		if ( stringId !== caja.id_input){
 			// Evitamos que no repita el mismo codigo barras en el mismo producto.
 			if ($('#codBarras_'+id).val() === codb){
@@ -247,7 +247,7 @@ function controlCodBarras(caja){
 				alert(msj+resultado.NItems+ " productos. \n Estas segura que quiere añadirlo.")	;
 			}
 		}
-	});	
+	});
 }
 
 
@@ -308,13 +308,13 @@ function recalcularPvp(dedonde){
 	if (dedonde === 'pvpSiva'){
 		var precioSiva = parseFloat($('#pvpSiva').val(),2);
 		var precioCiva = precioSiva+(precioSiva*iva);
-		// Ahora destacamos los input que cambiamos.		
+		// Ahora destacamos los input que cambiamos.
 		destacarCambioCaja('pvpCiva');
 	} else {
 		var precioCiva = parseFloat($('#pvpCiva').val(),2);
 		iva = iva +1;
 		var precioSiva = precioCiva/iva;
-		// Ahora destacamos los input que cambiamos		
+		// Ahora destacamos los input que cambiamos
 		destacarCambioCaja('pvpSiva');
 	}
 	//~ // Ahora cambiamos los datos en input.
@@ -354,13 +354,13 @@ function AnhadirCodbarras(){
 	// @ Objetivo
 	// Añadir una caja de codbarras, pero solo si las que hay tiene valor, sino no añade.
 	// Contamos los tr que hay body tcodigo
-	var num_tr = $('#tcodigo>tbody>tr').length; 
+	var num_tr = $('#tcodigo>tbody>tr').length;
 	var vacio = 'No';
 	var trComprobar;
-	for (i = 0; i <= num_tr; i++) { 
+	for (i = 0; i <= num_tr; i++) {
 		// Comprobamos que input codbarras tenga valor, sino tiene no creamos tr con input.
 		trComprobar =document.getElementById("codBarras_"+i);
-		if (document.body.contains(trComprobar)){ 
+		if (document.body.contains(trComprobar)){
 			var valor = $('#codBarras_'+i).val() ;
 			if ( valor.length === 0){
 				vacio = 'Si';
@@ -522,12 +522,12 @@ function cambioEstadoProvPrincipal(obj){
 	// Comprobar si cambio estado check de proveedor, si lo marco , desmarca el resto proveedores.
 	// Solo puede haber un proveedor principal.
 	var check = $('#'+obj.id).prop('checked')
-	
+
 	if (check === true){
 		// Comprobamos si hay alguno marcado , entonces lo desmarcamos.
 		var checks_pro = $("input:checkbox[name=check_pro]:checkbox");
 		console.log(checks_pro.length);
-		for (i = 0; i < checks_pro.length; i++) { 
+		for (i = 0; i < checks_pro.length; i++) {
 			if ( obj.id !== checks_pro[i].id ){
 				console.log(checks_pro[i].id+$("#"+checks_pro[i].id).prop('checked'));
 				$('#'+checks_pro[i].id).removeAttr('checked', '');
@@ -580,8 +580,8 @@ function imprimir(id, dedonde){
 				 window.open(resultado.fichero);
 				// Volvemos a albaranes ya que se ejecuto desde ahi.
 				location.href="../mod_compras/albaranesListado.php";
-				 
-		}	
+
+		}
 	});
 }
 
@@ -625,8 +625,8 @@ function imprimirEtiquetas(dedonde){
 				 var resultado = $.parseJSON(response);
 				 console.log(resultado);
 				 window.open(resultado['fichero']);
-				 
-		}	
+
+		}
 	});
 }
 
@@ -662,8 +662,8 @@ function seleccionProveedor(dedonde,idproveedor){
 				} else {
 					var nuevo_proveedor = resultado.htmlFilaProveedor;
 					$("#tproveedor").prepend(nuevo_proveedor);
-				} 
-		}	
+				}
+		}
 	});
 }
 
@@ -722,7 +722,7 @@ function UnProductoClick(id){
 
 function filtrarSeleccionProductos(){
 	// @Objetivo:
-	// Hizo click en filtrar productos seleccionados por lo que 
+	// Hizo click en filtrar productos seleccionados por lo que
 	configuracion.filtro.valor='Si';
 	AjaxGuardarConfiguracion();
 	//location.href="ListaProductos.php";
@@ -743,8 +743,8 @@ function ponerSelect (destino_focus){
 	// @ Objetivo:
 	// 	Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
 	setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-		jQuery('#'+destino_focus.toString()).select(); 
-	}, 50); 
+		jQuery('#'+destino_focus.toString()).select();
+	}, 50);
 }
 
 function comprobarReferencia(){
@@ -770,7 +770,7 @@ function comprobarReferencia(){
 						alert("Ojo Esa referencia de producto ya está registrada");
                     }
 				}
-		}	
+		}
 	});
 }
 
@@ -795,7 +795,7 @@ function RegularizarStock(idarticulo) {
                     var titulo = 'Regularizacion de Stock ';
                     abrirModal(titulo,resultado.html);
 				}
-		}	
+		}
     });
 }
 
@@ -861,9 +861,9 @@ function modalFamiliaProducto(idProducto,dedonde=''){
                 abrirModal(titulo,resultado.html);
 				setTimeout(function(){
                         $( ".custom-combobox-input" ).focus();
-                       
+
                 },3000);
-		}	
+		}
 	});
 }
 function modalEstadoProductos(){
@@ -883,10 +883,10 @@ function modalEstadoProductos(){
 				var titulo = 'Modificar Producto ';
                 abrirModal(titulo,resultado.html);
                 $( ".custom-combobox-input" ).focus();
-		}	
+		}
 	});
 }
-  
+
 function modificarEstadoProductos(estado, productos){
     var parametros = {
         pulsado: 'cambiarEstadoProductos',
@@ -910,7 +910,7 @@ function modificarEstadoProductos(estado, productos){
                     cerrarPopUp();
                     location.reload(true);
                 }
-		}	
+		}
 	});
 }
 
@@ -952,11 +952,11 @@ function guardarProductoFamilia(idfamilia, idProducto,dedonde=''){
                         $("#tfamilias").prepend(nuevafila);
                     }
                 }
-		}	
+		}
 	});
 }
 function buscarProductosFamilia(idFamilia){
-   
+
         var parametros = {
             pulsado: 'buscarProductosDeFamilia',
             idfamilia:idFamilia
@@ -1031,7 +1031,7 @@ function EliminarHistorico(idHistorico, e){
                 success    :  function (response)
                 {
                    console.log('Respuesta de eliminar historico precio');
-                   
+
                    var resultado = $.parseJSON(response);
                    console.log (resultado);
                    //QUEDA ELIMINAR LINEA
@@ -1046,7 +1046,7 @@ function EliminarHistorico(idHistorico, e){
     }
 }
 function EliminarRefProveedor(e){
-    // Informamos de los que vamos hacer    
+    // Informamos de los que vamos hacer
     var opcion =confirm("Vas eliminar la referencia del proveedor "+e.id.substring(16)+" del producto con id:"+producto.idArticulo);
     if (opcion == true) {
         // Solo ejecutamos si el usuario pulsa aceptar
@@ -1074,7 +1074,7 @@ function EliminarRefProveedor(e){
                }
             }
         });
-	} 
+	}
 }
 
 function EliminarReferenciaTienda(idCruce,e){
@@ -1162,7 +1162,7 @@ function cambiarEstadoRecalculo(idArticulo, dedonde, id, tipo, fila, accion){
                     var accion= 'retorno';
                     var icono = 'glyphicon-export';
                     $('#Row'+ fila).addClass("tachado");
-                    
+
                 } else  {
                     var accion= 'eliminar';
                     var icono = 'glyphicon-trash';
@@ -1172,8 +1172,8 @@ function cambiarEstadoRecalculo(idArticulo, dedonde, id, tipo, fila, accion){
                       <a onclick="cambiarEstadoRecalculo(${idArticulo}, '${dedonde}', ${id}, '${tipo}', ${fila}, '${accion}');">
                         <span class="glyphicon ${icono}"></span>
                       </a>
-                    `);			
-		}	
+                    `);
+		}
 	});
 }
 
@@ -1222,7 +1222,7 @@ function eliminarProductos(idTiendaWeb=0){
             },
             success    :  function (response) {
                     console.log('Respuesta de eliminar productos');
-                   
+
                     var resultado = $.parseJSON(response);
                     // Oculta icono de mostrar rueda giratoria.
                     $('.loader').hide();
@@ -1242,9 +1242,9 @@ function eliminarTR(e){
     // @ Objetivo :
     // Eliminar el código de barras . Busca los elementos a eliminar mediante DOM
     // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
-	var padre=e.parentNode; 
-	var abuelo=padre.parentNode; 
-	var bisa=abuelo.parentNode; 
+	var padre=e.parentNode;
+	var abuelo=padre.parentNode;
+	var bisa=abuelo.parentNode;
 	bisa.removeChild(abuelo);
 }
 
@@ -1286,7 +1286,7 @@ function obtenerEstadoProductoWeb(ids_productos,id_tiendaWeb){
                 }
                 if (producto.estado === "Error"){
                     $("#idProducto_estadoWeb_"+producto.idArticulo).removeClass('icono_web despublicado')
-                    .addClass('icono_web error_estadoWeb') ;       
+                    .addClass('icono_web error_estadoWeb') ;
                 }
             });
 		}
@@ -1306,7 +1306,7 @@ function seleccionarTodo(){
             }
         }
    }
-} 
+}
 
 function seleccionProductos(){
     if( $("#checkSeleccion").prop('checked') ) {
@@ -1344,5 +1344,5 @@ function redirecionarMayor(idArticulo,adonde){
         var href ="./DetalleMayor.php?idArticulo="+idArticulo+"&fecha_inicial="+Fechas[0]+"&fecha_final="+Fechas[1]+'&stock='+stock;
         window.open(href,'_blank')
     }
-    
+
 }

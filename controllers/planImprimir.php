@@ -1,4 +1,4 @@
-<?php 
+<?php
 //include_once '../clases/imprimir.php';
 //~ $cabecera='<p>HOLA MUNDO</p>';
 //~ $html='<p>HOLA MUNDO HTML</p>';
@@ -9,5 +9,4 @@ $pdf->SetMargins(20, $margen_top_caja_texto, 20, false);
 $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $pdf->writeHTML($html);
-$pdf->Output($RutaServidor.$rutatmp.'/'.$nombreTmp, 'F');
-?>
+$pdf->Output($RutaServidor . $rutatmp . '/' . $nombreTmp, 'F');

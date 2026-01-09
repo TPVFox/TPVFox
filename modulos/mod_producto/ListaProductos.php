@@ -7,7 +7,7 @@
     include_once ($URLCom .'/controllers/parametros.php');
     include_once $URLCom.'/modulos/mod_familia/clases/ClaseFamilias.php';
     include_once $URLCom.'/clases/Proveedores.php';
-    
+
     $OtrosVarJS ='';
     $htmlplugins = array();
     $CTArticulos = new ClaseProductos($BDTpv);
@@ -22,11 +22,11 @@
     // Inicializo varibles por defecto.
     $ClasesParametros = new ClaseParametros('parametros.xml');
     $parametros = $ClasesParametros->getRoot();
-    // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
+    // Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion
     $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
     // Parametro de configuracion para indicar que por defecto no filtramos los productos seleccionados.
     $conf_defecto['filtro']->valor = 'No';
- 
+
     // Ahora compruebo productos_seleccion:
     $botonSeleccion=0;
     $prod_seleccion = array('NItems' => 0, 'display' => '');
@@ -38,10 +38,10 @@
         // No hay productos seleccionados, display none y No en parametro filtro.
         $prod_seleccion['display'] = 'style="display:none"';
     }
-    
+
     // Obtenemos la configuracion del usuario o la por defecto
     $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_productos', $Usuario['id']);
-   
+
     // Compruebo que solo halla un campo por el que buscar por defecto.
     if (!isset($configuracion['tipo_configuracion'])) {
         // Hubo un error en la carga de configuracion.
@@ -99,7 +99,7 @@
         }
     }
     // --- Ahora envio a NPaginado la cantidad registros --- //
-    
+
     if ($prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si') {
         $NPaginado->SetCantidadRegistros($prod_seleccion['NItems']);
     } else {
@@ -108,7 +108,7 @@
     $htmlPG = '';
     if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
         $htmlPG = $NPaginado->htmlPaginado();
-        // Queremos filtrar o no. 
+        // Queremos filtrar o no.
         if ($configuracion['filtro']->valor === 'Si') {
             if ($prod_seleccion['NItems'] > 0) {
                 $botonSeleccion=1;
@@ -122,7 +122,7 @@
         $limite = $NPaginado->GetLimitConsulta();
         $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
     }
-    
+
     if (isset($productos['error'])){
         //Hubo un error a la ahora obtener los datos de los productos.
         $error = array('tipo' => 'danger',
@@ -164,10 +164,10 @@
         echo '</script>';
         ?>
         <script src="<?php echo $HostNombre; ?>/jquery/jquery-ui.min.js"></script>
-        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>   
+        <script src="<?php echo $HostNombre; ?>/lib/js/autocomplete.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/funciones.js"></script>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
-        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script> 
+        <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
         <link rel="stylesheet" href="<?php echo $HostNombre;?>/jquery/jquery-ui.min.css" type="text/css">
         <script type="text/javascript">
             // Declaramos variables globales
@@ -202,7 +202,7 @@
                     <div>
                         <h4> Productos</h4>
                         <h5> Opciones para una selección</h5>
-                        <ul class="nav nav-pills nav-stacked"> 
+                        <ul class="nav nav-pills nav-stacked">
                             <?php
                           if($ClasePermisos->getAccion("crear")==1){
                                 ?>
@@ -212,7 +212,7 @@
                             if($ClasePermisos->getAccion("modificar")==1){
                             ?>
                             <li><a onclick="metodoClick('VerProducto', 'producto');">Modificar</a></li>
-                            <?php 
+                            <?php
                             }
                             ?>
                         </ul>
@@ -222,8 +222,8 @@
                         <p>Filtrar seleccionados:
                         <input type="checkbox" id="checkSeleccion" name="checkSeleccion" onclick="seleccionProductos()">
                         </p>
-                        <ul class=""> 
-                            <?php 
+                        <ul class="">
+                            <?php
                              if($ClasePermisos->getAccion("eliminarSeleccion")==1){
                             ?>
                                 <li><a onclick="eliminarSeleccionProductos();">Eliminar Selección</a></li>
@@ -232,31 +232,31 @@
                             if($ClasePermisos->getAccion("imprimirEtiquetas")==1){
                              ?>
                                 <li><a href='ListaEtiquetas.php' onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');">Imprimir Etiquetas</a></li>
-                           <?php 
+                           <?php
                             }
                             if($ClasePermisos->getAccion("imprimirMayor")==1){
                            ?>
-                                <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>  
-                            <?php 
+                                <li><a href='ListaMayor.php'>Imprimir Mayor</a></li>
+                            <?php
                             }
                             if($ClasePermisos->getAccion("subirProductosWeb")==1){
                                 if( isset($tiendaWeb['idTienda'])){
-                            ?>      
+                            ?>
                                 <li><a onclick="subirProductosWeb(<?php echo $tiendaWeb['idTienda'];?>);">Subir Productos Web</a></li>
                             <?php
                                 }
                             }
                             if($ClasePermisos->getAccion("agregarProductosFamilia")==1){
                             ?>
-                                <li><a onclick="modalFamiliaProducto('0','ListadoProductos');">Guardar por familia</a></li>   
-                            <?php 
+                                <li><a onclick="modalFamiliaProducto('0','ListadoProductos');">Guardar por familia</a></li>
+                            <?php
                             }
                             if($ClasePermisos->getAccion("cambiarEstado")==1){
-                            ?> 
-                                <li><a onclick="modalEstadoProductos();">Cambiar estado productos</a></li>   
-                            <?php 
+                            ?>
+                                <li><a onclick="modalEstadoProductos();">Cambiar estado productos</a></li>
+                            <?php
                             }
-                            ?>             
+                            ?>
                         </ul>
                         <?php
                         if($ClasePermisos->getAccion("eliminarProductos")==1){
@@ -265,8 +265,8 @@
                                     // Si existe ponemos valor
                                     $id_ti = $tiendaWeb['idTienda'];
                                 }
-                             ?>     
-                                <div><a class="btn btn-danger" onclick="eliminarProductos(<?php echo $id_ti;?>);">Eliminar Productos</a></div>        
+                             ?>
+                                <div><a class="btn btn-danger" onclick="eliminarProductos(<?php echo $id_ti;?>);">Eliminar Productos</a></div>
                             <?php
                         }
                         ?>
@@ -286,14 +286,14 @@
                       if (isset($htmlplugins['html'])){
                         echo $htmlplugins['html'];
                       }
-                      ?>  
+                      ?>
                     </div>
                     <p>
                         -Productos encontrados BD local filtrados:
                         <?php echo $CantidadRegistros; ?>
                     </p>
                     <?php
-                    // Mostramos paginacion 
+                    // Mostramos paginacion
                     echo $htmlPG;
                     //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
                     ?>
@@ -310,7 +310,7 @@
                              <select id="combobox" class="familiasLista">
                                 <option></option>
                                 <option value="0">Productos sin familia</option>
-                                 <?php 
+                                 <?php
                                    $arbolfamilias=selectFamilias(0, '', array(), $BDTpv);
                                    foreach($arbolfamilias as $familia){
                                        echo '<option title ="'.$familia['title'].'" value="'.$familia['id'].'">'.$familia['name'].'</option>';
@@ -344,7 +344,7 @@
                         <?php
                         // Generamos Script con array de los productos de esta pagina para poder ejecutar ajax
                         // para comprobar el estado en la web.
-                        
+
                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart')==='Si'){
                             if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false){
                                 if( isset($tiendaWeb['idTienda'])){
@@ -381,7 +381,7 @@
                                     <th>P.V.P</th>
                                     <th>Stock</th>
                                     <th>Estado</th>
-                                    <?php 
+                                    <?php
                                     if(isset($tiendaWeb)){
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
                                             echo'<th>WEB</th>';
@@ -397,7 +397,7 @@
                                 foreach ($productos as $prod) {
                                     $producto=$CTArticulos->GetProducto($prod['idArticulo']);
                                     // [RECUERDA]
-                                    // Utilizo una funcion js, en global para controlar que item tengo seleccionados,... 
+                                    // Utilizo una funcion js, en global para controlar que item tengo seleccionados,...
                                     // por eso el uno rowUsuario cuando es productos.
                                     $checkUser = $checkUser + 1;
                                     $checked = "";
@@ -437,7 +437,7 @@
                                                     if($ref['idTienda']==$id_tienda_principal){
                                                         echo $ref['crefTienda'];
                                                     }
-                                                    
+
                                                 }
                                             }
                                             echo '</td>';
@@ -454,18 +454,18 @@
                                             $decimal = 0;
                                             if ($producto['tipo'] == 'peso'){
                                                 $decimal = 3;
-                                            } 
+                                            }
                                             echo number_format($producto['stocks']['stockOn'],$decimal);
                                             if($ClasePermisos->getAccion("regularizar")==1){
                                             ?>
                                                 <button class="btn btn-sm boton-regularizar" data-idarticulo="<?php echo $producto['idArticulo']; ?>"><span class="glyphicon glyphicon-pencil"></span></button>
-                                            <?php 
+                                            <?php
                                             }
                                             ?>
                                             </td>
                                         <td><?php echo $producto['estado']; ?></td>
 
-                                            <?php 
+                                            <?php
                                         if(isset($tiendaWeb)){
                                             if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'){
                                                 $icono_link = '';
@@ -473,22 +473,22 @@
                                                 if($CTArticulos->GetReferenciasTiendas()){
                                                     foreach ($CTArticulos->GetReferenciasTiendas() as $ref){
                                                         if($ref['idVirtuemart']>0){
-                                                            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');     
+                                                            $ObjVirtuemart = $CTArticulos->SetPlugin('ClaseVirtuemart');
                                                             $icono_link='<a target="_blank" title="Estado:'.$ref['estado'].' Actualizacion estado'
                                                                         .$ref['fechaModificacion'].'" class="glyphicon glyphicon-globe" href="'
                                                                         .$ObjVirtuemart->ruta_producto.$ref['idVirtuemart'].'"></a>';
                                                             // Ahora ponemos clase segun el estado que este el producto en la web
                                                             if ($ref['estado'] == 'Sin Publicar'){
-                                                              $class_icono = 'icono_web despublicado';  
-                                                              
+                                                              $class_icono = 'icono_web despublicado';
+
                                                             }
                                                         }
                                                     }
-                                                } 
+                                                }
                                                 ?>
                                                 <td id="idProducto_estadoWeb_<?php echo $producto['idArticulo'];?>" class="<?php echo $class_icono;?>">
                                                     <?php echo $icono_link;?>
-                                                
+
                                                 </td>
                                             <?php
                                             }
@@ -513,7 +513,7 @@
         ?>
         <div class="loader"></div>
         <script>
-        <?php 
+        <?php
         if($botonSeleccion==1){
             ?>
              $("#checkSeleccion").prop( "checked", true );
@@ -523,7 +523,7 @@
              $("#checkSeleccion").prop( "checked", false );
             <?php
         }
-        
+
         ?>
         <?php
         // Solo ejecutamos si hay producto y hay web,
@@ -544,7 +544,7 @@
         }
         ?>
 
-        
+
         </script>
          <style>
 #enlaceIcon{

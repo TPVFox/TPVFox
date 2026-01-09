@@ -22,8 +22,8 @@ $dispositivos = agregarUltimasTemperaturas($dispositivos, $temperaturas);
 
 $parametros = $ClasesParametros->getRoot();
 
-if (isset($_POST['action'])){
-    switch($_POST['action']){
+if (isset($_POST['action'])) {
+    switch ($_POST['action']) {
         case 'save_configuracion':
             // Procesar el formulario de nuevo dispositivo
             $dispositivo = array(
@@ -34,7 +34,7 @@ if (isset($_POST['action'])){
             $ClaseTemperatura->addDispositivo($dispositivo);
 
             echo "<div class='alert alert-success'>Dispositivo '$dispositivo' añadido correctamente.</div>";
-        break;
+            break;
         case 'update_dispositivo':
             // Procesar el formulario de edición de dispositivo
             $idDispositivo = intval($_POST['idDispositivo']);
@@ -46,7 +46,7 @@ if (isset($_POST['action'])){
             $ClaseTemperatura->updateDispositivo($idDispositivo, $dispositivo);
 
             echo "<div class='alert alert-success'>Dispositivo actualizado correctamente.</div>";
-        break;
+            break;
         case 'update_temperaturas':
             // Procesar el formulario de actualización de temperaturas
             $idUsuario = intval($_POST['idUsuario']);
@@ -69,7 +69,7 @@ if (isset($_POST['action'])){
             }
 
             echo "<div class='alert alert-success'>Temperaturas actualizadas correctamente.</div>";
-        break;
+            break;
     }
     header("Location: ./temperatura.php");
     exit();
@@ -95,7 +95,7 @@ if (isset($_POST['action'])){
         <div class="col-md-4">
             <h4>Opciones generales</h4>
             <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("crearDispositivo", $mod_vista)): ?>
-            <a class="btn btn-default" href="./temperatura.php?new">Añadir</a>
+                <a class="btn btn-default" href="./temperatura.php?new">Añadir</a>
             <?php endif; ?>
             <a class="btn btn-default" href="./temperatura.php?configurar">Configurar parámetros</a>
             <?php
@@ -109,7 +109,7 @@ if (isset($_POST['action'])){
             }
             ?>
         </div>
-        
+
         <div class="col-md-8">
             <h4>Dispositivos añadidos</h4>
             <?php
@@ -131,7 +131,7 @@ if (isset($_POST['action'])){
                     foreach ($temperaturas as $temp) {
                         echo "<tr>";
                         // mostrar nombre y ubicación del dispositivo en lugar de idDispositivo
-                        $dispositivoInfo = array_filter($dispositivos, function($d) use ($temp) {
+                        $dispositivoInfo = array_filter($dispositivos, function ($d) use ($temp) {
                             return $d['idDispositivo'] == $temp['idDispositivo'];
                         });
                         $dispositivoInfo = array_values($dispositivoInfo);
@@ -140,7 +140,7 @@ if (isset($_POST['action'])){
                         } else {
                             $dispositivoNombre = "Desconocido";
                         }
-                        echo "<td>" . htmlspecialchars($dispositivoNombre) . "</td>";   
+                        echo "<td>" . htmlspecialchars($dispositivoNombre) . "</td>";
                         echo "<td>" . htmlspecialchars($temp['temperatura']) . " °C</td>";
                         echo "<td>" . htmlspecialchars($temp['fechaRegistro']) . "</td>";
                         echo "</tr>";

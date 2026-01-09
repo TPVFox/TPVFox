@@ -1,20 +1,20 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
 
 /* Fichero de tareas a realizar.
- * 
- * 
- * Con el switch al final y variable $pulsado
- * 
  *
- *   
+ *
+ * Con el switch al final y variable $pulsado
+ *
+ *
+ *
  */
 
 
@@ -23,16 +23,16 @@
 
 $pulsado = $_POST['pulsado'];
 
-include_once ("./../../inicial.php");
-include_once $URLCom.'/controllers/Controladores.php';
+include_once("./../../inicial.php");
+include_once $URLCom . '/controllers/Controladores.php';
 // Crealizamos conexion a la BD Datos
 
 $Controler = new ControladorComun;
 // Añado la conexion a controlador.
 $Controler->loadDbtpv($BDTpv);
 
-include_once $URLCom.'/modulos/mod_producto/clases/ClaseArticulos.php';
-include_once $URLCom.'/modulos/mod_producto/funciones_mayor.inc.php';
+include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulos.php';
+include_once $URLCom . '/modulos/mod_producto/funciones_mayor.inc.php';
 
 $inicio = microtime(true);
 switch ($pulsado) {
@@ -61,7 +61,7 @@ switch ($pulsado) {
         }
         $resultado['idproducto'] = $idArticulo;
         $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
-                . '<span class="glyphicon glyphicon-print"></span> </a>';
+            . '<span class="glyphicon glyphicon-print"></span> </a>';
         $resultado['tiempo'] = microtime(true) - $inicio;
 
         echo json_encode($resultado);
@@ -69,7 +69,7 @@ switch ($pulsado) {
 
     case 'imprimemayor':
         // Aqui venía cuando pulsabamos en generar mayor despues escoger la fechas.
-        
+
         $idArticulo = $_POST['idproducto'];
         $stockinicial = $_POST['stockinicial'];
         $fechainicio = $_POST['fechainicio'];
@@ -83,7 +83,7 @@ switch ($pulsado) {
         $articulo = new alArticulos();
         if ($articulo->existe($idArticulo)) {
             $miarticulo = $articulo->leer($idArticulo);
-            
+
             $nombreArticulo = $miarticulo[0]['idArticulo'] . ' ' . $miarticulo[0]['articulo_name'];
 
             $fecha = explode('/', $fechainicio);
@@ -107,11 +107,12 @@ switch ($pulsado) {
                     $sqldata['datos'][$indice]['stock'] = $sumastock;
                 }
                 $sumas = compact('stockinicial', 'totalEntrada', 'totalSalida', 'sumastock');
-                $empresa = $Tienda['idTienda'].$Tienda['razonsocial'];
-                $cabecera = cabeceramayor2html(['titulo' => 'Mayor productos'
-                    , 'empresa' => $empresa
-                    , 'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal
-                    , 'producto' => $nombreArticulo
+                $empresa = $Tienda['idTienda'] . $Tienda['razonsocial'];
+                $cabecera = cabeceramayor2html([
+                    'titulo' => 'Mayor productos',
+                    'empresa' => $empresa,
+                    'condiciones' => 'Periódo: ' . $fechainicio . ' / ' . $fechafinal,
+                    'producto' => $nombreArticulo
                 ]);
                 $cuerpo = datamayor2html($sqldata['datos'], $sumas);
 
@@ -119,21 +120,21 @@ switch ($pulsado) {
                 $resultado['filecuerpo'] = file_put_contents($RutaServidor . $rutatmp . '/' . 'cuerpo_' . $idArticulo . '.htmp', json_encode($cuerpo), LOCK_EX);
                 $resultado['fileca'] = 'cabecera_' . $idArticulo . '.htmp';
                 $resultado['tiempo'] = microtime(true) - $inicio;
-//                $pdf = new imprimirPDF();
-//                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
-//                $pdf->SetMargins(10, 30, 10);
-//                $pdf->setCabecera($cabecera);
-//                $pdf->AddPage();
-//                $pdf->writeHTML($cuerpo);
-//                $fichero = 'mayor' . $idArticulo . '.pdf';
-//                $filename = $RutaServidor . $rutatmp . '/' . $fichero;
-//                $pdf->Output($filename, 'F');
+                //                $pdf = new imprimirPDF();
+                //                $pdf->SetFont(PDF_FONT_NAME_MAIN, '', 8);
+                //                $pdf->SetMargins(10, 30, 10);
+                //                $pdf->setCabecera($cabecera);
+                //                $pdf->AddPage();
+                //                $pdf->writeHTML($cuerpo);
+                //                $fichero = 'mayor' . $idArticulo . '.pdf';
+                //                $filename = $RutaServidor . $rutatmp . '/' . $fichero;
+                //                $pdf->Output($filename, 'F');
 
                 $resultado['html'] = $cabecera . ' ' . $cuerpo;
-//                $resultado['idproducto'] = $idArticulo;   //Está repe
-//                $resultado['datos'] = $sqldata['datos'];
-//                $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
-//                        . '<span class="glyphicon glyphicon-print"></span> </a>';
+                //                $resultado['idproducto'] = $idArticulo;   //Está repe
+                //                $resultado['datos'] = $sqldata['datos'];
+                //                $resultado['fichero'] = '<a href="' . $rutatmp . '/' . $fichero . '" target="_blank">'
+                //                        . '<span class="glyphicon glyphicon-print"></span> </a>';
             } else {
                 if ($sqldata['error']) {
                     $resultado['error'] = $sqldata['error'];

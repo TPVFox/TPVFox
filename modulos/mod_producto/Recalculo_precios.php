@@ -1,4 +1,4 @@
-<?php 
+<?php
         include_once './../../inicial.php';
         include_once $URLCom.'/modulos/mod_producto/funciones.php';
         include_once $URLCom.'/controllers/Controladores.php';
@@ -6,7 +6,7 @@
 		include_once $URLCom.'/clases/articulos.php';
 		include_once $URLCom.'/clases/Proveedores.php';
 		include_once ($URLCom.'/controllers/parametros.php');
-		$Controler = new ControladorComun; 
+		$Controler = new ControladorComun;
 		$Controler->loadDbtpv($BDTpv);
 		$ClasesParametros = new ClaseParametros('parametros.xml');
 		$parametros = $ClasesParametros->getRoot();
@@ -65,7 +65,7 @@
                 // asignar gupo 0 dirección 50 a la balanza
                 $traductorBalanza->setGrupo(0);//!
                 $traductorBalanza->setDireccion(50);//!
-            }            
+            }
             foreach ($productosHistoricos as $producto){
 				if ($producto['estado']=="Pendiente"){
 					$idArticulo=$producto['idArticulo'];
@@ -101,7 +101,7 @@
 						'estado'=>$estado,
 						'idUsuario'=>$Usuario['id']
 						);
-						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);	
+						$nuevoHistorico=$CArticulo->addHistorico($datosHistorico);
 						$modPrecios=$CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
                         // Aqui se hacen las tareas para comunicar con la balanza
                         if ($productosPeso[$producto['idArticulo']] === 'peso') {
@@ -181,7 +181,7 @@
                                     if (isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si') {
                                         $datosH3['seccion'] = $relacion['seccion'];
                                     }
-                                } 
+                                }
                                 // Si la balanza no tiene sección se debe cambiar a modo de comunicación L
                                 if (strtolower($balanza['conSeccion']) !== 'si') {
                                     $traductorBalanza->setModoComunicacion('L'); // Modo de comunicación L
@@ -196,7 +196,7 @@
                                 }
                                 $salidaBalanza[$balanza['idBalanza']] .= (string)$traductorBalanza->traducirH2();
                                 $salidaBalanza[$balanza['idBalanza']] .= (string)$traductorBalanza->traducirH3();
- 
+
                             }
                         }
  					}
@@ -216,7 +216,7 @@
                     $traductorBalanza->setRutaBalanza($ruta_balanza);
 
                     $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
-                    
+
                     $salida = $salidaBalanza[$balanza['idBalanza']];
                     $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
                     if ($resultado === false) {
@@ -271,7 +271,7 @@
               tecla = (document.all) ? e.keyCode : e.which;
               return (tecla != 13);
           }
-          <?php 
+          <?php
           if (isset($_POST['Guardar'])){
             ?>
               mensajeImprimir(<?php echo $id;?>, <?php echo "'".$dedonde."'"; ?>);
@@ -299,12 +299,12 @@
                     </div>
                     <div class="col-md-3">
                         <strong>Proveedor:</strong><br>
-                    
+
                         <input type="text" name="nombreProveedor" id="nombreProveedor" size="10"   value="<?php echo $datosProveedor['nombrecomercial'];?>" readonly >
                     </div>
                     <div class="col-md-3">
                         <strong>Proveedor:</strong><br>
-                        
+
                         <input type="text" name="razonsocial" id="razonsocial" size="10"   value="<?php echo $datosProveedor['razonsocial'];?>" readonly >
                     </div>
                     <div class="col-md-2">
@@ -329,7 +329,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php 
+                        <?php
                         $i=1;
                         foreach ($productosHistoricos as $producto){
                             if ($producto['estado']<>"Revisado"){
@@ -342,7 +342,7 @@
                                 $beneficio=$datosArticulo['beneficio']/100;
                                 $beneficioArticulo=$precioProducto*$beneficio;
                                 $pvpRecomendado=$beneficioArticulo+$precioProducto;
-                                
+
                                 if ($producto['estado']=="Pendiente" || $producto['estado']=="Sin revisar"){
                                     $class="";
                                 }else{
@@ -358,8 +358,8 @@
                                 echo '<td>'.$datosArticulo['iva'].'</td>';
                                 echo '<td>'.number_format($datosPrecios['pvpCiva'],4).'</td>';
                                 if($producto['estado']=="Sin revisar"){
-                                      echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"  
-                                      onkeydown="controlEventos(event)" data-obj="pvpRecomendado" 
+                                      echo '<td><input type="text" id="pvpRecomendado_'.$i.'" name="pvpRecomendado_'.$i.'"
+                                      onkeydown="controlEventos(event)" data-obj="pvpRecomendado"
                                       value="'.number_format($pvpRecomendado,2).'" size="5" disabled>
                                       <span class="glyphicon glyphicon-ban-circle" style="color:red"  title="Este producto tiene recalculos de precio posteriores"></span>
                                       </td>';
@@ -385,12 +385,12 @@
                 </div>
             </form>
 		</div>
-	</body>	
+	</body>
 
 <?php
 
 
 
-        
+
 ?>
 </html>

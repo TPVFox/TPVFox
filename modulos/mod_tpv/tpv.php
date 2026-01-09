@@ -6,520 +6,527 @@
  * @author      Ricardo Carpintero
  * @Descripcion	TPV para realizar la gestion de tickets
  *  */
-    include_once './../../inicial.php';
-	include_once $URLCom . '/modulos/mod_tpv/funciones.php';
-	include_once $URLCom . '/controllers/Controladores.php';
-	include_once $URLCom . '/modulos/mod_tpv/clases/ClaseTickets.php';
-	include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
-    
-	$Controler = new ControladorComun; 
-	// Añado la conexion
-	$Controler->loadDbtpv($BDTpv);
-	$Tickets = new ClaseTickets();
-	$CFamilias = new ClaseFamilias($BDTpv);
-	// Inicializo varibles por defecto.
-	$ticket_estado = 'Nuevo'; 
-	$ticket_numero = 0;
-	$fechaInicio = date("d/m/Y");
-     $btn_familias = [];
-            $hijos = [];
-	$Control_Error = array(); // control de errores.
-	// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.( Si hay usuario claro) 
-	$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv,$Usuario['id'],$Tienda['idTienda']);
-	if (isset($cambiosEstadoTickets['error'])){
-		$error = array ( 'tipo'=>'danger',
-								 'mensaje' =>'Error en cambio Estado de ticket.'.$cambiosEstadoTickets['error'],
-								 'dato' => $preparado_nuevo['consulta']
-							);
-		array_push($Control_Error,$error);
-	}
-	// Cargamos los fichero parametros.
-	include_once ($RutaServidor.$HostNombre.'/controllers/parametros.php');
-	$ClasesParametros = new ClaseParametros('parametros.xml');
-	$parametros = $ClasesParametros->getRoot();
-	// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion 
-	$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-	$configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-    
-	// --- Creamos checkin de configuracion --- //
-	$checkin = array('1' => array( 'name'   => 'impresion_ticket',
-                                    'valor' => 'value="'.$configuracion['impresion_ticket'].'"',
-                                    'texto' => 'Imprimir tickets'
-                                  ),
-                     '2' => array( 'name'   => 'corte_tickets',
-                                    'valor' => 'value="'.$configuracion['corte_tickets'].'"',
-                                    'texto' => 'Cortar tickets'
-                                  ),
-                     '3' => array( 'name'   => 'btn_familias',
-                                    'valor' => 'value="'.$configuracion['btn_familias'].'"',
-                                    'texto' => 'Mostrar Botones familias'
-                                  )
-                    );
-	if ($configuracion['impresion_ticket'] ==='Si'){
-		// Ahora comprobamos si la impresora_ticket definida es correcta.
-		$comprobacion_impresora_ticket = ComprobarImpresoraTickets($configuracion['impresora_ticket']);
-		if ($comprobacion_impresora_ticket === false){
-            $configuracion['impresion_ticket'] ='No';
-            $error = array ('tipo'=>'warning',
-                            'mensaje' =>'La impresora de tickets esta mal configurada, en la ruta:'.$configuracion['impresora_ticket'].'. Cambia la    configuracion para No imprimir<br/>',
-                            'dato' => $configuracion['impresora_ticket']
-					);
-			array_push($Control_Error,$error);
-            // Ahora grabamos configuración con NO impresion para que no muestre el error la proxima vez que recargue.
-            $Controler->GrabarConfiguracionModulo('mod_tpv',$Usuario['id'],$configuracion);
-            $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
-            $configuracion = $Controler->obtenerConfiguracion($conf_defecto,'mod_tpv',$Usuario['id']);
-            $checkin['1']['valor'] ='value="No" disabled';
+include_once './../../inicial.php';
+include_once $URLCom . '/modulos/mod_tpv/funciones.php';
+include_once $URLCom . '/controllers/Controladores.php';
+include_once $URLCom . '/modulos/mod_tpv/clases/ClaseTickets.php';
+include_once $URLCom . '/modulos/mod_familia/clases/ClaseFamilias.php';
 
-		} else {
-            $checkin['1']['valor'] ='value="Si" checked';
-        };
-	}
-    if ($configuracion['corte_tickets']==='Si'){
-        $checkin['2']['valor'] ='value="Si" checked';
-    }
-    if ($configuracion['btn_familias']==='Si'){
-        $checkin['3']['valor'] ='value="Si" checked';
-        // --- Cargamos las familias que mostramos btn si la opcion btn_familias es si ---//
-        $fam = $CFamilias->buscarFamilisMostrarTpv();
-        if (isset($fam['datos'])){
-            $familias = $fam['datos'];
-            // Obtenemos los ids
-            $idsFamilias = array_column($familias, 'idFamilia');
-            foreach ($familias as $key=>$f){
-                $a = FALSE;
-                if ($f['familiaPadre'] > 0){
-                    // Ahora vemos si el padre existe esta array familias, ya solo mostraremos el padre.
-                    $a= array_search($f['familiaPadre'],$idsFamilias,false);
-                    // Si encuentra entonces a es int (indice) por lo que no añadimos.
-                }
-                if ($a !== FALSE){
-                    $hijos[$a][] = $f;
-                } else {
-                    $familias[$key]['btn'] = 'Si';
-                    $btn_familias[] =   '<button class="btn btn-warning" onclick="listadofamilia('.$familias[$key]['idFamilia'].')">'
-                                        .$familias[$key]['familiaNombre'].'</button>';
-                }
+$Controler = new ControladorComun;
+// Añado la conexion
+$Controler->loadDbtpv($BDTpv);
+$Tickets = new ClaseTickets();
+$CFamilias = new ClaseFamilias($BDTpv);
+// Inicializo varibles por defecto.
+$ticket_estado = 'Nuevo';
+$ticket_numero = 0;
+$fechaInicio = date("d/m/Y");
+$btn_familias = [];
+$hijos = [];
+$Control_Error = array(); // control de errores.
+// Convertiendo todos los tickets actual en abiertos de este usuario y tienda.( Si hay usuario claro)
+$cambiosEstadoTickets = ControlEstadoTicketsAbierto($BDTpv, $Usuario['id'], $Tienda['idTienda']);
+if (isset($cambiosEstadoTickets['error'])) {
+    $error = array(
+        'tipo' => 'danger',
+        'mensaje' => 'Error en cambio Estado de ticket.' . $cambiosEstadoTickets['error'],
+        'dato' => $preparado_nuevo['consulta']
+    );
+    array_push($Control_Error, $error);
+}
+// Cargamos los fichero parametros.
+include_once($RutaServidor . $HostNombre . '/controllers/parametros.php');
+$ClasesParametros = new ClaseParametros('parametros.xml');
+$parametros = $ClasesParametros->getRoot();
+// Cargamos configuracion modulo tanto de parametros (por defecto) como si existen en tabla modulo_configuracion
+$conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+$configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_tpv', $Usuario['id']);
 
+// --- Creamos checkin de configuracion --- //
+$checkin = array(
+    '1' => array(
+        'name'   => 'impresion_ticket',
+        'valor' => 'value="' . $configuracion['impresion_ticket'] . '"',
+        'texto' => 'Imprimir tickets'
+    ),
+    '2' => array(
+        'name'   => 'corte_tickets',
+        'valor' => 'value="' . $configuracion['corte_tickets'] . '"',
+        'texto' => 'Cortar tickets'
+    ),
+    '3' => array(
+        'name'   => 'btn_familias',
+        'valor' => 'value="' . $configuracion['btn_familias'] . '"',
+        'texto' => 'Mostrar Botones familias'
+    )
+);
+if ($configuracion['impresion_ticket'] === 'Si') {
+    // Ahora comprobamos si la impresora_ticket definida es correcta.
+    $comprobacion_impresora_ticket = ComprobarImpresoraTickets($configuracion['impresora_ticket']);
+    if ($comprobacion_impresora_ticket === false) {
+        $configuracion['impresion_ticket'] = 'No';
+        $error = array(
+            'tipo' => 'warning',
+            'mensaje' => 'La impresora de tickets esta mal configurada, en la ruta:' . $configuracion['impresora_ticket'] . '. Cambia la    configuracion para No imprimir<br/>',
+            'dato' => $configuracion['impresora_ticket']
+        );
+        array_push($Control_Error, $error);
+        // Ahora grabamos configuración con NO impresion para que no muestre el error la proxima vez que recargue.
+        $Controler->GrabarConfiguracionModulo('mod_tpv', $Usuario['id'], $configuracion);
+        $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
+        $configuracion = $Controler->obtenerConfiguracion($conf_defecto, 'mod_tpv', $Usuario['id']);
+        $checkin['1']['valor'] = 'value="No" disabled';
+    } else {
+        $checkin['1']['valor'] = 'value="Si" checked';
+    };
+}
+if ($configuracion['corte_tickets'] === 'Si') {
+    $checkin['2']['valor'] = 'value="Si" checked';
+}
+if ($configuracion['btn_familias'] === 'Si') {
+    $checkin['3']['valor'] = 'value="Si" checked';
+    // --- Cargamos las familias que mostramos btn si la opcion btn_familias es si ---//
+    $fam = $CFamilias->buscarFamilisMostrarTpv();
+    if (isset($fam['datos'])) {
+        $familias = $fam['datos'];
+        // Obtenemos los ids
+        $idsFamilias = array_column($familias, 'idFamilia');
+        foreach ($familias as $key => $f) {
+            $a = FALSE;
+            if ($f['familiaPadre'] > 0) {
+                // Ahora vemos si el padre existe esta array familias, ya solo mostraremos el padre.
+                $a = array_search($f['familiaPadre'], $idsFamilias, false);
+                // Si encuentra entonces a es int (indice) por lo que no añadimos.
+            }
+            if ($a !== FALSE) {
+                $hijos[$a][] = $f;
+            } else {
+                $familias[$key]['btn'] = 'Si';
+                $btn_familias[] =   '<button class="btn btn-warning" onclick="listadofamilia(' . $familias[$key]['idFamilia'] . ')">'
+                    . $familias[$key]['familiaNombre'] . '</button>';
             }
         }
     }
-    $select_campos = htmlSelectConfiguracionSalto($configuracion['input_pordefecto']);
-	
-	
-	// Cambio datos si es un tiche Abierto
-	if (isset($_GET['tAbierto'])) {
-		$ticket_numero = $_GET['tAbierto'];
-		$ticket_estado = 'Abierto';
-	}
-	//para bloquear F5 el refresco de la pagina
-	//cuando es tActual lo redirigimos a la misma pagina 
-	//con ?tActual=numTicket JS al grabarTickeTemporal
-	if (isset($_GET['tActual'])){
-		$ticket_numero = $_GET['tActual'];
-		$ticket_estado = 'Abierto';
-	}
+}
+$select_campos = htmlSelectConfiguracionSalto($configuracion['input_pordefecto']);
+
+
+// Cambio datos si es un tiche Abierto
+if (isset($_GET['tAbierto'])) {
+    $ticket_numero = $_GET['tAbierto'];
+    $ticket_estado = 'Abierto';
+}
+//para bloquear F5 el refresco de la pagina
+//cuando es tActual lo redirigimos a la misma pagina
+//con ?tActual=numTicket JS al grabarTickeTemporal
+if (isset($_GET['tActual'])) {
+    $ticket_numero = $_GET['tActual'];
+    $ticket_estado = 'Abierto';
+}
 
 ?>
-<?php 
-	// --  Obtenemos todos los tickets abiertos -- //
-	// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
-	$ticketsAbiertos = $Tickets->ObtenerTicketsAbiertos($ticket_numero);
-    // -- Obtenemos el ultimo ticket.
-    $UltimoTicket= $Tickets->ultimoTicketCobrado();
+<?php
+// --  Obtenemos todos los tickets abiertos -- //
+// Se envia el ticket_numero para que ese no lo traiga, ya que no tiene sentido traer el ticket que estamos viendo.
+$ticketsAbiertos = $Tickets->ObtenerTicketsAbiertos($ticket_numero);
+// -- Obtenemos el ultimo ticket.
+$UltimoTicket = $Tickets->ultimoTicketCobrado();
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
-<?php 	include_once $URLCom . '/head.php';
+    <?php include_once $URLCom . '/head.php';
 
-// Añadimos a JS la configuracion
-echo '<script type="application/javascript"> '
-. 'var configuracion = '. json_encode($configuracion);
-echo '</script>';
-?>
-<script type="text/javascript">
-	// Esta variable global la necesita para montar la lineas.
-	// En configuracion podemos definir SI / NO
-	var CONF_campoPeso="<?php echo $CONF_campoPeso; ?>";
-	var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-		cabecera['idCliente'] = 1; // Este dato puede cambiar
-		cabecera['idUsuario'] = <?php echo $Usuario['id'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['idTienda'] = <?php echo $Tienda['idTienda'];?>; // Tuve que adelantar la carga, sino funcionaria js.
-		cabecera['estadoTicket'] ="<?php echo $ticket_estado ;?>"; // Si no hay datos GET es 'Nuevo';
-		cabecera['numTicket'] = <?php echo $ticket_numero ;?>; // Si no hay datos GET es 'Nuevo';
-	var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
-
-</script>
-
-
-<script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
-<!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
-<?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
-	$VarJS = $Controler->ObtenerCajasInputParametros($parametros);
-?>
-<script type="text/javascript">
-// Objetos cajas de tpv
-<?php echo $VarJS;?>
-</script>
-
-<script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
-<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-</head>
-<body>
-<?php
-
-     include_once $URLCom.'/modulos/mod_menu/menu.php';
-	// Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
-	if ($ticket_numero > 0){
-		//Obtenemos datos del ticket
-		// Ahora obtenemos el ticket abierto que estamos.
-		$ticket= ObtenerUnTicketTemporal($BDTpv,$Tienda['idTienda'],$Usuario['id'],$ticket_numero);
-		// Si carga correctamente el ticket
-		if (isset($ticket['estadoTicket'])){
-			$ticket_estado = $ticket['estadoTicket'];
-			if ($ticket_estado === 'Cobrado'){
-				$error = array ( 'tipo'=>'danger',
-								 'mensaje' =>'El ticket '.$ticket_numero.' es ticket con el estado '.$ticket_estado.'<br/>'.
-						 'Desde aquí no puede modificarlo',
-								 'dato' => $ticket_numero.'='.$ticket_estado
-					);
-				
-				array_push($Control_Error,$error);
-			}
-		}
-		if (isset($ticket['error'])){
-			// No continuamos , algo salio mal al obtener ticket temporal.
-			$error = array ( 'tipo'=>'danger',
-								 'mensaje' =>'Algo salio mal:'.$ticket['error'],
-								 'dato' => $ticket['consulta']
-					);
-			array_push($Control_Error,$error);
-		}
-	}
-	// Si hay errores danger no continuamos.
-	if (count($Control_Error)>0){
-		foreach ( $Control_Error as $error){
-			if ($error['tipo'] === 'danger'){
-				echo '<pre>';
-				print_r($Control_Error);
-				echo '</pre>';
-				exit();
-			}
-		}
-	}
-	
-	if ($ticket_numero > 0){
-		// Si estamos en un ticket abierto.
-		// Ahora ponemos fecha Inicio
-		$fechaInicio = MaquetarFecha ($ticket['fechaInicio'],'dmy');
-		$horaInicio= MaquetarFecha($ticket['fechaInicio'],'HM');
-		$cliente = $ticket['Nombre'].'-'.$ticket['razonsocial'];
-		$idCliente =$ticket['idClientes'];
-	} else {
-		$cliente = '';
-		$idCliente = 1;
-	}
-	
-	if(isset($ticket['productos'])){
-			// Obtenemos los datos totales ( fin de ticket);
-			// convertimos el objeto productos en array
-			$productos = json_decode( json_encode( $ticket['productos'] ), true );
-			$Datostotales = recalculoTotales($ticket['productos']);	
-	}
-?>
-
-<?php if (isset($ticket)){
-        // Solo cargamos estas lineas javascript si es un ticket Abierto
-     ?>
-        <script type="text/javascript">
-        cabecera['idCliente'] = <?php echo $idCliente;?>;
-        datos = [];
-        <?php
-        foreach($ticket['productos'] as $product){
-        ?>
-            // Añadimos datos de productos a variable productos Javascript
-            datos['idArticulo'] 	= <?php echo $product->id;?>;
-            datos['crefTienda'] 	= <?php echo '"'.$product->cref.'"';?>;
-            datos['articulo_name'] 	= <?php echo '"'.$product->cdetalle.'"';?>;
-            datos['pvpCiva'] 		= <?php echo '"'.$product->pvpconiva.'"';?>;
-            datos['iva'] 			= <?php echo '"'.$product->ctipoiva.'"';?>;
-            datos['codBarras']		= <?php echo '"'.$product->ccodebar.'"';?>;
-            datos['unidad']		= <?php echo '"'.$product->unidad.'"';?>;
-            datos['estado']		= <?php echo '"'.$product->estado.'"';?>;
-            productos.push(new ObjProducto(datos));
-        <?php	
-        }
-        ?>
-        <?php
-            // Inicializamos variables a 0
-            if (isset($ticket['productos'])){
-                // Ahora cambiamos valor a variable global de javascritp total
-                ?>
-                total = <?php echo $Datostotales['total'];?>;
-                <?php
-            }
-        ?>
-        </script>
-<?php } ?>
-<div class="container">
-    <audio id="sonido_selecionaProducto" style="display:none;">
-    <source type="audio/mpeg" src="<?php echo $HostNombre;?>/lib/sonidos/seleccionaProducto.mp3">
-    </audio>
-    <audio id="sonido_alerta" style="display:none;">
-    <source type="audio/mpeg" src="<?php echo $HostNombre;?>/lib/sonidos/buscar.mp3">
-    </audio>
-    <script>
-    var sonido_selecionaProducto = document.getElementById("sonido_selecionaProducto");
-    var sonido_alerta = document.getElementById("sonido_alerta");
+    // Añadimos a JS la configuracion
+    echo '<script type="application/javascript"> '
+        . 'var configuracion = ' . json_encode($configuracion);
+    echo '</script>';
+    ?>
+    <script type="text/javascript">
+        // Esta variable global la necesita para montar la lineas.
+        // En configuracion podemos definir SI / NO
+        var CONF_campoPeso = "<?php echo $CONF_campoPeso; ?>";
+        var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
+        cabecera['idCliente'] = 1; // Este dato puede cambiar
+        cabecera['idUsuario'] = <?php echo $Usuario['id']; ?>; // Tuve que adelantar la carga, sino funcionaria js.
+        cabecera['idTienda'] = <?php echo $Tienda['idTienda']; ?>; // Tuve que adelantar la carga, sino funcionaria js.
+        cabecera['estadoTicket'] = "<?php echo $ticket_estado; ?>"; // Si no hay datos GET es 'Nuevo';
+        cabecera['numTicket'] = <?php echo $ticket_numero; ?>; // Si no hay datos GET es 'Nuevo';
+        var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
     </script>
+
+
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_tpv/funciones.js"></script>
+    <!-- Creo los objetos de input que hay en tpv.php no en modal.. esas la creo al crear hmtl modal -->
+    <?php // -------------- Obtenemos de parametros cajas con sus acciones ---------------  //
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
+    ?>
+    <script type="text/javascript">
+        // Objetos cajas de tpv
+        <?php echo $VarJS; ?>
+    </script>
+
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
+</head>
+
+<body>
     <?php
-    // Si hubo errores entonces los mostramos:
-    if (count($Control_Error)>0){
-        foreach ( $Control_Error as $error){
-            echo '<div class="col-md-12">'
-                .	'<div class="alert alert-'.$error['tipo'].'"><strong>'
-                .		$error['tipo'].'!</strong>'
-                .			$error['mensaje']
-                .	'</div>'
-                .'</div>';
+
+    include_once $URLCom . '/modulos/mod_menu/menu.php';
+    // Ahora si tenemos numero ticket -> que viene por get Obtenemos datos Ticket
+    if ($ticket_numero > 0) {
+        //Obtenemos datos del ticket
+        // Ahora obtenemos el ticket abierto que estamos.
+        $ticket = ObtenerUnTicketTemporal($BDTpv, $Tienda['idTienda'], $Usuario['id'], $ticket_numero);
+        // Si carga correctamente el ticket
+        if (isset($ticket['estadoTicket'])) {
+            $ticket_estado = $ticket['estadoTicket'];
+            if ($ticket_estado === 'Cobrado') {
+                $error = array(
+                    'tipo' => 'danger',
+                    'mensaje' => 'El ticket ' . $ticket_numero . ' es ticket con el estado ' . $ticket_estado . '<br/>' .
+                        'Desde aquí no puede modificarlo',
+                    'dato' => $ticket_numero . '=' . $ticket_estado
+                );
+
+                array_push($Control_Error, $error);
+            }
+        }
+        if (isset($ticket['error'])) {
+            // No continuamos , algo salio mal al obtener ticket temporal.
+            $error = array(
+                'tipo' => 'danger',
+                'mensaje' => 'Algo salio mal:' . $ticket['error'],
+                'dato' => $ticket['consulta']
+            );
+            array_push($Control_Error, $error);
         }
     }
+    // Si hay errores danger no continuamos.
+    if (count($Control_Error) > 0) {
+        foreach ($Control_Error as $error) {
+            if ($error['tipo'] === 'danger') {
+                echo '<pre>';
+                print_r($Control_Error);
+                echo '</pre>';
+                exit();
+            }
+        }
+    }
+
+    if ($ticket_numero > 0) {
+        // Si estamos en un ticket abierto.
+        // Ahora ponemos fecha Inicio
+        $fechaInicio = MaquetarFecha($ticket['fechaInicio'], 'dmy');
+        $horaInicio = MaquetarFecha($ticket['fechaInicio'], 'HM');
+        $cliente = $ticket['Nombre'] . '-' . $ticket['razonsocial'];
+        $idCliente = $ticket['idClientes'];
+    } else {
+        $cliente = '';
+        $idCliente = 1;
+    }
+
+    if (isset($ticket['productos'])) {
+        // Obtenemos los datos totales ( fin de ticket);
+        // convertimos el objeto productos en array
+        $productos = json_decode(json_encode($ticket['productos']), true);
+        $Datostotales = recalculoTotales($ticket['productos']);
+    }
     ?>
-    <div class="col-md-2">
-        <div class="row">
+
+    <?php if (isset($ticket)) {
+        // Solo cargamos estas lineas javascript si es un ticket Abierto
+    ?>
+        <script type="text/javascript">
+            cabecera['idCliente'] = <?php echo $idCliente; ?>;
+            datos = [];
+            <?php
+            foreach ($ticket['productos'] as $product) {
+            ?>
+                // Añadimos datos de productos a variable productos Javascript
+                datos['idArticulo'] = <?php echo $product->id; ?>;
+                datos['crefTienda'] = <?php echo '"' . $product->cref . '"'; ?>;
+                datos['articulo_name'] = <?php echo '"' . $product->cdetalle . '"'; ?>;
+                datos['pvpCiva'] = <?php echo '"' . $product->pvpconiva . '"'; ?>;
+                datos['iva'] = <?php echo '"' . $product->ctipoiva . '"'; ?>;
+                datos['codBarras'] = <?php echo '"' . $product->ccodebar . '"'; ?>;
+                datos['unidad'] = <?php echo '"' . $product->unidad . '"'; ?>;
+                datos['estado'] = <?php echo '"' . $product->estado . '"'; ?>;
+                productos.push(new ObjProducto(datos));
+            <?php
+            }
+            ?>
+            <?php
+            // Inicializamos variables a 0
+            if (isset($ticket['productos'])) {
+                // Ahora cambiamos valor a variable global de javascritp total
+            ?>
+                total = <?php echo $Datostotales['total']; ?>;
+            <?php
+            }
+            ?>
+        </script>
+    <?php } ?>
+    <div class="container">
+        <audio id="sonido_selecionaProducto" style="display:none;">
+            <source type="audio/mpeg" src="<?php echo $HostNombre; ?>/lib/sonidos/seleccionaProducto.mp3">
+        </audio>
+        <audio id="sonido_alerta" style="display:none;">
+            <source type="audio/mpeg" src="<?php echo $HostNombre; ?>/lib/sonidos/buscar.mp3">
+        </audio>
+        <script>
+            var sonido_selecionaProducto = document.getElementById("sonido_selecionaProducto");
+            var sonido_alerta = document.getElementById("sonido_alerta");
+        </script>
+        <?php
+        // Si hubo errores entonces los mostramos:
+        if (count($Control_Error) > 0) {
+            foreach ($Control_Error as $error) {
+                echo '<div class="col-md-12">'
+                    .    '<div class="alert alert-' . $error['tipo'] . '"><strong>'
+                    .        $error['tipo'] . '!</strong>'
+                    .            $error['mensaje']
+                    .    '</div>'
+                    . '</div>';
+            }
+        }
+        ?>
+        <div class="col-md-2">
+            <div class="row">
                 <h4 class="text-center"> Tickets</h4>
                 <div class="col-xs-4 col-md-12">
                     <button class="btn btn-primary" onclick="buscarClientes('tpv')" title="F4 Cliente">Cliente</button>
                     <button class="btn btn-primary" onclick="cobrarF1()" title="F1 Cobrar">Cobrar</button>
-                     <div class="btn btn-warning"><a class="btn-warning" href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo']?>">Ultimo Ticket</a></div>
+                    <div class="btn btn-warning"><a class="btn-warning" href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo'] ?>">Ultimo Ticket</a></div>
                 </div>
 
                 <button class="btn" data-toggle="collapse" data-target="#opciones_ticket">Otras opciones</button>
                 <div id="opciones_ticket" class="collapse">
-                <div class="col-xs-4 col-md-12">
+                    <div class="col-xs-4 col-md-12">
                         <div class="btn"><a href="tpv.php">Nuevo ticket</a></div>
-                        <div class="btn"><a href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo']?>">Ultimo Ticket</a></div>
+                        <div class="btn"><a href="ticketCobrado.php?id=<?php echo $UltimoTicket['ultimo'] ?>">Ultimo Ticket</a></div>
                         <div class="btn"><a href="../mod_cierres/CierreCaja.php?dedonde=tpv">Cierre Caja</a></div>
                         <div class="btn"><a href="ListaTickets.php?estado=Cobrado">Tickets Cobrados</a></div>
                         <div class="btn"><a onclick="abrirModalIndicencia('ticket',configuracion.incidencias);">Incidencia</a></div>
+                    </div>
                 </div>
-                </div>
-            <button class="btn" data-toggle="collapse" data-target="#opciones_configuracion">
-                <span class="glyphicon glyphicon-cog" title="Configuracion de tpv"></span>
-                Configuracion
-            </button>
-            <div id="opciones_configuracion" class="collapse">
-                <div class="col-xs-3 col-md-12">
-                    <?php
-                        foreach ($checkin as $c){
+                <button class="btn" data-toggle="collapse" data-target="#opciones_configuracion">
+                    <span class="glyphicon glyphicon-cog" title="Configuracion de tpv"></span>
+                    Configuracion
+                </button>
+                <div id="opciones_configuracion" class="collapse">
+                    <div class="col-xs-3 col-md-12">
+                        <?php
+                        foreach ($checkin as $c) {
                             echo '  <div class="form-check">
                                         <label>
-                                        <input type="checkbox" name="'.$c['name'].'" '.$c['valor'].
-                                        ' onchange="CambiarConfiguracion(this)"><span class="label-text">'.$c['texto'].'</span>
+                                        <input type="checkbox" name="' . $c['name'] . '" ' . $c['valor'] .
+                                ' onchange="CambiarConfiguracion(this)"><span class="label-text">' . $c['texto'] . '</span>
                                         </label>
                                     </div>';
                         }
+                        ?>
+                        <span class="glyphicon glyphicon-cog" title="Escoje casilla por defecto busqueda (salto)"></span>
+                        <?php echo $select_campos; ?>
+                    </div>
+                </div>
+
+                <?php //===== TICKETS ABIERTOS LATERAL
+                if (isset($ticketsAbiertos['items'])) { ?>
+                    <div class="col-xs-4 col-md-12">
+                        <h4 class="text-center"> Tickets Abiertos</h4>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $i = 0;
+                                //le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos
+                                $ordenInverso = array_reverse($ticketsAbiertos['items']);
+                                foreach ($ordenInverso as $item) {
+                                    $i++;    ?>
+                                    <tr>
+                                        <td>
+                                            <?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
+                                            if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id'] == 9) {
+                                                echo '<a class="btn" href="tpv.php?tAbierto=' . $item['numticket'] . '">' . $item['numticket'] . '</a>';
+                                            } else {
+                                                echo $item['numticket'] . ' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de ' . $item['usuario'] . '"></span>';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <div class="hidden-md"><?php echo $item['Nombre']; ?></div>
+                                            <span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>">&nbsp;</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <?php echo number_format($item['total'], 2); ?>
+                                        </td>
+                                    </tr>
+                                <?php
+                                    // Solo mostramos 5 como maximo.
+                                    if ($i > 5) {
+                                        break;
+                                    }
+                                } // Cerramos foreach
+
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php
+                } // Cerramos if de mostrar tickets abiertos o no.
+                ?>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="col-xs-8">
+                <div>
+                    <div class="col-xs-6">
+                        <strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
+                        <span id="Fecha"><?php echo $fechaInicio; ?></span><br />
+                        <?php // NO se muestra si es un ticket nuevo
+                        if ($ticket_numero != 0) {
+                        ?>
+                            <div style="background-color:#f9f3f3;">
+                                <strong><span class="glyphicon glyphicon-time"></span>:</strong>
+                                <span id="HoraInicio"><?php echo $horaInicio; ?></span><br />
+                            </div>
+                        <?php
+                        }
+                        ?>
+                    </div>
+                    <div class="col-xs-6">
+                        <strong>Estado:</strong>
+                        <span id="EstadoTicket"> <?php echo $ticket_estado; ?></span><br />
+                        <strong>NºTemp:</strong>
+                        <span id="NTicket"><?php echo $ticket_numero; ?></span><br />
+                    </div>
+
+                </div>
+                <div class="col-md-12">
+                    <label>Cliente:</label>
+                    <input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente; ?>" size="2" readonly>
+                    <input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="50" readonly>
+                    <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
+                </div>
+                <div class="col-md-12">
+                    <br />
+                    <?php
+                    if ($configuracion['btn_familias'] === 'Si') {
+                        echo implode(' ', $btn_familias);
+                    }
                     ?>
-                    <span class="glyphicon glyphicon-cog" title="Escoje casilla por defecto busqueda (salto)"></span>
-                    <?php echo $select_campos;?>
                 </div>
             </div>
-           
-            <?php //===== TICKETS ABIERTOS LATERAL
-            if (isset($ticketsAbiertos['items'])){ ?>
-            <div class="col-xs-4 col-md-12">
-                <h4 class="text-center"> Tickets Abiertos</h4>
-                <table class="table table-striped">
+
+            <div class="col-xs-4">
+                <label>Empleado:
+                    <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre']; ?>" size="20" readonly>
+                </label>
+                <div class="visor fondoNegro">
+                    <div class="col-md-4">
+                        <h3>TOTAL</h3>
+                    </div>
+                    <div class="col-md-8 totalImporte text-right" style="font-size: 3em;">
+                        <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : ''); ?>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla de lineas de productos -->
+            <div>
+                <table id="tabla" class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Nº</th>
-                            <th>Cliente</th>
-                            <th>Total</th>
+                            <th>L</th>
+                            <th>Codbarras</th>
+                            <th>Referencia</th>
+                            <th>Descripcion</th>
+                            <th>Unid</th>
+                            <?php
+                            if ($configuracion['campo_peso'] === 'si') { ?>
+                                <th>Cant/Kilo</th>
+                            <?php
+                            } else { ?>
+                                <th style="display: none;">Cant/Kilo</th>
+                            <?php
+                            }  ?>
+
+                            <th>PVP</th>
+                            <th>Iva</th>
+                            <th>Importe</th>
+                            <th></th>
+                        </tr>
+                        <tr id="Row0"> <!--id agregar para clickear en icono y agregar fila-->
+                            <td id="C0_Linea"></td>
+                            <td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj="cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
+                            <td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
+                            <td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="18" value="" onkeydown="controlEventos(event)">
+                            </td>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                        $i=0;
-                        //le doy la vuelta al array de tAbiertos para mostrar los 4 ultimos 
-                        $ordenInverso =array_reverse($ticketsAbiertos['items']); 
-                        foreach ($ordenInverso as $item){
-                            $i++;	?>
-                            <tr>
-                                <td>
-                                    <?php // Si es el mismo usuario tiene permitido modificarlo, ponemos link
-                                    if ($Usuario['id'] === $item['idUsuario'] || $Usuario['group_id']==9){
-                                        echo '<a class="btn" href="tpv.php?tAbierto='.$item['numticket'].'">'.$item['numticket'].'</a>';
-                                    } else {
-                                        echo $item['numticket'].' <span class="glyphicon glyphicon-info-sign" title="Este ticket abierto no es tuyo, es de '.$item['usuario'].'"></span>';
-                                    }
-                                    ?>
-                                </td>
-                                <td>
-                                    <div class="hidden-md"><?php echo $item['Nombre'];?></div>
-                                    <span class="glyphicon glyphicon-briefcase" title="<?php echo $item['razonsocial']; ?>">&nbsp;</span>
-                                </td>
-                                <td class="text-right">
-                                    <?php echo number_format ($item['total'],2); ?>
-                                </td>
-                            </tr>
-                            <?php
-                            // Solo mostramos 5 como maximo.
-                            if ($i >5 ){
-                                break;
-                            }					
-                        }// Cerramos foreach
-                        
-                         ?>
+                        <?php
+                        // Si es un ticket abierto o que existe..
+                        if (isset($ticket['productos'])) {
+                            $htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']), $CONF_campoPeso);
+                            echo implode(' ', $htmllineas);
+                        }
+                        ?>
                     </tbody>
                 </table>
-                </div>
-                <?php
-            }// Cerramos if de mostrar tickets abiertos o no.
-            ?>
-        </div> 
-    </div>
-    <div class="col-md-10" >
-        <div class="col-xs-8">
-            <div>
-                <div class="col-xs-6">
-                    <strong><span class="glyphicon glyphicon-calendar"></span>:</strong>
-                    <span id="Fecha"><?php echo $fechaInicio;?></span><br/>
-                    <?php // NO se muestra si es un ticket nuevo
-                    if ( $ticket_numero != 0){
+            </div>
+
+            <div class="col-md-10 col-md-offset-2 pie-ticket">
+                <table id="tabla-iva" class="col-md-6">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Base</th>
+                            <th>IVA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if (isset($Datostotales['desglose'])) {
+                            echo htmlDesgloseIvas($Datostotales['desglose']);
+                        }
                         ?>
-                        <div style="background-color:#f9f3f3;">
-                        <strong><span class="glyphicon glyphicon-time"></span>:</strong>
-                        <span id="HoraInicio"><?php echo $horaInicio;?></span><br/>
-                        </div>
-                        <?php 
-                    }
-                    ?>
-                </div>
-                <div class="col-xs-6">
-                    <strong>Estado:</strong>
-                    <span id="EstadoTicket"> <?php echo $ticket_estado ;?></span><br/>
-                    <strong>NºTemp:</strong>
-                    <span id="NTicket"><?php echo $ticket_numero ;?></span><br/>
-                </div>
-            
-            </div>
-            <div class="col-md-12">
-                <label>Cliente:</label>
-                <input type="text" id="id_cliente" name="idCliente" value="<?php echo $idCliente;?>" size="2" readonly>
-                <input type="text" id="Cliente" name="Cliente" placeholder="Sin identificar" value="<?php echo $cliente; ?>" size="50" readonly>
-                <a id="buscar" class="glyphicon glyphicon-search buscar" onclick="buscarClientes('tpv')"></a>
-            </div>
-            <div class="col-md-12">
-                <br/>
-            <?php
-                if ($configuracion['btn_familias']==='Si'){
-                    echo implode(' ',$btn_familias);
-                }
-            ?>
-            </div>
-        </div>
-        
-        <div class="col-xs-4">
-            <label>Empleado:
-            <input type="text" id="Usuario" name="Usuario" value="<?php echo $Usuario['nombre'];?>" size="20" readonly>
-            </label>
-            <div class="visor fondoNegro">
-                <div class="col-md-4">
-                <h3>TOTAL</h3>
-                </div>
-                <div class="col-md-8 totalImporte text-right" style="font-size: 3em;">
-                <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
+                    </tbody>
+                </table>
+                <div class="col-md-6">
+                    <div class="col-md-4">
+                        <h3>TOTAL</h3>
+                    </div>
+                    <div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
+                        <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : ''); ?>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- Tabla de lineas de productos -->
-        <div>
-            <table id="tabla" class="table table-striped">
-            <thead>
-              <tr>
-                <th>L</th>
-                <th>Codbarras</th>
-                <th>Referencia</th>
-                <th>Descripcion</th>
-                <th>Unid</th>
-                <?php
-                if ($configuracion['campo_peso'] === 'si'){ ?>
-                    <th>Cant/Kilo</th>
-                <?php
-                } else { ?>
-                    <th style="display: none;">Cant/Kilo</th>
-                <?php
-                }  ?>
-
-                <th>PVP</th>
-                <th>Iva</th>
-                <th>Importe</th>
-                <th></th>
-              </tr>
-            <tr id="Row0">  <!--id agregar para clickear en icono y agregar fila-->
-                <td id="C0_Linea" ></td>
-                <td><input id="Codbarras" type="text" name="Codbarras" placeholder="Codbarras" data-obj= "cajaCodBarras" size="12" value="" data-objeto="cajaCodBarras" onkeydown="controlEventos(event)"></td>
-                <td><input id="Referencia" type="text" name="Referencia" placeholder="Referencia" data-obj="cajaReferencia" size="8" value="" onkeydown="controlEventos(event)"></td>
-                <td><input id="Descripcion" type="text" name="Descripcion" placeholder="Descripcion" data-obj="cajaDescripcion" size="18" value="" onkeydown="controlEventos(event)">
-                </td>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            // Si es un ticket abierto o que existe..
-            if (isset($ticket['productos'])){
-                $htmllineas = anhadirLineasTicket(array_reverse($ticket['productos']),$CONF_campoPeso);
-                echo implode(' ',$htmllineas);
-            }
-            ?>
-            </tbody>
-          </table>
         </div>
 
-        <div class="col-md-10 col-md-offset-2 pie-ticket">
-            <table id="tabla-iva" class="col-md-6">
-            <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>Base</th>
-                    <th>IVA</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                    if (isset($Datostotales['desglose'])){
-                        echo htmlDesgloseIvas($Datostotales['desglose']);
-                    }
-                ?>
-            </tbody>
-            </table>
-            <div class="col-md-6">
-                <div class="col-md-4">
-                <h3>TOTAL</h3>
-                </div>
-                <div class="col-md-8 text-rigth totalImporte" style="font-size: 3em;">
-                <?php echo (isset($Datostotales['total']) ? $Datostotales['total'] : '');?>
-                </div>
-            </div>
-        </div>
+        <?php
+        // Montamos javascript para focus
+        $string_focus = '#' . $configuracion['input_pordefecto'];
+        ?>
+        <script type="text/javascript">
+            $("<?php echo $string_focus; ?>").focus();
+        </script>
+        <?php
+        // Incluimos paginas modales
+        // Añadimos JS necesario para modal.
+        echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
+        include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
+
+        ?>
     </div>
-
-    <?php
-    // Montamos javascript para focus
-    $string_focus='#'.$configuracion['input_pordefecto'];
-    ?>
-    <script type="text/javascript">
-        $("<?php echo $string_focus;?>").focus();
-    </script>
-    <?php
-    // Incluimos paginas modales
-    // Añadimos JS necesario para modal.
-    echo '<script src="'.$HostNombre.'/plugins/modal/func_modal.js"></script>';
-    include $RutaServidor.'/'.$HostNombre.'/plugins/modal/ventanaModal.php';
-
-    ?>
-</div>
 </body>
 
 </html>

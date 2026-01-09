@@ -26,20 +26,22 @@ define('K_STOCKREGULARIZACION_ESTADO_BORRADO', '2');
  *
  * @author alagoro
  */
-class ModeloP {
+class ModeloP
+{
 
-//    protected static $instance = null;
+    //    protected static $instance = null;
     protected static $db = null;
-//    protected static $tabla;
+    //    protected static $tabla;
     protected static $resultado = ['error' => 0, 'consulta' => ''];
 
     /*
      * Método getDbo()
      * Devuelve la propiedad $db si contiene un valor distinto de nulo.
-     * Si es la primera ejecución, $db será nulo, entonces obtiene la conexión 
+     * Si es la primera ejecución, $db será nulo, entonces obtiene la conexión
      * a la base de datos de la clase conexión y la guarda en la propiedad $db
      */
-    public static function getDbo() {
+    public static function getDbo()
+    {
         if (is_null(self::$db)) {
             $objConexion = new ClaseConexion();
             if (!$objConexion) {
@@ -50,12 +52,14 @@ class ModeloP {
         return self::$db;
     }
 
-    protected static function setResult($sql, $code) {
+    protected static function setResult($sql, $code)
+    {
         ModeloP::$resultado['consulta'] = $sql;
         ModeloP::$resultado['error'] = $code;
     }
 
-    protected static function _consulta($sql) {
+    protected static function _consulta($sql)
+    {
         $db = self::getDbo();
 
         // Realizamos la consulta.
@@ -72,14 +76,16 @@ class ModeloP {
         return $respuesta;
     }
 
-    protected function consulta($sql) {
+    protected function consulta($sql)
+    {
         //Para compatibilidad con desarrollo anterior
         return ModeloP::_consulta($sql);
     }
 
     //devuelve 0 se es correcto y un código de error si hubo error
     // el mensaje y la consulta se obtienen con funciones: getSQLConsulta y getErrorConsulta.
-    protected static function _consultaDML($sql) {
+    protected static function _consultaDML($sql)
+    {
         $db = self::getDbo();
 
         $respuesta = $db->query($sql);
@@ -89,11 +95,13 @@ class ModeloP {
         return $respuesta;
     }
 
-    protected function consultaDML($sql) {
+    protected function consultaDML($sql)
+    {
         return ModeloP::_consultaDML($sql);
     }
 
-    protected static function _insert($tabla, $datos, $soloSQL = false) {
+    protected static function _insert($tabla, $datos, $soloSQL = false)
+    {
         $respuesta = false;
         $updateStr = [];
         if (is_array($datos)) {
@@ -106,7 +114,7 @@ class ModeloP {
         $updateString = implode(', ', $updateStr);
 
         $sql = 'INSERT ' . $tabla
-                . ' SET ' . $updateString;
+            . ' SET ' . $updateString;
 
         ModeloP::setResult($sql, 0);
 
@@ -117,11 +125,12 @@ class ModeloP {
                 $respuesta = self::$db->insert_id;
             }
         }
-        
+
         return $respuesta;
     }
 
-    protected static function _delete($tabla, $condicion, $soloSQL = false) {
+    protected static function _delete($tabla, $condicion, $soloSQL = false)
+    {
         $respuesta = false;
         $updateStr = [];
         if (!is_array($condicion)) {
@@ -131,7 +140,7 @@ class ModeloP {
         }
 
         $sql = 'DELETE FROM ' . $tabla
-                . ' WHERE ' . $updateWhere;
+            . ' WHERE ' . $updateWhere;
 
         ModeloP::setResult($sql, 0);
 
@@ -145,7 +154,8 @@ class ModeloP {
     }
 
 
-    protected static function _update($tabla, $datos, $condicion, $soloSQL = false) {
+    protected static function _update($tabla, $datos, $condicion, $soloSQL = false)
+    {
         $respuesta = false;
         $updateSet = [];
         if (is_array($datos)) {
@@ -165,8 +175,8 @@ class ModeloP {
         }
 
         $sql = 'UPDATE ' . $tabla
-                . ' SET ' . $updateString
-                . ' WHERE ' . $updateWhere;
+            . ' SET ' . $updateString
+            . ' WHERE ' . $updateWhere;
 
         ModeloP::setResult($sql, 0);
 
@@ -179,19 +189,23 @@ class ModeloP {
     }
 
 
-    public static function hayErrorConsulta() {
+    public static function hayErrorConsulta()
+    {
         return ModeloP::$resultado['error'] !== 0;
     }
 
-    public static function getErrorConsulta() {
+    public static function getErrorConsulta()
+    {
         return ModeloP::$resultado['error'];
     }
 
-    public static function getSQLConsulta() {
+    public static function getSQLConsulta()
+    {
         return ModeloP::$resultado['consulta'];
     }
 
-    protected static function _leer($tabla, $condiciones='', $columnas = [], $joins = [], $limit = 0, $offset = 0, $soloSQL = false) {
+    protected static function _leer($tabla, $condiciones = '', $columnas = [], $joins = [], $limit = 0, $offset = 0, $soloSQL = false)
+    {
 
         $columnasSql = count($columnas) > 0 ? implode(',', $columnas) : '*';
 
@@ -202,7 +216,7 @@ class ModeloP {
         }
 
         $sql = 'SELECT ' . $columnasSql
-                . ' FROM ' . $tabla;
+            . ' FROM ' . $tabla;
         if ($joins) {
             if (!is_array($joins)) {
                 $selectjoin = $joins;
@@ -212,8 +226,8 @@ class ModeloP {
             $sql .= ' JOIN ' . $selectjoin;
         }
 
-        if($updateWhere){
-        $sql .= ' WHERE  ' . $updateWhere;
+        if ($updateWhere) {
+            $sql .= ' WHERE  ' . $updateWhere;
         }
 
         if ($limit != 0) {
@@ -233,5 +247,4 @@ class ModeloP {
         }
         return $resultado;
     }
-
 }

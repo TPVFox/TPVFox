@@ -18,11 +18,11 @@ class CTareasCron
     public function __construct($ruta_datos = '')
     {
         $this->tareasCron = new MTareasCron();
-        $this->tareaCron = $this->tareasCron->initTareaCron();        
+        $this->tareaCron = $this->tareasCron->initTareaCron();
     }
 
     public function list()
-    {        
+    {
         return $this->tareasCron->getTareas();
     }
 
@@ -71,7 +71,7 @@ class CTareasCron
 
     public function guardar($datos)
     {
-        $tarea = [];        
+        $tarea = [];
         $erroresValidacion = $this->validar($datos);
         if (count($erroresValidacion) == 0) {
             foreach ($this->tareaCron as $indice => $valor) {
@@ -86,10 +86,9 @@ class CTareasCron
                     $erroresValidacion['id.notfound'] = 'Tarea no encontrada';
                 }
             } else {
-                $this->tareaCron['id']=null;
+                $this->tareaCron['id'] = null;
                 $tarea = $this->tareasCron->crear($this->tareaCron);
             }
-
         }
         return [$tarea, $erroresValidacion];
     }

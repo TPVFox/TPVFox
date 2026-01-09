@@ -5,7 +5,7 @@
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion Javascript necesarios para modulo tpv.
  *
- * 
+ *
  * */
 var pulsado = '';
 var total = 0;
@@ -32,14 +32,14 @@ function cobrarF1(){
             success:  function (response) {
                 // console.log('Respuesta ajax - CobrarF1 ');
                 var resultado =  $.parseJSON(response);
-                
-                
+
+
                 var HtmlCobrar = resultado.html;  //$resultado['html'] de montaje html
                 var titulo = 'COBRAR ';
                 abrirModal(titulo,HtmlCobrar);
                 SelectAlLanzarModal('entrega');
-                
-                
+
+
             }
         });
     }else {
@@ -63,12 +63,12 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
     //      nombreinput = id caja de donde viene
     //      campo =  campo a buscar
     //      busqueda = valor del input que corresponde.
-    //      dedonde  = [tpv] o [popup] 
+    //      dedonde  = [tpv] o [popup]
     // @ Respuesta:
     //  1.- Un producto unico.
     //  2.- Un listado de productos.
     //  3.- O nada un error.
-    
+
     // console.log('FUNCION buscarProductos JS- Para buscar con el campo');
     // console.log('De donde:'+dedonde);
 
@@ -102,7 +102,7 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
                 resetCampo(id_input);
                 agregarFila(datos);
                 return;
-            } 
+            }
             if (resultado['Estado'] === 'NoSeBusco' && resultado['dedonde'] === 'popup'){
                 // console.log('==== Entro en Estado NoSeBusco y de popup ===========');
                 $('#cajaBusqueda').focus(); //foco en input caja busqueda del producto
@@ -123,8 +123,8 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
                 sonido_alerta.play();
                 }
             }
-            var busqueda = resultado.listado;   
-            var HtmlProductos=busqueda.html;   
+            var busqueda = resultado.listado;
+            var HtmlProductos=busqueda.html;
             var titulo = 'Listado productos encontrados ';
             // Abrimos modal de productos.
             abrirModal(titulo,HtmlProductos);
@@ -134,7 +134,7 @@ function buscarProductos(id_input,campo,busqueda,dedonde){
                 // focus a primer producto.
                 var d_focus = 'N_0';
                 ponerFocus(d_focus);
-            } 
+            }
         }
     });
 }
@@ -143,7 +143,7 @@ function agregarFila(datos,campo=''){
     // @ Objetivo
     //  Añadir producto a productos (JS) y ademas obtener htmlLinea para mostrar
     // Voy a crear objeto producto nuevo..
-    // @ parametro 
+    // @ parametro
     //  campo ->  String que indica al campo donde enfocar.
     // console.log('Function agregarFila');
     productos.push(new ObjProducto(datos));
@@ -164,14 +164,14 @@ function agregarFila(datos,campo=''){
         },
         success    :  function (response) {
             // console.log('Repuesta de Obtener HTML linea de FUNCION -> agregarFila');
-            
+
             var resultado =  $.parseJSON(response);
             var nuevafila = resultado['html'];
             $("#tabla").prepend(nuevafila);
             // console.log('algun campo:'+typeof campo);
             if (campo ==='') {
                 // Si no viene dato campo, por lo que focus por defectoe de configuracion
-                $('#'+configuracion.input_pordefecto).focus();  
+                $('#'+configuracion.input_pordefecto).focus();
             } else {
                 // Ponemos focus el campo que le indicamos en parametro campo.
                 $(campo).focus();
@@ -180,8 +180,8 @@ function agregarFila(datos,campo=''){
         }
     });
 };
- 
- 
+
+
 //Sera funcion que agrega o elimina linea.
 function eliminarFila(num_item){
     var line;
@@ -264,7 +264,7 @@ function grabarTicketsTemporal(){
         },
         success    :  function (response) {
             // console.log('Respuesta de grabar');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             // Cambiamos el estado :
             cabecera.estadoTicket = resultado.estadoTicket;
             cabecera.numTicket = resultado.NumeroTicket;
@@ -272,9 +272,9 @@ function grabarTicketsTemporal(){
             $('#EstadoTicket').css('background-color','red')
             $('#EstadoTicket').css('color','white')
             $('#NTicket').html('0/'+resultado.NumeroTicket);
-            //objetivo cuando esta en ticket actual , 
+            //objetivo cuando esta en ticket actual ,
             //en el navegador ponga ?tActual para que no afecte F5 SIN RECARGAR pagina
-            if (productos.length ===1 ){ 
+            if (productos.length ===1 ){
                 history.pushState(null,'','?tActual='+resultado.NumeroTicket);
             }
             // Limpiamos los valores ivas y bases.
@@ -292,7 +292,7 @@ function cerrarTicket(){
     //@ Objetivo:
     // Enviar datos del ticket (cabecera y caja de cobrar)
     // para guaardar como Cobrado en tablas ticket y temporal de ticket se cambia estado a COBRADO
-     
+
      var entregado = $('#entrega').val();
      var cambio = $('#cambio').val();
      // console.log('Numero caracteres de entregado:'+entregado.length);
@@ -305,7 +305,7 @@ function cerrarTicket(){
      }
      var formaPago = $('#modoPago').val();
      //podemos obtener el valor de la propiedad checked, true o false
-     var checkimprimir = $('input[name=checkimprimir]').prop('checked'); 
+     var checkimprimir = $('input[name=checkimprimir]').prop('checked');
      var ruta_impresora = configuracion['impresora_ticket'];
      // console.log(ruta_impresora);
     //parche desactivar boton aceptar, no hay impresora de tickets
@@ -323,7 +323,7 @@ function cerrarTicket(){
         "cambio"            : cambio,
         "formaPago"         : formaPago,
         "checkimprimir"     : checkimprimir,  //true o false
-        "ruta_impresora"    : ruta_impresora 
+        "ruta_impresora"    : ruta_impresora
     };
     $.ajax({
         data       : parametros,
@@ -334,7 +334,7 @@ function cerrarTicket(){
         },
         success    :  function (response) {
             // console.log('Respuesta de Guardar ticket Cerrado');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             // console.log(' ********  TERMIANOS DE GRABAR TICKET CERRADO *********** ')
             // Comprobamos que no hubo un error en el ticket
             if (typeof resultado.error !=='undefined'){
@@ -362,9 +362,9 @@ function cerrarTicket(){
 
         }
     });
-    
-    
-    
+
+
+
 }
 
 // ========== SWITCH ver Tickets Cerrados cobrados e IMPRIMIR ticket ========
@@ -382,7 +382,7 @@ function metodoClick(pulsado){
             }
             window.location.href = './ticketCobrado.php?id='+checkID[0];
         break;
-        
+
         case 'imprimirTicket':
             // console.log('entro en imprimir ticket');
             if (checkID.length >1 || checkID.length=== 0) {
@@ -392,8 +392,8 @@ function metodoClick(pulsado){
             //Solo permitimos imprimir un ticket, no varios
             alert('Ticket cerrado, opc imprimir'+checkID[0]);
             imprimirTicketCerrado(checkID[0]);
-        break;  
-        
+        break;
+
         case 'descontarStockWeb':
             alert('Ticket cerrado enviar Sctok a Web');
             // Pediente por realizar
@@ -401,9 +401,9 @@ function metodoClick(pulsado){
 
         case 'cambiarFechaItemsSeleccionado':
             htmlFechaNueva(checkID);
-        break;  
+        break;
      }
-} 
+}
 function imprimirTicketCerrado(idTicketst){
     // Objetivo es imprimir un ticket cerrado.
     // console.log('Imprimir ticket cerrado');
@@ -420,12 +420,12 @@ function imprimirTicketCerrado(idTicketst){
         },
         success    :  function (response) {
             // console.log(' Respuesta de imprimit ticketst cerrados');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             // console.log(resultado);
-        
+
         }
     });
-    
+
 }
 
 function htmlFechaNueva(tickets){
@@ -443,7 +443,7 @@ function htmlFechaNueva(tickets){
         },
         success    :  function (response) {
             console.log(' Respuesta de htmlFechaNueva');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             var HtmlFechaNueva=resultado.html;   //$resultado['html'] de montaje html
             var titulo = 'Cambio de Fecha de tickets ';
             abrirModal(titulo,HtmlFechaNueva);
@@ -479,7 +479,7 @@ function cambioFechaTickets(){
         },
         success    :  function (response) {
             // console.log(' Respuesta de cambiarFechaTicketsSeleccionados');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             // console.log(resultado);
         }
     });
@@ -510,7 +510,7 @@ function ObjProducto(datos)
     this.nfila = productos.length+1;
     this.importe = parseFloat(this.pvpconiva) * this.unidad;
 }
-    
+
 // =========================  FUNCIONES COMUNES EN MODULOS TPV Y CIERRES ===================== //
 function buscarClientes(pantalla,valor=''){
     // @ Objetivo:
@@ -533,7 +533,7 @@ function buscarClientes(pantalla,valor=''){
         },
         success    :  function (response) {
             console.log('Ojo:Abrimos modal de busqueda o buscamos en caja.');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             if (resultado.error){
                     alert('ERROR DE SQL: '+resultado.consulta);
             }else{
@@ -541,12 +541,12 @@ function buscarClientes(pantalla,valor=''){
                     // Resultado de un solo cliente, añadimos directamente caja.
                     $('#id_cliente').val(resultado.id);
                     $('#Cliente').val(resultado.nombre);
-                    
+
                     // Cerramos modal  y le indicamos destino focus.
                     cerrarPopUp(); // Destino no indicamo ya que no sabes...
                     console.log(resultado)
                     if(pantalla == 'Linea_cobrados' || pantalla=='cobrados'){
-                        // Solo para cuando estamos en tickets cobrados 
+                        // Solo para cuando estamos en tickets cobrados
                         $('#cambioCliente').show();
                     }
                     if (pantalla =='tpv' || pantalla == 'Linea_tpv'){
@@ -559,10 +559,10 @@ function buscarClientes(pantalla,valor=''){
                         }
                         // Ponemos focus por defecto.
                         ponerFocus('Codbarras');
-                    } 
+                    }
 
                 } else  {
-                    // Resultado de varios clientes, mostramos popup   
+                    // Resultado de varios clientes, mostramos popup
                     var HtmlClientes=resultado.html;   //$resultado['html'] de montaje html
                     var titulo = 'Listado clientes ';
                     abrirModal(titulo,HtmlClientes);
@@ -579,7 +579,7 @@ function buscarClientes(pantalla,valor=''){
         }
     });
 }
-    
+
 
 
 function escribirClienteSeleccionado(id,nombre,dedonde=''){
@@ -606,9 +606,9 @@ function escribirClienteSeleccionado(id,nombre,dedonde=''){
         }
         // Ponemos focus por defecto.
         ponerFocus('Codbarras');
-    } 
-    
-    
+    }
+
+
 }
 
 function controladorAcciones(caja,accion){
@@ -618,19 +618,19 @@ function controladorAcciones(caja,accion){
     //      caja -> Objeto que aparte de los datos que le ponemos en variables globales de cada input
     //              tiene funciones que podemos necesitar como:
     //                      darValor -> donde obtiene el valor input
-    
+
     switch(accion) {
         case 'buscarClientes':
             // Esta funcion necesita el valor.
             buscarClientes(caja.darParametro('dedonde'),caja.darValor());
         break;
-        
+
         case 'buscarProductos':
             // Esta funcion necesita el valor.
             // console.log('Entro en acciones buscar Productos');
             buscarProductos(caja.name_cja,caja.darParametro('campo'),caja.darValor(),caja.darParametro('dedonde'));
         break;
-        
+
         case 'recalcular_ticket':
             var n_producto = parseInt(caja.fila)-1;
             // Comprobamos que el valor puesto sea un numero decimal y que sea inferior a 9999
@@ -645,26 +645,26 @@ function controladorAcciones(caja,accion){
                 $('#'+caja.id_input).val('1');
             }
         break;
-        
+
         case 'mover_down':
             // Controlamos si numero fila es correcto.
             var nueva_fila = 0;
             if ( isNaN(caja.fila) === false){
                 nueva_fila = parseInt(caja.fila)+1;
-            } 
+            }
             // console.log('mover_down:'+nueva_fila);
             mover_down(nueva_fila,caja.darParametro('prefijo'));
         break;
-        
+
         case 'mover_up':
             console.log( 'Accion subir 1 desde fila'+caja.fila);
             var nueva_fila = 0;
             if ( isNaN(caja.fila) === false){
                 nueva_fila = parseInt(caja.fila)-1;
-            } 
+            }
             mover_up(nueva_fila,caja.darParametro('prefijo'));
         break;
-        
+
         case 'saltar_Referencia':
             var dato = caja.darValor();
             if ( dato.length === 0){
@@ -673,7 +673,7 @@ function controladorAcciones(caja,accion){
                 ponerFocus(d_focus);
             }
         break;
-        
+
         case 'saltar_Descripcion':
             var dato = caja.darValor();
             if ( dato.length === 0){
@@ -682,7 +682,7 @@ function controladorAcciones(caja,accion){
                 ponerFocus(d_focus);
             }
         break;
-        
+
         case 'saltar_CodBarras':
             // console.log('Saltar_Codbarras');
             var dato = caja.darValor();
@@ -692,12 +692,12 @@ function controladorAcciones(caja,accion){
                 ponerFocus(d_focus);
             }
         break;
-        
+
         case 'saltar_esc':
             // console.log('Saltar_Esc');
-                $('#'+configuracion.input_pordefecto).focus(); 
+                $('#'+configuracion.input_pordefecto).focus();
         break;
-        
+
         case  'saltar_productos':
             if (productos.length >0){
             // Debería añadir al caja N cuantos hay
@@ -707,12 +707,12 @@ function controladorAcciones(caja,accion){
                console.log( ' No nos movemos ya que no hay productos');
             }
         break
-        
+
         case 'cobrar':
             // console.log( ' Entro en accion cobrar');
             cobrarF1();
         break
-            
+
         case 'poner_entrega':
             var cambio = parseFloat(caja.darValor()) - total;
             if (comprobarNumero(cambio)){
@@ -730,7 +730,7 @@ function controladorAcciones(caja,accion){
                 $('#entrega').val('');
             }
         break;
-        
+
         case 'cerrar_ticket':
             console.log(' Entro en contralador de acciones, cerrar ticket');
             var entregado = parseFloat($('#entrega').val());
@@ -745,19 +745,19 @@ function controladorAcciones(caja,accion){
 
             }
         break;
-        
+
         case 'focus_entrega':
             ponerFocus('entrega');
         break;
-            
+
         case 'focus_modoPago':
             ponerFocus('modoPago');
         break;
-            
+
         case 'CambiarPrecioProducto':
             // Lo primero comprobamos si es correcto el dato.
             if (comprobarNumero(caja.darValor())){
-                // Es correcto, un numero decimal.. 
+                // Es correcto, un numero decimal..
                 // Ahora ahora obtengo numero fila y le resto uno simplemente para saber cambiar el precio.
                 n_producto = caja.id_input.slice(11)-1;
                 // Cambiamos el precio.
@@ -767,20 +767,20 @@ function controladorAcciones(caja,accion){
                 bloquearCajaProveedor(caja);
                 // Ahora volvemos a codbarras ( aunque esto debería se un parametro... )
                 ponerFocus ('Codbarras');
-                
+
             } else {
                 alert( ' No es correcto el numero');
             }
         break;
-        
+
         case 'CerrarModal':
             console.log("CerrarModal por pulsar ESC");
             ponerFocus(caja.name_cja);
         break;
-        
+
         default :
             console.log ( 'Accion no encontrada '+ accion);
-    } 
+    }
 }
 
 function before_constructor(caja){
@@ -800,25 +800,25 @@ function before_constructor(caja){
             caja.parametros.campo = cajaDescripcion.parametros.campo;
         }
     }
-    
+
     if (caja.id_input.indexOf('N_') >-1){
         console.log(' Entro en Before:');
         caja.fila = caja.id_input.slice(2);
     }
-    
+
     if (caja.id_input.indexOf('Unidad_Fila') >-1){
         caja.parametros.item_max = productos.length;
         caja.fila = caja.id_input.slice(12);
     }
-    
-    return caja;    
+
+    return caja;
 }
 
 function after_constructor(padre_caja,event){
     // @ Objetivo:
     // Ejecuta procesos ANTES ( mi ingles-- :-) de construir el obj. caja.
-    // Traemos 
-    //      (objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+    // Traemos
+    //      (objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear
     //      (objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
     if (padre_caja.id_input.indexOf('N_') >-1){
         padre_caja.id_input = event.target.id;
@@ -830,7 +830,7 @@ function after_constructor(padre_caja,event){
         padre_caja.id_input=event.target.id;
         prueba = event.target
     }
-    
+
     return padre_caja;
 }
 
@@ -849,13 +849,13 @@ function listadofamilia(idFamilia){
         },
         success    :  function (response) {
             console.log('Ojo:Abrimos modal de Listado Familia.');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             var HtmlListadoFamilia=resultado.html;   //$resultado['html'] de montaje html
             var titulo = 'Listado por familia ';
             abrirModal(titulo,HtmlListadoFamilia);
         }
     });
-    
+
 }
 
 // ===================  FUNCIONES DE PINTAR BONITO y MOVIMIENTOS =========================
@@ -888,8 +888,8 @@ function ponerFocus (destino_focus){
     //  Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
     // console.log('Entro en enviar focus de :'+destino_focus);
     setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-        jQuery('#'+destino_focus.toString()).focus(); 
-    }, 5); 
+        jQuery('#'+destino_focus.toString()).focus();
+    }, 5);
 
 }
 function ponerSelect (destino_focus){
@@ -897,8 +897,8 @@ function ponerSelect (destino_focus){
     //  Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
     // console.log('Entro en ponerselects de :'+destino_focus);
     setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-        jQuery('#'+destino_focus.toString()).select(); 
-    }, 5); 
+        jQuery('#'+destino_focus.toString()).select();
+    }, 5);
 
 }
 
@@ -926,11 +926,11 @@ function PrepararEnviarStockWeb(idTicket){
     // @ Objetivo:
     //  Enviar URl de servidor productos para cambiar stock
     //  [OJO]
-    //  Esta es funcion provisional, ya que ponemos por defecto valor web = 2 , 
+    //  Esta es funcion provisional, ya que ponemos por defecto valor web = 2 ,
     //  deberíamos saber con configuracion a que web queremos cambiar el stock
 
     //  Inicializamos Variables:
-    var tienda_web = [];    
+    var tienda_web = [];
     //  Obtenemos productos del ticket en cuestion.
     var parametros = {
         "pulsado" : 'ObtenerRefTiendaWeb',
@@ -949,7 +949,7 @@ function PrepararEnviarStockWeb(idTicket){
         },
         success    :  function (response) {
             // console.log('**********  Respuesta de Obtener Referencias tienda web **************');
-            
+
             var resultado =  $.parseJSON(response);
             console.log(resultado);
             // Ponemos datos de tienda_web en variable
@@ -978,14 +978,14 @@ function PrepararEnviarStockWeb(idTicket){
             enviarStockWeb(tienda_web,productos_enviar,idTicket);
 
             // Buscamos key en producto que no tenga virtuemart no los mandamos.
-           
-           
-            
+
+
+
         }
     });
-    
+
 }
- 
+
 function RegistrarRestarStockTicket(id_ticketst, estado,datos){
       $("#DescontarStock").prop("disabled", true);
     // Ejecutar en servidor local (tpv) registro de que ya se resto stock.
@@ -1030,7 +1030,7 @@ function CambiarSaltoCampo(){
     var campo_seleccionado = document.getElementById("salto").value;
     configuracion.input_pordefecto = campo_seleccionado;
 
-    
+
     GuardarConfiguracion();
 }
 
@@ -1039,8 +1039,8 @@ function GuardarConfiguracion(){
     // Si llega aquí es porque cambio el valor de check impresion...
     // por lo que cambiamos el valor en configuracion.
     alert('Grabar configuracion');
-    
-    
+
+
     var parametros = {
         "pulsado"           : 'Grabar_configuracion',
         "configuracion"     : configuracion,
@@ -1071,7 +1071,7 @@ function bloquearCajaProveedor(caja){
     console.log('Poner solo lectura '+caja.name_cja);
     $('#'+ caja.name_cja).attr('readonly', "true");
 
-    
+
 }
 
 function comprobarNumero(valor){
@@ -1091,7 +1091,7 @@ function comprobarNumero(valor){
     } else {
         return false;
     }
-    
+
 }
 
 function cambioCliente(idTicket){
@@ -1114,7 +1114,7 @@ function cambioCliente(idTicket){
                  var resultado = $.parseJSON(response);
                 alert(resultado.mensaje);
             }
-            
+
     });
 }
 
@@ -1136,9 +1136,9 @@ function cambioFormaPago(idTicket){
         success    :  function (response) {
                 console.log('Respuesta de modificar datos de clientes');
                  var resultado = $.parseJSON(response);
-                alert(resultado.mensaje);                
+                alert(resultado.mensaje);
             }
-            
+
     });
 }
 

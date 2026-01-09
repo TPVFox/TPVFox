@@ -227,7 +227,7 @@ class ClaseComunicacionBalanza {
         $H2 .= $this->formatearCampo($this->direccion, 2, 'direccion');
         $H2 .= "A" . $this->formatearCampo($this->dataH2['codigo'], 6, 'codigo');
         $H2 .= $this->formatearCampo($this->dataH2['PLU'], 3, 'PLU');
-        
+
         // Limpiamos el nombre del producto
         $nombre = $this->limpiarNombre($this->dataH2['nombre']);
         if (mb_strlen($nombre, 'UTF-8') > 60) {
@@ -502,7 +502,7 @@ class ClaseComunicacionBalanza {
         error_log("ERROR: No se pudo determinar el estado de la balanza. Archivo: {$logFile} [" . date('Y-m-d H:i:s') . "]");
         return false;
     }
-    
+
 
    // Método para obtener las alertas generadas
     public function getAlertas(): array {
@@ -544,7 +544,7 @@ class ClaseComunicacionBalanza {
             $valorStr = str_pad($valorStr, $longitud, $relleno, STR_PAD_RIGHT);
         }
         return $valorStr;
-        
+
     }
     // Metodo para verificar el estado de la balanza leyendo el log de baltty
     // Si la balanza no se ha ejecutado correctamente, se terminan los procesos de baltty en ejecución
@@ -629,7 +629,7 @@ class ClaseComunicacionBalanza {
         DT = {$this->rutaBalanza}/
 
         #----------------------------------------------------------------------------------------------
-        #	TIPO DE COMUNICACION	
+        #	TIPO DE COMUNICACION
         #		0 - RS-232
         #		1 - TCP-IP TCP
         #		2 - TCP-IP UDP
@@ -647,8 +647,8 @@ class ClaseComunicacionBalanza {
         #----------------------------------------------------------------------------------------------
         PR = 3001
 
-        #GRUPOBAL		BALANZA			DIRECCCION TCPIP   PUERTO PC-TX 
-        #--------		---------		-----------------  ------------  
+        #GRUPOBAL		BALANZA			DIRECCCION TCPIP   PUERTO PC-TX
+        #--------		---------		-----------------  ------------
         BD = {$config['grupoBalanza']} {$config['ipBalanza']} 3000
 
         #----------------------------------------------------------------------------------------------

@@ -12,7 +12,8 @@ trait MontarAdvertenciaTrait
         //  $html -> (string) Indicamos si queremos que devuelva html en vez del array.
         // @ Devolvemos
         //  Array ( tipo, mensaje ) o html con advertencia o error.
-        $advertencia = array('tipo' => $tipo,
+        $advertencia = array(
+            'tipo' => $tipo,
             'mensaje' => $mensaje,
         );
         if ($html === 'OK') {
@@ -25,7 +26,6 @@ trait MontarAdvertenciaTrait
                 $advertencia .= $mensaje;
             }
             $advertencia .= '</div>';
-
         }
 
         return $advertencia;

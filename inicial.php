@@ -8,7 +8,7 @@
 
 define('FORMATO_FECHA_ES', 'd-m-Y H:i:s');
 define('FORMATO_FECHA_MYSQL', 'Y-m-d H:i:s');
-define('FORMATO_FECHA_INPUT','Y-m-d');
+define('FORMATO_FECHA_INPUT', 'Y-m-d');
 
 $Ruta = __DIR__ . '/';
 $error_conf = '';

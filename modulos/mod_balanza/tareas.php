@@ -1,17 +1,17 @@
-<?php 
+<?php
 include_once './../../inicial.php';
 include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
 include_once $URLCom . '/modulos/mod_balanza/funciones.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
 include_once $URLCom . '/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
-$CBalanza=new ClaseBalanza($BDTpv);
-$CProducto=new ClaseProductos($BDTpv);
+$CBalanza = new ClaseBalanza($BDTpv);
+$CProducto = new ClaseProductos($BDTpv);
 $pulsado = $_POST['pulsado'];
-$respuesta=array();
+$respuesta = array();
 switch ($pulsado) {
     case 'addBalanza':
         //@Objetivo: Añadir una balanza nueva
-        $datos=array(
+        $datos = array(
             'nombreBalanza' => $_POST['nombreBalanza'],
             'modeloBalanza' => $_POST['modeloBalanza'],
             'secciones'     => $_POST['secciones'],
@@ -20,107 +20,104 @@ switch ($pulsado) {
             'IP'            => $_POST['IP'],
             'soloPLUS'      => isset($_POST['soloPLUS']) ? 1 : 0
         );
-        $html="";
-        $addBalanza=$CBalanza->addBalanza($datos);
-        if($addBalanza['error']<>"0"){
-            $html='<div class="alert alert-danger">
-                <strong>Danger!</strong> Error de sql: '.$addBalanza['consulta'].'.
+        $html = "";
+        $addBalanza = $CBalanza->addBalanza($datos);
+        if ($addBalanza['error'] <> "0") {
+            $html = '<div class="alert alert-danger">
+                <strong>Danger!</strong> Error de sql: ' . $addBalanza['consulta'] . '.
                 </div>';
-        }else{
-            $html='<div class="alert alert-success">
+        } else {
+            $html = '<div class="alert alert-success">
                   <strong>Success!</strong> Balanza registrada.
                 </div>';
         }
-        
-        $respuesta['html']=$html;
-        $respuesta['balanza']=$addBalanza;
-    break;
+
+        $respuesta['html'] = $html;
+        $respuesta['balanza'] = $addBalanza;
+        break;
     case 'htmlPlu':
-    //OBjetivo: OBjetivo llamar a la función htmlAddPlu que devuelve el html para añadir un plu
-        $seccion=$_POST['secciones'];
-        $idBalanza=$_POST['idBalanza'];
-        $html=htmlAddPLU($seccion, $idBalanza);
-        $respuesta['html']=$html;
-    break;
+        //OBjetivo: OBjetivo llamar a la función htmlAddPlu que devuelve el html para añadir un plu
+        $seccion = $_POST['secciones'];
+        $idBalanza = $_POST['idBalanza'];
+        $html = htmlAddPLU($seccion, $idBalanza);
+        $respuesta['html'] = $html;
+        break;
     case 'buscarProducto':
-    //@Objetivo: buscar producto
-    //Devuelve o los datos de un  producto o el html del modal
-        $busqueda=camposBuscar($_POST['campo'], $_POST['busqueda']);
-        $result=$CBalanza->buscarArticuloCampo($busqueda);
-        if(count($result['datos'])==1){
-            $datos=array(
-            'idArticulo'=>$result['datos'][0]['idArticulo'],
-            'nombre'=>$result['datos'][0]['articulo_name'],
-            'referencia'=>$result['datos'][0]['crefTienda'],
-            'codBarras'=>$result['datos'][0]['codBarras']
+        //@Objetivo: buscar producto
+        //Devuelve o los datos de un  producto o el html del modal
+        $busqueda = camposBuscar($_POST['campo'], $_POST['busqueda']);
+        $result = $CBalanza->buscarArticuloCampo($busqueda);
+        if (count($result['datos']) == 1) {
+            $datos = array(
+                'idArticulo' => $result['datos'][0]['idArticulo'],
+                'nombre' => $result['datos'][0]['articulo_name'],
+                'referencia' => $result['datos'][0]['crefTienda'],
+                'codBarras' => $result['datos'][0]['codBarras']
             );
-            if($_POST['idcaja']=='codBarras'){
-                if($result['datos'][0]['codBarras']<>$_POST['busqueda']){
-                    $html=modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
-                    $respuesta['html']=$html['html'];
-                }else{
-                    $respuesta['datos']=$datos;
+            if ($_POST['idcaja'] == 'codBarras') {
+                if ($result['datos'][0]['codBarras'] <> $_POST['busqueda']) {
+                    $html = modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
+                    $respuesta['html'] = $html['html'];
+                } else {
+                    $respuesta['datos'] = $datos;
                 }
-            }else{
-                $respuesta['datos']=$datos;
+            } else {
+                $respuesta['datos'] = $datos;
             }
-            
-            
-        }else{
-            $html=modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
-            $respuesta['html']=$html['html'];
+        } else {
+            $html = modalProductos($_POST['busqueda'], $result['datos'], $_POST['campo']);
+            $respuesta['html'] = $html['html'];
         }
-        $respuesta['buscar']=$result;
-    break;
+        $respuesta['buscar'] = $result;
+        break;
     case 'addPlu':
-    //@Objetivo: añadir plu
+        //@Objetivo: añadir plu
         $idBalanza = $_POST['idBalanza'];
         $plu = $_POST['plu'];
         $crefTienda = $_POST['cref'];
         $articulo_name = $_POST['articulo_name'];
         $pvpCiva = $_POST['pvpCiva'];
-        if(isset($_POST['seccion'])){
+        if (isset($_POST['seccion'])) {
             $seccion = $_POST['seccion'];
-        }else{
+        } else {
             $seccion = "";
         }
-        
-        $idArticulo=$_POST['idArticulo'];
-        $buscarPlu=$CBalanza->buscarPluEnBalanza($plu, $idBalanza);
-        $datosBalanza=$CBalanza->datosBalanza($idBalanza);
+
+        $idArticulo = $_POST['idArticulo'];
+        $buscarPlu = $CBalanza->buscarPluEnBalanza($plu, $idBalanza);
+        $datosBalanza = $CBalanza->datosBalanza($idBalanza);
         $samePlu = [];
-        foreach ($buscarPlu['datos'] as $pluData){
+        foreach ($buscarPlu['datos'] as $pluData) {
             if ($datosBalanza['datos'][0]['conSeccion'] == "si") {
-                if($pluData['plu'] == $plu && $pluData['seccion'] == $seccion){
+                if ($pluData['plu'] == $plu && $pluData['seccion'] == $seccion) {
                     $samePlu[] = $pluData;
                 }
             } else {
-                if($pluData['plu'] == $plu){
+                if ($pluData['plu'] == $plu) {
                     $samePlu[] = $pluData;
                 }
             }
         }
 
-        if(count($samePlu) > 0){
-            $respuesta['error']='Ya existe el producto con id:'.$samePlu[0]['idArticulo'].' ese mismo plu en la balanza';
+        if (count($samePlu) > 0) {
+            $respuesta['error'] = 'Ya existe el producto con id:' . $samePlu[0]['idArticulo'] . ' ese mismo plu en la balanza';
             $respuesta['buscarPlu'] = json_encode($buscarPlu);
-        }else{
-            $addPlu=$CBalanza->addPlu($plu, $idBalanza, $seccion, $idArticulo);
-            $datos=array(
-            'plu'=> $plu,
-            'seccion'=> $seccion,
-            'idArticulo'=>$idArticulo,
-            'articulo_name' => $articulo_name,
-            'crefTienda' => $crefTienda,
-            'pvpCiva' => $pvpCiva
+        } else {
+            $addPlu = $CBalanza->addPlu($plu, $idBalanza, $seccion, $idArticulo);
+            $datos = array(
+                'plu' => $plu,
+                'seccion' => $seccion,
+                'idArticulo' => $idArticulo,
+                'articulo_name' => $articulo_name,
+                'crefTienda' => $crefTienda,
+                'pvpCiva' => $pvpCiva
             );
-            $html=htmlLineaPlu($datos, $idBalanza);
-            $respuesta['html']=$html;
-           
+            $html = htmlLineaPlu($datos, $idBalanza);
+            $respuesta['html'] = $html;
         }
-    break;
+        break;
     case 'eliminarPlu':
-    //@Objetivo: eliminar plu
+        //@Objetivo: eliminar plu
         $plu = $_POST['plu'];
         $idBalanza = $_POST['idBalanza'];
         $eliminar = $CBalanza->eliminarplu($idBalanza, $plu);
@@ -133,20 +130,20 @@ switch ($pulsado) {
             $respuesta['mensaje'] = 'PLU eliminado correctamente.';
             $respuesta['plu'] = $plu;
         }
-    break;
+        break;
     case 'mostrarDatosBalanza':
-    //@Objetivo: Mostrar los datos de una balanza con los plu
-        $datosBalanza=$CBalanza->datosBalanza($_POST['idBalanza']);
-        if(isset($datosBalanza['datos'])){
-            $datosplu=$CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
+        //@Objetivo: Mostrar los datos de una balanza con los plu
+        $datosBalanza = $CBalanza->datosBalanza($_POST['idBalanza']);
+        if (isset($datosBalanza['datos'])) {
+            $datosplu = $CBalanza->pluDeBalanza($_POST['idBalanza'], $_POST['filtro']);
             $respuesta['datosPlu'] = json_encode($datosplu);
-            if(isset($datosplu['datos'])){
-                $html=htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos'], $_POST['filtro']);
-                $respuesta['html']=$html['html'];
-                $respuesta['htmlDatosBalanza']=$html['htmlBalanza'];
+            if (isset($datosplu['datos'])) {
+                $html = htmlDatosListadoPrincipal($datosBalanza['datos'][0], $datosplu['datos'], $_POST['filtro']);
+                $respuesta['html'] = $html['html'];
+                $respuesta['htmlDatosBalanza'] = $html['htmlBalanza'];
             }
         }
-    break;
+        break;
     case 'modificarBalanza':
         //@Objetivo: Modificar solo los datos principales de la balanza
         $datos = array(
@@ -157,7 +154,7 @@ switch ($pulsado) {
         );
         $modificarBalanza = $CBalanza->modificarBalanza($_POST['idBalanza'], $datos);
         $respuesta['modif'] = $modificarBalanza;
-    break;
+        break;
     case 'crearDirectorioBalanza':
         // Objetivo: Crear el directorio de la balanza si no existe
         $CBalanzaComunicacion = new ClaseComunicacionBalanza($BDTpv);
@@ -178,7 +175,7 @@ switch ($pulsado) {
         $CBalanzaComunicacion->setRutaBalanza($rutaBalanza);
         $crearDirectorio = $CBalanzaComunicacion->crearDirectorioBalanza($datos);
         $respuesta['balanzaCom'] = $crearDirectorio;
-    break;
+        break;
     case 'guardarPlu':
         // Guardar edición de un solo PLU solo si hay cambios
         $idArticulo = intval($_POST['idArticulo']);
@@ -196,7 +193,7 @@ switch ($pulsado) {
             $resultado = $CBalanza->updatePlu($idArticulo, $idBalanza, $plu, $seccion);
             $respuesta['resultado'] = $resultado;
         }
-    break;
+        break;
     case 'guardarTodosPlus':
         // Guardar edición masiva de PLUs solo si hay cambios
         $datos = isset($_POST['datos']) ? $_POST['datos'] : [];
@@ -228,12 +225,12 @@ switch ($pulsado) {
         }
         $respuesta['success'] = empty($errores);
         $respuesta['errores'] = $errores;
-    break;
+        break;
     case 'mostrarArticulosPeso':
         $idBalanza = intval($_POST['idBalanza']);
         $articulos = $CBalanza->getArticulosPesoSinPLU($idBalanza);
         $respuesta['html'] = htmlArticulosPeso($articulos, $idBalanza);
-    break;
+        break;
     case 'tienePlusAsociados':
         // Verificar si la balanza tiene PLUs asociados
         $idBalanza = intval($_POST['idBalanza']);
@@ -244,7 +241,7 @@ switch ($pulsado) {
         } else {
             $respuesta['mensaje'] = 'La balanza no tiene PLUs asociados, se puede eliminar.';
         }
-    break;
+        break;
     case 'eliminarBalanza':
         // Eliminar balanza
         $idBalanza = intval($_POST['idBalanza']);
@@ -254,7 +251,7 @@ switch ($pulsado) {
         } else {
             $respuesta['mensaje'] = 'Balanza eliminada correctamente.';
         }
-    break;
+        break;
     case 'guardarConfigAvanzada':
         // Guardar configuración avanzada de la balanza
         $idBalanza = intval($_POST['idBalanza']);
@@ -276,9 +273,8 @@ switch ($pulsado) {
             $respuesta['mensaje'] = 'Error al guardar la configuración avanzada: ' . $respuesta['guardarConfig']['error'];
         } else {
             error_log("Configuración avanzada guardada correctamente.");
-            $respuesta['mensaje'] = 'Configuración avanzada guardada correctamente.';   
+            $respuesta['mensaje'] = 'Configuración avanzada guardada correctamente.';
         }
-    break;
+        break;
 }
 echo json_encode($respuesta);
-?>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
 	<configuracion>
-		
+
         <!-- Ahora opciones de codbarras -->
         <option_cod_barras nombre="Añadir codbarras" descripcion="Añadir codbarras que hay en la web, separados ; y no existen tpv">1</option_cod_barras>
         <option_cod_barras nombre="Ignorar codbarras" descripcion="Ignorar codbarras de la web tanto al añadir, modificar y comparar" default="Si">2</option_cod_barras>
@@ -16,6 +16,6 @@
         <defecto nombre="estado_nuevo" default="Si" descripcion="Estado por defecto cuando el producto es nuevo">Nuevo</defecto>
 		<defecto nombre="estado_modificado" default="Si" descripcion="Estado por defecto cuando el producto es modificado">Activo</defecto>
 		<defecto nombre="beneficio" descripcion="Beneficio por defecto">25</defecto>
-        
+
 	</configuracion>
 </parametros>

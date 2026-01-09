@@ -1,8 +1,8 @@
-/* 
- * @Copyright 2018, Alagoro Software. 
+/*
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción 
+ * @Descripción
  */
 
 
@@ -32,7 +32,7 @@ function HtmlRefFamiliaTienda(){
 }
 
 function addRefFamiliaTienda(idFamilia){
-    console.log($('#idFamiliaTienda').val());    
+    console.log($('#idFamiliaTienda').val());
     console.log(idTiendaWeb);
     console.log(familia.idFamilia);
     if ($('#idFamiliaTienda').val()>0) {
@@ -60,13 +60,13 @@ function addRefFamiliaTienda(idFamilia){
                 }
             });
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
 }
 
 
@@ -100,7 +100,7 @@ function guardarFamilia(){
 
         if( $('#marcar_tpv').prop('checked') ) {
             mostrar_tpv = 1;
-        } 
+        }
 
         var mensajes = [];
         if (idpadre == -1) {
@@ -219,7 +219,7 @@ function marcarFamiliaEliminar(productos, idfamilia){
             } else {
                 alert('Si borras esta familia dejarías huerfanos ' + productos + ' productos.');
             }
-    
+
 }
 function leerFamilias(idpadre, callback) {
     var parametros = {
@@ -271,7 +271,7 @@ function contarSeleccionados() {
     return $('.seleccionado').length;
 }
 
-function seleccionados(propiedad='idfamilia') {   
+function seleccionados(propiedad='idfamilia') {
     var ids = [];
     $('.seleccionado').each(function (key, element) {
         var valores = $(element).data(propiedad);
@@ -315,7 +315,7 @@ function EliminarReferenciaTienda(idFamilia, idTienda,e){
                     console.log('Respuesta de eliminar Referenca de Familia');
                     var resultado = $.parseJSON(response);
                    //hAY QUE CONTROLAR SI LO ELIMINA DE VERDAD.
-                   // y si es asi , eliminar los iconos 
+                   // y si es asi , eliminar los iconos
                    LimpiarTD(e);
 
             }
@@ -327,8 +327,8 @@ function LimpiarTD(e){
     // @ Objetivo :
     // Eliminar lo que continel código de barras . Busca los elementos a eliminar mediante DOM
     // Cuando encuentra el elemento TBODY elimina el hijo que le indicamos
-    var padre=e.parentNode; 
-    var abuelo=padre.parentNode; 
+    var padre=e.parentNode;
+    var abuelo=padre.parentNode;
    padre.innerHTML = "";
 }
 

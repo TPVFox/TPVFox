@@ -1,4 +1,4 @@
-// JS para modulo compras 
+// JS para modulo compras
 // Este se carga en todas las vistas , por lo que debemos poner solo
 // aquellas funciones que se utilizan en todas las vistas.
 // La funciones particulares de cada vista se deben poner /js/nombredecadavista
@@ -10,14 +10,14 @@
 
 function addCosteProveedor(idArticulo, valor, nfila, dedonde){
     // @Objetivo: Añadir o modificar el coste de un producto
-    // @Parametros: 
+    // @Parametros:
     //      idArticulo: el id del articulo del producto
     //      idProveedor: el id del proveedor
-    //      valor: valor nuevo 
-    //      dedonde: donde estamos, si en albaranes o facturas 
+    //      valor: valor nuevo
+    //      dedonde: donde estamos, si en albaranes o facturas
     //      nfila: número de la fila que estamos cambiando
     console.log("Entre en addCosteProveedor");
-    productos[nfila].ultimoCoste=valor; 
+    productos[nfila].ultimoCoste=valor;
     recalculoImporte(productos[nfila].nunidades, nfila);
     addTemporal(dedonde);
 }
@@ -25,9 +25,9 @@ function addCosteProveedor(idArticulo, valor, nfila, dedonde){
 
 function buscarAdjunto(dedonde, valor=""){
     //@Objetivo:
-    //  Cada vez que vamos a adjuntar un pedido/albarann a un albaran/factura ejecutamos esta función que 
+    //  Cada vez que vamos a adjuntar un pedido/albarann a un albaran/factura ejecutamos esta función que
     //  carga tanto los productos del adjunto como realiza la comprobación de si ya existe ....
-    //@Parametros: 
+    //@Parametros:
     //  dedonde:desde donde estamos ejecutando la función
     //  valor: numero de pedido o albarán que vamos a adjuntar
     console.log("Entre en buscarAdjunto");
@@ -117,7 +117,7 @@ function buscarAdjunto(dedonde, valor=""){
                             productos.push(prod);
                             prodArray.push(prod);
                         }
-                        
+
                         //  Cambiamos el estado del adjunto, para ponerlo como Facturado, para que no puedas ser añadido.
                         modificarEstado(dedonde, "Facturado",  idAdjunto);
                         //Agregamos una nueva fila en adjunto con los datos principales
@@ -130,7 +130,7 @@ function buscarAdjunto(dedonde, valor=""){
                         addTemporal(dedonde);
                         //Cierro el modal aqui porque cuando selecciono un pedido del modal llamo a esta misma funcion
                         //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
-                        // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba 
+                        // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba
                         cerrarPopUp();
                     }
                 }
@@ -159,7 +159,7 @@ function modificarEstado(dedonde, estado, id=""){
         },
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de estado pedido js');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             if (resultado.error){
                 alert('Error de SQL'+respuesta.consulta);
             }
@@ -191,7 +191,7 @@ function modalAlbaranesCambioEstado(){
                 var titulo = 'Cambiar estado Albaranes ';
                 abrirModal(titulo,resultado.html);
 
-        }   
+        }
     });
 }
 
@@ -202,7 +202,7 @@ function metodoClick(pulsado,adonde=''){
     // Son string los dos parametros (pulsado,adonde)
     // adonde si no viene esta vacio.
     VerIdSeleccionado (); // Cargamos array de id seleccionados ;
-    
+
     console.log("Inicimos switch de control tras pulsar:"+pulsado);
     switch(pulsado) {
         case 'Ver' :
@@ -212,9 +212,9 @@ function metodoClick(pulsado,adonde=''){
             if (checkID.length >1 || checkID.length=== 0) {
                 alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
                 return
-            } 
+            }
             var accion = '';
-            
+
             if (pulsado == 'Ver'){
                 accion='&accion=ver';
             } else {
@@ -233,17 +233,17 @@ function metodoClick(pulsado,adonde=''){
             if (adonde == 'albaranes'){
                 console.log('Entro en cambio estado albaran');
                 modalAlbaranesCambioEstado(checkID);
-            } 
+            }
         break;
      }
 }
- 
+
 function imprimir(id, dedonde, idTienda){
     // @Objetivo: Imprimir el documento que se ha seleccionado
-    // @parametros: 
+    // @parametros:
     // id: id del documento
     // dedonde: de donde es para poder filtrar
-    // idTienda : id de la tienda 
+    // idTienda : id de la tienda
     var parametros = {
         "pulsado"   : 'datosImprimir',
         "dedonde"   : dedonde,
@@ -258,7 +258,7 @@ function imprimir(id, dedonde, idTienda){
                 console.log('******** estoy en datos Imprimir JS****************');
             },
             success    :  function (response) {
-                 var resultado =  $.parseJSON(response); 
+                 var resultado =  $.parseJSON(response);
                  window.open(resultado);// Abre una nuvea pestaña con el documento pdf que se generó anteriormente
         }
     });
@@ -279,13 +279,13 @@ function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
                 console.log('******** estoy en datos obtenerFormularioEmail JS****************');
             },
             success    :  function (response) {
-                var resultado =  $.parseJSON(response); 
+                var resultado =  $.parseJSON(response);
                 abrirModal('Enviar por email el '+ dedonde,resultado.html);// Abre una ventana y muestra el texto
             },
             error    :  function (request) {
                 console.log(request);
             }
-            
+
     });
 
 }
@@ -297,10 +297,10 @@ function enviarCorreo( f){
     $.post("tareas.php",datos,function(res){
         var resultado =  $.parseJSON(res);
         // cerramos modal.
-       
+
         titulo = 'Envio de email';
         if (resultado.envio_destinatario === 'OK' && resultado.subido_enviados=='OK'){
-            contenido = '<div class="alert alert-info">Fue enviado correctame y subido como enviado nuestro email correctamente</div>' 
+            contenido = '<div class="alert alert-info">Fue enviado correctame y subido como enviado nuestro email correctamente</div>'
             // Debemos cambiar el estado pedido y cerrar ventanama
         } else {
             contenido_inicio = '<div class="alert alert-danger">Hubo en error al enviarlo<br/>';
@@ -311,7 +311,7 @@ function enviarCorreo( f){
             // Hay que ver que fallo y informar del fallo.
         }
         console.log(resultado);
-        respuesta_email(titulo,contenido); 
+        respuesta_email(titulo,contenido);
     });
 }
 
@@ -320,9 +320,9 @@ function respuesta_email(titulo,contenido) {
 }
 
 function buscarProveedor(dedonde, idcaja, valor='', popup=''){
-    // @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta 
-    // @parametros: 
-    //      dedonde -> De donde venimos 
+    // @Objetivo: Buscar y comprobar que la busqueda de proveedor es correcta
+    // @parametros:
+    //      dedonde -> De donde venimos
     //      idCaja  -> La utilizamos en tareas para comprobaciones
     //      valor   -> valor que vamos a buscar
     //      popup   -> si viene de popup cerramos la ventana modal
@@ -342,7 +342,7 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
         },
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de buscar Proveedor');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             if (resultado.error){
                 alert('Error de sql :'+resultado.consulta);
                 return;
@@ -358,22 +358,22 @@ function buscarProveedor(dedonde, idcaja, valor='', popup=''){
                     $('#Proveedor').prop('disabled', true);
                     $('#id_proveedor').prop('disabled', true);
                     $("#buscar").css("display", "none");
-                    
+
                     //Dendiendo de donde venga realizamos unas funciones u otras
                     if (dedonde=="albaran" || dedonde=="factura" ){
                         comprobarAdjunto(dedonde);
                     }
                     if (dedonde=="pedido"){
-                        // Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada 
+                        // Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada
                         //Para poder empezar a meter articulos
                         ponerFocus("idArticulo");
                     }
                     mostrarFilaProveedor(dedonde);
-                    
+
                 }else{
                     //Si no mostramos un modal con los proveedores según la busqueda
                     var titulo = 'Listado Proveedores ';
-                    var HtmlProveedores=resultado.html['html']; 
+                    var HtmlProveedores=resultado.html['html'];
                     abrirModal(titulo,HtmlProveedores);
                     if (idcaja !=='cajaBusquedaproveedor'){
                         focusAlLanzarModal('cajaBusquedaproveedor');
@@ -407,7 +407,7 @@ function comprobarAdjunto(dedonde){
             },
             success    :  function (response) {
                 console.log('Llegue de comprobar adjunto');
-                var resultado =  $.parseJSON(response); 
+                var resultado =  $.parseJSON(response);
                 if (resultado.error){
                     alert(resultado.error);
                 }else{
@@ -440,7 +440,7 @@ function comprobarFecha(caja,event){
             alert('La fecha es superior a hoy');
         } else {
             if (productos.length == 0 ){
-                
+
                 saltarHora(caja);
             } else  {
                 ponerFocus(salto_linea);
@@ -448,14 +448,14 @@ function comprobarFecha(caja,event){
             cabecera.fecha=caja.darValor();
         }
     }
-        
+
 }
 
 function comprobarDecimalNumber(value) {
     // Comprobamos que sea un numero 0 decimal
     valor = value*1;
     if (isNaN(valor)){
-       valor = false; 
+       valor = false;
     }
   return valor;
 }
@@ -474,11 +474,11 @@ function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_
         var txtDonde = dedonde.substring(0, nlen);
         opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
     }
-    if (opcion === true){                          
+    if (opcion === true){
         productos.push(datos);
         addTemporal(dedonde)
         document.getElementById(id_input).value='';
-        
+
         if(fecha_actualizacion!=null){
             fechaProducto= fecha_actualizacion.split("-");
             fechaProducto=new Date(fechaProducto[2], fechaProducto[1] - 1, fechaProducto[0]);
@@ -491,10 +491,10 @@ function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_
             {
                  alert("El producto que vas a añadir tiene un coste que fue actualizado con fecha superior a la del albarán");
             }
-        }   
+        }
         //  Añado linea de producto.
         AgregarFilasProductos(datos, dedonde);
-        // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes... 
+        // ¿¿¿ Creo que no permitimos entonces tabla para añadir albaranes...
         if (dedonde=="factura"){
             $("#tablaAl").hide();
         }
@@ -502,7 +502,7 @@ function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_
 }
 
 function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
-    //@objetivo: 
+    //@objetivo:
     //Agregar la fila de productos
     console.log("Estoy en agregar fila productos albaran");
     if (datos.length>1){
@@ -524,7 +524,7 @@ function AgregarFilasProductos(datos, dedonde, cabecera ='NO'){
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de html fila pedidos');
             console.log(datos.campo);
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             var nuevafila = resultado['html'];
             $("#tabla").prepend(nuevafila);
             if(dedonde=="factura"){
@@ -556,7 +556,7 @@ function addTemporal(dedonde=""){
     if (dedonde=="factura"){
         var pulsado='addFacturaTemporal';
     };
-    
+
     var parametros = {
         "pulsado"       : pulsado,
         "idTemporal"    : cabecera.idTemporal,
@@ -609,30 +609,30 @@ function addTemporal(dedonde=""){
                         document.getElementById('estado').value="Sin Guardar";
                     }
                 }
-                // Creo funcion para restear totales.   
+                // Creo funcion para restear totales.
                 total = parseFloat(resultado['totales']['total'])
                 $('#tabla-pie  > tbody ').html(resultado['htmlTabla']);
-                
+
             }
         }
     });
-    
+
 }
 
 function ponerFocus (destino_focus){
     // @ Objetivo:
     //  Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
     setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-        jQuery('#'+destino_focus.toString()).focus(); 
-    }, 50); 
+        jQuery('#'+destino_focus.toString()).focus();
+    }, 50);
 }
 
 function ponerSelect (destino_focus){
     // @ Objetivo:
     //  Poner focus a donde nos indique el parametro, que debe ser id queremos apuntar.
     setTimeout(function() {   //pongo un tiempo de focus ya que sino no funciona correctamente
-        jQuery('#'+destino_focus.toString()).select(); 
-    }, 50); 
+        jQuery('#'+destino_focus.toString()).select();
+    }, 50);
 }
 
 function saltarHora(caja){
@@ -671,7 +671,7 @@ function escribirProductoSeleccionado(campo,cref,cdetalle,ctipoIva,ccodebar,ulti
         fecha_actualizacion = f[2]+'-'+f[1]+'-'+f[0];
     }
     AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,ultimoCoste);
-    
+
 }
 
 function cambioEstadoFila(producto,dedonde=""){
@@ -761,7 +761,7 @@ function eliminarTemporal(id_temporal,dedonde){
                 location.reload(true);
             } else {
                 alert('Ocurrio un error:'+response);
-            }            
+            }
         }
     });
 }
@@ -871,12 +871,12 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
     //  cantidad -> Valor ( numerico) de input unidades.
     //  num_item -> El numero que indica el producto que modificamos.
     console.log('Entre recalculoImporte:'+cantidad,num_item)
-    
+
     productos[num_item].nunidades = cantidad;
     productos[num_item].importe =parseFloat(productos[num_item].ultimoCoste)*cantidad;
     var N_fila = '#N'+productos[num_item].nfila;
     $(N_fila+'_Importe').html(productos[num_item].importe.toFixed(2));
-  
+
     var iva= productos[num_item].importe*(productos[num_item].iva/100);
     var importeIva=productos[num_item].importe+ parseFloat(iva);
     $(N_fila+'_ImporteIva').html(importeIva.toFixed(2));
@@ -897,8 +897,8 @@ function after_constructor(padre_caja,event){
     console.log(padre_caja);
     // @ Objetivo:
     // Ejecuta procesos antes construir el obj. caja.
-    // Traemos 
-    //      (objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear 
+    // Traemos
+    //      (objeto) padre_caja -> Que es objeto el padre del objeto que vamos a crear
     //      (objeto) event -> Es la accion que hizo, que trae todos los datos input,button , check.
     if (padre_caja.parametros.prefijo){
         // Si tiene prefijo quiere decir que es una lista, obtenemos id.
@@ -945,7 +945,7 @@ function before_constructor(caja){
         //~ No entiendo muy bien porque hace esto.
         caja.parametros.item_max = productos.length;
     }
-    return caja;    
+    return caja;
 }
 
 function permitirModificarReferenciaProveedor(idinput){
@@ -956,8 +956,8 @@ function permitirModificarReferenciaProveedor(idinput){
 }
 
 function AgregarAdjunto(datos, dedonde){
-    //@ Objetivo: 
-    //Esta función la utilizamos desde albarán o desde factura 
+    //@ Objetivo:
+    //Esta función la utilizamos desde albarán o desde factura
     //Desde albaran es para agregar la fila del pedido seleccionado y desde factura para agregar el albaran
     console.log("Estoy en agregar fila Pedido");
     var parametros = {
@@ -974,12 +974,12 @@ function AgregarAdjunto(datos, dedonde){
         },
         success    :  function (response) {
             console.log('Llegue devuelta respuesta de html fila pedidos');
-            var resultado =  $.parseJSON(response); 
+            var resultado =  $.parseJSON(response);
             var nuevafila = resultado['html'];
             $("#tablaPedidos").prepend(nuevafila);
-            $('#numPedido').focus(); 
-            $('#numPedido').val(""); 
-            
+            $('#numPedido').focus();
+            $('#numPedido').val("");
+
         }
     });
 }
@@ -989,7 +989,7 @@ function mostrarFilaProveedor(dedonde){
     $("#Row0").removeAttr("style") ;
     console.log(dedonde)
     if (dedonde == "albaran"){
-        ponerFocus('suNumero');   
+        ponerFocus('suNumero');
     } else {
         ponerFocus( ObtenerFocusDefectoEntradaLinea());
     }
@@ -1050,9 +1050,9 @@ function mensajeCancelar(idTemporal, dedonde){
                 }
             });
         }
-        
-    } 
-    
+
+    }
+
 }
 
 function SiTieneValorCajaCabecera(caja){
@@ -1068,7 +1068,7 @@ function SiTieneValorCajaCabecera(caja){
 }
 function ObtenerCajaSiguiente(idCaja){
     // @ Objetivo
-    //  Obtener cual es la caja siguiente salto 
+    //  Obtener cual es la caja siguiente salto
     // @ Parametro
     //   idcaja -> la caja actual.
     // @ Devolvemos
@@ -1078,7 +1078,7 @@ function ObtenerCajaSiguiente(idCaja){
         case 'idArticulo':
             d_focus = 'Referencia';
         break;
-        
+
         case 'Referencia':
             d_focus = 'ReferenciaPro';
         break;
@@ -1090,14 +1090,14 @@ function ObtenerCajaSiguiente(idCaja){
         case 'Codbarras':
             d_focus = 'Descripcion';
         break;
-        
+
         case 'hora':
             if (productos.length > 0){
                 // Deberia saltar a linea entrada producto por defecto
                 d_focus= salto_linea;
             } else  {
                 d_focus='Proveedor';
-                
+
             }
     }
     return d_focus;
@@ -1124,7 +1124,7 @@ return d_focus;
 
 }
 
-function ObtenerFocusDefectoEntradaLinea(){    
+function ObtenerFocusDefectoEntradaLinea(){
     return salto_linea;
 }
 
@@ -1155,7 +1155,7 @@ function abrirIncidenciasAdjuntas(id, modulo, dedonde){
                 abrirModal(titulo,resultado.html);
             }
         }
-        
+
     });
 }
 // =========================== OBJETOS  ===================================
@@ -1197,7 +1197,7 @@ function ObjProducto(datos)
         this.ultimoCoste = datos.ultimoCoste;
         importe = parseFloat(this.ultimoCoste) * this.nunidades;
         this.importe = importe.toFixed(2);
-    }   
+    }
 }
 
 

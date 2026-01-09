@@ -17,7 +17,7 @@ class ClaseDescuentosTicket extends modelo
 
     public function leer($id)
     {
-        return parent::_leer('id='.$id);
+        return parent::_leer('id=' . $id);
     }
 
     public function leerCliente($idcliente, $filtros = [])
@@ -26,7 +26,7 @@ class ClaseDescuentosTicket extends modelo
         //Parametros:
         //-idcliente: id del cliente
 
-        $filtros[]='idCliente='.$idcliente;
+        $filtros[] = 'idCliente=' . $idcliente;
         return $this->_leer($this->tabla, $filtros); //, [], [], 0, 0, true);
         //return $this->getSQLConsulta();
 
@@ -42,5 +42,4 @@ class ClaseDescuentosTicket extends modelo
     {
         return parent::insert($datos, $soloSQL);
     }
-
 }

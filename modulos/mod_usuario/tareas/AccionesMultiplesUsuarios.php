@@ -7,7 +7,7 @@
 // - Inactivar usuarios seleccionados
 // - Eliminar usuarios seleccionados
 // - Asignar grupo a usuarios seleccionados
-if (isset($_POST['idsSeleccionados'])){
+if (isset($_POST['idsSeleccionados'])) {
     $idsUsuarios = $_POST['idsSeleccionados'];
 }
 $html = '';
@@ -27,4 +27,4 @@ if (isset($idsUsuarios)) {
 }
 $html .= '<hr>';
 $html .= '<div id="submenuAccionesMultiplesUsuarios"></div>';
-$respuesta['html']=$html;
+$respuesta['html'] = $html;

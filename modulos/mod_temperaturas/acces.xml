@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>  
-<modulo nombre="mod_temperaturas" descripcion="Temperatura" permiso="1">  
-    <!-- Vista para gestión de dispositivos -->  
-    <vista nombre="temperatura.php" descripcion="Gestión Temperatura" permiso="1">  
-        <!-- Permisos para dispositivos -->  
-        <accion nombre="crearDispositivo" descripcion="Crear Dispositivo" permiso="0"></accion>  
-        <accion nombre="modificarDispositivo" descripcion="Modificar Dispositivo" permiso="0"></accion>  
-        <accion nombre="borrarDispositivo" descripcion="Borrar Dispositivo" permiso="0"></accion>  
-          
-        <!-- Permisos para registros de temperatura -->  
-        <accion nombre="registrarTemperatura" descripcion="Registrar Temperatura" permiso="1"></accion>  
-        <accion nombre="modificarTemperatura" descripcion="Modificar Registro Temperatura" permiso="0"></accion>  
-        <accion nombre="borrarTemperatura" descripcion="Borrar Registro Temperatura" permiso="0"></accion>  
-    </vista>  
-      
-    <!-- Vista para listado de registros -->  
-    <vista nombre="temperaturasListado.php" descripcion="Listado Temperaturas" permiso="1">  
-        <accion nombre="verListado" descripcion="Ver Listado Registros" permiso="1"></accion>  
-        <accion nombre="exportarDatos" descripcion="Exportar Datos" permiso="0"></accion>  
-    </vista>  
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_temperaturas" descripcion="Temperatura" permiso="1">
+    <!-- Vista para gestión de dispositivos -->
+    <vista nombre="temperatura.php" descripcion="Gestión Temperatura" permiso="1">
+        <!-- Permisos para dispositivos -->
+        <accion nombre="crearDispositivo" descripcion="Crear Dispositivo" permiso="0"></accion>
+        <accion nombre="modificarDispositivo" descripcion="Modificar Dispositivo" permiso="0"></accion>
+        <accion nombre="borrarDispositivo" descripcion="Borrar Dispositivo" permiso="0"></accion>
+
+        <!-- Permisos para registros de temperatura -->
+        <accion nombre="registrarTemperatura" descripcion="Registrar Temperatura" permiso="1"></accion>
+        <accion nombre="modificarTemperatura" descripcion="Modificar Registro Temperatura" permiso="0"></accion>
+        <accion nombre="borrarTemperatura" descripcion="Borrar Registro Temperatura" permiso="0"></accion>
+    </vista>
+
+    <!-- Vista para listado de registros -->
+    <vista nombre="temperaturasListado.php" descripcion="Listado Temperaturas" permiso="1">
+        <accion nombre="verListado" descripcion="Ver Listado Registros" permiso="1"></accion>
+        <accion nombre="exportarDatos" descripcion="Exportar Datos" permiso="0"></accion>
+    </vista>
 </modulo>

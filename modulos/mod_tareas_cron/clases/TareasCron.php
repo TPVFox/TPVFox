@@ -32,7 +32,6 @@ class TareasCron
         }
 
         return $cantidad;
-
     }
 
     public function execute(): void
@@ -57,19 +56,19 @@ class TareasCron
                             $intervalo = date_diff($datetime1, $datetime2);
 
                             $minutos_periodo = $this->periodo_to_minutos($tarea['cantidad_periodo'], $tarea['tipo_periodo']);
-                            DiarioCron::log('minutos periodo-->'.$minutos_periodo);
+                            DiarioCron::log('minutos periodo-->' . $minutos_periodo);
                             $minutos = $intervalo->days * 24 * 60;
                             $minutos += $intervalo->h * 60;
                             $minutos += $intervalo->i;
-                            DiarioCron::log('minutos-->'.$minutos);
+                            DiarioCron::log('minutos-->' . $minutos);
                             $ejecutar = $minutos >= $minutos_periodo;
                             error_log($ruta);
                             error_log($ejecutar ? 'SI ejecutar' : 'NO ejecutar');
-                            if(!$ejecutar){
-                                DiarioCron::log('No ejecuta tarea '.$tarea['nombre'].':No ha pasado periodo de '.$minutos_periodo.' minutos');
+                            if (!$ejecutar) {
+                                DiarioCron::log('No ejecuta tarea ' . $tarea['nombre'] . ':No ha pasado periodo de ' . $minutos_periodo . ' minutos');
                             }
                         } else {
-                            DiarioCron::log('No ejecuta tarea '.$tarea['nombre'].':fecha inicio no ha pasado',$tarea['id']);
+                            DiarioCron::log('No ejecuta tarea ' . $tarea['nombre'] . ':fecha inicio no ha pasado', $tarea['id']);
                         }
                     } else {
                         $ejecutar = true;
@@ -78,7 +77,7 @@ class TareasCron
                     if ($ejecutar) {
                         DiarioCron::log('ejecutar', $tarea['id']);
                         DiarioCron::log('estoy:' . $ruta, $tarea['id']);
-                        DiarioCron::log('Ejecuta tarea '.$tarea['nombre'],$tarea['id']);
+                        DiarioCron::log('Ejecuta tarea ' . $tarea['nombre'], $tarea['id']);
                         include_once $ruta;
                         if (!class_exists($tarea['nombre_clase'], false)) {
                             error_log("No carga la clase: " . $tarea['nombre_clase']);
@@ -101,5 +100,4 @@ class TareasCron
             }
         }
     }
-
 }

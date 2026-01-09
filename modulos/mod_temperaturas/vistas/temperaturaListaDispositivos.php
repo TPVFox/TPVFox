@@ -4,12 +4,12 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
     echo "<input type='hidden' name='action' value='update_temperaturas'>";
     // hidden input for idUsuario from tabla temperaturas
     echo "<table class='table table-striped'>";
-    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th>";    
+    echo "<thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Último Registro</th><th>Última Tª</th>";
     if (isset($ClasePermisos) && $ClasePermisos->getAccion("registrarTemperatura", $mod_vista)):
-    echo "<th>Nueva Tª</th>";
+        echo "<th>Nueva Tª</th>";
     endif;
     if (isset($ClasePermisos) && $ClasePermisos->getAccion("modificarDispositivo", $mod_vista)):
-    echo "<th>Acciones</th>";
+        echo "<th>Acciones</th>";
     endif;
     echo "</tr></thead><tbody>";
     foreach ($dispositivos as $dispositivo) {
@@ -44,4 +44,3 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
 } else {
     echo "<p>No hay dispositivos de temperatura añadidos.</p>";
 }
-?>

@@ -146,7 +146,7 @@ function buscarProducto(caja, valor){
                 datosEnInput(resultado['datos']['idArticulo'], resultado['datos']['nombre'], resultado['datos']['referencia'], resultado['datos']['codBarras']);
             }else{
                 var titulo = 'Listado Productos ';
-               
+
                 abrirModal(titulo,resultado['html']);
             }
 		}
@@ -212,7 +212,7 @@ function addPlu(idBalanza){
             }
 		}
 	});
-    
+
     }
 }
 function eliminarPlu(plu, idBalanza){

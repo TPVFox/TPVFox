@@ -1,6 +1,7 @@
 <?php
 // A partir de un array de temeperaturas y otro de dispositivos añadir a cada dispositivo su última temperatura registrada y la fecha de la misma
-function agregarUltimasTemperaturas(&$dispositivos, $temperaturas) {
+function agregarUltimasTemperaturas(&$dispositivos, $temperaturas)
+{
     // Crear un array asociativo para acceder rápidamente a la última temperatura por idDispositivo
     $ultimasTemperaturas = array();
     foreach ($temperaturas as $temp) {

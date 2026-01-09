@@ -7,7 +7,6 @@ if (!function_exists('dd')) { // dump and die
         print_r($what_to_dump);
         echo '</pre>';
         die();
-
     }
 }
 
@@ -28,7 +27,7 @@ if (!function_exists('mostrarError')) {
 }
 
 if (!function_exists('entreComillas')) {
-    function entreComillas($cadena, $comillas='"')
+    function entreComillas($cadena, $comillas = '"')
     {
         return $comillas . $cadena . $comillas;
     }

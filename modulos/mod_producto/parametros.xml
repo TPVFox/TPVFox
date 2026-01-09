@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 NOTA:
-En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de 
+En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de
 de la tabla modulos_configuracion los registros de este modulo
 
 -->
@@ -17,8 +17,8 @@ de la tabla modulos_configuracion los registros de este modulo
         <iva_predeterminado>21.00</iva_predeterminado>
         <filtro nombre="seleccion_productos">No</filtro>
 	</configuracion>
-	
-	
+
+
 	<cajas_input data-obj="id_input">
 		<caja_input>
 			<nombre id_input="referencia">cajaReferencia</nombre>
@@ -26,9 +26,9 @@ de la tabla modulos_configuracion los registros de este modulo
 				<action tecla="13">controlReferencia</action>
 				<action tecla="40">controlReferencia</action>
 			</teclas>
-			
+
 		</caja_input>
-		
+
 		<caja_input>
 			<nombre id_input="nombre">cajaNombre</nombre>
 			<teclas>
@@ -36,7 +36,7 @@ de la tabla modulos_configuracion los registros de este modulo
 				<action tecla="40">revisar_contenido</action>
 			</teclas>
 		</caja_input>
-			
+
 		<caja_input>
 			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
 			<nombre id_input="coste">cajaCoste</nombre>
@@ -44,21 +44,21 @@ de la tabla modulos_configuracion los registros de este modulo
 				<action tecla="13">salto_recalcular</action>
 			</teclas>
 		</caja_input>
-		
+
 		<caja_input>
 			<nombre id_input="beneficio">cajaBeneficio</nombre>
 			<teclas>
 				<action tecla="13">salto_recalcular</action>
 			</teclas>
 		</caja_input>
-		
+
 		<caja_input>
 			<nombre id_input="pvpSiva">cajaPvpSiva</nombre>
 			<teclas>
 				<action tecla="13">recalcularPvp</action>
 			</teclas>
 		</caja_input>
-		
+
 		<caja_input>
 			<nombre id_input="pvpCiva">cajaPvpCiva</nombre>
 			<teclas>
@@ -77,7 +77,7 @@ de la tabla modulos_configuracion los registros de este modulo
 				<action tecla="13">controlCodBarras</action>
 			</teclas>
 		</caja_input>
-		
+
 		<caja_input>
 			<nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
 			<teclas>
@@ -87,8 +87,8 @@ de la tabla modulos_configuracion los registros de este modulo
 			</teclas>
 			<parametros>
 				<parametro nombre="dedonde">popup</parametro>
-			</parametros> 
-			
+			</parametros>
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="N_">idN</nombre>
@@ -122,9 +122,9 @@ de la tabla modulos_configuracion los registros de este modulo
 			</after>
 			<before>
 				<estado>Si</estado>
-			</before>			
+			</before>
 		</caja_input>
-		
+
 		<!---    						Vista DetalleMayor                          -->
 		<caja_input>
 			<nombre id_input="id_producto">cajaIdDetalleMayor</nombre>
@@ -132,7 +132,7 @@ de la tabla modulos_configuracion los registros de este modulo
 				<action tecla="13">AccionExisteIdProductoDetalleMayor</action>
 			</teclas>
 		</caja_input>
-		
+
 	</cajas_input>
-	
+
 </parametros>

@@ -4,18 +4,19 @@
  * */
 
 
-include ($RutaServidor.$HostNombre.'/clases/ClaseTablaIva.php');
-include ($RutaServidor.$HostNombre.'/clases/ClaseTablaFamilias.php');
-include_once $RutaServidor.$HostNombre.'/modulos/mod_producto/clases/ClaseArticulosStocks.php';
+include($RutaServidor . $HostNombre . '/clases/ClaseTablaIva.php');
+include($RutaServidor . $HostNombre . '/clases/ClaseTablaFamilias.php');
+include_once $RutaServidor . $HostNombre . '/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
-class ClaseTablaArticulos{
-	
+class ClaseTablaArticulos
+{
+
 	private $db; // (Objeto) Conexion
 	private $idTienda; // (int) Id de la tienda , por defecto es la principal, pero se podrá cambiar.
 	// Propiedades particulares de tabla articulos.
 	private $num_rows; // (int) Numero de registros.
 	public $idArticulo;
-	public $iva= '0.00'; // String ya que obtenemos decimales... 
+	public $iva = '0.00'; // String ya que obtenemos decimales...
 	public $articulo_name = '';
 	public $cref_tienda_principal = ''; // La referencia de la tienda principal.
 	public $beneficio =  25; // Beneficio por defecto
@@ -23,7 +24,7 @@ class ClaseTablaArticulos{
 	public $ultimoCoste = 0; // Es el ultimo coste compra, si no se compro es el ultimo conocido, que pusimos.
 	public $pvpCiva = 0; // Precio con iva del producto en esa tienda.
 	public $pvpSiva = 0; // Precio sin iva del producto en esa tienda.
-	public $estado ='Nuevo'; // Estado del producto en la tabla articulos al crear.
+	public $estado = 'Nuevo'; // Estado del producto en la tabla articulos al crear.
 	public $fecha_creado;
 	public $fecha_modificado;
 	public $codBarras = array(); // Array de codbarras para ese producto.
@@ -31,18 +32,18 @@ class ClaseTablaArticulos{
 	public $proveedores_costes; // Array de proveedores para ese producto ( costes,referencias)
 	public $familias; // Array de familias de ese producto
 	public $proveedor_principal = array(); // Array con datos del proveedor principal
-    public $productos_historico;
+	public $productos_historico;
 	public $albaranes = array(); // Array de albaranes del producto
 	public $pedidos = array(); // Array de pedidos del producto
 	public $comprobaciones = array(); // Array  de mensajes ( ver metodo de comprobaciones)
-	public $ref_tiendas = array() ; // (array) Se utiliza para guardar las referencias distintas tiendas.
-    public $stocks = array('stockMin' =>0,'stockMax'=>0,'stockOn'=>0);
-    public $tipo='unidad';
-	
-	public function __construct($conexion='')
+	public $ref_tiendas = array(); // (array) Se utiliza para guardar las referencias distintas tiendas.
+	public $stocks = array('stockMin' => 0, 'stockMax' => 0, 'stockOn' => 0);
+	public $tipo = 'unidad';
+
+	public function __construct($conexion = '')
 	{
-		// Solo realizamos asignamos 
-		if (gettype($conexion) === 'object'){
+		// Solo realizamos asignamos
+		if (gettype($conexion) === 'object') {
 			$this->db = $conexion;
 			// Obtenemos el numero registros.
 			$sql = 'SELECT count(*) as num_reg FROM articulos';
@@ -52,8 +53,9 @@ class ClaseTablaArticulos{
 			$this->ObtenerTiendaPrincipal();
 		}
 	}
-	
-	public function Consulta($sql){
+
+	public function Consulta($sql)
+	{
 		// @ Objetivo:
 		// Realizar una consulta y devolver numero respuesta... o error..
 		// [NOTA]
@@ -65,10 +67,10 @@ class ClaseTablaArticulos{
 		$respuesta = array();
 		$db = $this->db;
 		$smt = $db->query($sql);
-		if ($smt) {    
+		if ($smt) {
 			$respuesta['NItems'] = $smt->num_rows;
 			// Hubo resultados
-			while ($fila = $smt->fetch_assoc()){
+			while ($fila = $smt->fetch_assoc()) {
 				$respuesta['Items'][] = $fila;
 			}
 		} else {
@@ -76,12 +78,13 @@ class ClaseTablaArticulos{
 			$respuesta['consulta'] = $sql;
 			$respuesta['error'] = $db->error;
 		}
-		
+
 		return $respuesta;
 	}
-	
-	
-	public function GetProducto($id= 0){
+
+
+	public function GetProducto($id = 0)
+	{
 		// @ Objetivo :
 		// Obtener los datos de un articulo ( producto).
 		// @ Parametro -> (int) id de articulo..
@@ -91,72 +94,74 @@ class ClaseTablaArticulos{
 		// El campo ultimoCoste, tendría que llamarse coste_ultimo
 		// El campo costepromedio -> coste_promedio ...
 		$this->MontarProducto(); // Se monta tanto id sea 0 como si no existe id.
-        
-        if ($id !=0){                    
+
+		if ($id != 0) {
 			$Sql = 'SELECT a.*, prec.* FROM articulos as a '
-				.'  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
-				.'  WHERE a.idArticulo ='.$id.' AND '
-				.'  prec.idArticulo='.$id.' AND prec.idTienda= '.$this->idTienda;
+				. '  LEFT JOIN articulosPrecios as prec ON a.idArticulo= prec.idArticulo '
+				. '  WHERE a.idArticulo =' . $id . ' AND '
+				. '  prec.idArticulo=' . $id . ' AND prec.idTienda= ' . $this->idTienda;
 			$consulta = $this->Consulta($Sql);
-            $marco_error = 'No' ;// Control si hubo error en consulta , lo normal es que no exista.	
-			if (isset ($consulta['NItems'])){
-				if ($consulta['NItems'] !== 1){ 
-				// Hubo un error o encontro mas de uno o 0, es decir no existe.
-						if ($consulta['NItems'] > 1){
-							$error = array ( 'tipo'=>'danger',
-									 'dato' =>$consulta,
-									 'mensaje' => 'Encontro mas de un articulo con es id, ponerse en contacto con programador'
-									 );
+			$marco_error = 'No'; // Control si hubo error en consulta , lo normal es que no exista.
+			if (isset($consulta['NItems'])) {
+				if ($consulta['NItems'] !== 1) {
+					// Hubo un error o encontro mas de uno o 0, es decir no existe.
+					if ($consulta['NItems'] > 1) {
+						$error = array(
+							'tipo' => 'danger',
+							'dato' => $consulta,
+							'mensaje' => 'Encontro mas de un articulo con es id, ponerse en contacto con programador'
+						);
+						$this->SetComprobaciones($error);
+					} else {
+						// No obtuvo Item en la consulta.
+						// El motivo puedo ser porque no tiene registro de precio, por lo que  realizo consulta
+						// de nuevo, pero solo de la tabla principal.
+						$SoloSql = 'SELECT * FROM articulos '
+							. '  WHERE idArticulo =' . $id;
+						$consulta = $this->Consulta($SoloSql);
+						if ($consulta['NItems'] !== 1) {
+							$error = array(
+								'tipo' => 'danger',
+								'dato' => $SoloSql,
+								'mensaje' => 'No encontro ningun registro con ese ID:' . $id . ' , ponerse en contacto con programador'
+							);
 							$this->SetComprobaciones($error);
 						} else {
-                            // No obtuvo Item en la consulta.
-                            // El motivo puedo ser porque no tiene registro de precio, por lo que  realizo consulta
-                            // de nuevo, pero solo de la tabla principal.
-                            $SoloSql = 'SELECT * FROM articulos '
-                            .'  WHERE idArticulo ='.$id;
-                            $consulta = $this->Consulta($SoloSql);
-                            if ($consulta['NItems'] !== 1){ 
-                                 $error = array ( 'tipo'=>'danger',
-                                 'dato' =>$SoloSql,
-                                 'mensaje' => 'No encontro ningun registro con ese ID:'.$id.' , ponerse en contacto con programador'
-                                 );
-                                $this->SetComprobaciones($error);
-                            } else {
-                                $error = array ( 'tipo'=>'warning',
-                                 'dato' =>$Sql,
-                                 'mensaje' => 'El producto con ID:'.$id.' , no tiene registro de precio, por lo creo en cero, para evitar problemas al guardar.'
-                                 );
-                                $this->SetComprobaciones($error);
-                                $marco_error = 'Si';
-                            }
+							$error = array(
+								'tipo' => 'warning',
+								'dato' => $Sql,
+								'mensaje' => 'El producto con ID:' . $id . ' , no tiene registro de precio, por lo creo en cero, para evitar problemas al guardar.'
+							);
+							$this->SetComprobaciones($error);
+							$marco_error = 'Si';
 						}
 					}
 				}
-                if ($consulta['NItems'] === 1){
-					$respuesta = $consulta['Items'][0];
-					$this->MontarProducto($respuesta);
-				}
-                if ($marco_error === 'Si'){
-                    // Existe registro , pero no existe registro precios, lo creo en 0
-                    $datos = $this->ArrayPropiedades();
-                    // Ahora tengo que crear elemento id, ya que es el que utiliza en funcion de insertar
-                    $datos['id'] = $datos['idArticulo'];
-                    $this->InsertarPreciosVentas($datos);
-                    
-                }
-                
-		} 
+			}
+			if ($consulta['NItems'] === 1) {
+				$respuesta = $consulta['Items'][0];
+				$this->MontarProducto($respuesta);
+			}
+			if ($marco_error === 'Si') {
+				// Existe registro , pero no existe registro precios, lo creo en 0
+				$datos = $this->ArrayPropiedades();
+				// Ahora tengo que crear elemento id, ya que es el que utiliza en funcion de insertar
+				$datos['id'] = $datos['idArticulo'];
+				$this->InsertarPreciosVentas($datos);
+			}
+		}
 
-        
+
 		return $this->ArrayPropiedades();
 	}
-	
-	// ----- METODOS PARA OBTENER PROPIEDADES --- //	
-	public function MontarProducto($datos=array()){
+
+	// ----- METODOS PARA OBTENER PROPIEDADES --- //
+	public function MontarProducto($datos = array())
+	{
 		// Metodo para montar añadir los datos al producto.
 		$this->proveedor_principal = array(); // Reinicio este valor evitar pille valor anterior.
-		foreach ($datos as $propiedad => $valor){
-			if ($propiedad === 'idProveedor'){
+		foreach ($datos as $propiedad => $valor) {
+			if ($propiedad === 'idProveedor') {
 				// El proveedor principal guardamos como proveedor_principal y todos datos.
 				$this->ObtenerDatosProvPredeter($valor);
 			} else {
@@ -164,99 +169,110 @@ class ClaseTablaArticulos{
 			}
 		}
 		// Recuerda que idArticulo es 0 por defecto.
-		if ($this->idArticulo !==NULL && $this->idArticulo !==0){
-			// Obtenemos referencias y datos de las otras tiendas con sus precios para ese producto	
-			$this->ObtenerReferenciasTiendas($this->idArticulo); 
+		if ($this->idArticulo !== NULL && $this->idArticulo !== 0) {
+			// Obtenemos referencias y datos de las otras tiendas con sus precios para ese producto
+			$this->ObtenerReferenciasTiendas($this->idArticulo);
 			// Obtenemos referencia del producto para tienda principal.
 			$this->ObtenerCrefTiendaPrincipal();
 			// Obtenemos precios de coste de proveedores.
 			$this->ObtenerCostesProveedores($this->idArticulo);
 			// Obtenemos familias a las que pertenece ese producto
 			$this->ObtenerFamiliasProducto($this->idArticulo);
-            //Obtener el historico precio de ese producto
-            $this->ObtenerHistoricoPrecio($this->idArticulo);
+			//Obtener el historico precio de ese producto
+			$this->ObtenerHistoricoPrecio($this->idArticulo);
 			// Obtenemos Codbarras a las que pertenece ese producto
 			$this->ObtenerCodbarrasProducto($this->idArticulo);
-            $this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda,true);                       
-            // Obtenemos lista de albaranes para el producto
+			$this->stocks = alArticulosStocks::leer($this->idArticulo, $this->idTienda, true);
+			// Obtenemos lista de albaranes para el producto
 			$this->ObtenerAlbaranesProducto($this->idArticulo);
 			// Obtenemos lista de pedidos para el producto
-			$this->ObtenerPedidosProducto($this->idArticulo);            
+			$this->ObtenerPedidosProducto($this->idArticulo);
 			// Por ultimo realizamos comprobaciones.
 			$this->Comprobaciones();
 		}
-		
 	}
-	
-	
-	public function ArrayPropiedades(){
+
+
+	public function ArrayPropiedades()
+	{
 		// Convertimos las propiedades en array
 		$respuesta = (array) $this;
-		if (count($this->comprobaciones)>0){
+		if (count($this->comprobaciones) > 0) {
 			// Quiere decir que hay comprobaciones realizadas,y puede ser errores.
-			foreach ( $this->comprobaciones as $comprobaciones){
+			foreach ($this->comprobaciones as $comprobaciones) {
 				// Si existe comprobaciones con tipo error no continuamos.
-				if ($comprobaciones['tipo'] === 'danger'){
-					$error =array('error'=>'No puedo continuar porque hay error grave',
-								  'comprobaciones' => $this->comprobaciones);
+				if ($comprobaciones['tipo'] === 'danger') {
+					$error = array(
+						'error' => 'No puedo continuar porque hay error grave',
+						'comprobaciones' => $this->comprobaciones
+					);
 					return $error;
 				}
 			}
 		}
 		// Eliminamos respuesta las que son privadas.
-		foreach ($respuesta as $key=>$valor){
-						
-			if (strrpos($key,'ClaseTablaArticulos')!== FALSE){
-				// Quiere decir que es privada, por lo que eliminamos 
+		foreach ($respuesta as $key => $valor) {
+
+			if (strrpos($key, 'ClaseTablaArticulos') !== FALSE) {
+				// Quiere decir que es privada, por lo que eliminamos
 				unset($respuesta[$key]);
 			}
 		}
-		
+
 		return $respuesta;
 	}
-	public function GetDb(){
+	public function GetDb()
+	{
 		// Puede hacer falta para insert ,update, delete...
 		return $this->db;
 	}
-	
-	public function GetNumRows(){
+
+	public function GetNumRows()
+	{
 		return $this->num_rows;
 	}
-	public function GetIdTienda(){
+	public function GetIdTienda()
+	{
 		return $this->idTienda;
 	}
-	public function GetCodbarras(){	
+	public function GetCodbarras()
+	{
 		return $this->codBarras;
 	}
-	public function GetReferenciasTiendas(){	
+	public function GetReferenciasTiendas()
+	{
 		return $this->ref_tiendas;
 	}
-	public function GetProveedorPrincipal(){	
+	public function GetProveedorPrincipal()
+	{
 		return $this->proveedor_principal;
 	}
-	public function GetComprobaciones(){	
+	public function GetComprobaciones()
+	{
 		return $this->comprobaciones;
 	}
-	public function Comprobaciones(){
+	public function Comprobaciones()
+	{
 		// Objetivo:
 		// Comprobar si los datos que tiene son correctos y cuales faltan.
-		// Devolvemos un array mensajes, 
+		// Devolvemos un array mensajes,
 		//   [comprobaciones] [0]
 		//			[tipo] -> (string) Indicando el tipo mensaje (dargen,warning,info,success)
 		//			[dato] -> (string-json) Dato que podemos necesitar... como propiedad,consulta, o lo que pueda necesitar.
 		//			[mensaje] ->(string) Texto que podemos mostrar al usuario.
-		
+
 		// ---- 1ª Comprobar que el tipo iva exist en la tabla ivas. ---------  //
-		$comprobarIva = $this-> ComprobarIva($this->iva);
-		if (gettype($comprobarIva['error'])==='array'){
+		$comprobarIva = $this->ComprobarIva($this->iva);
+		if (gettype($comprobarIva['error']) === 'array') {
 			$this->SetComprobaciones($error);
-		} 
-		$this->iva = $comprobarIva['iva']; // El iva por defecto (0.00) en caso de error 
-		
-		
+		}
+		$this->iva = $comprobarIva['iva']; // El iva por defecto (0.00) en caso de error
+
+
 	}
-	
-	function ComprobarIva($iva){
+
+	function ComprobarIva($iva)
+	{
 		// @ Objetivo:
 		// Comprobar si el iva es correcto
 		// @ Parametros:
@@ -265,186 +281,195 @@ class ClaseTablaArticulos{
 		// 	(array) con error (array) en caso de que falle, o string 'Ok' indicando que no fallo.
 		$ivas = $this->GetTodosIvas();
 		$r = 'KO';
-		foreach ($ivas as $item){
-			if ($item['iva'] === $iva){
+		foreach ($ivas as $item) {
+			if ($item['iva'] === $iva) {
 				// Quiere decir que no existe el iva.
 				$r = 'OK';
 				break;
 			}
 		}
-		if ($r === 'KO'){
-			$error = array ( 'tipo'=>'warning',
-								 'dato' => $Sql,
-								 'mensaje' => 'Cambiamos el iva, ya que no existe el tipo con iva '.$this->iva.' ponemos iva por defecto, mientras no lo guardes no lo arreglas.'
-								 );
+		if ($r === 'KO') {
+			$error = array(
+				'tipo' => 'warning',
+				'dato' => $Sql,
+				'mensaje' => 'Cambiamos el iva, ya que no existe el tipo con iva ' . $this->iva . ' ponemos iva por defecto, mientras no lo guardes no lo arreglas.'
+			);
 			$iva = 0.00;
 		}
-		if (!isset($error)){
+		if (!isset($error)) {
 			$error = $r;
 		}
-		$respuesta= array('error'=>$error,
-						  'iva'=> $iva);
-		
+		$respuesta = array(
+			'error' => $error,
+			'iva' => $iva
+		);
+
 		return $respuesta;
 	}
-	
+
 	// -----  OTROS FUNCIONES NECESARIAS ------ //
-	
-	public function GetTodosIvas(){
+
+	public function GetTodosIvas()
+	{
 		$CTivas = new ClaseTablaIva($this->db);
 		$ivas = $CTivas->todoIvas();
 		return $ivas;
 	}
-	
-	public function GetUnIva($id){
+
+	public function GetUnIva($id)
+	{
 		$CTivas = new ClaseTablaIva($this->db);
 		$iva = $CTivas->getIva($id);
 		return $iva;
 	}
-	
-	public function ObtenerTiendaPrincipal(){
+
+	public function ObtenerTiendaPrincipal()
+	{
 		// Objetivo:
 		// Obtener la tienda principal y guardarla en propiedad tienda.
 		// [NOTA]
-        // Ahora ya no hace falta esta función ya que ya la obtenemos al cargar la session en el inicial.php
+		// Ahora ya no hace falta esta función ya que ya la obtenemos al cargar la session en el inicial.php
 		$Sql = "SELECT idTienda FROM `tiendas` WHERE `tipoTienda`='Principal'";
 		$respuesta = $this->Consulta($Sql);
-		if ($respuesta['NItems'] === 1){
+		if ($respuesta['NItems'] === 1) {
 			// Quiere decir que obtuvo un dato solo..
 			$this->idTienda = $respuesta['Items'][0]['idTienda'];
 		}
 	}
-	
-	public function ObtenerDatosProvPredeter($id_proveedor){
+
+	public function ObtenerDatosProvPredeter($id_proveedor)
+	{
 		// @ Objetivo:
 		// Obtener los datos principal del proveedor del que indiquemos
-		// @ Parametro: 
-		//   $id_proveedor -> (int) Id del proveedor 
-		if (isset($id_proveedor) && $id_proveedor > 0 ) {
-			$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`='.$id_proveedor;
+		// @ Parametro:
+		//   $id_proveedor -> (int) Id del proveedor
+		if (isset($id_proveedor) && $id_proveedor > 0) {
+			$Sql = 'SELECT * FROM `proveedores` WHERE `idProveedor`=' . $id_proveedor;
 			$respuesta = $this->Consulta($Sql);
-			if ($respuesta['NItems'] === 1){
+			if ($respuesta['NItems'] === 1) {
 				// Solo puede obtener un proveedor.
 				$this->proveedor_principal = $respuesta['Items'][0];
 			} else {
 				// Hubo error  ( No puede suceder nunca que sea resultado mas 1...
-				if ($respuesta['NItems'] === 0){
+				if ($respuesta['NItems'] === 0) {
 					// No encontro
-					$error = array ( 'tipo'=>'warning',
-									 'dato' => 'idProveedor:'.$id_proveedor,
-									 'mensaje' => 'No fue encontrado el proveedor, con id:'.$id_proveedor.' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
-									 );
+					$error = array(
+						'tipo' => 'warning',
+						'dato' => 'idProveedor:' . $id_proveedor,
+						'mensaje' => 'No fue encontrado el proveedor, con id:' . $id_proveedor . ' ponemos 0 por defecto, mientras no lo guardes no lo arreglas.'
+					);
 					$this->SetComprobaciones($error);
-				} 
-				
+				}
 			}
 		}
-		
 	}
-	
-	public function ObtenerCostesProveedores($id){
-		// @ Objectivo: 
+
+	public function ObtenerCostesProveedores($id)
+	{
+		// @ Objectivo:
 		// Obtener los costes de los proveedores para un producto.
 		// @ Parametros:
 		// 	  $id -> (int) Id del producto a buscar.
-		$Sql= 'SELECT art_prov.*, pro.nombrecomercial, pro.razonsocial  FROM `articulosProveedores` AS art_prov LEFT JOIN proveedores AS pro ON pro.idProveedor = art_prov.idProveedor WHERE art_prov.idArticulo ='.$id;
+		$Sql = 'SELECT art_prov.*, pro.nombrecomercial, pro.razonsocial  FROM `articulosProveedores` AS art_prov LEFT JOIN proveedores AS pro ON pro.idProveedor = art_prov.idProveedor WHERE art_prov.idArticulo =' . $id;
 		$respuesta = $this->Consulta($Sql);
-		if ($respuesta['NItems'] > 0){
+		if ($respuesta['NItems'] > 0) {
 			// Solo puede obtener un proveedor.
 			$this->proveedores_costes = $respuesta['Items'];
 		} else {
 			// Hubo error - No encontro
-			$error = array ( 'tipo'=>'success',
-							 'dato' => 'idArticulo:'.$id,
-							 'mensaje' => 'No encontro ningún coste para es producto.'
-							 );
+			$error = array(
+				'tipo' => 'success',
+				'dato' => 'idArticulo:' . $id,
+				'mensaje' => 'No encontro ningún coste para es producto.'
+			);
 			$this->SetComprobaciones($error);
 		}
-		
 	}
-	
-	
-	public function ObtenerReferenciasTiendas($id){
+
+
+	public function ObtenerReferenciasTiendas($id)
+	{
 		// Objetivo:
 		// Obtener los referencias de todas tiendas de ese producto y los precios con iva y sin iva de esas tiendas.
 		// @Parametro
 		// $id -> (int) Id del producto.
 		$Sql = 'SELECT ati.id,ati.crefTienda, ati.idTienda, ati.idVirtuemart, ati.estado, ati.fechaModificacion, t.tipoTienda , t.dominio '
-            .' FROM `articulosTiendas` as ati '
-			.' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
-			.' WHERE  ati.idArticulo= '.$id;
+			. ' FROM `articulosTiendas` as ati '
+			. ' LEFT JOIN tiendas as t ON t.idTienda = ati.idTienda '
+			. ' WHERE  ati.idArticulo= ' . $id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		if (isset($consulta['Items'])){
+		if (isset($consulta['Items'])) {
 			$this->ref_tiendas = $consulta['Items'];
 		} else {
-            $this->ref_tiendas = array();
-        }
+			$this->ref_tiendas = array();
+		}
 	}
-	
-	public function ObtenerFamiliasProducto($id){
+
+	public function ObtenerFamiliasProducto($id)
+	{
 		// Objetivo:
 		// Obtener idFamilias y nombre de familia de ese producto
 		// @Parametro
 		// $id -> (int) Id del producto.
 		$Sql = 'SELECT f.*, artfam.idFamilia FROM `familias` as f '
-			.' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
-			.' WHERE artfam.idArticulo= '.$id;
-        
-        //~ $Sql = 'SELECT f.idFamilia FROM `familias` as f '
-			//~ .' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
-			//~ .' WHERE artfam.idArticulo= '.$id;
+			. ' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
+			. ' WHERE artfam.idArticulo= ' . $id;
+
+		//~ $Sql = 'SELECT f.idFamilia FROM `familias` as f '
+		//~ .' LEFT JOIN articulosFamilias as artfam ON f.idFamilia = artfam.idFamilia '
+		//~ .' WHERE artfam.idArticulo= '.$id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		if (isset($consulta['Items'])){
+		if (isset($consulta['Items'])) {
 			$this->familias = $consulta['Items'];
 		} else {
-            // Si no obtiene, tenemos poner valor familias array vacio, para que borre datos anteriores.
-            $this->familias= array();
-        }
-        
+			// Si no obtiene, tenemos poner valor familias array vacio, para que borre datos anteriores.
+			$this->familias = array();
+		}
 	}
-	
-    public function ObtenerHistoricoPrecio($id){
-        //@Objetivo:
-        //Obtener historico precios de un producto
-        //@Parametro:
-        //$id -> (int) Id del producto
-        $sql=' SELECT * FROM historico_precios WHERE idArticulo='.$id.' order by `Fecha_Creacion` desc limit 0,15';
-        $consulta = $this->Consulta($sql);
-        if(isset($consulta['Items'])){
-            $this->productos_historico=$consulta['Items'];
-        } else {
-            $this->productos_historico = array();
-        }
-        
-    }
-    
-	public function ObtenerCodbarrasProducto($id){
+
+	public function ObtenerHistoricoPrecio($id)
+	{
+		//@Objetivo:
+		//Obtener historico precios de un producto
+		//@Parametro:
+		//$id -> (int) Id del producto
+		$sql = ' SELECT * FROM historico_precios WHERE idArticulo=' . $id . ' order by `Fecha_Creacion` desc limit 0,15';
+		$consulta = $this->Consulta($sql);
+		if (isset($consulta['Items'])) {
+			$this->productos_historico = $consulta['Items'];
+		} else {
+			$this->productos_historico = array();
+		}
+	}
+
+	public function ObtenerCodbarrasProducto($id)
+	{
 		// Objetivo:
 		// Obtener codbarras para ese producto.
 		// @Parametro
 		// $id -> (int) Id del producto.
-		$codbarras= array();
-		$Sql = 'SELECT codBarras FROM articulosCodigoBarras WHERE idArticulo='.$id;
+		$codbarras = array();
+		$Sql = 'SELECT codBarras FROM articulosCodigoBarras WHERE idArticulo=' . $id;
 		$consulta = $this->Consulta($Sql);
 		// Aqui podemos obtener varios registros.
-		if (isset($consulta['Items'])){
-			foreach ($consulta['Items'] as $cod){
+		if (isset($consulta['Items'])) {
+			foreach ($consulta['Items'] as $cod) {
 				$codbarras[] = $cod['codBarras'];
 			};
 		}
-		// Si no hay resultado devolvemos array vacio igualmente... 
+		// Si no hay resultado devolvemos array vacio igualmente...
 		$this->codBarras = $codbarras;
-		 
 	}
-	
-	public function ObtenerCrefTiendaPrincipal(){
+
+	public function ObtenerCrefTiendaPrincipal()
+	{
 		// Objetivo
-		// Es obtener la referencia del producto de la tienda principal.		
-		if (gettype($this->ref_tiendas) === 'array'){
-			foreach ($this->ref_tiendas as $item){
-				if ($item['idTienda'] === $this->idTienda){
+		// Es obtener la referencia del producto de la tienda principal.
+		if (gettype($this->ref_tiendas) === 'array') {
+			foreach ($this->ref_tiendas as $item) {
+				if ($item['idTienda'] === $this->idTienda) {
 					// Es la tienda que tenemos com principal en propiedades de clase.
 					$this->cref_tienda_principal = $item['crefTienda'];
 					break;
@@ -452,7 +477,8 @@ class ClaseTablaArticulos{
 			}
 		}
 	}
-	public function ObtenerAlbaranesProducto($id){
+	public function ObtenerAlbaranesProducto($id)
+	{
 		// Objetivo:
 		// Obtener los albaranes de un producto.
 		// @ Parametro:
@@ -460,36 +486,37 @@ class ClaseTablaArticulos{
 		// @ Devuelve:
 		// 		Array con los albaranes del producto.
 		$sql = "SELECT
-					albprolinea.*, 
-				    albprot.*, 
+					albprolinea.*,
+				    albprot.*,
     				proveedores.razonsocial
-				FROM albprolinea 
+				FROM albprolinea
 				INNER JOIN albprot ON albprolinea.idalbpro = albprot.id
 				INNER JOIN proveedores ON albprot.idProveedor = proveedores.idProveedor
 				WHERE idArticulo = $id
 				ORDER BY Fecha DESC
 				LIMIT 15;
 				";
-        $consulta = $this->Consulta($sql);
-        if(isset($consulta['Items'])){
-            $this->albaranes=$consulta['Items'];
-        } else {
-            $this->albaranes = array();
-        }
+		$consulta = $this->Consulta($sql);
+		if (isset($consulta['Items'])) {
+			$this->albaranes = $consulta['Items'];
+		} else {
+			$this->albaranes = array();
+		}
 	}
-	public function ObtenerPedidosProducto($id){
+	public function ObtenerPedidosProducto($id)
+	{
 		// Objetivo:
 		// Obtener los pedidos de un producto.
 		// @ Parametro:
 		// 		$id -> (int) Id del producto.
 		// @ Devuelve:
 		// 		Array con los pedidos del producto.
-	
+
 		$sql = "SELECT
-					pedprolinea.*, 
-				    pedprot.*, 
+					pedprolinea.*,
+				    pedprot.*,
 					proveedores.razonsocial
-				FROM pedprolinea 
+				FROM pedprolinea
 				INNER JOIN pedprot ON pedprolinea.idpedpro = pedprot.id
 				INNER JOIN proveedores ON pedprot.idProveedor = proveedores.idProveedor
 				WHERE idArticulo = $id
@@ -497,24 +524,25 @@ class ClaseTablaArticulos{
 				LIMIT 15;
 				";
 		$consulta = $this->Consulta($sql);
-		if(isset($consulta['Items'])){
-			$this->pedidos=$consulta['Items'];
+		if (isset($consulta['Items'])) {
+			$this->pedidos = $consulta['Items'];
 		} else {
 			$this->pedidos = array();
 		}
 	}
-	public function SetComprobaciones($error){
-		// Objetivo 
+	public function SetComprobaciones($error)
+	{
+		// Objetivo
 		// Añadir al array una comprobacion.
-		if (gettype($error) === 'array'){
+		if (gettype($error) === 'array') {
 			// Es un array , ahora deberíamos comprobar que el tipo es corecto...:-)
 			// De momento no lo hago..
-			array_push($this->comprobaciones,$error);
+			array_push($this->comprobaciones, $error);
 		}
-		
 	}
-	
-	public function InsertarPreciosVentas($datos){
+
+	public function InsertarPreciosVentas($datos)
+	{
 		// @ Objectivo
 		// Modificar precio venta del producto indicado para tienda indicada.
 		// @ Parametro:
@@ -529,40 +557,35 @@ class ClaseTablaArticulos{
 		// 		$respuesta -> (array) donde envimamos la cantidad de registro insertados
 
 
-        if ($datos['id'] >0 ){
+		if ($datos['id'] > 0) {
 			// Solo compruebo que se aun numero y superior a 0;
-			$sql= 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES ('.$datos['id'].',"'.$datos['pvpCiva'].'","'.$datos['pvpSiva'].'",'.$datos['idTienda'].')';
-			$respuesta= array();
+			$sql = 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES (' . $datos['id'] . ',"' . $datos['pvpCiva'] . '","' . $datos['pvpSiva'] . '",' . $datos['idTienda'] . ')';
+			$respuesta = array();
 			$DB = $this->db;
-					$smt = $DB->query($sql);
-					if ($smt) {
-						$respuesta['Afectados'] = $DB->affected_rows;
-						// Hubo resultados
-					} else {
-						// Quiere decir que hubo error en la consulta.
-						$error = array ( 'tipo'=>'danger',
-									 'mensaje' =>'Error al insertar en tabla Articulos '.json_encode($DB->connect_errno),
-									 'dato' => $sql
-								);
-						$respuesta['error'] = $error;
-					}
-					$respuesta['consulta'] = $sql;
-
+			$smt = $DB->query($sql);
+			if ($smt) {
+				$respuesta['Afectados'] = $DB->affected_rows;
+				// Hubo resultados
+			} else {
+				// Quiere decir que hubo error en la consulta.
+				$error = array(
+					'tipo' => 'danger',
+					'mensaje' => 'Error al insertar en tabla Articulos ' . json_encode($DB->connect_errno),
+					'dato' => $sql
+				);
+				$respuesta['error'] = $error;
+			}
+			$respuesta['consulta'] = $sql;
 		} else {
 			// El id es 0 por lo que no añadimos nada y enviamos error.
-			$error = array ( 'tipo'=>'danger',
-									 'mensaje' =>'El id del producto '.$datos['id'].' enviado es incorrecto',
-									 'dato' => $datos
-								);
-						$respuesta['error'] = $error;
-			
+			$error = array(
+				'tipo' => 'danger',
+				'mensaje' => 'El id del producto ' . $datos['id'] . ' enviado es incorrecto',
+				'dato' => $datos
+			);
+			$respuesta['error'] = $error;
 		}
-		
+
 		return $respuesta;
-	
-		
-		
 	}
 }
-
-?>

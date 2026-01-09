@@ -4,19 +4,19 @@
             <th><input type="checkbox" class="checkSelectTodos" name="checkIdSelectTodos" onclick="CambiarEstadoCheckTodos()"></th>
             <th>IdArticulo</th>
             <th>PRODUCTO</th>
-            <th>PVP<br/>con iva</th>
+            <th>PVP<br />con iva</th>
             <th>COSTE</th>
             <th>Tipo</th>
-            <th>Stock<br/> ACTUAL</th>
-            <?php echo $Tpl['th_columnas_mayores'];?>
+            <th>Stock<br /> ACTUAL</th>
+            <?php echo $Tpl['th_columnas_mayores']; ?>
         </tr>
     </thead>
     <tbody>
         <?php
         foreach ($Nproductos as $producto) {
-            ?>
+        ?>
             <tr>
-                <td><input type="checkbox" class="checkSelect" name="checkNameSelect"  value="<?php echo $producto['idArticulo']; ?>" checked >
+                <td><input type="checkbox" class="checkSelect" name="checkNameSelect" value="<?php echo $producto['idArticulo']; ?>" checked>
                 </td>
                 <td><?php echo $producto['idArticulo']; ?></td>
                 <td><?php echo $producto['articulo_name']; ?></td>
@@ -27,21 +27,21 @@
                     <?php
                     // Si es de peso mostramos decimales , sino entero solo..
                     $redondeo = 0;
-                    if ($producto['tipo'] === 'peso'){
+                    if ($producto['tipo'] === 'peso') {
                         $redondeo = 3;
                     }
-                     echo number_format(round($producto['stock'],3),$redondeo);
-                     ?>
+                    echo number_format(round($producto['stock'], 3), $redondeo);
+                    ?>
                 </td>
                 <td>
-                    <?php echo $producto['td_acciones'];?>
+                    <?php echo $producto['td_acciones']; ?>
                 </td>
                 <td>
-                    <?php echo $producto['input'];?>
+                    <?php echo $producto['input']; ?>
                 </td>
-                
+
             </tr>
-            <?php
+        <?php
         }
         ?>
     </tbody>

@@ -1,52 +1,58 @@
-<?php 
-include_once $URLCom.'/clases/ClaseTFModelo.php';
-include_once $URLCom.'/modulos/mod_proveedor/clases/ClaseProveedor.php';
-class ClaseInformes extends TFModelo{
-    public $informes = array ( '1' => array('Titulo' => 'Informe de Compras por Proveedores.',
-                                    'opciones'=> array
-                                        (
-                                            '1' => 'Todos', // Todos los provedores y albaranes (esten o no facturados.)
-                                            '2' => 'Facturados',
-                                            '3' => 'Sin Facturar',
-                                            '4' => 'Proveedores activos'
-                                        )
-                                    ),
-                                '2' => array('Titulo' => 'Suma compras por familias',
-                                    'opciones'=> array
-                                        (
-                                        '1' => 'Solo Familias',
-                                        '2' => 'Familias y Productos',
-                                        )   
-                                    )             
-                                );
-    public function ObtenerdatosInforme(){
+<?php
+include_once $URLCom . '/clases/ClaseTFModelo.php';
+include_once $URLCom . '/modulos/mod_proveedor/clases/ClaseProveedor.php';
+class ClaseInformes extends TFModelo
+{
+    public $informes = array(
+        '1' => array(
+            'Titulo' => 'Informe de Compras por Proveedores.',
+            'opciones' => array(
+                '1' => 'Todos', // Todos los provedores y albaranes (esten o no facturados.)
+                '2' => 'Facturados',
+                '3' => 'Sin Facturar',
+                '4' => 'Proveedores activos'
+            )
+        ),
+        '2' => array(
+            'Titulo' => 'Suma compras por familias',
+            'opciones' => array(
+                '1' => 'Solo Familias',
+                '2' => 'Familias y Productos',
+            )
+        )
+    );
+    public function ObtenerdatosInforme()
+    {
         $parametros = $_GET;
-        // Deberíamos obtener: 
+        // Deberíamos obtener:
         //      id -> indica el informe que vamos tratar
         //      Finicio y Ffinal -> Rango de fechas para calcular informe.
         //      opcion-> la opcion seleccionada por el usuario para hacer el informe.
         $id = $parametros['id'];
-        if ($id == 1){
+        if ($id == 1) {
             // Añadimos parametros que pueden varias segun desde donde venga la peticion
             $parametros['filtroProveedores'] = 'todos'; // Los valores podemos enviar son 'todos','Activos','solo_ids'
-                                                       // extra ultima tenemos añadir un parametros mas idsProveedor:array()
-            $datos= $this->ResumenProveedores($parametros);
+            // extra ultima tenemos añadir un parametros mas idsProveedor:array()
+            $datos = $this->ResumenProveedores($parametros);
             $cabecera = array(
-                        'id'                =>  $id,
-                        'titulo_informe'    =>  $this->informes[$id]['Titulo'],
-                        'Fecha_Inicio'      =>  $parametros['Finicio'],
-                        'Fecha_Final'       =>  $parametros['Ffinal'],
-                        'opcion'            =>  $parametros['opcion']
-                    );
+                'id'                =>  $id,
+                'titulo_informe'    =>  $this->informes[$id]['Titulo'],
+                'Fecha_Inicio'      =>  $parametros['Finicio'],
+                'Fecha_Final'       =>  $parametros['Ffinal'],
+                'opcion'            =>  $parametros['opcion']
+            );
         }
-        $respuesta = array( 'datos'=>$datos,
-                            'cabecera'=>$cabecera);
+        $respuesta = array(
+            'datos' => $datos,
+            'cabecera' => $cabecera
+        );
 
 
         return $respuesta;
     }
 
-    public function ResumenProveedores($parametros = array()) {
+    public function ResumenProveedores($parametros = array())
+    {
         // @Objetivo:
         // Sumas los albaranes de los proveedores y por las fechas que indiquemos en los parametros.
         // @ Parametros
@@ -57,85 +63,83 @@ class ClaseInformes extends TFModelo{
         //          [opcion] => (int) Indica el la opcion seleccionada para realizar filtros.
         // @ Devolvemos
         $BDTpv = $this->conexionBDTPV();
-		$CProveedor= new ClaseProveedor($BDTpv);
+        $CProveedor = new ClaseProveedor($BDTpv);
         // Tratamos parametros para añadir ids_proveedores y tratarlos
         $opcion = $parametros['opcion'];
         $id_informe = $parametros['id'];
 
         // Cargamos los ids de los proveedores que indicamos.
-        if ($this->informes[$id_informe]['opciones'][$opcion] == 'Todos'){
+        if ($this->informes[$id_informe]['opciones'][$opcion] == 'Todos') {
             $todosProveedores = $CProveedor->obtenerProveedores();
-            $ids = $this->ObtenerIdsArray($todosProveedores,'idProveedor');
+            $ids = $this->ObtenerIdsArray($todosProveedores, 'idProveedor');
         }
         // ----     Cargamos los albaranes de todos los proveedores   ------ //
-        foreach ($ids as $key=>$idProveedor){
-            $errores= array();
-            $fechaInicial=$parametros['Finicio'];
-            $fechaFinal=$parametros['Ffinal'];
-            $datosProveedor=$CProveedor->getProveedor($idProveedor);          
-            if(!isset($datosProveedor['datos'])){
-                $errores[1]=array ( 'tipo'=>'DANGER!',
-                                'dato' => $datosProveedor['consulta'],
-                                'class'=>'alert alert-danger',
-                                'mensaje' => 'Error al obtener datos proveedor '.$idProveedor.',No debe existir proveedor'
-                                );          
-            }else{
-                $resumenProveedor=$CProveedor->albaranesProveedoresFechas($idProveedor, $fechaInicial, $fechaFinal);
-                if(isset($resumenProveedor['error'])){
-					// Puede ser varios error, trae un array(tipo,mensaje)
-                    $errores[2]=$resumenProveedor['error'];          
-                } 
+        foreach ($ids as $key => $idProveedor) {
+            $errores = array();
+            $fechaInicial = $parametros['Finicio'];
+            $fechaFinal = $parametros['Ffinal'];
+            $datosProveedor = $CProveedor->getProveedor($idProveedor);
+            if (!isset($datosProveedor['datos'])) {
+                $errores[1] = array(
+                    'tipo' => 'DANGER!',
+                    'dato' => $datosProveedor['consulta'],
+                    'class' => 'alert alert-danger',
+                    'mensaje' => 'Error al obtener datos proveedor ' . $idProveedor . ',No debe existir proveedor'
+                );
+            } else {
+                $resumenProveedor = $CProveedor->albaranesProveedoresFechas($idProveedor, $fechaInicial, $fechaFinal);
+                if (isset($resumenProveedor['error'])) {
+                    // Puede ser varios error, trae un array(tipo,mensaje)
+                    $errores[2] = $resumenProveedor['error'];
+                }
             }
-			if (count($errores)>0) {
+            if (count($errores) > 0) {
                 // error_log('***************************************');
                 // error_log('Error en ResumenProveedores de ClaseInformes:'.json_encode($errores));
-                $todosProveedores[$key]['errores'] =$resumenProveedor;
-
+                $todosProveedores[$key]['errores'] = $resumenProveedor;
             } else {
-                 // Creamos la propiedad de albaranes y cant_albaranes
-                $todosProveedores[$key]['cant_albaranes'] =count($resumenProveedor);
-                $todosProveedores[$key]['albaranes'] =$resumenProveedor;
-               
+                // Creamos la propiedad de albaranes y cant_albaranes
+                $todosProveedores[$key]['cant_albaranes'] = count($resumenProveedor);
+                $todosProveedores[$key]['albaranes'] = $resumenProveedor;
             }
-		}
+        }
         // ----     Fin obtener los albaranes de todos los proveedores   ------ //
 
         // Ahora tenemos ordenar y hacer las sumas de lineas albaranes por producto y totales por proveedor.
         $ArrayProductos = [];
         $SumaAlbaranes = [];
         $DesgloseAlbaranes = [];
-        foreach ($todosProveedores as $key=>$proveedor){
-            if (isset($proveedor['albaranes']['productos'])){
+        foreach ($todosProveedores as $key => $proveedor) {
+            if (isset($proveedor['albaranes']['productos'])) {
                 $p = $CProveedor->SumaLineasAlbaranesProveedores($proveedor['albaranes']['productos']);
                 // Ahora montamos array con todos los productos comprado de cada proveedor para luego sumarlos,
-                // es decir tener un array con la suma de todos los productos, de todos los proveedores en el intervalo de 
+                // es decir tener un array con la suma de todos los productos, de todos los proveedores en el intervalo de
                 // tiempo que indicamos.
                 $ArrayProductos[] = $p;
                 // Ahora añadimo propiedad "cant_referencias", que indica (int) la cantidad de referencias compradas
                 // en esos albaranes.
                 $todosProveedores[$key]['referencias_productos'] = count($p);
                 // Ahora sumar el desglose .
-                
-                
-                    $SumaAlbaranes[] = $proveedor['albaranes']['resumenBases'];
-                    $SumaAlbaranes[] = $todosProveedores[$key];
 
-                    $DesgloseAlbaranes[] = $proveedor['albaranes']['resumenBases'];
-                
+
+                $SumaAlbaranes[] = $proveedor['albaranes']['resumenBases'];
+                $SumaAlbaranes[] = $todosProveedores[$key];
+
+                $DesgloseAlbaranes[] = $proveedor['albaranes']['resumenBases'];
             }
         }
-        
+
         /* Queda pendiente sumar los albaranes y los desglose.
          * y ver como controlar cuando queremos filtrar algun proveedor o albaran no facturado.
          * Aquí en el proceso anterior, añadimos [referencias_productos]
          * */
-        $Productos =[];
+        $Productos = [];
         // Esto es necesario ya que tenemos varios array con productos, uno por cada Proveedor.
-        foreach ($ArrayProductos as $P){
-            foreach ( $P as $producto){
+        foreach ($ArrayProductos as $P) {
+            foreach ($P as $producto) {
                 $Productos[] = $producto;
             }
-        } 
+        }
         // Ahora sumamos todos los productos ( deberíamos controlar si hay mas de un proveedor), ya que no tiene sentido, si es uno
 
         $Productos = $this->SumaProductosTodosProveedores($Productos);
@@ -149,21 +153,22 @@ class ClaseInformes extends TFModelo{
         // idProveedor
         // cant_albaranes  ( este dato en esta metodo)
         $respuesta = array(
-                        'datos'     => $todosProveedores,
-        
-                        'informe'   => array(
-                                'productos'         => $Productos,
-                                'suma_albaranes'    => $SumaAlbaranes,
-                                'suma_desgloseIvas' => $DesgloseAlbaranes                      
-                            )
-                    );
+            'datos'     => $todosProveedores,
+
+            'informe'   => array(
+                'productos'         => $Productos,
+                'suma_albaranes'    => $SumaAlbaranes,
+                'suma_desgloseIvas' => $DesgloseAlbaranes
+            )
+        );
         return $respuesta;
     }
 
-   
 
 
-    public function SumaProductosTodosProveedores($LineasProductos) {
+
+    public function SumaProductosTodosProveedores($LineasProductos)
+    {
         // @ Objetivo
         // Obtener un array con la suma de productos comprados con su precio coste medio del array que recibimos.
         // @ Parametros:
@@ -177,38 +182,38 @@ class ClaseInformes extends TFModelo{
         //    [num_compras] => int
         //    [total_linea] => float
         //)
-       
-        $totalProductos=0;
+
+        $totalProductos = 0;
         $totalLineas = 0;
         /* $cdetalleArray = $this->ObtenerIdsArray($LineasProductos,'cdetalle');
         array_multisort($cdetalleArray, SORT_ASC, $LineasProductos); */
 
         $Productos = []; // inicializa tabla que aparece como resumen productos
-        foreach ($LineasProductos as $producto) {			
+        foreach ($LineasProductos as $producto) {
             $id_producto = $producto['idArticulo'];
             // Eliminamos propiedad de idalbpro ya que no es necesario.
             unset($producto['idalbpro']);
-            if(array_key_exists($id_producto, $Productos) == false){ // busca el indice. Si no existe lo crea con $producto
+            if (array_key_exists($id_producto, $Productos) == false) { // busca el indice. Si no existe lo crea con $producto
                 $Productos[$id_producto] = $producto;
                 $Productos[$id_producto]['costeSiva'] = $producto['costeSiva'];
                 $Productos[$id_producto]['coste_medio'] = 'KO';
-                if ($producto['coste_medio'] === 'OK'){
+                if ($producto['coste_medio'] === 'OK') {
                     $Productos[$id_producto]['coste_medio'] = 'OK';
                 }
                 $Productos[$id_producto]['totalUnidades'] = $producto['totalUnidades'];
                 $Productos[$id_producto]['num_compras'] = 1;
                 if ($producto['num_compras'] > 0) {
-                    $Productos[$id_producto]['num_compras'] =$producto['num_compras'];
+                    $Productos[$id_producto]['num_compras'] = $producto['num_compras'];
                 }
             } else {  // Si ya existe suma las unidades y calcula el precio medio
-                $total_producto = $producto['totalUnidades'] * $producto['costeSiva'];  
-                if($Productos[$id_producto]['costeSiva'] !== $producto['costeSiva']){
+                $total_producto = $producto['totalUnidades'] * $producto['costeSiva'];
+                if ($Productos[$id_producto]['costeSiva'] !== $producto['costeSiva']) {
                     $Productos[$id_producto]['coste_medio'] = 'OK';
                     $suma = $Productos[$id_producto]['totalUnidades'] + $producto['totalUnidades'];
-                    if ( $suma != 0){
+                    if ($suma != 0) {
                         $Productos[$id_producto]['costeSiva'] = ($Productos[$id_producto]['total_linea'] + $total_producto) / $suma;
                     }
-                }				
+                }
                 $Productos[$id_producto]['totalUnidades'] += $producto['totalUnidades'];
                 if ($producto['num_compras'] > 0) {
                     $Productos[$id_producto]['num_compras'] =  $Productos[$id_producto]['num_compras'] + $producto['num_compras'];
@@ -220,25 +225,25 @@ class ClaseInformes extends TFModelo{
         }
         // Una vez terminado, Volvemos a recorrer el array para quitar indice que pusimos como el idArticulo.
         $respuesta = [];
-        foreach ($Productos  as $producto){
+        foreach ($Productos  as $producto) {
             $respuesta[] = $producto;
         }
         return $respuesta;
-
     }
 
-    public function ObtenerIdsArray($datos,$campo){
-        // @ Objetivo 
+    public function ObtenerIdsArray($datos, $campo)
+    {
+        // @ Objetivo
         // Obtener un array con los datos de un campo determinado.
         $valores = [];
-        foreach ($datos as $dato){
+        foreach ($datos as $dato) {
             $valores[] = $dato[$campo];
         }
         return $valores;
-
     }
 
-    public function OpcionesInformes($id,$opcion){
+    public function OpcionesInformes($id, $opcion)
+    {
         // @ Objetivo:
         // Obtener datos necesarios para realizar los filtros necesarios, segun el informe y opcion recibidad.
         // @ Parametros:
@@ -248,11 +253,7 @@ class ClaseInformes extends TFModelo{
         // Devolvemos un array con los datos necesarios para poder realizar el filtro.
 
         // Creamos array con todos los informes y opciones posibles,
-        
+
         return $respuesta;
     }
-
-
 }
-
-?>

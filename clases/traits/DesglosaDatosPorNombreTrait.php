@@ -16,12 +16,11 @@ trait DesglosaDatosPorNombreTrait
     public function desglosaNoDatosPorNombre(array $datos, array $columnas): array
     {
         $resultado = [];
-        foreach ($datos as $indice =>$dato) {
+        foreach ($datos as $indice => $dato) {
             if (!in_array($indice, $columnas)) {
                 $resultado[$indice] = $dato;
             }
         }
         return $resultado;
     }
-
 }

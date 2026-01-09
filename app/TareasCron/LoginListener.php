@@ -22,7 +22,6 @@ class LoginListener
      */
     public function execute()
     {
-        error_log('Paso por aqui--->'.time());
-
+        error_log('Paso por aqui--->' . time());
     }
 }

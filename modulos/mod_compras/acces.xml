@@ -23,5 +23,5 @@
             <accion nombre="EnviarPedidoEmail" descripcion="Enviar pedido Email" permiso="0"></accion>
         </vista>
         <vista nombre="pedido.php" descripcion="Pedido" permiso="0"></vista>
-        
+
     </modulo>

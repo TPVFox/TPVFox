@@ -3,12 +3,12 @@
     <cajas_input data-obj="id_input">
         <caja_input>
             <nombre id_input="idArticulo">cajaidArticulo</nombre>
-            <teclas>		
+            <teclas>
                     <action tecla="13">BuscarProducto</action>
             </teclas>
 	    <parametros>
-		<parametro nombre="campo">a.idArticulo</parametro>  
-	   </parametros> 
+		<parametro nombre="campo">a.idArticulo</parametro>
+	   </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="nombreProducto">cajanombreProducto</nombre>
@@ -16,8 +16,8 @@
                     <action tecla="13">BuscarProducto</action>
             </teclas>
 	    <parametros>
-		<parametro nombre="campo">a.articulo_name</parametro>  
-	   </parametros> 
+		<parametro nombre="campo">a.articulo_name</parametro>
+	   </parametros>
         </caja_input>
         <caja_input>
             <nombre id_input="referencia">cajareferencia</nombre>
@@ -25,8 +25,8 @@
                     <action tecla="13">BuscarProducto</action>
             </teclas>
 	    <parametros>
-		<parametro nombre="campo">b.crefTienda</parametro>  
-	   </parametros> 
+		<parametro nombre="campo">b.crefTienda</parametro>
+	   </parametros>
         </caja_input>
          <caja_input>
             <nombre id_input="codBarras">cajacodBarras</nombre>
@@ -34,8 +34,8 @@
                     <action tecla="13">BuscarProducto</action>
            </teclas>
 	    <parametros>
-		<parametro nombre="campo">c.codBarras</parametro>  
-	   </parametros> 
+		<parametro nombre="campo">c.codBarras</parametro>
+	   </parametros>
         </caja_input>
 	<caja_input>
             <nombre id_input="cajaBusquedaProducto">cajaBusquedaProducto</nombre>
@@ -44,7 +44,7 @@
 
            </teclas>
            <parametros>
-		   <parametro nombre="campo"></parametro>  
+		   <parametro nombre="campo"></parametro>
 	   </parametros>
         </caja_input>
 	<caja_input>

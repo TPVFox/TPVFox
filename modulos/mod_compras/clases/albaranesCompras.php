@@ -2,13 +2,15 @@
 
 include_once('../mod_compras/clases/ClaseCompras.php');
 include_once '../mod_producto/clases/ClaseArticulosStocks.php';
-include_once $URLCom.'/modulos/mod_compras/clases/pedidosCompras.php';
-class AlbaranesCompras extends ClaseCompras {
+include_once $URLCom . '/modulos/mod_compras/clases/pedidosCompras.php';
+class AlbaranesCompras extends ClaseCompras
+{
 
     public $db; //(object) -> Conexion mysqli.
     public $errores = array(); // (array) con los errores de comprobaciones.
-    
-    public function __construct($conexion) {
+
+    public function __construct($conexion)
+    {
         $this->db = $conexion;
         // Obtenemos el numero registros.
         $sql = 'SELECT count(*) as num_reg FROM albprot';
@@ -24,7 +26,8 @@ class AlbaranesCompras extends ClaseCompras {
         // Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
     }
 
-    public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha, $idAlbaranTemporal, $productos, $pedidos, $suNumero) {
+    public function modificarDatosAlbaranTemporal($idUsuario, $idTienda, $estadoPedido, $fecha, $idAlbaranTemporal, $productos, $pedidos, $suNumero)
+    {
         //@Objetivo;
         //Modificamos los datos del pedido temporal, cada vez que hacemos cualquier modificación en el albarán,
         // modificamos el temporal
@@ -34,11 +37,11 @@ class AlbaranesCompras extends ClaseCompras {
         $UnicoCampoPedidos = json_encode($pedidos);
         $PrepPedidos = $this->db->real_escape_string($UnicoCampoPedidos);
         $sql = 'UPDATE albproltemporales SET idUsuario =' . $idUsuario . ' , idTienda='
-                . $idTienda . ' , estadoAlbPro="' . $estadoPedido . '" , Fecha="' . $fecha . '"  ,Productos="'
-                . $PrepProductos . '", Pedidos="' . $PrepPedidos . '" , Su_numero="'
-                . $suNumero . '" WHERE id=' . $idAlbaranTemporal;
+            . $idTienda . ' , estadoAlbPro="' . $estadoPedido . '" , Fecha="' . $fecha . '"  ,Productos="'
+            . $PrepProductos . '", Pedidos="' . $PrepPedidos . '" , Su_numero="'
+            . $suNumero . '" WHERE id=' . $idAlbaranTemporal;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
+        if (gettype($smt) === 'array') {
             $respuesta = $smt;
         } else {
             $respuesta['idTemporal'] = $idAlbaranTemporal;
@@ -48,7 +51,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha, $productos, $idProveedor, $pedidos, $suNumero) {
+    public function insertarDatosAlbaranTemporal($idUsuario, $idTienda, $estado, $fecha, $productos, $idProveedor, $pedidos, $suNumero)
+    {
         //Objetivo:
         //insertar un nuevo albaran temporal
         $productos_json = json_encode($productos);
@@ -56,12 +60,12 @@ class AlbaranesCompras extends ClaseCompras {
         $PrepProductos = $this->db->real_escape_string($U);
         $U = json_encode($pedidos);
         $PrepPedidos = $this->db->real_escape_string($U);
-        $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , Fecha, 
-        idProveedor,  Productos, Pedidos , Su_numero) VALUES 
+        $sql = 'INSERT INTO albproltemporales ( idUsuario , idTienda , estadoAlbPro , Fecha,
+        idProveedor,  Productos, Pedidos , Su_numero) VALUES
         (' . $idUsuario . ' , ' . $idTienda . ' , "' . $estado . '" , "' . $fecha . '", ' . $idProveedor . ' , "'
-                . $PrepProductos . '" , "' . $PrepPedidos . '", "' . $suNumero . '")';
-        $smt= parent::consulta($sql);
-        if (gettype($smt)!=='array') {
+            . $PrepProductos . '" , "' . $PrepPedidos . '", "' . $suNumero . '")';
+        $smt = parent::consulta($sql);
+        if (gettype($smt) !== 'array') {
             $respuesta['id'] = $this->insert_id;
             $respuesta['sql'] = $sql;
         } else {
@@ -71,59 +75,64 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function addNumRealTemporal($idTemporal, $idReal) {
+    public function addNumRealTemporal($idTemporal, $idReal)
+    {
         //Objetivo:
         //Modificar el albarán tempoal en el caso de que tengamos un numeroReal
         $sql = 'UPDATE albproltemporales set Numalbpro =' . $idReal . '  where id=' . $idTemporal;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-           return $smt;
+        if (gettype($smt) === 'array') {
+            return $smt;
         }
     }
 
-    public function modEstadoAlbaran($idAlbaran, $estado) {
+    public function modEstadoAlbaran($idAlbaran, $estado)
+    {
         // @Objetivo:
         //Modificar el estado del albarán
         $sql = 'UPDATE albprot set estado="' . $estado . '"  where id=' . $idAlbaran;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-           return $smt;
+        if (gettype($smt) === 'array') {
+            return $smt;
         }
     }
 
-    public function modTotales($res, $total, $totalivas) {
+    public function modTotales($res, $total, $totalivas)
+    {
         //@ Objetivo:
         // Modificar los totales del albarán temporal
         $sql = 'UPDATE albproltemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-           return $smt;
+        if (gettype($smt) === 'array') {
+            return $smt;
         }
     }
 
-    public function buscarAlbaranTemporal($idAlbaranTemporal) {
+    public function buscarAlbaranTemporal($idAlbaranTemporal)
+    {
         //@Objetivo:
         //Buscar los datos del un albarán temporal
         $sql = 'SELECT * FROM albproltemporales WHERE id=' . $idAlbaranTemporal;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-           $respuesta = $smt;
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
         } else {
-            if ($this->affected_rows > 0){
+            if ($this->affected_rows > 0) {
                 // Hubo resultados
                 if ($result = $smt->fetch_assoc()) {
                     $respuesta = $result;
                 }
             } else {
                 // No hubo resultado.
-                $respuesta['error'] = 'No se encontro temporal. affect_rows:'.$this->affected_rows;
+                $respuesta['error'] = 'No se encontro temporal. affect_rows:' . $this->affected_rows;
                 $respuesta['consulta'] = $sql;
             }
         }
         return $respuesta;
     }
 
-    public function buscarAlbaranNumero($numAlbaran) {
+    public function buscarAlbaranNumero($numAlbaran)
+    {
         //@Objetivo:
         //Buscamos los datos de un albarán real según el número del albarán.
         $tabla = 'albprot';
@@ -132,38 +141,40 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function eliminarTemporal($idTemporal, $idAlbaran =0){
+    public function eliminarTemporal($idTemporal, $idAlbaran = 0)
+    {
         //@Objetivo :
         // Eliminar temporal, tanto si recibe idTemporal o idPedido
-        if ($idAlbaran>0){
-            $sql='DELETE FROM albproltemporales WHERE Numalbpro='.$idAlbaran;
-        }else{
-            $sql='DELETE FROM albproltemporales WHERE id='.$idTemporal;
+        if ($idAlbaran > 0) {
+            $sql = 'DELETE FROM albproltemporales WHERE Numalbpro=' . $idAlbaran;
+        } else {
+            $sql = 'DELETE FROM albproltemporales WHERE id=' . $idTemporal;
         }
-        $smt=parent::consulta($sql);
-        if (gettype($smt)==='array'){
-                $respuesta['error']=$smt['error'];
-                $respuesta['consulta']=$smt['consulta'];
-        }else {
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+        } else {
             $respuesta['valores_insert'] = $this->affected_rows;
         }
         return $respuesta;
     }
 
-    public function eliminarAlbaranTablas($idAlbaran,$tabla = '') {
+    public function eliminarAlbaranTablas($idAlbaran, $tabla = '')
+    {
         //@ Objetivo:
         //Eliminamos todos los registros de un albarán determinado.
-        //Tambien descontamos el stock 
+        //Tambien descontamos el stock
         $albaran = $this->datosAlbaran($idAlbaran);
         $lineasAlbaran = $this->ProductosAlbaran($idAlbaran);
         $respuesta = array();
-        $tablas = array( 'albprot'=>'id','albprolinea'=>'idalbpro','albproIva'=>'idalbpro','pedproAlb'=>'idAlbaran');
+        $tablas = array('albprot' => 'id', 'albprolinea' => 'idalbpro', 'albproIva' => 'idalbpro', 'pedproAlb' => 'idAlbaran');
         $OK = 'KO';
-        if ($tabla !==''){
+        if ($tabla !== '') {
             // Controlamos que la tabla indicada exista en array
-            foreach ($tablas as $key=>$t){
+            foreach ($tablas as $key => $t) {
                 if ($key === $tabla) {
-                    $OK ='OK';
+                    $OK = 'OK';
                 } else {
                     // ELimino de array los nombres tablas que no son .
                     unset($tablas[$key]);
@@ -173,32 +184,33 @@ class AlbaranesCompras extends ClaseCompras {
             // Pongo en OK porque queremos eliminar las 3 tablas.
             $OK = 'OK';
         }
-        if ($idAlbaran > 0){
+        if ($idAlbaran > 0) {
             // Solo ejecuto si hay un idPedido y esta OK
-            if ($OK === 'OK'){
-                foreach($tablas as $tabla =>$campo){
-                    $where = 'where '.$campo.' = '.$idAlbaran;
-                    $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla,$where);
+            if ($OK === 'OK') {
+                foreach ($tablas as $tabla => $campo) {
+                    $where = 'where ' . $campo . ' = ' . $idAlbaran;
+                    $respuesta[$tabla] = parent::deleteRegistrosTabla($tabla, $where);
                 }
             }
             // Ahora elimino stock de las lineas eliminadas.
-           // if (count($respuesta) === 0 ){
-                
-                if($albaran && $lineasAlbaran ){
-                    $stock = new alArticulosStocks();
-                    foreach($lineasAlbaran as $linea){
-                        $idArticulo = $linea['idArticulo'];
-                        $idTienda = $albaran['idTienda'];
-                        $cantidad = $linea['ncant'];
-                        $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
-                    }
+            // if (count($respuesta) === 0 ){
+
+            if ($albaran && $lineasAlbaran) {
+                $stock = new alArticulosStocks();
+                foreach ($lineasAlbaran as $linea) {
+                    $idArticulo = $linea['idArticulo'];
+                    $idTienda = $albaran['idTienda'];
+                    $cantidad = $linea['ncant'];
+                    $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_RESTA);
                 }
+            }
             //}
         }
         return $respuesta;
     }
 
-    public function AddAlbaranGuardado($datos, $idAlbaran) {
+    public function AddAlbaranGuardado($datos, $idAlbaran)
+    {
         //@ Objetivo:
         //Añadimos los registro de un albarán.
         //Si $idAlbaran es mayor 0, entonces no es nuevo, solo se modifica albprot, donde los campos:
@@ -215,18 +227,18 @@ class AlbaranesCompras extends ClaseCompras {
         // Aquí tenemos que validar las fechas son correctas
         $datos['fechaVenci'] = $this->ComprobarFecha($datos['fechaVenci']);
         if ($idAlbaran > 0) {
-            $sql = 'UPDATE albprot SET Numalbpro ="'. $idAlbaran. '"'
-                    .', Fecha ="'. $datos['fecha']. '"'
-                    .', modify_by ="'.$datos['idUsuario'].'"'
-                    .', estado ="'. $datos['estado'] . '"'
-                    .', total_siniva ="'. $datos['total_siniva']. '"'
-                    .', total ="'. $datos['total']. '"'
-                    .', Su_numero ="'. $datos['suNumero'] . '"'
-                    .', formaPago ="'. $datos['formaPago'] . '"'
-                    .', FechaVencimiento ="'. $datos['fechaVenci'] . '"'
-                    .', fechaModificacion = NOW() WHERE id="'. $idAlbaran. '"';
+            $sql = 'UPDATE albprot SET Numalbpro ="' . $idAlbaran . '"'
+                . ', Fecha ="' . $datos['fecha'] . '"'
+                . ', modify_by ="' . $datos['idUsuario'] . '"'
+                . ', estado ="' . $datos['estado'] . '"'
+                . ', total_siniva ="' . $datos['total_siniva'] . '"'
+                . ', total ="' . $datos['total'] . '"'
+                . ', Su_numero ="' . $datos['suNumero'] . '"'
+                . ', formaPago ="' . $datos['formaPago'] . '"'
+                . ', FechaVencimiento ="' . $datos['fechaVenci'] . '"'
+                . ', fechaModificacion = NOW() WHERE id="' . $idAlbaran . '"';
             $smt = parent::consulta($sql);
-            if (gettype($smt)==='array') {
+            if (gettype($smt) === 'array') {
                 $respuesta = $smt;
             } else {
                 $id = $idAlbaran;
@@ -234,11 +246,11 @@ class AlbaranesCompras extends ClaseCompras {
             }
         } else {
             $sql = 'INSERT INTO  albprot  ( Fecha, idTienda , idUsuario , idProveedor , estado ,total_siniva, total, Su_numero, formaPago, FechaVencimiento) VALUES ('
-                    .' "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
-                    . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] .'", "' . $datos['total_siniva'].'", "' . $datos['total']
-                    . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
+                . ' "' . $datos['fecha'] . '", ' . $datos['idTienda'] . ', '
+                . $datos['idUsuario'] . ', ' . $datos['idProveedor'] . ' , "' . $datos['estado'] . '", "' . $datos['total_siniva'] . '", "' . $datos['total']
+                . '", "' . $datos['suNumero'] . '", "' . $datos['formaPago'] . '", "' . $datos['fechaVenci'] . '")';
             $smt = parent::consulta($sql);
-            if (gettype($smt)==='array') {
+            if (gettype($smt) === 'array') {
                 $respuesta = $smt;
             } else {
                 $id = $this->insert_id;
@@ -246,9 +258,9 @@ class AlbaranesCompras extends ClaseCompras {
                 if (isset($id)) {
                     $sql = 'UPDATE albprot SET Numalbpro  = ' . $id . ' WHERE id =' . $id;
                     $smt = parent::consulta($sql);
-                    if (gettype($smt)==='array') {
-                       $respuesta = $smt;
-                    } 
+                    if (gettype($smt) === 'array') {
+                        $respuesta = $smt;
+                    }
                 } else {
                     $respuesta['error'] = "No existe id";
                     $respuesta['consulta'] = "El realiza el insert";
@@ -261,65 +273,65 @@ class AlbaranesCompras extends ClaseCompras {
             $numAlbaran = $id;
             $stock = new alArticulosStocks();
             $values = array();
-            $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar, 
+            $sql = 'INSERT INTO albprolinea (idalbpro  , Numalbpro  , idArticulo , cref, ccodbar,
                     cdetalle, ncant, nunidades, costeSiva, iva, nfila, estadoLinea, ref_prov , idpedpro )';
             foreach ($productos as $prod) {
                 if ($prod['estado'] == 'Activo' || $prod['estado'] == 'activo') {
                     $i++;
-                    $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar']: null;
-                    $idPed = (isset($prod['idpedpro']))? $prod['idpedpro'] : 0;
-                    $refProveedor =(isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
+                    $codBarras = (isset($prod['ccodbar'])) ? $prod['ccodbar'] : null;
+                    $idPed = (isset($prod['idpedpro'])) ? $prod['idpedpro'] : 0;
+                    $refProveedor = (isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
                     //~ $ultimoCoste = floatnumber_format($prod['ultimoCoste'], 2, '.', '');
                     //~ if ($ultimoCoste == NULL){
-                        //~ // Si viene mal el dato
-                        //~ $ultimoCoste = '0';
+                    //~ // Si viene mal el dato
+                    //~ $ultimoCoste = '0';
                     //~ }
-                    $values[] ='('. $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
-                            . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
-                            . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
-                            . $refProveedor . "'" . ', ' . $idPed . ')';
-                            
-                    
+                    $values[] = '(' . $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
+                        . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
+                        . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
+                        . $refProveedor . "'" . ', ' . $idPed . ')';
+
+
                     // ¿Donde se guarda el error si no actualiza stock? ????
                     $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['nunidades'], K_STOCKARTICULO_SUMA);
                 }
             }
             $respuesta['n_productos_insertados'] = $i; // Si es 0, lo controlamos para dar una advertencia.
-            if ($i > 0){
+            if ($i > 0) {
                 // Ahora insertamos todos los productos a la vez.
-                $valores =' VALUES '.implode(',',$values);
+                $valores = ' VALUES ' . implode(',', $values);
                 $sql .= $valores;
                 $smt = parent::consulta($sql);
-                if (gettype($smt)==='array') {
-                   $respuesta = $smt;
-                   // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
-                   error_log('Error a la hora insertar productos en albaran '.$idalbpro.' el error:'.json_encode($smt));
+                if (gettype($smt) === 'array') {
+                    $respuesta = $smt;
+                    // Si hay un error grave, lo registramos en log, ya que hay arreglarlo a mano.
+                    error_log('Error a la hora insertar productos en albaran ' . $idalbpro . ' el error:' . json_encode($smt));
                 }
-            } 
-            if (!isset($respuesta['error'])){
+            }
+            if (!isset($respuesta['error'])) {
                 foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
                     $sql = 'INSERT INTO albproIva'
-                           .' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
-                           . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
-                           . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
+                        . ' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
+                        . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
+                        . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
                     $smt = parent::consulta($sql);
-                    if (gettype($smt)==='array') {
-                       $respuesta = $smt;
-                       break;
-                    } 
+                    if (gettype($smt) === 'array') {
+                        $respuesta = $smt;
+                        break;
+                    }
                 }
                 $pedidos = json_decode($datos['pedidos'], true);
                 if (count($pedidos) > 0) {
                     foreach ($pedidos as $pedido) {
                         if ($pedido['estado'] == 'activo') {
-                            $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido) 
+                            $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido)
                             VALUES (' . $id . ', ' . $numAlbaran . ' ,  ' . $pedido['idAdjunto'] . ' , '
-                                    . $pedido['NumAdjunto'] . ')';
+                                . $pedido['NumAdjunto'] . ')';
                             $smt = parent::consulta($sql);
-                            if (gettype($smt)==='array') {
+                            if (gettype($smt) === 'array') {
                                 $respuesta = $smt;
                                 break;
-                            } 
+                            }
                         }
                     }
                 }
@@ -328,7 +340,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function EliminarRegistroTemporal($idTemporal, $idAlbaran) {
+    public function EliminarRegistroTemporal($idTemporal, $idAlbaran)
+    {
         //@Objetivo:
         //Cadas vez que añadimos un albarán como guardado tenemos que eliminar el registro temporal
         if ($idAlbaran > 0) {
@@ -337,66 +350,68 @@ class AlbaranesCompras extends ClaseCompras {
             $sql = 'DELETE FROM albproltemporales WHERE id=' . $idTemporal;
         }
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
+        if (gettype($smt) === 'array') {
             $respuesta = $smt;
             return $respuesta;
         }
     }
 
-    public function TodosTemporal($idAlbaran = 0) {
+    public function TodosTemporal($idAlbaran = 0)
+    {
         //@Objetivo:
         //Obtener todos los albaranes temporales o la de un solo albaran
         $respuesta = array();
-        $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total, 
-            b.nombrecomercial from albproltemporales as tem left JOIN proveedores 
+        $sql = 'SELECT tem.Numalbpro, tem.id , tem.idProveedor, tem.total,
+            b.nombrecomercial from albproltemporales as tem left JOIN proveedores
             as b on tem.idProveedor=b.idProveedor';
-        if ($idAlbaran > 0){
+        if ($idAlbaran > 0) {
             // buscamos solos temporales para ese albaran.
             // [OJO] El campo que tenemos en temporal es NumalbPro pero debe se idalbpro
             // ya el día de mañana que pongamos en funcionamiento el poder distinto numero que id
             // dejaría funciona.
-            $sql .= ' where tem.NumalbPro='.$idAlbaran;
+            $sql .= ' where tem.NumalbPro=' . $idAlbaran;
         }
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
+        if (gettype($smt) === 'array') {
             // Hubo error devolvemos array (error,consulta)
-            $respuesta = $smt;       
+            $respuesta = $smt;
         } else {
             while ($result = $smt->fetch_assoc()) {
                 array_push($respuesta, $result);
             }
         }
-       return $respuesta;
-
-    }
-
-     public function CuentaTodosAlbaranesLimite($limite='') {
-        //@Objetivo:
-        //Contamos todos los albaranes de la tabla principal pero con un límite para la paginación
-        $respuesta = array();
-        $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a LEFT JOIN proveedores as b on 
-        a.idProveedor =b.idProveedor  '  . ($limite ? :'');
-        $smt = parent::consulta($sql); 
-        
-        $result = $smt->fetch_assoc();
-        
-        $respuesta['contador'] = $result ? $result['contador'] : 0;
-        $respuesta['consulta'] = $sql;
-        $respuesta['limite'] = $limite;
-        
         return $respuesta;
     }
 
-    public function TodosAlbaranesLimite($limite) {
+    public function CuentaTodosAlbaranesLimite($limite = '')
+    {
+        //@Objetivo:
+        //Contamos todos los albaranes de la tabla principal pero con un límite para la paginación
+        $respuesta = array();
+        $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a LEFT JOIN proveedores as b on
+        a.idProveedor =b.idProveedor  '  . ($limite ?: '');
+        $smt = parent::consulta($sql);
+
+        $result = $smt->fetch_assoc();
+
+        $respuesta['contador'] = $result ? $result['contador'] : 0;
+        $respuesta['consulta'] = $sql;
+        $respuesta['limite'] = $limite;
+
+        return $respuesta;
+    }
+
+    public function TodosAlbaranesLimite($limite)
+    {
         //@Objetivo:
         //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
         $respuesta = array();
-        $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total, 
-        a.estado  from `albprot` as a LEFT JOIN proveedores as b on 
+        $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total,
+        a.estado  from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  ' . $limite;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-            $respuesta = $smt; 
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
         } else {
             $pedidosPrincipal = array();
             while ($result = $smt->fetch_assoc()) {
@@ -409,44 +424,53 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function GetAlbaran($id){
+    public function GetAlbaran($id)
+    {
         $datos = $this->datosAlbaran($id);
-        if (isset($datos['error'])){
-            array_push($this->errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 1 en base datos.Consulta:'.json_encode($datos['consulta'])
-                                )
-                        );
+        if (isset($datos['error'])) {
+            array_push(
+                $this->errores,
+                $this->montarAdvertencia(
+                    'danger',
+                    'Error 1 en base datos.Consulta:' . json_encode($datos['consulta'])
+                )
+            );
         }
-        $productos =$this->ProductosAlbaranFormulario($id);
-        if (isset($productos['error'])){
-            array_push($this->errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 2 en base datos.Consulta:'.json_encode($productos['consulta'])
-                                )
-                        );
-        } 
-        $ivas=$this->IvasAlbaran($id);
+        $productos = $this->ProductosAlbaranFormulario($id);
+        if (isset($productos['error'])) {
+            array_push(
+                $this->errores,
+                $this->montarAdvertencia(
+                    'danger',
+                    'Error 2 en base datos.Consulta:' . json_encode($productos['consulta'])
+                )
+            );
+        }
+        $ivas = $this->IvasAlbaran($id);
         // Lo dejo de momento, pero pienso que no hace falta ya que hago recalculo y ademas no lo devuelvo...
         // Lo unico par aindicar que hubo un error.
-        if (isset($ivas['error'])){
-            array_push($this->errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 3 en base datos.Consulta:'.json_encode($ivas['consulta'])
-                                )
-                        );
+        if (isset($ivas['error'])) {
+            array_push(
+                $this->errores,
+                $this->montarAdvertencia(
+                    'danger',
+                    'Error 3 en base datos.Consulta:' . json_encode($ivas['consulta'])
+                )
+            );
         }
-        $pedidos=$this->PedidosAlbaranes($id);
-        if (isset($pedidos['error'])){
-            array_push($this->errores,$this->montarAdvertencia(
-                                        'danger',
-                                        'Error 4 en base datos.Consulta:'.json_encode($pedidos['consulta'])
-                                )
-                        );
+        $pedidos = $this->PedidosAlbaranes($id);
+        if (isset($pedidos['error'])) {
+            array_push(
+                $this->errores,
+                $this->montarAdvertencia(
+                    'danger',
+                    'Error 4 en base datos.Consulta:' . json_encode($pedidos['consulta'])
+                )
+            );
         }
-        if (count($this->errores)===0 ){
+        if (count($this->errores) === 0) {
             // Si no hubo errores añadimos datos y formateamos datos fecha.
-            $datos['Productos']=$productos;
+            $datos['Productos'] = $productos;
             $datos['Pedidos'] = $pedidos;
         } else {
             // Si hubo errores los devolvemos.
@@ -455,7 +479,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $datos;
     }
 
-    public function datosAlbaran($idAlbaran) {
+    public function datosAlbaran($idAlbaran)
+    {
         //@Objetivo:
         //MOstramos los datos de un albarán buscando por ID
         $tabla = 'albprot';
@@ -464,7 +489,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function sumarIva($numAlbaran) {
+    public function sumarIva($numAlbaran)
+    {
         //@Objetivo:
         //Sumamos los importes iva y el total de la base de un número de albarán
         $from_where = 'from albproIva where  Numalbpro  =' . $numAlbaran;
@@ -472,9 +498,10 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
- 
 
-    public function ProductosAlbaran($idAlbaran) {
+
+    public function ProductosAlbaran($idAlbaran)
+    {
         //@Objetivo:
         //BUscamos los productos de un determinado id de albarán
         $tabla = 'albprolinea';
@@ -483,15 +510,16 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function ProductosAlbaranFormulario($idAlbaran) {
+    public function ProductosAlbaranFormulario($idAlbaran)
+    {
         //@ Objetivo:
         // Es igual que el metodo ProductosAlbaran pero cambiando nombre campos para funciones correctamente.
         $respuesta = [];
         $where = 'idalbpro= ' . $idAlbaran;
-        $sql =  'SELECT `id`, `idalbpro`, `Numalbpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `idpedpro` FROM `albprolinea` WHERE '.$where;
+        $sql =  'SELECT `id`, `idalbpro`, `Numalbpro`, `idArticulo`, `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `costeSiva` as ultimoCoste, `iva`, `nfila`, `estadoLinea` as estado, `ref_prov`, `idpedpro` FROM `albprolinea` WHERE ' . $where;
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array') {
-            $respuesta = $smt; 
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
         } else {
             while ($result = $smt->fetch_assoc()) {
                 $respuesta[] = $result;
@@ -500,7 +528,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $respuesta;
     }
 
-    public function IvasAlbaran($idAlbaran) {
+    public function IvasAlbaran($idAlbaran)
+    {
         //@Objetivo:
         //Mostramos los registros de iva de un determinado albarán
         $tabla = 'albproIva';
@@ -509,7 +538,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function PedidosAlbaranes($idAlbaran,$completo ='KO') {
+    public function PedidosAlbaranes($idAlbaran, $completo = 'KO')
+    {
         // @ Objetivo:
         //Obtenemos los pedidos que estan añadidos en albaran.
         // @ Parametros
@@ -526,26 +556,27 @@ class AlbaranesCompras extends ClaseCompras {
         $tabla = 'pedproAlb';
         $where = 'idAlbaran= ' . $idAlbaran;
         $pedidos = parent::SelectVariosResult($tabla, $where);
-        if ($completo === 'OK'){
+        if ($completo === 'OK') {
             // Si tiene datos y no trae error.
-            if (!isset($pedidos['error']) && count($pedidos) >0){
+            if (!isset($pedidos['error']) && count($pedidos) > 0) {
                 // Pide completo y tiene datos.
                 $Cped = new PedidosCompras($this->db);
-                foreach ($pedidos as $key=>$pedido){   
+                foreach ($pedidos as $key => $pedido) {
                     $d = $Cped->datosPedido($pedido['idPedido']);
-                    $pedidos[$key]['Numpedpro'] = $d ['Numpedpro'];
+                    $pedidos[$key]['Numpedpro'] = $d['Numpedpro'];
                     $pedidos[$key]['estado'] = $d['estado'];
                     $pedidos[$key]['total']  = $d['total'];
-                    $pedidos[$key]['fecha'] = $d['Fecha'];               
+                    $pedidos[$key]['fecha'] = $d['Fecha'];
                 }
             }
         }
         return $pedidos;
     }
 
-    public function albaranesProveedorGuardado($idProveedor, $estado) {
+    public function albaranesProveedorGuardado($idProveedor, $estado)
+    {
         //@Objetivo:
-        //Muestra los albaranes de un proveedor determinado con el estado indicado. 
+        //Muestra los albaranes de un proveedor determinado con el estado indicado.
         //Principalmente la utilizamos para saber los
         //albaranes de guardados de un proveedor para poder incluirlo en facturas
         $tabla = 'albprot';
@@ -554,7 +585,8 @@ class AlbaranesCompras extends ClaseCompras {
         return $albaran;
     }
 
-    public function buscarAlbaranProveedorPorEstado($idProveedor, $numAlbaran, $estado) {
+    public function buscarAlbaranProveedorPorEstado($idProveedor, $numAlbaran, $estado)
+    {
         //@Objetivo:
         //Buscar datos principales de un albarán de proveedor y con el estado indicado
         // @ Parametros:
@@ -562,66 +594,70 @@ class AlbaranesCompras extends ClaseCompras {
         // $numAlbaran -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
         // $estado -> Lo pedidos queremos buscar segun su estado.
         $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
-              a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a 
-              INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . ' 
-              and a.estado="'.$estado.'"';
-        if ($numAlbaran > 0){
-            $sql .=' and a.Numalbpro=' . $numAlbaran ;
+              a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a
+              INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . '
+              and a.estado="' . $estado . '"';
+        if ($numAlbaran > 0) {
+            $sql .= ' and a.Numalbpro=' . $numAlbaran;
         }
         $sql .= ' GROUP by a.id ';
         $smt = parent::consulta($sql);
-        if (gettype($smt)==='array'){
+        if (gettype($smt) === 'array') {
             //Hubo un error
-            $albaran['error']=$smt['error'];
-            $albaran['consulta']=$smt['consulta'];
-        }else{
+            $albaran['error'] = $smt['error'];
+            $albaran['consulta'] = $smt['consulta'];
+        } else {
             // Fue correcto.
-            $albaran['Nitems']= $smt->num_rows;
-            if($smt->num_rows>0){
-                if ($smt->num_rows==1){
-                    $albaran['datos'][]=$smt->fetch_assoc();
+            $albaran['Nitems'] = $smt->num_rows;
+            if ($smt->num_rows > 0) {
+                if ($smt->num_rows == 1) {
+                    $albaran['datos'][] = $smt->fetch_assoc();
                 } else {
-                    $albaranPrincipal=array();
+                    $albaranPrincipal = array();
                     while ($result = $smt->fetch_assoc()) {
-                        array_push($albaranPrincipal,$result);
+                        array_push($albaranPrincipal, $result);
                     }
-                    $albaran['datos']=$albaranPrincipal;
+                    $albaran['datos'] = $albaranPrincipal;
                 }
-            } 
+            }
         }
         return $albaran;
     }
 
-    public function modFechaNumero($id, $suNumero, $fecha, $formaPago, $fechaVencimiento) {
+    public function modFechaNumero($id, $suNumero, $fecha, $formaPago, $fechaVencimiento)
+    {
         $respuesta = array();
         $sql = 'UPDATE albprot set Su_numero="' . $suNumero . '" , Fecha="' . $fecha . '", formaPago="' . $formaPago . '", FechaVencimiento="' . $fechaVencimiento . '" where id=' . $id;
         $smt = parent::consulta($sql);
-         if (gettype($smt)==='array') {
-            $respuesta = $smt; 
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
         }
         return $respuesta;
     }
-    
-    public function NumfacturaDeAlbaran($numAlbaran){   
-        $tabla='albprofac';
-        $where='`numAlbaran`='.$numAlbaran;
+
+    public function NumfacturaDeAlbaran($numAlbaran)
+    {
+        $tabla = 'albprofac';
+        $where = '`numAlbaran`=' . $numAlbaran;
         $albaran = parent::SelectUnResult($tabla, $where);
         return $albaran;
     }
 
-    public function ComprobarFecha($fecha){
+    public function ComprobarFecha($fecha)
+    {
         // @Objetivo:
         // Comprobar si la fecha (string) es correcta, si no es devuelve una fecha 0000-00-00
         // @Devolvemos string
-        if (strlen(trim($fecha)) === 0){
-            $fecha="0000-00-00";
+        if (strlen(trim($fecha)) === 0) {
+            $fecha = "0000-00-00";
         }
         return $fecha;
     }
 
-    public function guardarAlbaran(){
+    public function guardarAlbaran()
+    {
         //@ Objetivo:
-        // Se comprueba si no hay errroes, se Guardar un albarán, eliminar el temporal y comprobar cambio de precios 
+        // Se comprueba si no hay errroes, se Guardar un albarán, eliminar el temporal y comprobar cambio de precios
         // para insertarlos en el historico
         //@ Parámetros:
         //  No recibe ya que no necesita, ya lo tiene todo de sistema. (POST,GET ...)
@@ -629,196 +665,229 @@ class AlbaranesCompras extends ClaseCompras {
         // - Si es nuevo, es decir no existe idAlbaran, se inserta.
         // - Si se esta modificando entonces , se modifica tabla albprot y resto de tablas se elimina los registros de ese
         // albaran y se vuelven insertar.
-        $errores=array();
+        $errores = array();
         $Tienda = $_SESSION['tiendaTpv'];
         $Usuario = $_SESSION['usuarioTpv'];
-        if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])){
-             array_push($errores,$this->montarAdvertencia('danger',
-                                    'ERROR NO HAY DATOS DE SESIÓN!'
-                                    )
-                        );
+        if (!isset($Tienda['idTienda']) || !isset($Usuario['id'])) {
+            array_push(
+                $errores,
+                $this->montarAdvertencia(
+                    'danger',
+                    'ERROR NO HAY DATOS DE SESIÓN!'
+                )
+            );
         }
         // Inicializo variables.
-        if (isset($_POST['idTemporal']) ){    
+        if (isset($_POST['idTemporal'])) {
             // Compruebo que tengamos temporal, y obtenemos datos del temporal.
-            $idAlbaranTemporal=$_POST['idTemporal'];
-            $datosAlbaran=$this->buscarAlbaranTemporal($idAlbaranTemporal);
-            if (isset($datosAlbaran['error'])){
-                    array_push($errores,$this->montarAdvertencia(
-                                    'danger',
-                                    'Error 1.1 en buscarAlbaranTemporal.Consulta:'.json_encode($datosAlbaran['consulta'])
-                            )
-                    );
+            $idAlbaranTemporal = $_POST['idTemporal'];
+            $datosAlbaran = $this->buscarAlbaranTemporal($idAlbaranTemporal);
+            if (isset($datosAlbaran['error'])) {
+                array_push(
+                    $errores,
+                    $this->montarAdvertencia(
+                        'danger',
+                        'Error 1.1 en buscarAlbaranTemporal.Consulta:' . json_encode($datosAlbaran['consulta'])
+                    )
+                );
             }
-
         } else {
-             array_push($errores,$this->montarAdvertencia('warning',
-                                            'No enviarte que albaran temporal es no puede modificarlo.'
-                                            )
-                                );
+            array_push(
+                $errores,
+                $this->montarAdvertencia(
+                    'warning',
+                    'No enviarte que albaran temporal es no puede modificarlo.'
+                )
+            );
         }
-        if (count($errores) === 0){
+        if (count($errores) === 0) {
             // Continuamos que no hubo error
             $idAlbaran = 0; // valor por defecto.
-            if (isset($_GET['id']) && $_POST['estado'] === 'Sin Guardar'){
+            if (isset($_GET['id']) && $_POST['estado'] === 'Sin Guardar') {
                 $idAlbaran  = $_GET['id'];
             }
-            $suNumero   = (isset($_POST['suNumero'])) ? $_POST['suNumero']: '';
+            $suNumero   = (isset($_POST['suNumero'])) ? $_POST['suNumero'] : '';
             $formaPago  = (isset($_POST['formaVenci'])) ? $_POST['formaVenci'] : '';
             $fechaVenci = (isset($_POST['fechaVenci'])) ? $_POST['fechaVenci'] : '';
-            
-            if (isset($_POST['hora']) && $_POST['hora'] !=''){
-                $f=$_POST['fecha'].' '.$_POST['hora'].':00';
-                $fecha=date_format(date_create($f), 'Y-m-d H:i:s');
+
+            if (isset($_POST['hora']) && $_POST['hora'] != '') {
+                $f = $_POST['fecha'] . ' ' . $_POST['hora'] . ':00';
+                $fecha = date_format(date_create($f), 'Y-m-d H:i:s');
             } else {
-                $fecha =date_format(date_create($_POST['fecha']), 'Y-m-d');
-            }               
+                $fecha = date_format(date_create($_POST['fecha']), 'Y-m-d');
+            }
             // ======            Montamos productos y hacemos recalculo de totales         ======= //
-            if (isset ($datosAlbaran['Productos'])){
-                $productos_para_recalculo = json_decode($datosAlbaran['Productos'] );
-                if(count($productos_para_recalculo)>0){
+            if (isset($datosAlbaran['Productos'])) {
+                $productos_para_recalculo = json_decode($datosAlbaran['Productos']);
+                if (count($productos_para_recalculo) > 0) {
                     $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
-                    $total_siniva = $CalculoTotales['total']-$CalculoTotales['subivas'];
+                    $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
                 } else {
                     // Hay $datosAlbaran['Productos'], pero no tiene productos.
-                    array_push($errores,$this->montarAdvertencia('warning',
-                                        'Se obtuvo $datoAlbaran[productos] pero tiene datos !!'
-                                        )
-                            );
+                    array_push(
+                        $errores,
+                        $this->montarAdvertencia(
+                            'warning',
+                            'Se obtuvo $datoAlbaran[productos] pero tiene datos !!'
+                        )
+                    );
                 }
-            }else{
-                    // No obtuvo $datosAlbaran['Productos'], algo esta mal.
-                    array_push($errores,$this->montarAdvertencia('warning',
-                                        'No tienes productos  ! !!'
-                                        )
-                            );
+            } else {
+                // No obtuvo $datosAlbaran['Productos'], algo esta mal.
+                array_push(
+                    $errores,
+                    $this->montarAdvertencia(
+                        'warning',
+                        'No tienes productos  ! !!'
+                    )
+                );
             }
             // ======               Montamos array para insertar        ======= //
-            $datos=array(
-                'Numtemp_albpro'=>$idAlbaranTemporal,
-                'fecha'=>$fecha,
-                'idTienda'=>$Tienda['idTienda'],
-                'idUsuario'=>$Usuario['id'],
-                'idProveedor'=>$datosAlbaran['idProveedor'],
-                'estado'=>"Guardado",
-                'total'=>round($CalculoTotales['total'],2),
+            $datos = array(
+                'Numtemp_albpro' => $idAlbaranTemporal,
+                'fecha' => $fecha,
+                'idTienda' => $Tienda['idTienda'],
+                'idUsuario' => $Usuario['id'],
+                'idProveedor' => $datosAlbaran['idProveedor'],
+                'estado' => "Guardado",
+                'total' => round($CalculoTotales['total'], 2),
                 'total_siniva' => $total_siniva,
-                'DatosTotales'=>$CalculoTotales,
-                'productos'=>$datosAlbaran['Productos'],
-                'pedidos'=>$datosAlbaran['Pedidos'],
-                'suNumero'=>$suNumero,
-                'formaPago'=>$formaPago,
-                'fechaVenci'=>$fechaVenci
+                'DatosTotales' => $CalculoTotales,
+                'productos' => $datosAlbaran['Productos'],
+                'pedidos' => $datosAlbaran['Pedidos'],
+                'suNumero' => $suNumero,
+                'formaPago' => $formaPago,
+                'fechaVenci' => $fechaVenci
             );
-            if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro']>0){
+            if (isset($datosAlbaran['Numalbpro']) && $datosAlbaran['Numalbpro'] > 0) {
                 $idAlbaran = $datosAlbaran['Numalbpro'];
                 // Solo elimino tablas para volver inserta despues.
-                $tablas = array('albprolinea','albproIva','pedproAlb');
-                foreach ($tablas as $tabla){
-                    $eliminarTablasPrincipal=$this->eliminarAlbaranTablas($datosAlbaran['Numalbpro'],$tabla);
+                $tablas = array('albprolinea', 'albproIva', 'pedproAlb');
+                foreach ($tablas as $tabla) {
+                    $eliminarTablasPrincipal = $this->eliminarAlbaranTablas($datosAlbaran['Numalbpro'], $tabla);
                 }
-                if (isset($eliminarTablasPrincipal['error'])){
+                if (isset($eliminarTablasPrincipal['error'])) {
                     // Hubo un error a la hora eliminar tablas principales.
-                    array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error al eliminar las tablas principales!<br/>'
-                                        .$eliminarTablasPrincipal['consulta']
-                                        )
-                            );
-                } 
+                    array_push(
+                        $errores,
+                        $this->montarAdvertencia(
+                            'danger',
+                            'Error al eliminar las tablas principales!<br/>'
+                                . $eliminarTablasPrincipal['consulta']
+                        )
+                    );
+                }
             }
-            $addNuevo=$this->AddAlbaranGuardado($datos, $idAlbaran);
-            if (isset($addNuevo['error'])){
+            $addNuevo = $this->AddAlbaranGuardado($datos, $idAlbaran);
+            if (isset($addNuevo['error'])) {
                 // Hubo un error a la hora eliminar tablas principales.
-                    array_push($errores,$this->montarAdvertencia('danger',
-                                        'Error añadir un nuevo albarán !!<br/>'
-                                        .'Error:'.$addNuevo['error'].' consulta:'.$addNuevo['consulta']
-                                        )
-                            );
-            }else{
-                if(isset($addNuevo['id'])){
-                    $dedonde="albaran";
-                    $historico=parent::comprobarHistoricoCoste($datosAlbaran['Productos'],
-                                                $dedonde, $addNuevo['id'],
-                                                $datosAlbaran['idProveedor'],
-                                                $fecha, $Usuario['id']
-                                            );
-                    if (isset($historico['error'])){
-                        array_push($errores,$this->montarAdvertencia('warning',
-                                        'Error en al modificar los coste de los productos !!<br/>'
-                                        .$historico['consulta']
-                                        )
-                            );
+                array_push(
+                    $errores,
+                    $this->montarAdvertencia(
+                        'danger',
+                        'Error añadir un nuevo albarán !!<br/>'
+                            . 'Error:' . $addNuevo['error'] . ' consulta:' . $addNuevo['consulta']
+                    )
+                );
+            } else {
+                if (isset($addNuevo['id'])) {
+                    $dedonde = "albaran";
+                    $historico = parent::comprobarHistoricoCoste(
+                        $datosAlbaran['Productos'],
+                        $dedonde,
+                        $addNuevo['id'],
+                        $datosAlbaran['idProveedor'],
+                        $fecha,
+                        $Usuario['id']
+                    );
+                    if (isset($historico['error'])) {
+                        array_push(
+                            $errores,
+                            $this->montarAdvertencia(
+                                'warning',
+                                'Error en al modificar los coste de los productos !!<br/>'
+                                    . $historico['consulta']
+                            )
+                        );
                     }
                     // Ahora comprobamos que no grabo , pero con productos en 0
-                    if ($addNuevo['n_productos_insertados']=== 0){
-                         array_push($errores,$this->montarAdvertencia('warning',
-                                        'No permite guardar un albaran sin productos.</br>'.
-                                        'Se deja abierto el temporal en 0. Habla con el administrador para que lo elimine!!<br/>'
-                                        )
-                            );
+                    if ($addNuevo['n_productos_insertados'] === 0) {
+                        array_push(
+                            $errores,
+                            $this->montarAdvertencia(
+                                'warning',
+                                'No permite guardar un albaran sin productos.</br>' .
+                                    'Se deja abierto el temporal en 0. Habla con el administrador para que lo elimine!!<br/>'
+                            )
+                        );
                     } else {
-                        $eliminarTemporal=$this->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
-                        if (isset($eliminarTemporal['error'])){
-                            array_push($errores,$this->montarAdvertencia('dander',
-                                            'Error al eliminar las tablas temporales !!<br/>'
-                                            .$eliminarTemporal['consulta']
-                                            )
-                                );
+                        $eliminarTemporal = $this->EliminarRegistroTemporal($idAlbaranTemporal, $idAlbaran);
+                        if (isset($eliminarTemporal['error'])) {
+                            array_push(
+                                $errores,
+                                $this->montarAdvertencia(
+                                    'dander',
+                                    'Error al eliminar las tablas temporales !!<br/>'
+                                        . $eliminarTemporal['consulta']
+                                )
+                            );
                         }
                     }
                 }
-                if (!isset($addNuevo['id'])){
+                if (!isset($addNuevo['id'])) {
                     // No existe id
-                    array_push($errores,$this->montarAdvertencia('dander',
-                                        'Error al generar id nuevo de la función AddAlbaranGuardado!'
-                                        )
-                            );
-                } 
+                    array_push(
+                        $errores,
+                        $this->montarAdvertencia(
+                            'dander',
+                            'Error al generar id nuevo de la función AddAlbaranGuardado!'
+                        )
+                    );
+                }
             }
         }
         return $errores;
     }
 
-    public function comprobarTemporalIdAlbpro($idAlbaran,$numAlbaranTemp = 0){
+    public function comprobarTemporalIdAlbpro($idAlbaran, $numAlbaranTemp = 0)
+    {
         // @Objetivo:
-        // Compruebo que solo hay un albaran temporal para ese idPedpro 
+        // Compruebo que solo hay un albaran temporal para ese idPedpro
         // @Devuelvo:
         //  Array con o sin errores.
         $errores = array();
-        if ($idAlbaran > 0){
+        if ($idAlbaran > 0) {
             $posible_duplicado = $this->TodosTemporal($idAlbaran);
-            if (!isset($posible_duplicado['error'])){
-                $OK ='OK';
-                if (count($posible_duplicado)>1){
-                     $OK = 'Hay mas de un temporal con el mismo numero albaran.Con los siguientes idtemporal:'
-                     .json_encode(array_column($posible_duplicado, 'id'));
+            if (!isset($posible_duplicado['error'])) {
+                $OK = 'OK';
+                if (count($posible_duplicado) > 1) {
+                    $OK = 'Hay mas de un temporal con el mismo numero albaran.Con los siguientes idtemporal:'
+                        . json_encode(array_column($posible_duplicado, 'id'));
                 } else {
                     // Hay uno solo.
                     if ($numAlbaranTemp > 0) {
-                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numAlbaranTemp){
+                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] !== $numAlbaranTemp) {
                             $OK = 'Hay un temporal y no coincide el idtemporal.';
                         }
                     } else {
-                        if (isset( $posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] >0 ){
-                            // Solo devuelvo idTemporal si id > 0    
+                        if (isset($posible_duplicado[0]['id']) && $posible_duplicado[0]['id'] > 0) {
+                            // Solo devuelvo idTemporal si id > 0
                             $errores['idTemporal'] = $posible_duplicado[0]['id'];
                         }
                     }
                 }
-                if ($OK !== 'OK' ){
+                if ($OK !== 'OK') {
                     // Existe un registro o el que existe es distinto al actual.
-                    array_push($errores,$this->montarAdvertencia('danger',
-                                         '<strong>Ojo posible duplicidad en albaran temporal !! </strong>  <br> '.$OK
-                                        )
-                            );
+                    array_push(
+                        $errores,
+                        $this->montarAdvertencia(
+                            'danger',
+                            '<strong>Ojo posible duplicidad en albaran temporal !! </strong>  <br> ' . $OK
+                        )
+                    );
                 }
             }
         }
         return $errores;
     }
-    
-
-    
-
-
 }

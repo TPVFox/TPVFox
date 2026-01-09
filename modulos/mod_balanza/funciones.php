@@ -1,6 +1,7 @@
-<?php 
-include_once $RutaServidor.$HostNombre.'/modulos/claseModelo.php';
-function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza) {
+<?php
+include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
+function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza)
+{
     // @ Objetivo: Montar html de desplegable con mejor visualización (Bootstrap 3/4 compatible)
     $collapse = 'collapse' . $num_desplegable;
     // Mejorado: estructura más limpia, accesibilidad y flexibilidad
@@ -18,18 +19,18 @@ function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza) {
         . '<div class="row" style="margin-bottom:10px;">'
         . '  <div class="col-xs-12 col-sm-6" style="padding-bottom:5px;">'
         . ($idBalanza != 0
-        ? '    <button id="agregar" type="button" class="btn btn-success btn-xs" onclick="mostrarTablaPluAdd(' . $idBalanza . ')">'
-        . '      <span class="glyphicon glyphicon-plus"></span> Añadir'
-        . '    </button>'
-        . '    <button id="mostrarTablaPlus" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaPlus()">'
-        . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar PLUs'
-        . '    </button>'
-        . '    <button id="agregarArtPeso" type="button" class="btn btn-info btn-xs" onclick="mostrarTablaArtPesoAdd(' . $idBalanza . ')">'
-        . '      <span class="glyphicon glyphicon-plus"></span> Añadir Artículo Peso'
-        . '    </button>'
-        . '    <button id="mostrarTablaArtPeso" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaArtPeso()">'
-        . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar Artículos Peso'
-        . '    </button>'
+            ? '    <button id="agregar" type="button" class="btn btn-success btn-xs" onclick="mostrarTablaPluAdd(' . $idBalanza . ')">'
+            . '      <span class="glyphicon glyphicon-plus"></span> Añadir'
+            . '    </button>'
+            . '    <button id="mostrarTablaPlus" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaPlus()">'
+            . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar PLUs'
+            . '    </button>'
+            . '    <button id="agregarArtPeso" type="button" class="btn btn-info btn-xs" onclick="mostrarTablaArtPesoAdd(' . $idBalanza . ')">'
+            . '      <span class="glyphicon glyphicon-plus"></span> Añadir Artículo Peso'
+            . '    </button>'
+            . '    <button id="mostrarTablaArtPeso" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaArtPeso()">'
+            . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar Artículos Peso'
+            . '    </button>'
             : ''
         )
         . '  </div>'
@@ -43,7 +44,8 @@ function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza) {
     return $html;
 }
 
-function htmlTablaPlus($plus, $id) {
+function htmlTablaPlus($plus, $id)
+{
     // Mejorar visualización tabla PLUs
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($id);
@@ -102,7 +104,8 @@ function htmlTablaPlus($plus, $id) {
 }
 
 // Nueva función para permitir edición de PLU y Tecla
-function htmlLineaPluEditable($plu, $idBalanza) {
+function htmlLineaPluEditable($plu, $idBalanza)
+{
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($idBalanza);
     $imagen = '';
@@ -127,7 +130,8 @@ function htmlLineaPluEditable($plu, $idBalanza) {
     return $nuevaFila;
 }
 
-function htmlArticulosPeso($articulos, $idBalanza) {
+function htmlArticulosPeso($articulos, $idBalanza)
+{
     $html = '<div class="table-responsive">'
         . '<table id="tArticulosPeso" class="table table-striped table-bordered table-hover tabla-filtrable" style="background:#fff;">'
         . '<thead class="thead-dark">'
@@ -167,7 +171,8 @@ function htmlArticulosPeso($articulos, $idBalanza) {
     return $html;
 }
 
-function htmlAñadirArticulo($articulo, $idBalanza) {
+function htmlAñadirArticulo($articulo, $idBalanza)
+{
     $nuevaFila = '<tr>'
         . '<td style="text-align:center; vertical-align:middle;">' . $articulo['idArticulo'] . '</td>'
         . '<td style="vertical-align:middle;">' . htmlspecialchars($articulo['articulo_name'], ENT_QUOTES) . '</td>'
@@ -181,85 +186,88 @@ function htmlAñadirArticulo($articulo, $idBalanza) {
         . '</tr>' . "\n";
     return $nuevaFila;
 }
-function htmlLineaPlu( $plu, $idBalanza){
+function htmlLineaPlu($plu, $idBalanza)
+{
     //@OBjetivo: imprimir las lineas de plus de una balanza con los datos de un articulo
-    $imagen= '';
-    if ($plu['tipo'] === 'peso'){
-        $imagen='<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+    $imagen = '';
+    if ($plu['tipo'] === 'peso') {
+        $imagen = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
     }
-   $nuevaFila = '<tr id="plu_'.$plu['plu'].'">'
-				. '<td><input type="hidden" id="idPlu_'.$plu['plu']
-				.'" name="idPlu'.$plu['plu'].'" value="'.$plu['plu'].'">'
-				.$plu['plu'].'</td>'
-				
-                .'<td>'.$plu['seccion'].'</td>'
-                .'<td>'.$plu['idArticulo'].'</td>'
-                .'<td>'.$plu['crefTienda'].'</td>'
-                .'<td>'.$plu['articulo_name'].'</td>'
-                .'<td>'.number_format($plu['pvpCiva'],2).'</td>'
-                .'<td>'.$plu['nombrecomercial'].'</td>'
-                .'<td>'.$imagen.'</td>'
-                .'<td><a id="eliminar_'.$plu['plu']
-				.'" class="glyphicon glyphicon-trash" onclick="eliminarPlu('."'".$plu['plu']."'".', '.$idBalanza.')"></a>'
-				.'</td>'.'</tr>';
-                
-	return $nuevaFila;
+    $nuevaFila = '<tr id="plu_' . $plu['plu'] . '">'
+        . '<td><input type="hidden" id="idPlu_' . $plu['plu']
+        . '" name="idPlu' . $plu['plu'] . '" value="' . $plu['plu'] . '">'
+        . $plu['plu'] . '</td>'
+
+        . '<td>' . $plu['seccion'] . '</td>'
+        . '<td>' . $plu['idArticulo'] . '</td>'
+        . '<td>' . $plu['crefTienda'] . '</td>'
+        . '<td>' . $plu['articulo_name'] . '</td>'
+        . '<td>' . number_format($plu['pvpCiva'], 2) . '</td>'
+        . '<td>' . $plu['nombrecomercial'] . '</td>'
+        . '<td>' . $imagen . '</td>'
+        . '<td><a id="eliminar_' . $plu['plu']
+        . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(' . "'" . $plu['plu'] . "'" . ', ' . $idBalanza . ')"></a>'
+        . '</td>' . '</tr>';
+
+    return $nuevaFila;
 }
-function htmlAddPLU($seccion, $idBalanza){
+function htmlAddPLU($seccion, $idBalanza)
+{
     //@OBjetivo_: devolver html con los datos para poder añadir plu
     $style_none = ' ';
-    if($seccion=='no'){
+    if ($seccion == 'no') {
         $style_none = 'style="display:none"';
     }
 
-    $html='<th colspan="5">'
-            .'<div class="col-md-12">'
-                .'<label>Plu:</label>'
-				.'<input type="text" name="plu" id="plu" value="" >'
-            .'</div>'
-            .'<div class="col-md-12" '.$style_none.'>'
-               .'<label>Sección:</label>'
-               .'<input type="text" name="seccion" id="seccion" value="" >';
-    
-    $html.='</div>'
-            .'<div>'
-                .'<label>Opciones de busqueda de los productos:</label>'
-                .'<div class="col-md-1">'
-                    .'<label>Id:</label>'
-                    .'<input type="text" name="idArticulo" id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="3">'
-                .'</div>'
-                .'<div class="col-md-5">'
-                    .'<label>Nombre:</label>'
-                    .'<input type="text" name="nombreProducto" id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="30">'
-                .'</div>'
-                .'<div class="col-md-2">'
-                    .'<label>Referencia:</label>'
-                    .'<input type="text" name="referencia" id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="8">'
-                .'</div>'
-                .'<div class="col-md-2">'
-                    .'<label>Cod Barras:</label>'
-                    .'<input type="text" name="codBarras" id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="8">'
-                .'</div>'
-                .'<div class="col-md-2">'
-                    .'<label>Precio C/Iva:</label>'
-                    .'<input type="text" name="precioConiva" id="precioConIva" value="" size="8">'
-                .'</div>'
-            .'</div>'
-        .'<div>'
-            .'<div class="col-md-4"><label></label>'
-            .'<a class="btn btn-success" onclick="addPlu('.$idBalanza.')">Añadir</a>'
-            .'</div>'
-        .'</div>';
+    $html = '<th colspan="5">'
+        . '<div class="col-md-12">'
+        . '<label>Plu:</label>'
+        . '<input type="text" name="plu" id="plu" value="" >'
+        . '</div>'
+        . '<div class="col-md-12" ' . $style_none . '>'
+        . '<label>Sección:</label>'
+        . '<input type="text" name="seccion" id="seccion" value="" >';
+
+    $html .= '</div>'
+        . '<div>'
+        . '<label>Opciones de busqueda de los productos:</label>'
+        . '<div class="col-md-1">'
+        . '<label>Id:</label>'
+        . '<input type="text" name="idArticulo" id="idArticulo" data-obj="cajaidArticulo" onkeydown="controlEventos(event)" value="" size="3">'
+        . '</div>'
+        . '<div class="col-md-5">'
+        . '<label>Nombre:</label>'
+        . '<input type="text" name="nombreProducto" id="nombreProducto" data-obj="cajanombreProducto" onkeydown="controlEventos(event)" value="" size="30">'
+        . '</div>'
+        . '<div class="col-md-2">'
+        . '<label>Referencia:</label>'
+        . '<input type="text" name="referencia" id="referencia" data-obj="cajareferencia" onkeydown="controlEventos(event)" value="" size="8">'
+        . '</div>'
+        . '<div class="col-md-2">'
+        . '<label>Cod Barras:</label>'
+        . '<input type="text" name="codBarras" id="codBarras" data-obj="cajacodBarras" onkeydown="controlEventos(event)" value="" size="8">'
+        . '</div>'
+        . '<div class="col-md-2">'
+        . '<label>Precio C/Iva:</label>'
+        . '<input type="text" name="precioConiva" id="precioConIva" value="" size="8">'
+        . '</div>'
+        . '</div>'
+        . '<div>'
+        . '<div class="col-md-4"><label></label>'
+        . '<a class="btn btn-success" onclick="addPlu(' . $idBalanza . ')">Añadir</a>'
+        . '</div>'
+        . '</div>';
     return $html;
 }
-function camposBuscar($campo, $busqueda){
+function camposBuscar($campo, $busqueda)
+{
     //@ Objetivo:
     // devolver el string con el campo y busqueda preparado para el sql
-    if($campo=='a.idArticulo'){
-        $busqueda='a.idArticulo='.$busqueda;
-    }else{
+    if ($campo == 'a.idArticulo') {
+        $busqueda = 'a.idArticulo=' . $busqueda;
+    } else {
 
-         // Limpio busqueda para evitar rotura en la consulta.
+        // Limpio busqueda para evitar rotura en la consulta.
         $buscar = array(',', ';', '(', ')', '"', "'");
         $sustituir = array(' , ', ' ; ', ' ( ', ' ) ', ' ', ' ');
         $string = str_replace($buscar, $sustituir, trim($busqueda));
@@ -276,76 +284,76 @@ function camposBuscar($campo, $busqueda){
         }
         $resultado['palabras'] = $palabras;
 
-        //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%	
-        $busqueda = implode(' and ', $likes);;     
+        //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%
+        $busqueda = implode(' and ', $likes);;
     }
     return $busqueda;
 }
 
-function modalProductos($busqueda, $productos, $campoAbuscar){
+function modalProductos($busqueda, $productos, $campoAbuscar)
+{
     //@OBjetivo: devolver html con los datos del modal
     $resultado = array();
-	$resultado['encontrados'] = count($productos);
+    $resultado['encontrados'] = count($productos);
     $resultado['html'] =  "<script type='text/javascript'>
-			 ".
-			 "cajaBusquedaProducto.parametros.campo="."'".$campoAbuscar."';
-			idN.parametros.campo.__defineSetter__ ="."'".$campoAbuscar."';
+			 " .
+        "cajaBusquedaProducto.parametros.campo=" . "'" . $campoAbuscar . "';
+			idN.parametros.campo.__defineSetter__ =" . "'" . $campoAbuscar . "';
 			</script>";
-	$resultado['html'] .= '<label>Busqueda Producto </label>';
-	$resultado['html'] .= '<input id="cajaBusquedaProducto" name="valorProducto" placeholder="Buscar"'.
-				'size="13" data-obj="cajaBusquedaProducto" value="'.$busqueda.'"
+    $resultado['html'] .= '<label>Busqueda Producto </label>';
+    $resultado['html'] .= '<input id="cajaBusquedaProducto" name="valorProducto" placeholder="Buscar"' .
+        'size="13" data-obj="cajaBusquedaProducto" value="' . $busqueda . '"
 				 onkeydown="controlEventos(event)" type="text">';
-  
-    if (isset($productos)){
-		$resultado['html'] .= '<span>10 productos de '.count($productos).'</span>';
-	
+
+    if (isset($productos)) {
+        $resultado['html'] .= '<span>10 productos de ' . count($productos) . '</span>';
+
         $resultado['html'] .= '<table class="table table-striped"><thead>'
-        . ' <th></th> <th>id</th><th>Nombre</th><th>Referencia</th></thead><tbody>';
-        if (count($productos)>0){
+            . ' <th></th> <th>id</th><th>Nombre</th><th>Referencia</th></thead><tbody>';
+        if (count($productos) > 0) {
             $contad = 0;
-            foreach ($productos as $producto){  
-                $resultado['html'] .= '<tr id="Fila_'.$contad.'" class="FilaModal" onclick="seleccionProductoModal('.
-                $producto['idArticulo'].",'".$producto['articulo_name']."','".$producto['crefTienda']."','".$producto['codBarras']."','".$producto['pvpCiva']."'".');" >';
-            
-                $resultado['html'] .= '<td id="C'.$contad.'_Lin" >';
-                $resultado['html'] .= '<input id="N_'.$contad.'" name="filaProducto" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
-                . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
-                .'<td>'.$producto['idArticulo'].'</td>'
-                . '<td>'.htmlspecialchars($producto['articulo_name'],ENT_QUOTES).'</td>'
-                . '<td>'.htmlentities($producto['crefTienda'],ENT_QUOTES).'</td>'
-                .'</tr>';
-                $contad = $contad +1;
-                if ($contad === 10){
+            foreach ($productos as $producto) {
+                $resultado['html'] .= '<tr id="Fila_' . $contad . '" class="FilaModal" onclick="seleccionProductoModal(' .
+                    $producto['idArticulo'] . ",'" . $producto['articulo_name'] . "','" . $producto['crefTienda'] . "','" . $producto['codBarras'] . "','" . $producto['pvpCiva'] . "'" . ');" >';
+
+                $resultado['html'] .= '<td id="C' . $contad . '_Lin" >';
+                $resultado['html'] .= '<input id="N_' . $contad . '" name="filaProducto" data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+                    . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+                    . '<td>' . $producto['idArticulo'] . '</td>'
+                    . '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>'
+                    . '<td>' . htmlentities($producto['crefTienda'], ENT_QUOTES) . '</td>'
+                    . '</tr>';
+                $contad = $contad + 1;
+                if ($contad === 10) {
                     break;
                 }
-			
             }
         }
-        $resultado['html'] .='</tbody></table>';
+        $resultado['html'] .= '</tbody></table>';
     } else {
         // No encontro resultado por lo que mostramos advertencia.
-        $resultado['html'] .='<div class="alert alert-info">No hay resultado para esta busqueda, prueba otra.</div> ';
-
+        $resultado['html'] .= '<div class="alert alert-info">No hay resultado para esta busqueda, prueba otra.</div> ';
     }
-	
-	return $resultado;
+
+    return $resultado;
 }
 
-function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
+function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect)
+{
     //Objetivo: devolver html con los datos de una balanza y plus para el listado principal
-    $resultado=array();
-    $html="";
-    $htmlBalanza="";
-    $htmlBalanza.='<p><b>Nombre de balanza: </b>'.$datosBalanza['nombreBalanza'].'</p>
-    <p><b>Modelo de Balanza: </b>'.$datosBalanza['modelo'].'</p>
+    $resultado = array();
+    $html = "";
+    $htmlBalanza = "";
+    $htmlBalanza .= '<p><b>Nombre de balanza: </b>' . $datosBalanza['nombreBalanza'] . '</p>
+    <p><b>Modelo de Balanza: </b>' . $datosBalanza['modelo'] . '</p>
     <p><label>Filtrar por: </label><select id="filtroBalanza" >';
-    if($opcionSelect=='a.plu'){
-        $htmlBalanza.='<option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
-            <option value="a.seccion" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
+    if ($opcionSelect == 'a.plu') {
+        $htmlBalanza .= '<option value="a.plu" onclick="mostrarDatosBalanza(' . $datosBalanza['idBalanza'] . ')">PLU</option>
+            <option value="a.seccion" onclick="mostrarDatosBalanza(' . $datosBalanza['idBalanza'] . ')">TECLA</option>
         </select></p>';
-    }else{
-         $htmlBalanza.='<option value="a.seccion" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">TECLA</option>
-        <option value="a.plu" onclick="mostrarDatosBalanza('.$datosBalanza['idBalanza'].')">PLU</option>
+    } else {
+        $htmlBalanza .= '<option value="a.seccion" onclick="mostrarDatosBalanza(' . $datosBalanza['idBalanza'] . ')">TECLA</option>
+        <option value="a.plu" onclick="mostrarDatosBalanza(' . $datosBalanza['idBalanza'] . ')">PLU</option>
         </select></p>';
     }
     // Encabezados de la tabla principal (filtrable)
@@ -376,57 +384,54 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect){
         . '</tr>'
         . '</thead>'
         . '<tbody>';
-        $indice=0;
-    foreach ($datosplu as $plu){
-        $espacio="";
-        
-        $imagen= '';
+    $indice = 0;
+    foreach ($datosplu as $plu) {
+        $espacio = "";
+
+        $imagen = '';
         $class = '';
-        if ($plu['tipo'] === 'peso'){
-            $imagen='<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
+        if ($plu['tipo'] === 'peso') {
+            $imagen = '<img src="../../css/img/balanza.png" title="Peso" alt="Peso">';
         }
-        if (isset($plu['duplicado'])){
-            $class='class="alert alert-danger" title="Producto duplicado en esta balanza"';
+        if (isset($plu['duplicado'])) {
+            $class = 'class="alert alert-danger" title="Producto duplicado en esta balanza"';
         }
-        $html.='<tr '.$class.'>
-            <td>'.$plu['plu'].'</td>
-            <td>'.$plu['seccion'].'</td>
-            <td>'.$plu['idArticulo'].'</td>
-            <td>'.$plu['articulo_name'].'</td>
-            <td>'.$plu['crefTienda'].'</td>
-            <td>'.number_format($plu['pvpCiva'],2).'</td>
-            <td>'.$imagen.'</td>
+        $html .= '<tr ' . $class . '>
+            <td>' . $plu['plu'] . '</td>
+            <td>' . $plu['seccion'] . '</td>
+            <td>' . $plu['idArticulo'] . '</td>
+            <td>' . $plu['articulo_name'] . '</td>
+            <td>' . $plu['crefTienda'] . '</td>
+            <td>' . number_format($plu['pvpCiva'], 2) . '</td>
+            <td>' . $imagen . '</td>
         </tr>';
         // Comprobamos que va correlatio plu, pero esto es valido plu, pero para seccion ???
-        $sigIndice=$indice+1;
-        if(isset($datosplu[$sigIndice])){
+        $sigIndice = $indice + 1;
+        if (isset($datosplu[$sigIndice])) {
             // Si hay plu no utilizados mostramos advertencia.
-            $resta=$datosplu[$sigIndice]['plu']-$datosplu[$indice]['plu'];
-            if($resta>1){
-                 $html.='<tr><td COLSPAN="4" class="warning">Faltan números entre el anterior y el siguiente</td></tr>';
+            $resta = $datosplu[$sigIndice]['plu'] - $datosplu[$indice]['plu'];
+            if ($resta > 1) {
+                $html .= '<tr><td COLSPAN="4" class="warning">Faltan números entre el anterior y el siguiente</td></tr>';
             }
         }
         $indice++;
-       
     }
-    $resultado['html']=$html;
-    $resultado['htmlBalanza']= $htmlBalanza;
+    $resultado['html'] = $html;
+    $resultado['htmlBalanza'] = $htmlBalanza;
     return $resultado;
 }
-function htmlTecla($seccion){
+function htmlTecla($seccion)
+{
     //@Objetivo: html con las opciones de la seccion
-    if($seccion=="si"){
-        $html ='<option value="si" selected="selected">Si</option>';
-  
-    }else{
-        $html ='<option value="si">Si</option>';
-    }
-    if($seccion=="no"){
-         $html .='<option value="no" selected="selected">No</option>';
+    if ($seccion == "si") {
+        $html = '<option value="si" selected="selected">Si</option>';
     } else {
-         $html .='<option value="no">No</option>';
-
+        $html = '<option value="si">Si</option>';
+    }
+    if ($seccion == "no") {
+        $html .= '<option value="no" selected="selected">No</option>';
+    } else {
+        $html .= '<option value="no">No</option>';
     }
     return $html;
 }
-?>

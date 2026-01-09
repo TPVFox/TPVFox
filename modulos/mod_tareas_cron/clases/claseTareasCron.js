@@ -1,18 +1,9 @@
-
 class TareasCron {
+  constructor() {
+    this.inicializarEventos();
+  }
 
-    constructor() {
-        this.inicializarEventos();
-    }
-
-    inicializarEventos() {
-        var that = this;
-
-
-
-
-    }
-
-
-
+  inicializarEventos() {
+    var that = this;
+  }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
@@ -6,5 +6,4 @@ $pdf = new imprimir(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-
 //~ $pdf->setHtmlHeader($cabecera);
 $pdf->AddPage();
 $pdf->writeHTML($html);
-$pdf->Output($RutaServidor.$rutatmp.'/'.$nombreTmp, 'F');
-?>
+$pdf->Output($RutaServidor . $rutatmp . '/' . $nombreTmp, 'F');

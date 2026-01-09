@@ -9,7 +9,7 @@
 // var_dump($URLCom);
 // var_dump('------------------------------------------------------------------------');
 
-if(!isset($URLCom)){
+if (!isset($URLCom)) {
     var_dump('------------------------------------------------------------------------');
     $URLCom = realpath(__DIR__ . '/../../../');
     var_dump('------------------------------------------------------------------------');
@@ -24,10 +24,10 @@ class AcumuladoComprasTarea
 {
 
     protected MTareasCron $tarea;
-    protected MAcumuladoCompra $acumulado_compra;    
+    protected MAcumuladoCompra $acumulado_compra;
 
     public function __construct(int $tareaid = 0)
-    {        
+    {
         $this->tarea = new MTareasCron();
         $this->tarea->find($tareaid);
         $this->acumulado_compra = new MAcumuladoCompra();
@@ -37,7 +37,7 @@ class AcumuladoComprasTarea
     {
         error_log('pasamos por execute() ------AcumuladoComprasTarea--------          ');
         error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']);
-        $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);        
+        $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);
         $acumulados = $this->acumulado_compra->leer();
         $datos_acumulados = $acumulados['datos'];
         $this->volcarAcumulados($datos_acumulados);
@@ -57,7 +57,6 @@ class AcumuladoComprasTarea
                     if ($suma_cantidad != 0) {
                         //Grabar acumulado
                         $resultado = $articulo->update(['costepromedio' => $suma_coste / $suma_cantidad], ['IdArticulo = ' . $idarticulo]);
-
                     }
                     //inicializar acumulado
                     $suma_cantidad = 0;
@@ -68,7 +67,6 @@ class AcumuladoComprasTarea
                 $suma_cantidad += $acumulado['cantidad'];
                 $suma_coste += ($acumulado['costemedio'] * $acumulado['cantidad']);
                 $this->acumulado_compra->actualizar($acumulado);
-
             }
         }
     }

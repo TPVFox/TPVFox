@@ -1,7 +1,7 @@
  <VirtualHost *:80>
         ServerAdmin webalagoro@alagoro.com
-        ServerName tpvfox.virtual.lago	
-        ServerAlias tpvfox.virtual.lago 
+        ServerName tpvfox.virtual.lago
+        ServerAlias tpvfox.virtual.lago
         DirectoryIndex index.php index.html
         DocumentRoot /var/www/tpv
 

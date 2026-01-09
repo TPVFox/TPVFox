@@ -10,35 +10,35 @@
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>
-		
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="producto">cajaNombreProducto</nombre>
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>
-		
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="cajaBusquedaproductos">cajaBusquedaproductos</nombre>
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>
-		
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="producto">cajaNombreProducto</nombre>
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>
-		
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="cajaBusquedaproductos">cajaBusquedaproductos</nombre>
 			<teclas>
 				<action tecla="13">BuscarProducto</action>
 			</teclas>
-		
+
 		</caja_input>
 		<caja_input>
 			<nombre id_input="fechaCad">cajaFechaCad</nombre>
@@ -74,7 +74,7 @@
 			<before>
 				<estado>Si</estado>
 			</before>
-		</caja_input>	
+		</caja_input>
 		<caja_input>
 			<nombre id_input="peso">peso</nombre>
 			<teclas>
@@ -91,7 +91,7 @@
 			<before>
 				<estado>Si</estado>
 			</before>
-		</caja_input>	
+		</caja_input>
 		<caja_input>
 			<nombre id_input="numAlb">numAlb</nombre>
 			<teclas>
@@ -108,7 +108,7 @@
 			<before>
 				<estado>Si</estado>
 			</before>
-		</caja_input>		
+		</caja_input>
 	</cajas_input>
 
 </parametros>

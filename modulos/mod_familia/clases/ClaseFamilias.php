@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción 
+ * @Descripción
  */
 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
@@ -14,56 +14,58 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
  *
  * @author alagoro
  */
- include_once ($RutaServidor.$HostNombre.'/plugins/plugins.php');
- include_once $URLCom.'/clases/traits/MontarAdvertenciaTrait.php';
+include_once($RutaServidor . $HostNombre . '/plugins/plugins.php');
+include_once $URLCom . '/clases/traits/MontarAdvertenciaTrait.php';
 
-class ClaseFamilias extends Modelo {
+class ClaseFamilias extends Modelo
+{
 
     use MontarAdvertenciaTrait;
 
     protected $tabla = 'familias';
     public $plugins;
-    public $view ; 
-    public $idTienda ;
+    public $view;
+    public $idTienda;
 
-    public function __construct($conexion='')
+    public function __construct($conexion = '')
     {
-        $this->view = str_replace($_SERVER['DOCUMENT_ROOT'],'',$_SERVER['PHP_SELF']);
-        $plugins = new ClasePlugins('mod_familia',$this->view);
+        $this->view = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['PHP_SELF']);
+        $plugins = new ClasePlugins('mod_familia', $this->view);
         $this->plugins = $plugins->GetParametrosPlugins();
     }
 
-    public function SetPlugin($nombre_plugin){
-            // @ Objetivo
-            // Devolver el Object del plugin en cuestion.
-            // @ nombre_plugin -> (string) Es el nombre del plugin que hay parametros de este.
-            // Devuelve:
-            // Puede devolcer Objeto  o boreano false.
-            $Obj = false;
-            if (count($this->plugins)>0){
-                foreach ($this->plugins as $plugin){
-                    if ($plugin['datos_generales']['nombre_fichero_clase'] === $nombre_plugin){
-                        $Obj = $plugin['clase'];
-                    }
+    public function SetPlugin($nombre_plugin)
+    {
+        // @ Objetivo
+        // Devolver el Object del plugin en cuestion.
+        // @ nombre_plugin -> (string) Es el nombre del plugin que hay parametros de este.
+        // Devuelve:
+        // Puede devolcer Objeto  o boreano false.
+        $Obj = false;
+        if (count($this->plugins) > 0) {
+            foreach ($this->plugins as $plugin) {
+                if ($plugin['datos_generales']['nombre_fichero_clase'] === $nombre_plugin) {
+                    $Obj = $plugin['clase'];
                 }
             }
+        }
         return $Obj;
-
     }
-    public function buscarAscendientes($idFamilia,$ascendientes = []){
-     // @ Objetivo es buscar los ancestos de una familia
-     $f = $this->leer($idFamilia);
-     $familia = $f['datos'][0];
-     $ascendientes[] = $familia['familiaPadre'];
-     if ($familia['familiaPadre'] !=0){
-         $ascendientes = $this->buscarAscendientes($familia['familiaPadre'],$ascendientes);
-     }
-     
-    return $ascendientes;
-        
+    public function buscarAscendientes($idFamilia, $ascendientes = [])
+    {
+        // @ Objetivo es buscar los ancestos de una familia
+        $f = $this->leer($idFamilia);
+        $familia = $f['datos'][0];
+        $ascendientes[] = $familia['familiaPadre'];
+        if ($familia['familiaPadre'] != 0) {
+            $ascendientes = $this->buscarAscendientes($familia['familiaPadre'], $ascendientes);
+        }
+
+        return $ascendientes;
     }
 
-    public function buscardescendientes($idfamilia) {
+    public function buscardescendientes($idfamilia)
+    {
         $resultado = [];
         $descs = $this->descendientes($idfamilia);
         if (isset($descs['datos'])) {
@@ -79,14 +81,15 @@ class ClaseFamilias extends Modelo {
 
         return $resultado;
     }
-   
-    public function cuentaHijos($padres) {
+
+    public function cuentaHijos($padres)
+    {
         // Se puede optimizar con un group by ????
-        
+
         $nuestros = $padres;
         $sql = 'SELECT count(idFamilia) as contador '
-                . ' FROM familias as FAM '
-                . ' WHERE FAM.familiaPadre = ';
+            . ' FROM familias as FAM '
+            . ' WHERE FAM.familiaPadre = ';
         foreach ($padres as $indice => $padre) {
             $resultado = $this->consulta($sql . $padre['idFamilia']);
             $nuestros[$indice]['hijos'] = $resultado['datos'][0]['contador'];
@@ -94,10 +97,11 @@ class ClaseFamilias extends Modelo {
         return $nuestros;
     }
 
-    public function cuentaProductos($padres) {
+    public function cuentaProductos($padres)
+    {
         $nuestros = $padres;
         $sql = 'SELECT count(idArticulo) AS contador '
-                . 'FROM articulosFamilias where idFamilia=';
+            . 'FROM articulosFamilias where idFamilia=';
         foreach ($padres as $indice => $padre) {
             $resultado = $this->consulta($sql . $padre['idFamilia']);
             $nuestros[$indice]['productos'] = $resultado['datos'][0]['contador'];
@@ -106,27 +110,30 @@ class ClaseFamilias extends Modelo {
         return $nuestros;
     }
 
-    public function leer($idfamilia) {
+    public function leer($idfamilia)
+    {
         $sql = 'SELECT FAM.*'
-                . ' FROM familias as FAM '
-                . ' WHERE FAM.idFamilia =' . $idfamilia;
+            . ' FROM familias as FAM '
+            . ' WHERE FAM.idFamilia =' . $idfamilia;
         $resultado = $this->consulta($sql);
         $resultado['datos'] = $this->cuentaHijos($resultado['datos']);
         return $resultado;
     }
 
-    public function leerUnPadre($idpadre) {
+    public function leerUnPadre($idpadre)
+    {
         $sql = 'SELECT FAM.*, FAMPAD.familiaNombre as nombrepadre '
-                . ' FROM familias as FAM '
-                . ' LEFT OUTER JOIN familias as FAMPAD'
-                . ' ON (FAM.familiaPadre=FAMPAD.idFamilia)'
-                . ' WHERE FAM.familiaPadre =' . $idpadre
-                . ' ORDER BY FAM.familiaNombre';
+            . ' FROM familias as FAM '
+            . ' LEFT OUTER JOIN familias as FAMPAD'
+            . ' ON (FAM.familiaPadre=FAMPAD.idFamilia)'
+            . ' WHERE FAM.familiaPadre =' . $idpadre
+            . ' ORDER BY FAM.familiaNombre';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function grabar($datos) {
+    public function grabar($datos)
+    {
         if (isset($datos['idFamilia']) && $datos['idFamilia'] != 0) {
             return $this->update($datos, ['idFamilia=' . $datos['idFamilia']]);
         } else {
@@ -134,7 +141,8 @@ class ClaseFamilias extends Modelo {
         }
     }
 
-    public function todoslosPadres($orden = '', $addRoot = false) {
+    public function todoslosPadres($orden = '', $addRoot = false)
+    {
         $sql = 'SELECT idFamilia, familiaNombre  FROM familias';
         if ($orden) {
             $sql .= ' ORDER BY ' . $orden;
@@ -143,60 +151,67 @@ class ClaseFamilias extends Modelo {
         if ($resultado['datos']) {
             if ($addRoot) {
                 // Añadimos al inicio del array el valor 0 como Raiz
-                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias', 'familiaPadre'=>'Raíz: el padre de las familias']);
+                array_unshift($resultado['datos'], ['idFamilia' => 0, 'familiaNombre' => 'Raíz: la madre de todas las familias', 'familiaPadre' => 'Raíz: el padre de las familias']);
             }
         }
 
         return $resultado;
     }
 
-    public function guardarProductoFamilia($idProducto, $idFamilia) {
+    public function guardarProductoFamilia($idProducto, $idFamilia)
+    {
         $sql = 'INSERT INTO `articulosFamilias`(`idArticulo`, `idFamilia`) VALUES (' . $idProducto . ', ' . $idFamilia . ') ';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
-    
-    public function guardarRelacionFamiliasTiendas($idFamilia,$idTienda,$idFamiliaWeb) {
-        $sql = 'INSERT INTO familiasTienda  (idFamilia,idTienda,idFamilia_tienda) VALUES ('.$idFamilia.','.$idTienda.','.$idFamiliaWeb.')';
+
+    public function guardarRelacionFamiliasTiendas($idFamilia, $idTienda, $idFamiliaWeb)
+    {
+        $sql = 'INSERT INTO familiasTienda  (idFamilia,idTienda,idFamilia_tienda) VALUES (' . $idFamilia . ',' . $idTienda . ',' . $idFamiliaWeb . ')';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
 
-    public function buscarPorId($idFamilia) {
+    public function buscarPorId($idFamilia)
+    {
         $sql = 'select familiaNombre from familias where idFamilia=' . $idFamilia;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function buscarFamilisMostrarTpv($idFamilia = 0) {
+    public function buscarFamilisMostrarTpv($idFamilia = 0)
+    {
         // Objetivo obtener las familias para mostrar, de un familia padre o todos
         $sql = 'SELECT * from familias where mostrar_tpv=1';
-        if ($idFamilia >0){
-            $sql .= ' and familiaPadre='.$idFamilia ;
+        if ($idFamilia > 0) {
+            $sql .= ' and familiaPadre=' . $idFamilia;
         }
         $sql .= ' ORDER BY `familiaPadre` ASC ';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function comprobarRegistro($idProducto, $idFamilia) {
+    public function comprobarRegistro($idProducto, $idFamilia)
+    {
         $sql = 'select idArticulo, idFamilia from articulosFamilias where idFamilia=' . $idFamilia . ' and idArticulo=' . $idProducto;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function descendientes($idfamilia) {
+    public function descendientes($idfamilia)
+    {
         $ascendientes = ($idfamilia);
         $sql = 'SELECT idFamilia FROM familias where familiaPadre = ' . $idfamilia;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function familiasSinDescendientes($idfamilia, $addRoot = false) {
+    public function familiasSinDescendientes($idfamilia, $addRoot = false)
+    {
         // @ Objetivo:
         // Es obtener un array con las familias posibles, menos las que son hijas de esta familia.
         // ya esas familias no pueden ser padres del padre.
@@ -215,7 +230,8 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
-    public function contarProductos($idfamilia) {
+    public function contarProductos($idfamilia)
+    {
         $sql = 'SELECT count(idArticulo) AS contador FROM articulosFamilias where idFamilia=' . $idfamilia;
         $resultado = $this->consulta($sql);
         if ($resultado['datos']) {
@@ -224,130 +240,140 @@ class ClaseFamilias extends Modelo {
         return $resultado;
     }
 
-    public function contarHijos($idfamilia) {
+    public function contarHijos($idfamilia)
+    {
         $sql = 'SELECT count(idFamilia) as contador '
-                . ' FROM familias as FAM '
-                . ' WHERE FAM.familiaPadre = '. $idfamilia;
-            $resultado = $this->consulta($sql);
-            return $resultado['datos'][0]['contador'];
+            . ' FROM familias as FAM '
+            . ' WHERE FAM.familiaPadre = ' . $idfamilia;
+        $resultado = $this->consulta($sql);
+        return $resultado['datos'][0]['contador'];
     }
-    
-    public function BorrarRelacionFamiliasTiendas($idfamilia,$idTienda) {
+
+    public function BorrarRelacionFamiliasTiendas($idfamilia, $idTienda)
+    {
         $sql = 'DELETE FROM familiasTienda '
-                . ' WHERE idFamilia = ' . $idfamilia.' and idTienda = '. $idTienda;
-            return $this->consultaDML($sql);
+            . ' WHERE idFamilia = ' . $idfamilia . ' and idTienda = ' . $idTienda;
+        return $this->consultaDML($sql);
     }
-    
-     public function Borrar($idfamilia) {
+
+    public function Borrar($idfamilia)
+    {
         $sql = 'DELETE FROM familias '
-                . ' WHERE idFamilia = ' . $idfamilia;
-            return $this->consultaDML($sql);
+            . ' WHERE idFamilia = ' . $idfamilia;
+        return $this->consultaDML($sql);
     }
-    
-    public function buscarProductosFamilias($idFamilia,$limite=0) {
+
+    public function buscarProductosFamilias($idFamilia, $limite = 0)
+    {
         // @Objetivo
         // Buscar los productos de una familia determinada
         // @Parametros
         // $idFamilia = (int) que es la familia buscar
         // $limite = 0 por defecto ( busca todos) , sino solo buscar el numero registros que indica
         $sql_limite = ' ';
-        if ($limite >0 ){
+        if ($limite > 0) {
             $sql_limite = ' LIMIT 0 , 30 ';
         }
         //~ $sql = 'SELECT idArticulo, idFamilia FROM articulosFamilias where idFamilia=' . $idFamilia.$sql_limite;
-        $sql = 'SELECT articulo_name, a.idArticulo as idArticulo, idFamilia FROM articulosFamilias as af left join articulos as a on a.idArticulo=af.idArticulo where idFamilia='.$idFamilia.' ORDER BY `a`.`articulo_name` ASC'. $sql_limite;
+        $sql = 'SELECT articulo_name, a.idArticulo as idArticulo, idFamilia FROM articulosFamilias as af left join articulos as a on a.idArticulo=af.idArticulo where idFamilia=' . $idFamilia . ' ORDER BY `a`.`articulo_name` ASC' . $sql_limite;
         $resultado = $this->consulta($sql);
 
         return $resultado;
     }
-    public function buscarProductosSinFamilias(){
-        $sql='SELECT idArticulo FROM articulos WHERE idArticulo NOT IN (SELECT idArticulo  FROM articulosFamilias)';
+    public function buscarProductosSinFamilias()
+    {
+        $sql = 'SELECT idArticulo FROM articulos WHERE idArticulo NOT IN (SELECT idArticulo  FROM articulosFamilias)';
         $resultado = $this->consulta($sql);
         return $resultado;
     }
-   
-    public function addFamiliaTiendaWeb($idTienda, $idFamilia, $idWeb){
-        $sql='INSERT INTO `familiasTienda`(`idFamilia`, `idTienda`, `idFamilia_tienda`) 
-        VALUES ('.$idFamilia.','.$idTienda.','.$idWeb.')';
+
+    public function addFamiliaTiendaWeb($idTienda, $idFamilia, $idWeb)
+    {
+        $sql = 'INSERT INTO `familiasTienda`(`idFamilia`, `idTienda`, `idFamilia_tienda`)
+        VALUES (' . $idFamilia . ',' . $idTienda . ',' . $idWeb . ')';
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;
         }
     }
-   
-    public function familiaDeProducto($idProducto){
-        $sql='SELECT a.familiaNombre as nombreFamilia FROM `familias` as a inner join  
-        articulosFamilias as b on b.idFamilia=a.idFamilia WHERE b.idArticulo='.$idProducto;
+
+    public function familiaDeProducto($idProducto)
+    {
+        $sql = 'SELECT a.familiaNombre as nombreFamilia FROM `familias` as a inner join
+        articulosFamilias as b on b.idFamilia=a.idFamilia WHERE b.idArticulo=' . $idProducto;
         $resultado = $this->consulta($sql);
         return $resultado;
-        
     }
 
 
-    public function regRelacionFamiliaTienda ($idFamilia){
+    public function regRelacionFamiliaTienda($idFamilia)
+    {
         // @ Objetivo
         // Obtener registros tabla familaTienda donde nos indica la relacion idFamilia con familias otras tiendas.
         // @ Parametros
-        //   $idFamilia-> Entero que es el id de Familia a buscar    
+        //   $idFamilia-> Entero que es el id de Familia a buscar
         // @ Devuelve:
         //      Array   ( 'datos' -> respuesta
         //                'error' -> array ( el que utilizamos errores para indicar que hay registros tienda repetido)
         //              )
         $resultado = array();
-        $sql='SELECT * FROM `familiasTienda` WHERE idFamilia='.$idFamilia;
+        $sql = 'SELECT * FROM `familiasTienda` WHERE idFamilia=' . $idFamilia;
         $resultado = $this->consulta($sql);
         $r = $this->consulta($sql);
         // Ahora comprobamos que solo hay un registro por tienda.
-        if ( isset( $r['datos']) && count($r['datos'])>1){
+        if (isset($r['datos']) && count($r['datos']) > 1) {
             // creo array solo con idTienda para luego comprobar si esta repetido.
-            $ref_tiendas = array_column($r['datos'],'idTienda');
+            $ref_tiendas = array_column($r['datos'], 'idTienda');
             // Ahora creamos un array sin duplicados.
             $ref_tiendas_unicas = array_unique($ref_tiendas);
             // Ahora vemos diferencias.
-            $dif_ref_tiendas = array_diff_assoc($ref_tiendas,$ref_tiendas_unicas);
-            if (count($dif_ref_tiendas) >0 ){
+            $dif_ref_tiendas = array_diff_assoc($ref_tiendas, $ref_tiendas_unicas);
+            if (count($dif_ref_tiendas) > 0) {
                 // Entonces encontro diferencias por lo que alguno esta repetido..
-                $resultado['error'][] = array ( 'tipo'=>'danger',
-                                 'mensaje' =>'La familia '.$idFamilia.' tiene duplicado una relacion en las siguiente tiendas:'.implode(',',$dif_ref_tiendas),
-                                 'dato' =>$dif_ref_tiendas
-                                );
+                $resultado['error'][] = array(
+                    'tipo' => 'danger',
+                    'mensaje' => 'La familia ' . $idFamilia . ' tiene duplicado una relacion en las siguiente tiendas:' . implode(',', $dif_ref_tiendas),
+                    'dato' => $dif_ref_tiendas
+                );
             }
-            
         }
         return $resultado;
     }
-   
-    public function obtenerRelacionFamilia ($idTienda, $idFamilia){
+
+    public function obtenerRelacionFamilia($idTienda, $idFamilia)
+    {
         // Objetivo
         // Obtener registro donde nos indica el idFamilia y idFamilia_tienda buscando por idFamilia de tpv.
         //   $idTienda -> Entero que es el id de Tienda que buscamos.
-        //   $idFamilia-> Entero que es el id de Familia a buscar    
+        //   $idFamilia-> Entero que es el id de Familia a buscar
         // Error posible: Solo puede haber uno, si hay mas es un error [PENDIENTE].
-        $sql='SELECT idFamilia,idFamilia_tienda FROM `familiasTienda` WHERE idFamilia='.$idFamilia.' and idTienda='.$idTienda;
+        $sql = 'SELECT idFamilia,idFamilia_tienda FROM `familiasTienda` WHERE idFamilia=' . $idFamilia . ' and idTienda=' . $idTienda;
         $resultado = $this->consulta($sql);
 
         return $resultado;
     }
 
-    public function obtenerRelacionFamilia_tienda ($idTienda, $idFamilia_tienda){
+    public function obtenerRelacionFamilia_tienda($idTienda, $idFamilia_tienda)
+    {
         // Objetivo
         // Obtener registro donde nos indica el idFamilia y idFamilia_tienda buscando por idFamilia de tpv.
         //   $idTienda -> Entero que es el id de Tienda que buscamos.
-        //   $idFamilia-> Entero que es el id de Familia a buscar    
+        //   $idFamilia-> Entero que es el id de Familia a buscar
         // Error posible: Solo puede haber uno, si hay mas es un error [PENDIENTE].
-        
-        $sql='SELECT idFamilia,idFamilia_tienda FROM `familiasTienda` WHERE idFamilia_tienda='.$idFamilia_tienda.' and idTienda='.$idTienda;
+
+        $sql = 'SELECT idFamilia,idFamilia_tienda FROM `familiasTienda` WHERE idFamilia_tienda=' . $idFamilia_tienda . ' and idTienda=' . $idTienda;
         $resultado = $this->consulta($sql);
         return $resultado;
     }
 
-    public function datosFamilia($idFamilia){
+    public function datosFamilia($idFamilia)
+    {
         // @ Objetivo:
         // Obtener un array con todos los datos de esa familia.
         // @ Parametros:
         //      $idFamilia: Id de la familia queremos obtener datos.
         // @ Devuelve:
-        //      array(  idFamilia       -> (int) id  
+        //      array(  idFamilia       -> (int) id
         //              familiaNombre   -> (varchar) Nombre de la familia
         //              familiaPadre    -> (int) id de padre si lo tuviera, sino devuelve 0
         //              beneficiomedio  -> (float) Indica el porcentaje medio de la familia .. puede devolver NULL
@@ -356,7 +382,7 @@ class ClaseFamilias extends Modelo {
         //              productos       -> (int) Cantidad de productos que tiene esta familia.
         //              familiaTienda   -> (array) Con las relaciones con otras tiendas.
         $datosFamilia = array();
-        $datosFamilia['idFamilia']= $idFamilia; 
+        $datosFamilia['idFamilia'] = $idFamilia;
         $f = $this->leer($idFamilia);
         // habría que controlar si solo devuelve un registro, ya que si devuelve mas.. es un error
         $datosFamilia['familiaNombre'] = $f['datos'][0]['familiaNombre'];
@@ -365,16 +391,16 @@ class ClaseFamilias extends Modelo {
         $datosFamilia['mostrar_tpv'] = $f['datos'][0]['mostrar_tpv'];
 
         $datosFamilia['productos'] = $this->contarProductos($idFamilia);
-        $r= $this->regRelacionFamiliaTienda($idFamilia);
-        if (isset($r['error'])){
+        $r = $this->regRelacionFamiliaTienda($idFamilia);
+        if (isset($r['error'])) {
             $datosFamilia['errores'] = $r['error'];
         }
         $datosFamilia['familiaTienda'] = (isset($r['datos'])) ? $r['datos'] : array();
 
         // Obtenemos array de hijos.
-        $t =$this->leerUnPadre($idFamilia);
-        
-        if (isset($t['datos'])){
+        $t = $this->leerUnPadre($idFamilia);
+
+        if (isset($t['datos'])) {
             // Si existe hijos
             $datosFamilia['hijos'] = $t['datos'];
             // Añadimos a hijos si cuantos hijos y productos tiene, esto es necesario para saber si se puede eliminar una
@@ -382,25 +408,26 @@ class ClaseFamilias extends Modelo {
             $datosFamilia['hijos'] = $this->cuentaHijos($t['datos']);
             $datosFamilia['hijos'] = $this->cuentaProductos($datosFamilia['hijos']);
             // Ahora añadimos a cada hijo la relacion familia tienda. Es necesario para controlar si tiene tienda web
-            foreach ($datosFamilia['hijos'] as $key=>$hijo){
+            foreach ($datosFamilia['hijos'] as $key => $hijo) {
                 $rH  =  $this->regRelacionFamiliaTienda($hijo['idFamilia']);
-                if (isset($r['error'])){
+                if (isset($r['error'])) {
                     $datosFamilia['errores'] = $r['error'];
                 }
-                $relacionFamiliaHijo = array( 'familiaTienda' => (isset($rH['datos'])) ? $rH['datos'] : array());
-                $datosFamilia['hijos'][$key]= $datosFamilia['hijos'][$key]+$relacionFamiliaHijo;
+                $relacionFamiliaHijo = array('familiaTienda' => (isset($rH['datos'])) ? $rH['datos'] : array());
+                $datosFamilia['hijos'][$key] = $datosFamilia['hijos'][$key] + $relacionFamiliaHijo;
             }
         }
         return  $datosFamilia;
     }
 
-    public function htmlComboFamilias($elementos, $id_seleccionado,$nombreid='idFamilia'){
+    public function htmlComboFamilias($elementos, $id_seleccionado, $nombreid = 'idFamilia')
+    {
         // @ Objetivo:
         // Obtener el html combo de las familias con la familias selecciona si se la enviamos.
         // @ Parametros
         //  $elementos => Array de elementos (familias) un campo tiene que familiaNombre
         //                                              el otro si no indica nombreId tiene ser idFamilia.
-        //  $id_seleccionado  => ID del que esta seleccionado 
+        //  $id_seleccionado  => ID del que esta seleccionado
 
 
         // Montamos el combo ( esto debería haber una funcion )
@@ -415,24 +442,25 @@ class ClaseFamilias extends Modelo {
             $combo .= '>' . $elemento['familiaNombre'] . '</option>';
         }
         //~ $combo .= '<input type="hidden" name="idpadre" id="inputidpadre" value="'.$vp.'">';
-        //~ $combo .= '<input type="hidden" name="idpadre" id="inputidpadre" value="">'; 
+        //~ $combo .= '<input type="hidden" name="idpadre" id="inputidpadre" value="">';
 
 
         return $combo;
     }
-    
-    public function anhadirRelacionArrayTiendaFamilia($todasFamiliasWeb,$idTiendaWeb){
+
+    public function anhadirRelacionArrayTiendaFamilia($todasFamiliasWeb, $idTiendaWeb)
+    {
         // Con este metodo, devolvemos el mismo array con idFamilia de Tpv relacionado y eliminamos los que no tienen realacion
         // Luego devolvemos ademas:
-        //    - Array de familias que hay en la web que no tienen relacion 
+        //    - Array de familias que hay en la web que no tienen relacion
         //    - Y advertencia de error en la base datos si el id de familia de tiendaWeb es 0
-        foreach ($todasFamiliasWeb as $key => $familiaWeb){
+        foreach ($todasFamiliasWeb as $key => $familiaWeb) {
             // Si por casual la base de datos web, esta mal creada las categoria, responde con $familiaWeb['virtuemart_category_id]=0 o vacio.
             // lo controlamos para que muestre un error y no siga con datos web
-            if ($familiaWeb['virtuemart_category_id'] > 0 && $idTiendaWeb>0 ){
-            // Comprobamos si existe relacion de todas las familias Web con tpv
-                $existe = $this->obtenerRelacionFamilia_tienda($idTiendaWeb,$familiaWeb['virtuemart_category_id']);
-                if (!isset($existe['datos'])){
+            if ($familiaWeb['virtuemart_category_id'] > 0 && $idTiendaWeb > 0) {
+                // Comprobamos si existe relacion de todas las familias Web con tpv
+                $existe = $this->obtenerRelacionFamilia_tienda($idTiendaWeb, $familiaWeb['virtuemart_category_id']);
+                if (!isset($existe['datos'])) {
                     // Registramos las familias creadas en la web que no tenga relación
                     $familiasWebSinRelacion[] = $familiaWeb;
                     // Si no existe relacion de una familia web de todas, la eliminamos del array y mostramos una advertencia.
@@ -443,16 +471,17 @@ class ClaseFamilias extends Modelo {
                     $todasFamiliasWeb[$key]['idFamilia'] = $existe['datos'][0]['idFamilia'];
                 }
             } else {
-                $errores[] = $Cfamilias->montarAdvertencia('danger',
-                            'Hay error en la base datos de la web, ya exite categorias que no tienen nombre y id 0.'
-                            );    
+                $errores[] = $Cfamilias->montarAdvertencia(
+                    'danger',
+                    'Hay error en la base datos de la web, ya exite categorias que no tienen nombre y id 0.'
+                );
             }
         }
-        $respuesta = array( 'todasFamiliasWeb' => $todasFamiliasWeb);
-        if (isset($familiasWebSinRelacion)){
+        $respuesta = array('todasFamiliasWeb' => $todasFamiliasWeb);
+        if (isset($familiasWebSinRelacion)) {
             $respuesta['familiasWebSinRelacion'] = $familiasWebSinRelacion;
         }
-        if (isset($error)){
+        if (isset($error)) {
             $respuesta['errorWeb'] = $error;
         }
         return $respuesta;
@@ -490,8 +519,8 @@ class ClaseFamilias extends Modelo {
     //                 $advertencia .= '</div>';
 
     //     }
-                        
+
     //     return $advertencia;
     // }
-    
+
 }

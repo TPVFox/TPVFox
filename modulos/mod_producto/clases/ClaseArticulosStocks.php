@@ -1,9 +1,9 @@
 <?php
 /*
- * @Copyright 2018, Alagoro Software. 
+ * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
  * @Autor Alberto Lago Rodríguez. Alagoro. alberto arroba alagoro punto com
- * @Descripción	
+ * @Descripción
  */
 
 include_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
@@ -14,7 +14,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
  * @author alagoro
  */
 class alArticulosStocks extends ModeloP
-{ // hereda de clase modelo. 
+{ // hereda de clase modelo.
 
     protected static $tabla = 'articulosStocks';
 
@@ -89,11 +89,12 @@ class alArticulosStocks extends ModeloP
 
     public static function crearStock($valores)
     {
-        return ModeloP::_insert(alArticulosStocks::$tabla, ['idArticulo' => $valores[0],
-                'idTienda' => $valores[1],
-                'stockMin' => $valores[2],
-                'stockOn' => $valores[3],
-                'stockMax' => $valores[4],
+        return ModeloP::_insert(alArticulosStocks::$tabla, [
+            'idArticulo' => $valores[0],
+            'idTienda' => $valores[1],
+            'stockMin' => $valores[2],
+            'stockOn' => $valores[3],
+            'stockMax' => $valores[4],
         ]);
     }
 
@@ -109,13 +110,16 @@ class alArticulosStocks extends ModeloP
         $stockon = self::leerStockXId($idarticulostock);
         if ($operador === K_STOCKARTICULO_REGULARIZA) {
             return alArticulosStocks::_update(alArticulosStocks::$tabla, [
-                    'stockOn' => $nunidades, 'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL)
-                    , 'usuarioRegularizacion' => 0], ['id =' . $idarticulostock]);
+                'stockOn' => $nunidades,
+                'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL),
+                'usuarioRegularizacion' => 0
+            ], ['id =' . $idarticulostock]);
         } else {
             return alArticulosStocks::_update(alArticulosStocks::$tabla, [
-                    'stockOn' => $stockon + ($nunidades * $operador)
-                    , 'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL)
-                    , 'usuarioRegularizacion' => 0], ['id =' . $idarticulostock]);
+                'stockOn' => $stockon + ($nunidades * $operador),
+                'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL),
+                'usuarioRegularizacion' => 0
+            ], ['id =' . $idarticulostock]);
         }
     }
 
@@ -138,15 +142,17 @@ class alArticulosStocks extends ModeloP
         $resultado = self::actualizarStock($idArticulo, $idTienda, $nunidades, K_STOCKARTICULO_SUMA);
         if ($resultado) {
             $resultado = alArticulosStocks::_update(alArticulosStocks::$tabla, [
-                    'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL)
-                    , 'usuarioRegularizacion' => $idUsuario], ['id =' . self::getIdbyArticulo($idArticulo, $idTienda)]);
+                'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL),
+                'usuarioRegularizacion' => $idUsuario
+            ], ['id =' . self::getIdbyArticulo($idArticulo, $idTienda)]);
         }
         return $resultado;
     }
 
-    public static function grabarRegularizacion($datos){
+    public static function grabarRegularizacion($datos)
+    {
         $tabla = 'stocksRegularizacion';
-        if(!isset($datos['fechaRegularizacion'])){
+        if (!isset($datos['fechaRegularizacion'])) {
             $datos['fechaRegularizacion'] = date(FORMATO_FECHA_MYSQL);
         }
         return parent::_insert($tabla, $datos);

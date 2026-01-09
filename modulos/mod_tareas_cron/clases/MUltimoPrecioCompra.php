@@ -30,5 +30,4 @@ class MUltimoPrecioCompra extends TFModelo
         $sql = "UPDATE articulos SET ultimoCoste = '" . $ultimo_precio_compra . "' WHERE IdArticulo=" . $idarticulo;
         return $this->consultaDML($sql);
     }
-
 }
