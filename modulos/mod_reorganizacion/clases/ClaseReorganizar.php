@@ -82,7 +82,7 @@ class ClaseReorganizar extends TFModelo
         return $respuesta;
     }
 
-    public function contarFamilias()
+    public function contarFamilias($idFamilia = '')
     {
         $sql = 'SELECT
                     DISTINCT v.idN1
@@ -99,5 +99,30 @@ class ClaseReorganizar extends TFModelo
             $familias[] = $fila['idN1'];
         }
         return $familias;
+    }
+
+    public function contarSubfamilias($idFamilia = '')
+    {
+        $sql = 'SELECT
+                    v.idN2,
+                    COUNT(*) AS total_articulos
+                FROM articulosStocks s
+                JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
+                JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
+                WHERE v.idN1 = ' . $idFamilia . '
+                AND s.stockOn > 0
+                AND s.idTienda = 1
+                GROUP BY v.idN2;';
+        error_log($sql);
+        $resultado = $this->consulta($sql);
+        // Devolver el array de subfamilias y total articulos
+        $subfamilias = array();
+        foreach ($resultado['datos'] as $fila) {
+            $subfamilias[] = array(
+                'idN2' => $fila['idN2'],
+                'total_articulos' => $fila['total_articulos']
+            );
+        }
+        return $subfamilias;
     }
 }

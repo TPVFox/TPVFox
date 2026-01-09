@@ -190,11 +190,18 @@ switch ($pulsado) {
         echo json_encode($totalFamilias);
         break;
     case 'cerrarStockAnoActual':
-        // Recibimos el punto de inicio y el id de familia
+        // Objetivo cerrar el stock del año actual.
+        // Recibimos:
         $inicial = $_POST['inicial'];
         $pagina = $_POST['pagina'];
         $familias = json_decode($_POST['familias'], true);
-        //tras recibirlos sumamos 1 y lo devolvemos como respueta
+        // Definimos limite de productos por albaran y la familia a procesar
+        $limiteProductosAlbaran = 100;
+        $familia_id = $familias[$inicial];
+        // Comprobamos cuantos produtos tiene esa familia
+        $CReorganizar = new ClaseReorganizar();
+        $subfamilias = $CReorganizar->contarSubfamilias($familia_id);
+
         $resultado['elementos'] = 1;
         $resultado['actual'] = $inicial + $pagina;
         $resultado['totalFamilias'] = $familias[$inicial];
