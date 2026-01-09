@@ -85,7 +85,7 @@ class ClaseReorganizar extends TFModelo
     public function contarFamilias()
     {
         $sql = 'SELECT
-                    COUNT(DISTINCT v.idN1) AS contador
+                    DISTINCT v.idN1
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
@@ -93,6 +93,11 @@ class ClaseReorganizar extends TFModelo
                 AND s.stockOn > 0
                 AND s.idTienda = 1;';
         $resultado = $this->consulta($sql);
-        return $resultado['datos'][0]['contador'];
+        // Devolver array de los ids familias
+        $familias = array();
+        foreach ($resultado['datos'] as $fila) {
+            $familias[] = $fila['idN1'];
+        }
+        return $familias;
     }
 }
