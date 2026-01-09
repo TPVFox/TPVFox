@@ -130,6 +130,40 @@ function reorganizarPermisosModulos(inicial, total) {
   });
 }
 
+function CerrarStockAnoActual(inicio, pagina, familias, idBar) {
+  //inicio es el indice de array de familias en el que empezamos
+  //pagina es la cantidad de familias a procesar en cada llamada
+  //familias es el array con los ids de las familias a procesar
+  //idBar es el id de la barra de progreso
+
+  var parametros = {
+    pulsado: "cerrarStockAnoActual",
+    inicial: parseInt(inicio),
+    pagina: pagina,
+    familias: JSON.stringify(familias),
+  };
+
+  BarraProceso(inicio, familias.length, idBar);
+  ajaxStock(parametros, function (response) {
+    var obj = JSON.parse(response);
+    if (obj) {
+      elementos = obj.elementos;
+      actual = obj.actual;
+      totalFamilias = obj.totalFamilias;
+      pagina = obj.pagina;
+
+      console.log(totalFamilias);
+
+      if (actual < familias.length) {
+        CerrarStockAnoActual(actual, pagina, familias, idBar);
+      } else {
+        BarraProceso(actual, familias.length, idBar);
+        $("#boton-cerrar-stock").prop("disabled", false);
+      }
+    }
+  });
+}
+
 function ajaxStock(parametros, callback) {
   $.ajax({
     data: parametros,

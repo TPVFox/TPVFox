@@ -135,11 +135,13 @@
 
             contarFamiliasProductos(function(respuesta) {
                 var obj = JSON.parse(respuesta);
-                if (obj.totalFamilias > 0) {
-                    var totalFamilias = obj.totalFamilias;
+                console.log("Respuesta contar familias:");
+                console.log(obj);
+                if (obj.length > 0) {
+                    var familias = obj;
                     $("#bar-cerrar-stock").show();
                     $("#boton-cerrar-stock").prop("disabled", true);
-                    //CerrarStockAnoActual(0, 100, totalFamilias, 'cerrar-stock');
+                    CerrarStockAnoActual(0, 1, familias, '-cerrar-stock');
                 }
 
             });

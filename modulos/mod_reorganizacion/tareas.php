@@ -186,6 +186,19 @@ switch ($pulsado) {
         error_log("llegamos a case contar familias");
         $CReorganizar = new ClaseReorganizar();
         $totalFamilias = $CReorganizar->contarFamilias();
-        echo json_encode(compact('totalFamilias'));;
+        // devolver array con los ids familias No cuenta array
+        echo json_encode($totalFamilias);
+        break;
+    case 'cerrarStockAnoActual':
+        // Recibimos el punto de inicio y el id de familia
+        $inicial = $_POST['inicial'];
+        $pagina = $_POST['pagina'];
+        $familias = json_decode($_POST['familias'], true);
+        //tras recibirlos sumamos 1 y lo devolvemos como respueta
+        $resultado['elementos'] = 1;
+        $resultado['actual'] = $inicial + $pagina;
+        $resultado['totalFamilias'] = $familias[$inicial];
+        $resultado['pagina'] = $pagina;
+        echo json_encode($resultado);;
         break;
 }
