@@ -112,17 +112,67 @@ class ClaseReorganizar extends TFModelo
                 WHERE v.idN1 = ' . $idFamilia . '
                 AND s.stockOn > 0
                 AND s.idTienda = 1
-                GROUP BY v.idN2;';
-        error_log($sql);
+                GROUP BY v.idN2
+                ORDER BY total_articulos DESC;';
         $resultado = $this->consulta($sql);
         // Devolver el array de subfamilias y total articulos
         $subfamilias = array();
-        foreach ($resultado['datos'] as $fila) {
-            $subfamilias[] = array(
-                'idN2' => $fila['idN2'],
-                'total_articulos' => $fila['total_articulos']
-            );
+        //Si hay resultados
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            foreach ($resultado['datos'] as $fila) {
+                $subfamilias[] = array(
+                    'idN2' => $fila['idN2'],
+                    'total_articulos' => $fila['total_articulos']
+                );
+            }
         }
         return $subfamilias;
+    }
+
+    public function obtenerProductosPorFamilia($idFamilia, $subfamiliasProcesar = array())
+    {
+        $filtroSubfamilias = '';
+        if (count($subfamiliasProcesar) > 0) {
+            $filtroSubfamilias = ' AND v.idN2 NOT IN (' . implode(',', $subfamiliasProcesar) . ') ';
+        }
+        $sql = 'SELECT
+                    s.idArticulo
+                FROM articulosStocks s
+                JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
+                JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
+                WHERE v.idN1 = ' . $idFamilia . '
+                ' . $filtroSubfamilias . '
+                AND s.stockOn > 0
+                AND s.idTienda = 1;';
+        $resultado = $this->consulta($sql);
+        // Devolver array de ids articulos
+        $articulos = array();
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            foreach ($resultado['datos'] as $fila) {
+                $articulos[] = $fila['idArticulo'];
+            }
+        }
+        return $articulos;
+    }
+
+    public function obtenerProductosPorSubfamilia($idSubfamilia)
+    {
+        $sql = 'SELECT
+                    s.idArticulo
+                FROM articulosStocks s
+                JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
+                JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
+                WHERE v.idN2 = ' . $idSubfamilia . '
+                AND s.stockOn > 0
+                AND s.idTienda = 1;';
+        $resultado = $this->consulta($sql);
+        // Devolver array de ids articulos
+        $articulos = array();
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            foreach ($resultado['datos'] as $fila) {
+                $articulos[] = $fila['idArticulo'];
+            }
+        }
+        return $articulos;
     }
 }

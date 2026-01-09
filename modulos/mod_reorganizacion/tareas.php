@@ -183,29 +183,51 @@ switch ($pulsado) {
 
         break;
     case 'contarfamilias':
-        error_log("llegamos a case contar familias");
         $CReorganizar = new ClaseReorganizar();
         $totalFamilias = $CReorganizar->contarFamilias();
         // devolver array con los ids familias No cuenta array
         echo json_encode($totalFamilias);
         break;
     case 'cerrarStockAnoActual':
-        // Objetivo cerrar el stock del año actual.
-        // Recibimos:
         $inicial = $_POST['inicial'];
         $pagina = $_POST['pagina'];
         $familias = json_decode($_POST['familias'], true);
-        // Definimos limite de productos por albaran y la familia a procesar
+
+        // Regla de negocio: un albarán no puede superar este número de productos
         $limiteProductosAlbaran = 100;
         $familia_id = $familias[$inicial];
-        // Comprobamos cuantos produtos tiene esa familia
+
         $CReorganizar = new ClaseReorganizar();
         $subfamilias = $CReorganizar->contarSubfamilias($familia_id);
 
-        $resultado['elementos'] = 1;
+        $subfamiliasProcesar = [];
+        $totalProductosFamilia = 0;
+        foreach ($subfamilias as $subfamilia) {
+            $totalProductosFamilia += $subfamilia['total_articulos'];
+        }
+        // Si la familia es demasiado grande, separamos el cierre por subfamilias
+        // para evitar generar albaranes con más productos de los permitidos
+        if ($totalProductosFamilia > $limiteProductosAlbaran) {
+            $productosAcumulados = 0;
+            foreach ($subfamilias as $subfamilia) {
+                $productosAcumulados += $subfamilia['total_articulos'];
+
+                // Cuando el resto de productos cabe en un solo albarán,
+                // dejamos de dividir
+                if (($totalProductosFamilia - $productosAcumulados) <= $limiteProductosAlbaran) {
+                    break;
+                }
+                $subfamiliasProcesar[] = $subfamilia['idN2'];
+            }
+        }
+
+        $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
+
+        $resultado['elementos'] = count($subfamiliasProcesar) > 0 ? count($subfamiliasProcesar) + 1 : 1;
         $resultado['actual'] = $inicial + $pagina;
-        $resultado['totalFamilias'] = $familias[$inicial];
+        $resultado['totalFamilias'] = $subfamiliasProcesar;
         $resultado['pagina'] = $pagina;
-        echo json_encode($resultado);;
+
+        echo json_encode($resultado);
         break;
 }
