@@ -230,7 +230,16 @@ switch ($pulsado) {
                 $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($subfamilia_id);
                 $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $subfamilia_id);
                 $numeroProductos = count($productos);
-                generarCierreAlbaran($productos);
+                // si hay más de 100 productos, lo dividimos en varios albaranes
+                if ($numeroProductos > $limiteProductosAlbaran) {
+                    $partes = ceil($numeroProductos / $limiteProductosAlbaran);
+                    for ($i = 0; $i < $partes; $i++) {
+                        $productosParte = array_slice($productos, $i * $limiteProductosAlbaran, $limiteProductosAlbaran);
+                        generarCierreAlbaran($productosParte);
+                    }
+                } else {
+                    generarCierreAlbaran($productos);
+                }
             }
         }
 
