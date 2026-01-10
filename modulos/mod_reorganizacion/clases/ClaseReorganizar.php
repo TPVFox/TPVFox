@@ -136,7 +136,8 @@ class ClaseReorganizar extends TFModelo
             $filtroSubfamilias = ' AND v.idN2 NOT IN (' . implode(',', $subfamiliasProcesar) . ') ';
         }
         $sql = 'SELECT
-                    s.idArticulo
+                    s.idArticulo,
+                    s.stockOn
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
@@ -149,7 +150,10 @@ class ClaseReorganizar extends TFModelo
         $articulos = array();
         if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
             foreach ($resultado['datos'] as $fila) {
-                $articulos[] = $fila['idArticulo'];
+                $articulos[] = array(
+                    'idArticulo' => $fila['idArticulo'],
+                    'stockOn' => $fila['stockOn']
+                );
             }
         }
         return $articulos;
@@ -158,7 +162,8 @@ class ClaseReorganizar extends TFModelo
     public function obtenerProductosPorSubfamilia($idSubfamilia)
     {
         $sql = 'SELECT
-                    s.idArticulo
+                    s.idArticulo,
+                    s.stockOn
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
@@ -170,9 +175,25 @@ class ClaseReorganizar extends TFModelo
         $articulos = array();
         if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
             foreach ($resultado['datos'] as $fila) {
-                $articulos[] = $fila['idArticulo'];
+                $articulos[] = array(
+                    'idArticulo' => $fila['idArticulo'],
+                    'stockOn' => $fila['stockOn']
+                );
             }
         }
         return $articulos;
+    }
+    public function articulosAlbaranCierre($idArticulo)
+    {
+        $sql = 'SELECT acb.codBarras AS ccodbar, a.articulo_name AS cdetalle, a.ultimoCoste AS costSiva, a.iva AS iva
+                FROM articulos a
+                    LEFT JOIN articulosCodigoBarras acb ON a.idArticulo = acb.idArticulo
+                WHERE a.idArticulo = ' . $idArticulo;;
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos'][0])) {
+            return $resultado['datos'][0];
+        } else {
+            return array();
+        }
     }
 }

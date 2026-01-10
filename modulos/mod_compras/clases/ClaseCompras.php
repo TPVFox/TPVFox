@@ -1,5 +1,8 @@
 <?php
 // Clase base para modulo de compras.
+if (!isset($URLCom) || empty($URLCom)) {
+    $URLCom = dirname(dirname(dirname(__DIR__)));
+}
 include_once $URLCom . '/clases/articulos.php';
 include_once $URLCom . '/clases/traits/MontarAdvertenciaTrait.php';
 

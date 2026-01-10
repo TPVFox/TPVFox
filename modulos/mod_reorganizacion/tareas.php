@@ -221,7 +221,22 @@ switch ($pulsado) {
             }
         }
 
+        $numeroAlbaranes = array();
+        include_once 'funciones.php';
+        // Procesamos las subfamilias que hemos decidido cerrar por separado
+        if (count($subfamiliasProcesar) > 0) {
+            // Si hay subfamilias para procesar, las mostramos
+            foreach ($subfamiliasProcesar as $subfamilia_id) {
+                $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($subfamilia_id);
+                $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $subfamilia_id);
+                $numeroProductos = count($productos);
+                generarCierreAlbaran($productos);
+            }
+        }
+
         $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
+        $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
+        generarCierreAlbaran($productos);
 
         $resultado['elementos'] = count($subfamiliasProcesar) > 0 ? count($subfamiliasProcesar) + 1 : 1;
         $resultado['actual'] = $inicial + $pagina;

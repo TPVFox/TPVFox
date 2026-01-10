@@ -309,28 +309,32 @@ class AlbaranesCompras extends ClaseCompras
                 }
             }
             if (!isset($respuesta['error'])) {
-                foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
-                    $sql = 'INSERT INTO albproIva'
-                        . ' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
-                        . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
-                        . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
-                    $smt = parent::consulta($sql);
-                    if (gettype($smt) === 'array') {
-                        $respuesta = $smt;
-                        break;
+                if (isset($datos['DatosTotales']['desglose'])) {
+                    foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
+                        $sql = 'INSERT INTO albproIva'
+                            . ' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
+                            . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
+                            . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
+                        $smt = parent::consulta($sql);
+                        if (gettype($smt) === 'array') {
+                            $respuesta = $smt;
+                            break;
+                        }
                     }
                 }
-                $pedidos = json_decode($datos['pedidos'], true);
-                if (count($pedidos) > 0) {
-                    foreach ($pedidos as $pedido) {
-                        if ($pedido['estado'] == 'activo') {
-                            $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido)
+                if (isset($datos['pedidos'])) {
+                    $pedidos = json_decode($datos['pedidos'], true);
+                    if (count($pedidos) > 0) {
+                        foreach ($pedidos as $pedido) {
+                            if ($pedido['estado'] == 'activo') {
+                                $sql = 'INSERT INTO pedproAlb (idAlbaran  ,  numAlbaran   , idPedido , numPedido)
                             VALUES (' . $id . ', ' . $numAlbaran . ' ,  ' . $pedido['idAdjunto'] . ' , '
-                                . $pedido['NumAdjunto'] . ')';
-                            $smt = parent::consulta($sql);
-                            if (gettype($smt) === 'array') {
-                                $respuesta = $smt;
-                                break;
+                                    . $pedido['NumAdjunto'] . ')';
+                                $smt = parent::consulta($sql);
+                                if (gettype($smt) === 'array') {
+                                    $respuesta = $smt;
+                                    break;
+                                }
                             }
                         }
                     }
