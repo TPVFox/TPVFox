@@ -238,6 +238,15 @@ switch ($pulsado) {
         $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
         generarCierreAlbaran($productos);
 
+        // Si es la ultima familia hacemos una revisión final
+        if (($inicial + $pagina) >= count($familias)) {
+            $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre();
+            if (count($idsProductosPendientes) > 0) {
+                $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "Pendiente");
+                generarCierreAlbaran($productosPendientes);
+            }
+        }
+
         $resultado['elementos'] = count($subfamiliasProcesar) > 0 ? count($subfamiliasProcesar) + 1 : 1;
         $resultado['actual'] = $inicial + $pagina;
         $resultado['totalFamilias'] = $subfamiliasProcesar;

@@ -159,6 +159,29 @@ class ClaseReorganizar extends TFModelo
         return $articulos;
     }
 
+    // Obtener los productos restantes:
+    public function obtenerProductosPendientesCierre()
+    {
+        $sql = 'SELECT
+                    s.idArticulo,
+                    s.stockOn
+                FROM articulosStocks s
+                WHERE s.stockOn > 0
+                AND s.idTienda = 1;';
+        $resultado = $this->consulta($sql);
+        // Devolver array de ids articulos
+        $articulos = array();
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            foreach ($resultado['datos'] as $fila) {
+                $articulos[] = array(
+                    'idArticulo' => $fila['idArticulo'],
+                    'stockOn' => $fila['stockOn']
+                );
+            }
+        }
+        return $articulos;
+    }
+
     public function obtenerProductosPorSubfamilia($idSubfamilia)
     {
         $sql = 'SELECT
