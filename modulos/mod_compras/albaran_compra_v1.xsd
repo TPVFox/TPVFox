@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+    <xs:element name="AlbaranCompra">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Meta">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Version" type="xs:string"/>
+                            <xs:element name="Tipo" type="xs:string" fixed="COMPRA"/>
+                            <xs:element name="FechaExportacion" type="xs:dateTime"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Cabecera">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Numero" type="xs:string"/>
+                            <xs:element name="SuNumero" type="xs:string"/>
+                            <xs:element name="Fecha" type="xs:dateTime"/>
+                            <xs:element name="IdTienda" type="xs:integer"/>
+                            <xs:element name="IdProveedor" type="xs:integer"/>
+                            <xs:element name="Estado" type="EstadoAlbaran"/>
+                            <xs:element name="FormaPago" type="xs:string" minOccurs="0"/>
+                            <xs:element name="FechaVencimiento" type="xs:date" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Lineas">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Linea" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="IdArticulo" type="xs:integer"/>
+                                        <xs:element name="Descripcion" type="xs:string"/>
+                                        <xs:element name="Cantidad" type="xs:decimal"/>
+                                        <xs:element name="Unidades" type="xs:decimal"/>
+                                        <xs:element name="PrecioUnitario" type="xs:decimal"/>
+                                        <xs:element name="IVA" type="TipoIVA"/>
+                                        <xs:element name="Fila" type="xs:integer"/>
+                                        <xs:element name="CodigoBarras" type="xs:string" minOccurs="0"/>
+                                        <xs:element name="ReferenciaProveedor" type="xs:string" minOccurs="0"/>
+                                    </xs:sequence>
+
+                                    <xs:attribute name="idInterno" type="xs:integer" use="optional"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Totales">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="DesgloseIVA" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Tipo" type="TipoIVA"/>
+                                        <xs:element name="Base" type="xs:decimal"/>
+                                        <xs:element name="Cuota" type="xs:decimal"/>
+                                        <xs:element name="Total" type="xs:decimal"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="TotalIVA" type="xs:decimal"/>
+                            <xs:element name="TotalDocumento" type="xs:decimal"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:sequence>
+
+            <xs:attribute name="idOrigen" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="EstadoAlbaran">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Guardado"/>
+            <xs:enumeration value="Exportado"/>
+            <xs:enumeration value="Facturado"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TipoIVA">
+        <xs:restriction base="xs:decimal">
+            <xs:enumeration value="21.00"/>
+            <xs:enumeration value="10.00"/>
+            <xs:enumeration value="4.00"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
