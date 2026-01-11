@@ -89,7 +89,7 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idN1 <> 458
+                WHERE v.idN1 <> 458 AND v.idN1 <> 55
                 AND s.stockOn > 0
                 AND s.idTienda = 1;';
         $resultado = $this->consulta($sql);

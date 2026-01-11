@@ -37,7 +37,7 @@ function obtenerDatosProductoAlbaranCierre($arrayIdsArticulos, $idFamilia = null
     return $productos;
 }
 
-function generarCierreAlbaran($productos)
+function generarCierreAlbaran($productos, $familia_id = null)
 {
     $idTienda = $_SESSION['tiendaTpv']['idTienda'];
     $ano = $_SESSION['tiendaTpv']['ano'];
@@ -48,11 +48,18 @@ function generarCierreAlbaran($productos)
 
     $totalSinIva = 0;
     $totalIva = 0;
+    $basesYivas = array();
     foreach ($productos as $producto) {
+        $iva = $producto['iva'];
         $precioSinIva = $producto['ultimoCoste'] * $producto['ncant'];
         $ivaProducto = $precioSinIva * ($producto['iva'] / 100);
         $totalSinIva += $precioSinIva;
         $totalIva += $ivaProducto;
+        if (!isset($basesYivas[$iva])) {
+            $basesYivas[$iva] = array('base' => 0, 'iva' => 0);
+        }
+        $basesYivas[$iva]['base'] += $precioSinIva;
+        $basesYivas[$iva]['iva'] += $ivaProducto;
     }
 
     $datosAlbaran = array(
@@ -63,13 +70,14 @@ function generarCierreAlbaran($productos)
         'idProveedor' => $idProveedor,
         'estado' => 'Guardado',
         'total_siniva' => $totalSinIva,
-        'total' => $totalIva,
-        'suNumero' => '',
+        'total' => $totalSinIva + $totalIva,
+        'suNumero' => $familia_id !== null ? 'ID-' . $familia_id . '#C' : 'SINID#C',
         'formaPago' => '',
         'fechaVenci' => ''
     );
 
     $datosAlbaran['productos'] = json_encode($productos);
+    $datosAlbaran['DatosTotales']['desglose'] = $basesYivas;
     global $BDTpv;
     include_once '../mod_compras/clases/albaranesCompras.php';
     $AlbaranesCompras = new AlbaranesCompras($BDTpv);

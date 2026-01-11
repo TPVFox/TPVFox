@@ -235,23 +235,26 @@ switch ($pulsado) {
                     $partes = ceil($numeroProductos / $limiteProductosAlbaran);
                     for ($i = 0; $i < $partes; $i++) {
                         $productosParte = array_slice($productos, $i * $limiteProductosAlbaran, $limiteProductosAlbaran);
-                        generarCierreAlbaran($productosParte);
+                        $parteSubfamilia_id = $subfamilia_id . '-P' . ($i + 1);
+                        generarCierreAlbaran($productosParte, $parteSubfamilia_id);
                     }
                 } else {
-                    generarCierreAlbaran($productos);
+                    generarCierreAlbaran($productos, $subfamilia_id);
                 }
             }
         }
 
         $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
-        $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
-        generarCierreAlbaran($productos);
+        if (count($idsProductos) > 0) {
+            $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
+            generarCierreAlbaran($productos, $familia_id);
+        }
 
         // Si es la ultima familia hacemos una revisión final
         if (($inicial + $pagina) >= count($familias)) {
             $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre();
             if (count($idsProductosPendientes) > 0) {
-                $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "Pendiente");
+                $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "SINID");
                 generarCierreAlbaran($productosPendientes);
             }
         }
