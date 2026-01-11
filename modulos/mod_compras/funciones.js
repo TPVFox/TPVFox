@@ -263,6 +263,31 @@ function imprimir(id, dedonde, idTienda){
         }
     });
 }
+
+function exportarXML(id, dedonde, idTienda){
+    // @Objetivo: Exportar el documento que se ha seleccionado en formato XML
+    var parametros = {
+        "pulsado"   : 'datosExportarXML',
+        "dedonde"   : dedonde,
+        "id"        : id,
+        "idTienda"  : idTienda
+    };
+    $.ajax({
+            data       : parametros,
+            url        : 'tareas.php',
+            type       : 'post',
+            beforeSend : function () {
+                console.log('******** estoy en datos Exportar XML JS****************');
+            },
+            success    :  function (response) {
+                    var resultado =  $.parseJSON(response);
+                    window.open(resultado);;// Abre una nuvea pestaña con el documento xml que se generó anteriormente
+        }
+    });
+}
+
+
+
 function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
     var parametros = {
         "pulsado"   : 'obtenerFormularioEmail',

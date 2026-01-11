@@ -274,6 +274,9 @@ switch ($pulsado) {
             $respuesta = $nuevo;
         }
         break;
+    case 'datosExportarXML':
+        include_once  $URLCom . '/modulos/mod_compras/tareas/exportarAlbaran.php';
+        break;
 
     default:
         // @ Objetivo:

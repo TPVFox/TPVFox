@@ -233,13 +233,17 @@ if (count($ListadoAlbaranes) == 0) {
                                     $linkImprimir = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" ' .
                                         "onclick='imprimir(" . $albaran['id'] .
                                         ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
+                                    $linkDescargar = ' <a style="cursor:pointer" class="glyphicon glyphicon-download-alt" ' .
+                                        "onclick='exportarXML(" . $albaran['id'] .
+                                        ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
                                 } else {
                                     // Color danger cuando es Sin Guardar
                                     $clas_estado = ' class="alert-danger"';
                                     $linkImprimir = '';
+                                    $linkDescargar = '';
                                 }
                                 echo '<td' . $clas_estado . '>'
-                                    . $albaran['estado'] . $linkImprimir . $iconoCostes;
+                                    . $albaran['estado'] . $linkImprimir . $iconoCostes . $linkDescargar;
                                 echo '</td>';
                                 ?>
                             </tr>
