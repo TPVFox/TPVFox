@@ -4,6 +4,7 @@ class ClaseIOXML
 {
     protected string $rutaArchivo;
     protected ?string $xsdArchivo; // XSD opcional
+    protected ?SimpleXMLElement $xml = null; // XML cargado o generado
 
     public function __construct(string $rutaArchivo, ?string $xsdArchivo = null)
     {
@@ -22,9 +23,9 @@ class ClaseIOXML
         }
 
         libxml_use_internal_errors(true);
-        $xml = simplexml_load_file($this->rutaArchivo);
+        $this->xml = simplexml_load_file($this->rutaArchivo);
 
-        if ($xml === false) {
+        if ($this->xml === false) {
             $errores = libxml_get_errors();
             libxml_clear_errors();
             $msg = "";
@@ -36,48 +37,59 @@ class ClaseIOXML
 
         // Validar XSD si está definido
         if ($this->xsdArchivo) {
-            $this->validarXSD($this->xsdArchivo);
+            $this->validarXSD();
         }
 
-        return $xml;
+        return $this->xml;
     }
 
     /**
-     * Guardar un objeto SimpleXMLElement en la ruta del servidor
+     * Guardar el XML cargado en la ruta del servidor
      */
-    public function guardar(SimpleXMLElement $xml): bool
+    public function guardar($xml = null): bool
     {
-        $directorio = dirname($this->rutaArchivo);
+        if ($xml !== null) {
+            $this->setXML($xml);
+        }
+        if (!$this->xml) {
+            throw new Exception("No hay XML cargado para guardar.");
+        }
 
+        $directorio = dirname($this->rutaArchivo);
         if (!file_exists($directorio)) {
             mkdir($directorio, 0755, true);
         }
 
-        // Antes de guardar, validar contra XSD si está definido
+        // Validar contra XSD si está definido
         if ($this->xsdArchivo) {
-            $this->validarXSD($this->xsdArchivo);
+            $this->validarXSD();
         }
 
-        return $xml->asXML($this->rutaArchivo) !== false;
+        // Guardar el XML en el archivo
+        $resultado = $this->xml->asXML($this->rutaArchivo);
+        if ($resultado === false) {
+            throw new Exception("Error al guardar XML en: {$this->rutaArchivo}");
+        }
+        return true;
     }
 
     /**
-     * Validar XML contra un XSD
+     * Validar el XML cargado contra el XSD
      */
-    public function validarXSD(string $xsdArchivo): bool
+    public function validarXSD(): bool
     {
-        if (!file_exists($this->rutaArchivo)) {
-            throw new Exception("Archivo XML no encontrado: {$this->rutaArchivo}");
+        if (!$this->xml) {
+            throw new Exception("No hay XML cargado para validar.");
         }
-        if (!file_exists($xsdArchivo)) {
-            throw new Exception("Archivo XSD no encontrado: {$xsdArchivo}");
+        if (!$this->xsdArchivo || !file_exists($this->xsdArchivo)) {
+            throw new Exception("Archivo XSD no encontrado: {$this->xsdArchivo}");
         }
 
         $doc = new DOMDocument();
-        $doc->load($this->rutaArchivo);
+        $doc->loadXML($this->xml->asXML());
 
-        if (!$doc->schemaValidate($xsdArchivo)) {
-            throw new Exception("XML no cumple con el XSD: {$xsdArchivo}");
+        if (!$doc->schemaValidate($this->xsdArchivo)) {
+            throw new Exception("XML no cumple con el XSD: {$this->xsdArchivo}");
         }
 
         return true;
@@ -98,6 +110,14 @@ class ClaseIOXML
     {
         $this->xsdArchivo = $xsdArchivo;
     }
+    /**
+     * Definir o cambiar el XML en memoria
+     */
+    public function setXML(SimpleXMLElement $xml): void
+    {
+        $this->xml = $xml;
+    }
+
 
     /**
      * Obtener la ruta actual del archivo
@@ -115,7 +135,17 @@ class ClaseIOXML
         return $this->xsdArchivo;
     }
 
+    /**
+     * Obtener el XML cargado en memoria
+     */
+    public function getXML(): ?SimpleXMLElement
+    {
+        return $this->xml;
+    }
 
+    /**
+     * Crear instancia a partir de un archivo subido por el usuario
+     */
     public static function desdeSubida(string $inputName, ?string $xsd = null, string $directorioDestino = __DIR__ . '/uploads/'): ClaseIOXML
     {
         if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
@@ -135,14 +165,13 @@ class ClaseIOXML
         return new self($rutaFinal, $xsd);
     }
 
-
     /**
      * Enviar el XML al navegador para que se descargue en el PC del usuario
      */
     public function descargar(?string $nombreDescarga = null): void
     {
-        if (!file_exists($this->rutaArchivo)) {
-            throw new Exception("Archivo XML no encontrado: {$this->rutaArchivo}");
+        if (!$this->xml) {
+            throw new Exception("No hay XML cargado para descargar.");
         }
 
         if (!$nombreDescarga) {
@@ -151,8 +180,8 @@ class ClaseIOXML
 
         header('Content-Type: application/xml');
         header('Content-Disposition: attachment; filename="' . $nombreDescarga . '"');
-        header('Content-Length: ' . filesize($this->rutaArchivo));
-        readfile($this->rutaArchivo);
-        exit; // termina la ejecución para que no se envíe nada más
+        header('Content-Length: ' . strlen($this->xml->asXML()));
+        echo $this->xml->asXML();
+        exit;
     }
 }
