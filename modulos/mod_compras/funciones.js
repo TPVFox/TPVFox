@@ -280,8 +280,23 @@ function exportarXML(id, dedonde, idTienda){
                 console.log('******** estoy en datos Exportar XML JS****************');
             },
             success    :  function (response) {
-                    var resultado =  $.parseJSON(response);
-                    window.open(resultado);;// Abre una nuvea pestaña con el documento xml que se generó anteriormente
+
+            var resultado = $.parseJSON(response); // ruta del XML en el servidor
+
+            // Preguntar al usuario si quiere descargar
+            if (confirm("El XML está listo. ¿Deseas descargarlo?")) {
+                // Crear un enlace dinámico para forzar la descarga
+                var a = document.createElement('a');
+                a.href = resultado;           // ruta del XML
+                a.download = dedonde + id + '.xml';   // nombre sugerido
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            location.reload();
+        },
+        error: function (err) {
+            console.error('Error al generar el XML', err);
         }
     });
 }
