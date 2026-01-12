@@ -344,6 +344,25 @@ class AlbaranesCompras extends ClaseCompras
         return $respuesta;
     }
 
+    public function ExisteSuNumeroProveedor($suNumero, $idProveedor)
+    {
+        //@Objetivo:
+        //Comprobar si existe un albarán con el mismo Su_numero para un proveedor determinado
+        $sql = 'SELECT COUNT(*) as contador FROM albprot WHERE Su_numero="' . $suNumero . '" AND idProveedor=' . $idProveedor;
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            //Hubo un error
+            return false;
+        } else {
+            $result = $smt->fetch_assoc();
+            if ($result && $result['contador'] > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     public function EliminarRegistroTemporal($idTemporal, $idAlbaran)
     {
         //@Objetivo:

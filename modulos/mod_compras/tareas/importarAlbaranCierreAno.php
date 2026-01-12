@@ -26,7 +26,12 @@ try {
     include_once $URLCom . '/modulos/mod_compras/clases/albaranesCompras.php';
 
     $AlbaranesCompras = new AlbaranesCompras($BDTpv);
-    $AlbaranesCompras->AddAlbaranGuardado($albaran, 0);
+    // Comprobar si el provedor ya tiene un albaran con SuNumero igual
+    if ($AlbaranesCompras->ExisteSuNumeroProveedor($albaran['suNumero'], $albaran['idProveedor'])) {
+        throw new Exception('Ya existe un albarán de apertura con el mismo número para este proveedor.');
+    }else {
+        $AlbaranesCompras->AddAlbaranGuardado($albaran, 0);
+    }
 
     echo json_encode([
         'ok' => true,
