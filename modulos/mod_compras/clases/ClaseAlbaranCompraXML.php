@@ -37,7 +37,7 @@ class ClaseAlbaranCompraXML
      * ===================== */
         $lineas = $xml->addChild('Lineas');
 
-        foreach ($albaran['productos'] as $producto) {
+        foreach ($albaran['Productos'] as $producto) {
             $linea = $lineas->addChild('Linea');
             $linea->addAttribute('idInterno', $producto['id']);
 

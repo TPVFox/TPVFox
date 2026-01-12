@@ -44,7 +44,7 @@ function generarCierreAlbaran($productos, $familia_id = null)
     $idUsuario = $_SESSION['usuarioTpv']['id'];
     $idProveedor = 56; // Proveedor por defecto para albaranes de cierre de stock
 
-    $fechaCierre = $ano . '-12-31 23:59:59';
+    $fechaCierre = $ano . '-12-31 00:00:00';
 
     $totalSinIva = 0;
     $totalIva = 0;
