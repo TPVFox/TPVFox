@@ -76,4 +76,61 @@ class ClaseAlbaranCompraXML
 
         return $xml;
     }
+
+    public static function simpleXMLToArray(SimpleXMLElement $xml): array
+    {
+        $albaran = [];
+
+        // Cabecera
+        $cab = $xml->Cabecera;
+        $albaran['Numalbpro'] = (string) $cab->Numero;
+        $albaran['Su_numero'] = (string) $cab->SuNumero;
+        $albaran['Fecha'] = (string) $cab->Fecha;
+        $albaran['idTienda'] = (int) $cab->IdTienda;
+        $albaran['idProveedor'] = (int) $cab->IdProveedor;
+        $albaran['estado'] = (string) $cab->Estado;
+
+        if (isset($cab->FechaVencimiento)) {
+            $albaran['FechaVencimiento'] = (string) $cab->FechaVencimiento;
+        }
+
+        // Líneas
+        $albaran['Productos'] = [];
+        foreach ($xml->Lineas->Linea as $linea) {
+            $producto = [];
+            $producto['id'] = (int) $linea->attributes()->idInterno;
+            $producto['idArticulo'] = (int) $linea->IdArticulo;
+            $producto['cdetalle'] = (string) $linea->Descripcion;
+            $producto['ncant'] = (float) $linea->Cantidad;
+            $producto['nunidades'] = (string) $linea->Unidades;
+            $producto['ultimoCoste'] = (float) $linea->PrecioUnitario;
+            $producto['iva'] = (float) $linea->IVA;
+            $producto['nfila'] = (int) $linea->Fila;
+
+            if (isset($linea->CodigoBarras)) {
+                $producto['ccodbar'] = (string) $linea->CodigoBarras;
+            }
+
+            if (isset($linea->ReferenciaProveedor)) {
+                $producto['ref_prov'] = (string) $linea->ReferenciaProveedor;
+            }
+
+            $albaran['Productos'][] = $producto;
+        }
+
+        // Totales
+        $albaran['Datostotales'] = [];
+        $albaran['Datostotales']['desglose'] = [];
+        foreach ($xml->Totales->DesgloseIVA as $d) {
+            $tipo = (float) $d->Tipo;
+            $albaran['Datostotales']['desglose'][$tipo] = [
+                'base' => (float) $d->Base,
+                'iva' => (float) $d->Cuota,
+                'BaseYiva' => (float) $d->Total,
+            ];
+        }
+        $albaran['Datostotales']['subivas'] = (float) $xml->Totales->TotalIVA;
+        $albaran['Datostotales']['total'] = (float) $xml->Totales->TotalDocumento;
+        return $albaran;
+    }
 }
