@@ -102,6 +102,9 @@ if (count($ListadoAlbaranes) == 0) {
             if ($ClasePermisos->getAccion("CambiarEstado") == 1) {
                 echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "','" . 'albaranes' . "'" . ')">Cambiar estado</button>';
             }
+            if ($ClasePermisos->getAccion("Importar") == 1) {
+                echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'Importar' . "','" . 'albaran' . "'" . ')">Importar albaranes</button>';
+            }
             ?>
             <div class="col-md-12">
                 <h4 class="text-center"> Albaranes Abiertos</h4>
@@ -233,9 +236,13 @@ if (count($ListadoAlbaranes) == 0) {
                                     $linkImprimir = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" ' .
                                         "onclick='imprimir(" . $albaran['id'] .
                                         ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
-                                    $linkDescargar = ' <a style="cursor:pointer" class="glyphicon glyphicon-download-alt" ' .
-                                        "onclick='exportarXML(" . $albaran['id'] .
-                                        ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
+                                    if ($ClasePermisos->getAccion("Importar") == 1) {
+                                        $linkDescargar = ' <a style="cursor:pointer" class="glyphicon glyphicon-download-alt" ' .
+                                            "onclick='exportarXML(" . $albaran['id'] .
+                                            ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
+                                    } else {
+                                        $linkDescargar = '';
+                                    }
                                 } else {
                                     // Color danger cuando es Sin Guardar
                                     $clas_estado = ' class="alert-danger"';

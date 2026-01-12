@@ -3,6 +3,7 @@
         <vista nombre="albaranesListado.php" descripcion="Listado albaranes" permiso="1">
             <accion nombre="Crear" descripcion="Crear albarán" permiso="1"></accion>
             <accion nombre="Ver" descripcion="Ver albarán" permiso="1"></accion>
+            <accion nombre="Importar" descripcion="Importar albarán" permiso="0"></accion>
             <accion nombre="Modificar" descripcion="Modificar albarán" permiso="0"></accion>
             <accion nombre="EliminarTemporal" descripcion="Eliminar Albaran" permiso="0"></accion>
             <accion nombre="CambiarEstado" descripcion="Cambiar Estado Albaran" permiso="0"></accion>
