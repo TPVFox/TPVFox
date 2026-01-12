@@ -342,6 +342,41 @@ function ampliarInformacionImportar(opcion){
     });
 }
 
+function importarAlbaranCierreAno() {
+
+    var form = document.getElementById('formImportarAlbaranCierreAno');
+    var formData = new FormData(form);
+
+    // Acción para tareas.php
+    formData.append('pulsado', 'importarAlbaranCierreAno');
+
+    $.ajax({
+        url: 'tareas.php',
+        type: 'POST',
+        data: formData,
+        processData: false, // MUY IMPORTANTE
+        contentType: false, // MUY IMPORTANTE
+        beforeSend: function () {
+            console.log('******** Importando albarán cierre año ********');
+        },
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+
+            if (resultado.ok) {
+                document.getElementById('areaAlbaranCierreSeleccionado').innerHTML =
+                    '<div class="alert alert-success">' + resultado.msg + '</div>';
+            } else {
+                document.getElementById('areaAlbaranCierreSeleccionado').innerHTML =
+                    '<div class="alert alert-danger">' + resultado.error + '</div>';
+            }
+        },
+        error: function () {
+            alert('Error inesperado al importar el albarán');
+        }
+    });
+}
+
+
 function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
     var parametros = {
         "pulsado"   : 'obtenerFormularioEmail',

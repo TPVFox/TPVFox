@@ -194,6 +194,10 @@ switch ($pulsado) {
         $html = modalCambioAno();
         $respuesta['html'] = $html;;
         break;
+    
+    case 'importarAlbaranCierreAno':
+        include_once  $URLCom . '/modulos/mod_compras/tareas/importarAlbaranCierreAno.php';
+        break;
 
     case 'htmlAgregarFilaAdjunto':
         //@ Objetivo:
