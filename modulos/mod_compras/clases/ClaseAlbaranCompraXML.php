@@ -37,7 +37,7 @@ class ClaseAlbaranCompraXML
      * ===================== */
         $lineas = $xml->addChild('Lineas');
 
-        foreach ($albaran['Productos'] as $producto) {
+        foreach ($albaran['productos'] as $producto) {
             $linea = $lineas->addChild('Linea');
             $linea->addAttribute('idInterno', $producto['id']);
 
@@ -143,16 +143,21 @@ class ClaseAlbaranCompraXML
         // Cabecera
         $cab = $xml->Cabecera;
         $albaran['Numalbpro'] = str_replace('#C', '#A', (string) $cab->Numero);
-        $albaran['Su_numero'] = str_replace('#C', '#A', (string) $cab->SuNumero);
-        $albaran['Fecha'] = date('Y') . '-01-01 00:00:00';
+        $albaran['suNumero'] = str_replace('#C', '#A', (string) $cab->SuNumero);
+        $albaran['fecha'] = date('Y') . '-01-01 00:00:00';
         $albaran['idTienda'] = (int) $cab->IdTienda;
         $albaran['idProveedor'] = (int) $cab->IdProveedor;
         $albaran['estado'] = 'Importado';
         if (isset($cab->FechaVencimiento)) {
-            $albaran['FechaVencimiento'] = (string) $cab->FechaVencimiento;
+            $albaran['fechaVenci'] = (string) $cab->FechaVencimiento;
+        } else {
+            $albaran['fechaVenci'] = '';
         }
+        $albaran['total_siniva'] = 0; // Se calculara al insertar
+        $albaran['total'] = 0; // Se calculara al
+        $albaran['formaPago'] = ''; 
         // Líneas
-        $albaran['Productos'] = [];
+        $productos = [];
         foreach ($xml->Lineas->Linea as $linea) {
             $producto = [];
             $producto['id'] = (int) $linea->attributes()->idInterno;
@@ -165,25 +170,33 @@ class ClaseAlbaranCompraXML
             $producto['nfila'] = (int) $linea->Fila;
             if (isset($linea->CodigoBarras)) {
                 $producto['ccodbar'] = (string) $linea->CodigoBarras;
+            } else {
+                $producto['ccodbar'] = '';
             }
             if (isset($linea->ReferenciaProveedor)) {
-                $producto['ref_prov'] = (string) $linea->ReferenciaProveedor;
+                $producto['cref'] = (string) $linea->ReferenciaProveedor;
+            } else {
+                $producto['cref'] = '';
             }
-            $albaran['Productos'][] = $producto;
+            $producto['estado'] = 'Activo';
+            $productos[] = $producto;
+            $albaran['total_siniva'] += $producto['ncant'] * $producto['ultimoCoste'];
+            $albaran['total'] += $producto['ncant'] * $producto['ultimoCoste'] * (1 + $producto['iva'] / 100);
         }
+        $albaran['productos'] = json_encode($productos);
         // Totales
-        $albaran['Datostotales'] = [];
-        $albaran['Datostotales']['desglose'] = [];
+        $albaran['DatosTotales'] = [];
+        $albaran['DatosTotales']['desglose'] = [];
         foreach ($xml->Totales->DesgloseIVA as $d) {
             $tipo = (float) $d->Tipo;
-            $albaran['Datostotales']['desglose'][$tipo] = [
+            $albaran['DatosTotales']['desglose'][$tipo] = [
                 'base' => abs((float) $d->Base),
                 'iva' => abs((float) $d->Cuota),
                 'BaseYiva' => abs((float) $d->Total),
             ];
         }
-        $albaran['Datostotales']['subivas'] = abs((float) $xml->Totales->TotalIVA);
-        $albaran['Datostotales']['total'] = abs((float) $xml->Totales->TotalDocumento);
+        $albaran['DatosTotales']['subivas'] = abs((float) $xml->Totales->TotalIVA);
+        $albaran['DatosTotales']['total'] = abs((float) $xml->Totales->TotalDocumento);
         return $albaran;
     }
 }

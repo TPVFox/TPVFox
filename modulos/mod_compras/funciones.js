@@ -343,38 +343,50 @@ function ampliarInformacionImportar(opcion){
 }
 
 function importarAlbaranCierreAno() {
-
     var form = document.getElementById('formImportarAlbaranCierreAno');
     var formData = new FormData(form);
-
-    // Acción para tareas.php
     formData.append('pulsado', 'importarAlbaranCierreAno');
 
     $.ajax({
         url: 'tareas.php',
         type: 'POST',
         data: formData,
-        processData: false, // MUY IMPORTANTE
-        contentType: false, // MUY IMPORTANTE
+        processData: false,
+        contentType: false,
+        dataType: 'json',
         beforeSend: function () {
-            console.log('******** Importando albarán cierre año ********');
+            console.log('Importando albarán cierre año...');
         },
-        success: function (response) {
-            var resultado = $.parseJSON(response);
+        success: function (resultado) {
 
             if (resultado.ok) {
-                document.getElementById('areaAlbaranCierreSeleccionado').innerHTML =
-                    '<div class="alert alert-success">' + resultado.msg + '</div>';
+                $('#areaAlbaranCierreSeleccionado').html(
+                    '<div class="alert alert-success">' + resultado.message + '</div>'
+                );
+
+                // Si quieres refrescar, hazlo con intención
+                setTimeout(() => location.reload(), 1500);
+
             } else {
-                document.getElementById('areaAlbaranCierreSeleccionado').innerHTML =
-                    '<div class="alert alert-danger">' + resultado.error + '</div>';
+                $('#areaAlbaranCierreSeleccionado').html(
+                    '<div class="alert alert-danger">' + resultado.message + '</div>'
+                );
             }
         },
-        error: function () {
-            alert('Error inesperado al importar el albarán');
+        error: function (xhr) {
+            let msg = 'Error inesperado al importar el albarán';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+
+            $('#areaAlbaranCierreSeleccionado').html(
+                '<div class="alert alert-danger">' + msg + '</div>'
+            );
         }
     });
 }
+
 
 
 function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
