@@ -103,7 +103,7 @@ if (count($ListadoAlbaranes) == 0) {
                 echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "','" . 'albaranes' . "'" . ')">Cambiar estado</button>';
             }
             if ($ClasePermisos->getAccion("Importar") == 1) {
-                echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'Importar' . "','" . 'albaran' . "'" . ')">Importar albaranes</button>';
+                echo '<button class="btn btn-default" onclick="modalImportarAlbaranes()">Importar Albaranes</button>';
             }
             ?>
             <div class="col-md-12">

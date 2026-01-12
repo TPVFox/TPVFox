@@ -195,6 +195,27 @@ function modalAlbaranesCambioEstado(){
     });
 }
 
+function modalImportarAlbaranes(){
+    var parametros = {
+        "pulsado": 'modalImportarAlbaranes'
+    };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+        console.log('********* envio para mostrar el modal para  cambiar estado albaran **************');
+        },
+        success    :  function (response) {
+                console.log('Respuesta de mostrar modal para cambiar estado albaran ');
+                var resultado = $.parseJSON(response);
+                var titulo = 'Cambiar estado Albaranes ';
+                abrirModal(titulo,resultado.html);
+
+        }
+    });
+}
+
 function metodoClick(pulsado,adonde=''){
     // @ Objetivo:
     // Metodo para saber que pulso y ver item tenemos seleccionado y saber que hacer.

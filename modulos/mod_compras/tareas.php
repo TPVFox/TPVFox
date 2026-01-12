@@ -181,6 +181,13 @@ switch ($pulsado) {
             }
         }
         break;
+    case 'modalImportarAlbaranes':
+        //@ Objetivo:
+        // Mostrar el modal para importar albaranes de proveedor
+        include_once  $URLCom . '/modulos/mod_compras/importarAlbaranes.php';
+        $html = modalImportarAlbaranes();
+        $respuesta['html'] = $html;
+        break;
 
     case 'htmlAgregarFilaAdjunto':
         //@ Objetivo:
