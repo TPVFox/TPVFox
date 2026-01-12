@@ -133,4 +133,57 @@ class ClaseAlbaranCompraXML
         $albaran['Datostotales']['total'] = (float) $xml->Totales->TotalDocumento;
         return $albaran;
     }
+
+    // SimpleXMLToArray pero con cambio de año. 
+    // Las referencias de albaran y su_numero se cambian de #C a #A y la fecha se pone al 1 de enero del año actual.
+    // Esto es para importar albaranes de cierre de año anterior y crear albaranes de apertura del año actual.
+    public static function simpleXMLToArrayCambioAno(SimpleXMLElement $xml): array
+    {
+        $albaran = [];
+        // Cabecera
+        $cab = $xml->Cabecera;
+        $albaran['Numalbpro'] = str_replace('#C', '#A', (string) $cab->Numero);
+        $albaran['Su_numero'] = str_replace('#C', '#A', (string) $cab->SuNumero);
+        $albaran['Fecha'] = date('Y') . '-01-01 00:00:00';
+        $albaran['idTienda'] = (int) $cab->IdTienda;
+        $albaran['idProveedor'] = (int) $cab->IdProveedor;
+        $albaran['estado'] = 'Importado';
+        if (isset($cab->FechaVencimiento)) {
+            $albaran['FechaVencimiento'] = (string) $cab->FechaVencimiento;
+        }
+        // Líneas
+        $albaran['Productos'] = [];
+        foreach ($xml->Lineas->Linea as $linea) {
+            $producto = [];
+            $producto['id'] = (int) $linea->attributes()->idInterno;
+            $producto['idArticulo'] = (int) $linea->IdArticulo;
+            $producto['cdetalle'] = str_replace('CIERRE', 'APERT.', (string) $linea->Descripcion);
+            $producto['ncant'] = abs((float) $linea->Cantidad);
+            $producto['nunidades'] = abs((string) $linea->Unidades);
+            $producto['ultimoCoste'] = (float) $linea->PrecioUnitario;
+            $producto['iva'] = (float) $linea->IVA;
+            $producto['nfila'] = (int) $linea->Fila;
+            if (isset($linea->CodigoBarras)) {
+                $producto['ccodbar'] = (string) $linea->CodigoBarras;
+            }
+            if (isset($linea->ReferenciaProveedor)) {
+                $producto['ref_prov'] = (string) $linea->ReferenciaProveedor;
+            }
+            $albaran['Productos'][] = $producto;
+        }
+        // Totales
+        $albaran['Datostotales'] = [];
+        $albaran['Datostotales']['desglose'] = [];
+        foreach ($xml->Totales->DesgloseIVA as $d) {
+            $tipo = (float) $d->Tipo;
+            $albaran['Datostotales']['desglose'][$tipo] = [
+                'base' => abs((float) $d->Base),
+                'iva' => abs((float) $d->Cuota),
+                'BaseYiva' => abs((float) $d->Total),
+            ];
+        }
+        $albaran['Datostotales']['subivas'] = abs((float) $xml->Totales->TotalIVA);
+        $albaran['Datostotales']['total'] = abs((float) $xml->Totales->TotalDocumento);
+        return $albaran;
+    }
 }
