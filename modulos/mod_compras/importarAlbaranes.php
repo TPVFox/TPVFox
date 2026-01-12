@@ -13,3 +13,19 @@ function modalImportarAlbaranes()
             <div id="areaImportacionAlbaranes"></div>';
     return $html;
 }
+
+function modalCambioAno()
+{
+    $html = '<p>Con este metodo importaras un albaran de cierre del año anterior al actual y se creara un albaran de apertura nuevo en este año.</p>
+
+            <form id="formImportarAlbaranCierreAno" name="formImportarAlbaranCierreAno" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="inputAlbaranCierreAno" class="form-label">Albaran Cierre Año Anterior (XML)</label>
+                    <input class="form-control" type="file" id="inputAlbaranCierreAno" name="inputAlbaranCierreAno" accept=".xml" required>
+                </div>
+                <button type="button" class="btn btn-primary" id="btnImportarAlbaranCierreAno" onclick="importarAlbaranCierreAno()">Importar Albaran Cierre Año Anterior</button>
+            </form>
+            <hr>
+            <div id="areaAlbaranCierreSeleccionado"></div>';
+    return $html;
+}

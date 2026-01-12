@@ -322,7 +322,25 @@ function exportarXML(id, dedonde, idTienda){
     });
 }
 
-
+function ampliarInformacionImportar(opcion){
+    var parametros = {
+        "pulsado": 'modal' + opcion
+    };
+    $.ajax({
+        data       : parametros,
+        url        : 'tareas.php',
+        type       : 'post',
+        beforeSend : function () {
+        console.log('********* envio para mostrar el modal para  importar albaranes **************');
+        },
+        success    :  function (response) {
+                console.log('Respuesta de mostrar modal para importar albaranes ');
+                // la respuesta se pone dentro del id areaImportacionAlbaranes
+                response = $.parseJSON(response);
+                document.getElementById('areaImportacionAlbaranes').innerHTML=response.html;
+        }
+    });
+}
 
 function formularioEnvioEmail(id, dedonde, idTienda, destinatario){
     var parametros = {

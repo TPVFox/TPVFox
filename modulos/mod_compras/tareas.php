@@ -189,6 +189,12 @@ switch ($pulsado) {
         $respuesta['html'] = $html;
         break;
 
+    case 'modalCambioAno':
+        include_once  $URLCom . '/modulos/mod_compras/importarAlbaranes.php';
+        $html = modalCambioAno();
+        $respuesta['html'] = $html;;
+        break;
+
     case 'htmlAgregarFilaAdjunto':
         //@ Objetivo:
         // Agregar la fila con los datos del albaran o pedido adjunto
