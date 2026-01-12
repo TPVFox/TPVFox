@@ -29,9 +29,9 @@ if (isset($datosDocumento['Productos'])) {
     // convertimos el objeto productos en array
     $p = (object) $productos;
     $Datostotales = $CAlb->recalculoTotales($p);
+    $datosDocumento['Datostotales'] = $Datostotales;
 }
 
-$datosDocumento['Datostotales'] = $Datostotales;
 
 // generar XML y exportar
 $albaranXML = new ClaseAlbaranCompraXML($datosDocumento);
@@ -43,9 +43,15 @@ $ioXML = new ClaseIOXML(
 $albaranXML = new ClaseAlbaranCompraXML();
 
 $xml = $albaranXML->arrayToSimpleXML($datosDocumento);
-$rutaArchivo = $RutaServidor . $rutatmp . '/albaran_compra_' . $id . '.xml';
+$rutaArchivo = $rutatmp . '/albaran_compra_' . $id . '.xml';
 $rutaXSD = $URLCom . '/modulos/mod_compras/albaran_compra_v1.xsd';
 
-$ioXML = new ClaseIOXML($rutaArchivo, $rutaXSD);
+$ioXML = new ClaseIOXML($RutaServidor . $rutaArchivo, $rutaXSD);
 
 $ioXML->guardar($xml);
+
+// si el estado del albaran es guardado cambiamos a exportado
+if ($datosDocumento['estado'] == 'Guardado') {
+    $CAlb->cambiarEstadoAlbaran($id, 'Exportado');
+}
+$respuesta = $rutaArchivo;

@@ -894,4 +894,17 @@ class AlbaranesCompras extends ClaseCompras
         }
         return $errores;
     }
+
+    public function cambiarEstadoAlbaran($idAlbaran, $nuevoEstado)
+    {
+        //@Objetivo:
+        //Cambiamos el estado de un albarán
+        $respuesta = array();
+        $sql = 'UPDATE albprot set estado="' . $nuevoEstado . '" where id=' . $idAlbaran;
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
+        }
+        return $respuesta;
+    }
 }
