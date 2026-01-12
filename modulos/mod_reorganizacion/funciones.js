@@ -130,7 +130,7 @@ function reorganizarPermisosModulos(inicial, total) {
   });
 }
 
-function CerrarStockAnoActual(inicio, pagina, familias, idBar) {
+function CerrarStockAnoActual(inicio, pagina, familias, idBar, idProveedor) {
   //inicio es el indice de array de familias en el que empezamos
   //pagina es la cantidad de familias a procesar en cada llamada
   //familias es el array con los ids de las familias a procesar
@@ -141,6 +141,7 @@ function CerrarStockAnoActual(inicio, pagina, familias, idBar) {
     inicial: parseInt(inicio),
     pagina: pagina,
     familias: JSON.stringify(familias),
+    idProveedor: idProveedor,
   };
 
   BarraProceso(inicio, familias.length, idBar);
@@ -151,11 +152,12 @@ function CerrarStockAnoActual(inicio, pagina, familias, idBar) {
       actual = obj.actual;
       totalFamilias = obj.totalFamilias;
       pagina = obj.pagina;
+      idProveedor = obj.idProveedor;
 
       console.log(totalFamilias);
 
       if (actual < familias.length) {
-        CerrarStockAnoActual(actual, pagina, familias, idBar);
+        CerrarStockAnoActual(actual, pagina, familias, idBar, idProveedor);
       } else {
         BarraProceso(actual, familias.length, idBar);
         $("#boton-cerrar-stock").prop("disabled", false);

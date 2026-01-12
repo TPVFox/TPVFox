@@ -133,6 +133,12 @@
             event.stopPropagation();
             event.preventDefault();
 
+            var idProveedor = prompt("Introduce el ID del proveedor:");
+            if (idProveedor == null || idProveedor == "") {
+                alert("Operación cancelada. Debes introducir un ID de proveedor.");
+                return;
+            }
+
             contarFamiliasProductos(function(respuesta) {
                 var obj = JSON.parse(respuesta);
                 console.log("Respuesta contar familias:");
@@ -141,7 +147,7 @@
                     var familias = obj;
                     $("#bar-cerrar-stock").show();
                     $("#boton-cerrar-stock").prop("disabled", true);
-                    CerrarStockAnoActual(0, 1, familias, '-cerrar-stock');
+                    CerrarStockAnoActual(0, 1, familias, '-cerrar-stock', idProveedor);
                 }
 
             });

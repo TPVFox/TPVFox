@@ -192,6 +192,7 @@ switch ($pulsado) {
         $inicial = $_POST['inicial'];
         $pagina = $_POST['pagina'];
         $familias = json_decode($_POST['familias'], true);
+        $idProveedor = $_POST['idProveedor'];
 
         // Regla de negocio: un albarán no puede superar este número de productos
         $limiteProductosAlbaran = 100;
@@ -236,10 +237,10 @@ switch ($pulsado) {
                     for ($i = 0; $i < $partes; $i++) {
                         $productosParte = array_slice($productos, $i * $limiteProductosAlbaran, $limiteProductosAlbaran);
                         $parteSubfamilia_id = $subfamilia_id . '-P' . ($i + 1);
-                        generarCierreAlbaran($productosParte, $parteSubfamilia_id);
+                        generarCierreAlbaran($productosParte, $parteSubfamilia_id, $idProveedor);
                     }
                 } else {
-                    generarCierreAlbaran($productos, $subfamilia_id);
+                    generarCierreAlbaran($productos, $subfamilia_id, $idProveedor);
                 }
             }
         }
@@ -247,7 +248,7 @@ switch ($pulsado) {
         $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
         if (count($idsProductos) > 0) {
             $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
-            generarCierreAlbaran($productos, $familia_id);
+            generarCierreAlbaran($productos, $familia_id, $idProveedor);
         }
 
         // Si es la ultima familia hacemos una revisión final
@@ -255,7 +256,7 @@ switch ($pulsado) {
             $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre();
             if (count($idsProductosPendientes) > 0) {
                 $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "SINID");
-                generarCierreAlbaran($productosPendientes);
+                generarCierreAlbaran($productosPendientes, "SINID", $idProveedor);
             }
         }
 
@@ -263,6 +264,7 @@ switch ($pulsado) {
         $resultado['actual'] = $inicial + $pagina;
         $resultado['totalFamilias'] = $subfamiliasProcesar;
         $resultado['pagina'] = $pagina;
+        $resultado['idProveedor'] = $_POST['idProveedor'];
 
         echo json_encode($resultado);
         break;
