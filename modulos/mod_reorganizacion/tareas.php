@@ -215,10 +215,10 @@ switch ($pulsado) {
 
                 // Cuando el resto de productos cabe en un solo albarán,
                 // dejamos de dividir
+                $subfamiliasProcesar[] = $subfamilia['idN2'];
                 if (($totalProductosFamilia - $productosAcumulados) <= $limiteProductosAlbaran) {
                     break;
                 }
-                $subfamiliasProcesar[] = $subfamilia['idN2'];
             }
         }
 
@@ -229,7 +229,17 @@ switch ($pulsado) {
             // Si hay subfamilias para procesar, las mostramos
             foreach ($subfamiliasProcesar as $subfamilia_id) {
                 $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($subfamilia_id);
-                $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $subfamilia_id);
+                // Simplificamos el array para eliminar productos duplicados
+                $idsProductosUnicos = [];
+
+                foreach ($idsProductos as $idsProducto) {
+                    if (!isset($idsProductosUnicos[$idsProducto['idArticulo']])) {
+                        $idsProductosUnicos[$idsProducto['idArticulo']] = $idsProducto;
+                    }
+                }
+
+                $idsProductosUnicos = array_values($idsProductosUnicos);
+                $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $subfamilia_id);
                 $numeroProductos = count($productos);
                 // si hay más de 100 productos, lo dividimos en varios albaranes
                 if ($numeroProductos > $limiteProductosAlbaran) {
@@ -246,14 +256,34 @@ switch ($pulsado) {
         }
 
         $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
-        if (count($idsProductos) > 0) {
-            $productos = obtenerDatosProductoAlbaranCierre($idsProductos, $familia_id);
+        // Simplificamos el array para eliminar productos duplicados
+        $idsProductosUnicos = [];
+
+        foreach ($idsProductos as $idsProducto) {
+            if (!isset($idsProductosUnicos[$idsProducto['idArticulo']])) {
+                $idsProductosUnicos[$idsProducto['idArticulo']] = $idsProducto;
+            }
+        }
+
+        $idsProductosUnicos = array_values($idsProductosUnicos);
+        if (count($idsProductosUnicos) > 0) {
+            $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $familia_id);
             generarCierreAlbaran($productos, $familia_id, $idProveedor);
         }
 
         // Si es la ultima familia hacemos una revisión final
         if (($inicial + $pagina) >= count($familias)) {
             $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre();
+            // Simplificamos el array para eliminar productos duplicados
+            $idsProductosUnicos = [];
+
+            foreach ($idsProductosPendientes as $idsProductoPendiente) {
+                if (!isset($idsProductosUnicos[$idsProductoPendiente['idArticulo']])) {
+                    $idsProductosUnicos[$idsProductoPendiente['idArticulo']] = $idsProductoPendiente;
+                }
+            }
+
+            $idsProductosUnicos = array_values($idsProductosUnicos);
             if (count($idsProductosPendientes) > 0) {
                 $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "SINID");
                 generarCierreAlbaran($productosPendientes, "SINID", $idProveedor);
