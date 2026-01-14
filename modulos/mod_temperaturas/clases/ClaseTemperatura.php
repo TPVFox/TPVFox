@@ -77,4 +77,27 @@ class ClaseTemperatura extends Modelo
         }
         return $consulta['datos'];
     }
+
+    public function getTemperaturasDispositivo($idDispositivo)
+    {
+        $sql = "SELECT * FROM " . $this->tablaTemperaturas . " WHERE idDispositivo = " . intval($idDispositivo) . " ORDER BY fechaRegistro DESC";
+        $consulta = $this->consulta($sql);
+        if (isset($consulta['error'])) {
+            return $consulta;
+        }
+        return $consulta['datos'];
+    }
+
+    public function obtenerNombreUsuario($idUsuario)
+    {
+        $sql = "SELECT nombre FROM usuarios WHERE id = " . intval($idUsuario);
+        $consulta = $this->consulta($sql);
+        if (isset($consulta['error'])) {
+            return null;
+        }
+        if (count($consulta['datos']) > 0) {
+            return $consulta['datos'][0]['nombre'];
+        }
+        return null;
+    }
 }
