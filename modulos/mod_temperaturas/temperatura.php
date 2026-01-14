@@ -49,7 +49,7 @@ if (isset($_POST['action'])) {
             break;
         case 'update_temperaturas':
             // Procesar el formulario de actualización de temperaturas
-            $idUsuario = intval($_POST['idUsuario']);
+            $idUsuario = $_SESSION['usuarioTpv']['id'];
             $temperaturas = $_POST['temperatura']; // Array de temperaturas
             $datosTemperatura = array(); // idDispositivo, temperatura, idUsuario
 
