@@ -435,6 +435,61 @@ if ($datosCliente['idClientes'] > 0) {
         echo '<h2 class="text-center">' . $titulo . $html_numero . '-' . $html_accion . '</h2>'; ?>
 
         <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+                        <?php
+            echo '<h3 class="text-center">' . $titulo . '</h3>';
+            //Botones avanzar y retroceder generales
+            if ($idFactura > 0 && $accion != "editar") {
+                $primeraF = $CFac->getPrimeraFactura();
+                $ultimaF  = $CFac->getUltimaFactura();
+                $primeraP = $CFac->getPrimeraFactura($idCliente);
+                $ultimaP = $CFac->getUltimaFactura($idCliente);
+
+                $botones = '';
+                if ($idFactura != $primeraF) {
+                    // Botón retroceder (más pequeño)
+                    $botones .= '<a class="nohistory" href="factura.php?id='
+                        . ($idFactura - 1) . '&accion=ver" title="Factura Anterior">'
+                        . '<span class="glyphicon glyphicon-step-backward"></span></a> ';
+                }
+                $botones .= ' Global ';
+                if ($idFactura != $ultimaF) {
+                    // Botón avanzar (más pequeño)
+                    $botones .= '<a class="nohistory" href="./factura.php?id='
+                        . ($idFactura + 1) . '&accion=ver" title="Factura Siguiente">'
+                        . '<span class="glyphicon glyphicon-step-forward"></span></a>';
+                }
+                $botones .= ' |';
+                if ($idFactura != $primeraP) {
+                    //obtener la anterior factura de ese proveedor
+                    $anteriorP = $CFac->getFacturaAnteriorSiguiente($idFactura, $idCliente, 'anterior');
+                    if ($anteriorP !== false) {
+                        $botones .= ' <a class="nohistory" href="factura.php?id='
+                            . $anteriorP . '&accion=ver" title="Factura Anterior de este cliente">'
+                            . '<span class="glyphicon glyphicon-backward"></span></a> ';
+                    }
+                }
+                $botones .= ' Cliente ';
+
+                if ($idFactura != $ultimaP) {
+                    //obtener la siguiente factura de ese proveedor
+                    $siguienteP = $CFac->getFacturaAnteriorSiguiente($idFactura, $idCliente, 'siguiente');
+                    if ($siguienteP !== false) {
+                        $botones .= ' <a class="nohistory" href="factura.php?id='
+                            . $siguienteP . '&accion=ver" title="Factura Siguiente de este cliente">'
+                            . '<span class="glyphicon glyphicon-forward"></span></a> ';
+                    }
+                }
+
+                // Centrar los botones respecto al título
+                if ($botones !== '') {
+                    echo '<div class="text-center" style="margin-top:6px;"><div style="display:inline-block;">'
+                        . $botones
+                        . '</div></div>';
+                }
+            }
+
+
+            ?>
             <div class="col-md-12">
                 <div class="col-md-8">
                     <?php echo $Controler->getHtmlLinkVolver('Volver'); ?>
