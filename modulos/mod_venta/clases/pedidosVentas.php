@@ -448,4 +448,20 @@ class PedidosVentas extends ClaseVentas
 		}
 		return $pedido;
 	}
+	public function getEstadosPedidos()
+	{
+		//@Objetivo:
+		//Obtenemos los estados posibles de los albaranes de compras
+		$respuesta = array();
+		$sql = 'SELECT DISTINCT estado FROM pedclit';
+		$smt = parent::consulta($sql);
+		if (gettype($smt) === 'array') {
+			$respuesta = $smt;
+		} else {
+			while ($result = $smt->fetch_assoc()) {
+				array_push($respuesta, $result['estado']);
+			}
+		}
+		return $respuesta;
+	}
 }
