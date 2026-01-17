@@ -27,8 +27,10 @@ $todosTemporal = array_reverse($todosTemporal);
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numalbpro', 'b.nombrecomercial');
+$campoFiltro = 'a.estado';
 $NPaginado->SetCamposControler($campos);
 $NPaginado->SetOrderConsulta('a.Numalbpro');
+$NPaginado->SetCampoFiltro($campoFiltro);
 
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
@@ -42,7 +44,9 @@ $CantidadRegistros = $listado['contador'];  // count($listado['Items']);
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado();
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+error_log('Filtro albaranes: ' . $filtro);
 $listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta());
+$estadosAlbaranes = $CAlb->getEstadosAlbaranes();
 $ListadoAlbaranes = $listado['Items'];
 if (isset($listado['error'])) {
     $errores[] = array(
@@ -170,6 +174,24 @@ if (count($ListadoAlbaranes) == 0) {
                     <input type="submit" value="buscar">
                 </div>
             </form>
+            <!-- label para seleccionar estados de albaranes -->
+            <form action="./albaranesListado.php" method="GET" name="formFiltrar">
+                <input type="hidden" name="buscar" value="<?php echo $_GET['buscar'] ?? ''; ?>">
+
+                <select name="filtro" id="filtro" onchange="this.form.submit()">
+                    <option value="">-- Todos los estados --</option>
+                    <?php
+                    foreach ($estadosAlbaranes as $estado) {
+                        $selected = '';
+                        if (isset($_GET['filtro']) && $_GET['filtro'] == $estado) {
+                            $selected = ' selected';
+                        }
+                        echo '<option value="' . $estado . '"' . $selected . '>' . $estado . '</option>';
+                    }
+                    ?>
+                </select>
+            </form>
+
             <div>
                 <table class="table table-bordered table-hover">
                     <thead>

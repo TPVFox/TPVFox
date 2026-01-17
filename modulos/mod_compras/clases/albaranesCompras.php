@@ -432,6 +432,7 @@ class AlbaranesCompras extends ClaseCompras
         $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total,
         a.estado  from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  ' . $limite;
+        error_log($sql);
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta = $smt;
@@ -923,6 +924,22 @@ class AlbaranesCompras extends ClaseCompras
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta = $smt;
+        }
+        return $respuesta;
+    }
+    
+    public function getEstadosAlbaranes(){
+        //@Objetivo:
+        //Obtenemos los estados posibles de los albaranes de compras
+        $respuesta = array();
+        $sql = 'SELECT DISTINCT estado FROM albprot';
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result['estado']);
+            }
         }
         return $respuesta;
     }
