@@ -860,4 +860,20 @@ class PedidosCompras extends ClaseCompras
         $smt = $db->query($sql);
         //~ return $resultado;
     }
+    public function getEstadosPedidos()
+    {
+        //@Objetivo:
+        //Obtenemos los estados posibles de los albaranes de compras
+        $respuesta = array();
+        $sql = 'SELECT DISTINCT estado FROM pedprot';
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result['estado']);
+            }
+        }
+        return $respuesta;
+    }
 }
