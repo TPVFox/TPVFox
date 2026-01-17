@@ -17,8 +17,9 @@ class PluginClasePaginacion
 	public $limitConsulta		= ''; // (string) Es limite si lo hubiera.
 	public $Paginas				= array(); // (array) Donde tendremos los numeros de la paginas previas y siguientes.
 	public $filtroOrd			= '';
-	public $campoFiltro = '';
-	public $valorFiltro = '';
+	public $campos				= array(); // (array) Campos donde buscar.
+	public $campoFiltro 		= ''; // (string) Campo por el que filtrar.
+	public $valorFiltro 		= ''; // (string) Valor del campo por el que filtrar.
 
 	public function __construct($fichero)
 	{
@@ -296,6 +297,40 @@ class PluginClasePaginacion
 			$htmlPG = $htmlPG . '</ul>';
 		}
 		return $htmlPG;
+	}
+	public function htmlBuscar()
+	{
+		// Objetivo
+		// Devolver html para mostrar formulario buscar.
+		$htmlBuscar = '<form action="' . $this->LinkBase . '" method="GET" name="formBuscar">
+				<div class="form-group ClaseBuscar">
+					<label>Buscar</label>
+					<input type="text" name="buscar" value="' . htmlspecialchars($this->Busqueda) . '">
+					<input type="submit" value="buscar">
+				</div>
+			</form>';
+		return $htmlBuscar;
+	}
+
+	public function htmlFiltrar($camposFiltro, $label = 'Filtrar por')
+	{
+		// Objetivo
+		// Devolver html para mostrar formulario filtrar.
+		$htmlFiltrar = '<form action="' . $this->LinkBase . '" method="GET" name="formFiltrar">
+				<input type="hidden" name="buscar" value="' . htmlspecialchars($this->Busqueda) . '">
+				<label>' . htmlspecialchars($label) . '</label>
+				<select name="filtro" onchange="this.form.submit()">
+					<option value="">-- Todos --</option>';
+		foreach ($camposFiltro as $valor) {
+			$selected = '';
+			if ($this->valorFiltro == $valor) {
+				$selected = ' selected';
+			}
+			$htmlFiltrar .= '<option value="' . htmlspecialchars($valor) . '"' . $selected . '>' . htmlspecialchars($valor) . '</option>';
+		}
+		$htmlFiltrar .= '</select>
+			</form>';
+		return $htmlFiltrar;
 	}
 
 
