@@ -523,92 +523,108 @@ class FacturasVentas extends ClaseVentas
 		}
 		return $factura;
 	}
-    // @Objetivo:
-    //  Si no se incluye idCliente se obtiene la primera factura de todas las facturas.
-    //  Si se incluye idCliente se obtiene la primera factura de un cliente.
-    // @Devuelve:
-    //  Numero de factura o 0 si no hay facturas.
-    public function getPrimeraFactura($idCliente = 0)
-    {
-        $sql = 'SELECT Numfaccli FROM facclit ';
-        if ($idCliente > 0) {
-            $sql .= ' where idCliente =' . $idCliente;
-        }
-        $sql .= ' order by Numfaccli asc limit 1';
-        $smt = parent::consulta($sql);
-        if (gettype($smt) === 'array') {
-            // Hubo error devolvemos array (error,consulta)
-            $respuesta = $smt;
-        } else {
-            if ($result = $smt->fetch_assoc()) {
-                $respuesta = $result['Numfaccli'];
-            } else {
-                $respuesta = 0; // No hay facturas
-            }
-        }
-        return $respuesta;
-    }
-    // @Objetivo:
-    //  Si no se incluye idCliente se obtiene la ultima factura de todas las facturas.
-    //  Si se incluye idCliente se obtiene la ultima factura de un cliente.
-    // @Devuelve:
-    //  Numero de factura o 0 si no hay facturas.
-    public function getUltimaFactura($idCliente = 0)
-    {
-        $sql = 'SELECT Numfaccli FROM facclit ';
-        if ($idCliente > 0) {
-            $sql .= ' where idCliente =' . $idCliente;
-        }
-        $sql .= ' order by Numfaccli desc limit 1';
-        $smt = parent::consulta($sql);
-        if (gettype($smt) === 'array') {
-            // Hubo error devolvemos array (error,consulta)
-            $respuesta = $smt;
-        } else {
-            if ($result = $smt->fetch_assoc()) {
-                $respuesta = $result['Numfaccli'];
-            } else {
-                $respuesta = 0; // No hay facturas
-            }
-        }
-        return $respuesta;
-    }
-    // @Objetivo:
-    // Obtener la anterior o la siguiente factura de un cliente indicado
-    // @Devuelve:
-    //  Numero de factura o 0 si no hay facturas.
-    public function getFacturaAnteriorSiguiente($idFactura, $idCliente = 0, $tipo = 'anterior')
-    {
-        $sql = 'SELECT Numfaccli FROM facclit ';
-        if ($idCliente > 0) {
-            $sql .= ' where idCliente =' . $idCliente;
-            if ($tipo === 'anterior') {
-                $sql .= ' and Numfaccli < ' . $idFactura;
-                $sql .= ' order by Numfaccli desc limit 1';
-            } else {
-                $sql .= ' and Numfaccli > ' . $idFactura;
-                $sql .= ' order by Numfaccli asc limit 1';
-            }
-        } else {
-            if ($tipo === 'anterior') {
-                $sql .= ' where Numfaccli < ' . $idFactura;
-                $sql .= ' order by Numfaccli desc limit 1';
-            } else {
-                $sql .= ' where Numfaccli > ' . $idFactura;
-                $sql .= ' order by Numfaccli asc limit 1';
-            }
-        }
-        $smt = parent::consulta($sql);
-        if (gettype($smt) === 'array') {
-            // Hubo error devolvemos array (error,consulta)
-            $respuesta = $smt;
-        } else {
-            if ($result = $smt->fetch_assoc()) {
-                $respuesta = $result['Numfaccli'];
-            } else {
-                $respuesta = 0; // No hay facturas
-            }
-        }
-        return $respuesta;
-    }
+	// @Objetivo:
+	//  Si no se incluye idCliente se obtiene la primera factura de todas las facturas.
+	//  Si se incluye idCliente se obtiene la primera factura de un cliente.
+	// @Devuelve:
+	//  Numero de factura o 0 si no hay facturas.
+	public function getPrimeraFactura($idCliente = 0)
+	{
+		$sql = 'SELECT Numfaccli FROM facclit ';
+		if ($idCliente > 0) {
+			$sql .= ' where idCliente =' . $idCliente;
+		}
+		$sql .= ' order by Numfaccli asc limit 1';
+		$smt = parent::consulta($sql);
+		if (gettype($smt) === 'array') {
+			// Hubo error devolvemos array (error,consulta)
+			$respuesta = $smt;
+		} else {
+			if ($result = $smt->fetch_assoc()) {
+				$respuesta = $result['Numfaccli'];
+			} else {
+				$respuesta = 0; // No hay facturas
+			}
+		}
+		return $respuesta;
+	}
+	// @Objetivo:
+	//  Si no se incluye idCliente se obtiene la ultima factura de todas las facturas.
+	//  Si se incluye idCliente se obtiene la ultima factura de un cliente.
+	// @Devuelve:
+	//  Numero de factura o 0 si no hay facturas.
+	public function getUltimaFactura($idCliente = 0)
+	{
+		$sql = 'SELECT Numfaccli FROM facclit ';
+		if ($idCliente > 0) {
+			$sql .= ' where idCliente =' . $idCliente;
+		}
+		$sql .= ' order by Numfaccli desc limit 1';
+		$smt = parent::consulta($sql);
+		if (gettype($smt) === 'array') {
+			// Hubo error devolvemos array (error,consulta)
+			$respuesta = $smt;
+		} else {
+			if ($result = $smt->fetch_assoc()) {
+				$respuesta = $result['Numfaccli'];
+			} else {
+				$respuesta = 0; // No hay facturas
+			}
+		}
+		return $respuesta;
+	}
+	// @Objetivo:
+	// Obtener la anterior o la siguiente factura de un cliente indicado
+	// @Devuelve:
+	//  Numero de factura o 0 si no hay facturas.
+	public function getFacturaAnteriorSiguiente($idFactura, $idCliente = 0, $tipo = 'anterior')
+	{
+		$sql = 'SELECT Numfaccli FROM facclit ';
+		if ($idCliente > 0) {
+			$sql .= ' where idCliente =' . $idCliente;
+			if ($tipo === 'anterior') {
+				$sql .= ' and Numfaccli < ' . $idFactura;
+				$sql .= ' order by Numfaccli desc limit 1';
+			} else {
+				$sql .= ' and Numfaccli > ' . $idFactura;
+				$sql .= ' order by Numfaccli asc limit 1';
+			}
+		} else {
+			if ($tipo === 'anterior') {
+				$sql .= ' where Numfaccli < ' . $idFactura;
+				$sql .= ' order by Numfaccli desc limit 1';
+			} else {
+				$sql .= ' where Numfaccli > ' . $idFactura;
+				$sql .= ' order by Numfaccli asc limit 1';
+			}
+		}
+		$smt = parent::consulta($sql);
+		if (gettype($smt) === 'array') {
+			// Hubo error devolvemos array (error,consulta)
+			$respuesta = $smt;
+		} else {
+			if ($result = $smt->fetch_assoc()) {
+				$respuesta = $result['Numfaccli'];
+			} else {
+				$respuesta = 0; // No hay facturas
+			}
+		}
+		return $respuesta;
+	}
+	public function getEstadosFacturas()
+	{
+		//@Objetivo:
+		//Obtenemos los estados posibles de los albaranes de compras
+		$respuesta = array();
+		$sql = 'SELECT DISTINCT estado FROM facclit';
+		$smt = parent::consulta($sql);
+		if (gettype($smt) === 'array') {
+			$respuesta = $smt;
+		} else {
+			while ($result = $smt->fetch_assoc()) {
+				array_push($respuesta, $result['estado']);
+			}
+		}
+		return $respuesta;
+	}
 }

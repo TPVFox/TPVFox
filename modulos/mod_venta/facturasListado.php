@@ -24,9 +24,10 @@ $todosTemporal = array_reverse($todosTemporal);
 // ===========    Paginacion  ====================== //
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numfaccli', 'b.Nombre');
-
+$campoFiltro = 'a.estado';
 $NPaginado->SetCamposControler($campos);
 $NPaginado->SetOrderConsulta('a.Numfaccli');
+$NPaginado->SetCampoFiltro($campoFiltro);
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
 
@@ -38,7 +39,10 @@ $CantidadRegistros = count($f['Items']);
 
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
+$estadosFacturas = $Cfactura->getEstadosFacturas();
 $htmlPG = $NPaginado->htmlPaginado();
+$htmlBuscar = $NPaginado->htmlBuscar();
+$htmlFiltrar = $NPaginado->htmlFiltrar($estadosFacturas, 'Filtrar por estado');
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $d = $Cfactura->TodosFacturaFiltro($filtro . $NPaginado->GetLimitConsulta());
 $facturas = $d['Items'];
@@ -148,13 +152,14 @@ if (count($d['Items']) == 0) {
                 echo $htmlPG;
                 //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
                 ?>
-                <form action="./facturasListado.php" method="GET" name="formBuscar">
-                    <div class="form-group ClaseBuscar">
-                        <label>Buscar en número de factura </label>
-                        <input type="text" name="buscar" value="">
-                        <input type="submit" value="buscar">
+                <div class="row">
+                    <div class="col-md-6">
+                        <?php echo $htmlBuscar; ?>
                     </div>
-                </form>
+                    <div class="col-md-6 text-right">
+                        <?php echo $htmlFiltrar; ?>
+                    </div>
+                </div>
                 <div>
                     <table class="table table-bordered table-hover">
                         <thead>
