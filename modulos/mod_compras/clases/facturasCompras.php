@@ -848,4 +848,21 @@ class FacturasCompras extends ClaseCompras
         }
         return $respuesta;
     }
+
+    public function getEstadosFacturas()
+    {
+        //@Objetivo:
+        //Obtenemos los estados posibles de los albaranes de compras
+        $respuesta = array();
+        $sql = 'SELECT DISTINCT estado FROM facprot';
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result['estado']);
+            }
+        }
+        return $respuesta;
+    }
 }
