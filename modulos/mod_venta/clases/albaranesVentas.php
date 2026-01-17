@@ -556,4 +556,20 @@ class AlbaranesVentas extends ClaseVentas
         }
         return $albaran;
     }
+    public function getEstadosAlbaranes()
+    {
+        //@Objetivo:
+        //Obtenemos los estados posibles de los albaranes de compras
+        $respuesta = array();
+        $sql = 'SELECT DISTINCT estado FROM albclit';
+        $smt = parent::consulta($sql);
+        if (gettype($smt) === 'array') {
+            $respuesta = $smt;
+        } else {
+            while ($result = $smt->fetch_assoc()) {
+                array_push($respuesta, $result['estado']);
+            }
+        }
+        return $respuesta;
+    }
 }
