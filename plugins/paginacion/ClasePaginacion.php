@@ -17,6 +17,8 @@ class PluginClasePaginacion
 	public $limitConsulta		= ''; // (string) Es limite si lo hubiera.
 	public $Paginas				= array(); // (array) Donde tendremos los numeros de la paginas previas y siguientes.
 	public $filtroOrd			= '';
+	public $campoFiltro = '';
+	public $valorFiltro = '';
 
 	public function __construct($fichero)
 	{
@@ -33,6 +35,9 @@ class PluginClasePaginacion
 				$this->Busqueda = $_GET['buscar'];
 				$this->arrayBusqueda = explode(' ', $_GET['buscar']);
 			}
+		}
+		if (isset($_GET['filtro']) && $_GET['filtro'] !== '') {
+			$this->valorFiltro = $_GET['filtro'];
 		}
 	}
 
@@ -97,13 +102,35 @@ class PluginClasePaginacion
 		//  Solo lo generamos si buscar tiene datos... sino no tiene sentido.
 		// @ Parametros:
 		// 	  $operador -> (string ) OR o AND , lo utizamos para hacer likes con es operador.
-		if ($operador !== 'AND' && $this->Busqueda !== '') {
-			// Volvemos a generar el FiltroWhere
-			$this->SetFiltroWhere($operador);
+		$where = [];
+
+		// Búsqueda textual
+		if ($this->Busqueda !== '') {
+			if ($operador !== 'AND') {
+				$this->SetFiltroWhere($operador);
+			}
+			$where[] = '(' . str_replace('WHERE', '', $this->filtroWhere) . ')';
 		}
-		$where = $this->filtroWhere . ' ' . $this->filtroOrd;
-		//~ return $this->filtroWhere;
-		return $where;
+
+		// Filtro por campo definido
+		$filtroCampo = $this->GetFiltroEstado();
+		if ($filtroCampo !== '') {
+			$where[] = $filtroCampo;
+		}
+
+		if (!empty($where)) {
+			return 'WHERE ' . implode(' AND ', $where) . ' ' . $this->filtroOrd;
+		}
+
+		return $this->filtroOrd;
+	}
+	public function GetFiltroEstado()
+	{
+		if ($this->campoFiltro === '' || $this->valorFiltro === '') {
+			return '';
+		}
+
+		return $this->campoFiltro . ' = "' . addslashes($this->valorFiltro) . '"';
 	}
 
 	public function GetLimitConsulta()
@@ -217,6 +244,9 @@ class PluginClasePaginacion
 			} else {
 				$Linkpg .= 'pagina=';
 			}
+			if ($this->valorFiltro !== '') {
+				$Linkpg .= '&filtro=' . urlencode($this->valorFiltro) . '&pagina=';
+			}
 
 			//~ $Linkpg	.='pagina=';
 			// Montamos HTML para mostrar...
@@ -284,6 +314,11 @@ class PluginClasePaginacion
 		$campos = $this->campos;
 		$this->filtroWhere = 'WHERE (' . $this->ConstructorLike($campos, $this->Busqueda, $operador) . ') ';
 	}
+	public function SetCampoFiltro($campo)
+	{
+		$this->campoFiltro = $campo;
+	}
+
 	public function SetOrderConsulta($campoOrd = '')
 	{
 		//~ $controler =$this->controler;
