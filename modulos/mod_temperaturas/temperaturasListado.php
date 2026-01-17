@@ -39,9 +39,9 @@ if (isset($_GET['id'])) {
     <div class="container">
         <h2>Historial de Temperaturas del Dispositivo: <?php echo htmlspecialchars($dispositivo['nombre']); ?></h2>
 
-         <div style="text-align:right;">
-             <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
-         </div>
+        <div style="text-align:right;">
+            <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
+        </div>
         <?php
         if (isset($temperaturasDispositivo) && is_array($temperaturasDispositivo) && count($temperaturasDispositivo) > 0) {
             echo "<table class='table table-striped'>";
@@ -50,7 +50,11 @@ if (isset($_GET['id'])) {
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($registro['fechaRegistro']) . "</td>";
                 echo "<td>" . htmlspecialchars($registro['temperatura']) . " °C</td>";
-                echo "<td>" . htmlspecialchars($ClaseTemperatura->obtenerNombreUsuario($registro['idUsuario'])) . "</td>";
+                echo "<td>";
+                if (isset($registro['idUsuario'])) {
+                    echo htmlspecialchars($ClaseTemperatura->obtenerNombreUsuario($registro['idUsuario']));
+                }
+                echo "</td>";
                 echo "</tr>";
             }
             echo "</tbody></table>";
@@ -58,8 +62,8 @@ if (isset($_GET['id'])) {
             echo "<p>No hay registros de temperatura para este dispositivo.</p>";
         }
         ?>
-         <div style="text-align:right;">
-             <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
-         </div>
+        <div style="text-align:right;">
+            <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
+        </div>
     </div>
 </body>
