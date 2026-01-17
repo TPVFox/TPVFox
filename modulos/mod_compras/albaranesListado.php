@@ -42,11 +42,13 @@ $listado = $CAlb->CuentaTodosAlbaranesLimite($filtro);
 $CantidadRegistros = $listado['contador'];  // count($listado['Items']);
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
-$htmlPG = $NPaginado->htmlPaginado();
-//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-error_log('Filtro albaranes: ' . $filtro);
-$listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta());
 $estadosAlbaranes = $CAlb->getEstadosAlbaranes();
+$htmlPG = $NPaginado->htmlPaginado();
+$htmlBuscar = $NPaginado->htmlBuscar();
+$htmlFiltrar = $NPaginado->htmlFiltrar($estadosAlbaranes, 'Filtrar por estado');
+// =================================================== //
+//GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
+$listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta());
 $ListadoAlbaranes = $listado['Items'];
 if (isset($listado['error'])) {
     $errores[] = array(
@@ -167,30 +169,14 @@ if (count($ListadoAlbaranes) == 0) {
             echo $htmlPG;
             //enviamos por get palabras a buscar, las recogemos al inicio de la pagina
             ?>
-            <form action="./albaranesListado.php" method="GET" name="formBuscar">
-                <div class="form-group ClaseBuscar">
-                    <label>Buscar por nombre de proveedor o número de albarán</label>
-                    <input type="text" name="buscar" value="">
-                    <input type="submit" value="buscar">
+            <div class="row">
+                <div class="col-md-6">
+                    <?php echo $htmlBuscar; ?>
                 </div>
-            </form>
-            <!-- label para seleccionar estados de albaranes -->
-            <form action="./albaranesListado.php" method="GET" name="formFiltrar">
-                <input type="hidden" name="buscar" value="<?php echo $_GET['buscar'] ?? ''; ?>">
-
-                <select name="filtro" id="filtro" onchange="this.form.submit()">
-                    <option value="">-- Todos los estados --</option>
-                    <?php
-                    foreach ($estadosAlbaranes as $estado) {
-                        $selected = '';
-                        if (isset($_GET['filtro']) && $_GET['filtro'] == $estado) {
-                            $selected = ' selected';
-                        }
-                        echo '<option value="' . $estado . '"' . $selected . '>' . $estado . '</option>';
-                    }
-                    ?>
-                </select>
-            </form>
+                <div class="col-md-6 text-right">
+                    <?php echo $htmlFiltrar; ?>
+                </div>
+            </div>
 
             <div>
                 <table class="table table-bordered table-hover">
