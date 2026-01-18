@@ -105,6 +105,8 @@ if (!isset($fechaFinal)) {
 if (!isset($fechaInicial)) {
     $fechaInicial = date('Y') . '-01-01';
 }
+
+$mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
 ?>
 
 <!DOCTYPE html>
@@ -273,44 +275,82 @@ if (!isset($fechaInicial)) {
         </div>
         <div class="col-md-6 " <?php echo $style; ?>>
             <h4 class="text-center"><u>ALBARANES</u></h4>
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>FECHA</th>
-                        <th>ALBARÁN</th>
-                        <th>Su NºAlbaran</th>
-                        <th>ESTADO</th>
-                        <th>LINK</th>
-                        <th>BASE</th>
-                        <th>IVA</th>
-                        <th>TOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)): ?>
+                <button id="btnModoFactura" class="btn btn-primary">
+                    Crear factura desde albaranes
+                </button>
+                <form method="POST" action="../../mod_compras/factura.php" id="facturaDesdeAlbaranesForm">
                     <?php
-                    $totalLinea = 0;
-                    $totalbases = 0;
-                    if (isset($arrayNums['resumenBases'])) {
-                        foreach ($arrayNums['resumenBases'] as $bases) {
-                            $totalLinea = $bases['sumabase'] + $bases['sumarIva'];
-                            $totalbases = $totalbases + $totalLinea;
-                            $date = date_create($bases['fecha']);
-                            echo '<tr>
-                            <td>' . date_format($date, "d/m/y H:i") . '</td>
-                            <td>' . $bases['Numalbpro'] . '</td>
-                            <td>' . $bases['Su_numero'] . '</td>
-                             <td>' . $bases['estado'] . '</td>
-                             <td><a class="glyphicon glyphicon-pencil"  target="_blank" href="../../mod_compras/albaran.php?id=' . $bases['Numalbpro'] . '&accion=editar"></a></td>
-                            <td>' . $bases['sumabase'] . '</td>
-                            <td>' . $bases['sumarIva'] . '</td>
-                            <td>' . $totalLinea . '</td>
-                            </tr>';
-                        }
-                    }
+                    echo '<input type="hidden" name="action" value="crearDesdeAlbaranes">';
+                    echo '<input type="hidden" name="idProveedor" value="' . $idProveedor . '">';
                     ?>
+                <?php endif; ?>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th class="modo-factura" style="display:none;">SEL</th>
+                            <th>FECHA</th>
+                            <th>ALBARÁN</th>
+                            <th>Su NºAlbaran</th>
+                            <th>ESTADO</th>
+                            <th>LINK</th>
+                            <th>BASE</th>
+                            <th>IVA</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $totalLinea = 0;
+                        $totalbases = 0;
+                        if (isset($arrayNums['resumenBases'])) {
+                            foreach ($arrayNums['resumenBases'] as $bases) {
+                                $totalLinea = $bases['sumabase'] + $bases['sumarIva'];
+                                $totalbases = $totalbases + $totalLinea;
+                                $date = date_create($bases['fecha']);
+                                $checkbox = '';
 
-                </tbody>
-            </table>
+
+                                if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
+                                    if ($bases['estado'] != 'Facturado') {
+                                        $checkbox = '<input type="checkbox" name="albaranes[]" value="' . $bases['Numalbpro'] . '">';
+                                    } else {
+                                        $checkbox = '<span class="text-muted glyphicon glyphicon-lock"></span>';
+                                    }
+                                }
+                                echo '<tr>';
+                                if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
+                                    echo '<td class="modo-factura" style="display:none;">
+                                        ' . $checkbox . '
+                                    </td>';
+                                }
+                                echo '<td>' . date_format($date, "d/m/y H:i") . '</td>
+                                <td>' . $bases['Numalbpro'] . '</td>
+                                <td>' . $bases['Su_numero'] . '</td>
+                                <td>' . $bases['estado'] . '</td>
+                                <td>
+                                    <a class="glyphicon glyphicon-pencil" target="_blank"
+                                    href="../../mod_compras/albaran.php?id=' . $bases['Numalbpro'] . '&accion=editar">
+                                    </a>
+                                </td>
+                                <td>' . $bases['sumabase'] . '</td>
+                                <td>' . $bases['sumarIva'] . '</td>
+                                <td>' . $totalLinea . '</td>
+                            </tr>';
+                            }
+                        }
+                        ?>
+
+                    </tbody>
+                </table>
+
+                <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)): ?>
+                    <button type="submit" class="btn btn-success modo-factura" style="display:none;">
+                        Generar factura
+                    </button>
+
+                </form>
+            <?php endif; ?>
             <div class="col-md-12">
                 <div class="col-md-5">
                 </div>
@@ -325,5 +365,13 @@ if (!isset($fechaInicial)) {
         </div>
     </div>
 </body>
+<script>
+    document.getElementById('btnModoFactura').addEventListener('click', function() {
+        const elementos = document.querySelectorAll('.modo-factura');
+        elementos.forEach(el => {
+            el.style.display = el.style.display === 'none' ? '' : 'none';
+        });
+    });
+</script>
 
 </html>
