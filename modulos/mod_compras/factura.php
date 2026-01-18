@@ -38,6 +38,18 @@ $fechaVencimiento = "";
 $albaran_html_linea_producto = array();
 $JS_datos_albaranes = '';
 $html_adjuntos = '';
+// --- Controlasmos POST de crearDesdeAlbaranes --- //
+if ($_POST['action'] === 'crearDesdeAlbaranes') {
+    $idProveedor = (int)$_POST['idProveedor'];
+    $albaranes   = $_POST['albaranes'];
+    $crearDesdeAlbaranes = true;
+    $htmlScript = '<script>
+        window.crearDesdeAlbaranes = true;
+        window.proveedorInicial = ' . $idProveedor . ';
+        window.albaranesIniciales = ' . json_encode($albaranes) . ';
+    </script>';
+}
+
 //Cargamos la configuración por defecto y las acciones de las cajas
 $parametros = $ClasesParametros->getRoot();
 foreach ($parametros->cajas_input->caja_input as $caja) {
@@ -364,6 +376,9 @@ if ($idDocumentoTemporal === 0) {
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <?php
+    if (isset($htmlScript)){
+        echo $htmlScript;
+    }
     include_once $URLCom . '/modulos/mod_menu/menu.php';
     ?>
     <script type="text/javascript">
@@ -712,5 +727,27 @@ if ($accion === 'ver') {
 <?php
 }
 ?>
+
+<?php
+if(isset($crearDesdeAlbaranes) && $crearDesdeAlbaranes === true){
+?>
+    <script>
+        $(document).ready(function() {
+
+            if (window.crearDesdeAlbaranes === true &&
+                Array.isArray(window.albaranesIniciales) &&
+                window.proveedorInicial > 0
+            ) {
+                // 1. Validar proveedor
+                buscarProveedor('factura', 'id_proveedor', window.proveedorInicial);
+
+                // 2. Cargar cada albarán como si el usuario hiciera Enter
+                agregarAlbaranesSecuencial(window.albaranesIniciales);
+            }
+
+        });
+    </script>
+<?php
+} ?>
 
 </html>

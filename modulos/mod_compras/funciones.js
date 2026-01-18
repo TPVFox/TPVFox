@@ -31,6 +31,7 @@ function buscarAdjunto(dedonde, valor=""){
     //  dedonde:desde donde estamos ejecutando la función
     //  valor: numero de pedido o albarán que vamos a adjuntar
     console.log("Entre en buscarAdjunto");
+    return new Promise((resolve, reject) => {
     var parametros ={
         'pulsado':'buscarAdjunto',
         'numAdjunto':valor,
@@ -132,10 +133,15 @@ function buscarAdjunto(dedonde, valor=""){
                         //Cuando se mete el numero del pedido de esta manera el valor de busqueda ya es un numero
                         // y no vuelve a mostrar el modal,no entra en la segunda parte del if que tenemos mas arriba
                         cerrarPopUp();
+                        resolve(resultado);
                     }
                 }
             }
+        },
+        error: function(err){
+            reject(err);
         }
+        });
     });
 }
 
@@ -1283,6 +1289,14 @@ function abrirIncidenciasAdjuntas(id, modulo, dedonde){
         }
 
     });
+}
+
+async function agregarAlbaranesSecuencial(albaranes) {
+    for (let i = 0; i < albaranes.length; i++) {
+        await buscarAdjunto('factura', albaranes[i]);
+        // Opcional: esperar 0.5s entre cada uno
+        await new Promise(res => setTimeout(res, 500));
+    }
 }
 // =========================== OBJETOS  ===================================
 function ObjProducto(datos)
