@@ -430,7 +430,7 @@ class AlbaranesCompras extends ClaseCompras
         //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
         $respuesta = array();
         $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total,
-        a.estado  from `albprot` as a LEFT JOIN proveedores as b on
+        a.estado, a.idProveedor from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  ' . $limite;
         error_log($sql);
         $smt = parent::consulta($sql);
