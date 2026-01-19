@@ -29,6 +29,14 @@ class ClaseUsuarios extends modelo
 		$sql = 'SELECT id, username, `group_id`, `estado`, `nombre` FROM usuarios';
 		return $this->consulta($sql);
 	}
+	public function getUsuarioPorId($idUsuario)
+	{
+		//@Objetivo: Obtener los datos de un usuario por su id
+		//@Parametros:
+		//idUsuario: id del usuario a buscar
+		$sql = 'SELECT * FROM `usuarios` where id=' . $idUsuario;
+		return $this->consulta($sql);
+	}
 	public function getUsuarioNombrePorId($idUsuario)
 	{
 		//@Objetivo: Obtener los datos de un usuario por su id

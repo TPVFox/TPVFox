@@ -5,12 +5,14 @@ include_once("./../../configuracion.php");
 include_once($URLCom . '/controllers/parametros.php');
 include_once $URLCom . '/controllers/Controladores.php';
 include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseTemperatura.php';
+include_once $URLCom . '/modulos/mod_usuario/clases/claseUsuarios.php';
 include_once "./funciones.php";
 
 $mod_vista = array('vista' => 'temperatura.php', 'modulo' => 'mod_temperaturas');
 
 $ClasesParametros = new ClaseParametros('parametros.xml');
 $Controler = new ControladorComun;
+$CUsuarios = new ClaseUsuarios();
 $Controler->loadDbtpv($BDTpv);
 
 $ClaseTemperatura = new ClaseTemperatura($BDTpv);
@@ -51,8 +53,8 @@ if (isset($_GET['id'])) {
                 echo "<td>" . htmlspecialchars($registro['fechaRegistro']) . "</td>";
                 echo "<td>" . htmlspecialchars($registro['temperatura']) . " °C</td>";
                 echo "<td>";
-                if (isset($registro['idUsuario'])) {
-                    echo htmlspecialchars($ClaseTemperatura->obtenerNombreUsuario($registro['idUsuario']));
+                if (isset($registro['idUsuario']) && $registro['idUsuario'] != 0) {
+                    echo htmlspecialchars($CUsuarios->getUsuarioNombrePorId($registro['idUsuario'])['datos'][0]['nombre']);
                 }
                 echo "</td>";
                 echo "</tr>";
