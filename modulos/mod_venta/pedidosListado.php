@@ -186,14 +186,14 @@ if (count($d['Items']) == 0) {
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Modificar") == 1) {
-                                            echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id=' . $pedido['id'] . '&accion=editar"></a>';
+                                            echo '<a title="Editar pedido" class="glyphicon glyphicon-pencil" href="./pedido.php?id=' . $pedido['id'] . '&accion=editar"></a>';
                                         }
                                         ?>
                                     </td>
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Ver") == 1) {
-                                            echo '<a class="glyphicon glyphicon-eye-open" href="./pedido.php?id=' . $pedido['id'] . '&estado=ver"></a>';
+                                            echo '<a title="Ver pedido" class="glyphicon glyphicon-eye-open" href="./pedido.php?id=' . $pedido['id'] . '&estado=ver"></a>';
                                         }
                                         ?>
                                     </td>
@@ -208,7 +208,7 @@ if (count($d['Items']) == 0) {
                                         echo $pedido['estado'];
                                         if ($pedido !== 'Sin Guardar') {
                                             $onclick = " onclick='imprimir(" . $pedido['id'] . ',"pedido",' . json_encode($_SESSION['tiendaTpv']) . ")'";
-                                            echo '<a class="glyphicon glyphicon-print" ' . $onclick . '></a>';
+                                            echo '<a title="Imprimir pedido" class="glyphicon glyphicon-print" ' . $onclick . '></a>';
                                         }
                                         ?>
                                     </td>

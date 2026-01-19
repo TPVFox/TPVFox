@@ -141,7 +141,7 @@ if (count($pedidosDef) == 0) {
                                     if ($ClasePermisos->getAccion("EliminarTemporal") == 1) {
                                     ?>
                                         <td>
-                                            <a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoPedidos')">
+                                            <a title="Eliminar pedido temporal" onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoPedidos')">
                                                 <span class="glyphicon glyphicon-trash"></span>
                                             </a>
                                         </td>
@@ -208,14 +208,14 @@ if (count($pedidosDef) == 0) {
                                 <td>
                                     <?php
                                     if ($ClasePermisos->getAccion("Modificar") == 1 && $pedido['estado'] !== 'Facturado') {
-                                        echo '<a class="glyphicon glyphicon-pencil" href="./pedido.php?id=' . $pedido['id'] . '&accion=editar"></a>';
+                                        echo '<a title="Editar pedido" class="glyphicon glyphicon-pencil" href="./pedido.php?id=' . $pedido['id'] . '&accion=editar"></a>';
                                     }
                                     ?>
                                 </td>
                                 <td>
                                     <?php
                                     if ($ClasePermisos->getAccion("Ver") == 1) {
-                                        echo '<a class="glyphicon glyphicon-eye-open" href="./pedido.php?id=' . $pedido['id'] . '&accion=ver"></a>';
+                                        echo '<a title="Ver pedido" class="glyphicon glyphicon-eye-open" href="./pedido.php?id=' . $pedido['id'] . '&accion=ver"></a>';
                                     }
                                     ?>
                                 </td>
@@ -228,13 +228,13 @@ if (count($pedidosDef) == 0) {
                                 <?php
                                 $clas_estado = '';
                                 if ($pedido['estado'] !== "Sin Guardar") {
-                                    $linkImprimir = ' <a class="glyphicon glyphicon-print" ' .
+                                    $linkImprimir = ' <a title="Imprimir pedido" class="glyphicon glyphicon-print" ' .
                                         "onclick='imprimir(" . $pedido['id'] .
                                         ' , "pedido" , ' . $Tienda['idTienda'] . ")'></a>";
                                     $linkEmail = '';
                                     if ($ClasePermisos->getAccion("EnviarPedidoEmail") == 1) {
                                         // Hay permiso para poder enviar un pedido por email.
-                                        $linkEmail = $pedido['email'] ? ' <a class="glyphicon glyphicon-envelope" ' .
+                                        $linkEmail = $pedido['email'] ? ' <a title="Enviar pedido por email" class="glyphicon glyphicon-envelope" ' .
                                             'title="' . $pedido['email'] . '"' . "onclick='formularioEnvioEmail(" . $pedido['id'] .
                                             ' , "pedido" , ' . $Tienda['idTienda'] . ',"' . $pedido['email'] . '"' . ")'></a>" : '';
                                     }

@@ -183,14 +183,14 @@ if (count($d['Items']) == 0) {
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Modificar") == 1) {
-                                            echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id=' . $albaran['id'] . '&accion=editar"></a>';
+                                            echo '<a title="Editar albarán" class="glyphicon glyphicon-pencil" href="./albaran.php?id=' . $albaran['id'] . '&accion=editar"></a>';
                                         }
                                         ?>
                                     </td>
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Ver") == 1) {
-                                            echo '<a class="glyphicon glyphicon-eye-open" href="./albaran.php?id=' . $albaran['id'] . '&estado=ver"></a>';
+                                            echo '<a title="Ver albarán" class="glyphicon glyphicon-eye-open" href="./albaran.php?id=' . $albaran['id'] . '&estado=ver"></a>';
                                         }
                                         ?>
                                     </td>
@@ -205,7 +205,7 @@ if (count($d['Items']) == 0) {
                                         echo $albaran['estado'];
                                         if ($albaran !== 'Sin Guardar') {
                                             $onclick = " onclick='imprimir(" . $albaran['id'] . ',"albaran",' . json_encode($_SESSION['tiendaTpv']) . ")'";
-                                            echo '<a class="glyphicon glyphicon-print" ' . $onclick . '></a>';
+                                            echo '<a title="Imprimir albarán" class="glyphicon glyphicon-print" ' . $onclick . '></a>';
                                         }
                                         ?>
                                     </td>

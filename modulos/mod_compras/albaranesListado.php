@@ -146,7 +146,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                     if ($ClasePermisos->getAccion("EliminarTemporal") == 1) {
                                     ?>
                                         <td>
-                                            <a onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoAlbaranes')">
+                                            <a title="Eliminar temporal" onclick="eliminarTemporal(<?php echo $temporal['id']; ?>, 'ListadoAlbaranes')">
                                                 <span class="glyphicon glyphicon-trash"></span>
                                             </a>
                                         </td>
@@ -207,7 +207,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 $historico = $CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
                                 foreach ($historico as $his) {
                                     if ($his['estado'] == "Pendiente") {
-                                        $iconoCostes = ' <a class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id=' . $albaran['id'] . '"></a>';
+                                        $iconoCostes = ' <a title="Recalcular precios" class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id=' . $albaran['id'] . '"></a>';
                                     }
                                 }
                             }
@@ -223,14 +223,14 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 <td>
                                     <?php
                                     if ($ClasePermisos->getAccion("Modificar") == 1 && $albaran['estado'] !== 'Facturado') {
-                                        echo '<a class="glyphicon glyphicon-pencil" href="./albaran.php?id=' . $albaran['id'] . '&accion=editar"></a>';
+                                        echo '<a title="Editar albarán" class="glyphicon glyphicon-pencil" href="./albaran.php?id=' . $albaran['id'] . '&accion=editar"></a>';
                                     }
                                     ?>
                                 </td>
                                 <td>
                                     <?php
                                     if ($ClasePermisos->getAccion("Ver") == 1) {
-                                        echo '<a class="glyphicon glyphicon-eye-open" href="./albaran.php?id=' . $albaran['id'] . '&accion=ver"></a>';
+                                        echo '<a title="Ver albarán" class="glyphicon glyphicon-eye-open" href="./albaran.php?id=' . $albaran['id'] . '&accion=ver"></a>';
                                     }
                                     ?>
                                 </td>
@@ -243,11 +243,11 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 <?php
                                 $clas_estado = '';
                                 if ($albaran['estado'] !== "Sin Guardar") {
-                                    $linkImprimir = ' <a style="cursor:pointer" class="glyphicon glyphicon-print" ' .
+                                    $linkImprimir = ' <a title="Imprimir albarán" style="cursor:pointer" class="glyphicon glyphicon-print" ' .
                                         "onclick='imprimir(" . $albaran['id'] .
                                         ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
                                     if ($ClasePermisos->getAccion("Importar") == 1) {
-                                        $linkDescargar = ' <a style="cursor:pointer" class="glyphicon glyphicon-download-alt" ' .
+                                        $linkDescargar = ' <a title="Exportar albarán" style="cursor:pointer" class="glyphicon glyphicon-download-alt" ' .
                                             "onclick='exportarXML(" . $albaran['id'] .
                                             ' , "albaran" , ' . $Tienda['idTienda'] . ")'></a>";
                                     } else {
@@ -266,7 +266,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                         <input type="hidden" name="action" value="crearDesdeAlbaranes">
                                         <input type="hidden" name="idProveedor" value="<?= htmlspecialchars($albaran['idProveedor'], ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="albaranes[]" value="<?= htmlspecialchars($albaran['id'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <a href="#" class="submit-link">
+                                        <a title="Crear factura desde albarán" href="#" class="submit-link">
                                             <span class="glyphicon glyphicon-paste"></span>
                                         </a>
                                     </form>

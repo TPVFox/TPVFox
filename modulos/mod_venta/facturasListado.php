@@ -198,14 +198,14 @@ if (count($d['Items']) == 0) {
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Modificar") == 1) {
-                                            echo '<a class="glyphicon glyphicon-pencil" href="./factura.php?id=' . $factura['id'] . '&accion=editar"></a>';
+                                            echo '<a title="Editar factura" class="glyphicon glyphicon-pencil" href="./factura.php?id=' . $factura['id'] . '&accion=editar"></a>';
                                         }
                                         ?>
                                     </td>
                                     <td>
                                         <?php
                                         if ($ClasePermisos->getAccion("Ver") == 1) {
-                                            echo '<a class="glyphicon glyphicon-eye-open" href="./factura.php?id=' . $factura['id'] . '&accion=ver"></a>';
+                                            echo '<a title="Ver factura" class="glyphicon glyphicon-eye-open" href="./factura.php?id=' . $factura['id'] . '&accion=ver"></a>';
                                         }
                                         ?>
                                     </td>
@@ -221,7 +221,7 @@ if (count($d['Items']) == 0) {
                                         echo $factura['estado'];
                                         if ($factura['estado'] !== "Sin Guardar") {
                                             $tienda = json_encode($_SESSION['tiendaTpv']);
-                                            echo '<a class="glyphicon glyphicon-print"' . " onclick='imprimir(" . $factura['id'] . ', "factura",' . $tienda . ")'></a>";
+                                            echo '<a title="Imprimir factura" class="glyphicon glyphicon-print"' . " onclick='imprimir(" . $factura['id'] . ', "factura",' . $tienda . ")'></a>";
                                         }
                                         ?>
                                     </td>
