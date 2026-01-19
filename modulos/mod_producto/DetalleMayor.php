@@ -316,15 +316,12 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
                     $datosMesTotal = array_reduce($datosGuardar, function ($result, $item) {
                         if (!isset($result['entrega'])) {
                             $result = array('entrega' => 0, 'salida' => 0, 'compras' => 0, 'ventas' => 0, 'beneficio' => 0, 'entregaES' => 0, 'salidaES' => 0, 'comprasES' => 0, 'ventasES' => 0, 'beneficioES' => 0);
-                        }
+                        }                        
                         $result['entrega'] +=  $item['cantidades'][0][0];
                         $result['salida'] += $item['cantidades'][0][1];
                         $result['compras'] +=  $item['importes'][0][0];
                         $result['ventas'] +=  $item['importes'][0][1];
                         $result['beneficio'] +=  $item['importes'][0][2];
-                        //~ if (!isset($result['entregaES'])){
-                        //~ $result = array('entregaES'=>0,'salidaES'=>0,'comprasES'=>0,'ventasES'=>0,'beneficioES'=>0);
-                        //~ }
                         $result['entregaES'] +=  $item['cantidades'][1][0];
                         $result['salidaES'] += $item['cantidades'][1][1];
                         $result['comprasES'] +=  $item['importes'][1][0];
@@ -333,7 +330,26 @@ $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
 
                         return $result;
                     });
-
+                    
+                    // Aseguramos que la variable existe y le damos valor 0 en caso contrario
+                    if (!isset($datosMesTotal)) {
+                        $datosMesTotal = array(
+                            'entrega' => 0,
+                            'salida' => 0,
+                            'compras' => 0,
+                            'ventas' => 0,
+                            'beneficio' => 0,
+                            'entregaES' => 0,
+                            'salidaES' => 0,
+                            'comprasES' => 0,
+                            'ventasES' => 0,
+                            'beneficioES' => 0
+                        );
+                    }
+                    // Aseguramos que la variable existe y le damos valor 0 en caso contrario
+                    if (!isset($e)){
+                        $e = 0;
+                    }
                     $resultado = tablaTotal('table table-bordered table-hover', $datosMesTotal, $e);
                     echo $resultado;
                     ?>
