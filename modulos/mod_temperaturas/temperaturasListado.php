@@ -96,20 +96,30 @@ if (isset($_GET['id'])) {
                 $accion = $datosValidacionResultado['acciones'][$index];
                 $usuario = $datosValidacionResultado['usuario'][$index];
                 // usar desviacion para definir la columna en la que poner el valor $temperatura
-                
+                // bg-danger: 1:3S
+                // bg-warning: 1:2S y 4:1S
+                // bg-info: 1:2S, R:4S
+                $filaClass = '';
+                if ($regla == '1:3s') {
+                    $filaClass = 'class="bg-danger"';
+                } elseif (in_array($regla, array('1:2s', '4:1s'))) {
+                    $filaClass = 'class="bg-warning"';
+                } elseif (in_array($regla, array('2:2s', 'R:4s'))) {
+                    $filaClass = 'class="bg-info"';
+                }
                 echo "<tr>
-                        <td>" . htmlspecialchars($fechaRegistro) . "</td>
-                        <td>" . ($desviacion == -3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == -2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == -1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == 0 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == 1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == 2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . ($desviacion == 3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
-                        <td>" . htmlspecialchars($regla) . "</td>
-                        <td>" . htmlspecialchars($tipo) . "</td>
-                        <td>" . htmlspecialchars($accion) . "</td>
-                        <td>" . htmlspecialchars($usuario) . "</td>
+                        <td $filaClass>" . htmlspecialchars($fechaRegistro) . "</td>
+                        <td $filaClass>" . ($desviacion == -3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == -2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == -1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == 0 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == 1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == 2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . ($desviacion == 3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td $filaClass>" . htmlspecialchars($regla) . "</td>
+                        <td $filaClass>" . htmlspecialchars($tipo) . "</td>
+                        <td $filaClass>" . htmlspecialchars($accion) . "</td>
+                        <td $filaClass>" . htmlspecialchars($usuario) . "</td>
                       </tr>";
             }
             echo "</tbody></table>";
