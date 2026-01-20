@@ -26,14 +26,12 @@ if (isset($_GET['id'])) {
     foreach ($temperaturasDispositivo as $registro) {
         $datosValidacion['fechas'][] = $registro['fechaRegistro'];
         $datosValidacion['valores'][] = $registro['temperatura'];
-        $usuario = $CUsuarios->getUsuarioNombrePorId($registro['idUsuario']);
-        if (isset($usuario['datos'][0]['nombre'])) {
-            $usuario = $usuario['datos'][0]['nombre'];
-        } else {
-            $usuario = '';
-        }
-        if (empty($usuario)) {
+        $idUsuario = $registro['idUsuario'];
+        if (!isset($idUsuario) || $idUsuario == null || $idUsuario == 0) {
             $usuario = 'Sistema';
+        } else {
+            $usuario = $CUsuarios->getUsuarioNombrePorId($idUsuario);
+            $usuario = $usuario['datos'][0]['nombre'];
         }
         $datosValidacion['usuario'][] = $usuario;
     }
@@ -41,6 +39,14 @@ if (isset($_GET['id'])) {
     $datosValidacionResultado = $CValidacion->getResultados();
     $media = $CValidacion->getMedia();
     $desviacionEstandar = $CValidacion->getDesviacionEstandar();
+    //invertir el orden para que salga el más reciente primero
+    $datosValidacionResultado['fechas'] = array_reverse($datosValidacionResultado['fechas']);
+    $datosValidacionResultado['valores'] = array_reverse($datosValidacionResultado['valores']);
+    $datosValidacionResultado['desviacion'] = array_reverse($datosValidacionResultado['desviacion']);
+    $datosValidacionResultado['reglas'] = array_reverse($datosValidacionResultado['reglas']);
+    $datosValidacionResultado['tipo'] = array_reverse($datosValidacionResultado['tipo']);
+    $datosValidacionResultado['acciones'] = array_reverse($datosValidacionResultado['acciones']);
+    $datosValidacionResultado['usuario'] = array_reverse($datosValidacionResultado['usuario']);
 } else {
     echo "<div class='alert alert-danger'>No se ha especificado un dispositivo.</div>";
     exit;
