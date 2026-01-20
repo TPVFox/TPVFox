@@ -40,6 +40,9 @@ class ClaseValidacion
             $sumaCuadrados += pow($valor - $this->media, 2);
         }
         $this->desviacionEstandar = sqrt($sumaCuadrados / $n);
+        if ($this->desviacionEstandar == 0) {
+            $this->desviacionEstandar = 0.00001; // Evitar división por cero en validaciones
+        }
     }
     
     // Validar reglas de Levey Jennings

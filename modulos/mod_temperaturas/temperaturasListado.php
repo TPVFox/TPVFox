@@ -90,7 +90,7 @@ if (isset($_GET['id'])) {
             echo "<tbody>";
             foreach ($datosValidacionResultado['fechas'] as $index => $fechaRegistro) {
                 $temperatura = $datosValidacionResultado['valores'][$index];
-                $desviacion = round($datosValidacionResultado['desviacion'][$index]);
+                $desviacion = intval($datosValidacionResultado['desviacion'][$index]);
                 $regla = $datosValidacionResultado['reglas'][$index];
                 $tipo = $datosValidacionResultado['tipo'][$index];
                 $accion = $datosValidacionResultado['acciones'][$index];
@@ -99,13 +99,13 @@ if (isset($_GET['id'])) {
                 
                 echo "<tr>
                         <td>" . htmlspecialchars($fechaRegistro) . "</td>
-                        <td>" . ($desviacion == -3 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == -2 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == -1 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == 0 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == 1 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == 2 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
-                        <td>" . ($desviacion == 3 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == -3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == -2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == -1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == 0 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == 1 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == 2 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
+                        <td>" . ($desviacion == 3 ? htmlspecialchars($temperatura) . ' ºC' : '') . "</td>
                         <td>" . htmlspecialchars($regla) . "</td>
                         <td>" . htmlspecialchars($tipo) . "</td>
                         <td>" . htmlspecialchars($accion) . "</td>
