@@ -15,14 +15,14 @@ class ClaseValidacion
 
     private $media;
     private $desviacionEstandar;
-    
+
     public function __construct($datos)
     {
         $this->datos = $datos;
         $this->calcularEstadisticas();
         $this->validarReglas();
     }
-    
+
     private function calcularEstadisticas()
     {
         $valores = $this->datos['valores'];
@@ -44,19 +44,19 @@ class ClaseValidacion
             $this->desviacionEstandar = 0.00001; // Evitar división por cero en validaciones
         }
     }
-    
+
     // Validar reglas de Levey Jennings
     // | Regla | Tipo              | Acción principal            |
     // | ----- | ----------------- | --------------------------- |
-    // | 1:2s  | Advertencia       | Repetir medición            |
-    // | 1:3s  | Crítica           | Verificar puertas y esperar |
-    // | 2:2s  | Tendencia         | Evaluar entorno             |
-    // | R:4s  | Uso incorrecto    | Reforzar hábitos            |
-    // | 4:1s  | Cambio progresivo | Validar entorno             |
-    // | 10:x  | Sesgo             | Solo válido en estación     |
+    // | 1:2s  | Advertencia       | Re-evaluar en la proxima medicion          |
+    // | 1:3s  | Crítica           | Acción inmediata: verificar cierre y sondas |
+    // | 2:2s  | Tendencia         | Revisar entorno (ventilación, suciedad, filtros)             |
+    // | R:4s  | Uso incorrecto    | Corregir hábitos operativos del personal.            |
+    // | 4:1s  | Cambio progresivo | Seguimiento para evitar perdida de margen             |
+    // | 10:x  | Sesgo             | Evaluar regulación y productos          |
     private function validarReglas()
     {
-        $valores = $this -> datos['valores'];
+        $valores = $this->datos['valores'];
         $n = count($valores);
         $counter_2s = 0; // Contador para la regla 2:2s
         $counter_1s = 0; // Contador para la regla 4:1s
@@ -66,7 +66,7 @@ class ClaseValidacion
         for ($i = 0; $i < $n; $i++) {
             $valor = $valores[$i];
             $desviacion = $valor - $this->media;
-            $this->datos['desviacion'][$i] = $desviacion/$this->desviacionEstandar;
+            $this->datos['desviacion'][$i] = $desviacion / $this->desviacionEstandar;
             $absDesviacion = abs($desviacion);
             $reglaAplicada = null;
             $tipo = null;
@@ -75,13 +75,13 @@ class ClaseValidacion
             if ($desviacion > 2 * $this->desviacionEstandar or $desviacion < -2 * $this->desviacionEstandar) {
                 $reglaAplicada = '1:2s';
                 $tipo = 'Advertencia';
-                $accion = 'Repetir medición';
+                $accion = 'Re-evaluar en la próxima medición';
             }
             // Regla 1:3s
             if ($absDesviacion > 3 * $this->desviacionEstandar) {
                 $reglaAplicada = '1:3s';
                 $tipo = 'Crítica';
-                $accion = 'Verificar puertas y esperar';
+                $accion = 'Acción inmediata: verificar cierre y sondas';
             }
             // Si lo valores desviación anterior es positiva y la actual negativa o viceversa reiniciar contador
             if ($DSanterior !== null) {
@@ -97,14 +97,14 @@ class ClaseValidacion
                 if ($counter_2s >= 2) {
                     $reglaAplicada = '2:2s';
                     $tipo = 'Tendencia';
-                    $accion = 'Evaluar entorno';
+                    $accion = 'Revisar entorno (ventilación, suciedad, filtros)';
                 }
             } elseif ($desviacion < -2 * $this->desviacionEstandar) {
                 $counter_2s++;
                 if ($counter_2s >= 2) {
                     $reglaAplicada = '2:2s';
                     $tipo = 'Tendencia';
-                    $accion = 'Evaluar entorno';
+                    $accion = 'Revisar entorno (ventilación, suciedad, filtros)';
                 }
             } else {
                 $counter_2s = 0; // Resetear si no cumple la condición
@@ -114,7 +114,7 @@ class ClaseValidacion
                 if (abs($desviacion - $DSanterior) > 4 * $this->desviacionEstandar) {
                     $reglaAplicada = 'R:4s';
                     $tipo = 'Uso incorrecto';
-                    $accion = 'Reforzar hábitos';
+                    $accion = 'Corregir hábitos operativos del personal.';
                 }
             }
             // Regla 4:1s (tiene que estar en la misma dirección)
@@ -123,14 +123,14 @@ class ClaseValidacion
                 if ($counter_1s >= 4) {
                     $reglaAplicada = '4:1s';
                     $tipo = 'Cambio progresivo';
-                    $accion = 'Validar entorno';
+                    $accion = 'Seguimiento para evitar perdida de margen';
                 }
             } elseif ($desviacion < -$this->desviacionEstandar) {
                 $counter_1s++;
                 if ($counter_1s >= 4) {
                     $reglaAplicada = '4:1s';
                     $tipo = 'Cambio progresivo';
-                    $accion = 'Validar entorno';
+                    $accion = 'Seguimiento para evitar perdida de margen';
                 }
             } else {
                 $counter_1s = 0; // Resetear si no cumple la condición
@@ -141,14 +141,14 @@ class ClaseValidacion
                 if ($counter_x >= 10) {
                     $reglaAplicada = '10:x';
                     $tipo = 'Sesgo';
-                    $accion = 'Solo válido en estación';
+                    $accion = 'Evaluar regulación y productos';
                 }
             } elseif ($desviacion < 0) {
                 $counter_x++;
                 if ($counter_x >= 10) {
                     $reglaAplicada = '10:x';
                     $tipo = 'Sesgo';
-                    $accion = 'Solo válido en estación';
+                    $accion = 'Evaluar regulación y productos';
                 }
             } else {
                 $counter_x = 0; // Resetear si no cumple la condición
@@ -165,7 +165,7 @@ class ClaseValidacion
             $this->datos['tipo'][$i] = $tipo;
             $this->datos['acciones'][$i] = $accion;
         }
-    } 
+    }
 
     // getter de los resultados de la validación
     public function getResultados()
