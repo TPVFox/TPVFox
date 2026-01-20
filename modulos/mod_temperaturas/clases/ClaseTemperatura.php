@@ -80,7 +80,7 @@ class ClaseTemperatura extends Modelo
 
     public function getTemperaturasDispositivo($idDispositivo)
     {
-        $sql = "SELECT * FROM " . $this->tablaTemperaturas . " WHERE idDispositivo = " . intval($idDispositivo) . " ORDER BY fechaRegistro DESC";
+        $sql = "SELECT * FROM " . $this->tablaTemperaturas . " WHERE idDispositivo = " . intval($idDispositivo) . " ORDER BY fechaRegistro ASC";
         $consulta = $this->consulta($sql);
         if (isset($consulta['error'])) {
             return $consulta;

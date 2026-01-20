@@ -21,6 +21,26 @@ if (isset($_GET['id'])) {
     $idDispositivo = intval($_GET['id']);
     $dispositivo = $ClaseTemperatura->getDispositivo($idDispositivo);
     $temperaturasDispositivo = $ClaseTemperatura->getTemperaturasDispositivo($idDispositivo);
+
+    include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseValidacion.php';
+    foreach ($temperaturasDispositivo as $registro) {
+        $datosValidacion['fechas'][] = $registro['fechaRegistro'];
+        $datosValidacion['valores'][] = $registro['temperatura'];
+        $usuario = $CUsuarios->getUsuarioNombrePorId($registro['idUsuario']);
+        if (isset($usuario['datos'][0]['nombre'])) {
+            $usuario = $usuario['datos'][0]['nombre'];
+        } else {
+            $usuario = '';
+        }
+        if (empty($usuario)) {
+            $usuario = 'Sistema';
+        }
+        $datosValidacion['usuario'][] = $usuario;
+    }
+    $CValidacion = new ClaseValidacion($datosValidacion);
+    $datosValidacionResultado = $CValidacion->getResultados();
+    $media = $CValidacion->getMedia();
+    $desviacionEstandar = $CValidacion->getDesviacionEstandar();
 } else {
     echo "<div class='alert alert-danger'>No se ha especificado un dispositivo.</div>";
     exit;
@@ -44,26 +64,60 @@ if (isset($_GET['id'])) {
         <div style="text-align:right;">
             <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
         </div>
+        <div>
+        <div>
+            <strong>Media:</strong> <?php echo round($media, 2); ?> &nbsp;&nbsp;
+            <strong>Desviación Estándar:</strong> <?php echo round($desviacionEstandar, 2); ?>
+        </div>
+        <br>
         <?php
         if (isset($temperaturasDispositivo) && is_array($temperaturasDispositivo) && count($temperaturasDispositivo) > 0) {
             echo "<table class='table table-striped'>";
-            echo "<thead><tr><th>Fecha de Registro</th><th>Temperatura (°C)</th><th>Registrado por Usuario</th></tr></thead><tbody>";
-            foreach ($temperaturasDispositivo as $registro) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($registro['fechaRegistro']) . "</td>";
-                echo "<td>" . htmlspecialchars($registro['temperatura']) . " °C</td>";
-                echo "<td>";
-                if (isset($registro['idUsuario']) && $registro['idUsuario'] != 0) {
-                    echo htmlspecialchars($CUsuarios->getUsuarioNombrePorId($registro['idUsuario'])['datos'][0]['nombre']);
-                }
-                echo "</td>";
-                echo "</tr>";
+            echo "<thead><tr>
+                    <th>Fecha Registro</th>
+                    <th>-3DS</th>
+                    <th>-2DS</th>
+                    <th>-1DS</th>
+                    <th>Media</th>
+                    <th>+1DS</th>
+                    <th>+2DS</th>
+                    <th>+3DS</th>
+                    <th>Regla</th>
+                    <th>Tipo</th>
+                    <th>Acción</th>
+                    <th>Usuario</th>
+                  </tr></thead>";
+            echo "<tbody>";
+            foreach ($datosValidacionResultado['fechas'] as $index => $fechaRegistro) {
+                $temperatura = $datosValidacionResultado['valores'][$index];
+                $desviacion = round($datosValidacionResultado['desviacion'][$index]);
+                $regla = $datosValidacionResultado['reglas'][$index];
+                $tipo = $datosValidacionResultado['tipo'][$index];
+                $accion = $datosValidacionResultado['acciones'][$index];
+                $usuario = $datosValidacionResultado['usuario'][$index];
+                // usar desviacion para definir la columna en la que poner el valor $temperatura
+                
+                echo "<tr>
+                        <td>" . htmlspecialchars($fechaRegistro) . "</td>
+                        <td>" . ($desviacion == -3 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == -2 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == -1 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == 0 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == 1 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == 2 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . ($desviacion == 3 ? htmlspecialchars($temperatura) . 'ºC' : '') . "</td>
+                        <td>" . htmlspecialchars($regla) . "</td>
+                        <td>" . htmlspecialchars($tipo) . "</td>
+                        <td>" . htmlspecialchars($accion) . "</td>
+                        <td>" . htmlspecialchars($usuario) . "</td>
+                      </tr>";
             }
             echo "</tbody></table>";
         } else {
             echo "<p>No hay registros de temperatura para este dispositivo.</p>";
         }
         ?>
+        </div>
         <div style="text-align:right;">
             <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
         </div>
