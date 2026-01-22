@@ -225,9 +225,11 @@ if ($id == 0) {
 						echo htmlPanelDesplegable($num, $titulo, $tablaHtml[2]);
 						?>
 						<?php
-						$num = 4; // Numero collapse;
-						$titulo = 'Resumen Anual ' . $anio;
-						echo htmlPanelDesplegable($num, $titulo, $tablaHtml[3]);
+						if ($existeResumenAnual) {
+							$num = 4; // Numero collapse;
+							$titulo = 'Resumen Anual ' . $anio;
+							echo htmlPanelDesplegable($num, $titulo, $tablaHtml[3]);
+						}
 						?>
 					</div>
 				</div>

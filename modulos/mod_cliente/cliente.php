@@ -339,9 +339,11 @@ foreach ($estados_cliente as $i => $estado_cliente) {
                             echo htmlPanelDesplegable($num, $titulo, $tablaHtml[4]);
                             ?>
                             <?php
-                            $num = 6; // Numero collapse;
-                            $titulo = 'Resumen Anual';
-                            echo htmlPanelDesplegable($num, $titulo, $tablaHtml[5]);
+                            if ($existeResumenAnual) {
+                                $num = 6; // Numero collapse;
+                                $titulo = 'Resumen Anual';
+                                echo htmlPanelDesplegable($num, $titulo, $tablaHtml[5]);
+                            }
                             ?>
                         </div>
                         <!-- Aquí irá el código de los grupos-->
