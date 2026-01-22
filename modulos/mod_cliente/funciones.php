@@ -516,3 +516,17 @@ function htmlTablaResumenAnual($resumenAnual)
 		. '</tbody></table>';
 	return $html;
 }
+
+function mostrarResumenCliente($cliente, $resumen)
+{
+	// @ Objetivo:
+	// Mostrar el resumen anual de un cliente.
+	// @ Parametros:
+	// $idCliente: (int) id del cliente.
+	// $resumen: Array con los datos del resumen anual de todos los clientes.
+	// @ Respuesta:
+	// String con html del resumen anual del cliente.
+	$html = '<h2>Resumen Anual de ' . htmlspecialchars($cliente['Nombre'], ENT_QUOTES) . '</h2>';
+	$html .= htmlTablaResumenAnual($resumen);
+	return $html;
+}
