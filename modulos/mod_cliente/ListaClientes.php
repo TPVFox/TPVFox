@@ -103,6 +103,7 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 									onclick="abrirModalInforme('<?php echo $titulo ?>', '<?php echo $contenido ?>',
 				'<?php echo $fechainicio ?>', '<?php echo $fechafin ?>' , 1)">Actualizar Informe descuentos tickets</a></li>
 						<?php } ?>
+						<li><a href="./Resumenes/resumenClientes.php">Resumen anual clientes</a></li>
 					</ul>
 				</div>
 			</nav>

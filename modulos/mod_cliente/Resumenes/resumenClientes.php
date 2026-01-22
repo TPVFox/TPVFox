@@ -53,7 +53,13 @@ uasort($resumenAnualValidado, function ($a, $b) {
         <?php
         foreach ($resumenAnualValidado as $idCliente => $resumen) {
             $cliente = $Cliente->getCliente($idCliente)['datos'][0];
-            echo mostrarResumenCliente($cliente, $resumen);
+            $bgclass = '';
+            if ($resumen['total']['total'] >= 3000) {
+                $bgclass = 'bg-info';
+            } elseif ($resumen['total']['total'] + $resumen['total']['totalIva'] >= 3000) {
+                $bgclass = 'bg-warning';
+            }
+            echo mostrarResumenCliente($cliente, $resumen, $bgclass);
         }
         ?>
     </div>

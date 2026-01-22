@@ -517,7 +517,7 @@ function htmlTablaResumenAnual($resumenAnual)
 	return $html;
 }
 
-function mostrarResumenCliente($cliente, $resumen)
+function mostrarResumenCliente($cliente, $resumen, $bgclass = '')
 {
 	// @ Objetivo:
 	// Mostrar el resumen anual de un cliente.
@@ -527,6 +527,19 @@ function mostrarResumenCliente($cliente, $resumen)
 	// @ Respuesta:
 	// String con html del resumen anual del cliente.
 	$html = '<h2>Resumen Anual de ' . htmlspecialchars($cliente['Nombre'], ENT_QUOTES) . '</h2>';
+	$html .= '<div class="col-md-12 ' . $bgclass . '">';
+	$html .= '<div class="col-md-3">';
+	$html .= '<h3>Datos del Cliente</h3>';
+	$html .= '<p><strong>Nombre: </strong>' . htmlspecialchars($cliente['Nombre'], ENT_QUOTES) . '</p>';
+	$html .= '<p><strong>NIF: </strong>' . htmlspecialchars($cliente['nif'], ENT_QUOTES) . '</p>';
+	$html .= '<p><strong>Dirección: </strong>' . htmlspecialchars($cliente['direccion'], ENT_QUOTES) . '</p>';
+	$html .= '<p><strong>Teléfono: </strong>' . htmlspecialchars($cliente['telefono'], ENT_QUOTES) . '</p>';
+	$html .= '<p><strong>Email: </strong>' . htmlspecialchars($cliente['email'], ENT_QUOTES) . '</p>';
+	$html .= '</div>';
+	$html .= '<div class="col-md-9">';
 	$html .= htmlTablaResumenAnual($resumen);
+	$html .= '</div>';
+	$html .= '</div>';
+
 	return $html;
 }
