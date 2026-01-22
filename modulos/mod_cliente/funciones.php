@@ -313,7 +313,7 @@ function getHmtlTrProductos($productos, $tipo)
 	return $respuesta;
 }
 
-function validarResumenAnual(array $resumenAnual, int $ejercicio): array
+function validarResumenAnual(array $resumenAnual, int $ejercicio, int $idCliente = 0): array
 {
 	$campos = [
 		'q1Iva',
@@ -346,6 +346,10 @@ function validarResumenAnual(array $resumenAnual, int $ejercicio): array
 				continue;
 			}
 
+			// Cliente opcional
+			if ($idCliente > 0 && $datos['idCliente'] != $idCliente) {
+				continue;
+			}
 			// Asignamos tickets o facturas
 			$$destino = array_merge($base, $datos);
 
@@ -361,6 +365,37 @@ function validarResumenAnual(array $resumenAnual, int $ejercicio): array
 		'facturas' => $facturas,
 		'total'    => $total
 	];
+}
+
+function validarResumenAnualTodosClientes(
+	array $resumenAnual,
+	int $ejercicio
+): array {
+	$clientes = [];
+
+	foreach (['resumen_tickets', 'resumen_facturas'] as $origen) {
+		if (empty($resumenAnual[$origen])) {
+			continue;
+		}
+
+		foreach ($resumenAnual[$origen] as $datos) {
+			if ($datos['ejercicio'] == $ejercicio) {
+				$clientes[$datos['idCliente']] = true;
+			}
+		}
+	}
+
+	$resultado = [];
+
+	foreach (array_keys($clientes) as $idCliente) {
+		$resultado[$idCliente] = validarResumenAnual(
+			$resumenAnual,
+			$ejercicio,
+			$idCliente
+		);
+	}
+
+	return $resultado;
 }
 
 function htmlTablaResumenAnual($resumenAnual)
