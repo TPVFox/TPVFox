@@ -328,7 +328,7 @@ class ClaseCliente extends TFModelo
                 } else {
                     $respuesta['productos'] = $productos['datos'];
                 }
-                $sql = 'SELECT i.* , t.idTienda, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva)
+                $sql = 'SELECT i.* , t.idTienda, t.estado, t.idUsuario, sum(i.totalbase) as sumabase , sum(i.importeIva)
                 as sumarIva, t.Fecha as fecha   from albcliIva as i
                 left JOIN albclit as t on t.id=i.idalbcli  where idalbcli
                 in (' . $ids . ')  GROUP BY idalbcli;';
