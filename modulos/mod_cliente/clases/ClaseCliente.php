@@ -621,10 +621,13 @@ class ClaseCliente extends TFModelo
         return $respuesta;
     }
 
-    public function obtenerResumenTicketsCliente($idClientes)
+    public function obtenerResumenTicketsCliente($idClientes = '')
     {
         $respuesta = array();
-        $sql = 'SELECT * from vw_resumenClientesTickets where idCliente IN (' . $idClientes . ')';
+        $sql = 'SELECT * from vw_resumenClientesTickets';
+        if ($idClientes != '') {
+            $sql .= ' where idCliente IN (' . $idClientes . ')';
+        }
         $resumenTickets = $this->consulta($sql);
         if (isset($resumenTickets['error'])) {
             $respuesta = $resumenTickets;
@@ -634,10 +637,13 @@ class ClaseCliente extends TFModelo
         return $respuesta;
     }
 
-    public function obtenerResumenFacturasCliente($idClientes)
+    public function obtenerResumenFacturasCliente($idClientes = '')
     {
         $respuesta = array();
-        $sql = 'SELECT * from vw_resumenClientesFacturas where idCliente IN (' . $idClientes . ')';
+        $sql = 'SELECT * from vw_resumenClientesFacturas';
+        if ($idClientes != '') {
+            $sql .= ' where idCliente IN (' . $idClientes . ')';
+        }
         $resumenFacturas = $this->consulta($sql);
         if (isset($resumenFacturas['error'])) {
             $respuesta = $resumenFacturas;
@@ -648,7 +654,7 @@ class ClaseCliente extends TFModelo
     }
 
     // Metodo para buscar el resumen de facturas y tickets anuales de un cliente usando los metodos anteriores
-    public function getResumenAnual($idClientes)
+    public function getResumenAnual($idClientes = '')
     {
         $respuesta = array();
         $tickets = $this->obtenerResumenTicketsCliente($idClientes);
