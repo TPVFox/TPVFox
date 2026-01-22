@@ -313,91 +313,54 @@ function getHmtlTrProductos($productos, $tipo)
 	return $respuesta;
 }
 
-function validarResumenAnual($resumenAnual, $ejercicio)
+function validarResumenAnual(array $resumenAnual, int $ejercicio): array
 {
-	// @ Objetivo:
-	// Validar que los dos array tienen datos y crear un tercer array con el total anual.
-	$respuesta = array();
-	$resumen_tickets = array(
-		'q1Iva' => 0,
-		'q1' => 0,
-		'q2Iva' => 0,
-		'q2' => 0,
-		'q3Iva' => 0,
-		'q3' => 0,
-		'q4Iva' => 0,
-		'q4' => 0,
-		'totalIva' => 0,
-		'total' => 0
-	);
-	$resumen_facturas = array(
-		'q1Iva' => 0,
-		'q1' => 0,
-		'q2Iva' => 0,
-		'q2' => 0,
-		'q3Iva' => 0,
-		'q3' => 0,
-		'q4Iva' => 0,
-		'q4' => 0,
-		'totalIva' => 0,
-		'total' => 0
-	);
-	$resumen_total = array(
-		'q1Iva' => 0,
-		'q1' => 0,
-		'q2Iva' => 0,
-		'q2' => 0,
-		'q3Iva' => 0,
-		'q3' => 0,
-		'q4Iva' => 0,
-		'q4' => 0,
-		'totalIva' => 0,
-		'total' => 0
-	);
-	if (isset($resumenAnual['resumen_tickets'])) {
-		// Validamos cuantos años fiscales hay.
-		foreach ($resumenAnual['resumen_tickets'] as $ano => $datos) {
-			if ($datos['ejercicio'] == $ejercicio) {
-				$resumen_tickets = $datos;
-				// Sumamos al total
-				$resumen_total['q1Iva'] += $datos['q1Iva'];
-				$resumen_total['q1'] += $datos['q1'];
-				$resumen_total['q2Iva'] += $datos['q2Iva'];
-				$resumen_total['q2'] += $datos['q2'];
-				$resumen_total['q3Iva'] += $datos['q3Iva'];
-				$resumen_total['q3'] += $datos['q3'];
-				$resumen_total['q4Iva'] += $datos['q4Iva'];
-				$resumen_total['q4'] += $datos['q4'];
-				$resumen_total['totalIva'] += $datos['totalIva'];
-				$resumen_total['total'] += $datos['total'];
-				$resumen_tickets = $datos;
+	$campos = [
+		'q1Iva',
+		'q1',
+		'q2Iva',
+		'q2',
+		'q3Iva',
+		'q3',
+		'q4Iva',
+		'q4',
+		'totalIva',
+		'total'
+	];
+
+	$base = array_fill_keys($campos, 0);
+
+	$tickets  = $base;
+	$facturas = $base;
+	$total    = $base;
+
+	foreach (['resumen_tickets' => 'tickets', 'resumen_facturas' => 'facturas'] as $origen => $destino) {
+
+		if (empty($resumenAnual[$origen])) {
+			continue;
+		}
+
+		foreach ($resumenAnual[$origen] as $datos) {
+
+			if ($datos['ejercicio'] != $ejercicio) {
+				continue;
+			}
+
+			// Asignamos tickets o facturas
+			$$destino = array_merge($base, $datos);
+
+			// Sumamos al total
+			foreach ($campos as $campo) {
+				$total[$campo] += (float)$datos[$campo];
 			}
 		}
 	}
-	if (isset($resumenAnual['resumen_facturas'])) {
-		// Validamos cuantos años fiscales hay.
-		foreach ($resumenAnual['resumen_facturas'] as $ano => $datos) {
-			if ($datos['ejercicio'] == $ejercicio) {
-				$resumen_facturas = $datos;
-				// Sumamos al total
-				$resumen_total['q1Iva'] += $datos['q1Iva'];
-				$resumen_total['q1'] += $datos['q1'];
-				$resumen_total['q2Iva'] += $datos['q2Iva'];
-				$resumen_total['q2'] += $datos['q2'];
-				$resumen_total['q3Iva'] += $datos['q3Iva'];
-				$resumen_total['q3'] += $datos['q3'];
-				$resumen_total['q4Iva'] += $datos['q4Iva'];
-				$resumen_total['q4'] += $datos['q4'];
-				$resumen_total['totalIva'] += $datos['totalIva'];
-				$resumen_total['total'] += $datos['total'];
-				$resumen_facturas = $datos;
-			}
-		}
-	}
-	$respuesta['tickets'] = $resumen_tickets;
-	$respuesta['facturas'] = $resumen_facturas;
-	$respuesta['total'] = $resumen_total;
-	return $respuesta;
+
+	return [
+		'tickets'  => $tickets,
+		'facturas' => $facturas,
+		'total'    => $total
+	];
 }
 
 function htmlTablaResumenAnual($resumenAnual)
