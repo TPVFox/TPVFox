@@ -497,4 +497,29 @@ class ClaseProveedor extends TFModelo
         }
         return $respuesta;
     }
+
+    // obtener resumenAnualProveedor
+    public function obtenerResumenAnualProveedor($idProveedor)
+    {
+        // @ Objetivo:
+        // Obtener resumen anual de compras de un proveedor.
+        // @ Parametros:
+        //  $idProveedor -> Id del proveedor.
+        //  $anio        -> Año del que queremos el resumen.
+        // @ Devolvemos:
+        //  Array con :
+        //      ['resumen'] -> Array con resumen mensual.
+        //      ['errores'] -> Array con errores si los hubo.
+        $respuesta = array();
+        $sql = 'SELECT * from vw_resumenProveedoresFacturas where idProveedor=' . $idProveedor . ';';
+        $resumen = $this->consulta($sql);
+        if (isset($resumen['error'])) {
+            $respuesta['errores'][] = $this->montarAdvertencia('danger', 'Error al obtener el resumen anual del proveedor.<br/>'
+                . 'Error:' . $resumen['error'] . '<br/>'
+                . 'Consulta:' . $resumen['consulta'], '<br/>');
+        } else {
+            $respuesta['resumen_facturas'] = $resumen['datos'];
+        }
+        return $respuesta;
+    }
 }

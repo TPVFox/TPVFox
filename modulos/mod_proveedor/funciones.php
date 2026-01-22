@@ -162,3 +162,74 @@ function obtenerIconoOrden($campoOrden, $sentidoOrden, $campo)
     }
     return $icon;
 }
+
+function validarResumenAnual($resumenAnual, $ano)
+{
+    // Objetivo:
+    // Validar que el resumen anual tiene datos del año seleccionado.
+    // Si no es así crear array con meses y totales a 0.
+    $respuesta = array();
+    $resumen_facturas = array(
+        'q1Iva' => 0,
+        'q1' => 0,
+        'q2Iva' => 0,
+        'q2' => 0,
+        'q3Iva' => 0,
+        'q3' => 0,
+        'q4Iva' => 0,
+        'q4' => 0,
+        'totalIva' => 0,
+        'total' => 0
+    );
+    if (isset($resumenAnual['resumen_facturas'])) {
+        // Validamos cuantos años fiscales hay.
+        foreach ($resumenAnual['resumen_facturas'] as $ano => $datos) {
+            if ($ano == $ano) {
+                $resumen_facturas = $datos;
+            }
+        }
+    }
+    $respuesta['facturas'] = $resumen_facturas;
+    return $respuesta;
+}
+
+function htmlTablaResumenAnual($resumenAnual)
+{
+    // Objetivo:
+    // Montar tabla html con resumen anual.
+    $html = '<h4>Facturas</h4>'
+        . '<table class="table table-striped"><thead>'
+        . '<tr>'
+        . '<th>Concepto</th>'
+        . '<th>1er Trimestre</th>'
+        . '<th>2º Trimestre</th>'
+        . '<th>3er Trimestre</th>'
+        . '<th>4º Trimestre</th>'
+        . '<th>Total Anual</th>'
+        . '</tr>'
+        . '</thead><tbody>'
+        . '<tr>'
+        . '<td>Base imponible</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q1'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q2'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q3'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q4'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['total'], 2) . '</td>'
+        . '</tr>'
+        . '<tr>'
+        . '<td>IVA</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q1Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q2Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q3Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q4Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['totalIva'], 2) . '</td>'
+        . '</tr>'
+        . '<td>Total</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q1'] + $resumenAnual['facturas']['q1Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q2'] + $resumenAnual['facturas']['q2Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q3'] + $resumenAnual['facturas']['q3Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['q4'] + $resumenAnual['facturas']['q4Iva'], 2) . '</td>'
+        . '<td>' . number_format($resumenAnual['facturas']['total'] + $resumenAnual['facturas']['totalIva'], 2) . '</td>'
+        . '</tbody></table>';
+    return $html;
+}

@@ -10,6 +10,7 @@ $Controler->loadDbtpv($BDTpv);
 $CProveedor = new ClaseProveedor();
 $dedonde = "proveedor";
 $id = 0;
+$anio = $_SESSION['tiendaTpv']['ano'];
 $errores = array();
 $tablaHtml = array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
 $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -20,6 +21,8 @@ if (isset($_GET['id'])) {
 	$id = $_GET['id']; // Obtenemos id para modificar.
 }
 $ProveedorUnico = $CProveedor->getProveedorCompleto($id);
+
+$existeResumenAnual = false;
 foreach ($ProveedorUnico['adjuntos'] as $key => $adjunto) {
 	if (isset($adjunto['error'])) {
 		$errores[] = array(
@@ -28,9 +31,26 @@ foreach ($ProveedorUnico['adjuntos'] as $key => $adjunto) {
 		);
 	} else {
 		$tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+		// Comprobamos si tiene facturas
+		if ($key == 'facturas' && count($adjunto['datos']) > 0) {
+			$existeResumenAnual = true;
+		}
 	}
 }
 
+
+if ($existeResumenAnual) {
+	$resumenAnual = $CProveedor->obtenerResumenAnualProveedor($id);
+	$resumenAnual = validarResumenAnual($resumenAnual, $anio);
+	if (isset($resumenAnual['error'])) {
+		$errores[] = array(
+			'tipo' => 'danger',
+			'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:' . $resumenAnual['consulta']
+		);
+	} else {
+		$tablaHtml[] = htmlTablaResumenAnual($resumenAnual);
+	}
+}
 // Solo permitimos guarfar si realmente no hay errores.
 // ya que consideramos que son graves y no podemos continuar. ( bueno a lo mejor.. :-)
 if (count($errores) === 0) {
@@ -203,6 +223,11 @@ if ($id == 0) {
 						$num = 3; // Numero collapse;
 						$titulo = 'Pedidos';
 						echo htmlPanelDesplegable($num, $titulo, $tablaHtml[2]);
+						?>
+						<?php
+						$num = 4; // Numero collapse;
+						$titulo = 'Resumen Anual ' . $anio;
+						echo htmlPanelDesplegable($num, $titulo, $tablaHtml[3]);
 						?>
 					</div>
 				</div>
