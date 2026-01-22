@@ -21,6 +21,13 @@ if (isset($_GET['id'])) {
     $idDispositivo = intval($_GET['id']);
     $dispositivo = $ClaseTemperatura->getDispositivo($idDispositivo);
     $temperaturasDispositivo = $ClaseTemperatura->getTemperaturasDispositivo($idDispositivo);
+    // Si temperaturasDispositivo tiene error
+    if (isset($temperaturasDispositivo['error'])) {
+        // redirigir a temperatura.php con mensaje de error
+        header("Location: ./temperatura.php?error=" . urlencode($temperaturasDispositivo['error']));
+        exit;
+    }
+    $temperaturasDispositivo = $temperaturasDispositivo['datos'];
 
     include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseValidacion.php';
     foreach ($temperaturasDispositivo as $registro) {
@@ -72,12 +79,17 @@ if (isset($_GET['id'])) {
             <a class="btn btn-default" href="./temperatura.php">Volver al Listado de Dispositivos</a>
         </div>
         <div>
+            <!-- Centrar titulo y boton -->
+            <div class="col-md-12 text-center">
+                <h3>Panel de Control Preventivo<span class="ds ds-title">: Análisis de Desviaciones</span></h3>
+            </div>
             <button id="toggleVista" class="btn btn-default btn-sm">
                 Ver temperatura directa
             </button>
             <div class="ds ds-resumen">
                 <strong>Media:</strong> <?php echo round($media, 2); ?> &nbsp;&nbsp;
                 <strong>Desviación Estándar:</strong> <?php echo round($desviacionEstandar, 2); ?>
+                <strong>Rango normal 95%:</strong> [<?php echo round($media - 2 * $desviacionEstandar, 2); ?> ºC - <?php echo round($media + 2 * $desviacionEstandar, 2); ?> ºC]
             </div>
             <br>
             <?php

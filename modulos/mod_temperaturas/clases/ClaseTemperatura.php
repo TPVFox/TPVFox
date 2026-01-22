@@ -80,11 +80,18 @@ class ClaseTemperatura extends Modelo
 
     public function getTemperaturasDispositivo($idDispositivo)
     {
+        $respuesta = array();
         $sql = "SELECT * FROM " . $this->tablaTemperaturas . " WHERE idDispositivo = " . intval($idDispositivo) . " ORDER BY fechaRegistro ASC";
         $consulta = $this->consulta($sql);
         if (isset($consulta['error'])) {
-            return $consulta;
+            $respuesta['error'] = $consulta['error'];
         }
-        return $consulta['datos'];
+        if (isset($consulta['datos'])) {
+            $respuesta['datos'] = $consulta['datos'];
+        } else {
+            $respuesta['error'] = 'No se encontraron registros para el dispositivo especificado.';
+            $respuesta['datos'] = array();
+        }
+        return $respuesta;
     }
 }

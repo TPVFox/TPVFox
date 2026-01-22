@@ -27,7 +27,7 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
             echo "</td>";
         endif;
         if (isset($ClasePermisos) && $ClasePermisos->getAccion("modificarDispositivo", $mod_vista)):
-            echo "<td><a class='btn btn-sm btn-default' href='./temperaturasListado.php?id=" . $id . "'>Ver</a><a class='btn btn-sm btn-default' href='./temperatura.php?edit=" . $id . "'>Editar</a>";
+            echo "<td><a class='btn btn-sm btn-primary' href='./temperaturasListado.php?id=" . $id . "'>Ver</a><a class='btn btn-sm btn-default' href='./temperatura.php?edit=" . $id . "'>Editar</a>";
             if (isset($ClasePermisos) && $ClasePermisos->getAccion("borrarDispositivo", $mod_vista)):
                 echo "<a class='btn btn-sm btn-danger' href='./temperatura.php?delete=" . $id . "' onclick='return confirm(\"¿Estás seguro de que deseas eliminar este dispositivo? Esta acción elimina todos los registros del mismo\");'>Eliminar</a>";
             endif;
