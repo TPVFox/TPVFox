@@ -10,6 +10,7 @@ $Controler->loadDbtpv($BDTpv);
 $Cliente = new ClaseCliente();
 $dedonde = "cliente";
 $id = 0;
+$ano = $_SESSION['tiendaTpv']['ano'];
 $errores = array();
 $tablaHtml = array(); // Al ser nuevo, al crear ClienteUnico ya obtenemos array vacio.
 $conf_defecto = $ClasesParametros->ArrayElementos('configuracion');
@@ -49,6 +50,8 @@ $ClienteUnico = $Cliente->getClienteCompleto($id);
 if (!isset($ClienteUnico['descuento_ticket'])) {
     $ClienteUnico['descuento_ticket'] = $configuracion['campos_defecto']->valor;
 }
+
+$existeResumenAnual = false;
 foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
     if (isset($adjunto['error'])) {
         $errores[] = array(
@@ -57,6 +60,25 @@ foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
         );
     } else {
         $tablaHtml[] = htmlTablaGeneral($adjunto['datos'], $HostNombre, $key);
+        // Si hay tickets o facturas el resumen anual existe
+        if ($key === 'tickets' || $key === 'facturas') {
+            if (count($adjunto['datos']) > 0) {
+                $existeResumenAnual = true;
+            }
+        }
+    }
+}
+
+if ($existeResumenAnual) {
+    $resumenAnual = $Cliente->getResumenAnual($id);
+    $resumenAnual = validarResumenAnual($resumenAnual, $ano);
+    if (isset($resumenAnual['error'])) {
+        $errores[] = array(
+            'tipo' => 'danger',
+            'mensaje' => 'ERROR EN LA BASE DE !<br/>Consulta:' . $resumenAnual['consulta']
+        );
+    } else {
+        $tablaHtml[] = htmlTablaResumenAnual($resumenAnual);
     }
 }
 
@@ -315,6 +337,11 @@ foreach ($estados_cliente as $i => $estado_cliente) {
                             $num = 5; // Numero collapse;
                             $titulo = 'Descuentos Tickets';
                             echo htmlPanelDesplegable($num, $titulo, $tablaHtml[4]);
+                            ?>
+                            <?php
+                            $num = 6; // Numero collapse;
+                            $titulo = 'Resumen Anual';
+                            echo htmlPanelDesplegable($num, $titulo, $tablaHtml[5]);
                             ?>
                         </div>
                         <!-- Aquí irá el código de los grupos-->

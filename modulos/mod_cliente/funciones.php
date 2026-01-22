@@ -312,3 +312,209 @@ function getHmtlTrProductos($productos, $tipo)
 	$respuesta['totalLineas'] = $totalLineas;
 	return $respuesta;
 }
+
+function validarResumenAnual($resumenAnual, $ejercicio)
+{
+	// @ Objetivo:
+	// Validar que los dos array tienen datos y crear un tercer array con el total anual.
+	$respuesta = array();
+	$resumen_tickets = array(
+		'q1Iva' => 0,
+		'q1' => 0,
+		'q2Iva' => 0,
+		'q2' => 0,
+		'q3Iva' => 0,
+		'q3' => 0,
+		'q4Iva' => 0,
+		'q4' => 0,
+		'totalIva' => 0,
+		'total' => 0
+	);
+	$resumen_facturas = array(
+		'q1Iva' => 0,
+		'q1' => 0,
+		'q2Iva' => 0,
+		'q2' => 0,
+		'q3Iva' => 0,
+		'q3' => 0,
+		'q4Iva' => 0,
+		'q4' => 0,
+		'totalIva' => 0,
+		'total' => 0
+	);
+	$resumen_total = array(
+		'q1Iva' => 0,
+		'q1' => 0,
+		'q2Iva' => 0,
+		'q2' => 0,
+		'q3Iva' => 0,
+		'q3' => 0,
+		'q4Iva' => 0,
+		'q4' => 0,
+		'totalIva' => 0,
+		'total' => 0
+	);
+	if (isset($resumenAnual['resumen_tickets'])) {
+		// Validamos cuantos años fiscales hay.
+		foreach ($resumenAnual['resumen_tickets'] as $ano => $datos) {
+			if ($datos['ejercicio'] == $ejercicio) {
+				$resumen_tickets = $datos;
+				// Sumamos al total
+				$resumen_total['q1Iva'] += $datos['q1Iva'];
+				$resumen_total['q1'] += $datos['q1'];
+				$resumen_total['q2Iva'] += $datos['q2Iva'];
+				$resumen_total['q2'] += $datos['q2'];
+				$resumen_total['q3Iva'] += $datos['q3Iva'];
+				$resumen_total['q3'] += $datos['q3'];
+				$resumen_total['q4Iva'] += $datos['q4Iva'];
+				$resumen_total['q4'] += $datos['q4'];
+				$resumen_total['totalIva'] += $datos['totalIva'];
+				$resumen_total['total'] += $datos['total'];
+				$resumen_tickets = $datos;
+			}
+		}
+	}
+	if (isset($resumenAnual['resumen_facturas'])) {
+		// Validamos cuantos años fiscales hay.
+		foreach ($resumenAnual['resumen_facturas'] as $ano => $datos) {
+			if ($datos['ejercicio'] == $ejercicio) {
+				$resumen_facturas = $datos;
+				// Sumamos al total
+				$resumen_total['q1Iva'] += $datos['q1Iva'];
+				$resumen_total['q1'] += $datos['q1'];
+				$resumen_total['q2Iva'] += $datos['q2Iva'];
+				$resumen_total['q2'] += $datos['q2'];
+				$resumen_total['q3Iva'] += $datos['q3Iva'];
+				$resumen_total['q3'] += $datos['q3'];
+				$resumen_total['q4Iva'] += $datos['q4Iva'];
+				$resumen_total['q4'] += $datos['q4'];
+				$resumen_total['totalIva'] += $datos['totalIva'];
+				$resumen_total['total'] += $datos['total'];
+				$resumen_facturas = $datos;
+			}
+		}
+	}
+	$respuesta['tickets'] = $resumen_tickets;
+	$respuesta['facturas'] = $resumen_facturas;
+	$respuesta['total'] = $resumen_total;
+	return $respuesta;
+}
+
+function htmlTablaResumenAnual($resumenAnual)
+{
+	// @ Objetivo:
+	// Crear el html de la tabla del resumen anual.
+
+
+	// Tickets si total es 0 no mostramos
+	$html = '<h3>Resumen Anual</h3>';
+	if ($resumenAnual['tickets']['total'] > 0) {
+		$html .= '<h4>Tickets</h4>'
+			. '<table class="table table-striped"><thead>'
+			. '<tr>'
+			. '<th>Concepto</th>'
+			. '<th>1er Trimestre</th>'
+			. '<th>2º Trimestre</th>'
+			. '<th>3er Trimestre</th>'
+			. '<th>4º Trimestre</th>'
+			. '<th>Total Anual</th>'
+			. '</tr>'
+			. '</thead><tbody>'
+			. '<tr>'
+			. '<td>Base imponible</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q1'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q2'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q3'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q4'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['total'], 2) . '</td>'
+			. '</tr>'
+			. '<tr>'
+			. '<td>IVA</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q1Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q2Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q3Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q4Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['totalIva'], 2) . '</td>'
+			. '</tr>'
+			. '<td>Total</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q1'] + $resumenAnual['tickets']['q1Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q2'] + $resumenAnual['tickets']['q2Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q3'] + $resumenAnual['tickets']['q3Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['q4'] + $resumenAnual['tickets']['q4Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['tickets']['total'] + $resumenAnual['tickets']['totalIva'], 2) . '</td>'
+			. '</tbody></table>';
+	}
+	// Facturas si total es 0 no mostramos
+	if ($resumenAnual['facturas']['total'] > 0) {
+		$html .= '<h4>Facturas</h4>'
+			. '<table class="table table-striped"><thead>'
+			. '<tr>'
+			. '<th>Concepto</th>'
+			. '<th>1er Trimestre</th>'
+			. '<th>2º Trimestre</th>'
+			. '<th>3er Trimestre</th>'
+			. '<th>4º Trimestre</th>'
+			. '<th>Total Anual</th>'
+			. '</tr>'
+			. '</thead><tbody>'
+			. '<tr>'
+			. '<td>Base imponible</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q1'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q2'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q3'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q4'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['total'], 2) . '</td>'
+			. '</tr>'
+			. '<tr>'
+			. '<td>IVA</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q1Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q2Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q3Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q4Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['totalIva'], 2) . '</td>'
+			. '</tr>'
+			. '<td>Total</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q1'] + $resumenAnual['facturas']['q1Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q2'] + $resumenAnual['facturas']['q2Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q3'] + $resumenAnual['facturas']['q3Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['q4'] + $resumenAnual['facturas']['q4Iva'], 2) . '</td>'
+			. '<td>' . number_format($resumenAnual['facturas']['total'] + $resumenAnual['facturas']['totalIva'], 2) . '</td>'
+			. '</tbody></table>';
+	}
+	// Total anual
+	$html .= '<h4>Total Anual</h4>'
+		. '<table class="table table-striped"><thead>'
+		. '<tr>'
+		. '<th>Concepto</th>'
+		. '<th>1er Trimestre</th>'
+		. '<th>2º Trimestre</th>'
+		. '<th>3er Trimestre</th>'
+		. '<th>4º Trimestre</th>'
+		. '<th>Total Anual</th>'
+		. '</tr>'
+		. '</thead><tbody>'
+		. '<tr>'
+		. '<td>Base imponible</td>'
+		. '<td>' . number_format($resumenAnual['total']['q1'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q2'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q3'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q4'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['total'], 2) . '</td>'
+		. '</tr>'
+		. '<tr>'
+		. '<td>IVA</td>'
+		. '<td>' . number_format($resumenAnual['total']['q1Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q2Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q3Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q4Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['totalIva'], 2) . '</td>'
+		. '</tr>'
+		. '<td>Total</td>'
+		. '<td>' . number_format($resumenAnual['total']['q1'] + $resumenAnual['total']['q1Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q2'] + $resumenAnual['total']['q2Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q3'] + $resumenAnual['total']['q3Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['q4'] + $resumenAnual['total']['q4Iva'], 2) . '</td>'
+		. '<td>' . number_format($resumenAnual['total']['total'] + $resumenAnual['total']['totalIva'], 2) . '</td>'
+		. '</tbody></table>';
+	return $html;
+}
