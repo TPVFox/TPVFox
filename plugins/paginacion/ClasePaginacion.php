@@ -312,7 +312,7 @@ class PluginClasePaginacion
 		return $htmlBuscar;
 	}
 
-	public function htmlFiltrar($camposFiltro, $label = 'Filtrar por')
+	public function htmlFiltrar($camposFiltro, $label = 'Filtrar por', $tipo = 'Normal')
 	{
 		// Objetivo
 		// Devolver html para mostrar formulario filtrar.
@@ -321,12 +321,12 @@ class PluginClasePaginacion
 				<label>' . htmlspecialchars($label) . '</label>
 				<select name="filtro" onchange="this.form.submit()">
 					<option value="">-- Todos --</option>';
-		foreach ($camposFiltro as $valor) {
+		foreach ($camposFiltro as $key => $valor) {
 			$selected = '';
-			if ($this->valorFiltro == $valor) {
+			if ($this->valorFiltro == ($tipo == 'Boolean' ? $key : $valor)) {
 				$selected = ' selected';
 			}
-			$htmlFiltrar .= '<option value="' . htmlspecialchars($valor) . '"' . $selected . '>' . htmlspecialchars($valor) . '</option>';
+			$htmlFiltrar .= '<option value="' . ($tipo == 'Boolean' ? $key : $valor) . '"' . $selected . '>' . htmlspecialchars($valor) . '</option>';
 		}
 		$htmlFiltrar .= '</select>
 			</form>';

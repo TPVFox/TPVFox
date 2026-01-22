@@ -8,11 +8,19 @@ $Cliente = new ClaseCliente();
 // --- Inicializamos objeto de Paginado --- //
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('razonsocial', 'Nombre', 'nif', 'movil');
+$campoFiltro = 'requiere_factura';
 $NPaginado->SetCamposControler($campos);
+$NPaginado->SetCampoFiltro($campoFiltro);
 $filtro = $NPaginado->GetFiltroWhere('OR');
 // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
 $NPaginado->SetCantidadRegistros($Cliente->contarRegistros($filtro));
-$htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
+$estadosRequierefactura = array(
+	'0' => 'No requiere factura',
+	'1' => 'Requiere factura'
+);
+$htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginadoç
+$htmlBuscar = $NPaginado->htmlBuscar();
+$htmlFiltrar = $NPaginado->htmlFiltrar($estadosRequierefactura, 'Filtrar por requiere factura: ', 'Boolean');
 // Obtenemos clientes con filtro busqueda y la pagina que estamos.
 $clientes = $Cliente->obtenerClientes($filtro . $NPaginado->GetLimitConsulta());
 // Fechas para montar contenido MODAL de descuentos tickets.
@@ -107,13 +115,14 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 				echo $htmlPG;
 				//enviamos por get palabras a buscar, las recogemos al inicio de la pagina
 				?>
-				<form action="./ListaClientes.php" method="GET" name="formBuscar">
-					<div class="form-group ClaseBuscar">
-						<label>Buscar en nombre, razon social, nif o movil: </label>
-						<input type="text" name="buscar" value="">
-						<input type="submit" value="buscar">
+				<div class="row">
+					<div class="col-md-6">
+						<?php echo $htmlBuscar; ?>
 					</div>
-				</form>
+					<div class="col-md-6 text-right">
+						<?php echo $htmlFiltrar; ?>
+					</div>
+				</div>
 				<!-- TABLA DE PRODUCTOS -->
 				<div>
 					<table class="table table-bordered table-hover">
