@@ -288,7 +288,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th class="modo-factura" style="display:none;">SEL</th>
+                            <th class="modo-factura" style="display:none;"><a title="Seleccionar todos los albaranes" id="selectAllAlbaranes" class="glyphicon glyphicon-check"></a></th>
                             <th>FECHA</th>
                             <th>ALBARÁN</th>
                             <th>Su NºAlbaran</th>
@@ -370,6 +370,13 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
         const elementos = document.querySelectorAll('.modo-factura');
         elementos.forEach(el => {
             el.style.display = el.style.display === 'none' ? '' : 'none';
+        });
+    });
+    document.getElementById('selectAllAlbaranes').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('input[name="albaranes[]"]');
+        const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
         });
     });
 </script>
