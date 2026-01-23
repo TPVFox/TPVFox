@@ -77,6 +77,8 @@ if (isset($_GET['hacerResumen'])) {
         $errores[] = $Cliente->montarAdvertencia('danger', 'Error en sql:' . $arrayNums['consulta']);
     }
 }
+
+$mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_venta');
 ?>
 <!DOCTYPE html>
 <html>
@@ -216,33 +218,58 @@ if (isset($_GET['hacerResumen'])) {
                 </div>
                 <div class="col-md-6 ">
                     <h4 class="text-center"><u>Albaranes</u></h4>
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>FECHA</th>
-                                <th>ALBARAN</th>
-                                <th>ESTADO</th>
-                                <th>LINK</th>
-                                <th>BASE</th>
-                                <th>IVA</th>
-                                <th>TOTAL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)): ?>
+                        <button id="btnModoFactura" class="btn btn-primary">
+                            Crear factura desde albaranes
+                        </button>
+                        <form method="POST" action="../../mod_venta/factura.php" id="facturaDesdeAlbaranesForm">
                             <?php
-                            $totalLinea = 0;
-                            $totalbases = 0;
-                            if (isset($arrayNums)) {
-                                foreach ($arrayNums['resumenBases'] as $bases) {
-                                    $totalLinea = $bases['sumabase'] + $bases['sumarIva'];
-                                    $totalbases = $totalbases + $totalLinea;
-                                    $numTicket = $bases['idTienda'] . '-' . $bases['idUsuario'] . '-' . $bases['Numalbcli'];
-                                    $esEdit = 'ver';
-                                    if ($bases['estado'] !== 'Facturado') {
-                                        $esEdit = 'editar';
-                                    }
-                                    echo '<tr>
-                                        <td>' . $bases['fecha'] . '</td>
+                            echo '<input type="hidden" name="action" value="crearDesdeAlbaranes">';
+                            echo '<input type="hidden" name="idCliente" value="' . $id . '">';
+                            ?>
+                        <?php endif; ?>
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="modo-factura" style="display:none;"><a title="Seleccionar todos los albaranes" id="selectAllAlbaranes" class="glyphicon glyphicon-check"></a></th>
+                                    <th>FECHA</th>
+                                    <th>ALBARAN</th>
+                                    <th>ESTADO</th>
+                                    <th>LINK</th>
+                                    <th>BASE</th>
+                                    <th>IVA</th>
+                                    <th>TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $totalLinea = 0;
+                                $totalbases = 0;
+                                if (isset($arrayNums)) {
+                                    foreach ($arrayNums['resumenBases'] as $bases) {
+                                        $totalLinea = $bases['sumabase'] + $bases['sumarIva'];
+                                        $totalbases = $totalbases + $totalLinea;
+                                        $numTicket = $bases['idTienda'] . '-' . $bases['idUsuario'] . '-' . $bases['Numalbcli'];
+                                        $checkbox = '';
+                                        $esEdit = 'ver';
+                                        if ($bases['estado'] !== 'Facturado') {
+                                            $esEdit = 'editar';
+                                        }
+                                        if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
+                                            if ($bases['estado'] != 'Facturado') {
+                                                $checkbox = '<input type="checkbox" name="albaranes[]" value="' . $bases['idalbcli'] . '">';
+                                            } else {
+                                                $checkbox = '<span class="text-muted glyphicon glyphicon-lock"></span>';
+                                            }
+                                        }
+                                        echo '<tr>';
+
+                                        if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
+                                            echo '<td class="modo-factura" style="display:none;">
+                                                ' . $checkbox . '
+                                            </td>';
+                                        }
+                                        echo '<td>' . $bases['fecha'] . '</td>
                                         <td>' . $numTicket . '</td>
                                         <td>' . $bases['estado'] . '</td>
                                         <td><a  class="glyphicon glyphicon-pencil" target="_blank" href="' . $HostNombre . '/modulos/mod_venta/albaran.php?id=' . $bases['idalbcli'] . '&estado=' . $esEdit . '"></a></td>
@@ -250,12 +277,20 @@ if (isset($_GET['hacerResumen'])) {
                                         <td>' . $bases['sumarIva'] . '</td>
                                         <td>' . $totalLinea . '</td>
                                         </tr>';
+                                    }
                                 }
-                            }
-                            ?>
+                                ?>
 
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)): ?>
+                            <button type="submit" class="btn btn-success modo-factura" style="display:none;">
+                                Generar factura
+                            </button>
+
+                        </form>
+                    <?php endif; ?>
                     <div class="col-md-12">
                         <div class="col-md-5">
                         </div>
@@ -277,6 +312,22 @@ if (isset($_GET['hacerResumen'])) {
     echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
     include $URLCom . '/plugins/modal/ventanaModal.php';
     ?>
+
+    <script>
+        document.getElementById('btnModoFactura').addEventListener('click', function() {
+            const elementos = document.querySelectorAll('.modo-factura');
+            elementos.forEach(el => {
+                el.style.display = el.style.display === 'none' ? '' : 'none';
+            });
+        });
+        document.getElementById('selectAllAlbaranes').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="albaranes[]"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+        });
+    </script>
 </body>
 
 </html>
