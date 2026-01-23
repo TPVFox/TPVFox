@@ -33,7 +33,7 @@ class PedidosCompras extends ClaseCompras
         $UnicoCampoProductos     = json_encode($productos);
         $PrepProductos = $this->db->real_escape_string($UnicoCampoProductos);
         $sql = 'UPDATE pedprotemporales SET idUsuario=' . $idUsuario . ' , idTienda=' . $idTienda
-            . ' , estadoPedPro="' . $estadoPedido . '" , fechaInicio="' . $fecha . '"  ,Productos="'
+            . ' , estadoPedPro="' . $estadoPedido . '" , Fecha="' . $fecha . '"  ,Productos="'
             . $PrepProductos . '"  WHERE id=' . $numPedidoTemp;
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {

@@ -187,7 +187,7 @@ class FacturasCompras extends ClaseCompras
         $UnicoCampoAlbaranes = json_encode($albaranes);
         $PreAlbaran = $db->real_escape_string($UnicoCampoAlbaranes);
         $sql = 'UPDATE facproltemporales SET idUsuario =' . $idUsuario . ' ,
-		idTienda=' . $idTienda . ' , estadoFacPro="' . $estado . '" , fechaInicio="' . $fecha . '"
+		idTienda=' . $idTienda . ' , estadoFacPro="' . $estado . '" , Fecha="' . $fecha . '"
 		,Productos="' . $PrepProductos . '", Albaranes="' . $PreAlbaran . '"
 		, Su_num_factura="' . $suNumero . '" WHERE id=' . $idFacturaTemp;
         $smt = $this->consulta($sql);
