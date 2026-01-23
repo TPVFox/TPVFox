@@ -16,7 +16,7 @@ function AgregarFilaAdjunto(datos, dedonde) {
     type: "post",
     beforeSend: function () {
       console.log(
-        "******** estoy en escribir html fila pedidos JS****************"
+        "******** estoy en escribir html fila pedidos JS****************",
       );
     },
     success: function (response) {
@@ -47,7 +47,7 @@ function AgregarFilaProductosAl(productosAl, dedonde = "") {
     type: "post",
     beforeSend: function () {
       console.log(
-        "******** estoy en escribir html fila productos JS****************"
+        "******** estoy en escribir html fila productos JS****************",
       );
     },
     success: function (response) {
@@ -72,7 +72,7 @@ function abrirIncidenciasAdjuntas(id, modulo, dedonde) {
     type: "post",
     beforeSend: function () {
       console.log(
-        "*********  Entre en cancelar archivos temporales  ****************"
+        "*********  Entre en cancelar archivos temporales  ****************",
       );
     },
     success: function (response) {
@@ -150,89 +150,97 @@ function buscarAdjunto(dedonde, valor = "") {
   //  valor => Un numero de adjunto a buscar.
   console.log("FUNCION buscar adjunto JS-AJAX");
   // Controlamos
-
-  var parametros = {
-    pulsado: "buscarAdjunto",
-    busqueda: valor,
-    idCliente: cabecera.idCliente,
-    dedonde: dedonde,
-  };
-  $.ajax({
-    data: parametros,
-    url: "tareas.php",
-    type: "post",
-    beforeSend: function () {
-      console.log("******** estoy en buscar Adjunto JS****************");
-    },
-    success: function (response) {
-      console.log("Llegue devuelta respuesta de buscar adjunto");
-      var resultado = $.parseJSON(response);
-      console.log(resultado);
-      var encontrados = resultado.encontrados;
-      var titulo = "Listado";
-      if (resultado.error) {
-        alert("Error:" + resultado.error + "/n de sql: " + resultado.consulta);
-      } else {
-        var tipo_documento_adjunto = ""; // indicamos si es pedido o albaran el adjunto.
-
-        if (dedonde == "factura") {
-          titulo = titulo + " Albaranes";
-          tipo_documento_adjunto = "albaran";
-        }
-
-        if (dedonde == "albaran") {
-          titulo = titulo + " Pedidos";
-          tipo_documento_adjunto = "pedido";
-        }
-
-        if (resultado.Nitems == 1 && resultado.html == undefined) {
-          // Comprobamos que el adjunto que trajo no este ya metido.
-          var repetido = "NO";
-          for (i = 0; i < adjuntos.length; i++) {
-            var numeroAdjunto = adjuntos[i].NumAdjunto;
-            var numeroNuevo = resultado["cabecera_adjunto"].NumAdjunto;
-            if (numeroAdjunto == numeroNuevo) {
-              repetido = "SI";
-              break;
-            }
-          }
-
-          if (repetido == "NO") {
-            // -- Añadimos fila adjunto y cambiamos estado.  --//
-            resultado["cabecera_adjunto"].nfila = parseInt(adjuntos.length) + 1;
-            adjuntos.push(resultado["cabecera_adjunto"]);
-            modificarEstado(
-              tipo_documento_adjunto,
-              "Procesado",
-              resultado["cabecera_adjunto"].NumAdjunto
-            );
-            AgregarFilaAdjunto(resultado["cabecera_adjunto"], dedonde);
-            // -- Añadimos productos y lineas de productos de ese adjunto. --//
-            productosAdd = resultado.productos;
-            var numFila = productos.length + 1;
-            for (i = 0; i < productosAdd.length; i++) {
-              //en el array de arrays de productos metemos los productos de ese pedido
-              resultado.productos[i]["nfila"] = numFila;
-              resultado.productos[i]["importe"] =
-                resultado.productos[i]["nunidades"] *
-                resultado.productos[i]["pvpSiva"];
-              productos.push(resultado.productos[i]);
-              numFila++;
-            }
-            AgregarFilaProductosAl(resultado.productos, dedonde);
-            addTemporal(dedonde);
-            cerrarPopUp();
-          } else {
-            alert(
-              "HUBO UN ERROR!! ,Este adjunto ya sido introducido en este " +
-                dedonde
-            );
-          }
+  return new Promise((resolve, reject) => {
+    var parametros = {
+      pulsado: "buscarAdjunto",
+      busqueda: valor,
+      idCliente: cabecera.idCliente,
+      dedonde: dedonde,
+    };
+    $.ajax({
+      data: parametros,
+      url: "tareas.php",
+      type: "post",
+      beforeSend: function () {
+        console.log("******** estoy en buscar Adjunto JS****************");
+      },
+      success: function (response) {
+        console.log("Llegue devuelta respuesta de buscar adjunto");
+        var resultado = $.parseJSON(response);
+        console.log(resultado);
+        var encontrados = resultado.encontrados;
+        var titulo = "Listado";
+        if (resultado.error) {
+          alert(
+            "Error:" + resultado.error + "/n de sql: " + resultado.consulta,
+          );
         } else {
-          abrirModal(titulo, resultado.html);
+          var tipo_documento_adjunto = ""; // indicamos si es pedido o albaran el adjunto.
+
+          if (dedonde == "factura") {
+            titulo = titulo + " Albaranes";
+            tipo_documento_adjunto = "albaran";
+          }
+
+          if (dedonde == "albaran") {
+            titulo = titulo + " Pedidos";
+            tipo_documento_adjunto = "pedido";
+          }
+
+          if (resultado.Nitems == 1 && resultado.html == undefined) {
+            // Comprobamos que el adjunto que trajo no este ya metido.
+            var repetido = "NO";
+            for (i = 0; i < adjuntos.length; i++) {
+              var numeroAdjunto = adjuntos[i].NumAdjunto;
+              var numeroNuevo = resultado["cabecera_adjunto"].NumAdjunto;
+              if (numeroAdjunto == numeroNuevo) {
+                repetido = "SI";
+                break;
+              }
+            }
+
+            if (repetido == "NO") {
+              // -- Añadimos fila adjunto y cambiamos estado.  --//
+              resultado["cabecera_adjunto"].nfila =
+                parseInt(adjuntos.length) + 1;
+              adjuntos.push(resultado["cabecera_adjunto"]);
+              modificarEstado(
+                tipo_documento_adjunto,
+                "Procesado",
+                resultado["cabecera_adjunto"].NumAdjunto,
+              );
+              AgregarFilaAdjunto(resultado["cabecera_adjunto"], dedonde);
+              // -- Añadimos productos y lineas de productos de ese adjunto. --//
+              productosAdd = resultado.productos;
+              var numFila = productos.length + 1;
+              for (i = 0; i < productosAdd.length; i++) {
+                //en el array de arrays de productos metemos los productos de ese pedido
+                resultado.productos[i]["nfila"] = numFila;
+                resultado.productos[i]["importe"] =
+                  resultado.productos[i]["nunidades"] *
+                  resultado.productos[i]["pvpSiva"];
+                productos.push(resultado.productos[i]);
+                numFila++;
+              }
+              AgregarFilaProductosAl(resultado.productos, dedonde);
+              addTemporal(dedonde);
+              cerrarPopUp();
+            } else {
+              alert(
+                "HUBO UN ERROR!! ,Este adjunto ya sido introducido en este " +
+                  dedonde,
+              );
+            }
+          } else {
+            abrirModal(titulo, resultado.html);
+          }
         }
-      }
-    },
+        resolve(resultado);
+      },
+      error: function (err) {
+        reject(err);
+      },
+    });
   });
 }
 
@@ -318,7 +326,7 @@ function buscarProductos(id_input, campo, idcaja, busqueda, dedonde) {
       type: "post",
       beforeSend: function () {
         console.log(
-          "*********  Envio datos para Buscar Producto  ****************"
+          "*********  Envio datos para Buscar Producto  ****************",
         );
       },
       success: function (response) {
@@ -365,7 +373,7 @@ function buscarProductos(id_input, campo, idcaja, busqueda, dedonde) {
           ponerFocus(idcaja);
         } else {
           console.log(
-            "=== Entro en Estado Listado de funcion buscarProducto ====="
+            "=== Entro en Estado Listado de funcion buscarProducto =====",
           );
 
           var busqueda = resultado.listado;
@@ -440,7 +448,7 @@ function cambioEstadoFila(producto, dedonde = "") {
         "'" +
         dedonde +
         "'" +
-        ');"><span class="glyphicon glyphicon-export"></span></a>'
+        ');"><span class="glyphicon glyphicon-export"></span></a>',
     );
     $("#N" + producto.nfila + "_Unidad").prop("disabled", true);
   } else {
@@ -452,7 +460,7 @@ function cambioEstadoFila(producto, dedonde = "") {
         "'" +
         dedonde +
         "'" +
-        ');"><span class="glyphicon glyphicon-trash"></span></a>'
+        ');"><span class="glyphicon glyphicon-trash"></span></a>',
     );
     $("#Unidad_Fila_" + producto.nfila).prop("disabled", false);
     $("#N" + producto.nfila + "_Unidad").prop("disabled", false);
@@ -468,7 +476,7 @@ function campoPredeterminado(campo) {
 
 function cancelarTemporal(idTemporal, dedonde) {
   var mensaje = confirm(
-    "Estas  seguro que quieres eliminar el temporal " + idTemporal + "?"
+    "Estas  seguro que quieres eliminar el temporal " + idTemporal + "?",
   );
   if (mensaje) {
     if (idTemporal == "0") {
@@ -485,7 +493,7 @@ function cancelarTemporal(idTemporal, dedonde) {
         type: "post",
         beforeSend: function () {
           console.log(
-            "*********  Entre en cancelar archivos temporales  ****************"
+            "*********  Entre en cancelar archivos temporales  ****************",
           );
         },
         success: function (response) {
@@ -529,7 +537,7 @@ function comprobarAdjuntosExis(dedonde) {
     type: "post",
     beforeSend: function () {
       console.log(
-        "******** estoy en comprobar pedidos existentes JS****************"
+        "******** estoy en comprobar pedidos existentes JS****************",
       );
     },
     success: function (response) {
@@ -564,7 +572,7 @@ function eliminarAdjunto(numRegistro, dedonde, nfila) {
       dedonde +
       "'," +
       nfila +
-      ');"><span class="glyphicon glyphicon-export"></span></a>'
+      ');"><span class="glyphicon glyphicon-export"></span></a>',
   );
   // Ahora cambiamos estado poniendo 'Eliminando' de todos los productos de ese adjunto.
   cambiarEstadoProductosAdjunto(dedonde, "Eliminado", numRegistro);
@@ -596,7 +604,7 @@ function eliminarFila(num_item, dedonde = "") {
       "'" +
       dedonde +
       "'" +
-      ');"><span class="glyphicon glyphicon-export"></span></a>'
+      ');"><span class="glyphicon glyphicon-export"></span></a>',
   );
   $("#N" + productos[num].nfila + "_Unidad").prop("disabled", true);
   addTemporal(dedonde);
@@ -636,7 +644,7 @@ function metodoClick(pulsado, dedonde) {
       var checkID = leerChecked("Check");
       if (checkID.length > 1 || checkID.length === 0) {
         alert(
-          "Que ver items tienes seleccionados? \n Solo puedes tener uno seleccionado"
+          "Que ver items tienes seleccionados? \n Solo puedes tener uno seleccionado",
         );
         return;
       } else {
@@ -692,7 +700,7 @@ function modificarEstado(dedonde, estado, idModificar) {
     type: "post",
     beforeSend: function () {
       console.log(
-        "******** estoy en Modificar estado documento js****************"
+        "******** estoy en Modificar estado documento js****************",
       );
     },
     success: function (response) {
@@ -772,7 +780,7 @@ function retornarAdjunto(numRegistro, dedonde, nfila) {
       dedonde +
       "', " +
       nfila +
-      ');"><span class="glyphicon glyphicon-trash"></span></a>'
+      ');"><span class="glyphicon glyphicon-trash"></span></a>',
   );
   // Ahora cambiamos el estado de todos los productos del adjunto
   cambiarEstadoProductosAdjunto(dedonde, "Activo", numRegistro);
@@ -801,7 +809,7 @@ function retornarFila(num_item, valor = "") {
       "'" +
       valor +
       "'" +
-      ');"><span class="glyphicon glyphicon-trash"></span></a>'
+      ');"><span class="glyphicon glyphicon-trash"></span></a>',
   );
   if (productos[num].nunidades == 0) {
     productos[num].nunidades = 1;
@@ -810,4 +818,12 @@ function retornarFila(num_item, valor = "") {
   $("#N" + productos[num].nfila + "_Unidad").prop("disabled", false);
   $("#N" + productos[num].nfila + "_Unidad").val(productos[num].nunidades);
   addTemporal(valor);
+}
+
+async function agregarAlbaranesSecuencial(albaranes) {
+  for (let i = 0; i < albaranes.length; i++) {
+    await buscarAdjunto("factura", albaranes[i]);
+    // Opcional: esperar 0.5s entre cada uno
+    await new Promise((res) => setTimeout(res, 500));
+  }
 }

@@ -59,6 +59,17 @@ foreach ($configuracion['incidencias'] as $config) {
         array_push($configuracionArchivo, $config);
     }
 }
+// Controlamos el post de crearDesdeAlbaranes
+if (isset($_POST['action']) && $_POST['action'] == 'crearDesdeAlbaranes') {
+    $idCliente = (int)$_POST['idCliente'];
+    $albaranesPost = $_POST['albaranes'];
+    $crearDesdeAlbaranes = true;
+    $htmlScript = '<script>
+        window.crearDesdeAlbaranes = true;
+        window.clienteInicial = ' . $idCliente . ';
+        window.albaranesIniciales = ' . json_encode($albaranesPost) . ';
+    </script>';
+}
 
 // Comprobamos:
 // $_GET['tActual] -> No comprobamos nada, solo asignamos valor idTemporal
@@ -407,6 +418,9 @@ if ($datosCliente['idClientes'] > 0) {
             return (tecla != 13);
         }
     </script>
+    <?php if (isset($htmlScript)) {
+        echo $htmlScript;
+    } ?>
 
 </head>
 
@@ -435,7 +449,7 @@ if ($datosCliente['idClientes'] > 0) {
         echo '<h2 class="text-center">' . $titulo . $html_numero . '-' . $html_accion . '</h2>'; ?>
 
         <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
-                        <?php
+            <?php
             echo '<h3 class="text-center">' . $titulo . '</h3>';
             //Botones avanzar y retroceder generales
             if ($idFactura > 0 && $accion != "editar") {
@@ -656,6 +670,27 @@ if ($datosCliente['idClientes'] > 0) {
     include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
     ?>
 
+    <?php
+    if (isset($crearDesdeAlbaranes) && $crearDesdeAlbaranes === true) {
+    ?>
+        <script>
+            $(document).ready(function() {
+
+                if (window.crearDesdeAlbaranes === true &&
+                    Array.isArray(window.albaranesIniciales) &&
+                    window.clienteInicial > 0
+                ) {
+                    // 1. Validar proveedor
+                    buscarClientes('factura', 'id_cliente', window.clienteInicial);;
+
+                    // 2. Cargar cada albarán como si el usuario hiciera Enter
+                    agregarAlbaranesSecuencial(window.albaranesIniciales);
+                }
+
+            });
+        </script>
+    <?php
+    } ?>
 </body>
 
 </html>
