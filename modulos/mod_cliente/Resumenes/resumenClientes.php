@@ -53,11 +53,16 @@ uasort($resumenAnualValidado, function ($a, $b) {
         <?php
         foreach ($resumenAnualValidado as $idCliente => $resumen) {
             $cliente = $Cliente->getCliente($idCliente)['datos'][0];
+            if ($cliente['requiere_factura'] == 0) {
+                continue;
+            }
             $bgclass = '';
             if ($resumen['total']['total'] >= 3000) {
                 $bgclass = 'bg-info';
             } elseif ($resumen['total']['total'] + $resumen['total']['totalIva'] >= 3000) {
                 $bgclass = 'bg-warning';
+            } elseif ($resumen['total']['total'] + $resumen['total']['totalIva'] < 2500) {
+                continue;
             }
             echo mostrarResumenCliente($cliente, $resumen, $bgclass);
         }
