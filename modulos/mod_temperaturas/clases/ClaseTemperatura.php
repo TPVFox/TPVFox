@@ -120,4 +120,18 @@ class ClaseTemperatura extends Modelo
         }
         return $respuesta;
     }
+    public function updateDispositivoEstadisticas($datosDispositivo)
+    {
+        $respuesta = array();
+        $sql = "UPDATE " . $this->tablaDispositivos . " SET
+            media = " . floatval($datosDispositivo['media']) . ",
+            sd = " . floatval($datosDispositivo['sd']) . ",
+            temp_min = " . floatval($datosDispositivo['temp_min']) . "
+            WHERE idDispositivo = " . intval($datosDispositivo['idDispositivo']);
+        $consulta = $this->consultaDML($sql);
+        if (isset($consulta['error'])) {
+            $respuesta['error'] = $consulta['error'];
+        }
+        return $respuesta;
+    }
 }

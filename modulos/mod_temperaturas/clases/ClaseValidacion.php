@@ -20,7 +20,6 @@ class ClaseValidacion
     {
         $this->datos = $datos;
         $this->calcularEstadisticas();
-        $this->validarReglas();
     }
 
     private function calcularEstadisticas()
@@ -170,6 +169,7 @@ class ClaseValidacion
     // getter de los resultados de la validación
     public function getResultados()
     {
+        $this->validarReglas();
         return $this->datos;
     }
 
@@ -181,5 +181,16 @@ class ClaseValidacion
     public function getDesviacionEstandar()
     {
         return $this->desviacionEstandar;
+    }
+
+    // setter
+    public function setMedia($media)
+    {
+        $this->media = $media;
+    }
+
+    public function setDesviacionEstandar($desviacionEstandar)
+    {
+        $this->desviacionEstandar = $desviacionEstandar;
     }
 }

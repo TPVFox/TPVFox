@@ -16,7 +16,18 @@ $CUsuarios = new ClaseUsuarios();
 $Controler->loadDbtpv($BDTpv);
 
 $ClaseTemperatura = new ClaseTemperatura($BDTpv);
-// Se llega mediante get id del dispositivo
+if (isset($_GET['modo'])) {
+    switch ($_GET['modo']) {
+        case 'media':
+            // Mostrar la vista de medias y desviaciones estandar
+            $vistaModo = 'media';
+            break;
+        case 'limite':
+            // Mostrar la vista de medias y desviaciones estandar
+            $vistaModo = 'limite';
+            break;
+    }
+}
 if (isset($_GET['id'])) {
     $idDispositivo = intval($_GET['id']);
     $dispositivo = $ClaseTemperatura->getDispositivo($idDispositivo);
@@ -43,6 +54,11 @@ if (isset($_GET['id'])) {
         $datosValidacion['usuario'][] = $usuario;
     }
     $CValidacion = new ClaseValidacion($datosValidacion);
+    // si la vista es limite poner como media la temperatura máxima - 2,5*sd
+    if ($vistaModo === 'limite') {
+        $mediaLimite = $dispositivo['temp_max'] - 2.5 * $dispositivo['sd'];
+        $CValidacion->setMedia($mediaLimite);
+    }
     $datosValidacionResultado = $CValidacion->getResultados();
     $media = $CValidacion->getMedia();
     $desviacionEstandar = $CValidacion->getDesviacionEstandar();
@@ -57,6 +73,22 @@ if (isset($_GET['id'])) {
 } else {
     echo "<div class='alert alert-danger'>No se ha especificado un dispositivo.</div>";
     exit;
+}
+
+
+// Se llega mediante get id del dispositivo
+if (isset($_POST)) {
+    if (isset($_POST['action']) == 'actualizar_parametros_ds') {
+        $datosDispositivo = array(
+            'idDispositivo' => intval($_POST['idDispositivo']),
+            'media' => floatval($_POST['media']),
+            'sd' => floatval($_POST['desviacionEstandar']),
+            'temp_min' => floatval($dispositivo['temp_max'] - 5 * floatval($_POST['desviacionEstandar']))
+        );
+        $ClaseTemperatura->updateDispositivoEstadisticas($datosDispositivo);
+        header("Location: ./temperaturasListado.php?id=" . intval($idDispositivo) . "&modo=" . urlencode($vistaModo));
+        exit();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -83,13 +115,42 @@ if (isset($_GET['id'])) {
             <div class="col-md-12 text-center">
                 <h3>Panel de Control Preventivo<span class="ds ds-title">: Análisis de Desviaciones</span></h3>
             </div>
-            <button id="toggleVista" class="btn btn-default btn-sm">
+            <button id="toggleVista" class="btn btn-info btn-sm">
                 Ver temperatura directa
             </button>
+            <?php
+            if (isset($dispositivo['media']) && isset($dispositivo['sd']) && isset($dispositivo['temp_max']) && isset($dispositivo['temp_min'])) {
+                if ($vistaModo === 'media') {
+                    echo '<a href="./temperaturasListado.php?id=' . intval($idDispositivo) . '&modo=limite" class="btn btn-default btn-sm">Ver Rango Límite Crítico</a>';
+                } else {
+                    echo '<a href="./temperaturasListado.php?id=' . intval($idDispositivo) . '&modo=media" class="btn btn-default btn-sm">Ver Análisis de Desviaciones</a>';
+                }
+            }
+            ?>
+            <?php if ($vistaModo === 'media'): ?>
+                <!-- Se crea un boton que permita subir datos a la tabla dispositivos mediante post alineado a la derecha-->
+                <div style="float:right;">
+                    <form method="post" action="./temperaturasListado.php?id=<?php echo intval($idDispositivo); ?>&modo=media" style="display:inline-block; margin-left:10px;">
+                        <input type="hidden" name="idDispositivo" value="<?php echo intval($idDispositivo); ?>">
+                        <input type="hidden" name="media" value="<?php echo htmlspecialchars($media); ?>">
+                        <input type="hidden" name="desviacionEstandar" value="<?php echo htmlspecialchars($desviacionEstandar); ?>">
+                        <button type="submit" title="Sube la media y la desviación estandar de este dispositivo para tener un registro adecuado de los límites" name="action" value="actualizar_parametros_ds" class="btn btn-warning btn-sm">
+                            Actualizar Parámetros DS
+                        </button>
+                    </form>
+                </div>
+            <?php endif; ?>
             <div class="ds ds-resumen">
-                <strong>Media:</strong> <?php echo round($media, 2); ?> &nbsp;&nbsp;
-                <strong>Desviación Estándar:</strong> <?php echo round($desviacionEstandar, 2); ?>
-                <strong>Rango normal 95%:</strong> [<?php echo round($media - 2 * $desviacionEstandar, 2); ?> ºC - <?php echo round($media + 2 * $desviacionEstandar, 2); ?> ºC]
+                <?php if ($vistaModo === 'media'): ?>
+                    <strong>Media:</strong> <?php echo round($media, 2); ?> &nbsp;&nbsp;
+                    <strong>Desviación Estándar:</strong> <?php echo round($desviacionEstandar, 2); ?>
+                    <strong>Rango normal 95%:</strong> [ <?php echo round($media - 2 * $desviacionEstandar, 2); ?> ºC <?php echo round($media + 2 * $desviacionEstandar, 2); ?> ºC]
+                <?php elseif ($vistaModo === 'limite'): ?>
+                    <strong>Media Límite Crítico:</strong> <?php echo round($dispositivo['temp_max'] - 2.5 * $dispositivo['sd'], 2); ?> &nbsp;&nbsp;
+                    <strong>Desviación Estándar:</strong> <?php echo round($dispositivo['sd'], 2); ?>
+                    <strong>Rango Límite Crítico 95%:</strong> [ <?php echo round(($dispositivo['temp_max'] - 2.5 * $dispositivo['sd']) - 2 * $dispositivo['sd'], 2); ?> ºC <?php echo round(($dispositivo['temp_max'] - 2.5 * $dispositivo['sd']) + 2 * $dispositivo['sd'], 2); ?> ºC]
+                    <strong>Rango normal 95%:</strong> [ <?php echo round($dispositivo['media'] - 2 * $dispositivo['sd'], 2); ?> ºC <?php echo round($dispositivo['media'] + 2 * $dispositivo['sd'], 2); ?> ºC]
+                <?php endif; ?>
             </div>
             <br>
             <?php
