@@ -11,10 +11,11 @@ class ClaseTemperatura extends Modelo
     public function addDispositivo($datos)
     {
         // Ahora se esperan los nuevos campos en $datos
-        $sql = "INSERT INTO " . $this->tablaDispositivos . " (nombre, ubicacion, estado) VALUES (
+        $sql = "INSERT INTO " . $this->tablaDispositivos . " (nombre, ubicacion, estado, temp_max) VALUES (
             '" . $datos['nombre'] . "',
             '" . $datos['ubicacion'] . "',
-            '" . $datos['estado'] . "'
+            '" . $datos['estado'] . "',
+            " . floatval($datos['temp_max']) . "
         )";
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
@@ -27,7 +28,8 @@ class ClaseTemperatura extends Modelo
         $sql = "UPDATE " . $this->tablaDispositivos . " SET
             nombre = '" . $datos['nombre'] . "',
             ubicacion = '" . $datos['ubicacion'] . "',
-            estado = '" . $datos['estado'] . "'
+            estado = '" . $datos['estado'] . "',
+            temp_max = " . floatval($datos['temp_max']) . "
             WHERE idDispositivo = " . intval($id);
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {

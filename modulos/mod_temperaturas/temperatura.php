@@ -29,7 +29,8 @@ if (isset($_POST['action'])) {
             $dispositivo = array(
                 'nombre' => $_POST['deviceName'],
                 'ubicacion' => $_POST['deviceLocation'],
-                'estado' => $_POST['deviceStatus']
+                'estado' => $_POST['deviceStatus'],
+                'temp_max' => $_POST['maxTemperature']
             );
             $ClaseTemperatura->addDispositivo($dispositivo);
 
@@ -41,7 +42,8 @@ if (isset($_POST['action'])) {
             $dispositivo = array(
                 'nombre' => $_POST['deviceName'],
                 'ubicacion' => $_POST['deviceLocation'],
-                'estado' => $_POST['deviceStatus']
+                'estado' => $_POST['deviceStatus'],
+                'temp_max' => $_POST['maxTemperature']
             );
             $ClaseTemperatura->updateDispositivo($idDispositivo, $dispositivo);
 
