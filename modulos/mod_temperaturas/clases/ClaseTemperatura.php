@@ -94,4 +94,28 @@ class ClaseTemperatura extends Modelo
         }
         return $respuesta;
     }
+
+    // Obtener los valores ENUM de la columna 'estado' en la tabla de dispositivos
+    public function getEstadosDispositivos()
+    {
+        $respuesta = array();
+        $sql = "SHOW COLUMNS FROM " . $this->tablaDispositivos . " LIKE 'estado'";
+        $consulta = $this->consulta($sql);
+        if (isset($consulta['error'])) {
+            $respuesta['error'] = $consulta['error'];
+        }
+        if (isset($consulta['datos'][0]['Type'])) {
+            $type = $consulta['datos'][0]['Type'];
+            preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+            if (isset($matches[1])) {
+                $enumValues = explode("','", $matches[1]);
+                $respuesta['datos'] = $enumValues;
+            } else {
+                $respuesta['error'] = 'No se pudieron extraer los valores ENUM.';
+            }
+        } else {
+            $respuesta['error'] = 'No se encontraron datos para la columna especificada.';
+        }
+        return $respuesta;
+    }
 }
