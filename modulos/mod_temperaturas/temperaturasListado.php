@@ -38,6 +38,11 @@ if (isset($_GET['id'])) {
         header("Location: ./temperatura.php?error=" . urlencode($temperaturasDispositivo['error']));
         exit;
     }
+    // Si entramos en modo limite y no existe temperatura máxima redirigir a modo media
+    if ($vistaModo === 'limite' && (!isset($dispositivo['temp_max']) || $dispositivo['temp_max'] == null)) {
+        header("Location: ./temperaturasListado.php?id=" . intval($idDispositivo) . "&modo=media");
+        exit;
+    }
     $temperaturasDispositivo = $temperaturasDispositivo['datos'];
 
     include_once $URLCom . '/modulos/mod_temperaturas/clases/ClaseValidacion.php';
@@ -127,7 +132,7 @@ if (isset($_POST)) {
                 }
             }
             ?>
-            <?php if ($vistaModo === 'media'): ?>
+            <?php if ($vistaModo === 'media' and isset($dispositivo['temp_max'])): ?>
                 <!-- Se crea un boton que permita subir datos a la tabla dispositivos mediante post alineado a la derecha-->
                 <div style="float:right;">
                     <form method="post" action="./temperaturasListado.php?id=<?php echo intval($idDispositivo); ?>&modo=media" style="display:inline-block; margin-left:10px;">
@@ -148,7 +153,7 @@ if (isset($_POST)) {
                 <?php elseif ($vistaModo === 'limite'): ?>
                     <strong>Media Límite Crítico:</strong> <?php echo round($dispositivo['temp_max'] - 2.5 * $dispositivo['sd'], 2); ?> &nbsp;&nbsp;
                     <strong>Desviación Estándar:</strong> <?php echo round($dispositivo['sd'], 2); ?>
-                    <strong>Rango Límite Crítico 95%:</strong> [ <?php echo round(($dispositivo['temp_max'] - 2.5 * $dispositivo['sd']) - 2 * $dispositivo['sd'], 2); ?> ºC <?php echo round(($dispositivo['temp_max'] - 2.5 * $dispositivo['sd']) + 2 * $dispositivo['sd'], 2); ?> ºC]
+                    <strong>Rango Límite Crítico 95%:</strong> [ <?php echo round($media - 2 * $desviacionEstandar, 2); ?> ºC <?php echo round($media + 2 * $desviacionEstandar, 2); ?> ºC]
                     <strong>Rango normal 95%:</strong> [ <?php echo round($dispositivo['media'] - 2 * $dispositivo['sd'], 2); ?> ºC <?php echo round($dispositivo['media'] + 2 * $dispositivo['sd'], 2); ?> ºC]
                 <?php endif; ?>
             </div>
