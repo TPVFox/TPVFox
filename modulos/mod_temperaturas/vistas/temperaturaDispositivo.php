@@ -56,7 +56,7 @@ echo "<hr>";
         </div>
         <div class="form-group">
             <label for="maxTemperature">Temperatura Máxima Permitida (°C):</label>
-            <input type="number" step="0.1" class="form-control" id="maxTemperature" name="maxTemperature" required value="<?php echo isset($tempMax) ? htmlspecialchars($tempMax) : ''; ?>">
+            <input type="number" step="0.1" class="form-control" id="maxTemperature" name="maxTemperature" value="<?php echo isset($tempMax) ? htmlspecialchars($tempMax) : ''; ?>">
         </div>
         <!-- si estamos editando mostrar el valor medio del dispositivo y su sd -->
         <?php
