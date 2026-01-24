@@ -58,6 +58,7 @@ if (count($d['Items']) == 0) {
         'mensaje' => 'No tienes albaranes guardados!'
     );
 }
+$mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_venta');
 ?>
 <!DOCTYPE html>
 <html>
@@ -207,6 +208,16 @@ if (count($d['Items']) == 0) {
                                             $onclick = " onclick='imprimir(" . $albaran['id'] . ',"albaran",' . json_encode($_SESSION['tiendaTpv']) . ")'";
                                             echo '<a title="Imprimir albarán" class="glyphicon glyphicon-print" ' . $onclick . '></a>';
                                         }
+                                        if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista) && $albaran['estado'] != 'Procesado') { ?>
+                                            <form class="formFactura" method="POST" action="factura.php" style="display:inline;">
+                                                <input type="hidden" name="action" value="crearDesdeAlbaranes">
+                                                <input type="hidden" name="idCliente" value="<?= htmlspecialchars($albaran['idCliente'], ENT_QUOTES, 'UTF-8') ?>">
+                                                <input type="hidden" name="albaranes[]" value="<?= htmlspecialchars($albaran['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                                <a title="Crear factura desde albarán" href="#" class="submit-link">
+                                                    <span class="glyphicon glyphicon-paste"></span>
+                                                </a>
+                                            </form>
+                                        <?php }
                                         ?>
                                     </td>
                                 </tr>
@@ -220,5 +231,13 @@ if (count($d['Items']) == 0) {
         </div>
     </div>
 </body>
+<script>
+    document.querySelectorAll('.submit-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.closest('form').submit();
+        });
+    });
+</script>
 
 </html>

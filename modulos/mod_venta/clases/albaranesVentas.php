@@ -256,7 +256,7 @@ class AlbaranesVentas extends ClaseVentas
         //Mostrar algunos datos de todos los albaranes reales con un filtro
         $db = $this->db;
         $sql = 'SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total,
-         a.estado FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  ' . $filtro;
+         a.estado, a.idCliente FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  ' . $filtro;
         $smt = $this->consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
