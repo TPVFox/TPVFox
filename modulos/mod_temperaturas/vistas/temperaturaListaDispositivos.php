@@ -18,6 +18,12 @@ if (isset($dispositivos) && is_array($dispositivos) && count($dispositivos) > 0)
         echo "<td>" . htmlspecialchars($dispositivo['nombre']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ubicacion']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['estado']) . "</td>";
+        // si el estado es automatico unir las 4 colomnas en un texto que explique que el regitro automatico se hace en otra aplicación
+        if ($dispositivo['estado'] === 'automatico') {
+            echo "<td colspan='4'><i>El registro automático se realiza mediante una aplicación externa.</i></td>";
+            echo "</tr>";
+            continue;
+        }
         echo "<td>" . htmlspecialchars($dispositivo['ultimo_registro']) . "</td>";
         echo "<td>" . htmlspecialchars($dispositivo['ultima_temperatura']) . " °C</td>";
         if (isset($ClasePermisos) && $ClasePermisos->getAccion("registrarTemperatura", $mod_vista)):

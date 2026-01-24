@@ -14,6 +14,7 @@
         <alerta_minima valor="18" descripcion="Temperatura mínima alerta"></alerta_minima>
 
         <!-- Otras configuraciones -->
+        <forzar_registro_congeladores valor="No" descripcion="Forzar registro de congeladores y cámaras"></forzar_registro_congeladores>
         <dias_historico valor="30" descripcion="Días de historial a mostrar por defecto"></dias_historico>
         <auto_guardar valor="Si" descripcion="Auto-guardar registros temporales"></auto_guardar>
     </configuracion>

@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ClasesParametros->setNodeAttribute('configuracion/alerta_minima', 'valor', $_POST['alerta_minima']);
 
     // Otras configuraciones
+    $ClasesParametros->setNodeAttribute('configuracion/forzar_registro_congeladores', 'valor', $_POST['forzar_registro_congeladores']);
     $ClasesParametros->setNodeAttribute('configuracion/dias_historico', 'valor', $_POST['dias_historico']);
     $ClasesParametros->setNodeAttribute('configuracion/auto_guardar', 'valor', $_POST['auto_guardar']);
 
@@ -118,6 +119,37 @@ $config = $parametros->configuracion;
                     <h3 class="panel-title"><i class="fas fa-sliders-h"></i> Otras Configuraciones</h3>
                 </div>
                 <div class="panel-body">
+                    <div class="form-group">
+                        <label for="alerta_maxima">
+                            <?php echo (string)$config->alerta_maxima['descripcion']; ?>
+                        </label>
+                        <input type="number"
+                            id="alerta_maxima"
+                            name="alerta_maxima"
+                            class="form-control"
+                            value="<?php echo (string)$config->alerta_maxima['valor']; ?>"
+                            step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="alerta_minima">
+                            <?php echo (string)$config->alerta_minima['descripcion']; ?>
+                        </label>
+                        <input type="number"
+                            id="alerta_minima"
+                            name="alerta_minima"
+                            class="form-control"
+                            value="<?php echo (string)$config->alerta_minima['valor']; ?>"
+                            step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="forzar_registro_congeladores">
+                            <?php echo (string)$config->forzar_registro_congeladores['descripcion']; ?>
+                        </label>
+                        <select id="forzar_registro_congeladores" name="forzar_registro_congeladores" class="form-control">
+                            <option value="Si" <?php echo ((string)$config->forzar_registro_congeladores['valor'] == 'Si') ? 'selected' : ''; ?>>Sí</option>
+                            <option value="No" <?php echo ((string)$config->forzar_registro_congeladores['valor'] == 'No') ? 'selected' : ''; ?>>No</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="dias_historico">
                             <?php echo (string)$config->dias_historico['descripcion']; ?>

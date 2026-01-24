@@ -57,8 +57,20 @@ if (isset($_POST['action'])) {
 
             foreach ($temperaturas as $idDispositivo => $nuevaTemperatura) {
                 $idDispositivo = intval($idDispositivo);
-                $nuevaTemperatura = floatval($nuevaTemperatura);
-                if ($nuevaTemperatura != 0) { // Solo actualizar si se ha proporcionado una temperatura
+
+                // si el parametro forzar_registro_congeladores es Si forzar el cambio de signo si la temperatura maxima es negativa
+                $forzarRegistroCongeladores = (string)$parametros->configuracion->forzar_registro_congeladores['valor'];
+                if ($forzarRegistroCongeladores === 'Si') {
+                    $dispositivoInfo = $ClaseTemperatura->getDispositivo($idDispositivo);
+                    if (isset($dispositivoInfo['temp_max']) && is_numeric($dispositivoInfo['temp_max'])) {
+                        $tempMax = floatval($dispositivoInfo['temp_max']);
+                        if ($tempMax < 0 && $nuevaTemperatura > abs($tempMax)) {
+                            $nuevaTemperatura = -abs($nuevaTemperatura);
+                        }
+                    }
+                }
+                if ($nuevaTemperatura != "") { // Solo actualizar si se ha proporcionado una temperatura
+                    $nuevaTemperatura = floatval($nuevaTemperatura);
                     $datosTemperatura[] = array(
                         'idDispositivo' => $idDispositivo,
                         'temperatura' => $nuevaTemperatura,
