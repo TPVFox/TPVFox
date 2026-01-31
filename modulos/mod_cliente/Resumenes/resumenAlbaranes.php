@@ -256,7 +256,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_venta');
                                             $esEdit = 'editar';
                                         }
                                         if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
-                                            if ($bases['estado'] != 'Facturado') {
+                                            if ($bases['estado'] != 'Procesado') {
                                                 $checkbox = '<input type="checkbox" name="albaranes[]" value="' . $bases['idalbcli'] . '">';
                                             } else {
                                                 $checkbox = '<span class="text-muted glyphicon glyphicon-lock"></span>';
