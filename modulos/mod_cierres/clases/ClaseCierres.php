@@ -77,9 +77,9 @@ class ClaseCierres extends ClaseConexion
             }
             // -- Eliminamos el registros
             $tablas = array(
-                'cierres_ivas',
-                'cierres_usuariosFormasPago',
                 'cierres_usuarios_tickets',
+                'cierres_usuariosFormasPago',
+                'cierres_ivas',
                 'cierres'
             );
             foreach ($tablas as $tabla) {
