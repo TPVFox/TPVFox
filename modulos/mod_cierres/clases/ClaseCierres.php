@@ -77,10 +77,10 @@ class ClaseCierres extends ClaseConexion
             }
             // -- Eliminamos el registros
             $tablas = array(
-                'cierres',
                 'cierres_ivas',
                 'cierres_usuariosFormasPago',
-                'cierres_usuarios_tickets'
+                'cierres_usuarios_tickets',
+                'cierres'
             );
             foreach ($tablas as $tabla) {
                 $sql = 'DELETE FROM ' . $tabla . ' WHERE idCierre=' . $idCierre;
