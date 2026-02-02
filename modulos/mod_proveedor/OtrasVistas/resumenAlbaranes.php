@@ -275,7 +275,9 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
         </div>
         <div class="col-md-6 " <?php echo $style; ?>>
             <h4 class="text-center"><u>ALBARANES</u></h4>
-            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)): ?>
+            <?php
+            $estadoProveedor = $datosProveedor['datos'][0]['estado'];
+            if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista) && $estadoProveedor == 'Activo'): ?>
                 <button id="btnModoFactura" class="btn btn-primary">
                     Crear factura desde albaranes
                 </button>
