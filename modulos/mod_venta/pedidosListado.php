@@ -25,8 +25,14 @@ $todosTemporal = array_reverse($todosTemporal);
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numpedcli', 'b.Nombre');
 $campoFiltro = 'a.estado';
+$campoOrden = 'a.Numpedcli';
 $NPaginado->SetCamposControler($campos);
-$NPaginado->SetOrderConsulta('a.Numpedcli');
+if (isset($_GET['orden']) && $_GET['orden'] != '') {
+    $campoOrden = $_GET['orden'];
+    $NPaginado->SetOrderByConsulta($campoOrden);
+} else {
+    $NPaginado->SetOrderConsulta($campoOrden);
+}
 $NPaginado->SetCampoFiltro($campoFiltro);
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
@@ -42,6 +48,8 @@ $estadosPedidos = $Cpedido->getEstadosPedidos();
 $htmlPG = $NPaginado->htmlPaginado();
 $htmlBuscar = $NPaginado->htmlBuscar();
 $htmlFiltrar = $NPaginado->htmlFiltrar($estadosPedidos, 'Filtrar por estado');
+$htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
+$htmlOrdenarNumPedido = $NPaginado->htmlOrdenar('a.Numpedcli');
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $d = $Cpedido->TodosPedidosFiltro($filtro . $NPaginado->GetLimitConsulta());
 $pedidosDef = $d['Items'];
@@ -163,8 +171,8 @@ if (count($d['Items']) == 0) {
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th>Nª PEDIDO</th>
-                                <th>FECHA</th>
+                                <th>Nª PEDIDO <?php echo $htmlOrdenarNumPedido; ?></th>
+                                <th>FECHA <?php echo $htmlOrdenarFecha; ?></th>
                                 <th>CLIENTE</th>
                                 <th>BASE</th>
                                 <th>IVA</th>

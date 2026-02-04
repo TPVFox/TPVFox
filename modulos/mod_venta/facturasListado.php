@@ -25,8 +25,14 @@ $todosTemporal = array_reverse($todosTemporal);
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numfaccli', 'b.Nombre');
 $campoFiltro = 'a.estado';
+$campoOrden = 'a.Numfaccli';
 $NPaginado->SetCamposControler($campos);
-$NPaginado->SetOrderConsulta('a.Numfaccli');
+if (isset($_GET['orden']) && $_GET['orden'] != '') {
+    $campoOrden = $_GET['orden'];
+    $NPaginado->SetOrderByConsulta($campoOrden);
+} else {
+    $NPaginado->SetOrderConsulta($campoOrden);
+}
 $NPaginado->SetCampoFiltro($campoFiltro);
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
@@ -43,6 +49,8 @@ $estadosFacturas = $Cfactura->getEstadosFacturas();
 $htmlPG = $NPaginado->htmlPaginado();
 $htmlBuscar = $NPaginado->htmlBuscar();
 $htmlFiltrar = $NPaginado->htmlFiltrar($estadosFacturas, 'Filtrar por estado');
+$htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
+$htmlOrdenarNumFactura = $NPaginado->htmlOrdenar('a.Numfaccli');
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $d = $Cfactura->TodosFacturaFiltro($filtro . $NPaginado->GetLimitConsulta());
 $facturas = $d['Items'];
@@ -167,8 +175,8 @@ if (count($d['Items']) == 0) {
                                 <th></th>
                                 <th></th>
                                 <th></th>
-                                <th>Nª FACTURA</th>
-                                <th>FECHA</th>
+                                <th>Nª FACTURA <?php echo $htmlOrdenarNumFactura; ?></th>
+                                <th>FECHA <?php echo $htmlOrdenarFecha; ?></th>
                                 <th>CLIENTE</th>
                                 <th>BASE</th>
                                 <th>IVA</th>
