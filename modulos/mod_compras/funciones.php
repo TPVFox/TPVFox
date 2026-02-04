@@ -490,13 +490,27 @@ function modalSelectEstadoAlbaranes()
 {
     // @Objetivo:
     // Obtener los posibles estados de albaranes compra
+    // Lo preparamos para en el futuro cambiar la columna estado a ENUM en la BD.
+    $estados = [
+        'Guardado'   => 'Guardado',
+        'Exportado'  => 'Exportado',
+        'Importado'  => 'Importado',
+        'Facturado'  => 'Facturado',
+    ];
+
+    $options = '<option value="">Seleccione un estado</option>';
+
+    foreach ($estados as $value => $label) {
+        $options .= "<option value=\"{$value}\">{$label}</option>";
+    }
+
     $html = "";
     $html .= ' <div>
             <label>Nuevo estado para albaranes: </label>
             <select id="Nuevo_estado_albaranes" class="estados">
-                <option value="0"></option>
-                <option value="Guardado">Guardado</option>
-                <option value="Facturado">Facturado</option>
+                <option value="0"></option>'
+        . $options .
+        '
             </select>
             <button class="btn btn-primary" onclick="cambiarEstadoVariosAlbaranes()">Cambiar</button>
             </div>';
