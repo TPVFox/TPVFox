@@ -28,12 +28,13 @@ $todosTemporal = array_reverse($todosTemporal);
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numalbpro', 'b.nombrecomercial');
 $campoFiltro = 'a.estado';
+$campoOrden = 'a.Numalbpro';
 $NPaginado->SetCamposControler($campos);
 if (isset($_GET['orden']) && $_GET['orden'] != '') {
     $campoOrden = $_GET['orden'];
     $NPaginado->SetOrderByConsulta($campoOrden);
 } else {
-    $NPaginado->SetOrderConsulta('a.Numalbpro');
+    $NPaginado->SetOrderConsulta($campoOrden);
 }
 $NPaginado->SetCampoFiltro($campoFiltro);
 
@@ -51,6 +52,8 @@ $estadosAlbaranes = $CAlb->getEstadosAlbaranes();
 $htmlPG = $NPaginado->htmlPaginado();
 $htmlBuscar = $NPaginado->htmlBuscar();
 $htmlFiltrar = $NPaginado->htmlFiltrar($estadosAlbaranes, 'Filtrar por estado');
+$htmlOrdenarNumAlb = $NPaginado->htmlOrdenar('a.Numalbpro');
+$htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
 // =================================================== //
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta());
@@ -192,8 +195,8 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                             <th></th>
                             <th></th>
                             <th></th>
-                            <th>Nª ALBARÁN</th>
-                            <th>FECHA</th>
+                            <th>Nª ALBARÁN <?php echo $htmlOrdenarNumAlb; ?></th>
+                            <th>FECHA <?php echo $htmlOrdenarFecha; ?></th>
                             <th>PROVEEDOR</th>
                             <th>BASE</th>
                             <th>IVA</th>
