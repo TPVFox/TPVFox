@@ -250,6 +250,9 @@ class PluginClasePaginacion
 			if ($this->valorFiltro !== '') {
 				$Linkpg .= '&filtro=' . urlencode($this->valorFiltro) . '&pagina=';
 			}
+			if ($_GET['orden'] ?? '' != '') {
+				$Linkpg .= '&orden=' . $this->campoOrd . ':' . $this->direccionOrd . '&pagina=';
+			}
 
 			//~ $Linkpg	.='pagina=';
 			// Montamos HTML para mostrar...
@@ -334,6 +337,47 @@ class PluginClasePaginacion
 			</form>';
 		return $htmlFiltrar;
 	}
+
+	public function htmlordenar($campoOrd = '')
+	{
+		// Objetivo
+		// Devolver flechas para ordenar asc o desc y poner en tablas
+		// Comprobar si el campo del Html es el mismo que el campoOrd
+		// Si es asi solo mostramos la flecha contraria a la que esta puesta.
+		// Si no es asi mostramos las dos flechas.
+		$htmlOrdenar = '';
+		if ($campoOrd != '') {
+			$LinkAsc = $this->LinkBase;
+			$LinkDesc = $this->LinkBase;
+			if ($this->Busqueda !== '') {
+				$LinkAsc	.= 'buscar=' . $this->Busqueda . '&orden=' . $campoOrd . ':ASC';
+				$LinkDesc	.= 'buscar=' . $this->Busqueda . '&orden=' . $campoOrd . ':DESC';
+			} else {
+				$LinkAsc .= 'orden=' . $campoOrd . ':ASC';
+				$LinkDesc .= 'orden=' . $campoOrd . ':DESC';
+			}
+			if ($this->valorFiltro !== '') {
+				$LinkAsc .= '&filtro=' . urlencode($this->valorFiltro);
+				$LinkDesc .= '&filtro=' . urlencode($this->valorFiltro);
+			}
+		}
+		if ($this->campoOrd == $campoOrd) {
+			// Mostramos solo la flecha contraria a la que esta puesta.
+			if ($this->direccionOrd == 'ASC') {
+				// Mostramos flecha DESC
+				$htmlOrdenar = '<a href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort-by-order-alt" aria-hidden="true"></i></a>';
+			} else {
+				// Mostramos flecha ASC
+				$htmlOrdenar = '<a href="' . $LinkAsc . '"><i class=" 	glyphicon glyphicon-sort-by-order" aria-hidden="true"></i></a>';
+			}
+		} else {
+			// Mostramos las dos flechas.
+			$htmlOrdenar = '<a href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort" aria-hidden="true"></i></a>';
+		}
+
+		return $htmlOrdenar;
+	}
+
 
 	public function SetCamposControler($campos)
 	{
