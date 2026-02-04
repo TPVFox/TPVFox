@@ -365,14 +365,25 @@ class PluginClasePaginacion
 			// Mostramos solo la flecha contraria a la que esta puesta.
 			if ($this->direccionOrd == 'ASC') {
 				// Mostramos flecha DESC
-				$htmlOrdenar = '<a href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort-by-order-alt" aria-hidden="true"></i></a>';
+				$htmlOrdenar = '<a title="Orden descendente" href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort-by-order-alt" aria-hidden="true"></i></a>';
 			} else {
 				// Mostramos flecha ASC
-				$htmlOrdenar = '<a href="' . $LinkAsc . '"><i class=" 	glyphicon glyphicon-sort-by-order" aria-hidden="true"></i></a>';
+				$htmlOrdenar = '<a title="Orden ascendente" href="' . $LinkAsc . '"><i class=" 	glyphicon glyphicon-sort-by-order" aria-hidden="true"></i></a>';
+			}
+			// Mostrar una x para quitar orden
+			if ($_GET['orden'] ?? '' != '') {
+				$htmlOrdenar .= ' <a title="Quitar orden" href="' . $this->LinkBase;
+				if ($this->Busqueda !== '') {
+					$htmlOrdenar	.= 'buscar=' . $this->Busqueda;;
+				}
+				if ($this->valorFiltro !== '') {
+					$htmlOrdenar .= '&filtro=' . urlencode($this->valorFiltro);;
+				}
+				$htmlOrdenar .= '"><i class="glyphicon glyphicon-remove-circle" aria-hidden="true"></i></a>';
 			}
 		} else {
 			// Mostramos las dos flechas.
-			$htmlOrdenar = '<a href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort" aria-hidden="true"></i></a>';
+			$htmlOrdenar = '<a title="Ordenar" href="' . $LinkDesc . '"><i class=" 	glyphicon glyphicon-sort" aria-hidden="true"></i></a>';
 		}
 
 		return $htmlOrdenar;
