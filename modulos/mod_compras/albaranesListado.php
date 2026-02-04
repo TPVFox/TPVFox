@@ -29,7 +29,12 @@ $NPaginado = new PluginClasePaginacion(__FILE__);
 $campos = array('a.Numalbpro', 'b.nombrecomercial');
 $campoFiltro = 'a.estado';
 $NPaginado->SetCamposControler($campos);
-$NPaginado->SetOrderConsulta('a.Numalbpro');
+if (isset($_GET['orden']) && $_GET['orden'] != '') {
+    $campoOrden = $_GET['orden'];
+    $NPaginado->SetOrderByConsulta($campoOrden);
+} else {
+    $NPaginado->SetOrderConsulta('a.Numalbpro');
+}
 $NPaginado->SetCampoFiltro($campoFiltro);
 
 // --- Ahora contamos registro que hay para es filtro --- //
@@ -261,7 +266,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 }
                                 echo '<td' . $clas_estado . '>'
                                     . $albaran['estado'] . $linkImprimir . $iconoCostes . $linkDescargar;
-                                if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista) && $albaran['estado'] != 'Facturado') {?>
+                                if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista) && $albaran['estado'] != 'Facturado') { ?>
                                     <form class="formFactura" method="POST" action="factura.php" style="display:inline;">
                                         <input type="hidden" name="action" value="crearDesdeAlbaranes">
                                         <input type="hidden" name="idProveedor" value="<?= htmlspecialchars($albaran['idProveedor'], ENT_QUOTES, 'UTF-8') ?>">

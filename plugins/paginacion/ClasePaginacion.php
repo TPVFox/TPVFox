@@ -17,6 +17,8 @@ class PluginClasePaginacion
 	public $limitConsulta		= ''; // (string) Es limite si lo hubiera.
 	public $Paginas				= array(); // (array) Donde tendremos los numeros de la paginas previas y siguientes.
 	public $filtroOrd			= '';
+	public $campoOrd			= '';
+	public $direccionOrd		= 'DESC';
 	public $campos				= array(); // (array) Campos donde buscar.
 	public $campoFiltro 		= ''; // (string) Campo por el que filtrar.
 	public $valorFiltro 		= ''; // (string) Valor del campo por el que filtrar.
@@ -333,7 +335,6 @@ class PluginClasePaginacion
 		return $htmlFiltrar;
 	}
 
-
 	public function SetCamposControler($campos)
 	{
 		//~ $this->controler = $controler;
@@ -358,12 +359,44 @@ class PluginClasePaginacion
 	{
 		//~ $controler =$this->controler;
 		if ($campoOrd != '') {
+			$direccion = strtoupper($this->direccionOrd);
 			if (gettype($campoOrd) == 'string') {
-				$campoOrd = explode(',', $campoOrd . ' DESC');
+				$this->SetCampoOrd($campoOrd);
+				$campoOrd = explode(',', $campoOrd . ' ' . $direccion);
 			}
 			$ordenarPor = implode(', ', $campoOrd);
 			$this->filtroOrd .= ' ORDER BY ' . $ordenarPor;
 		}
+	}
+
+	public function SetOrderByConsulta($campoOrd = '')
+	{
+		//?orden=a.Fecha:DESC
+		if ($campoOrd != '') {
+			$partes = explode(':', $campoOrd);
+			$campo = $partes[0];
+			if ($campo == '') {
+				$campo = $this->campoOrd;
+			} else {
+				$this->SetCampoOrd($campo);
+			}
+			$direccion = strtoupper($this->direccionOrd);
+			if (isset($partes[1]) && in_array(strtoupper($partes[1]), array('ASC', 'DESC'))) {
+				$direccion = strtoupper($partes[1]);
+				$this->SetDireccionOrd($direccion);
+			}
+			$this->filtroOrd .= ' ORDER BY ' . $campo . ' ' . $direccion;
+		}
+	}
+
+	public function SetCampoOrd($campo)
+	{
+		$this->campoOrd = $campo;
+	}
+
+	public function SetDireccionOrd($direccion)
+	{
+		$this->direccionOrd = $direccion;
 	}
 
 	public function SetCantidadRegistros($totalRegistros)
