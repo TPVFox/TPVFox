@@ -19,20 +19,39 @@ function cerrarPopUp() {
 function abrirModalConTitulo(titulo, contenido) {
   // @ Objetivo :
   // Abril modal con texto buscado y con titulo que le indiquemos. (Permite usar varios modales superpuestos con titulos diferentes)
-  console.log("Estamos en abrir modal de func_modal");
-  $(".modal-body").html(contenido);
-  $(".modal-title").html(titulo);
-  // Adaptamos el titulo a SnakeCase
+  console.log("Estamos en abrir modalConTitulo de func_modal");
+
+  // Adaptamos el titulo a SnakeCase para usarlo como ID único
   var tituloSnakeCase = titulo.replace(/\s+/g, "_").toLowerCase();
-  // Sustituimos el id del modal por el titulo en SnakeCase
-  $("#ventanaModal").attr("id", tituloSnakeCase);
+
+  // Clonamos el modal original
+  var $modalClonado = $("#ventanaModal").clone();
+
+  // Asignamos nuevo ID al modal clonado
+  $modalClonado.attr("id", tituloSnakeCase);
+
+  // Actualizamos título y contenido
+  $modalClonado.find(".modal-title").html(titulo);
+  $modalClonado.find(".modal-body").html(contenido);
+
+  // Agregamos al body
+  $("body").append($modalClonado);
+
+  // Mostramos el modal
   $("#" + tituloSnakeCase).modal("show");
+
+  // Cuando se cierre, eliminar del DOM
+  $("#" + tituloSnakeCase).on("hidden.bs.modal", function () {
+    $(this).remove();
+  });
+
+  return tituloSnakeCase; // opcional, por si quieres cerrarlo con JS
 }
 
 function cerrarPopUpConTitulo(titulo) {
   // @ Objetivo :
   // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
-  // Adaptamos el titulo a SnakeCase
+  // Adaptamos el titulo a SnakeCase  // Adaptamos el titulo a SnakeCase
   var tituloSnakeCase = titulo.replace(/\s+/g, "_").toLowerCase();
   $("#" + tituloSnakeCase).modal("hide");
 }
