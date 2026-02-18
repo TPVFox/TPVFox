@@ -298,4 +298,10 @@ switch ($pulsado) {
 
         echo json_encode($resultado);
         break;
+    // Modal para ampliar la configuración del cierre de stock anual
+    case 'modalCerrarStock':
+        include_once 'tareas/modalCerrarStock.php';
+        echo json_encode($respuesta);
+        return $respuesta;
+        break;
 }

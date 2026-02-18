@@ -12,6 +12,8 @@
     ?>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
 </head>
 
 <body>
@@ -54,7 +56,11 @@
                         <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("cerrar_stock_anual") == 1) { ?>
                             <!-- Cerrar stock (finalizar año) -->
                             <tr>
-                                <td><button id="boton-cerrar-stock" class="btn">
+                                <!-- id="boton-cerrar-stock" se debe pasar al boton dentro del modal el modal sirve para
+                                 1) Definir el proveedor que generara el albaran de cierre
+                                 2) Definir las familias que se incluiran en el albaran de cierre
+                                 3) Definir las familias que se omitiran en el albaran de cierre -->
+                                <td><button class="btn" onclick="modalCerrarStock()">
                                         <span class="glyphicon glyphicon-save"> </span>Cerrar Stock</button></td>
                                 <td>Cerrar stock del año actual y cerrar ejercicio creando albaranes de cierre</td>
                                 <td>
@@ -119,6 +125,12 @@
 
 </html>
 
+<?php // Incluimos paginas modales
+echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
+include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
+?>
+
+
 <script type="text/javascript">
     $(function() {
 
@@ -181,4 +193,11 @@
         });
 
     });
+</script>
+
+<script>
+    function togglePanelManual() {
+        const isManual = document.getElementById('modoManual').checked;
+        document.getElementById('panelManual').style.display = isManual ? 'block' : 'none';
+    }
 </script>

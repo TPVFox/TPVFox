@@ -96,7 +96,7 @@ function SubirStockWeb(inicio, cantidad, total, idBar) {
             " Cantidad:" +
             cantidad +
             " Actual:" +
-            actual
+            actual,
         );
         if (elementos.length > 0) {
           SubirStockWeb(actual, cantidad, totalProductos, idBar);
@@ -174,6 +174,30 @@ function ajaxStock(parametros, callback) {
     success: callback,
     error: function (request, textStatus, error) {
       console.log(textStatus);
+    },
+  });
+}
+
+// Modal para cerrar stock anual
+
+function modalCerrarStock() {
+  var parametros = {
+    pulsado: "modalCerrarStock",
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log(
+        "********* envio para mostrar el modal para  cambiar estado albaran **************",
+      );
+    },
+    success: function (response) {
+      console.log("Respuesta de mostrar modal para cerrar stock anual ");
+      var resultado = $.parseJSON(response);
+      var titulo = "Cerrar Stock Anual ";
+      abrirModalConTitulo(titulo, resultado.html);
     },
   });
 }
