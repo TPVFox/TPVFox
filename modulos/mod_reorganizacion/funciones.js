@@ -201,3 +201,29 @@ function modalCerrarStock() {
     },
   });
 }
+
+// Modal configuracion XML
+function abrirConfiguracionXML(seccion) {
+  var parametros = {
+    pulsado: "abrirConfiguracionXML",
+    seccion: seccion,
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log(
+        "********* envio para mostrar el modal para configurar XML de cierre de stock anual **************",
+      );
+    },
+    success: function (response) {
+      console.log(
+        "Respuesta de mostrar modal para configurar XML de cierre de stock anual ",
+      );
+      var resultado = $.parseJSON(response);
+      var titulo = "Configuración XML - " + seccion;
+      abrirModalConTitulo(titulo, resultado.html);
+    },
+  });
+}

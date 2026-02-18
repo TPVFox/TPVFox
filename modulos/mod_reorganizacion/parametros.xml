@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<parametros>
+    <configuracion>
+        <cierre_stock_anual>
+            <ajustes_globales>
+                <!-- Nombre e id del proveedor por defecto -->
+                <proveedor id="112">Proveedor de cierre de stock anual</proveedor>
+                <!-- Nº de productos por albarán -->
+                <num_productos>100</num_productos>
+                <!-- Indica si al hacer un segundo se reecriben albaranes anteriores o se crea uno nuevo -->
+                <reescribir_albaran>true</reescribir_albaran>
+                <!-- Serie del albarán de cierre / apertura -->
+                <serie_albaran>
+                    <cierre>C</cierre>
+                    <apertura>A</apertura>
+                </serie_albaran>
+            </ajustes_globales>
+
+            <familias_excluidas>
+                <familia id="1">Servicios</familia>
+                <familia id="2">Muestras</familia>
+                <familia id="3">Cupones</familia>
+                <familia id="4">Packaging</familia>
+            </familias_excluidas>
+        </cierre_stock_anual>
+    </configuracion>
+</parametros>
