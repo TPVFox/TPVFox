@@ -16,6 +16,27 @@ function cerrarPopUp() {
   $("#ventanaModal").modal("hide");
 }
 
+function abrirModalConTitulo(titulo, contenido) {
+  // @ Objetivo :
+  // Abril modal con texto buscado y con titulo que le indiquemos. (Permite usar varios modales superpuestos con titulos diferentes)
+  console.log("Estamos en abrir modal de func_modal");
+  $(".modal-body").html(contenido);
+  $(".modal-title").html(titulo);
+  // Adaptamos el titulo a SnakeCase
+  var tituloSnakeCase = titulo.replace(/\s+/g, "_").toLowerCase();
+  // Sustituimos el id del modal por el titulo en SnakeCase
+  $("#ventanaModal").attr("id", tituloSnakeCase);
+  $("#" + tituloSnakeCase).modal("show");
+}
+
+function cerrarPopUpConTitulo(titulo) {
+  // @ Objetivo :
+  // Cerrar modal ( popUp ), apuntar focus según pantalla cierre.
+  // Adaptamos el titulo a SnakeCase
+  var tituloSnakeCase = titulo.replace(/\s+/g, "_").toLowerCase();
+  $("#" + tituloSnakeCase).modal("hide");
+}
+
 function focusAlLanzarModal(idCaja) {
   // @Objetivo:
   // Poner focus cuando esta visible el evento modal.
