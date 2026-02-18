@@ -206,6 +206,55 @@ class ClaseParametros
 		return !empty($resultado) ? $resultado[0] : null;
 	}
 
+	// Devuelve un nodo por su nombre en cualquier parte del XML
+	public function getNodeIntern($node)
+	{
+		$resultado = $this->root->xpath("//{$node}");
+		return !empty($resultado) ? $resultado[0] : null;
+	}
+
+	// Devuelve un nodo dentro de una sección específica, aunque esté anidado
+	public function getNodeInternBySection($section, $node)
+	{
+		$resultado = $this->root->xpath("/parametros/{$section}//{$node}");
+		return !empty($resultado) ? $resultado[0] : null;
+	}
+
+	// ==============================================
+	// Micro-documentación de modificación de nodos
+	// ==============================================
+	//
+	// En SimpleXML, cualquier nodo obtenido mediante getNodeIntern()
+	// o getNodeInternBySection() es una referencia al nodo real dentro
+	// del árbol XML principal ($this->root).
+	//
+	// Modificación de nodos:
+	//
+	// 1. Modificar valor de un nodo existente:
+	//    foreach ($seccion->familias_excluidas->familia as $familia) {
+	//        if ((string)$familia == 'Servicios') {
+	//            $familia[0] = 'Servicios_Modificados';
+	//        }
+	//    }
+	//
+	// 2. Añadir nuevos nodos:
+	//    $nuevo = $seccion->familias_excluidas->addChild('familia', 'NuevaFamilia');
+	//    $nuevo->addAttribute('id', 3);
+	//
+	// 3. Eliminar nodos:
+	//    unset($seccion->familias_excluidas->familia[1]);
+	//
+	// 4. Guardar todos los cambios:
+	//    $parametros->save();
+	//
+	// Reglas importantes:
+	//
+	// - No convertir nodos a string o array antes de modificarlos.
+	// - Mantener los nodos como SimpleXMLElement asegura que las modificaciones
+	//   afecten directamente al árbol principal.
+	// - Esta forma de trabajar mantiene la estructura original del XML y permite
+	//   manipular secciones y nodos internos de forma intuitiva.
+
 	public function setNodeValue($xpath, $valor)
 	{
 		$nodos = $this->root->xpath($xpath);
@@ -221,6 +270,17 @@ class ClaseParametros
 		$nodos = $this->root->xpath($xpath);
 		if (!empty($nodos)) {
 			$nodos[0][$atributo] = $valor;
+			return true;
+		}
+		return false;
+	}
+
+	public function removeNode($xpath)
+	{
+		$nodos = $this->root->xpath($xpath);
+		if (!empty($nodos)) {
+			$dom = dom_import_simplexml($nodos[0]);
+			$dom->parentNode->removeChild($dom);
 			return true;
 		}
 		return false;
