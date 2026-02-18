@@ -9,7 +9,6 @@
     $Tienda = $_SESSION['tiendaTpv'];
     $idTienda = $Tienda['idTienda'];
     $total_usuarios = count($CReorganizar->obtenerUsuarios());
-    $mod_vista = array('vista' => 'ListadoReorganizar.php', 'modulo' => 'mod_reorganizacion');
     ?>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script>
@@ -35,7 +34,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("reorganizar", $mod_vista)) { ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("regenerar_stock") == 1) { ?>
                             <!-- Regenerar stock -->
                             <tr>
                                 <td><button id="boton-stock" class="btn">
@@ -51,6 +50,8 @@
                                     </div>
                                 </td>
                             </tr>
+                        <?php } ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("cerrar_stock_anual") == 1) { ?>
                             <!-- Cerrar stock (finalizar año) -->
                             <tr>
                                 <td><button id="boton-cerrar-stock" class="btn">
@@ -71,7 +72,7 @@
                         <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
                             // Solo mostramos si hay web conectada a tienda principal.
                         ?>
-                            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("subir_stock_web", $mod_vista)) { ?>
+                            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("subir_stock_web") == 1) { ?>
                                 <!-- Subir stock y precios a web -->
                                 <tr>
                                     <td><button id="boton_subir_stock" class="btn">
@@ -91,7 +92,7 @@
                         <?php } ?>
 
                         </tr>
-                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("reorganizar", $mod_vista)) { ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("reorganizar") == 1) { ?>
                             <!-- Reorganizar permisos de usuarios -->
                             <tr>
                                 <td><button onclick=reorganizarPermisosModulos(0,<?php echo $total_usuarios; ?>) class="btn">
