@@ -9,6 +9,7 @@
     $Tienda = $_SESSION['tiendaTpv'];
     $idTienda = $Tienda['idTienda'];
     $total_usuarios = count($CReorganizar->obtenerUsuarios());
+    $mod_vista = array('vista' => 'ListadoReorganizar.php', 'modulo' => 'mod_reorganizacion');
     ?>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script>
@@ -34,47 +35,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Regenerar stock -->
-                        <tr>
-                            <td><button id="boton-stock" class="btn">
-                                    <span class="glyphicon glyphicon-save"> </span>Regenerar Stock</button></td>
-                            <td>Regenerar Stock según ventas y entradas tpv</td>
-                            <td>
-                                <div class="progress" style="margin:0 100px">
-                                    <div id="bar0" class="progress-bar progress-bar-info"
-                                        role="progressbar" aria-valuenow="0"
-                                        aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                                        0 % completado
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Cerrar stock (finalizar año) -->
-                        <tr>
-                            <td><button id="boton-cerrar-stock" class="btn">
-                                    <span class="glyphicon glyphicon-save"> </span>Cerrar Stock</button></td>
-                            <td>Cerrar stock del año actual y cerrar ejercicio creando albaranes de cierre</td>
-                            <td>
-                                <div class="progress" style="margin:0 100px">
-                                    <div id="bar-cerrar-stock" class="progress-bar progress-bar-info"
-                                        role="progressbar" aria-valuenow="0"
-                                        aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                                        0 % completado
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
-                            // Solo mostramos si hay web conectada a tienda principal.
-                        ?>
-                            <!-- Subir stock y precios a web -->
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("reorganizar", $mod_vista)) { ?>
+                            <!-- Regenerar stock -->
                             <tr>
-                                <td><button id="boton_subir_stock" class="btn">
-                                        <span class="glyphicon glyphicon-save"> </span>Subir Stock y Precios</button></td>
-                                <td>Subir Stock y precios a web</td>
+                                <td><button id="boton-stock" class="btn">
+                                        <span class="glyphicon glyphicon-save"> </span>Regenerar Stock</button></td>
+                                <td>Regenerar Stock según ventas y entradas tpv</td>
                                 <td>
                                     <div class="progress" style="margin:0 100px">
-                                        <div id="bar1" class="progress-bar progress-bar-info"
+                                        <div id="bar0" class="progress-bar progress-bar-info"
+                                            role="progressbar" aria-valuenow="0"
+                                            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                            0 % completado
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Cerrar stock (finalizar año) -->
+                            <tr>
+                                <td><button id="boton-cerrar-stock" class="btn">
+                                        <span class="glyphicon glyphicon-save"> </span>Cerrar Stock</button></td>
+                                <td>Cerrar stock del año actual y cerrar ejercicio creando albaranes de cierre</td>
+                                <td>
+                                    <div class="progress" style="margin:0 100px">
+                                        <div id="bar-cerrar-stock" class="progress-bar progress-bar-info"
                                             role="progressbar" aria-valuenow="0"
                                             aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                                             0 % completado
@@ -84,22 +68,46 @@
                             </tr>
                         <?php } ?>
 
+                        <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
+                            // Solo mostramos si hay web conectada a tienda principal.
+                        ?>
+                            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("subir_stock_web", $mod_vista)) { ?>
+                                <!-- Subir stock y precios a web -->
+                                <tr>
+                                    <td><button id="boton_subir_stock" class="btn">
+                                            <span class="glyphicon glyphicon-save"> </span>Subir Stock y Precios</button></td>
+                                    <td>Subir Stock y precios a web</td>
+                                    <td>
+                                        <div class="progress" style="margin:0 100px">
+                                            <div id="bar1" class="progress-bar progress-bar-info"
+                                                role="progressbar" aria-valuenow="0"
+                                                aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                                0 % completado
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        <?php } ?>
+
                         </tr>
-                        <!-- Reorganizar permisos de usuarios -->
-                        <tr>
-                            <td><button onclick=reorganizarPermisosModulos(0,<?php echo $total_usuarios; ?>) class="btn">
-                                    <span class="glyphicon glyphicon-save"> </span>Reorganizar permisos</button></td>
-                            <td>Limpiar y crea permisos de modulos inexistentes</td>
-                            <td>
-                                <div class="progress" style="margin:0 100px">
-                                    <div id="bar2" class="progress-bar progress-bar-info"
-                                        role="progressbar" aria-valuenow="0"
-                                        aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                                        0 % completado
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion("reorganizar", $mod_vista)) { ?>
+                            <!-- Reorganizar permisos de usuarios -->
+                            <tr>
+                                <td><button onclick=reorganizarPermisosModulos(0,<?php echo $total_usuarios; ?>) class="btn">
+                                        <span class="glyphicon glyphicon-save"> </span>Reorganizar permisos</button></td>
+                                <td>Limpiar y crea permisos de modulos inexistentes</td>
+                                <td>
+                                    <div class="progress" style="margin:0 100px">
+                                        <div id="bar2" class="progress-bar progress-bar-info"
+                                            role="progressbar" aria-valuenow="0"
+                                            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                            0 % completado
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
                 <div id="kaka"></div>
