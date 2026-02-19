@@ -17,35 +17,38 @@ function cerrarPopUp() {
 }
 
 function abrirModalConTitulo(titulo, contenido) {
-  // @ Objetivo :
-  // Abril modal con texto buscado y con titulo que le indiquemos. (Permite usar varios modales superpuestos con titulos diferentes)
-  console.log("Estamos en abrir modalConTitulo de func_modal");
-
-  // Adaptamos el titulo a SnakeCase para usarlo como ID único
+  // 1. Generamos el ID único (el "nombre" de nuestra caja)
   var tituloSnakeCase = titulo.replace(/\s+/g, "_").toLowerCase();
 
-  // Clonamos el modal original
-  var $modalClonado = $("#ventanaModal").clone();
+  // 2. BUSQUEDA: ¿Ya existe este modal en el DOM (el HTML)?
+  var $modalExistente = $("#" + tituloSnakeCase);
 
-  // Asignamos nuevo ID al modal clonado
-  $modalClonado.attr("id", tituloSnakeCase);
+  if ($modalExistente.length > 0) {
+    // SI EXISTE: No clonamos, solo actualizamos el contenido del que ya está ahí
+    console.log("El modal ya existe, actualizando contenido...");
+    $modalExistente.find(".modal-body").html(contenido);
+    $modalExistente.modal("show");
+  } else {
+    // NO EXISTE: Entonces sí, procedemos a clonar por primera vez
+    console.log("Creando nuevo clon para: " + tituloSnakeCase);
 
-  // Actualizamos título y contenido
-  $modalClonado.find(".modal-title").html(titulo);
-  $modalClonado.find(".modal-body").html(contenido);
+    var $modalClonado = $("#ventanaModal").clone();
+    $modalClonado.attr("id", tituloSnakeCase);
+    $modalClonado.find(".modal-title").html(titulo);
+    $modalClonado.find(".modal-body").html(contenido);
 
-  // Agregamos al body
-  $("body").append($modalClonado);
+    $("body").append($modalClonado);
+    $modalClonado.modal("show");
 
-  // Mostramos el modal
-  $("#" + tituloSnakeCase).modal("show");
+    // OJO: Si quieres que se pueda "actualizar" mientras está abierto,
+    // quizás no quieras borrarlo inmediatamente al cerrar,
+    // o asegúrate de que el .remove() funcione bien.
+    $modalClonado.on("hidden.bs.modal", function () {
+      $(this).remove();
+    });
+  }
 
-  // Cuando se cierre, eliminar del DOM
-  $("#" + tituloSnakeCase).on("hidden.bs.modal", function () {
-    $(this).remove();
-  });
-
-  return tituloSnakeCase; // opcional, por si quieres cerrarlo con JS
+  return tituloSnakeCase;
 }
 
 function cerrarPopUpConTitulo(titulo) {
