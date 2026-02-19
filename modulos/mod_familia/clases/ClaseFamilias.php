@@ -51,6 +51,61 @@ class ClaseFamilias extends Modelo
         }
         return $Obj;
     }
+
+    public function todasFamilias()
+    {
+        $sql = 'SELECT * from familias';
+        $smt = $this->consulta($sql);
+        if (isset($smt['error'])) {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+        } else {
+            $respuesta = $smt['datos'];
+        }
+        return $respuesta;
+    }
+
+    public function buscarFamiliaId($idFamilia)
+    {
+        $sql = 'SELECT * from familias where idFamilia=' . $idFamilia . ';';
+        $smt = $this->consulta($sql);
+        if (isset($smt['error'])) {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+        } else {
+            $respuesta = $smt['datos'][0];
+        }
+        return $respuesta;
+    }
+
+    public function buscarFamiliaNombre($nombreFamilia)
+    {
+        // Buscar por Nombre familia.
+        // y por palabras
+        $palabras = explode(' ', $nombreFamilia);
+        $likes = array();
+        foreach ($palabras as $key => $palabra) {
+            // Montamos consulta por palabras de varias palabras, en nombrefamilia
+            $likes[] =  'familiaNombre LIKE "%' . $palabra . '%" ';
+        }
+        $sql = 'SELECT * FROM familias WHERE ';
+        $whereNombre = '';
+        if (count($likes) > 0) {
+            // Si no hay palabras ya no buscamos por nombre
+            $whereNombre = '(' . implode(' and ', $likes) . ')';
+            $sql .= $whereNombre;
+        }
+        //~ error_log($sql);
+        $smt = $this->consulta($sql);
+        if (isset($smt['error'])) {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+        } else {
+            $respuesta = $smt;
+        }
+        return $respuesta;
+    }
+
     public function buscarAscendientes($idFamilia, $ascendientes = [])
     {
         // @ Objetivo es buscar los ancestos de una familia

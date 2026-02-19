@@ -273,15 +273,6 @@ function buscarProveedor(dedonde, idcaja, valor = "", popup = "") {
         $("#id_proveedor").prop("disabled", true);
         $("#buscar").css("display", "none");
 
-        //Dendiendo de donde venga realizamos unas funciones u otras
-        if (dedonde == "albaran" || dedonde == "factura") {
-          comprobarAdjunto(dedonde);
-        }
-        if (dedonde == "pedido") {
-          // Si viene de pedido ponemos el foco en idArticulo ya que pedidos no tiene que comprobar nada
-          //Para poder empezar a meter articulos
-          ponerFocus("idArticulo");
-        }
         mostrarFilaProveedor(dedonde);
       } else {
         //Si no mostramos un modal con los proveedores según la busqueda
@@ -301,7 +292,134 @@ function buscarProveedor(dedonde, idcaja, valor = "", popup = "") {
   });
 }
 
-// -- Funciones para modal
+function buscarFamilia(dedonde, idcaja, valor = "", popup = "") {
+  // @Objetivo: Buscar y comprobar que la busqueda de familia es correcta
+  // @parametros:
+  //      dedonde -> De donde venimos
+  //      idCaja  -> La utilizamos en tareas para comprobaciones
+  //      valor   -> valor que vamos a buscar
+  //      popup   -> si viene de popup cerramos la ventana modal
+  console.log("FUNCION buscarFamilia JS-AJAX");
+  var parametros = {
+    pulsado: "buscarFamilias",
+    busqueda: valor,
+    dedonde: dedonde,
+    idcaja: idcaja,
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log("******** estoy en buscar Familia JS****************");
+    },
+    success: function (response) {
+      console.log("Llegue devuelta respuesta de buscar Familia");
+      var resultado = $.parseJSON(response);
+      if (resultado.error) {
+        alert("Error de sql :" + resultado.consulta);
+        return;
+      }
+      if (resultado.Nitems == 1 && resultado.html == null) {
+        // Si es solo un resultado pone en la cabecera idFamilia ponemos el id devuelto
+        //Desactivamos los input para que no se puede modificar y en el nombre mostramos el valor
+        //Se oculta el botón del botón buscar
+        var titulo = "Listado Familias ";
+        cerrarPopUpConTitulo(titulo);
+        cabecera.idFamilia = resultado.id;
+        $("#id_familia").val(resultado.id);
+        $("#Familia").val(resultado.nombre);
+        $("#Familia").prop("disabled", true);
+        $("#id_familia").prop("disabled", true);
+
+        mostrarFilaFamilia(dedonde);
+      } else {
+        //Si no mostramos un modal con los proveedores según la busqueda
+        var titulo = "Listado Familias ";
+        var HtmlFamilias = resultado.html["html"];
+        abrirModalConTitulo(titulo, HtmlFamilias);
+        if (idcaja !== "cajaBusquedafamilia") {
+          focusAlLanzarModal("cajaBusquedafamilia");
+        } else {
+          // Vine modal , por lo que debemos saber si tiene resultado y poner focus en el primero
+          if (resultado.Nitems > 0) {
+            ponerFocus("N_0");
+          }
+        }
+      }
+    },
+  });
+}
+
+function agregarFamilia() {
+  var id = document.getElementById("id_familia").value.trim();
+  var nombre = document.getElementById("Familia").value.trim();
+
+  if (id === "" || nombre === "") {
+    alert("Debe ingresar ID y Nombre");
+    return;
+  }
+
+  // Verificar duplicado
+  if (
+    document.querySelector(
+      '#tablaFamiliasExcluidas tbody tr[data-id="' + id + '"]',
+    )
+  ) {
+    alert("Ese ID ya existe");
+    return;
+  }
+
+  var tabla = document.querySelector("#tablaFamiliasExcluidas tbody");
+
+  var fila = document.createElement("tr");
+  fila.setAttribute("data-id", id);
+
+  fila.innerHTML =
+    '<td class="v-align-middle">' +
+    id +
+    "</td>" +
+    '<td class="v-align-middle">' +
+    nombre +
+    "</td>" +
+    "<td>" +
+    '<button type="button" class="btn btn-xs btn-link text-danger" onclick="eliminarFamilia(this)">' +
+    '<i class="glyphicon glyphicon-trash"></i>' +
+    "</button>" +
+    "</td>";
+
+  tabla.appendChild(fila);
+
+  // Si está disabled lo habilitamos
+  if ($("#Familia").prop("disabled")) {
+    $("#Familia").prop("disabled", false);
+    $("#id_familia").prop("disabled", false);
+  }
+
+  // limpiar campos
+  document.getElementById("id_familia").value = "";
+  document.getElementById("Familia").value = "";
+}
+
+function eliminarFamilia(boton) {
+  var fila = boton.closest("tr");
+  fila.remove();
+}
+
+function mostrarFilaProveedor(dedonde) {
+  //@Objetivo: Mostrar la fila principal de articulos
+  $("#Row0").removeAttr("style");
+  console.log(dedonde);
+  ponerFocus(ObtenerFocusDefectoEntradaLinea());
+}
+
+function mostrarFilaFamilia(dedonde) {
+  //@Objetivo: Mostrar la fila principal de articulos
+  $("#Row0").removeAttr("style");
+  console.log(dedonde);
+  ponerFocus(ObtenerFocusDefectoEntradaLinea());
+}
+
 function controladorAcciones(caja, accion, tecla) {
   console.log(" Controlador Acciones: " + accion);
   switch (accion) {
@@ -317,6 +435,49 @@ function controladorAcciones(caja, accion, tecla) {
         );
       }
       break;
+    case "buscarFamilia":
+      if (caja.darValor() == "" && caja.id_input == "id_familia") {
+        // Cuando el valor no tiene datos y estamos id_input pasamos a cja Familia
+        ObtenerFocus(caja);
+      } else {
+        buscarFamilia(
+          caja.darParametro("dedonde"),
+          caja.id_input,
+          caja.darValor(),
+        );
+      }
+      break;
+  }
+}
+
+function ObtenerFocus(caja) {
+  if (caja.darValor() !== "") {
+    // Si tiene valor entonces no saltamos directamente , comprobamos que tenemos hacer segun la caja.
+    SiTieneValorCajaCabecera(caja);
+  }
+  ponerFocus(ObtenerCajaSiguiente(caja.id_input));
+}
+
+function SiTieneValorCajaCabecera(caja) {
+  console.log(
+    "Estoy en funciones SiTieneValorCaja:Tiene valor cja " + caja.id_input,
+  );
+
+  switch (caja.id_input) {
+    case "id_proveedor":
+      buscarProveedor(
+        caja.darParametro("dedonde"),
+        caja.id_input,
+        caja.darValor(),
+      );
+      break;
+    case "id_familia":
+      buscarFamilia(
+        caja.darParametro("dedonde"),
+        caja.id_input,
+        caja.darValor(),
+      );
+      break;
   }
 }
 
@@ -327,4 +488,57 @@ function ponerFocus(destino_focus) {
     //pongo un tiempo de focus ya que sino no funciona correctamente
     jQuery("#" + destino_focus.toString()).focus();
   }, 50);
+}
+
+function ObtenerCajaSiguiente(idCaja) {
+  // @ Objetivo
+  //  Obtener cual es la caja siguiente salto
+  // @ Parametro
+  //   idcaja -> la caja actual.
+  // @ Devolvemos
+  //   d_focus -> string con id caja siguiente.
+  var d_focus = "";
+  switch (idCaja) {
+    case "idArticulo":
+      d_focus = "Referencia";
+      break;
+
+    case "Referencia":
+      d_focus = "ReferenciaPro";
+      break;
+
+    case "ReferenciaPro":
+      d_focus = "Codbarras";
+      break;
+
+    case "Codbarras":
+      d_focus = "Descripcion";
+      break;
+
+    case "hora":
+      if (productos.length > 0) {
+        // Deberia saltar a linea entrada producto por defecto
+        d_focus = salto_linea;
+      } else {
+        d_focus = "Proveedor";
+      }
+      break;
+    case "Proveedor":
+      d_focus = "id_proveedor";
+      break;
+    case "id_proveedor":
+      d_focus = "Proveedor";
+      break;
+    case "Familia":
+      d_focus = "id_familia";
+      break;
+    case "id_familia":
+      d_focus = "Familia";
+      break;
+  }
+  return d_focus;
+}
+
+function ObtenerFocusDefectoEntradaLinea() {
+  return salto_linea;
 }

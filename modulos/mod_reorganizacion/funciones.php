@@ -83,3 +83,53 @@ function generarCierreAlbaran($productos, $familia_id = null, $idProveedor = 56)
     $AlbaranesCompras->AddAlbaranGuardado($datosAlbaran, 0);
     error_log('La información de AlbaranesCompras es: ' . print_r($AlbaranesCompras, true));
 }
+
+
+function htmlFamilias($busqueda, $dedonde, $idcaja, $familias = array())
+{
+    // @ Objetivo:
+    // Montar el hmtl para mostrar con los proveeodr si los hubiera.
+    // @ parametros:
+    //      $busqueda -> El valor a buscar,aunque puede venir vacio..
+    //      $dedonde  -> Nos indica de donde viene. ()
+    $resultado = array();
+    $resultado['encontrados'] = count($familias);
+    $resultado['html'] = '<label>Busqueda Familia en ' . $dedonde . '</label>'
+        . '<input id="cajaBusquedafamilia" name="valorfamilia" placeholder="Buscar"'
+        . 'size="13" data-obj="cajaBusquedafamilia" value="' . $busqueda
+        . '" onkeydown="controlEventos(event)" type="text">';
+
+    if (count($familias) > 10) {
+        $resultado['html'] .= '<span> Se muestra 10 familias de ' . count($familias) . '</span>';
+    }
+    $resultado['html'] .= '<table class="table table-striped"><thead>'
+        . ' <th></th> <th>Id</th><th>Nombre</th><th>Familia Padre</th><th>Beneficio</th></thead><tbody>';
+    if (count($familias) > 0) {
+        foreach ($familias as $key => $familia) {
+            $resultado['html'] .= '<tr id="Fila_' . $key
+                . '" class="FilaModal" onclick="buscarFamilia(' . "'" . $dedonde . "'" . ' , '
+                . "'id_familia'" . ', ' . $familia['idFamilia'] . ', ' . "'popup'" . ');" >'
+                . '<td id="C' . $key . '_Lin" >'
+                . '<input id="N_'
+                . $key . '" name="filafamilia" '
+                . 'data-obj="idN" onkeydown="controlEventos(event)" type="image"  alt="">'
+                . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
+                . '<td>' . htmlspecialchars($familia['idFamilia'], ENT_QUOTES) . '</td>'
+                . '<td>' . htmlentities($familia['familiaNombre'], ENT_QUOTES) . '</td>'
+                . '<td>' . $familia['familiaPadre'] . '</td>'
+                . '<td>' . $familia['beneficiomedio'] . '</td>'
+                . '</tr>';
+            if ($key === 10) {
+                // Solo mostramos 10 como máximo.
+                break;
+            }
+        }
+    } else {
+        // No se encontro nada con esa busqueda.
+        $resultado['html'] .= ' <div class="alert alert-warning">No se encontro ninguna familia, para esa busqueda</div> ';
+    }
+    $resultado['html'] .= '</tbody></table>';
+    // Ahora generamos objetos de filas.
+    // Objetos queremos controlar.
+    return $resultado;
+}

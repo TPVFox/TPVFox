@@ -29,6 +29,7 @@ include_once("./../../inicial.php");
 include_once './clases/ClaseReorganizar.php';
 include_once '../mod_producto/clases/ClaseArticulos.php';
 include_once '../mod_producto/clases/ClaseArticulosStocks.php';
+include_once 'funciones.php';
 
 switch ($pulsado) {
 
@@ -319,9 +320,8 @@ switch ($pulsado) {
         echo json_encode($respuesta);
         return $respuesta;
         break;
-    case 'buscarProveedor':
-        include_once $URLCom . '/clases/Proveedores.php';
-        $CProveedores = new Proveedores($BDTpv);
-        include_once  $URLCom . '/modulos/mod_compras/tareas/buscarProveedor.php';
+    case 'buscarFamilias':
+        error_log("Estoy llegando a buscar familias");
+        include_once 'tareas/buscarFamilias.php';
         break;
 }

@@ -25,7 +25,7 @@
         </cierre_stock_anual>
     </configuracion>
     <cajas_input data-obj="id_input">
-    <caja_input>
+        <caja_input>
             <nombre id_input="id_proveedor">cajaIdProveedor</nombre>
             <teclas>
                 <action tecla="13">buscarProveedor</action>
@@ -59,12 +59,50 @@
                 <action tecla="40">mover_down</action>
                 <action tecla="9">mover_down</action>
                 <action tecla="38">mover_up</action>
-
             </teclas>
             <parametros>
                 <parametro nombre="dedonde">reorganizarTPV</parametro>
             </parametros>
+        </caja_input>
 
+        <caja_input>
+            <nombre id_input="id_familia">cajaIdFamilia</nombre>
+            <teclas>
+                <action tecla="13">buscarFamilia</action>
+                <action tecla="39">Saltar_Siguiente</action>
+                <action tecla="38">Saltar_fecha</action>
+                <action tecla=" 9">Saltar_Siguiente</action>
+                <action tecla="40">Saltar_idArticulo</action>
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="Familia">cajaFamilia</nombre>
+            <teclas>
+                <action tecla="13">buscarFamilia</action>
+                <action tecla="37">Saltar_idFamilia</action>
+                <action tecla="39">Saltar_idArticulo</action>
+                <action tecla="38">Saltar_fecha</action>
+                <action tecla=" 9">buscarFamilia</action>
+                <action tecla="40">Saltar_idArticulo</action>
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="cajaBusquedafamilia">cajaBusquedafamilia</nombre>
+            <teclas>
+                <action tecla="13">buscarFamilia</action>
+                <action tecla="40">mover_down</action>
+                <action tecla="9">mover_down</action>
+                <action tecla="38">mover_up</action>
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
         </caja_input>
     </cajas_input>
 </parametros>

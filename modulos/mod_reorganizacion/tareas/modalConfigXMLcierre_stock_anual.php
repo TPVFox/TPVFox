@@ -33,12 +33,12 @@ $html .= '          <div class="row">'; // Usamos una fila interna para dividir 
 $html .= '            <div class="col-xs-8" style="padding-right:5px;">';
 $html .= '              <div class="input-group input-group-sm">';
 $html .= '                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>';
-$html .= '                <input type="text" class="form-control" name="Proveedor" id="Proveedor" data-obj= "cajaIdProveedor" value="' . $xml->ajustes_globales->proveedor . '" placeholder="Nombre..." onkeydown="controlEventos(event)">';
+$html .= '                <input type="text" class="form-control" name="Proveedor" id="Proveedor" data-obj= "cajaProveedor" value="' . $xml->ajustes_globales->proveedor . '" placeholder="Nombre..." onkeydown="controlEventos(event)">';
 $html .= '              </div>';
 $html .= '            </div>';
 $html .= '            <div class="col-xs-4" style="padding-left:0;">';
 $html .= '              <div class="input-group input-group-sm">';
-$html .= '                <input type="text" class="form-control" name="id_proveedor" id="id_proveedor" data-obj= "cajaProveedor" value="' . $xml->ajustes_globales->proveedor['id'] . '" placeholder="ID" onkeydown="controlEventos(event)">';
+$html .= '                <input type="text" class="form-control" name="id_proveedor" id="id_proveedor" data-obj= "cajaIdProveedor" value="' . $xml->ajustes_globales->proveedor['id'] . '" placeholder="ID" onkeydown="controlEventos(event)">';
 $html .= '                <span class="input-group-btn">';
 $html .= '                  <button type="button" class="btn btn-default" onclick="buscarProveedor(\'' . $dedonde . '\',\'Proveedor.value\')">';
 $html .= '                    <i class="glyphicon glyphicon-search"></i>';
@@ -94,7 +94,7 @@ foreach ($xml->familias_excluidas->familia as $familia) {
     $html .= '      <tr data-id="' . $familia['id'] . '">';
     $html .= '        <td class="v-align-middle">' . $familia['id'] . '</td>';
     $html .= '        <td class="v-align-middle">' . $familia . '</td>';
-    $html .= '        <td><button type="button" class="btn btn-xs btn-link text-danger btnEliminarFamilia"><i class="glyphicon glyphicon-trash"></i></button></td>';
+    $html .= '        <td><button type="button" class="btn btn-xs btn-link text-danger btnEliminarFamilia" onclick="eliminarFamilia(this)"><i class="glyphicon glyphicon-trash"></i></button></td>';
     $html .= '      </tr>';
 }
 $html .= '        </tbody>';
@@ -103,9 +103,14 @@ $html .= '    </div>';
 
 // Agregar Nueva Familia
 $html .= '    <div class="row mt-10" style="margin-top:10px;">';
-$html .= '      <div class="col-xs-4"><input type="number" id="new_fam_id" class="form-control input-sm" placeholder="ID"></div>';
-$html .= '      <div class="col-xs-5"><input type="text" id="new_fam_nom" class="form-control input-sm" placeholder="Nombre Familia..."></div>';
-$html .= '      <div class="col-xs-3"><button type="button" id="btnAgregarFamilia" class="btn btn-sm btn-block btn-success"><i class="glyphicon glyphicon-plus"></i></button></div>';
+$html .= '      <div class="row">'; // Usamos una fila interna para dividir ID y Nombre
+$html .= '          <div class="col-xs-3"><input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" value="" onkeydown="controlEventos(event)"></div>';
+$html .= '          <div class="col-xs-3"><input type="text" id="Familia" name="Familia"  data-obj="cajaFamilia" class="form-control input-sm" placeholder="Nombre Familia..." value="" onkeydown="controlEventos(event)"></div>';
+$html .= '                  <button type="button" class="btn btn-default" onclick="buscarFamilia(\'' . $dedonde . '\',\'Familia.value\')">';
+$html .= '                    <i class="glyphicon glyphicon-search"></i>';
+$html .= '                  </button>';
+$html .= '      </div>';
+$html .= '      <div class="col-xs-3"><button type="button" id="btnAgregarFamilia" class="btn btn-sm btn-block btn-success" onclick="agregarFamilia()"><i class="glyphicon glyphicon-plus"></i></button></div>';
 $html .= '    </div>';
 
 $html .= '  </div>';
