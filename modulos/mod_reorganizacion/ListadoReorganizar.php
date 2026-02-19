@@ -5,10 +5,26 @@
     <?php
     include './../../head.php';
     include_once './clases/ClaseReorganizar.php';
+    include_once $URLCom . '/controllers/Controladores.php';
+    include_once $URLCom . '/controllers/parametros.php';
     $CReorganizar = new ClaseReorganizar;
+    $ClasesParametros = new ClaseParametros('parametros.xml');
+    $Controler = new ControladorComun;
+    $Controler->loadDbtpv($BDTpv);
+
     $Tienda = $_SESSION['tiendaTpv'];
     $idTienda = $Tienda['idTienda'];
+
+    $dedonde = 'reorganizarTPV';
     $total_usuarios = count($CReorganizar->obtenerUsuarios());
+
+    //Cargamos la configuración por defecto y las acciones de las cajas
+    $parametros = $ClasesParametros->getRoot();
+    foreach ($parametros->cajas_input->caja_input as $caja) {
+        // Ahora cambiamos el parametros por defecto que tiene dedonde = pedido y le ponemos albaran
+        $caja->parametros->parametro[0] = $dedonde;
+    }
+    $VarJS = $Controler->ObtenerCajasInputParametros($parametros);
     ?>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script>
@@ -117,10 +133,8 @@
                         <?php } ?>
                     </tbody>
                 </table>
-                <div id="kaka"></div>
             </div>
         </div>
-    </div>
 </body>
 
 </html>
@@ -193,6 +207,15 @@ include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
         });
 
     });
+</script>
+
+<script>
+    // Creamos una variable global que el archivo .js externo pueda leer
+    var V_JS = {
+        dedonde: "<?php echo $dedonde; ?>"
+    };
+    <?php echo $VarJS; ?>
+    var cabecera = [];
 </script>
 
 <script>

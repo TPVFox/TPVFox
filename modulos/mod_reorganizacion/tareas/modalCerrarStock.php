@@ -17,13 +17,13 @@ foreach ($xml->familias_excluidas->familia as $familia) {
         'nombre' => (string)$familia         // valor del nodo
     ];
 }
-
-$idProveedor = $xml->ajustes_globales->id_proveedor_defecto;
+$proveedor = (string)$xml->ajustes_globales->proveedor;
+$idProveedor = $xml->ajustes_globales->proveedor['id'];
 
 $html = '<div class="panel panel-default shadow-sm" style="max-width: 600px; margin: 20px auto;">';
 $html .=   '<div class="panel-heading clearfix" style="background-color: #fff; border-bottom: 0;">';
 $html .=        '<h4 class="panel-title pull-left" style="padding-top: 7px;"><i class="glyphicon glyphicon-transfer text-primary"></i> Cierre de Stock Anual</h4>';
-$html .=        '<button type="button" class="btn btn-default btn-sm pull-right" onclick="abrirConfiguracionXML(\'cierre_stock_anual\')"><i class="glyphicon glyphicon-cog"></i> Configuración Base</button>';
+$html .=        '<button type="button" class="btn btn-default btn-sm pull-right" onclick="abrirConfiguracionXML(\'cierre_stock_anual\', \'' . $titulo . '\')"><i class="glyphicon glyphicon-cog"></i> Configuración Base</button>';
 $html .=    '</div>';
 $html .=    '<div class="panel-body">';
 $html .=        '<div class="alert alert-warning" style="font-size: 0.9em; margin-bottom: 20px;"><i class="glyphicon glyphicon-exclamation-sign"></i>Este proceso ajustará el stock a <strong>0</strong>. Se recomienda usar un proveedor dedicado.</div>';
@@ -36,7 +36,7 @@ $html .=                        '<input type="radio" name="modoCierre" id="modoB
 $html .=                        '<strong style="font-size: 1.1em;">Ejecución Base (XML)</strong>';
 $html .=                        '<p class="text-muted small" style="margin-top: 5px;">Cierre masivo respetando las exclusiones del sistema.</p>';
 $html .=                        '<div style="margin-top: 10px;">';
-$html .=                            '<span class="label label-primary">Proveedor: ' . $idProveedor . '</span>';
+$html .=                            '<span class="label label-primary" title="Proveedor: ' . $proveedor . '">Proveedor: ' . $idProveedor . '</span>';
 $html .=                            '<span class="label label-default" title="Familias excluidas: ' . implode(', ', array_map(function ($familia) {
     return (string)$familia['nombre'];
 }, $familias)) . '">Familias excluidas: ' . count($familias) . '</span>';
@@ -65,13 +65,27 @@ foreach ($familias as $familia) {
 }
 $html .=                            '</select>';
 $html .=                        '</div>';
-$html .=                        '<div class="col-xs-12 form-group" style="margin-bottom: 0;">';
-$html .=                            '<label class="control-label small text-uppercase">ID Proveedor de Ajuste</label>';
-$html .=                            '<div class="input-group input-group-sm">';
-$html .=                                '<span class="input-group-addon">ID</span>';
-$html .=                                '<input type="number" class="form-control" name="idProveedorAjuste" value="105">';
-$html .=                            '</div>';
-$html .=                        '</div>';
+$html .= '        <div class="form-group" style="margin:0 0 15px 0;">';
+$html .= '          <label class="small">Proveedor por Defecto (Albarán):</label>';
+$html .= '          <div class="row">'; // Usamos una fila interna para dividir ID y Nombre
+$html .= '            <div class="col-xs-8" style="padding-right:5px;">';
+$html .= '              <div class="input-group input-group-sm">';
+$html .= '                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>';
+$html .= '                <input type="text" class="form-control" name="Proveedor" id="Proveedor" data-obj= "cajaIdProveedor" value="' . $xml->ajustes_globales->proveedor . '" placeholder="Nombre..." onkeydown="controlEventos(event)">';
+$html .= '              </div>';
+$html .= '            </div>';
+$html .= '            <div class="col-xs-4" style="padding-left:0;">';
+$html .= '              <div class="input-group input-group-sm">';
+$html .= '                <input type="text" class="form-control" name="id_proveedor" id="id_proveedor" data-obj= "cajaProveedor" value="' . $xml->ajustes_globales->proveedor['id'] . '" placeholder="ID" onkeydown="controlEventos(event)">';
+$html .= '                <span class="input-group-btn">';
+$html .= '                  <button type="button" class="btn btn-default" onclick="buscarProveedor(\'' . $dedonde . '\',\'Proveedor.value\')">';
+$html .= '                    <i class="glyphicon glyphicon-search"></i>';
+$html .= '                  </button>';
+$html .= '                </span>';
+$html .= '              </div>';
+$html .= '            </div>';
+$html .= '          </div>'; // Cierre Row interno
+$html .= '        </div>';
 $html .=                    '</div>';
 $html .=                '</div>';
 $html .=            '</div>';

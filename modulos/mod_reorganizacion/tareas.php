@@ -301,6 +301,8 @@ switch ($pulsado) {
     // Modal para ampliar la configuración del cierre de stock anual
     case 'modalCerrarStock':
         $ClasesParametros = new ClaseParametros('parametros.xml');
+        $titulo = $_POST['titulo'];
+        $dedonde = $_POST['dedonde'];
         $xml = $ClasesParametros->getNodeInternBySection('configuracion', 'cierre_stock_anual');
         include_once 'tareas/modalCerrarStock.php';
         echo json_encode($respuesta);
@@ -309,11 +311,17 @@ switch ($pulsado) {
     case 'abrirConfiguracionXML':
         $ClasesParametros = new ClaseParametros('parametros.xml');
         $seccion = $_POST['seccion'];
+        $dedonde = $_POST['dedonde'];
         $xml = $ClasesParametros->getNodeInternBySection('configuracion', $seccion);
         $vistaUrl = 'tareas/modalConfigXML' . $seccion . '.php';
         include_once $vistaUrl;
         // $respuesta['html'] se genera dentro del archivo incluido
         echo json_encode($respuesta);
         return $respuesta;
+        break;
+    case 'buscarProveedor':
+        include_once $URLCom . '/clases/Proveedores.php';
+        $CProveedores = new Proveedores($BDTpv);
+        include_once  $URLCom . '/modulos/mod_compras/tareas/buscarProveedor.php';
         break;
 }

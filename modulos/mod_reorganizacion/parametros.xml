@@ -17,11 +17,54 @@
             </ajustes_globales>
 
             <familias_excluidas>
-                <familia id="1">Servicios</familia>
-                <familia id="2">Muestras</familia>
-                <familia id="3">Cupones</familia>
-                <familia id="4">Packaging</familia>
+                <familia id="21">Servicios</familia>
+                <familia id="22">Muestras</familia>
+                <familia id="13">Cupones</familia>
+                <familia id="42">Packaging</familia>
             </familias_excluidas>
         </cierre_stock_anual>
     </configuracion>
+    <cajas_input data-obj="id_input">
+    <caja_input>
+            <nombre id_input="id_proveedor">cajaIdProveedor</nombre>
+            <teclas>
+                <action tecla="13">buscarProveedor</action>
+                <action tecla="39">Saltar_Siguiente</action>
+                <action tecla="38">Saltar_fecha</action>
+                <action tecla=" 9">Saltar_Siguiente</action>
+                <action tecla="40">Saltar_idArticulo</action>
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="Proveedor">cajaProveedor</nombre>
+            <teclas>
+                <action tecla="13">buscarProveedor</action>
+                <action tecla="37">Saltar_idProveedor</action>
+                <action tecla="39">Saltar_idArticulo</action>
+                <action tecla="38">Saltar_fecha</action>
+                <action tecla=" 9">buscarProveedor</action>
+                <action tecla="40">Saltar_idArticulo</action>
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
+        </caja_input>
+        <caja_input>
+            <nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
+            <teclas>
+                <action tecla="13">buscarProveedor</action>
+                <action tecla="40">mover_down</action>
+                <action tecla="9">mover_down</action>
+                <action tecla="38">mover_up</action>
+
+            </teclas>
+            <parametros>
+                <parametro nombre="dedonde">reorganizarTPV</parametro>
+            </parametros>
+
+        </caja_input>
+    </cajas_input>
 </parametros>
