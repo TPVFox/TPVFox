@@ -55,16 +55,35 @@ $html .=                    '</label>';
 $html .=                '</div>';
 
 $html .=                '<div id="panelManual" style="display:none; margin-top: 15px; padding: 15px; border-top: 1px solid #ddd;">';
-$html .=                    '<div class="row">';
-$html .=                        '<div class="col-xs-12 form-group">';
-$html .=                            '<label class="control-label small text-uppercase">Seleccionar Familia</label>';
-$html .=                            '<select class="form-control input-sm" name="familiaSeleccionada">';
-$html .=                                '<option value="">-- Seleccionar --</option>';
-foreach ($familias as $familia) {
-    $html .=                                '<option value="' . $familia['id'] . '">' . $familia['nombre'] . '</option>';
-}
-$html .=                            '</select>';
-$html .=                        '</div>';
+// Agregar Nueva Familia
+$html .= '          <label class="small">Familia de cierre:</label>';
+$html .=                '<div class="row" style="margin-top:10px; display: flex; align-items: center;">';
+
+// 1. Bloque de Identificación y Búsqueda (9 columnas)
+$html .=                    '<div class="col-xs-12">';
+$html .=                    '    <div class="row">';
+// ID
+$html .=                    '        <div class="col-xs-3" style="padding-right:5px;">';
+$html .=                    '            <input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" onkeydown="controlEventos(event)">';
+$html .=                    '        </div>';
+
+// Nombre + Botones de búsqueda (agrupados para que queden pegados)
+$html .=                    '        <div class="col-xs-9">';
+$html .=                    '            <div class="input-group">';
+$html .=                    '                <input type="text" id="Familia" name="Familia" data-obj="cajaFamilia" class="form-control input-sm" placeholder="Nombre Familia..." onkeydown="controlEventos(event)">';
+$html .=                    '                <span class="input-group-btn">';
+$html .=                    '                    <button type="button" class="btn btn-sm btn-default" title="Buscar" onclick="buscarFamilia(\'' . $dedonde . '\',\'Familia.value\')">';
+$html .=                    '                        <i class="glyphicon glyphicon-search"></i>';
+$html .=                    '                    </button>';
+$html .=                    '                    <button type="button" class="btn btn-sm btn-default" title="Catálogo" onclick="catalogoFamilias()">';
+$html .=                    '                        <i class="glyphicon glyphicon-book"></i>';
+$html .=                    '                    </button>';
+$html .=                    '                </span>';
+$html .=                    '            </div>';
+$html .=                    '        </div>';
+$html .=                    '    </div>';
+$html .=                    '</div>';
+$html .=                '</div>';
 $html .= '        <div class="form-group" style="margin:0 0 15px 0;">';
 $html .= '          <label class="small">Proveedor por Defecto (Albarán):</label>';
 $html .= '          <div class="row">'; // Usamos una fila interna para dividir ID y Nombre

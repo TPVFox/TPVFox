@@ -351,6 +351,33 @@ function buscarFamilia(dedonde, idcaja, valor = "", popup = "") {
   });
 }
 
+function catalogoFamilias() {
+  var parametros = {
+    pulsado: "catalogoFamilias",
+    dedonde: V_JS.dedonde,
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log("******** estoy en catalogo Familias JS****************");
+    },
+    success: function (response) {
+      console.log("Llegue devuelta respuesta de catalogo Familias");
+      var resultado = $.parseJSON(response);
+      if (resultado.error) {
+        alert("Error de sql :" + resultado.consulta);
+        return;
+      }
+      var titulo = "Catálogo Familias ";
+      var HtmlFamilias = resultado.html;
+      abrirModalConTitulo(titulo, HtmlFamilias);
+      focusAlLanzarModal("cajaBusquedafamilia");
+    },
+  });
+}
+
 function agregarFamilia() {
   var id = document.getElementById("id_familia").value.trim();
   var nombre = document.getElementById("Familia").value.trim();
@@ -404,6 +431,100 @@ function agregarFamilia() {
 function eliminarFamilia(boton) {
   var fila = boton.closest("tr");
   fila.remove();
+}
+
+function toggleHijos(rutaPadre) {
+  // Buscamos todas las filas que "empiecen" por la ruta del padre
+  // Ejemplo: si padre es "1", ocultará "1-5", "1-5-12", etc.
+  const filas = document.querySelectorAll(
+    '#tablaFamiliasJerarquica tr[data-ruta^="' + rutaPadre + '-"]',
+  );
+
+  filas.forEach((f) => {
+    if (f.style.display === "none") {
+      f.style.display = "";
+    } else {
+      f.style.display = "none";
+    }
+  });
+}
+
+function toggleHijosDirectos(rutaPadre, elemento) {
+  // Si el elemento es la TR (fila), buscamos el icono dentro
+  const filaBase =
+    elemento.tagName === "TR" ? elemento : elemento.closest("tr");
+  const icono = filaBase.querySelector(".btn-desplegar-icono");
+
+  if (!icono) return; // Si no tiene icono, no tiene hijos, no hacemos nada
+
+  const nivelPadre = rutaPadre.split("-").length;
+  const descendientes = document.querySelectorAll(
+    `#tablaFamiliasJerarquica tr[data-ruta^="${rutaPadre}-"]`,
+  );
+
+  // Determinamos si vamos a abrir o cerrar basándonos en la rotación actual
+  let seVaAAbrir = !icono.classList.contains("rotar-90");
+
+  descendientes.forEach((f) => {
+    const rutaHijo = f.getAttribute("data-ruta");
+    const nivelHijo = rutaHijo.split("-").length;
+
+    if (seVaAAbrir) {
+      if (nivelHijo === nivelPadre + 1) f.style.display = "";
+    } else {
+      f.style.display = "none";
+      // Al cerrar el padre, reseteamos hijos y sus iconos
+      const iconoHijo = f.querySelector(".btn-desplegar-icono");
+      if (iconoHijo) {
+        iconoHijo.classList.remove("rotar-90");
+        if (f.classList.contains("nivel-1")) {
+          iconoHijo.classList.replace(
+            "glyphicon-folder-open",
+            "glyphicon-folder-close",
+          );
+        }
+      }
+    }
+  });
+
+  // Animación y cambio de estado del icono
+  if (seVaAAbrir) {
+    icono.classList.add("rotar-90");
+    icono.classList.replace("glyphicon-folder-close", "glyphicon-folder-open");
+  } else {
+    icono.classList.remove("rotar-90");
+    icono.classList.replace("glyphicon-folder-open", "glyphicon-folder-close");
+  }
+}
+
+function colapsarTodo() {
+  const filas = document.querySelectorAll(
+    "#tablaFamiliasJerarquica tr[data-ruta]",
+  );
+  filas.forEach((f) => {
+    const ruta = f.getAttribute("data-ruta");
+    // Si contiene un guión, no es raíz, por tanto se oculta
+    if (ruta.includes("-")) {
+      f.style.display = "none";
+    }
+    // Reset de iconos
+    const btn = f.querySelector(".glyphicon");
+    if (btn) {
+      btn.classList.remove("rotar-90");
+      btn.classList.replace("glyphicon-folder-open", "glyphicon-folder-close");
+    }
+  });
+}
+
+function seleccionarFamilia(idFamilia, nombreFamilia) {
+  // Al seleccionar una familia del catálogo, se asigna a la cabecera y se cierra el modal
+  cabecera.idFamilia = idFamilia;
+  $("#id_familia").val(idFamilia);
+  $("#Familia").val(nombreFamilia);
+  $("#Familia").prop("disabled", true);
+  $("#id_familia").prop("disabled", true);
+
+  cerrarPopUpConTitulo("Catálogo Familias ");
 }
 
 function mostrarFilaProveedor(dedonde) {

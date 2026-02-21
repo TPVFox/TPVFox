@@ -102,16 +102,41 @@ $html .= '      </table>';
 $html .= '    </div>';
 
 // Agregar Nueva Familia
-$html .= '    <div class="row mt-10" style="margin-top:10px;">';
-$html .= '      <div class="row">'; // Usamos una fila interna para dividir ID y Nombre
-$html .= '          <div class="col-xs-3"><input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" value="" onkeydown="controlEventos(event)"></div>';
-$html .= '          <div class="col-xs-3"><input type="text" id="Familia" name="Familia"  data-obj="cajaFamilia" class="form-control input-sm" placeholder="Nombre Familia..." value="" onkeydown="controlEventos(event)"></div>';
-$html .= '                  <button type="button" class="btn btn-default" onclick="buscarFamilia(\'' . $dedonde . '\',\'Familia.value\')">';
-$html .= '                    <i class="glyphicon glyphicon-search"></i>';
-$html .= '                  </button>';
-$html .= '      </div>';
-$html .= '      <div class="col-xs-3"><button type="button" id="btnAgregarFamilia" class="btn btn-sm btn-block btn-success" onclick="agregarFamilia()"><i class="glyphicon glyphicon-plus"></i></button></div>';
+$html .= '<div class="row" style="margin-top:10px; display: flex; align-items: center;">';
+
+// 1. Bloque de Identificación y Búsqueda (9 columnas)
+$html .= '<div class="col-xs-9">';
+$html .= '    <div class="row">';
+// ID
+$html .= '        <div class="col-xs-3" style="padding-right:5px;">';
+$html .= '            <input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" onkeydown="controlEventos(event)">';
+$html .= '        </div>';
+
+// Nombre + Botones de búsqueda (agrupados para que queden pegados)
+$html .= '        <div class="col-xs-9">';
+$html .= '            <div class="input-group">';
+$html .= '                <input type="text" id="Familia" name="Familia" data-obj="cajaFamilia" class="form-control input-sm" placeholder="Nombre Familia..." onkeydown="controlEventos(event)">';
+$html .= '                <span class="input-group-btn">';
+$html .= '                    <button type="button" class="btn btn-sm btn-default" title="Buscar" onclick="buscarFamilia(\'' . $dedonde . '\',\'Familia.value\')">';
+$html .= '                        <i class="glyphicon glyphicon-search"></i>';
+$html .= '                    </button>';
+$html .= '                    <button type="button" class="btn btn-sm btn-default" title="Catálogo" onclick="catalogoFamilias()">';
+$html .= '                        <i class="glyphicon glyphicon-book"></i>';
+$html .= '                    </button>';
+$html .= '                </span>';
+$html .= '            </div>';
+$html .= '        </div>';
 $html .= '    </div>';
+$html .= '</div>';
+
+// 2. Bloque de Acción Separado (3 columnas)
+$html .= '<div class="col-xs-3">';
+$html .= '    <button type="button" id="btnAgregarFamilia" class="btn btn-sm btn-block btn-success" title="Agregar Nueva Familia" onclick="agregarFamilia()">';
+$html .= '        <i class="glyphicon glyphicon-plus"></i> AGREGAR';
+$html .= '    </button>';
+$html .= '</div>';
+
+$html .= '</div>';
 
 $html .= '  </div>';
 $html .= '</div>';

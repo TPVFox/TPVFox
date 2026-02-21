@@ -2,7 +2,8 @@
   font-family: "Glyphicons Halflings";
 
   src: url("../fonts/glyphicons-halflings-regular.eot");
-  src: url("../fonts/glyphicons-halflings-regular.eot?#iefix")
+  src:
+    url("../fonts/glyphicons-halflings-regular.eot?#iefix")
       format("embedded-opentype"),
     url("../fonts/glyphicons-halflings-regular.woff") format("woff"),
     url("../fonts/glyphicons-halflings-regular.ttf") format("truetype"),
@@ -158,4 +159,62 @@ input[readonly] {
   100% {
     opacity: 1;
   }
+}
+
+/* Estilos para el catálogo de familias */
+/* Estructura Base */
+#tablaFamiliasJerarquica {
+  border-collapse: separate;
+}
+.FilaFamilia td {
+  transition: background 0.2s;
+  vertical-align: middle !important;
+}
+
+/* Identificación por Niveles */
+.nivel-1 {
+  background-color: #ffffff !important;
+  font-weight: bold;
+}
+
+.nivel-1 td:first-child {
+  border-left: 4px solid #337ab7 !important;
+}
+.nivel-2 {
+  background-color: #f9f9f9 !important;
+}
+.nivel-3 {
+  background-color: #f0f0f0 !important;
+  font-size: 0.95em;
+}
+.nivel-4 {
+  background-color: #e9e9e9 !important;
+  font-size: 0.9em;
+}
+.nivel-5 {
+  background-color: #e0e0e0 !important;
+  font-size: 0.85em;
+}
+
+/* Interactividad */
+.con-hijos td[onclick] {
+  cursor: pointer;
+}
+.con-hijos:hover td[onclick] {
+  background-color: #ebf5ff !important;
+}
+
+/* Iconos y Animaciones */
+.btn-desplegar-icono {
+  transition: transform 0.2s ease-in-out;
+  display: inline-block;
+  font-size: 14px;
+}
+.rotar-90 {
+  transform: rotate(90deg);
+}
+
+/* Estilo para familias sin hijos */
+.sin-hijos span {
+  color: #777;
 }

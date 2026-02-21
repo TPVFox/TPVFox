@@ -321,7 +321,9 @@ switch ($pulsado) {
         return $respuesta;
         break;
     case 'buscarFamilias':
-        error_log("Estoy llegando a buscar familias");
         include_once 'tareas/buscarFamilias.php';
+        break;
+    case 'catalogoFamilias':
+        include_once 'tareas/catalogoFamilias.php';
         break;
 }

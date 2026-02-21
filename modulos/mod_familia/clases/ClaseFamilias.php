@@ -542,6 +542,20 @@ class ClaseFamilias extends Modelo
         return $respuesta;
     }
 
+    // ------------------- METODOS BASADO en vw_jerarquias_familias ----------------------  //
+    public function getFamiliasJerarquizadas()
+    {
+        // @Objetivo: Obtener familias con nivel y ruta para visualización jerárquica.
+        // El ORDER BY ruta garantiza que los hijos sigan a sus padres.
+        $sql = "SELECT idFamilia, familiaNombre, nivel, ruta
+                FROM vw_jerarquias_familias
+                ORDER BY ruta ASC";
+
+        $resultado = $this->consulta($sql);
+
+        return $resultado;
+    }
+
     // ------------------- METODOS COMUNES ----------------------  //
     // -  Al final de cada clase suelo poner aquellos metodos   -  //
     // - que considero que puede ser añadimos algun controlador -  //
