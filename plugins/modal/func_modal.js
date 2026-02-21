@@ -31,10 +31,17 @@ function abrirModalConTitulo(titulo, contenido) {
   } else {
     // NO EXISTE: Entonces sí, procedemos a clonar por primera vez
     console.log("Creando nuevo clon para: " + tituloSnakeCase);
+    // Trasformamos el titutlo quitando _ y poniendo espacios y poniendo mayuscula cada palabra adaptado a español.
+    var tituloFormateado = tituloSnakeCase
+      .split("_")
+      .map(function (palabra) {
+        return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+      })
+      .join(" ");
 
     var $modalClonado = $("#ventanaModal").clone();
     $modalClonado.attr("id", tituloSnakeCase);
-    $modalClonado.find(".modal-title").html(titulo);
+    $modalClonado.find(".modal-title").html(tituloFormateado);
     $modalClonado.find(".modal-body").html(contenido);
 
     $("body").append($modalClonado);
