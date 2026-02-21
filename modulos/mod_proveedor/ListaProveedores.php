@@ -65,6 +65,7 @@
                         ?>
                         <li><a href="#section2" onclick="metodoClick('ListadoProductos');" ;>Sus productos principales</a></li>
                         <li><a href="#section2" onclick="metodoClick('ResumenAlbaranes');" ;>Resumen de albaranes</a></li>
+                        <li><a href="./OtrasVistas/resumenProveedores.php" ;>Resumen anual de proveedores</a></li>
 
 
                     </ul>

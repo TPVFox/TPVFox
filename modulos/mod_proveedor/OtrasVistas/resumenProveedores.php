@@ -55,11 +55,11 @@ uasort($resumenAnualValidado, function ($a, $b) {
         foreach ($resumenAnualValidado as $idProveedor => $resumen) {
             $proveedor = $Proveedor->getProveedor($idProveedor)['datos'][0];
             $bgclass = '';
-            if ($resumen['facturas']['total'] >= 3000) {
+            if ($resumen['facturas']['total'] - $resumen['facturas']['totalIva'] >= 3000) {
                 $bgclass = 'bg-info';
-            } elseif ($resumen['facturas']['total'] + $resumen['facturas']['totalIva'] >= 3000) {
+            } elseif ($resumen['facturas']['total'] >= 3000) {
                 $bgclass = 'bg-warning';
-            } elseif ($resumen['facturas']['total'] + $resumen['facturas']['totalIva'] < 2500) {
+            } elseif ($resumen['facturas']['total'] < 2500) {
                 continue;
             }
             echo mostrarResumenProveedor($proveedor, $resumen, $bgclass);
