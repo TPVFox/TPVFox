@@ -244,6 +244,21 @@ switch ($pulsado) {
         $respuesta['productos'] = $productos;
         $respuesta['html'] = $htmlModal;
         break;
+    case 'configuracionBase':
+        $CParametros = new ClaseParametros('parametros.xml');
+        $xml = $CParametros->getNodeIntern('configuracion');
+        $html = htmlConfiguracionBase($xml);
+        $respuesta['html'] = $html;
+        break;
+    case 'guardarXML':
+        $CParametros = new ClaseParametros('parametros.xml');
+        $xml = $CParametros->getNodeIntern('configuracion');
+        $datos = $_POST['datos'];
+        $guardar = validarXML($xml, $datos);
+        $CParametros->save();
+        $respuesta['guardar'] = $guardar;
+        $respuesta['mensaje'] = 'Guardado con éxito';
+        break;
 }
 echo json_encode($respuesta);
 /* ===============  CERRAMOS CONEXIONES  ===============*/

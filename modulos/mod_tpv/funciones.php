@@ -1068,3 +1068,221 @@ function htmlSelectConfiguracionSalto($campo)
     $html .= '</select>';
     return $html;
 }
+
+
+function htmlConfiguracionBase($configuracion)
+{
+    // @ Objetivo:
+    // Crear un formulario para presentar los datos de configuración de parametros .xml y poder guardar los cambios en cache local.
+    // @ Parametros:
+    //      $configuracion -> xml con los datos de configuración, que se obtiene del archivo parametros.xml
+    //      - impresion_ticket
+    //      - corte_tickets
+    //      - campo_peso
+    //      - impresora_ticket
+    //      - input_pordefecto:
+    //      - btn_familias
+    //      - incidencias: Valor-> Si Attributo -> mostrar_Select
+    //      - incidencias: Valor-> 1 Attributo -> usuario_Defecto
+    $campos = array('Referencia', 'Codbarras', 'Descripcion');
+    $html = '';
+    $html .= '<div class="panel-body">';
+    $html .= '<form class="form-horizontal" id="configForm">';
+
+    $html .= '<legend>Dispositivos y Salida</legend>';
+
+    // --- Impresión Ticket ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Impresión Ticket</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="impresion_ticket" id="impresion_ticket">';
+    $html .= '<option value="Si" ' . ($configuracion->impresion_ticket == 'Si' ? 'selected' : '') . '>Sí</option>';
+    $html .= '<option value="No" ' . ($configuracion->impresion_ticket == 'No' ? 'selected' : '') . '>No</option>';
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    // --- Ruta Impresora ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Ruta Impresora</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<div class="input-group">';
+    $html .= '<span class="input-group-addon"><i class="glyphicon glyphicon-print"></i></span>';
+    $html .= '<input type="text" class="form-control" name="impresora_ticket" id="impresora_ticket" value="' . $configuracion->impresora_ticket . '" placeholder="/dev/usb/lp0 o http://ip:puerto">';
+    $html .= '</div>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    // --- Corte Ticket ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Corte Ticket</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="corte_tickets" id  ="corte_tickets">';
+    $html .= '<option value="Si" ' . ($configuracion->corte_tickets == 'Si' ? 'selected' : '') . '>Sí</option>';
+    $html .= '<option value="No" ' . ($configuracion->corte_tickets == 'No' ? 'selected' : '') . '>No</option>';
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    $html .= '<legend>Comportamiento de Vistas</legend>';
+
+    // --- Input por Defecto ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Input por Defecto</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="input_pordefecto" id="input_pordefecto">';
+    foreach ($campos as $c) {
+        $selected = ((string)$configuracion->input_pordefecto === $c) ? 'selected' : '';
+        $html .= '<option value="' . $c . '" ' . $selected . '>' . $c . '</option>';
+    }
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    // --- Mostrar Campo Peso ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Mostrar Campo Peso</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="campo_peso" id="campo_peso">';
+    $html .= '<option value="Si" ' . ($configuracion->campo_peso == 'Si' ? 'selected' : '') . '>Sí</option>';
+    $html .= '<option value="No" ' . ($configuracion->campo_peso == 'No' ? 'selected' : '') . '>No</option>';
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    // --- Mostrar Boton Familias ---
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Mostrar Botón Familias</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="btn_familias" id="btn_familias">';
+    $html .= '<option value="Si" ' . ($configuracion->btn_familias == 'Si' ? 'selected' : '') . '>Sí</option>';
+    $html .= '<option value="No" ' . ($configuracion->btn_familias == 'No' ? 'selected' : '') . '>No</option>';
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    $html .= '<legend>Módulo Incidencias</legend>';
+
+    // --- Incidencias: Mostrar Selector ---
+    // Según tu objeto, es la posición [0] del nodo incidencias
+    $val_mostrar = (string)$configuracion->incidencias[0];
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Mostrar Selector</label>';
+    $html .= '<div class="col-sm-8">';
+    $html .= '<select class="form-control" name="incidencias_mostrar_Select" id="incidencias_mostrar_Select">';
+    $html .= '<option value="Si" ' . ($val_mostrar == 'Si' ? 'selected' : '') . '>Sí</option>';
+    $html .= '<option value="No" ' . ($val_mostrar == 'No' ? 'selected' : '') . '>No</option>';
+    $html .= '</select>';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    // --- Incidencias: Usuario Defecto ---
+    // Según tu objeto, es la posición [1] del nodo incidencias
+    $val_usuario = (string)$configuracion->incidencias[1];
+    $html .= '<div class="form-group">';
+    $html .= '<label class="col-sm-4 control-label">Usuario Defecto</label>';
+    $html .= '<div class="col-sm-4">';
+    $html .= '<input type="number" class="form-control" name="incidencias_usuario_Defecto" id="incidencias_usuario_Defecto" value="' . $val_usuario . '">';
+    $html .= '</div>';
+    $html .= '</div>';
+
+    $html .= '<hr>';
+    $html .= '<div class="form-group">';
+    $html .= '<div class="col-sm-offset-4 col-sm-8">';
+    $html .= '<button type="button" class="btn btn-success" onclick="guardarXML()">';
+    $html .= '<i class="glyphicon glyphicon-floppy-disk"></i> Guardar en Local</button>';
+    $html .= '</div>';
+    $html .= '</div>';
+    $html .= '</form>';
+    $html .= '</div>';
+
+    return $html;
+}
+
+function validarXML($xml, $datos)
+{
+    // @ Objetivo:
+    // Validar que el XML tenga los campos necesarios para la configuración, aunque no tengan valor, pero que existan.
+    // Validamos que el XML tenga la estructura esperada.
+    if (!isset($xml->impresion_ticket)) {
+        throw new Exception("El XML no tiene la sección 'impresion_ticket'");
+    }
+    if (!isset($xml->impresora_ticket)) {
+        throw new Exception("El XML no tiene la sección 'impresora_ticket'");
+    }
+    if (!isset($xml->corte_tickets)) {
+        throw new Exception("El XML no tiene la sección 'corte_tickets'");
+    }
+    if (!isset($xml->input_pordefecto)) {
+        throw new Exception("El XML no tiene la sección 'input_pordefecto'");
+    }
+    if (!isset($xml->campo_peso)) {
+        throw new Exception("El XML no tiene la sección 'campo_peso'");
+    }
+    if (!isset($xml->btn_familias)) {
+        throw new Exception("El XML no tiene la sección 'btn_familias'");
+    }
+    if (!isset($xml->incidencias) || count($xml->incidencias) < 2) {
+        throw new Exception("El XML no tiene la sección 'incidencias' con al menos 2 valores");
+    }
+
+    // Validamos que los datos recibidos tengan la estructura esperada.
+    if (!isset($datos['impresion_ticket'])) {
+        throw new Exception("Los datos no tienen la clave 'impresion_ticket'");
+    }
+    if (!isset($datos['impresora_ticket'])) {
+        throw new Exception("Los datos no tienen la clave 'impresora_ticket'");
+    }
+    if (!isset($datos['corte_tickets'])) {
+        throw new Exception("Los datos no tienen la clave 'corte_tickets'");
+    }
+    if (!isset($datos['input_pordefecto'])) {
+        throw new Exception("Los datos no tienen la clave 'input_pordefecto'");
+    }
+    if (!isset($datos['campo_peso'])) {
+        throw new Exception("Los datos no tienen la clave 'campo_peso'");
+    }
+    if (!isset($datos['btn_familias'])) {
+        throw new Exception("Los datos no tienen la clave 'btn_familias'");
+    }
+    if (!isset($datos['incidencias_mostrar_Select'])) {
+        throw new Exception("Los datos no tienen la clave 'incidencias_mostrar_Select'");
+    }
+    if (!isset($datos['incidencias_usuario_Defecto'])) {
+        throw new Exception("Los datos no tienen la clave 'incidencias_usuario_Defecto'");
+    }
+
+    actualizarXML($xml, $datos);
+}
+
+function actualizarXML($xml, $datos)
+{
+    // @ Objetivo:
+    // Actualizar el XML cuando el campo de la configuración cambie
+    if ($xml->impresion_ticket != $datos['impresion_ticket']) {
+        $xml->impresion_ticket = $datos['impresion_ticket'];
+    }
+    if ($xml->impresora_ticket != $datos['impresora_ticket']) {
+        $xml->impresora_ticket = $datos['impresora_ticket'];
+    }
+    if ($xml->corte_tickets != $datos['corte_tickets']) {
+        $xml->corte_tickets = $datos['corte_tickets'];
+    }
+    if ($xml->input_pordefecto != $datos['input_pordefecto']) {
+        $xml->input_pordefecto = $datos['input_pordefecto'];
+    }
+    if ($xml->campo_peso != $datos['campo_peso']) {
+        $xml->campo_peso = $datos['campo_peso'];
+    }
+    if ($xml->btn_familias != $datos['btn_familias']) {
+        $xml->btn_familias = $datos['btn_familias'];
+    }
+    if ($xml->incidencias[0] != $datos['incidencias_mostrar_Select']) {
+        $xml->incidencias[0] = $datos['incidencias_mostrar_Select'];
+    }
+    if ($xml->incidencias[1] != $datos['incidencias_usuario_Defecto']) {
+        $xml->incidencias[1] = $datos['incidencias_usuario_Defecto'];
+    }
+
+    return $xml;
+}

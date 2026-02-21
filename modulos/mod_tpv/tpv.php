@@ -331,6 +331,10 @@ $UltimoTicket = $Tickets->ultimoTicketCobrado();
                         <span class="glyphicon glyphicon-cog" title="Escoje casilla por defecto busqueda (salto)"></span>
                         <?php echo $select_campos; ?>
                     </div>
+                    <!-- Aqui añadiremos un boton para configurar la configuración base para todos los usuarios -->
+                    <div style="margin-top: 10px;" class="col-xs-3 col-md-12">
+                        <button class="btn btn-info" onclick="configuracionBase()">Config. Base</button>
+                    </div>
                 </div>
 
                 <?php //===== TICKETS ABIERTOS LATERAL
