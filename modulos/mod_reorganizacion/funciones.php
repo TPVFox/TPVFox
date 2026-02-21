@@ -133,3 +133,93 @@ function htmlFamilias($busqueda, $dedonde, $idcaja, $familias = array())
     // Objetos queremos controlar.
     return $resultado;
 }
+
+function guardarConfiguracionXML($xml, $datos, $seccion)
+{
+    switch ($seccion) {
+        case 'cierre_stock_anual':
+            validarXMLCierrreStockAnual($xml, $datos, $seccion);
+            break;
+        default:
+            return false; // Sección no reconocida
+    }
+}
+
+function validarXMLCierrreStockAnual($xml, $datos, $seccion)
+{
+    // Validamos que el XML tenga la estructura esperada.
+    if (!isset($xml->ajustes_globales)) {
+        throw new Exception("El XML no tiene la sección 'ajustes_globales'");
+    }
+    if (!isset($xml->ajustes_globales->proveedor)) {
+        throw new Exception("El XML no tiene la sección 'proveedor' dentro de 'ajustes_globales'");
+    }
+    if (!isset($xml->ajustes_globales->num_productos)) {
+        throw new Exception("El XML no tiene la sección 'num_productos' dentro de 'ajustes_globales'");
+    }
+    if (!isset($xml->ajustes_globales->reescribir_albaran)) {
+        throw new Exception("El XML no tiene la sección 'reescribir_albaran' dentro de 'ajustes_globales'");
+    }
+    if (!isset($xml->ajustes_globales->serie_albaran)) {
+        throw new Exception("El XML no tiene la sección 'serie_albaran' dentro de 'ajustes_globales'");
+    }
+    if (!isset($xml->ajustes_globales->serie_albaran->apertura) || !isset($xml->ajustes_globales->serie_albaran->cierre)) {
+        throw new Exception("El XML no tiene las secciones 'apertura' y 'cierre' dentro de 'serie_albaran'");
+    }
+    if (!isset($xml->familias_excluidas)) {
+        // Si no existe el nodo de familias_excluidas, lo creamos para evitar errores posteriores.
+        $xml->addChild('familias_excluidas');
+    }
+
+    // Validamos que los datos recibidos tengan la estructura esperada.
+    if (!isset($datos['idProveedor']) || !isset($datos['proveedor'])) {
+        throw new Exception("Los datos de proveedor deben incluir 'idProveedor' y 'proveedor'");
+    }
+    if (!isset($datos['reescribirAlbaran'])) {
+        throw new Exception("Los datos deben incluir 'reescribirAlbaran'");
+    }
+    if (!isset($datos['serieApertura']) || !isset($datos['serieCierre'])) {
+        throw new Exception("Los datos de serie_albaran deben incluir 'apertura' y 'cierre'");
+    }
+    if (!isset($datos['numProductos'])) {
+        throw new Exception("Los datos deben incluir 'numProductos'");
+    }
+    if (!isset($datos['familiasExcluidas']) || !is_array($datos['familiasExcluidas'])) {
+        throw new Exception("Los datos deben incluir 'familiasExcluidas' como un array");
+    }
+
+    // Si todo es correcto, procedemos a guardar la configuración.
+    guardarConfiguracionXMLCierreStockAnual($xml, $datos);
+}
+
+function guardarConfiguracionXMLCierreStockAnual($xml, $datos)
+{
+    // Comprobamos si el valor de proveedor ha cambiado, si es así actualizamos el XML.
+    if ((string)$xml->ajustes_globales->proveedor['id'] !== (string)$datos['idProveedor']) {
+        $xml->ajustes_globales->proveedor['id'] = $datos['idProveedor'];
+    }
+    if ((string)$xml->ajustes_globales->proveedor !== (string)$datos['proveedor']) {
+        $xml->ajustes_globales->proveedor = $datos['proveedor'];
+    }
+    // Transformar el varlor bool rescribirAlbaran a true o false en el XML para evitar confusiones.
+    $reescribirAlbaranValor = $datos['reescribirAlbaran'] ? 'true' : 'false';
+    if ((string)$xml->ajustes_globales->reescribir_albaran !== $reescribirAlbaranValor) {
+        $xml->ajustes_globales->reescribir_albaran = $reescribirAlbaranValor;
+    }
+    if ((string)$xml->ajustes_globales->serie_albaran->apertura !== (string)$datos['serieApertura']) {
+        $xml->ajustes_globales->serie_albaran->apertura = $datos['serieApertura'];
+    }
+    if ((string)$xml->ajustes_globales->serie_albaran->cierre !== (string)$datos['serieCierre']) {
+        $xml->ajustes_globales->serie_albaran->cierre = $datos['serieCierre'];
+    }
+    if ((string)$xml->ajustes_globales->num_productos !== (string)$datos['numProductos']) {
+        $xml->ajustes_globales->num_productos = $datos['numProductos'];
+    }
+    // Para facilitar el proceso de familias excluidas hacemos unset y creamos el nodo de nuevo con los valores actualizados.
+    unset($xml->familias_excluidas);
+    $familiasExcluidas = $xml->addChild('familias_excluidas');
+    foreach ($datos['familiasExcluidas'] as $familia) {
+        $familiaNode = $familiasExcluidas->addChild('familia', $familia['nombre']);
+        $familiaNode->addAttribute('id', $familia['id']);
+    }
+}

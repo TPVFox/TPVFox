@@ -53,7 +53,7 @@ $html .= '      </div>';
 // Reescribir
 $html .= '      <div class="col-xs-12 col-sm-4">';
 $html .= '        <div class="checkbox" style="margin-top: 25px;">';
-$html .= '          <label class="fw-bold"><input type="checkbox" name="reescribir_albaran" ' . ($xml->ajustes_globales->reescribir_albaran == "true" ? 'checked' : '') . '> Reescribir si existe</label>';
+$html .= '          <label class="fw-bold"><input type="checkbox" name="reescribir_albaran" id="reescribir_albaran" ' . ($xml->ajustes_globales->reescribir_albaran == "true" ? 'checked' : '') . '> Reescribir si existe</label>';
 $html .= '        </div>';
 $html .= '      </div>';
 
@@ -63,17 +63,17 @@ $html .= '    <div class="row">';
 // Serie Apertura
 $html .= '      <div class="col-xs-6 col-sm-4">';
 $html .= '        <label class="small">Serie Apertura:</label>';
-$html .= '        <input type="text" class="form-control input-sm text-center" name="serie_apertura" value="' . $xml->ajustes_globales->serie_albaran->apertura . '">';
+$html .= '        <input type="text" class="form-control input-sm text-center" name="serie_apertura" id="serie_apertura" value="' . $xml->ajustes_globales->serie_albaran->apertura . '">';
 $html .= '      </div>';
 // Serie Cierre
 $html .= '      <div class="col-xs-6 col-sm-4">';
 $html .= '        <label class="small">Serie Cierre:</label>';
-$html .= '        <input type="text" class="form-control input-sm text-center" name="serie_cierre" value="' . $xml->ajustes_globales->serie_albaran->cierre . '">';
+$html .= '        <input type="text" class="form-control input-sm text-center" name="serie_cierre" id="serie_cierre" value="' . $xml->ajustes_globales->serie_albaran->cierre . '">';
 $html .= '      </div>';
 // Info Productos (Readonly)
 $html .= '      <div class="col-xs-12 col-sm-4">';
 $html .= '        <label class="small">Productos por Albarán:</label>';
-$html .= '        <input type="number" class="form-control text-primary fw-bold" value="' . number_format((float)$xml->ajustes_globales->num_productos, 0, ',', '.') . '" >';
+$html .= '        <input type="number" id="num_productos" class="form-control text-primary fw-bold" value="' . number_format((float)$xml->ajustes_globales->num_productos, 0, ',', '.') . '" >';
 $html .= '      </div>';
 $html .= '    </div>';
 
@@ -147,7 +147,7 @@ $html .= '</div>';
 // Footer separado del body para el modal
 $html .= '<div class="modal-footer" style="margin-top:15px; padding:15px 0 0 0;">';
 $html .= '  <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>';
-$html .= '  <button type="button" onclick="guardarConfiguracionXML()" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Guardar Configuración</button>';
+$html .= '  <button type="button" onclick="guardarConfiguracionXML(\'' . $seccion . '\')" class="btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Guardar Configuración</button>';
 $html .= '</div>';
 
 $respuesta['html'] = $html;

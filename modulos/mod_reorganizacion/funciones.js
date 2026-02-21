@@ -663,3 +663,76 @@ function ObtenerCajaSiguiente(idCaja) {
 function ObtenerFocusDefectoEntradaLinea() {
   return salto_linea;
 }
+
+function guardarConfiguracionXML(seccion) {
+  // @Objetivo: Guardar la configuración del XML de cierre de stock anual
+  // @parametros:
+  //      Se recogen los datos del formulario y se envían por AJAX para guardar la configuración
+  var datos = obternerDatosFormulario(seccion);
+
+  var parametros = {
+    pulsado: "guardarConfiguracionXML",
+    seccion: seccion,
+    datos: JSON.stringify(datos),
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log(
+        "********* envio para guardar configuración XML de cierre de stock anual **************",
+      );
+    },
+    success: function (response) {
+      console.log(
+        "Respuesta de guardar configuración XML de cierre de stock anual ",
+      );
+      var resultado = $.parseJSON(response);
+      if (resultado.error) {
+        alert("Error al guardar configuración: " + resultado.mensaje);
+        return;
+      }
+      alert("Configuración guardada correctamente");
+      cerrarPopUpConTitulo("Configuración XML - " + seccion);
+    },
+  });
+}
+
+function obternerDatosFormulario(seccion) {
+  // @objetivo: dependiendo de la sección que se trate, se recogen los datos del formulario correspondiente y se devuelven en un objeto para enviar por AJAX
+  switch (seccion) {
+    case "cierre_stock_anual":
+      return obtenerDatosFormularioCierreStockAnual();
+    default:
+      return {};
+  }
+}
+
+function obtenerDatosFormularioCierreStockAnual() {
+  // Recolectar datos del formulario
+  idProveedor = $("#id_proveedor").val();
+  proveedor = $("#Proveedor").val();
+  reescribirAlbaran = $("#reescribir_albaran").is(":checked") ? true : false;
+  numProductos = $("#num_productos").val();
+  serieApertura = $("#serie_apertura").val();
+  serieCierre = $("#serie_cierre").val();
+
+  // Recolectar familias excluidas
+  familiasExcluidas = [];
+  $("#tablaFamiliasExcluidas tbody tr").each(function () {
+    var idFamilia = $(this).find("td:first").text().trim();
+    var nombreFamilia = $(this).find("td:nth-child(2)").text().trim();
+    familiasExcluidas.push({ id: idFamilia, nombre: nombreFamilia });
+  });
+
+  return {
+    idProveedor: idProveedor,
+    proveedor: proveedor,
+    reescribirAlbaran: reescribirAlbaran,
+    numProductos: numProductos,
+    serieApertura: serieApertura,
+    serieCierre: serieCierre,
+    familiasExcluidas: familiasExcluidas,
+  };
+}

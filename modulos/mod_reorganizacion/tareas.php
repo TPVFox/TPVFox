@@ -326,4 +326,13 @@ switch ($pulsado) {
     case 'catalogoFamilias':
         include_once 'tareas/catalogoFamilias.php';
         break;
+    case 'guardarConfiguracionXML':
+        $seccion = $_POST['seccion'];
+        $datos = json_decode($_POST['datos'], true);
+        $ClasesParametros = new ClaseParametros('parametros.xml');
+        $xml = $ClasesParametros->getNodeInternBySection('configuracion', $seccion);
+        guardarConfiguracionXML($xml, $datos, $seccion);
+        $ClasesParametros->save();
+        echo json_encode(['guardado' => true]);
+        break;
 }
