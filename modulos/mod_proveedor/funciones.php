@@ -183,12 +183,13 @@ function validarResumenAnual($resumenAnual, $ano)
     );
     if (isset($resumenAnual['resumen_facturas'])) {
         // Validamos cuantos años fiscales hay.
-        foreach ($resumenAnual['resumen_facturas'] as $ano => $datos) {
-            if ($ano == $ano) {
+        foreach ($resumenAnual['resumen_facturas'] as $datos) {
+            if ($ano == $datos['ejercicio']) {
                 $resumen_facturas = $datos;
             }
         }
     }
+
     $respuesta['facturas'] = $resumen_facturas;
     return $respuesta;
 }
@@ -231,5 +232,45 @@ function htmlTablaResumenAnual($resumenAnual)
         . '<td>' . number_format($resumenAnual['facturas']['q4'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['total'], 2) . '</td>'
         . '</tbody></table>';
+    return $html;
+}
+
+function validarResumenAnualTodosProveedores($resumenAnual, $ano)
+{
+    // Objetivo:
+    // Validar que el resumen anual tiene datos del año seleccionado.
+    // Si no es así crear array con meses y totales a 0.
+    $respuesta = array();
+    $resumenAnual = $resumenAnual['resumen_facturas'];
+    foreach ($resumenAnual as $key => $resumenProveedor) {
+        $idProveedor = $resumenAnual[$key]['idProveedor'];
+        $resumen = array('resumen_facturas' => array($idProveedor => $resumenProveedor));
+        $respuesta[$idProveedor] = validarResumenAnual($resumen, $ano);
+    }
+    return $respuesta;
+}
+
+function mostrarResumenProveedor($proveedor, $resumen, $bgclass)
+{
+    // Objetivo:
+    // Mostrar resumen anual de un proveedor.
+    $html = '<h2>Resumen Anual de ' . htmlspecialchars($proveedor['nombrecomercial'], ENT_QUOTES) . '</h2>';
+    $html .= '<div class="col-md-12 ' . $bgclass . '">';
+    $html .= '<div class="col-md-4">';
+    $html .= '<h3>Datos del Proveedor</h3>';
+    $html .= '<p><strong>ID Proveedor: </strong>' . htmlspecialchars($proveedor['idProveedor'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>Nombre: </strong>' . htmlspecialchars($proveedor['nombrecomercial'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>NIF: </strong>' . htmlspecialchars($proveedor['razonsocial'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>Dirección: </strong>' . htmlspecialchars($proveedor['direccion'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>Teléfono: </strong>' . htmlspecialchars($proveedor['telefono'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>Email: </strong>' . htmlspecialchars($proveedor['email'], ENT_QUOTES) . '</p>';
+    $html .= '<a class="btn btn-primary" target="_blank" href="./../proveedor.php?id=' . urlencode($proveedor['idProveedor']) . '&accion=ver" role="button">Ver Proveedor</a> ';
+    $html .= '<a class="btn  btn-info" target="_blank" href="./resumenAlbaranes.php?id=' . urlencode($proveedor['idProveedor']) . '&historyJS=1" role="button">Resumen Albaranes</a> ';
+    $html .= '<a class="btn  btn-info" target="_blank" href="../../mod_compras/facturasListado.php?buscar=' . urlencode($proveedor['nombrecomercial']) . '" role="button">Facturas Proveedor</a> ';
+    $html .= '</div>';
+    $html .= '<div class="col-md-8">';
+    $html .= htmlTablaResumenAnual($resumen);
+    $html .= '</div>';
+    $html .= '</div>';
     return $html;
 }
