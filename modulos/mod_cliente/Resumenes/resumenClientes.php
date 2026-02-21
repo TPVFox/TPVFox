@@ -57,11 +57,11 @@ uasort($resumenAnualValidado, function ($a, $b) {
                 continue;
             }
             $bgclass = '';
-            if ($resumen['total']['total'] >= 3000) {
+            if ($resumen['total']['total'] - $resumen['total']['totalIva'] >= 3000) {
                 $bgclass = 'bg-info';
-            } elseif ($resumen['total']['total'] + $resumen['total']['totalIva'] >= 3000) {
+            } elseif ($resumen['total']['total'] >= 3000) {
                 $bgclass = 'bg-warning';
-            } elseif ($resumen['total']['total'] + $resumen['total']['totalIva'] < 2500) {
+            } elseif ($resumen['total']['total'] < 2500) {
                 continue;
             }
             echo mostrarResumenCliente($cliente, $resumen, $bgclass);
