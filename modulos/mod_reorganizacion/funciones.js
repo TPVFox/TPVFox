@@ -166,6 +166,24 @@ function CerrarStockAnoActual(inicio, pagina, familias, idBar, idProveedor) {
   });
 }
 
+function validarProceso(seccion) {
+  switch (seccion) {
+    case "Cierre Stock Anual":
+      console.log("Ejecutar proceso cierre stock anual");
+      // Verificamos si modoBase o modoManual estan checked para ejecutar el proceso correspondiente
+      var modoBase = $("#modoBase").is(":checked");
+      var modoManual = $("#modoManual").is(":checked");
+      if (modoBase) {
+        console.log("Ejecutar proceso cerrar stock anual en modo base");
+        // Validar posibles inconsistencias de idPoveedor y familias y abortar el proceso antes de ejecutarlo
+        validarDatosXML(seccion);
+      } else if (modoManual) {
+        console.log("Ejecutar proceso cerrar stock anual en modo manual");
+      }
+      break;
+  }
+}
+
 function ajaxStock(parametros, callback) {
   $.ajax({
     data: parametros,
@@ -183,7 +201,7 @@ function ajaxStock(parametros, callback) {
 function modalCerrarStock() {
   var parametros = {
     pulsado: "modalCerrarStock",
-    titulo: "Cerrar Stock Anual",
+    titulo: "Cierre Stock Anual",
     dedonde: V_JS.dedonde,
   };
   $.ajax({
@@ -198,7 +216,7 @@ function modalCerrarStock() {
     success: function (response) {
       console.log("Respuesta de mostrar modal para cerrar stock anual ");
       var resultado = $.parseJSON(response);
-      var titulo = "Cerrar Stock Anual";
+      var titulo = "Cierre Stock Anual";
       abrirModalConTitulo(titulo, resultado.html);
     },
   });
@@ -735,4 +753,68 @@ function obtenerDatosFormularioCierreStockAnual() {
     serieCierre: serieCierre,
     familiasExcluidas: familiasExcluidas,
   };
+}
+
+$(document).on("change", "input[name='modoCierre']", function () {
+  if ($(this).val() === "1") {
+    console.log("Manual");
+    $("#btnValidarCierre").show();
+    $("#btnIniciarCierre").hide();
+    $("#alertaInconsistencias").hide();
+  } else {
+    console.log("Base");
+    $("#btnValidarCierre").show();
+    $("#btnIniciarCierre").hide();
+    $("#alertaInconsistencias").hide();
+  }
+});
+
+function validarDatosXML(seccion) {
+  // @Objetivo: Validar datos que puedan ser inconsistentes en la configuración XML antes de ejecutar el proceso, como por ejemplo que el id del proveedor no exista o no coincida con el nombre y lo mismo para las familias, y mostrar un mensaje de alerta indicando que se han detectado inconsistencias en la configuración XML y que se recomienda revisar la configuración antes de ejecutar el proceso.
+  // Se hace una llamada AJAX para validar los datos actuales del xml y si se detecta alguna inconsistencia se muestra el mensaje de alerta en el modal y se aborta la ejecución del proceso.
+  // Añadiendo un <p> dentro del div id=alertaInconsistencias
+  // La sección se envia en minuscula y con guiones bajos para que sea más fácil de tratar en tareas.php, por ejemplo "cierre_stock_anual"
+  seccion = seccion.toLowerCase().replace(/ /g, "_");
+  var parametros = {
+    pulsado: "validarConfiguracionXML",
+    seccion: seccion,
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log(
+        "********* envio para validar configuración XML de cierre de stock anual antes de ejecutar proceso **************",
+      );
+    },
+    success: function (response) {
+      console.log(
+        "Respuesta de validar configuración XML de cierre de stock anual ",
+      );
+      var resultado = $.parseJSON(response);
+      // Si hay error en la consulta SQL mostramos el mensaje de error mostralo dentro de div id=alertaInconsistencias
+      if (resultado.error) {
+        // Mostrar id=alertaInconsistencias y mostrar mensaje de error dentro
+        $("#alertaInconsistencias").show();
+        $("#alertaInconsistencias").html(
+          "<p class='text-danger'>Error al validar configuración: " +
+            resultado.mensaje +
+            "</p>",
+        );
+        return;
+      } else {
+        // Cambiar la clase alert-danger del id=alertaInconsistencias por alert-info y mostrar mensaje de advertencia dentro indicando que se han detectado inconsistencias pero que no se han podido validar correctamente y que se recomienda revisar la configuración antes de ejecutar el proceso
+        $("#alertaInconsistencias").removeClass("alert-danger");
+        $("#alertaInconsistencias").addClass("alert-info");
+        $("#alertaInconsistencias").html(
+          "<p class='text-info'>" + resultado.mensaje + "</p>",
+        );
+        $("#alertaInconsistencias").show();
+        // Ocultar Boton de ejecutar proceso para que el usuario revise la configuración antes de ejecutar el proceso
+        $("#btnValidarCierre").hide();
+        $("#btnIniciarCierre").show();
+      }
+    },
+  });
 }

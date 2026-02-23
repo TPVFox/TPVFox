@@ -223,3 +223,83 @@ function guardarConfiguracionXMLCierreStockAnual($xml, $datos)
         $familiaNode->addAttribute('id', $familia['id']);
     }
 }
+
+function validarDatosXML($xml, $seccion)
+{
+    // @ Objetivo:
+    // Validar que los datos que puedan ser inconsistente del XML sigan vigentes y que no se hayan eliminado o modificado por error.
+    // @ Retorno:
+    // Un array con el resultado de la validación indicando si es correcto o no y un mensaje descriptivo en caso de que no sea correcto.
+    $respuesta = ['error' => false, 'mensaje' => ''];
+    switch ($seccion) {
+        case 'cierre_stock_anual':
+            // Validamos que el idProveedro exista en nuestra base de datos de proveedores.
+            $proveedorId = (string)$xml->ajustes_globales->proveedor['id'];
+            $proveedorNombre = (string)$xml->ajustes_globales->proveedor;
+            $proveedorValido = validarProveedor($proveedorId, $proveedorNombre);
+            if (!$proveedorValido) {
+                $respuesta['error'] = true;
+                $respuesta['mensaje'] .= "El proveedor con ID: {$proveedorId} y Nombre: {$proveedorNombre} no es válido. Por favor revise la configuración. \n";
+            }
+            // Validamos que las familias excluidas existan en nuestra base de datos de familias.
+            $familiasExcluidas = [];
+            foreach ($xml->familias_excluidas->familia as $familia) {
+                $familiasExcluidas[] = [
+                    'id' => (string)$familia['id'],
+                    'nombre' => (string)$familia
+                ];
+            }
+            foreach ($familiasExcluidas as $familia) {
+                $familiaValida = validarFamilia($familia['id'], $familia['nombre']);
+                if (!$familiaValida) {
+                    $respuesta['error'] = true;
+                    $respuesta['mensaje'] .= "La familia excluida con ID: {$familia['id']} y Nombre: {$familia['nombre']} no es válida. Por favor revise la configuración. \n";
+                }
+            }
+            // Si todo es correcto, retornamos que la validación es exitosa.
+            if (!isset($respuesta['error']) || $respuesta['error'] === false) {
+                $respuesta['error'] = false;
+                $respuesta['mensaje'] .= "La configuración XML es válida.";
+            }
+            return $respuesta;
+        default:
+            $respuesta['error'] = true;
+            $respuesta['mensaje'] .= "Sección no reconocida para validación.";
+            return $respuesta;
+    }
+}
+
+function validarProveedor($idProveedor, $nombreProveedor)
+{
+    global $URLCom, $BDTpv;
+    // Comprobar en la base de datos que el proveedor con ese ID existe y que su nombre coincide con el configurado en el XML.
+    include_once $URLCom . '/clases/Proveedores.php';
+    // Buscamos el proveedor por ID
+    $Proveedores = new Proveedores($BDTpv);
+    $proveedor = $Proveedores->buscarProveedorId($idProveedor);
+    if (isset($proveedor['error']) || empty($proveedor)) {
+        return false;
+    }
+    // Comprobamos que el nombre del proveedor coincide
+    if ($proveedor['nombrecomercial'] !== $nombreProveedor) {
+        return false;
+    }
+    return true;
+}
+
+function validarFamilia($idFamilia, $nombreFamilia)
+{
+    // Comprobar en la base de datos que la familia con ese ID existe y que su nombre coincide con el configurado en el XML.
+    global $URLCom, $BDTpv;
+    include_once $URLCom . '/modulos/mod_reorganizacion/clases/ClaseReorganizar.php';
+    $CReorganizar = new ClaseReorganizar($BDTpv);
+    $familia = $CReorganizar->buscarFamiliaId($idFamilia);
+    if (isset($familia['error']) || empty($familia)) {
+        return false;
+    }
+    // Comprobamos que el nombre de la familia coincide
+    if ($familia['familiaNombre'] !== $nombreFamilia) {
+        return false;
+    }
+    return true;
+}

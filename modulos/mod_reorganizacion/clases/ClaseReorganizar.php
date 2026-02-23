@@ -219,4 +219,17 @@ class ClaseReorganizar extends TFModelo
             return array();
         }
     }
+
+    public function buscarFamiliaId($idFamilia)
+    {
+        $sql = 'SELECT * from familias where idFamilia=' . $idFamilia;
+        $smt = $this->consulta($sql);
+        if (isset($smt['error'])) {
+            $respuesta['error'] = $smt['error'];
+            $respuesta['consulta'] = $smt['consulta'];
+        } else {
+            $respuesta = $smt['datos'][0];
+        }
+        return $respuesta;
+    }
 }

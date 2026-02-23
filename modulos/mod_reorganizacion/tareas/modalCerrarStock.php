@@ -42,6 +42,10 @@ $html .=                            '<span class="label label-default" title="Fa
 }, $familias)) . '">Familias excluidas: ' . count($familias) . '</span>';
 $html .=                        '</div>';
 $html .=                    '</label>';
+// Si al ejecutar se detecta que el id del proveedor no existe o no coincide con el nombre y lo mismo para las familias, mostrar un mensaje de alerta indicando que se han detectado inconsistencias en la configuración XML y que se recomienda revisar la configuración antes de ejecutar el proceso.
+$html .=                    '<div id="alertaInconsistencias" class="alert alert-danger" style="margin-top: 15px; display:none;">';
+$html .=                        '<p><i class="glyphicon glyphicon-warning-sign"></i> Se han detectado inconsistencias en la configuración XML. Por favor, revise el proveedor y las familias excluidas antes de ejecutar el proceso.</p>';
+$html .=                    '</div>';
 $html .=                '</div>';
 $html .=            '</div>';
 
@@ -113,8 +117,11 @@ $html .=    '</div>';
 
 $html .=    '<div class="panel-footer clearfix" style="background-color: #fff; border-top: 0; padding-top: 0;">';
 $html .=        '<hr style="margin-top: 0;">';
-$html .=        '<button type="button" class="btn btn-link pull-left text-muted" onclick="cerrarModal()">Cancelar</button>';
-$html .=        '<button type="button" class="btn btn-primary pull-right px-4" onclick="ejecutarProceso()">';
+$html .=        '<button type="button" class="btn btn-link pull-left text-muted" onclick="cerrarPopUpConTitulo(\'' . $titulo . '\')">Cancelar</button>';
+$html .=        '<button type="button" id="btnValidarCierre" class="btn btn-primary pull-right px-4" onclick="validarProceso(\'' . $titulo . '\')">';
+$html .=            '<i class="glyphicon glyphicon-check"></i> Validar Cierre';
+$html .=        '</button>';
+$html .=        '<button type="button" id="btnIniciarCierre" class="btn btn-success pull-right px-4" style="display:none;" onclick="ejecutarProceso(\'' . $titulo . '\')">';
 $html .=            '<i class="glyphicon glyphicon-play"></i> Iniciar Cierre';
 $html .=        '</button>';
 $html .=    '</div>';

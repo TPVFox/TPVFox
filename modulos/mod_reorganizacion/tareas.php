@@ -335,4 +335,12 @@ switch ($pulsado) {
         $ClasesParametros->save();
         echo json_encode(['guardado' => true]);
         break;
+    case 'validarConfiguracionXML':
+        $seccion = $_POST['seccion'];
+        $ClasesParametros = new ClaseParametros('parametros.xml');
+        $xml = $ClasesParametros->getNodeInternBySection('configuracion', $seccion);
+        $validacion = validarDatosXML($xml, $seccion);
+        echo json_encode($validacion);
+        return $validacion;
+        break;
 }
