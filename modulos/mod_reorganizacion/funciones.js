@@ -179,6 +179,13 @@ function validarProceso(seccion) {
         validarDatosXML(seccion);
       } else if (modoManual) {
         console.log("Ejecutar proceso cerrar stock anual en modo manual");
+        var datos = {
+          idProveedor: $("#id_proveedor").val(),
+          proveedor: $("#Proveedor").val(),
+          idFamilia: $("#id_familia").val(),
+          familia: $("#Familia").val(),
+        };
+        validarDatosFormulario(datos, seccion);
       }
       break;
   }
@@ -760,12 +767,12 @@ $(document).on("change", "input[name='modoCierre']", function () {
     console.log("Manual");
     $("#btnValidarCierre").show();
     $("#btnIniciarCierre").hide();
-    $("#alertaInconsistencias").hide();
+    $("#alertaModoBase").hide();
   } else {
     console.log("Base");
     $("#btnValidarCierre").show();
     $("#btnIniciarCierre").hide();
-    $("#alertaInconsistencias").hide();
+    $("#alertaModoManual").hide();
   }
 });
 
@@ -795,23 +802,80 @@ function validarDatosXML(seccion) {
       var resultado = $.parseJSON(response);
       // Si hay error en la consulta SQL mostramos el mensaje de error mostralo dentro de div id=alertaInconsistencias
       if (resultado.error) {
-        // Mostrar id=alertaInconsistencias y mostrar mensaje de error dentro
-        $("#alertaInconsistencias").show();
-        $("#alertaInconsistencias").html(
+        // Mostrar id=alertaInconsistencias dentro de modoBase y mostrar mensaje de error dentro
+        // si alertaInconsistencias tiene la clase alert-info se cambia por alert-danger y si no la tiene se añade la clase alert-danger
+        if ($("#alertaModoBase").hasClass("alert-info")) {
+          $("#alertaModoBase").removeClass("alert-info");
+          $("#alertaModoBase").addClass("alert-danger");
+        }
+        $("#alertaModoBase").show();
+        $("#alertaModoBase").html(
           "<p class='text-danger'>Error al validar configuración: " +
             resultado.mensaje +
             "</p>",
         );
         return;
       } else {
-        // Cambiar la clase alert-danger del id=alertaInconsistencias por alert-info y mostrar mensaje de advertencia dentro indicando que se han detectado inconsistencias pero que no se han podido validar correctamente y que se recomienda revisar la configuración antes de ejecutar el proceso
-        $("#alertaInconsistencias").removeClass("alert-danger");
-        $("#alertaInconsistencias").addClass("alert-info");
-        $("#alertaInconsistencias").html(
+        // Cambiar la clase alert-danger del id=alertaModoBase por alert-info y mostrar mensaje de advertencia dentro indicando que se han detectado inconsistencias pero que no se han podido validar correctamente y que se recomienda revisar la configuración antes de ejecutar el proceso
+        if ($("#alertaModoBase").hasClass("alert-danger")) {
+          $("#alertaModoBase").removeClass("alert-danger");
+          $("#alertaModoBase").addClass("alert-info");
+        }
+        $("#alertaModoBase").html(
           "<p class='text-info'>" + resultado.mensaje + "</p>",
         );
-        $("#alertaInconsistencias").show();
+        $("#alertaModoBase").show();
         // Ocultar Boton de ejecutar proceso para que el usuario revise la configuración antes de ejecutar el proceso
+        $("#btnValidarCierre").hide();
+        $("#btnIniciarCierre").show();
+      }
+    },
+  });
+}
+
+function validarDatosFormulario(datos, seccion) {
+  seccion = seccion.toLowerCase().replace(/ /g, "_");
+  var parametros = {
+    pulsado: "validarDatosFormulario",
+    seccion: seccion,
+    datos: JSON.stringify(datos),
+  };
+  $.ajax({
+    data: parametros,
+    url: "tareas.php",
+    type: "post",
+    beforeSend: function () {
+      console.log(
+        "****** envio para validar datos del formulario antes de ejecutar proceso ******",
+      );
+    },
+    success: function (response) {
+      console.log("Respuesta de validar datos del formulario");
+      var resultado = $.parseJSON(response);
+      if (resultado.error) {
+        if ($("#alertaModoManual").hasClass("alert-info")) {
+          $("#alertaModoManual").removeClass("alert-info");
+          $("#alertaModoManual").addClass("alert-danger");
+        }
+        $("#alertaModoManual").show();
+        $("#alertaModoManual").html(
+          "<p class='text-danger'>Error al validar configuración: " +
+            resultado.mensaje +
+            "</p>",
+        );
+        return;
+        return;
+      } else {
+        // cambiar la clase alert-danger del id=alertaModoManual por alert-info y mostrar mensaje de advertencia dentro indicando que se han detectado inconsistencias pero que no se han podido validar correctamente y que se recomienda revisar los datos antes de ejecutar el proceso
+        if ($("#alertaModoManual").hasClass("alert-danger")) {
+          $("#alertaModoManual").removeClass("alert-danger");
+          $("#alertaModoManual").addClass("alert-info");
+        }
+        $("#alertaModoManual").html(
+          "<p class='text-info'>" + resultado.mensaje + "</p>",
+        );
+        $("#alertaModoManual").show();
+        // Ocultar Boton de ejecutar proceso para que el usuario revise los datos antes de ejecutar el proceso
         $("#btnValidarCierre").hide();
         $("#btnIniciarCierre").show();
       }

@@ -343,4 +343,11 @@ switch ($pulsado) {
         echo json_encode($validacion);
         return $validacion;
         break;
+    case 'validarDatosFormulario':
+        $seccion = $_POST['seccion'];
+        $datos = json_decode($_POST['datos'], true);
+        $validacion = validarDatosFormulario($datos, $seccion);
+        echo json_encode($validacion);
+        return $validacion;
+        break;
 }

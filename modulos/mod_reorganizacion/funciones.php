@@ -269,6 +269,51 @@ function validarDatosXML($xml, $seccion)
     }
 }
 
+function validarDatosFormulario($datos, $seccion)
+{
+    // @ Objetivo:
+    // Validar que los datos recibidos del formulario sean correctos antes de generar el XML.
+    // @ Retorno:
+    // Un array con el resultado de la validación indicando si es correcto o no y un mensaje descriptivo en caso de que no sea correcto.
+    $respuesta = ['error' => false, 'mensaje' => ''];
+    switch ($seccion) {
+        case 'cierre_stock_anual':
+            // Validamos que el proveedor seleccionado sea válido. $datosi['idProveedor'] y $datos['proveedor'].
+            $proveedorId = (string)$datos['idProveedor'];
+            $proveedorNombre = (string)$datos['proveedor'];
+            $proveedorValido = validarProveedor($proveedorId, $proveedorNombre);
+            if (!$proveedorValido) {
+                $respuesta['error'] = true;
+                $respuesta['mensaje'] .= "El proveedor seleccionado con ID: {$proveedorId} y Nombre: {$proveedorNombre} no es válido. Por favor revise la selección. \n";
+            }
+            // Validamos que la familia seleccionada sea valida. $datos['idFamilia'] y $datos['familia'].
+            $familiaId = (string)$datos['idFamilia'];
+            $familiaNombre = (string)$datos['familia'];
+            if ($familiaId == '' && $familiaNombre == '') {
+                // Si no se ha seleccionado ninguna familia es un error no se puede continuar
+                $respuesta['error'] = true;
+                $respuesta['mensaje'] .= "No se ha seleccionado ninguna familia. Por favor seleccione una familia para continuar. \n";
+            }
+            if (!empty($familiaId) && !empty($familiaNombre)) {
+                $familiaValida = validarFamilia($familiaId, $familiaNombre);
+                if (!$familiaValida) {
+                    $respuesta['error'] = true;
+                    $respuesta['mensaje'] .= "La familia seleccionada con ID: {$familiaId} y Nombre: {$familiaNombre} no es válida. Por favor revise la selección. \n";
+                }
+            }
+            // Si todo es correcto, retornamos que la validación es exitosa.
+            if (!isset($respuesta['error']) || $respuesta['error'] === false) {
+                $respuesta['error'] = false;
+                $respuesta['mensaje'] .= "Los datos del formulario son válidos.";
+            }
+            return $respuesta;
+        default:
+            $respuesta['error'] = true;
+            $respuesta['mensaje'] .= "Sección no reconocida para validación.";
+            return $respuesta;
+    }
+}
+
 function validarProveedor($idProveedor, $nombreProveedor)
 {
     global $URLCom, $BDTpv;

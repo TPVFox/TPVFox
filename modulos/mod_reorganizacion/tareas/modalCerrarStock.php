@@ -43,7 +43,7 @@ $html .=                            '<span class="label label-default" title="Fa
 $html .=                        '</div>';
 $html .=                    '</label>';
 // Si al ejecutar se detecta que el id del proveedor no existe o no coincide con el nombre y lo mismo para las familias, mostrar un mensaje de alerta indicando que se han detectado inconsistencias en la configuración XML y que se recomienda revisar la configuración antes de ejecutar el proceso.
-$html .=                    '<div id="alertaInconsistencias" class="alert alert-danger" style="margin-top: 15px; display:none;">';
+$html .=                    '<div id="alertaModoBase" class="alert alert-danger" style="margin-top: 15px; display:none;">';
 $html .=                        '<p><i class="glyphicon glyphicon-warning-sign"></i> Se han detectado inconsistencias en la configuración XML. Por favor, revise el proveedor y las familias excluidas antes de ejecutar el proceso.</p>';
 $html .=                    '</div>';
 $html .=                '</div>';
@@ -109,6 +109,9 @@ $html .= '              </div>';
 $html .= '            </div>';
 $html .= '          </div>'; // Cierre Row interno
 $html .= '        </div>';
+$html .=                    '<div id="alertaModoManual" class="alert alert-danger" style="margin-top: 15px; display:none;">';
+$html .=                        '<p><i class="glyphicon glyphicon-warning-sign"></i> Se han detectado inconsistencias en la configuración XML. Por favor, revise el proveedor y las familias excluidas antes de ejecutar el proceso.</p>';
+$html .=                    '</div>';
 $html .=                    '</div>';
 $html .=                '</div>';
 $html .=            '</div>';
