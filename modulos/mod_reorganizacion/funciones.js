@@ -878,6 +878,10 @@ function validarDatosFormulario(datos, seccion) {
         // Ocultar Boton de ejecutar proceso para que el usuario revise los datos antes de ejecutar el proceso
         $("#btnValidarCierre").hide();
         $("#btnIniciarCierre").show();
+        $("#Familia").prop("disabled", true);
+        $("#id_familia").prop("disabled", true);
+        $("#Proveedor").prop("disabled", true);
+        $("#id_proveedor").prop("disabled", true);
       }
     },
   });
