@@ -164,25 +164,35 @@ include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
             });
         });
 
-        $("#boton-cerrar-stock").on("click", function(event) {
+        $(document).on("click", "#btnIniciarCierre", function(event) {
             event.stopPropagation();
             event.preventDefault();
 
-            var idProveedor = prompt("Introduce el ID del proveedor:");
-            if (idProveedor == null || idProveedor == "") {
-                alert("Operación cancelada. Debes introducir un ID de proveedor.");
-                return;
+            var configuracion = {}
+            if ($('#modoManual').is(':checked')) {
+                configuracion.modo = 'manual';
+                configuracion.familiaSeleccionada = $('#id_familia').val();
+                idProveedor = $('#id_proveedor').val();
+            } else {
+                idProveedor = $('#proveedorPredefinido').val();
+                configuracion.modo = 'automatico';
+            }
+            // Si es modo manual obtenemos la unica familia a cerrar, si la dejamos vacia se cerraran todas las familias.
+            var idFamiliaCierreStock = '';
+            if (configuracion.modo === 'manual') {
+                idFamiliaCierreStock = configuracion.familiaSeleccionada;
             }
 
-            contarFamiliasProductos(function(respuesta) {
+            cerrarPopUpConTitulo("Cierre Stock Anual");
+            contarFamiliasProductos(idFamiliaCierreStock, function(respuesta) {
                 var obj = JSON.parse(respuesta);
                 console.log("Respuesta contar familias:");
                 console.log(obj);
                 if (obj.length > 0) {
                     var familias = obj;
                     $("#bar-cerrar-stock").show();
-                    $("#boton-cerrar-stock").prop("disabled", true);
-                    CerrarStockAnoActual(0, 1, familias, '-cerrar-stock', idProveedor);
+                    $("#btnIniciarCierre").prop("disabled", true);
+                    CerrarStockAnoActual(0, 1, familias, '-cerrar-stock', idProveedor, configuracion);
                 }
 
             });

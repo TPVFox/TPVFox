@@ -184,110 +184,127 @@ switch ($pulsado) {
 
         break;
     case 'contarfamilias':
-        $CReorganizar = new ClaseReorganizar();
-        $totalFamilias = $CReorganizar->contarFamilias();
+        $idFamiliaCierreStock = json_decode($_POST['idFamiliaCierreStock'], true);
+        // Si este valor viene vacio se buscaran todas las familias, si viene con ids se excluiran esas familias del cierre de stock anual.
+        if ($idFamiliaCierreStock == '') {
+            $CReorganizar = new ClaseReorganizar();
+            $ClasesParametros = new ClaseParametros('parametros.xml');
+            $xml = $ClasesParametros->getNodeInternBySection('configuracion', 'cierre_stock_anual');
+            // Obtenemos el array de ids del xml attibuto familias dentro de familias_excluidas
+            foreach ($xml->familias_excluidas->familia as $familia) {
+                $idsFamiliaExcluidas[] = (string)$familia['id'];
+            }
+            $totalFamilias = $CReorganizar->contarFamilias($idsFamiliaExcluidas);
+        } else {
+            // Transformar string a array de ids familias a excluir del cierre de stock anual.
+            $totalFamilias = explode(',', $idFamiliaCierreStock);
+        }
         // devolver array con los ids familias No cuenta array
         echo json_encode($totalFamilias);
         break;
     case 'cerrarStockAnoActual':
+        // Obtenemos los datos de Ajax via POST
         $inicial = $_POST['inicial'];
         $pagina = $_POST['pagina'];
         $familias = json_decode($_POST['familias'], true);
         $idProveedor = $_POST['idProveedor'];
+        $configuracion = json_decode($_POST['configuracion'], true);
+        // De configuración solo nos interesa el modo: manual o automatico.
+        $modo = $configuracion['modo'];
 
-        // Regla de negocio: un albarán no puede superar este número de productos
-        $limiteProductosAlbaran = 100;
-        $familia_id = $familias[$inicial];
+        // Parámetros globales desde XML
+        $ClasesParametros = new ClaseParametros('parametros.xml');
+        $xml = $ClasesParametros->getNodeInternBySection('configuracion', 'cierre_stock_anual');
+        $limiteProductosAlbaran = (int)$xml->ajustes_globales->num_productos;
+        $serieAlbaranCierre = (string)$xml->ajustes_globales->serie_albaran->cierre;
+
+
+        $familiasExcluidas = array();
+        foreach ($xml->familias_excluidas->familia as $familia) {
+            $familiasExcluidas[] = (string)$familia['id'];
+        }
+
+        // Modo manual: se cierra una familia concreta idN1 o idN5. El cierre no se fragmenta por subfamilia, se cierra toda la familia y si tiene más productos de los permitidos se generan varios albaranes.
+        // Modo automático: se cierra por familias idN1, pero si una familia tiene más productos de los permitidos se fragmenta por subfamilias idN2, y si una subfamilia tiene más productos de los permitidos se generan varios albaranes.
+        // En el futuro se podria añadir un metodo enfocado a que se automatico pero por proveedor en lugar de por familia.
+        $familia_id = $familias[$inicial]; // Se toma la familia a cerrar
 
         $CReorganizar = new ClaseReorganizar();
-        $subfamilias = $CReorganizar->contarSubfamilias($familia_id);
+        if ($modo === 'manual') {
+            // Si es modo manual solo llega 1 familia a cerrar.
+            // Proceso:
+            // 1. Contar el número de productos que hay en la familia a cerrar.
+            // 2. Si el número de productos es menor o igual al limite de productos por albarán, se cierra la familia en un solo albarán.
+            // 3. Si el número de productos es mayor al limite de productos por albarán, se cierra la familia en varios albaranes.
+            $idNivel = $CReorganizar->obtenerNivelFamilia($familia_id);
+            if ($idNivel == 1) {
+                $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id);
+            } else if ($idNivel == 2) {
+                $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($familia_id);
+            } else {
+                $idsProductos = $CReorganizar->obtenerProductosPorIdFamilia($familia_id);
+            }
+            $idsProductosUnicos = normalizarProductos($idsProductos);
+            $subfamiliasProcesar = [$familia_id];
+            if (count($idsProductosUnicos) > 0) {
+                $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $familia_id);
+                generarAlbaranesConLimite($productos, $familia_id, $limiteProductosAlbaran, $idProveedor, $serieAlbaranCierre);
+            }
+        } else {
+            $subfamilias = $CReorganizar->contarProductosSubfamilias($familia_id, $familiasExcluidas);
 
-        $subfamiliasProcesar = [];
-        $totalProductosFamilia = 0;
-        foreach ($subfamilias as $subfamilia) {
-            $totalProductosFamilia += $subfamilia['total_articulos'];
-        }
-        // Si la familia es demasiado grande, separamos el cierre por subfamilias
-        // para evitar generar albaranes con más productos de los permitidos
-        if ($totalProductosFamilia > $limiteProductosAlbaran) {
-            $productosAcumulados = 0;
+            $subfamiliasProcesar = [];
+            $totalProductosFamilia = 0;
             foreach ($subfamilias as $subfamilia) {
-                $productosAcumulados += $subfamilia['total_articulos'];
-
-                // Cuando el resto de productos cabe en un solo albarán,
-                // dejamos de dividir
-                $subfamiliasProcesar[] = $subfamilia['idN2'];
-                if (($totalProductosFamilia - $productosAcumulados) <= $limiteProductosAlbaran) {
-                    break;
-                }
+                $totalProductosFamilia += $subfamilia['total_articulos'];
             }
-        }
+            // Si la familia es demasiado grande, separamos el cierre por subfamilias
+            // para evitar generar albaranes con más productos de los permitidos
+            if ($totalProductosFamilia > $limiteProductosAlbaran) {
+                $productosAcumulados = 0;
+                foreach ($subfamilias as $subfamilia) {
+                    $productosAcumulados += $subfamilia['total_articulos'];
 
-        $numeroAlbaranes = array();
-        include_once 'funciones.php';
-        // Procesamos las subfamilias que hemos decidido cerrar por separado
-        if (count($subfamiliasProcesar) > 0) {
-            // Si hay subfamilias para procesar, las mostramos
-            foreach ($subfamiliasProcesar as $subfamilia_id) {
-                $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($subfamilia_id);
-                // Simplificamos el array para eliminar productos duplicados
-                $idsProductosUnicos = [];
-
-                foreach ($idsProductos as $idsProducto) {
-                    if (!isset($idsProductosUnicos[$idsProducto['idArticulo']])) {
-                        $idsProductosUnicos[$idsProducto['idArticulo']] = $idsProducto;
+                    // Cuando el resto de productos cabe en un solo albarán,
+                    // dejamos de dividir
+                    $subfamiliasProcesar[] = $subfamilia['idN2'];
+                    if (($totalProductosFamilia - $productosAcumulados) <= $limiteProductosAlbaran) {
+                        break;
                     }
                 }
+            }
 
-                $idsProductosUnicos = array_values($idsProductosUnicos);
-                $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $subfamilia_id);
-                $numeroProductos = count($productos);
-                // si hay más de 100 productos, lo dividimos en varios albaranes
-                if ($numeroProductos > $limiteProductosAlbaran) {
-                    $partes = ceil($numeroProductos / $limiteProductosAlbaran);
-                    for ($i = 0; $i < $partes; $i++) {
-                        $productosParte = array_slice($productos, $i * $limiteProductosAlbaran, $limiteProductosAlbaran);
-                        $parteSubfamilia_id = $subfamilia_id . '-P' . ($i + 1);
-                        generarCierreAlbaran($productosParte, $parteSubfamilia_id, $idProveedor);
-                    }
-                } else {
-                    generarCierreAlbaran($productos, $subfamilia_id, $idProveedor);
+            $numeroAlbaranes = array();
+            // Procesamos las subfamilias que hemos decidido cerrar por separado
+            if (count($subfamiliasProcesar) > 0) {
+                // Si hay subfamilias para procesar, las mostramos
+                foreach ($subfamiliasProcesar as $subfamilia_id) {
+                    $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($subfamilia_id, $familiasExcluidas);
+                    // Simplificamos el array para eliminar productos duplicados
+                    $idsProductosUnicos =  normalizarProductos($idsProductos);
+                    $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $subfamilia_id);
+                    generarAlbaranesConLimite($productos, $subfamilia_id, $limiteProductosAlbaran, $idProveedor, $serieAlbaranCierre);
                 }
             }
-        }
 
-        $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar);
-        // Simplificamos el array para eliminar productos duplicados
-        $idsProductosUnicos = [];
-
-        foreach ($idsProductos as $idsProducto) {
-            if (!isset($idsProductosUnicos[$idsProducto['idArticulo']])) {
-                $idsProductosUnicos[$idsProducto['idArticulo']] = $idsProducto;
-            }
-        }
-
-        $idsProductosUnicos = array_values($idsProductosUnicos);
-        if (count($idsProductosUnicos) > 0) {
-            $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $familia_id);
-            generarCierreAlbaran($productos, $familia_id, $idProveedor);
-        }
-
-        // Si es la ultima familia hacemos una revisión final
-        if (($inicial + $pagina) >= count($familias)) {
-            $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre();
+            $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, $subfamiliasProcesar, $familiasExcluidas);
             // Simplificamos el array para eliminar productos duplicados
-            $idsProductosUnicos = [];
 
-            foreach ($idsProductosPendientes as $idsProductoPendiente) {
-                if (!isset($idsProductosUnicos[$idsProductoPendiente['idArticulo']])) {
-                    $idsProductosUnicos[$idsProductoPendiente['idArticulo']] = $idsProductoPendiente;
-                }
+            $idsProductosUnicos = normalizarProductos($idsProductos);
+            if (count($idsProductosUnicos) > 0) {
+                $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $familia_id);
+                generarCierreAlbaran($productos, $familia_id, $idProveedor);
             }
 
-            $idsProductosUnicos = array_values($idsProductosUnicos);
-            if (count($idsProductosPendientes) > 0) {
-                $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "SINID");
-                generarCierreAlbaran($productosPendientes, "SINID", $idProveedor);
+            // Si es la ultima familia hacemos una revisión final
+            if (($inicial + $pagina) >= count($familias)) {
+                $idsProductosPendientes = $CReorganizar->obtenerProductosPendientesCierre($familiasExcluidas);
+                // Simplificamos el array para eliminar productos duplicados
+                $idsProductosPendientes = normalizarProductos($idsProductosPendientes);
+                if (count($idsProductosPendientes) > 0) {
+                    $productosPendientes = obtenerDatosProductoAlbaranCierre($idsProductosPendientes, "SINID");
+                    generarAlbaranesConLimite($productosPendientes, "SINID", $limiteProductosAlbaran, $idProveedor, $serieAlbaranCierre);
+                }
             }
         }
 

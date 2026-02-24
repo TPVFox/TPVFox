@@ -37,7 +37,7 @@ function obtenerDatosProductoAlbaranCierre($arrayIdsArticulos, $idFamilia = null
     return $productos;
 }
 
-function generarCierreAlbaran($productos, $familia_id = null, $idProveedor = 56)
+function generarCierreAlbaran($productos, $familia_id = null, $idProveedor = 1, $serieAlbaranCierre = 'C')
 {
     $idTienda = $_SESSION['tiendaTpv']['idTienda'];
     $ano = $_SESSION['tiendaTpv']['ano'];
@@ -70,7 +70,7 @@ function generarCierreAlbaran($productos, $familia_id = null, $idProveedor = 56)
         'estado' => 'Guardado',
         'total_siniva' => $totalSinIva,
         'total' => $totalSinIva + $totalIva,
-        'suNumero' => $familia_id !== null ? 'ID-' . $familia_id . '#C' : 'SINID#C',
+        'suNumero' => $familia_id !== null ? 'ID-' . $familia_id . '#' . $serieAlbaranCierre : 'SINID#' . $serieAlbaranCierre,
         'formaPago' => '',
         'fechaVenci' => ''
     );
@@ -81,7 +81,6 @@ function generarCierreAlbaran($productos, $familia_id = null, $idProveedor = 56)
     include_once '../mod_compras/clases/albaranesCompras.php';
     $AlbaranesCompras = new AlbaranesCompras($BDTpv);
     $AlbaranesCompras->AddAlbaranGuardado($datosAlbaran, 0);
-    error_log('La información de AlbaranesCompras es: ' . print_r($AlbaranesCompras, true));
 }
 
 
@@ -347,4 +346,41 @@ function validarFamilia($idFamilia, $nombreFamilia)
         return false;
     }
     return true;
+}
+
+
+function normalizarProductos($idsProductos)
+{
+    $idsProductosUnicos = [];
+
+    foreach ($idsProductos as $idsProducto) {
+        if (!isset($idsProductosUnicos[$idsProducto['idArticulo']])) {
+            $idsProductosUnicos[$idsProducto['idArticulo']] = $idsProducto;
+        }
+    }
+    return array_values($idsProductosUnicos);
+}
+
+function generarAlbaranesConLimite(array $productos, string $identificador, int $limite, int $idProveedor, string $serieAlbaranCierre)
+{
+    $total = count($productos);
+    if ($total > $limite) {
+        $partes = ceil($total / $limite);
+
+        // Calcular tamaño aproximado de cada parte para distribuir los productos de manera uniforme
+        $tamanoBase = floor($total / $partes);
+        $resto = $total % $partes;
+
+        $offset = 0;
+        for ($i = 0; $i < $partes; $i++) {
+            // Distribuimos el resto 1 a 1 en los primeros albaranes
+            $tamanoActual = $tamanoBase + ($i < $resto ? 1 : 0);
+            $productosParte = array_slice($productos, $offset, $tamanoActual);
+            $idParte = $identificador . '-P' . ($i + 1);
+            generarCierreAlbaran($productosParte, $idParte, $idProveedor, $serieAlbaranCierre);
+            $offset += $tamanoActual;
+        }
+    } else {
+        generarCierreAlbaran($productos, $identificador, $idProveedor, $serieAlbaranCierre);
+    }
 }

@@ -82,16 +82,21 @@ class ClaseReorganizar extends TFModelo
         return $respuesta;
     }
 
-    public function contarFamilias($idFamilia = '')
+    public function contarFamilias($idsFamiliasCierreStock = array())
     {
+        $filtroFamilias = '';
+        if (count($idsFamiliasCierreStock) > 0) {
+            $filtroFamilias = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $idsFamiliasCierreStock) . ')) ';
+        }
         $sql = 'SELECT
                     DISTINCT v.idN1
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idN1 <> 458 AND v.idN1 <> 55
-                AND s.stockOn > 0
-                AND s.idTienda = 1;';
+                WHERE s.stockOn > 0
+                AND s.idTienda = 1
+                ' . $filtroFamilias . '
+                ORDER BY v.idN1;';
         $resultado = $this->consulta($sql);
         // Devolver array de los ids familias
         $familias = array();
@@ -101,8 +106,15 @@ class ClaseReorganizar extends TFModelo
         return $familias;
     }
 
-    public function contarSubfamilias($idFamilia = '')
+    public function contarProductosSubfamilias($idFamilia = '', $familiasExcluidas = array())
     {
+        // @ Objetivo:
+        // Contar el número de productos que hay en cada subfamilia (idN2) de una familia principal (idN1)
+        // Esto es importante para el cierre automatico y agrupar por albaranes adaptadado a num_productos.
+        $filtroExcluidas = '';
+        if (count($familiasExcluidas) > 0) {
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+        }
         $sql = 'SELECT
                     v.idN2,
                     COUNT(*) AS total_articulos
@@ -110,6 +122,7 @@ class ClaseReorganizar extends TFModelo
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
                 WHERE v.idN1 = ' . $idFamilia . '
+                ' . $filtroExcluidas . '
                 AND s.stockOn > 0
                 AND s.idTienda = 1
                 GROUP BY v.idN2
@@ -129,11 +142,15 @@ class ClaseReorganizar extends TFModelo
         return $subfamilias;
     }
 
-    public function obtenerProductosPorFamilia($idFamilia, $subfamiliasProcesar = array())
+    public function obtenerProductosPorFamilia($idFamilia, $subfamiliasProcesar = array(), $familiasExcluidas = array())
     {
         $filtroSubfamilias = '';
         if (count($subfamiliasProcesar) > 0) {
             $filtroSubfamilias = ' AND v.idN2 NOT IN (' . implode(',', $subfamiliasProcesar) . ') ';
+        }
+        $filtroExcluidas = '';
+        if (count($familiasExcluidas) > 0) {
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     s.idArticulo,
@@ -143,6 +160,37 @@ class ClaseReorganizar extends TFModelo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
                 WHERE v.idN1 = ' . $idFamilia . '
                 ' . $filtroSubfamilias . '
+                ' . $filtroExcluidas . '
+                AND s.stockOn > 0
+                AND s.idTienda = 1;';
+        $resultado = $this->consulta($sql);
+        // Devolver array de ids articulos
+        $articulos = array();
+        if (isset($resultado['datos']) && count($resultado['datos']) > 0) {
+            foreach ($resultado['datos'] as $fila) {
+                $articulos[] = array(
+                    'idArticulo' => $fila['idArticulo'],
+                    'stockOn' => $fila['stockOn']
+                );
+            }
+        }
+        return $articulos;
+    }
+    // Obtener los productos de un una familia concreta
+    public function obtenerProductosPorIdFamilia($idFamilia, $familiasExcluidas = array())
+    {
+        $filtroExcluidas = '';
+        if (count($familiasExcluidas) > 0) {
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+        }
+        $sql = 'SELECT
+                    s.idArticulo,
+                    s.stockOn
+                FROM articulosStocks s
+                JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
+                JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
+                WHERE v.idFamilia = ' . $idFamilia . '
+                ' . $filtroExcluidas . '
                 AND s.stockOn > 0
                 AND s.idTienda = 1;';
         $resultado = $this->consulta($sql);
@@ -160,13 +208,18 @@ class ClaseReorganizar extends TFModelo
     }
 
     // Obtener los productos restantes:
-    public function obtenerProductosPendientesCierre()
+    public function obtenerProductosPendientesCierre($familiasExcluidas = array())
     {
+        $filtroExcluidas = '';
+        if (count($familiasExcluidas) > 0) {
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+        }
         $sql = 'SELECT
                     s.idArticulo,
                     s.stockOn
                 FROM articulosStocks s
                 WHERE s.stockOn > 0
+                ' . $filtroExcluidas . '
                 AND s.idTienda = 1;';
         $resultado = $this->consulta($sql);
         // Devolver array de ids articulos
@@ -182,8 +235,12 @@ class ClaseReorganizar extends TFModelo
         return $articulos;
     }
 
-    public function obtenerProductosPorSubfamilia($idSubfamilia)
+    public function obtenerProductosPorSubfamilia($idSubfamilia, $familiasExcluidas = array())
     {
+        $filtroExcluidas = '';
+        if (count($familiasExcluidas) > 0) {
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+        }
         $sql = 'SELECT
                     s.idArticulo,
                     s.stockOn
@@ -191,6 +248,7 @@ class ClaseReorganizar extends TFModelo
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
                 WHERE v.idN2 = ' . $idSubfamilia . '
+                ' . $filtroExcluidas . '
                 AND s.stockOn > 0
                 AND s.idTienda = 1;';
         $resultado = $this->consulta($sql);
@@ -206,6 +264,18 @@ class ClaseReorganizar extends TFModelo
         }
         return $articulos;
     }
+
+    public function obtenerNivelFamilia($idFamilia)
+    {
+        $sql = 'SELECT nivel FROM vw_jerarquias_familias WHERE idFamilia = ' . $idFamilia;
+        $resultado = $this->consulta($sql);
+        if (isset($resultado['datos'][0])) {
+            return $resultado['datos'][0]['nivel'];
+        } else {
+            return null;
+        }
+    }
+
     public function articulosAlbaranCierre($idArticulo)
     {
         $sql = 'SELECT acb.codBarras AS ccodbar, a.articulo_name AS cdetalle, a.ultimoCoste AS costSiva, a.iva AS iva

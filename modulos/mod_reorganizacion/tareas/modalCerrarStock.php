@@ -36,6 +36,7 @@ $html .=                        '<input type="radio" name="modoCierre" id="modoB
 $html .=                        '<strong style="font-size: 1.1em;">Ejecución Base (XML)</strong>';
 $html .=                        '<p class="text-muted small" style="margin-top: 5px;">Cierre masivo respetando las exclusiones del sistema.</p>';
 $html .=                        '<div style="margin-top: 10px;">';
+$html .=                            '<input type="hidden" id="proveedorPredefinido" value="' . $idProveedor . '">';
 $html .=                            '<span class="label label-primary" title="Proveedor: ' . $proveedor . '">Proveedor: ' . $idProveedor . '</span>';
 $html .=                            '<span class="label label-default" title="Familias excluidas: ' . implode(', ', array_map(function ($familia) {
     return (string)$familia['nombre'];
@@ -124,7 +125,7 @@ $html .=        '<button type="button" class="btn btn-link pull-left text-muted"
 $html .=        '<button type="button" id="btnValidarCierre" class="btn btn-primary pull-right px-4" onclick="validarProceso(\'' . $titulo . '\')">';
 $html .=            '<i class="glyphicon glyphicon-check"></i> Validar Cierre';
 $html .=        '</button>';
-$html .=        '<button type="button" id="btnIniciarCierre" class="btn btn-success pull-right px-4" style="display:none;" onclick="ejecutarProceso(\'' . $titulo . '\')">';
+$html .=        '<button id="btnIniciarCierre" class="btn btn-success pull-right px-4" style="display:none;">';
 $html .=            '<i class="glyphicon glyphicon-play"></i> Iniciar Cierre';
 $html .=        '</button>';
 $html .=    '</div>';

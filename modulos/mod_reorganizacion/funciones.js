@@ -35,9 +35,10 @@ function contarProductosEstoqueables(callback) {
   ajaxStock(parametros, callback);
 }
 
-function contarFamiliasProductos(callback) {
+function contarFamiliasProductos(idFamiliaCierreStock, callback) {
   var parametros = {
     pulsado: "contarfamilias",
+    idFamiliaCierreStock: idFamiliaCierreStock,
   };
   ajaxStock(parametros, callback);
 }
@@ -130,7 +131,14 @@ function reorganizarPermisosModulos(inicial, total) {
   });
 }
 
-function CerrarStockAnoActual(inicio, pagina, familias, idBar, idProveedor) {
+function CerrarStockAnoActual(
+  inicio,
+  pagina,
+  familias,
+  idBar,
+  idProveedor,
+  configuracion,
+) {
   //inicio es el indice de array de familias en el que empezamos
   //pagina es la cantidad de familias a procesar en cada llamada
   //familias es el array con los ids de las familias a procesar
@@ -142,6 +150,7 @@ function CerrarStockAnoActual(inicio, pagina, familias, idBar, idProveedor) {
     pagina: pagina,
     familias: JSON.stringify(familias),
     idProveedor: idProveedor,
+    configuracion: JSON.stringify(configuracion),
   };
 
   BarraProceso(inicio, familias.length, idBar);
@@ -157,7 +166,14 @@ function CerrarStockAnoActual(inicio, pagina, familias, idBar, idProveedor) {
       console.log(totalFamilias);
 
       if (actual < familias.length) {
-        CerrarStockAnoActual(actual, pagina, familias, idBar, idProveedor);
+        CerrarStockAnoActual(
+          actual,
+          pagina,
+          familias,
+          idBar,
+          idProveedor,
+          configuracion,
+        );
       } else {
         BarraProceso(actual, familias.length, idBar);
         $("#boton-cerrar-stock").prop("disabled", false);
