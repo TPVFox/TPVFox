@@ -48,6 +48,7 @@
         $buscarPlus = $CBalanza->pluDeBalanza($id, 'a.plu');
         if (isset($buscarPlus['datos'])) {
             $plus = $buscarPlus['datos'];
+            $VarJS = 'var plusBalanza = ' . json_encode($plus) . ';';
         }
     }
     $htmlplus = htmlTablaPlus($plus, $id);
@@ -96,6 +97,7 @@
 
 <body>
     <?php include_once $URLCom . '/modulos/mod_menu/menu.php'; ?>
+    <div id="divAlertas"></div>
     <div class="container px-4">
         <h2 class="text-center mb-4"><?php echo $titulo; ?></h2>
 
@@ -224,7 +226,8 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <!-- Boton para hacer un volcado completo de la balanza -->
+                            <button type="button" class="btn btn-warning btn-sm" id="volcadoCompletoBtn" onclick="volcadoCompleto(<?php echo $id ?>)">Volcado completo de la balanza</button>
                         <?php endif; ?>
                     </form>
                 </div>

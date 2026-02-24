@@ -276,5 +276,25 @@ switch ($pulsado) {
             $respuesta['mensaje'] = 'Configuración avanzada guardada correctamente.';
         }
         break;
+    case 'volcadoCompleto':
+        // tomar datos del id de la balanza para configurarla y los datos de PLUs para hacer el vocado sin hacer otra consulta
+        $respuesta = array(
+            'mensaje' => '',
+            'error' => false,
+            'volcado' => null
+        );
+        $idBalanza = intval($_POST['idBalanza']);
+        $plusBalanza = isset($_POST['plusBalanza']) ? json_decode($_POST['plusBalanza'], true) : [];
+        // añadimos ClaseComunicacionBalanza para hacer el volcado
+        $CBalanzaComunicacion = new ClaseComunicacionBalanza($BDTpv);
+        $datosBalanza = $CBalanza->datosBalanza($idBalanza);
+        // Si la balanza tiene IP configurada, intentamos hacer el volcado
+        if (isset($datosBalanza['datos'][0]['IP']) && !empty($datosBalanza['datos'][0]['IP'])) {
+            $respuesta = volcadoCompletoBalanza($datosBalanza['datos'][0], $plusBalanza, $CProducto);
+        } else {
+            $respuesta['error'] = true;
+            $respuesta['mensaje'] = 'La balanza no tiene una IP configurada. Por favor, configure la IP antes de intentar el volcado completo.';
+        }
+        break;
 }
 echo json_encode($respuesta);

@@ -435,3 +435,83 @@ function htmlTecla($seccion)
     }
     return $html;
 }
+
+
+function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
+{
+    global $RutaServidor, $rutatmp;
+
+    $respuesta = array(
+        'error' => false,
+        'mensaje' => ''
+    );
+
+    $CComunicacionBalanza = new ClaseComunicacionBalanza();
+    $salidaBalanza = array();
+
+    foreach ($plusBalanza as $plu) {
+
+        $producto = $CProducto->obtenerProducto($plu['idArticulo']);
+
+        $datosH2 = array(
+            'codigo' => $plu['crefTienda'],
+            'nombre' => $producto['articulo_name'],
+            'precio' => $plu['pvpCiva'],
+            'PLU'    => $plu['plu'],
+        );
+
+        $datosH3 = array(
+            'codigo'       => $plu['crefTienda'],
+            'tipoProducto' => $producto['tipo'],
+            'iva'          => $producto['iva'],
+            'seccion'      => '',
+        );
+
+        $conSeccion = isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si';
+
+        if ($conSeccion) {
+            $datosH3['seccion'] = $plu['seccion'];
+            $CComunicacionBalanza->setModoComunicacion('H');
+        } else {
+            $CComunicacionBalanza->setModoComunicacion('L');
+        }
+
+        $CComunicacionBalanza->setH2Data($datosH2);
+        $CComunicacionBalanza->setH3Data($datosH3);
+
+        $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH2();
+        $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH3();
+    }
+
+    // Unimos todo el contenido
+    $salida = implode('', $salidaBalanza);
+
+    // Ruta
+    $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
+    $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
+
+    if (!is_dir($directorioBalanza)) {
+        mkdir($directorioBalanza, 0777, true);
+    }
+
+    $escritura = @file_put_contents($directorioBalanza . "/filetx", $salida);
+
+    if ($escritura === false) {
+        $respuesta['error'] = true;
+        $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al escribir el archivo de la balanza ID " . $balanza['idBalanza'];
+        return $respuesta;
+    }
+
+    $CComunicacionBalanza->setRutaBalanza($directorioBalanza);
+
+    $ejecucion = $CComunicacionBalanza->ejecutarDriverBalanza();
+
+    if ($ejecucion === false) {
+        $respuesta['error'] = true;
+        $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al ejecutar el driver para la balanza ID " . $balanza['idBalanza'];
+    } else {
+        $respuesta['mensaje'] = "Volcado completo de la balanza ID " . $balanza['idBalanza'] . " realizado con éxito.";
+    }
+
+    return $respuesta;
+}

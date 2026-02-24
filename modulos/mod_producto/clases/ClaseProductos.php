@@ -1369,4 +1369,24 @@ class ClaseProductos extends ClaseTablaArticulos
         }
         return $respuesta;
     }
+
+    public function obtenerProducto($id)
+    {
+        // @ Objetivo:
+        // Obtener los datos de un producto.
+        $respuesta = array();
+        $sql = 'SELECT * FROM `articulos` WHERE idArticulo=' . $id;
+        $resp = $this->Consulta($sql);
+        if ($resp['NItems'] > 0) {
+            $respuesta = $resp['Items'][0];
+        } else {
+            $error = array(
+                'tipo' => 'success',
+                'dato' => $sql,
+                'mensaje' => 'No se encontró ningún producto con ese id.'
+            );
+            $respuesta['error'] = $error;
+        }
+        return $respuesta;
+    }
 }
