@@ -89,13 +89,20 @@ class alArticulosStocks extends ModeloP
 
     public static function crearStock($valores)
     {
-        return ModeloP::_insert(alArticulosStocks::$tabla, [
-            'idArticulo' => $valores[0],
-            'idTienda' => $valores[1],
-            'stockMin' => $valores[2],
-            'stockOn' => $valores[3],
-            'stockMax' => $valores[4],
-        ]);
+        // Antes de crear el stock se comprueba que exista el artículo, si no existe no se crea el stock.
+        $idArticulo = $valores[0];
+        $check = ModeloP::_consulta("SELECT idArticulo FROM articulos WHERE idArticulo = " . (int)$idArticulo);
+
+        // Si existe el articulo se crea el stock.
+        if (count($check) > 0) {
+            return ModeloP::_insert(alArticulosStocks::$tabla, [
+                'idArticulo' => $valores[0],
+                'idTienda' => $valores[1],
+                'stockMin' => $valores[2],
+                'stockOn' => $valores[3],
+                'stockMax' => $valores[4],
+            ]);
+        }
     }
 
     public static function limpiaStock($idTienda = 1)
