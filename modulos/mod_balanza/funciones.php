@@ -482,35 +482,29 @@ function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
         $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH2();
         $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH3();
     }
-
-    // Unimos todo el contenido
-    $salida = implode('', $salidaBalanza);
-
-    // Ruta
+    // Definimos la ruta de la balanza
     $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
+    $CComunicacionBalanza->setRutaBalanza($ruta_balanza);
+
     $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
 
-    if (!is_dir($directorioBalanza)) {
-        mkdir($directorioBalanza, 0777, true);
-    }
+    $salida = $salidaBalanza[$balanza['idBalanza']];
+    $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
 
-    $escritura = @file_put_contents($directorioBalanza . "/filetx", $salida);
-
-    if ($escritura === false) {
+    if ($resultado === false) {
         $respuesta['error'] = true;
-        $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al escribir el archivo de la balanza ID " . $balanza['idBalanza'];
+        $respuesta['mensaje'] = "Error grave de Comunicación: No se pudo escribir el archivo para la balanza ID " . $balanza['idBalanza'];
         return $respuesta;
-    }
-
-    $CComunicacionBalanza->setRutaBalanza($directorioBalanza);
-
-    $ejecucion = $CComunicacionBalanza->ejecutarDriverBalanza();
-
-    if ($ejecucion === false) {
-        $respuesta['error'] = true;
-        $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al ejecutar el driver para la balanza ID " . $balanza['idBalanza'];
     } else {
-        $respuesta['mensaje'] = "Volcado completo de la balanza ID " . $balanza['idBalanza'] . " realizado con éxito.";
+        $CComunicacionBalanza->setRutaBalanza($directorioBalanza);
+        $ejecucion = $CComunicacionBalanza->ejecutarDriverBalanza();
+        if ($ejecucion === false) {
+            $respuesta['error'] = true;
+            $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al ejecutar el driver para la balanza ID " . $balanza['idBalanza'];
+            return $respuesta;
+        } else {
+            $respuesta['mensaje'] = "Volcado completo de la balanza ID " . $balanza['idBalanza'] . " realizado con éxito.";
+        }
     }
 
     return $respuesta;

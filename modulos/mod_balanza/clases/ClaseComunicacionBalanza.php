@@ -9,7 +9,8 @@
 * variables que garanticen poder tener una estructura clara y definida
 * de los datos que se envian a la balanza.
 */
-class ClaseComunicacionBalanza {
+class ClaseComunicacionBalanza
+{
     // Propiedad de la ruta de la balanza
     protected $rutaBalanza = ''; // Ruta de la balanza, por defecto es /dev/ttyUSB0
     // Propiedad ruta de logs de la balanza
@@ -59,22 +60,26 @@ class ClaseComunicacionBalanza {
         'nombre' => '', //Obligatorio
         'PLU' => '',
     ];
-    public function setRutaBalanza(string $ruta): void {
+    public function setRutaBalanza(string $ruta): void
+    {
         // Establecemos la ruta de la balanza
         $this->rutaBalanza = $ruta;
         $this->rutaLogs = $ruta . '/logs'; // Establecemos la ruta de los logs
     }
     // Definimos los metodos para asignar grupo y direccion de la balanza
-    public function setGrupo(int $grupo): void {
+    public function setGrupo(int $grupo): void
+    {
         // Establecemos el grupo de la balanza
         $this->grupo = $grupo;
     }
-    public function setDireccion(int $direccion): void {
+    public function setDireccion(int $direccion): void
+    {
         // Establecemos la dirección de la balanza
         $this->direccion = $direccion;
     }
     // Cambiar el modo de comunicación de L a H
-    public function setModoComunicacion(string $modo): void {
+    public function setModoComunicacion(string $modo): void
+    {
         // Establecemos el modo de comunicación de la balanza
         if (in_array($modo, ['H', 'L'])) {
             $this->modoComunicacion = $modo;
@@ -82,13 +87,15 @@ class ClaseComunicacionBalanza {
             throw new InvalidArgumentException('Modo de comunicación no válido. Debe ser "H" o "L".');
         }
     }
-    public function getModoComunicacion(): string {
+    public function getModoComunicacion(): string
+    {
         // Retornamos el modo de comunicación actual
         return $this->modoComunicacion;
     }
 
     // Definimos el metodo setH2Data para establecer los datos del registro H2
-    public function setH2Data(array $data): void {
+    public function setH2Data(array $data): void
+    {
         // Validamos que los datos necesarios esten presentes
         if (isset($data['codigo'], $data['nombre'], $data['precio'])) {
             // Asignamos los datos al registro H2
@@ -128,7 +135,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Definimos el metodo setH3Data para establecer los datos del registro H3
-    public function setH3Data(array $data): void {
+    public function setH3Data(array $data): void
+    {
         // Validamos que los datos necesarios esten presentes
         if (isset($data['codigo'], $data['tipoProducto'], $data['iva'])) {
             // Asignamos los datos al registro H3
@@ -176,7 +184,7 @@ class ClaseComunicacionBalanza {
             if (isset($data['codigoSmiley'])) {
                 $this->dataH3['codigoSmiley'] = str_pad($data['codigoSmiley'], 2, '0', STR_PAD_LEFT);
             } else {
-                $this->dataH3['codigoSmiley'] = '00'; // Si no se proporciona, lo dejamos en 00
+                $this->dataH3['codisgoSmiley'] = '00'; // Si no se proporciona, lo dejamos en 00
             }
             // Asignamos el código EAN13 si esta presente
             if (isset($data['codigoEAN13'])) {
@@ -199,7 +207,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Definimos el metodo setDSData para establecer los datos del registro DS
-    public function setDSData(array $data): void {
+    public function setDSData(array $data): void
+    {
         // Validamos que los datos necesarios esten presentes
         if (isset($data['seccion'], $data['nombre'])) {
             // Asignamos los datos al registro DS
@@ -216,7 +225,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta H2
-    public function traducirH2(): string {
+    public function traducirH2(): string
+    {
         // Validamos que los datos necesarios esten presentes
         if (empty($this->dataH2['codigo']) || empty($this->dataH2['nombre']) || empty($this->dataH2['precio'])) {
             throw new InvalidArgumentException('Datos incompletos para el registro H2.');
@@ -258,7 +268,8 @@ class ClaseComunicacionBalanza {
         return $H2 . "\n"; // Retornamos la etiqueta H2 con un salto de línea
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta H3
-    public function traducirH3(): string {
+    public function traducirH3(): string
+    {
         // Validamos que los datos necesarios esten presentes
         if (empty($this->dataH3['codigo']) || empty($this->dataH3['tipoProducto']) || empty($this->dataH3['iva'])) {
             throw new InvalidArgumentException('Datos incompletos para el registro H3.');
@@ -330,8 +341,9 @@ class ClaseComunicacionBalanza {
         return $H3 . "\n"; // Retornamos la etiqueta H3
     }
     // Definimos el método que se encarga de traducir los datos al formato de etiqueta DS
-    public function traducirDS(): string {
-    // Definimos un metodo para limpiar los datos en los nombres que se envian a la balanza
+    public function traducirDS(): string
+    {
+        // Definimos un metodo para limpiar los datos en los nombres que se envian a la balanza
         // Validamos que los datos necesarios esten presentes
         if (empty($this->dataDS['seccion']) || empty($this->dataDS['nombre'])) {
             throw new InvalidArgumentException('Datos incompletos para el registro DS.');
@@ -350,9 +362,9 @@ class ClaseComunicacionBalanza {
         // Rellenar a 20 caracteres multibyte correctamente
         $nombre_padded = $nombre . str_repeat(' ', 20 - mb_strlen($nombre, 'UTF-8'));
         $DS .= $nombre_padded; // Nombre del producto
-        $DS .= str_repeat("0",9);
+        $DS .= str_repeat("0", 9);
         $DS .= " ";
-        $DS .= str_repeat("0",4);
+        $DS .= str_repeat("0", 4);
         $DS .= $this->formatearCampo($this->dataDS['PLU'], 2, 'PLU');
         $DS .= "0";
         $DS .= str_repeat(" ", 85); // 24 digitos nulos (N/A): 0
@@ -360,7 +372,8 @@ class ClaseComunicacionBalanza {
         return $DS . "\n"; // Retornamos la etiqueta DS con un salto de línea
     }
     // Metodo para verificar si baltty está instalado y es ejecutable en el directorio de la balanza
-    public function verificarDriverBalanza(): ?string {
+    public function verificarDriverBalanza(): ?string
+    {
         $rutaBaltty = $this->rutaBalanza . '/baltty';
         if (is_file($rutaBaltty) && is_executable($rutaBaltty)) {
             $this->alertas[] = "El driver baltty está instalado en: {$rutaBaltty}";
@@ -372,7 +385,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Metodo para reiniciar baltty si se está ejecutando: se paran los procesos de baltty en ejecución
-    public function reiniciarBalanzaEnEjecucion(): bool {
+    public function reiniciarBalanzaEnEjecucion(): bool
+    {
         $output = [];
         $rutaBaltty = $this->verificarDriverBalanza();
         if ($rutaBaltty === null) {
@@ -397,7 +411,8 @@ class ClaseComunicacionBalanza {
     // Método para ejecutar baltty desde el directorio de la balanza
     // Baltty es un comando sencillo que se ejecuta desde un directorio específico.
     // Se puede ejecutar como baltty log para que genere registro en el directorio de logs en el que se ejecuta
-    public function ejecutarDriverBalanza(): bool {
+    public function ejecutarDriverBalanza(): bool
+    {
         $directorioBalanza = $this->rutaBalanza;
         // Verificamos si el directorio de la balanza existe
         if (!is_dir($directorioBalanza)) {
@@ -447,7 +462,7 @@ class ClaseComunicacionBalanza {
         // Comprobamos si baltty está corriendo correctamente
         if ($this->verificarEstadoBalanza()) {
             return true;
-         } else {
+        } else {
             $mensaje = "Error al ejecutar baltty o la balanza no respondió correctamente.";
             $this->alertas[] = $mensaje;
             error_log("ERROR: {$mensaje} [" . date('Y-m-d H:i:s') . "]");
@@ -457,7 +472,8 @@ class ClaseComunicacionBalanza {
     // Método para verificar si la balanza establece comunicación con el sistema
     // Desde el directorio de la balanza si se ejecuta baltty en modo log se genera un archivo en /logs/BalttyEstadoBalanzas.log
     // Este archivo puede contener "La balanza rechaza la comunicación" o "Balanza OK"
-    public function verificarEstadoBalanza(): bool {
+    public function verificarEstadoBalanza(): bool
+    {
         $directorioBalanza = $this->rutaBalanza;
         if (!is_dir($directorioBalanza)) {
             $this->alertas[] = "El directorio de la balanza no existe: {$directorioBalanza}";
@@ -504,13 +520,15 @@ class ClaseComunicacionBalanza {
     }
 
 
-   // Método para obtener las alertas generadas
-    public function getAlertas(): array {
+    // Método para obtener las alertas generadas
+    public function getAlertas(): array
+    {
         return $this->alertas;
     }
 
     // Método para limpiar nombres, reutilizable para H2 y DS
-    protected function limpiarNombre($nombre): string {
+    protected function limpiarNombre($nombre): string
+    {
         // Eliminar saltos de línea, tabulaciones y comillas
         $nombre = str_replace(array("\n", "\r", "\t", '"'), ' ', $nombre);
         // Eliminar símbolos excepto letras, números, espacios y la Ñ/ñ
@@ -519,9 +537,18 @@ class ClaseComunicacionBalanza {
         $nombre = str_replace(['Ñ', 'ñ'], 'NH', $nombre);
         // Sustituir letras acentuadas por la misma letra sin acento
         $nombre = strtr($nombre, [
-            'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U',
-            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
-            'Ü' => 'U', 'ü' => 'u'
+            'Á' => 'A',
+            'É' => 'E',
+            'Í' => 'I',
+            'Ó' => 'O',
+            'Ú' => 'U',
+            'á' => 'a',
+            'é' => 'e',
+            'í' => 'i',
+            'ó' => 'o',
+            'ú' => 'u',
+            'Ü' => 'U',
+            'ü' => 'u'
         ]);
         // Eliminar dobles espacios
         $nombre = preg_replace('/\s+/', ' ', $nombre);
@@ -531,7 +558,8 @@ class ClaseComunicacionBalanza {
     }
 
     // Método auxiliar para formatear y recortar valores, generando alerta si es necesario
-    protected function formatearCampo($valor, int $longitud, string $campo, $relleno = "0", $tipo = 'izquierda', $origen = null): string {
+    protected function formatearCampo($valor, int $longitud, string $campo, $relleno = "0", $tipo = 'izquierda', $origen = null): string
+    {
         $valorStr = (string)$valor;
         if (strlen($valorStr) > $longitud) {
             $func = $origen ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'];
@@ -544,12 +572,12 @@ class ClaseComunicacionBalanza {
             $valorStr = str_pad($valorStr, $longitud, $relleno, STR_PAD_RIGHT);
         }
         return $valorStr;
-
     }
     // Metodo para verificar el estado de la balanza leyendo el log de baltty
     // Si la balanza no se ha ejecutado correctamente, se terminan los procesos de baltty en ejecución
     // y se genera una alerta con el estado de la balanza.
-    protected function estadoLogBalanza($rutaDriver) {
+    protected function estadoLogBalanza($rutaDriver)
+    {
         if ($this->verificarEstadoBalanza()) {
             $this->alertas[] = "La balanza se ha ejecutado correctamente.";
         } else {
@@ -571,7 +599,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Metodo para crear el directorio de la balanza si no existe
-    public function crearDirectorioBalanza($datos) {
+    public function crearDirectorioBalanza($datos)
+    {
         $formato = $datos['modoDirectorio'] ?? 'Balctrol';
         switch ($formato) {
             case 'Balctrol':
@@ -586,11 +615,12 @@ class ClaseComunicacionBalanza {
                 $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
                 $this->comprobarCrearArchivo($logFile);
                 return ['mensaje' => 'No hay cambios para actualizar'];
-            break;
+                break;
         }
     }
     // metodo privado pra comrpobar si existen directorio y si no existe crearlo. Devolver un aviso
-    private function comprobarCrearDirectorio(string $directorio): void {
+    private function comprobarCrearDirectorio(string $directorio): void
+    {
         if (!is_dir($directorio)) {
             if (mkdir($directorio, 0755, true)) {
                 $this->alertas[] = "Directorio creado: {$directorio}";
@@ -603,7 +633,8 @@ class ClaseComunicacionBalanza {
         }
     }
     // Método para combrobar si existe un archivo y si no existe crearlo
-    private function comprobarCrearArchivo(string $archivo): void {
+    private function comprobarCrearArchivo(string $archivo): void
+    {
         if (!file_exists($archivo)) {
             if (touch($archivo)) {
                 $this->alertas[] = "Archivo creado: {$archivo}";
@@ -616,7 +647,8 @@ class ClaseComunicacionBalanza {
         }
     }
 
-    private function crearFicheroConfiguracionDibal(string $rutaArchivo, array $config): bool {
+    private function crearFicheroConfiguracionDibal(string $rutaArchivo, array $config): bool
+    {
         // Generamos el contenido en UTF-8
         $contenido = <<<EOT
         #----------------------------------------------------------------------------------------------
