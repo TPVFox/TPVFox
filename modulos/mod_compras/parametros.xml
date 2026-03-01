@@ -10,7 +10,11 @@
         <email descripcion="asunto">Pedido % automatico</email>
         <email descripcion="body_email"> Hola, por favor confirme este pedido ya que es enviado de forma automatica y
     necesitamos saber si la recepción fue correcta.</email>
-
+        <decimales_cantidad>3</decimales_cantidad>
+        <decimales_coste>4</decimales_coste>
+        <ajuste_centimos>Si</ajuste_centimos>
+        <ajuste_centimos_desglose>Si</ajuste_centimos_desglose>
+        <max_ajuste_centimos>1</max_ajuste_centimos>
     </configuracion>
     <cajas_input data-obj="id_input">
         <caja_input>
