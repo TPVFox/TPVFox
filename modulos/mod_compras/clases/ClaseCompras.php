@@ -127,13 +127,13 @@ class ClaseCompras
                     $importe = $product->importe;
                 }
                 if (isset($desglose[$iva])) {
-                    $desglose[$iva]['base'] = number_format($desglose[$iva]['base'] + $importe, 3, '.', '');
-                    $desglose[$iva]['iva'] = number_format($desglose[$iva]['iva'] + ($importe * $iva_decimal), 3, '.', '');
+                    $desglose[$iva]['base'] = number_format($desglose[$iva]['base'] + $importe, 2, '.', '');
+                    $desglose[$iva]['iva'] = number_format($desglose[$iva]['iva'] + ($importe * $iva_decimal), 2, '.', '');
                 } else {
-                    $desglose[$iva]['base'] = number_format((float)$importe, 3, '.', '');
-                    $desglose[$iva]['iva'] = number_format((float)$importe * $iva_decimal, 3, '.', '');
+                    $desglose[$iva]['base'] = number_format((float)$importe, 2, '.', '');
+                    $desglose[$iva]['iva'] = number_format((float)$importe * $iva_decimal, 2, '.', '');
                 }
-                $desglose[$iva]['BaseYiva'] = number_format((float)$desglose[$iva]['base'] + $desglose[$iva]['iva'], 3, '.', '');
+                $desglose[$iva]['BaseYiva'] = number_format((float)$desglose[$iva]['base'] + $desglose[$iva]['iva'], 2, '.', '');
             }
         }
         foreach ($desglose as $tipoIva => $des) {
@@ -141,8 +141,8 @@ class ClaseCompras
             $subtotal = $subtotal + $desglose[$tipoIva]['BaseYiva'];
         }
         $respuesta['desglose'] = $desglose;
-        $respuesta['subivas'] = $subivas;
-        $respuesta['total'] = $subtotal;
+        $respuesta['subivas'] = number_format($subivas, 2, '.', '');
+        $respuesta['total'] = number_format($subtotal, 2, '.', '');
         return $respuesta;
     }
 

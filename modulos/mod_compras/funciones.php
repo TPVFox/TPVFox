@@ -240,13 +240,13 @@ function recalculoTotales($productos, $campo_estado = 'estado')
                 $importe = $product->importe;
             }
             if (isset($desglose[$product->iva])) {
-                $desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $importe, 3, '.', '');
-                $desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva'] + ($importe * $b), 3, '.', '');
+                $desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $importe, 2, '.', '');
+                $desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva'] + ($importe * $b), 2, '.', '');
             } else {
-                $desglose[$product->iva]['base'] = number_format((float)$importe, 3, '.', '');
-                $desglose[$product->iva]['iva'] = number_format((float)$importe * $b, 3, '.', '');
+                $desglose[$product->iva]['base'] = number_format((float)$importe, 2, '.', '');
+                $desglose[$product->iva]['iva'] = number_format((float)$importe * $b, 2, '.', '');
             }
-            $desglose[$product->iva]['BaseYiva'] = number_format((float)$desglose[$product->iva]['base'] + $desglose[$product->iva]['iva'], 3, '.', '');
+            $desglose[$product->iva]['BaseYiva'] = number_format((float)$desglose[$product->iva]['base'] + $desglose[$product->iva]['iva'], 2, '.', '');
         }
     }
     foreach ($desglose as $tipoIva => $des) {
@@ -254,8 +254,8 @@ function recalculoTotales($productos, $campo_estado = 'estado')
         $subtotal = $subtotal + $desglose[$tipoIva]['BaseYiva'];
     }
     $respuesta['desglose'] = $desglose;
-    $respuesta['subivas'] = $subivas;
-    $respuesta['total'] = $subtotal;
+    $respuesta['subivas'] = number_format($subivas, 2, '.', '');
+    $respuesta['total'] = number_format($subtotal, 2, '.', '');
     return $respuesta;
 }
 
@@ -273,7 +273,7 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
     // Valores por defecto o calculo.
     $producto['ultimoCoste'] = floatval($producto['ultimoCoste']);
     $codBarra = "";
-    $cant = number_format($producto['nunidades'], 2);
+    $cant = number_format($producto['nunidades'], 3);
     $importe = $producto['ultimoCoste'] * $producto['nunidades'];
     $importe = number_format($importe, 2);
     $importeIva = number_format(($importe) + ($importe * ($producto['iva'] / 100)), 2);
