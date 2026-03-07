@@ -40,6 +40,10 @@
                                 onclick="imprimirRecalculo(<?= $id ?>)">
                             <span class="glyphicon glyphicon-print"></span> Imprimir
                         </button>
+                        <button type="button" class="btn btn-warning btn-sm" disabled
+                                title="Próximamente: imprimir etiquetas de los productos seleccionados">
+                            <span class="glyphicon glyphicon-tag"></span> Etiquetas
+                        </button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -73,6 +77,38 @@
 
                     <!-- Tabla de productos -->
                     <div>
+                <?php if (!empty($cacheExists)): ?>
+                <!-- Vista guardada: datos desde XML, solo lectura con selección -->
+                <table class="table table-bordered table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selTodos" title="Seleccionar todos"></th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Referencia</th>
+                            <th>Coste anterior</th>
+                            <th>Coste nuevo</th>
+                            <th>PVP anterior</th>
+                            <th>PVP nuevo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($productosXml as $prod): ?>
+                        <tr>
+                            <td><input type="checkbox" name="selArticulo[]" value="<?= $prod['idArticulo'] ?>" class="chk-articulo"></td>
+                            <td><?= $prod['idArticulo'] ?></td>
+                            <td><?= htmlspecialchars($prod['nombre']) ?></td>
+                            <td><?= htmlspecialchars($prod['referencia']) ?></td>
+                            <td><?= $prod['costeAnterior'] ?></td>
+                            <td><?= $prod['costeNuevo'] ?></td>
+                            <td><?= $prod['pvpAnterior'] ?></td>
+                            <td><strong><?= $prod['pvpNuevo'] ?></strong></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php else: ?>
+                <!-- Vista edición: datos desde historial BD -->
                 <table class="table table-bordered table-hover table-condensed">
                     <thead>
                         <tr>
@@ -95,13 +131,13 @@
                             if ($producto['estado'] === 'Revisado') {
                                 continue;
                             }
-                            $datosArticulo        = $CArticulo->datosPrincipalesArticulo($producto['idArticulo']);
-                            $datosPrecios         = $CArticulo->articulosPrecio($producto['idArticulo']);
+                            $datosArticulo          = $CArticulo->datosPrincipalesArticulo($producto['idArticulo']);
+                            $datosPrecios           = $CArticulo->articulosPrecio($producto['idArticulo']);
                             $datosArticuloProveedor = $CArticulo->buscarReferencia($producto['idArticulo'], $datosAlbaran['idProveedor']);
-                            $ivaPrecio            = $datosArticulo['iva'] / 100;
-                            $precioProducto       = $producto['Nuevo'] * (1 + $ivaPrecio);
-                            $pvpRecomendado       = $precioProducto * (1 + $datosArticulo['beneficio'] / 100);
-                            $classFila            = in_array($producto['estado'], ['Pendiente', 'Sin revisar'], true) ? '' : 'tachado';
+                            $ivaPrecio              = $datosArticulo['iva'] / 100;
+                            $precioProducto         = $producto['Nuevo'] * (1 + $ivaPrecio);
+                            $pvpRecomendado         = $precioProducto * (1 + $datosArticulo['beneficio'] / 100);
+                            $classFila              = in_array($producto['estado'], ['Pendiente', 'Sin revisar'], true) ? '' : 'tachado';
                         ?>
                         <tr id="Row<?= $i ?>" class="<?= $classFila ?>">
                             <td><?= $producto['idArticulo'] ?></td>
@@ -120,6 +156,11 @@
                                            value="<?= number_format($pvpRecomendado, 2) ?>" disabled>
                                     <span class="glyphicon glyphicon-ban-circle text-danger"
                                           title="Este producto tiene recalculos de precio posteriores"></span>
+                                <?php elseif ($producto['estado'] === 'Sin Cambios'): ?>
+                                    <input type="text" id="pvpRecomendado_<?= $i ?>" name="pvpRecomendado_<?= $i ?>"
+                                           class="form-control input-sm" style="width:80px;"
+                                           onkeydown="controlEventos(event)" data-obj="pvpRecomendado"
+                                           value="<?= number_format($pvpRecomendado, 2) ?>" disabled>
                                 <?php else: ?>
                                     <input type="text" id="pvpRecomendado_<?= $i ?>" name="pvpRecomendado_<?= $i ?>"
                                            class="form-control input-sm" style="width:80px;"
@@ -151,6 +192,7 @@
                         ?>
                     </tbody>
                 </table>
+                <?php endif; ?>
                     </div><!-- fin tabla -->
                 </div><!-- fin col-md-10 -->
 
@@ -207,6 +249,10 @@
                 }
             });
         }
+
+        $('#selTodos').on('change', function () {
+            $('.chk-articulo').prop('checked', this.checked);
+        });
     </script>
 </body>
 </html>
