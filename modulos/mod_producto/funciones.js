@@ -880,7 +880,7 @@ function modalEstadoProductos(){
 		success    :  function (response) {
 				console.log('Respuesta de mostrar modal de modificar estado productos ');
 				var resultado = $.parseJSON(response);
-				var titulo = 'Modificar Producto ';
+				var titulo = 'Cambio de estado de productos';
                 abrirModal(titulo,resultado.html);
                 $( ".custom-combobox-input" ).focus();
 		}
