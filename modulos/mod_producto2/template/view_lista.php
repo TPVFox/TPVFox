@@ -69,11 +69,18 @@
                     </div>
                     <ul class="list-group" style="margin-bottom:0;">
                         <?php if ($ClasePermisos->getAccion('imprimirEtiquetas') == 1): ?>
-                            <li class="list-group-item"><a href="<?= $HostNombre ?>/modulos/mod_producto/ListaEtiquetas.php"
-                                   onclick="metodoClick('ImprimirEtiquetas', 'listaEtiqueta');">Imprimir Etiquetas</a></li>
+                            <li class="list-group-item">
+                                <a href="<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?modo=etiquetas">
+                                    <span class="glyphicon glyphicon-tag"></span> Imprimir Etiquetas
+                                </a>
+                            </li>
                         <?php endif; ?>
                         <?php if ($ClasePermisos->getAccion('imprimirMayor') == 1): ?>
-                            <li class="list-group-item"><a href="<?= $HostNombre ?>/modulos/mod_producto/ListaMayor.php">Imprimir Mayor</a></li>
+                            <li class="list-group-item">
+                                <a href="<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?modo=mayor">
+                                    <span class="glyphicon glyphicon-list-alt"></span> Imprimir Mayor
+                                </a>
+                            </li>
                         <?php endif; ?>
                         <?php if ($ClasePermisos->getAccion('agregarProductosFamilia') == 1): ?>
                             <li class="list-group-item"><a onclick="modalFamiliaProducto('0','ListadoProductos');">Guardar por familia</a></li>
@@ -108,7 +115,8 @@
                     $hayFiltroEstado    = $configuracion['estado_filtro'] !== '';
                     $hayFiltroSeleccion = $prod_seleccion['NItems'] > 0 && $configuracion['filtro']->valor === 'Si';
                     $hayBusqueda        = $NPaginado->GetBusqueda() !== '';
-                    $hayAlgunFiltro     = $hayFiltroEstado || $hayFiltroSeleccion || $hayBusqueda;
+                    $hayFiltroFamilia   = $idFamiliaFiltro !== 0;
+                    $hayAlgunFiltro     = $hayFiltroEstado || $hayFiltroSeleccion || $hayBusqueda || $hayFiltroFamilia;
                 ?>
                 <p>
                     Productos encontrados: <strong><?= $CantidadRegistros ?></strong>
@@ -125,6 +133,11 @@
                     <?php if ($hayBusqueda): ?>
                         <span class="label label-default" title="Búsqueda activa">
                             <span class="glyphicon glyphicon-search"></span> "<?= htmlspecialchars($NPaginado->GetBusqueda()) ?>"
+                        </span>
+                    <?php endif; ?>
+                    <?php if ($hayFiltroFamilia): ?>
+                        <span class="label label-success" title="Filtro activo por familia">
+                            <span class="glyphicon glyphicon-folder-open"></span> Familia: <?= htmlspecialchars($filtro_familia_nombre) ?>
                         </span>
                     <?php endif; ?>
                     <?php if ($hayAlgunFiltro): ?>
@@ -274,6 +287,9 @@
                             <td><?= $producto['estado'] ?></td>
 
                             <td>
+                                <?php if (($producto['tipo'] ?? '') === 'peso'): ?>
+                                    <span class="glyphicon glyphicon-peso" title="Producto vendido por peso"></span>
+                                <?php endif; ?>
                                 <a href="<?= $HostNombre ?>/modulos/mod_producto/DetalleMayor.php?idArticulo=<?= $producto['idArticulo'] ?>"
                                    title="Ver mayor de <?= htmlspecialchars($producto['articulo_name']) ?>"
                                    class="btn btn-xs btn-default">
@@ -318,35 +334,14 @@
         var urlTareas = '<?= $HostNombre ?>/modulos/mod_producto2/tareas.php';
         var idsSeleccionados = <?= json_encode($prod_seleccion['Items']) ?>;
 
-        // Sobreescribe la funcion de funciones.js para filtrar sin recargar pagina
         function seleccionProductos() {
             var activo = $('#checkSeleccion').prop('checked');
-            if (activo) {
-                configuracion.filtro.valor = 'Si';
-                // Ocultar filas cuyo producto no esta en la seleccion
-                $('tbody tr').each(function () {
-                    var id = parseInt($(this).find('.rowUsuario input[type=checkbox]').val(), 10);
-                    if (idsSeleccionados.indexOf(id) === -1) {
-                        $(this).hide();
-                    }
-                });
-            } else {
-                configuracion.filtro.valor = 'No';
-                $('tbody tr').show();
-            }
+            configuracion.filtro.valor = activo ? 'Si' : 'No';
             AjaxGuardarConfiguracion();
+            setTimeout(function () { window.location.reload(); }, 300);
         }
 
-        // Aplicar filtro al cargar si ya estaba activo
         $(document).ready(function () {
-            if (<?= $configuracion['filtro']->valor === 'Si' ? 'true' : 'false' ?>) {
-                $('tbody tr').each(function () {
-                    var id = parseInt($(this).find('.rowUsuario input[type=checkbox]').val(), 10);
-                    if (idsSeleccionados.indexOf(id) === -1) {
-                        $(this).hide();
-                    }
-                });
-            }
         });
 
         function quitarTodosLosFiltros() {
@@ -356,23 +351,31 @@
             var url = new URL(window.location.href);
             url.searchParams.delete('buscar');
             url.searchParams.delete('SelectBusqueda');
+            url.searchParams.delete('familia');
             AjaxGuardarConfiguracion();
             setTimeout(function () { window.location.href = url.toString(); }, 500);
         }
 
-        // Buscar productos de una familia y añadirlos a la seleccion
-        function buscarProductosFamilia(idFamilia) {
-            $.post(urlTareas, { accion: 'buscarProductosDeFamilia', idfamilia: idFamilia }, function (resp) {
+        // Buscar productos de un proveedor y añadirlos a la seleccion
+        function buscarProductosProveedor(idProveedor) {
+            $.post(urlTareas, { accion: 'buscarProductosProveedor', idProveedor: idProveedor }, function (resp) {
                 if (!resp.ok) {
-                    alert('Esta familia no tiene productos, busca en los hijos, si tiene');
+                    alert('Este proveedor no tiene productos.');
                     return;
                 }
                 idsSeleccionados = resp.ids;
                 $('.textoCantidad').text(resp.total);
                 $('.productos_seleccionados').show();
-                $('#botonEnviar').hide();
+                $('#botonEnviarPro').hide();
                 refresh();
             }, 'json');
+        }
+
+        // Filtrar lista por familia (GET redirect, no añade a seleccion)
+        function buscarProductosFamilia(idFamilia) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('familia', idFamilia);
+            window.location.href = url.toString();
         }
 
         // Marcar o desmarcar un producto — llama a tareas.php y actualiza el contador

@@ -162,6 +162,27 @@ try {
             $respuesta  = $resultado;
             break;
 
+        case 'buscarProductosProveedor':
+            $idProveedor  = (int) ($_POST['idProveedor'] ?? 0);
+            $CProveedor2  = new Proveedores();
+            $productos    = $CProveedor2->buscarProductosProveedor($idProveedor);
+            $idsProductos = [];
+            if (is_array($productos)) {
+                foreach ($productos as $producto) {
+                    $id = (int) $producto['idArticulo'];
+                    $CSeleccion->agregar($id);
+                    $idsProductos[] = $id;
+                }
+            }
+            if (empty($idsProductos)) {
+                $respuesta['ok'] = false;
+            } else {
+                $respuesta['ok']    = true;
+                $respuesta['ids']   = $idsProductos;
+                $respuesta['total'] = $CSeleccion->contar();
+            }
+            break;
+
         case 'agregar':
             $idArticulo = (int) ($_POST['idArticulo'] ?? 0);
             if ($idArticulo <= 0) {
@@ -194,6 +215,75 @@ try {
             $respuesta['ok']   = true;
             $respuesta['ids']  = $CSeleccion->getIds();
             $respuesta['total'] = $CSeleccion->contar();
+            break;
+
+        case 'cambiarEstadoRecalculo':
+            $idArticulo = $_POST['idArticulo'];
+            $dedonde    = $_POST['dedonde'];
+            $idDoc      = $_POST['id'];
+            $tipo       = $_POST['tipo'];
+            $accionRec  = $_POST['operacion'];
+            $estado     = ($accionRec === 'eliminar') ? 'Sin Cambios' : 'Pendiente';
+            include_once $URLCom . '/clases/articulos.php';
+            $CArticuloRec = new Articulos($BDTpv);
+            $mod = $CArticuloRec->modEstadoArticuloHistorico($idArticulo, $idDoc, $dedonde, $tipo, $estado);
+            $respuesta['accion'] = $accionRec;
+            $respuesta['sql']    = $mod;
+            break;
+
+        case 'imprimirRecalculo':
+            $idAlbaran = (int) ($_POST['id'] ?? 0);
+            $cacheFile = __DIR__ . '/cache/recalculoprecios_' . $idUsuario . '_' . $idAlbaran . '.xml';
+            if (!file_exists($cacheFile)) {
+                $respuesta['error'] = 'No hay datos guardados para imprimir. Guarda primero el recalculo.';
+                break;
+            }
+            $xmlData = simplexml_load_file($cacheFile);
+            $html  = '<p>ALBARÁN NÚMERO: ' . $xmlData->idAlbaran . '</p>';
+            $html .= '<p>FECHA: ' . $xmlData->fecha . '</p>';
+            $html .= '<p>PROVEEDOR: ' . $xmlData->nombreProveedor . '</p><br>';
+            $html .= '<table width="100%"><tr><td width="35%">NOMBRE</td><td>REFERENCIA</td><td>PRECIO ANTERIOR</td><td>PRECIO NUEVO</td></tr></table>';
+            $html .= '<table width="100%">';
+            foreach ($xmlData->productos->producto as $prod) {
+                $html .= '<tr>';
+                $html .= '<td width="35%">' . htmlspecialchars((string) $prod->nombre) . '</td>';
+                $html .= '<td>' . htmlspecialchars((string) $prod->referencia) . '</td>';
+                $html .= '<td>' . $prod->precioAnterior . '</td>';
+                $html .= '<td>' . $prod->precioNuevo . '</td>';
+                $html .= '</tr>';
+            }
+            $html    .= '</table>';
+            $cabecera = '';
+            $nombreTmp = 'Recalculorecalculo.pdf';
+            include_once $URLCom . '/clases/imprimir.php';
+            include_once $URLCom . '/controllers/planImprimirRe.php';
+            $respuesta['fichero'] = $rutatmp . '/' . $nombreTmp;
+            break;
+
+        case 'imprimir':
+            $id      = $_POST['id'];
+            $dedonde = 'Recalculo';
+            $nombreTmp = $dedonde . 'recalculo.pdf';
+            include_once $URLCom . '/modulos/mod_compras/clases/albaranesCompras.php';
+            include_once $URLCom . '/clases/articulos.php';
+            $CArticulo = new Articulos($BDTpv);
+            $CAlbaran  = new AlbaranesCompras($BDTpv);
+            $CProveedor = new Proveedores();
+            include_once $URLCom . '/modulos/mod_producto/tareas/imprimirRecalculo.php';
+            $cabecera = $htmlImprimir['cabecera'];
+            $html     = $htmlImprimir['html'];
+            include_once $URLCom . '/clases/imprimir.php';
+            include_once $URLCom . '/controllers/planImprimirRe.php';
+            $ficheroCompleto = $rutatmp . '/' . $nombreTmp;
+            $respuesta['fichero'] = $ficheroCompleto;
+            break;
+
+        case 'imprimirEtiquetas':
+            $NCArticulo   = new ClaseProductos($BDTpv);
+            $rutaCompleta = $RutaServidor . $HostNombre;
+            include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+            $CBalanza = new ClaseBalanza($BDTpv);
+            include $URLCom . '/modulos/mod_producto/tareas/imprimirEtiquetas.php';
             break;
 
         case 'buscarProductosDeFamilia':

@@ -61,6 +61,27 @@ $posibles_estados = $CTArticulos->posiblesEstados('articulos');
 $htmlEstadosProducto = $option_sinFiltrar . htmlOptionEstados($posibles_estados, $configuracion['estado_filtro']);
 $filtro_estado = $configuracion['estado_filtro'] !== '' ? 'a.estado="' . $configuracion['estado_filtro'] . '"' : '';
 
+// --- Filtro por familia (GET ?familia=ID) ---
+$filtro_familia_nombre = '';
+$filtro_familia_ids    = [];
+$idFamiliaFiltro = isset($_GET['familia']) ? (int) $_GET['familia'] : 0;
+if ($idFamiliaFiltro !== 0) {
+    if ($idFamiliaFiltro < 0) {
+        // Sin familia
+        $famProd = $CFamilia->buscarProductosSinFamilias();
+        $filtro_familia_nombre = 'Sin familia';
+    } else {
+        $famProd = $CFamilia->buscarProductosFamilias($idFamiliaFiltro);
+        $famNombre = $CFamilia->buscarPorId($idFamiliaFiltro);
+        $filtro_familia_nombre = $famNombre['datos'][0]['familiaNombre'] ?? '';
+    }
+    if (isset($famProd['datos'])) {
+        foreach ($famProd['datos'] as $fp) {
+            $filtro_familia_ids[] = (int) $fp['idArticulo'];
+        }
+    }
+}
+
 // --- Paginacion ---
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $NPaginado->SetCamposControler([$htmlConfiguracion['campo_defecto']]);
@@ -68,13 +89,25 @@ $NPaginado->SetCamposControler([$htmlConfiguracion['campo_defecto']]);
 $filtro = $NPaginado->GetFiltroWhere();
 $CantidadRegistros = 0;
 
+// Añadir filtro de familia al WHERE si aplica
+$cond_familia = '';
+if (!empty($filtro_familia_ids)) {
+    $ids_str      = implode(',', $filtro_familia_ids);
+    $cond_familia = "(a.idArticulo IN ($ids_str))";
+} elseif ($idFamiliaFiltro !== 0) {
+    // Familia sin productos → forzar 0 resultados
+    $cond_familia = '(1=0)';
+}
+
+// Combinar todos los filtros
+$condiciones = array_filter([$filtro_estado, $cond_familia]);
 if (trim($filtro) !== '') {
-    if ($filtro_estado !== '') {
-        $filtro .= ' AND ' . $filtro_estado;
+    if (!empty($condiciones)) {
+        $filtro .= ' AND ' . implode(' AND ', $condiciones);
     }
     $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro')));
-} elseif ($filtro_estado !== '') {
-    $filtro = 'WHERE ' . $filtro_estado;
+} elseif (!empty($condiciones)) {
+    $filtro = 'WHERE ' . implode(' AND ', $condiciones);
     $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro')));
 } else {
     $CantidadRegistros = $CTArticulos->GetNumRows();
