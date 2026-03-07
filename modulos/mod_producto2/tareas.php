@@ -242,15 +242,20 @@ try {
             $html  = '<p>ALBARÁN NÚMERO: ' . $xmlData->idAlbaran . '</p>';
             $html .= '<p>FECHA: ' . $xmlData->fecha . '</p>';
             $html .= '<p>PROVEEDOR: ' . $xmlData->nombreProveedor . '</p><br>';
-            $html .= '<table width="100%"><tr><td width="35%">NOMBRE</td><td>REFERENCIA</td><td>PRECIO ANTERIOR</td><td>PRECIO NUEVO</td></tr></table>';
-            $html .= '<table width="100%">';
+            $html .= '<table width="100%" border="0" cellpadding="3">';
             foreach ($xmlData->productos->producto as $prod) {
-                $html .= '<tr>';
-                $html .= '<td width="35%">' . htmlspecialchars((string) $prod->nombre) . '</td>';
-                $html .= '<td>' . htmlspecialchars((string) $prod->referencia) . '</td>';
-                $html .= '<td>' . $prod->precioAnterior . '</td>';
-                $html .= '<td>' . $prod->precioNuevo . '</td>';
+                $costeInfo = '<font color="#666666"><small>Coste '
+                    . number_format((float) $prod->costeAnterior, 2) . ' -> '
+                    . number_format((float) $prod->costeNuevo,    2)
+                    . '&nbsp;&nbsp;PVP ant.: ' . number_format((float) $prod->pvpAnterior, 2)
+                    . '</small></font>';
+                $html .= '<tr valign="top">';
+                $html .= '<td width="8%"><strong>' . (int) $prod->idArticulo . '</strong></td>';
+                $html .= '<td width="56%"><strong>' . htmlspecialchars((string) $prod->nombre) . '</strong><br>' . $costeInfo . '</td>';
+                $html .= '<td width="18%" align="right">PVP nuevo:</td>';
+                $html .= '<td width="18%" align="right"><strong>' . number_format((float) $prod->pvpNuevo, 2) . '</strong></td>';
                 $html .= '</tr>';
+                $html .= '<tr><td colspan="4"><hr style="border-top:1px solid #ccc; margin:1px 0;"></td></tr>';
             }
             $html    .= '</table>';
             $cabecera = '';

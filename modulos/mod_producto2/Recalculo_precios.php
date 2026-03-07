@@ -47,6 +47,7 @@ $cacheExists = file_exists($cacheDir . '/' . $cacheName);
 if (isset($_POST['Guardar']) && !$cacheExists) {
     $fechaCreacion = date('Y-m-d');
     $i = 1;
+    $pvpGuardados  = [];
 
     // Detectar productos de tipo peso
     $productosPeso = [];
@@ -75,6 +76,10 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
             $datosArticulo       = $CArticulo->datosPrincipalesArticulo($idArticulo);
             $datosPrecios        = $CArticulo->articulosPrecio($idArticulo);
             $articuloPrecioAnt   = $datosPrecios['pvpCiva'];
+            $pvpGuardados[$idArticulo] = [
+                'pvpAnterior' => number_format($articuloPrecioAnt, 4),
+                'pvpNuevo'    => number_format($pvpRecomendadoCiva, 4),
+            ];
 
             if ($pvpRecomendadoCiva != $articuloPrecioAnt) {
                 $ivaPrecio        = $datosArticulo['iva'] / 100;
@@ -203,11 +208,13 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
         $art = $CArticulo->datosPrincipalesArticulo($prod['idArticulo']);
         $ref = $CArticulo->buscarReferencia($prod['idArticulo'], $datosAlbaran['idProveedor']);
         $xP  = $xProds->addChild('producto');
-        $xP->addChild('idArticulo', (int) $prod['idArticulo']);
-        $xP->addChild('nombre',     htmlspecialchars($art['articulo_name'] ?? '', ENT_XML1, 'UTF-8'));
-        $xP->addChild('referencia', htmlspecialchars($ref['crefTienda']    ?? '', ENT_XML1, 'UTF-8'));
-        $xP->addChild('precioAnterior', $prod['Antes']);
-        $xP->addChild('precioNuevo',    $prod['Nuevo']);
+        $xP->addChild('idArticulo',    (int)    $prod['idArticulo']);
+        $xP->addChild('nombre',        htmlspecialchars($art['articulo_name'] ?? '', ENT_XML1, 'UTF-8'));
+        $xP->addChild('referencia',    htmlspecialchars($ref['crefTienda']    ?? '', ENT_XML1, 'UTF-8'));
+        $xP->addChild('costeAnterior', $prod['Antes']);
+        $xP->addChild('costeNuevo',    $prod['Nuevo']);
+        $xP->addChild('pvpAnterior',   $pvpGuardados[$prod['idArticulo']]['pvpAnterior'] ?? '');
+        $xP->addChild('pvpNuevo',      $pvpGuardados[$prod['idArticulo']]['pvpNuevo']    ?? '');
     }
     $xml->asXML($cacheDir . '/' . $cacheName);
     $guardadoOk = true;
@@ -215,5 +222,22 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
 
 // Recomprobar tras posible guardado en este mismo request
 $cacheExists = file_exists($cacheDir . '/' . $cacheName);
+
+// Cargar productos desde XML si ya fue guardado
+$productosXml = [];
+if ($cacheExists) {
+    $xmlData = simplexml_load_file($cacheDir . '/' . $cacheName);
+    foreach ($xmlData->productos->producto as $prod) {
+        $productosXml[] = [
+            'idArticulo'    => (int)    $prod->idArticulo,
+            'nombre'        => (string) $prod->nombre,
+            'referencia'    => (string) $prod->referencia,
+            'costeAnterior' => (string) $prod->costeAnterior,
+            'costeNuevo'    => (string) $prod->costeNuevo,
+            'pvpAnterior'   => (string) $prod->pvpAnterior,
+            'pvpNuevo'      => (string) $prod->pvpNuevo,
+        ];
+    }
+}
 
 include __DIR__ . '/template/view_recalculo.php';
