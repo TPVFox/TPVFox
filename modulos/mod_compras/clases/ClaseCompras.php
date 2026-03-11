@@ -122,9 +122,9 @@ class ClaseCompras
                 $iva_decimal = $product->iva / 100; // No hace falta para operar.
                 if (!isset($product->importe)) {
                     // Por comtabilidad con versiones anterires.
-                    $importe = $product->ncant * floatval($product->ultimoCoste);
+                    $importe = floatval($product->ncant) * floatval($product->ultimoCoste);
                 } else {
-                    $importe = $product->importe;
+                    $importe = floatval($product->importe);
                 }
                 if (isset($desglose[$iva])) {
                     $desglose[$iva]['base'] = number_format($desglose[$iva]['base'] + $importe, 2, '.', '');

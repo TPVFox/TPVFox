@@ -29,6 +29,7 @@ $idDocumento = 0; // idDocumento -> idAlbaran o idPedido o idFactura
 $idProveedor = "";
 $nombreProveedor = "";
 $Datostotales = array();
+$ajustesGuardados = null;
 $errores = array();
 $creado_por = array();
 $hora = "";
@@ -259,10 +260,47 @@ if (count($errores) == 0) {
     // Cargamos forma pago y ponemos seleccina si tiene.
     $textoFormaPago = htmlFormasVenci($formaPago, $BDTpv); // Generamos ya html.
     if (isset($datosDocumento['Productos'])) {
-        // Obtenemos los datos totales ;
-        // convertimos el objeto productos en array
+        // Siempre recalcular desde líneas: el recálculo sirve como baseline para data-original en el DOM.
         $p = (object) $productos;
         $Datostotales = $CAlb->recalculoTotales($p);
+
+        // Cargar ajustes de céntimos
+        if ($idDocumentoTemporal > 0 && isset($datosDocumento['total_ivas']) && !empty($datosDocumento['total_ivas'])) {
+            // Documento con temporal existente: recuperar ajustes del temporal
+            $ajustesTmp = json_decode($datosDocumento['total_ivas'], true);
+            if ($ajustesTmp !== null && isset($ajustesTmp['desglose'])) {
+                $ajustesGuardados = $ajustesTmp;
+            }
+        } elseif ($idDocumentoTemporal === 0 && isset($datosDocumento['IvasGuardados']) && count($datosDocumento['IvasGuardados']) > 0) {
+            // Documento guardado sin temporal: reconstruir ajustes como delta entre albproIva y recálculo de líneas.
+            // Esto preserva los ajustes de céntimos tanto en la vista inicial como cuando addTemporal() envía los ajustes al servidor.
+            $desgloseAjuste = [];
+            $hayDelta = false;
+            foreach ($datosDocumento['IvasGuardados'] as $ivaRow) {
+                $tipo      = intval($ivaRow['iva']);
+                $savedBase = floatval($ivaRow['totalbase']);
+                $savedIva  = floatval($ivaRow['importeIva']);
+                $calcBase  = isset($Datostotales['desglose'][$tipo]) ? floatval($Datostotales['desglose'][$tipo]['base']) : 0;
+                $calcIva   = isset($Datostotales['desglose'][$tipo]) ? floatval($Datostotales['desglose'][$tipo]['iva']) : 0;
+                $desgloseAjuste[$tipo] = [
+                    'base' => number_format($savedBase, 2, '.', ''),
+                    'iva'  => number_format($savedIva, 2, '.', ''),
+                ];
+                if (abs($savedBase - $calcBase) > 0.001 || abs($savedIva - $calcIva) > 0.001) {
+                    $hayDelta = true;
+                }
+            }
+            $savedTotal = floatval($datosDocumento['total']);
+            if (abs($savedTotal - floatval($Datostotales['total'])) > 0.001) {
+                $hayDelta = true;
+            }
+            if ($hayDelta) {
+                $ajustesGuardados = [
+                    'total'    => $savedTotal,
+                    'desglose' => $desgloseAjuste,
+                ];
+            }
+        }
     }
 }
 //  ---------  Control y procesos para guardar el documento. ------------------ //
@@ -319,6 +357,7 @@ if ($accion === 'ver') {
     $estilos['styleNo'] = ' style="display:none;"';
     $estilos['input_factur'] = ' readonly';
     $estilos['select_factur'] = 'disabled="true"';
+    $estilos['evento_cambio'] = ''; // Sin eventos en modo visualización
 }
 if ($idDocumentoTemporal === 0) {
     // Solo se muestra cuando el idDocumentoTemporal es 0
@@ -352,6 +391,15 @@ if ($idDocumentoTemporal === 0) {
         var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
         var pedidos = [];
         var salto_linea = 'ReferenciaPro'; // Valor por defecto
+        // Ajuste de céntimos - parámetros y permisos
+        window.ajusteCentimosHabilitado = <?php echo (isset($conf_defecto['ajuste_centimos']) && $conf_defecto['ajuste_centimos'] === 'Si') ? 'true' : 'false'; ?>;
+        window.ajusteCentimosDesglose = <?php echo (isset($conf_defecto['ajuste_centimos_desglose']) && $conf_defecto['ajuste_centimos_desglose'] === 'Si') ? 'true' : 'false'; ?>;
+        window.maxAjusteCentimos = <?php echo isset($conf_defecto['max_ajuste_centimos']) ? intval($conf_defecto['max_ajuste_centimos']) : 1; ?>;
+        window.permisoAjusteCentimos = <?php echo ($ClasePermisos->getAccion('AjusteCentimos') == 1) ? 'true' : 'false'; ?>;
+        window.decimalesCantidad = <?php echo isset($conf_defecto['decimales_cantidad']) ? intval($conf_defecto['decimales_cantidad']) : 3; ?>;
+        window.decimalesCoste = <?php echo isset($conf_defecto['decimales_coste']) ? intval($conf_defecto['decimales_coste']) : 4; ?>;
+        window.modoVisualizacion = <?php echo ($accion === 'ver') ? 'true' : 'false'; ?>;
+        window.dedonde = '<?php echo $dedonde; ?>';
         <?php
         if (isset($idDocumentoTemporal) || isset($idDocumento)) {
             if (isset($productos)) {
@@ -412,7 +460,8 @@ if ($idDocumentoTemporal === 0) {
             }
         }
         ?>
-        <form action="" method="post" name="formProducto" onkeypress="return anular(event)">
+        <form action="" method="post" name="formProducto" onkeypress="return anular(event)" onsubmit="prepararAjustesParaGuardar()">
+            <input type="hidden" name="ajustesCentimos" id="ajustesCentimosHidden" value="">
             <?php
             echo '<h3 class="text-center">' . $titulo . '</h3>';
 
@@ -436,6 +485,10 @@ if ($idDocumentoTemporal === 0) {
                         // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                         echo '<input class="btn btn-primary" ' . $estilos['btn_guardar']
                             . ' type="submit" value="Guardar  (Alt+G)" name="Guardar" id="bGuardar" accesskey="G">';
+                    }
+                    if (isset($ClasePermisos) && $ClasePermisos->getAccion("AjusteCentimos") == 1) {
+                        // Boton con engranaje para abrir el ajuste de configuración de parametros.xml
+                        echo ' <a class="btn btn-default" onclick="abrirModalConfig()" title="Ajuste de configuración"><span class="glyphicon glyphicon-cog"></span></a>';
                     }
                     ?>
                 </div>
@@ -628,7 +681,9 @@ if ($idDocumentoTemporal === 0) {
                                         // Si existe index Numpedpro entonces lo pongo como valor, sino dejo 0;
                                         $id_pedido_anterior = (isset($producto['idpedpro'])) ? $producto['idpedpro'] : '0';
 
-                                        $html = htmlLineaProducto($producto, $dedonde, $estilos['readonly']);
+                                        $decCant = isset($conf_defecto['decimales_cantidad']) ? intval($conf_defecto['decimales_cantidad']) : 3;
+                                        $decCost = isset($conf_defecto['decimales_coste']) ? intval($conf_defecto['decimales_coste']) : 4;
+                                        $html = htmlLineaProducto($producto, $dedonde, $estilos['readonly'], $decCant, $decCost);
                                         echo $html['html'];
                                     }
                                 }
@@ -649,13 +704,30 @@ if ($idDocumentoTemporal === 0) {
                             <tbody>
                                 <?php
                                 if (isset($Datostotales)) {
-                                    $htmlIvas = htmlTotales($Datostotales);
+                                    $htmlIvas = htmlTotales($Datostotales, $ajustesGuardados);
                                     echo $htmlIvas['html'];
                                 }
                                 ?>
 
                             </tbody>
                         </table>
+                        <?php
+                        if (
+                            $accion !== 'ver' && $ClasePermisos->getAccion('AjusteCentimos') == 1
+                            && isset($conf_defecto['ajuste_centimos']) && $conf_defecto['ajuste_centimos'] === 'Si'
+                        ) {
+                            echo '<button type="button" id="btnAjusteCentimos" class="btn btn-default btn-sm" onclick="toggleAjusteCentimos()">';
+                            echo '<span class="glyphicon glyphicon-pencil"></span> Ajuste céntimos';
+                            echo '</button>';
+                        }
+                        ?>
+                        <script>
+                            <?php
+                            if (isset($ajustesGuardados)) {
+                                echo 'cargarAjustesCentimos(' . json_encode($ajustesGuardados) . ');';
+                            }
+                            ?>
+                        </script>
                     </div>
                 </div>
             </div>

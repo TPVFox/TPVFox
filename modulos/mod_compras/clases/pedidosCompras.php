@@ -276,8 +276,8 @@ class PedidosCompras extends ClaseCompras
                 $values[] = '(' . $id . ', ' . $prod['idArticulo'] . ', '
                     . "'" . $prod['cref'] . "'" . ', '
                     . "'" . $refProveedor . "'" .
-                    ', "' . $codBarras . '", "' . $prod['cdetalle'] . '", ' . $prod['ncant']
-                    . ', "' . $prod['nunidades'] . '", "' . $prod['ultimoCoste'] . '", '
+                    ', "' . $codBarras . '", "' . $prod['cdetalle'] . '", ' . floatval($prod['ncant'])
+                    . ', "' . floatval($prod['nunidades']) . '", "' . floatval($prod['ultimoCoste']) . '", '
                     . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '")';
                 $i++;
             }
@@ -302,7 +302,10 @@ class PedidosCompras extends ClaseCompras
         $values = array();
         $respuesta = array();
         foreach ($desglose as  $iva => $basesYivas) {
-            $values[] = '(' . $id . ', "' . $iva . '", "' . $basesYivas['iva'] . '", "' . $basesYivas['base'] . '")';
+            $iva_sql = floatval($iva);
+            $importeIva = number_format(floatval($basesYivas['iva']), 2, '.', '');
+            $totalBase = number_format(floatval($basesYivas['base']), 2, '.', '');
+            $values[] = '(' . $id . ', ' . $iva_sql . ', ' . $importeIva . ', ' . $totalBase . ')';
         }
         $sql .= ' VALUES ' . implode(',', $values);
         // Hacemos una sola consulta con insercion de todos registros subtotales de ivas.
@@ -486,6 +489,7 @@ class PedidosCompras extends ClaseCompras
         if (count($this->errores) === 0) {
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos'] = $productos;
+            $datos['IvasGuardados'] = $ivas;
         } else {
             // Si hubo errores los devolvemos.
             $datos['error'] = $this->errores;
@@ -562,6 +566,11 @@ class PedidosCompras extends ClaseCompras
         // $idProveedor
         // $numPedido -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
         // $estado -> Lo pedidos queremos buscar segun su estado.
+        // Validar idProveedor para evitar SQL malformado
+        $idProveedor = intval($idProveedor);
+        if ($idProveedor <= 0) {
+            return array('error' => 'idProveedor inválido', 'consulta' => 'Falta idProveedor');
+        }
         $sql = 'SELECT Numpedpro, Fecha, total_siniva,total, id FROM pedprot
         WHERE idProveedor= ' . $idProveedor . ' and estado=' . "'" . $estado . "'";
         if ($numPedido > 0) {
@@ -680,6 +689,33 @@ class PedidosCompras extends ClaseCompras
             if (count($productos) > 0) {
                 $CalculoTotales = parent::recalculoTotales($productos);
                 $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
+            }
+            // ======  Aplicar ajustes de céntimos si existen  ======= //
+            // Prioridad: POST del formulario (estado actual JS) > total_ivas en BD (puede ser stale)
+            $ajustesRawString = '';
+            if (isset($_POST['ajustesCentimos']) && $_POST['ajustesCentimos'] !== '') {
+                $ajustesRawString = $_POST['ajustesCentimos'];
+            } elseif (isset($pedidoTemporal['total_ivas']) && !empty($pedidoTemporal['total_ivas'])) {
+                $ajustesRawString = $pedidoTemporal['total_ivas'];
+            }
+            if ($ajustesRawString !== '') {
+                $ajustesGuardados = json_decode($ajustesRawString, true);
+                if ($ajustesGuardados !== null && isset($ajustesGuardados['desglose'])) {
+                    global $URLCom;
+                    include_once $URLCom . '/controllers/parametros.php';
+                    $CParamAjuste = new ClaseParametros('parametros.xml');
+                    $confAjuste = $CParamAjuste->ArrayElementos('configuracion');
+                    $maxAjuste = isset($confAjuste['max_ajuste_centimos']) ? intval($confAjuste['max_ajuste_centimos']) : 1;
+                    $validacion = validarAjustesCentimos($CalculoTotales, $ajustesGuardados, $maxAjuste);
+                    if ($validacion['valido']) {
+                        $CalculoTotales = aplicarAjustesATotales($CalculoTotales, $ajustesGuardados);
+                        $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
+                    } else {
+                        foreach ($validacion['errores'] as $msgErr) {
+                            array_push($errores, $this->montarAdvertencia('warning', $msgErr));
+                        }
+                    }
+                }
             }
             // Creamos array con los datos del pedido para AÑADIR O MODIFICAR
             $datosPedido = array(
@@ -843,7 +879,8 @@ class PedidosCompras extends ClaseCompras
         //$total->El total del pedido
         //$total_ivas->la suma de todos los ivas
         $db = $this->db;
-        $sql = 'UPDATE pedprotemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
+        $escapedIvas = $db->real_escape_string($totalivas);
+        $sql = 'UPDATE pedprotemporales set total=' . $total . ' , total_ivas="' . $escapedIvas . '" where id=' . $res;
         $smt = $db->query($sql);
         $resultado['sql'] = $sql;
         return $resultado;

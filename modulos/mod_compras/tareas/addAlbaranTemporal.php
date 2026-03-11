@@ -5,6 +5,14 @@
 $respuesta     = array();
 $pedidos     = array();
 $errores    = array();
+
+// Guard: rechazar estados de solo lectura
+if ($_POST['estado'] === 'Facturado') {
+    $respuesta['error'] = array(array('mensaje' => 'No se puede modificar un albarán en estado Facturado'));
+    echo json_encode($respuesta);
+    return;
+}
+
 $idAlbaranTemporal = $_POST['idTemporal'];
 $idUsuario = $_POST['idUsuario'];
 $idTienda = $_POST['idTienda'];
@@ -116,7 +124,21 @@ if (isset($productos) && count($errores) === 0) {
     $CalculoTotales = $CAlb->recalculoTotales($productos);
     $respuesta['total'] = round($CalculoTotales['total'], 2);
     $respuesta['totales'] = $CalculoTotales;
-    $modTotal = $CAlb->modTotales($idAlbaranTemporal, $respuesta['total'], $CalculoTotales['subivas']);
+
+    // Procesar ajustes de céntimos si se enviaron
+    $ajustes = null;
+    $ajustesJSON = null;
+    if (isset($_POST['ajustesCentimos']) && $_POST['ajustesCentimos'] !== '') {
+        $ajustes = json_decode($_POST['ajustesCentimos'], true);
+        if ($ajustes !== null) {
+            $ajustesJSON = $_POST['ajustesCentimos'];
+            $respuesta['ajustesCentimos'] = $ajustes;
+        }
+    }
+
+    // Guardar total_ivas: si hay ajustes, guardar JSON; si no, guardar subivas
+    $totalIvasParaGuardar = ($ajustesJSON !== null) ? $ajustesJSON : $CalculoTotales['subivas'];
+    $modTotal = $CAlb->modTotales($idAlbaranTemporal, $respuesta['total'], $totalIvasParaGuardar);
     if (isset($modTotal['error'])) {
         array_push(
             $errores,
@@ -127,7 +149,7 @@ if (isset($productos) && count($errores) === 0) {
             )
         );
     }
-    $htmlTotales = htmlTotales($CalculoTotales);
+    $htmlTotales = htmlTotales($CalculoTotales, $ajustes);
     $respuesta['htmlTabla'] = $htmlTotales['html'];
 }
 if (count($errores) > 0) {

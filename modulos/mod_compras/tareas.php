@@ -22,6 +22,7 @@ $CPed = new PedidosCompras($BDTpv);
 $CAlb = new AlbaranesCompras($BDTpv);
 $CFac = new FacturasCompras($BDTpv);
 $CArticulos = new Articulos($BDTpv);
+$CParametros = new ClaseParametros('parametros.xml');
 $respuesta = array();
 switch ($pulsado) {
     case 'abririncidencia':
@@ -194,7 +195,7 @@ switch ($pulsado) {
         $html = modalCambioAno();
         $respuesta['html'] = $html;;
         break;
-    
+
     case 'importarAlbaranCierreAno':
         include_once  $URLCom . '/modulos/mod_compras/tareas/importarAlbaranCierreAno.php';
         break;
@@ -222,15 +223,19 @@ switch ($pulsado) {
             $html = htmlDatosAdjuntoProductos($_POST['cabecera'], $dedonde);
             $respuesta['html'] .= $html;
         }
+        // Leer decimales desde configuración
+        $confParam = $CParametros->ArrayElementos('configuracion');
+        $decCant = isset($confParam['decimales_cantidad']) ? intval($confParam['decimales_cantidad']) : 3;
+        $decCost = isset($confParam['decimales_coste']) ? intval($confParam['decimales_coste']) : 4;
         foreach ($productos as $producto) {
             // $producto puede ser un array con todos datos del producto o simplemente el primer campo de un producto.
             // por lo que si $producto no es array , quiere decir que $productos ( es solo un producto).
             if (!is_array($producto)) {
-                $res = htmlLineaProducto($productos, $dedonde);
+                $res = htmlLineaProducto($productos, $dedonde, '', $decCant, $decCost);
                 $respuesta['html'] .= $res['html'];
                 break;
             } else {
-                $res = htmlLineaProducto($producto, $dedonde);
+                $res = htmlLineaProducto($producto, $dedonde, '', $decCant, $decCost);
                 $respuesta['html'] .= $res['html'];
             }
         }
@@ -294,7 +299,16 @@ switch ($pulsado) {
     case 'datosExportarXML':
         include_once  $URLCom . '/modulos/mod_compras/tareas/exportarAlbaran.php';
         break;
-
+    case 'abrirModalConfig':
+        include_once  $URLCom . '/modulos/mod_compras/tareas/abrirModalConfiguracion.php';
+        break;
+    case 'guardarConfiguracionCompras':
+        $ClasesParametros = new ClaseParametros('parametros.xml');
+        $xml = $ClasesParametros->getNodeIntern('configuracion');
+        $datosFormulario = $_POST['datosFormulario'];
+        $datosFormulario = json_decode($datosFormulario, true);
+        $respuesta = guardarDatosConfiguracion($datosFormulario, $xml, $ClasesParametros);
+        break;
     default:
         // @ Objetivo:
         // marcar posible error.
