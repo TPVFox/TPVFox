@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <parametros>
 	<configuracion>
-
+		<posstock>
+			<ventana_dias>7</ventana_dias>
+			<umbral_sobrestock>0.5</umbral_sobrestock>
+			<umbral_caducidad_semanas>24</umbral_caducidad_semanas>
+			<umbral_sin_rotacion_semanas>12</umbral_sin_rotacion_semanas>
+		</posstock>
 	</configuracion>
 </parametros>

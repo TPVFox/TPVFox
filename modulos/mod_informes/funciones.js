@@ -71,3 +71,46 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion) {
   });
 }
 window.metodoClick = metodoClick;
+
+// =====================================================================
+//       POSSTOCK — Configuración
+// =====================================================================
+
+function abrirModalConfigPosstock() {
+    var parametros = { pulsado: "abrirModalConfigPosstock" };
+    $.ajax({
+        data: parametros,
+        url: "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+            ventanaModal(resultado.titulo, resultado.html);
+        },
+    });
+}
+
+function guardarConfigPosstock() {
+    var datosFormulario = $("#formConfigPosstock").serializeArray();
+    var parametros = {
+        pulsado: "guardarConfigPosstock",
+        datosFormulario: JSON.stringify(datosFormulario),
+    };
+    $.ajax({
+        data: parametros,
+        url: "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+            if (resultado.error) {
+                var htmlError = '<div class="alert alert-danger" role="alert">' + resultado.error + "</div>";
+                $("#formConfigPosstock").prepend(htmlError);
+            } else {
+                alert(resultado.mensaje);
+                cerrarModal();
+            }
+        },
+    });
+}
+
+window.abrirModalConfigPosstock = abrirModalConfigPosstock;
+window.guardarConfigPosstock    = guardarConfigPosstock;
