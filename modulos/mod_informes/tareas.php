@@ -4,6 +4,7 @@ include_once './../../inicial.php';
 $pulsado = $_POST['pulsado'];
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/controllers/parametros.php';
+include_once $URLCom . '/modulos/mod_informes/funciones.php';
 
 
 
@@ -49,6 +50,17 @@ switch ($pulsado) {
             } else {
                 $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
             }
+        }
+        break;
+    case 'calcularPeriodoPosstock':
+        $tipo   = $_POST['tipo']   ?? '';
+        $numero = $_POST['numero'] ?? 0;
+        $anio   = $_POST['anio']   ?? date('Y');
+        $periodo = calcularPeriodoPosstock($tipo, (int)$numero, (int)$anio);
+        if ($periodo === null) {
+            $respuesta['error'] = 'Tipo de periodo no válido: ' . $tipo;
+        } else {
+            $respuesta = $periodo;
         }
         break;
     default:
