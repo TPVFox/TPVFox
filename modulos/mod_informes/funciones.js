@@ -1,74 +1,74 @@
 import * as JSTpv from "./../../lib/js/tpvfox.js";
 function metodoClick() {
-  checkID = JSTpv.TfObtenerCheck("rowCheck");
-  console.log(checkID);
-  if (checkID.length > 1 || checkID.length === 0) {
-    alert(
-      "Que items tienes seleccionados? \n Solo puedes tener uno seleccionado"
-    );
-    return;
-  }
-  // Ahora obtenemos el valor de la opcion seleccionada.
-  let opcion = document.getElementById("opcion" + checkID[0]).value;
-  // Ahora montamos rango fecha
-  let fecha_inicial = document.getElementById("idFechaInicio").value;
-  let fecha_final = document.getElementById("idFechaFinal").value;
-  if (fecha_final == "") {
-    // Si la fecha inicio esta vacia
-    let today = new Date();
-    let day = today.getDate();
-    let month = today.getMonth() + 1;
-    let year = today.getFullYear();
-    fecha_final = year + "-" + month + "-" + day;
-  }
-  if (fecha_inicial == "") {
-    // Si la fecha inicio esta vacia
-    let today = new Date();
+    checkID = JSTpv.TfObtenerCheck("rowCheck");
+    console.log(checkID);
+    if (checkID.length > 1 || checkID.length === 0) {
+        alert(
+            "Que items tienes seleccionados? \n Solo puedes tener uno seleccionado",
+        );
+        return;
+    }
+    // Ahora obtenemos el valor de la opcion seleccionada.
+    let opcion = document.getElementById("opcion" + checkID[0]).value;
+    // Ahora montamos rango fecha
+    let fecha_inicial = document.getElementById("idFechaInicio").value;
+    let fecha_final = document.getElementById("idFechaFinal").value;
+    if (fecha_final == "") {
+        // Si la fecha inicio esta vacia
+        let today = new Date();
+        let day = today.getDate();
+        let month = today.getMonth() + 1;
+        let year = today.getFullYear();
+        fecha_final = year + "-" + month + "-" + day;
+    }
+    if (fecha_inicial == "") {
+        // Si la fecha inicio esta vacia
+        let today = new Date();
 
-    let year = today.getFullYear();
-    fecha_inicial = year + "-01-01";
-  }
-  if (fecha_inicial > fecha_final) {
-    alert(
-      "Error:\n Fecha inicial no puede ser posterior a la fecha final\n o la fecha Final esta vacia"
-    );
-    return;
-  }
-  AbrirModalLoading(fecha_inicial, fecha_final, opcion);
+        let year = today.getFullYear();
+        fecha_inicial = year + "-01-01";
+    }
+    if (fecha_inicial > fecha_final) {
+        alert(
+            "Error:\n Fecha inicial no puede ser posterior a la fecha final\n o la fecha Final esta vacia",
+        );
+        return;
+    }
+    AbrirModalLoading(fecha_inicial, fecha_final, opcion);
 }
 function AbrirModalLoading(fecha_inicial, fecha_final, opcion) {
-  var parametros = {
-    pulsado: "obtenerLoading",
-  };
-  $.ajax({
-    data: parametros,
-    url: "tareas.php",
-    type: "post",
-    beforeSend: function () {
-      console.log("******** Obteniendo Loading****************");
-    },
-    success: function (response) {
-      var resultado = $.parseJSON(response);
-      abrirModal("Procesando", resultado.html); // Abre una ventana y muestra el texto
-      // Ahora montamos link y redirecionamos
-      setTimeout(function () {
-        window.open(
-          "./informes.php?id=" +
-            checkID[0] +
-            "&Finicio=" +
-            fecha_inicial +
-            "&Ffinal=" +
-            fecha_final +
-            "&opcion=" +
-            opcion,
-          "_blank"
-        );
-      }, 5000);
-    },
-    error: function (request) {
-      console.log(request);
-    },
-  });
+    var parametros = {
+        pulsado: "obtenerLoading",
+    };
+    $.ajax({
+        data: parametros,
+        url: "tareas.php",
+        type: "post",
+        beforeSend: function () {
+            console.log("******** Obteniendo Loading****************");
+        },
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+            abrirModal("Procesando", resultado.html); // Abre una ventana y muestra el texto
+            // Ahora montamos link y redirecionamos
+            setTimeout(function () {
+                window.open(
+                    "./informes.php?id=" +
+                        checkID[0] +
+                        "&Finicio=" +
+                        fecha_inicial +
+                        "&Ffinal=" +
+                        fecha_final +
+                        "&opcion=" +
+                        opcion,
+                    "_blank",
+                );
+            }, 5000);
+        },
+        error: function (request) {
+            console.log(request);
+        },
+    });
 }
 window.metodoClick = metodoClick;
 
@@ -102,7 +102,10 @@ function guardarConfigPosstock() {
         success: function (response) {
             var resultado = $.parseJSON(response);
             if (resultado.error) {
-                var htmlError = '<div class="alert alert-danger" role="alert">' + resultado.error + "</div>";
+                var htmlError =
+                    '<div class="alert alert-danger" role="alert">' +
+                    resultado.error +
+                    "</div>";
                 $("#formConfigPosstock").prepend(htmlError);
             } else {
                 cerrarPopUp();
@@ -111,14 +114,19 @@ function guardarConfigPosstock() {
                 if (resultado.ventana_dias !== undefined) {
                     window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
                     // Si hay una barra de botones visible, re-pintarla con el nuevo umbral.
-                    if (window.posstockTipoActivo && window.posstockPeriodoActivo) {
-                        var numeroActivo = parseInt(
-                            document.getElementById("posstockNumero").value, 10
-                        ) || 1;
+                    if (
+                        window.posstockTipoActivo &&
+                        window.posstockPeriodoActivo
+                    ) {
+                        var numeroActivo =
+                            parseInt(
+                                document.getElementById("posstockNumero").value,
+                                10,
+                            ) || 1;
                         posstockPintarBarra(
                             window.posstockTipoActivo,
                             numeroActivo,
-                            window.posstockPeriodoActivo.total_periodos
+                            window.posstockPeriodoActivo.total_periodos,
                         );
                     }
                 }
@@ -129,7 +137,7 @@ function guardarConfigPosstock() {
 }
 
 window.abrirModalConfigPosstock = abrirModalConfigPosstock;
-window.guardarConfigPosstock    = guardarConfigPosstock;
+window.guardarConfigPosstock = guardarConfigPosstock;
 
 // =====================================================================
 //       POSSTOCK — Filtro de familias
@@ -139,7 +147,7 @@ window.guardarConfigPosstock    = guardarConfigPosstock;
 window.posstockFamiliasIncluir = []; // si no está vacío: solo estas familias
 window.posstockFamiliasExcluir = []; // si no está vacío: excluir estas familias
 
-var _posstockFamiliasCache = null;   // caché de la lista completa
+var _posstockFamiliasCache = null; // caché de la lista completa
 
 /**
  * Abre el modal de dos tablas (consultar / excluir).
@@ -152,38 +160,54 @@ function posstockAbrirFiltroFamilias() {
     }
     $.ajax({
         data: { pulsado: "getFamiliasPosstock" },
-        url:  "tareas.php",
+        url: "tareas.php",
         type: "post",
         success: function (response) {
             var resultado = $.parseJSON(response);
-            if (resultado.error) { alert(resultado.error); return; }
+            if (resultado.error) {
+                alert(resultado.error);
+                return;
+            }
             _posstockFamiliasCache = resultado.familias;
             _posstockMostrarModalFamilias();
         },
-        error: function () { alert("Error al cargar familias."); }
+        error: function () {
+            alert("Error al cargar familias.");
+        },
     });
 }
 
 /** Genera y abre el modal con las dos tablas usando los globals actuales. */
 function _posstockMostrarModalFamilias() {
-    var html = _htmlPanelFamilia('incluir', 'Familias a consultar',
-            'Si hay familias aquí, solo se analizarán estas (y sus subfamilias).',
-            'panel-success', 'btn-success', window.posstockFamiliasIncluir)
-        + _htmlPanelFamilia('excluir', 'Familias excluidas',
-            'Estas familias (y sus subfamilias) serán excluidas del análisis.',
-            'panel-danger', 'btn-danger', window.posstockFamiliasExcluir)
-        + '<div style="margin-top:8px;text-align:right;">'
-        + '<button type="button" class="btn btn-primary btn-sm"'
-        +   ' onclick="posstockAplicarFiltroFamilias()">Aplicar filtro</button>'
-        + '</div>';
+    var html =
+        _htmlPanelFamilia(
+            "incluir",
+            "Familias a consultar",
+            "Si hay familias aquí, solo se analizarán estas (y sus subfamilias).",
+            "panel-success",
+            "btn-success",
+            window.posstockFamiliasIncluir,
+        ) +
+        _htmlPanelFamilia(
+            "excluir",
+            "Familias excluidas",
+            "Estas familias (y sus subfamilias) serán excluidas del análisis.",
+            "panel-danger",
+            "btn-danger",
+            window.posstockFamiliasExcluir,
+        ) +
+        '<div style="margin-top:8px;text-align:right;">' +
+        '<button type="button" class="btn btn-primary btn-sm"' +
+        ' onclick="posstockAplicarFiltroFamilias()">Aplicar filtro</button>' +
+        "</div>";
 
-    abrirModal('Filtrar familias — POSStock', html);
+    abrirModal("Filtrar familias — POSStock", html);
 
     // Poblar el datalist compartido
-    var dl = document.getElementById('posstockFamiliasDatalist');
+    var dl = document.getElementById("posstockFamiliasDatalist");
     if (dl && dl.options.length === 0) {
         _posstockFamiliasCache.forEach(function (f) {
-            var opt = document.createElement('option');
+            var opt = document.createElement("option");
             opt.value = f.ruta;
             opt.dataset.id = f.id;
             dl.appendChild(opt);
@@ -192,43 +216,76 @@ function _posstockMostrarModalFamilias() {
 }
 
 /** Genera el HTML de un panel (incluir o excluir) con su tabla y buscador. */
-function _htmlPanelFamilia(lista, titulo, descripcion, panelCls, btnCls, idsActivos) {
-    var filas = '';
+function _htmlPanelFamilia(
+    lista,
+    titulo,
+    descripcion,
+    panelCls,
+    btnCls,
+    idsActivos,
+) {
+    var filas = "";
     idsActivos.forEach(function (item) {
         filas += _htmlFilaFamilia(item.id, item.nombre);
     });
 
-    return '<div class="panel ' + panelCls + '" style="margin-bottom:10px;">'
-        + '<div class="panel-heading small"><strong>' + titulo + '</strong></div>'
-        + '<div class="panel-body" style="padding:8px;">'
-        + '<p class="text-muted small" style="margin:0 0 6px;">' + descripcion + '</p>'
-        + '<div style="max-height:160px;overflow-y:auto;border:1px solid #ddd;">'
-        + '<table class="table table-condensed table-hover" style="margin:0;"'
-        +   ' id="posstockTabla_' + lista + '">'
-        + '<thead><tr><th class="small">ID</th><th class="small">Familia</th><th></th></tr></thead>'
-        + '<tbody>' + filas + '</tbody>'
-        + '</table></div>'
-        + '<div class="input-group" style="margin-top:6px;">'
-        + '<input type="text" class="form-control input-sm" list="posstockFamiliasDatalist"'
-        +   ' id="posstockBuscar_' + lista + '" placeholder="Buscar familia…">'
-        + '<span class="input-group-btn">'
-        + '<button type="button" class="btn btn-sm ' + btnCls + '"'
-        +   ' onclick="posstockAgregarFamilia(\'' + lista + '\')">'
-        + '<i class="glyphicon glyphicon-plus"></i> Agregar</button>'
-        + '</span></div>'
-        + '</div></div>'
-        + '<datalist id="posstockFamiliasDatalist"></datalist>';
+    return (
+        '<div class="panel ' +
+        panelCls +
+        '" style="margin-bottom:10px;">' +
+        '<div class="panel-heading small"><strong>' +
+        titulo +
+        "</strong></div>" +
+        '<div class="panel-body" style="padding:8px;">' +
+        '<p class="text-muted small" style="margin:0 0 6px;">' +
+        descripcion +
+        "</p>" +
+        '<div style="max-height:160px;overflow-y:auto;border:1px solid #ddd;">' +
+        '<table class="table table-condensed table-hover" style="margin:0;"' +
+        ' id="posstockTabla_' +
+        lista +
+        '">' +
+        '<thead><tr><th class="small">ID</th><th class="small">Familia</th><th></th></tr></thead>' +
+        "<tbody>" +
+        filas +
+        "</tbody>" +
+        "</table></div>" +
+        '<div class="input-group" style="margin-top:6px;">' +
+        '<input type="text" class="form-control input-sm" list="posstockFamiliasDatalist"' +
+        ' id="posstockBuscar_' +
+        lista +
+        '" placeholder="Buscar familia…">' +
+        '<span class="input-group-btn">' +
+        '<button type="button" class="btn btn-sm ' +
+        btnCls +
+        '"' +
+        " onclick=\"posstockAgregarFamilia('" +
+        lista +
+        "')\">" +
+        '<i class="glyphicon glyphicon-plus"></i> Agregar</button>' +
+        "</span></div>" +
+        "</div></div>" +
+        '<datalist id="posstockFamiliasDatalist"></datalist>'
+    );
 }
 
 /** Genera una fila de tabla para una familia en una lista. */
 function _htmlFilaFamilia(id, nombre) {
-    return '<tr data-id="' + id + '">'
-        + '<td>' + id + '</td>'
-        + '<td>' + nombre + '</td>'
-        + '<td><button type="button" class="btn btn-xs btn-link text-danger"'
-        +   ' onclick="posstockEliminarFamilia(this)">'
-        + '<i class="glyphicon glyphicon-trash"></i></button></td>'
-        + '</tr>';
+    return (
+        '<tr data-id="' +
+        id +
+        '">' +
+        "<td>" +
+        id +
+        "</td>" +
+        "<td>" +
+        nombre +
+        "</td>" +
+        '<td><button type="button" class="btn btn-xs btn-link text-danger"' +
+        ' onclick="posstockEliminarFamilia(this)">' +
+        '<i class="glyphicon glyphicon-trash"></i></button></td>' +
+        "</tr>"
+    );
 }
 
 /**
@@ -236,7 +293,7 @@ function _htmlFilaFamilia(id, nombre) {
  * si existe en el catálogo y no está duplicada.
  */
 function posstockAgregarFamilia(lista) {
-    var input = document.getElementById('posstockBuscar_' + lista);
+    var input = document.getElementById("posstockBuscar_" + lista);
     var texto = input.value.trim();
     if (!texto) return;
 
@@ -248,25 +305,30 @@ function posstockAgregarFamilia(lista) {
         }
     });
     if (!encontrada) {
-        alert('Familia no encontrada. Escribe el nombre exacto de la ruta que aparece en la lista.');
+        alert(
+            "Familia no encontrada. Escribe el nombre exacto de la ruta que aparece en la lista.",
+        );
         return;
     }
 
     // Verificar duplicado en la tabla
-    var tabla = document.querySelector('#posstockTabla_' + lista + ' tbody');
+    var tabla = document.querySelector("#posstockTabla_" + lista + " tbody");
     if (tabla.querySelector('tr[data-id="' + encontrada.id + '"]')) {
-        alert('Esa familia ya está en la lista.');
-        input.value = '';
+        alert("Esa familia ya está en la lista.");
+        input.value = "";
         return;
     }
 
-    tabla.insertAdjacentHTML('beforeend', _htmlFilaFamilia(encontrada.id, encontrada.nombre.trim()));
-    input.value = '';
+    tabla.insertAdjacentHTML(
+        "beforeend",
+        _htmlFilaFamilia(encontrada.id, encontrada.nombre.trim()),
+    );
+    input.value = "";
 }
 
 /** Elimina una fila de la tabla de una lista. */
 function posstockEliminarFamilia(boton) {
-    boton.closest('tr').remove();
+    boton.closest("tr").remove();
 }
 
 /**
@@ -274,20 +336,22 @@ function posstockEliminarFamilia(boton) {
  * y cierra el modal.
  */
 function posstockAplicarFiltroFamilias() {
-    window.posstockFamiliasIncluir = _leerTablaFamilias('incluir');
-    window.posstockFamiliasExcluir = _leerTablaFamilias('excluir');
+    window.posstockFamiliasIncluir = _leerTablaFamilias("incluir");
+    window.posstockFamiliasExcluir = _leerTablaFamilias("excluir");
     _posstockActualizarBadgeFiltro();
     cerrarPopUp();
 }
 
 /** Lee las filas de una tabla y devuelve array de {id, nombre}. */
 function _leerTablaFamilias(lista) {
-    var filas = document.querySelectorAll('#posstockTabla_' + lista + ' tbody tr');
+    var filas = document.querySelectorAll(
+        "#posstockTabla_" + lista + " tbody tr",
+    );
     var resultado = [];
     filas.forEach(function (tr) {
         resultado.push({
-            id:     parseInt(tr.dataset.id, 10),
-            nombre: tr.cells[1].textContent.trim()
+            id: parseInt(tr.dataset.id, 10),
+            nombre: tr.cells[1].textContent.trim(),
         });
     });
     return resultado;
@@ -295,25 +359,25 @@ function _leerTablaFamilias(lista) {
 
 /** Actualiza el badge del botón con el resumen activo. */
 function _posstockActualizarBadgeFiltro() {
-    var badge = document.getElementById('posstockFiltroLabel');
+    var badge = document.getElementById("posstockFiltroLabel");
     if (!badge) return;
     var nInc = (window.posstockFamiliasIncluir || []).length;
     var nExc = (window.posstockFamiliasExcluir || []).length;
     if (nInc === 0 && nExc === 0) {
-        badge.textContent = 'Todas';
-        badge.className   = 'label label-default';
+        badge.textContent = "Todas";
+        badge.className = "label label-default";
     } else {
         var partes = [];
-        if (nInc > 0) partes.push('Consultar: ' + nInc);
-        if (nExc > 0) partes.push('Excluir: ' + nExc);
-        badge.textContent = partes.join(' · ');
-        badge.className   = 'label label-warning';
+        if (nInc > 0) partes.push("Consultar: " + nInc);
+        if (nExc > 0) partes.push("Excluir: " + nExc);
+        badge.textContent = partes.join(" · ");
+        badge.className = "label label-warning";
     }
 }
 
-window.posstockAbrirFiltroFamilias   = posstockAbrirFiltroFamilias;
-window.posstockAgregarFamilia        = posstockAgregarFamilia;
-window.posstockEliminarFamilia       = posstockEliminarFamilia;
+window.posstockAbrirFiltroFamilias = posstockAbrirFiltroFamilias;
+window.posstockAgregarFamilia = posstockAgregarFamilia;
+window.posstockEliminarFamilia = posstockEliminarFamilia;
 window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
 
 // =====================================================================
@@ -331,13 +395,21 @@ window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
  */
 function cargarDatosPosstock(periodo) {
     var parametros = {
-        pulsado:                    "getPOSStockData",
-        fecha_inicio_movimientos:   periodo.fecha_inicio_movimientos,
-        fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
-        fecha_inicio_stock:         periodo.fecha_inicio_stock,
-        fecha_fin_stock:            periodo.fecha_fin_stock,
-        familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
-        familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
+        pulsado: "getPOSStockData",
+        fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
+        fecha_fin_movimientos: periodo.fecha_fin_movimientos,
+        fecha_inicio_stock: periodo.fecha_inicio_stock,
+        fecha_fin_stock: periodo.fecha_fin_stock,
+        familias_incluir: (window.posstockFamiliasIncluir || [])
+            .map(function (f) {
+                return f.id;
+            })
+            .join(","),
+        familias_excluir: (window.posstockFamiliasExcluir || [])
+            .map(function (f) {
+                return f.id;
+            })
+            .join(","),
     };
 
     // Spinner visible, tabla y barra ocultas mientras se carga
@@ -347,23 +419,29 @@ function cargarDatosPosstock(periodo) {
     $("#posstockBotonesWrap").hide();
 
     $.ajax({
-        data:    parametros,
-        url:     "tareas.php",
-        type:    "post",
+        data: parametros,
+        url: "tareas.php",
+        type: "post",
         success: function (response) {
             var resultado = $.parseJSON(response);
 
             $("#posstockSpinner").hide();
 
             if (resultado.error) {
-                $("#posstockTablaWrap").html(
-                    '<div class="alert alert-danger">' + resultado.error + "</div>"
-                ).show();
+                $("#posstockTablaWrap")
+                    .html(
+                        '<div class="alert alert-danger">' +
+                            resultado.error +
+                            "</div>",
+                    )
+                    .show();
                 return;
             }
 
             // Actualizar labels de periodo
-            $("#posstockLabelMovimientos").text(periodo.label_movimientos || "");
+            $("#posstockLabelMovimientos").text(
+                periodo.label_movimientos || "",
+            );
             $("#posstockLabelStock").text(periodo.label_stock || "");
 
             // Pintar tabla
@@ -383,9 +461,11 @@ function cargarDatosPosstock(periodo) {
         },
         error: function (request) {
             $("#posstockSpinner").hide();
-            $("#posstockTablaWrap").html(
-                '<div class="alert alert-danger">Error de comunicación con el servidor.</div>'
-            ).show();
+            $("#posstockTablaWrap")
+                .html(
+                    '<div class="alert alert-danger">Error de comunicación con el servidor.</div>',
+                )
+                .show();
             console.error("getPOSStockData error", request);
         },
     });
@@ -399,68 +479,109 @@ function cargarDatosPosstock(periodo) {
 function pintarTablaIncidencias(filas) {
     var badgeSev = {
         CRITICA: '<span class="label label-danger">Crítica</span>',
-        MEDIA:   '<span class="label label-warning">Media</span>',
-        BAJA:    '<span class="label label-info">Baja</span>',
+        MEDIA: '<span class="label label-warning">Media</span>',
+        BAJA: '<span class="label label-info">Baja</span>',
     };
 
     if (!filas || filas.length === 0) {
         $("#posstockTablaWrap").html(
-            '<div class="alert alert-success">Sin incidencias detectadas para este periodo.</div>'
+            '<div class="alert alert-success">Sin incidencias detectadas para este periodo.</div>',
         );
         return;
     }
 
-    var periodo   = window.posstockPeriodoActivo || {};
-    var anio      = window.posstockAnioActivo   || new Date().getFullYear();
-    var ffMov     = periodo.fecha_fin_movimientos || "";
-    var fiInicio  = anio + "-01-01";
+    var periodo = window.posstockPeriodoActivo || {};
+    var anio = window.posstockAnioActivo || new Date().getFullYear();
+    var ffMov = periodo.fecha_fin_movimientos || "";
+    var fiInicio = anio + "-01-01";
 
-    var html = '<table class="table table-condensed table-hover table-bordered small" id="posstockTabla">';
-    html += "<thead><tr>"
-        + "<th>Artículo</th>"
-        + "<th>Nombre</th>"
-        + "<th>Tipo incidencia</th>"
-        + "<th>Severidad</th>"
-        + "<th>Detalle</th>"
-        + "<th>Posible causa</th>"
-        + "<th>Listado mayor</th>"
-        + "</tr></thead><tbody>";
+    var html =
+        '<table class="table table-condensed table-hover table-bordered small" id="posstockTabla">';
+    html +=
+        "<thead><tr>" +
+        "<th>Artículo</th>" +
+        "<th>Nombre</th>" +
+        "<th>Tipo incidencia</th>" +
+        "<th>Severidad</th>" +
+        "<th>Detalle</th>" +
+        "<th>Posible causa</th>" +
+        "<th>Listado mayor</th>" +
+        "</tr></thead><tbody>";
 
     filas.forEach(function (f) {
         var detalle = "";
         if (f.tipo === "Error crítico de stock") {
-            detalle = "Stock actual: " + (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
+            detalle =
+                "Stock actual: " +
+                (f.stock_actual !== undefined
+                    ? parseFloat(f.stock_actual).toFixed(2)
+                    : "—");
         } else if (f.tipo === "Entrada con stock alto") {
-            detalle = "Stock previo: " + parseFloat(f.stock_previo).toFixed(2)
-                    + " | Entrada: " + parseFloat(f.ncant).toFixed(2)
-                    + " | Fecha: " + (f.fecha || "—");
+            detalle =
+                "Stock previo: " +
+                parseFloat(f.stock_previo).toFixed(2) +
+                " | Entrada: " +
+                parseFloat(f.ncant).toFixed(2) +
+                " | Fecha: " +
+                (f.fecha || "—");
         } else if (f.tipo === "Riesgo de caducidad teórica") {
-            detalle = "Últ. venta: " + (f.ultima_venta || "—")
-                    + " | " + (f.semanas_sin_venta || "—") + " sem.";
+            detalle =
+                "Últ. venta: " +
+                (f.ultima_venta || "—") +
+                " | " +
+                (f.semanas_desde_ultima_venta || "—") +
+                " sem.";
         } else if (f.tipo === "Entrada sin rotación previa") {
             detalle = f.ultima_salida
-                ? "Últ. salida: " + f.ultima_salida + " | " + f.semanas_sin_rotacion + " sem."
+                ? "Últ. salida: " +
+                  f.ultima_salida +
+                  " | " +
+                  (f.semanas_desde_ultima_salida || "—") +
+                  " sem."
                 : "Sin salidas en el año";
         } else if (f.tipo === "Stock sin entrada anual") {
-            detalle = "Stock actual: " + (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
+            detalle =
+                "Stock actual: " +
+                (f.stock_actual !== undefined
+                    ? parseFloat(f.stock_actual).toFixed(2)
+                    : "—");
         }
 
-        var urlMayor = "../../modulos/mod_producto/DetalleMayor.php"
-            + "?idArticulo=" + f.idArticulo
-            + "&fecha_inicial=" + fiInicio
-            + "&fecha_final="   + ffMov;
+        var urlMayor =
+            "../../modulos/mod_producto/DetalleMayor.php" +
+            "?idArticulo=" +
+            f.idArticulo +
+            "&fecha_inicial=" +
+            fiInicio +
+            "&fecha_final=" +
+            ffMov;
 
-        html += "<tr>"
-            + "<td>" + f.idArticulo + "</td>"
-            + "<td>" + (f.nombre || "—") + "</td>"
-            + "<td>" + f.tipo + "</td>"
-            + "<td>" + (badgeSev[f.severidad] || f.severidad) + "</td>"
-            + "<td>" + detalle + "</td>"
-            + "<td class='text-muted'>" + (f.posible_causa || "") + "</td>"
-            + "<td><a href='" + urlMayor + "' target='_blank'>"
-            + "<i class='glyphicon glyphicon-list-alt'></i> Ver mayor"
-            + "</a></td>"
-            + "</tr>";
+        html +=
+            "<tr>" +
+            "<td>" +
+            f.idArticulo +
+            "</td>" +
+            "<td>" +
+            (f.nombre || "—") +
+            "</td>" +
+            "<td>" +
+            f.tipo +
+            "</td>" +
+            "<td>" +
+            (badgeSev[f.severidad] || f.severidad) +
+            "</td>" +
+            "<td>" +
+            detalle +
+            "</td>" +
+            "<td class='text-muted'>" +
+            (f.posible_causa || "") +
+            "</td>" +
+            "<td><a href='" +
+            urlMayor +
+            "' target='_blank'>" +
+            "<i class='glyphicon glyphicon-list-alt'></i> Ver mayor" +
+            "</a></td>" +
+            "</tr>";
     });
 
     html += "</tbody></table>";
@@ -477,22 +598,30 @@ function exportarPOSStockCSV() {
     if (!periodo) return;
 
     var params = {
-        pulsado:                    "exportarPOSStockCSV",
-        fecha_inicio_movimientos:   periodo.fecha_inicio_movimientos,
-        fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
-        fecha_inicio_stock:         periodo.fecha_inicio_stock,
-        fecha_fin_stock:            periodo.fecha_fin_stock,
-        familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
-        familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
+        pulsado: "exportarPOSStockCSV",
+        fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
+        fecha_fin_movimientos: periodo.fecha_fin_movimientos,
+        fecha_inicio_stock: periodo.fecha_inicio_stock,
+        fecha_fin_stock: periodo.fecha_fin_stock,
+        familias_incluir: (window.posstockFamiliasIncluir || [])
+            .map(function (f) {
+                return f.id;
+            })
+            .join(","),
+        familias_excluir: (window.posstockFamiliasExcluir || [])
+            .map(function (f) {
+                return f.id;
+            })
+            .join(","),
     };
 
     var form = document.createElement("form");
     form.method = "POST";
     form.action = "tareas.php";
     Object.keys(params).forEach(function (key) {
-        var input   = document.createElement("input");
-        input.type  = "hidden";
-        input.name  = key;
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
         input.value = params[key];
         form.appendChild(input);
     });
@@ -510,19 +639,30 @@ function imprimirPOSStockPDF() {
     if (!periodo) return;
 
     var btn = document.getElementById("posstockBtnImprimir");
-    if (btn) { btn.disabled = true; btn.textContent = "Generando PDF…"; }
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Generando PDF…";
+    }
 
     $.ajax({
         data: {
-            pulsado:                    "imprimirPOSStockPDF",
-            fecha_inicio_movimientos:   periodo.fecha_inicio_movimientos,
-            fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
-            fecha_inicio_stock:         periodo.fecha_inicio_stock,
-            fecha_fin_stock:            periodo.fecha_fin_stock,
-            familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
-            familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
+            pulsado: "imprimirPOSStockPDF",
+            fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
+            fecha_fin_movimientos: periodo.fecha_fin_movimientos,
+            fecha_inicio_stock: periodo.fecha_inicio_stock,
+            fecha_fin_stock: periodo.fecha_fin_stock,
+            familias_incluir: (window.posstockFamiliasIncluir || [])
+                .map(function (f) {
+                    return f.id;
+                })
+                .join(","),
+            familias_excluir: (window.posstockFamiliasExcluir || [])
+                .map(function (f) {
+                    return f.id;
+                })
+                .join(","),
         },
-        url:  "tareas.php",
+        url: "tareas.php",
         type: "post",
         success: function (response) {
             var resultado = $.parseJSON(response);
@@ -537,34 +677,48 @@ function imprimirPOSStockPDF() {
         },
         complete: function () {
             if (btn) {
-                btn.disabled    = false;
-                btn.innerHTML   = '<i class="glyphicon glyphicon-print"></i> Imprimir PDF';
+                btn.disabled = false;
+                btn.innerHTML =
+                    '<i class="glyphicon glyphicon-print"></i> Imprimir PDF';
             }
         },
     });
 }
 
-window.cargarDatosPosstock   = cargarDatosPosstock;
+window.cargarDatosPosstock = cargarDatosPosstock;
 window.pintarTablaIncidencias = pintarTablaIncidencias;
-window.exportarPOSStockCSV   = exportarPOSStockCSV;
-window.imprimirPOSStockPDF   = imprimirPOSStockPDF;
+window.exportarPOSStockCSV = exportarPOSStockCSV;
+window.imprimirPOSStockPDF = imprimirPOSStockPDF;
 
 // =====================================================================
 //       POSSTOCK — Selectores de periodo y barra de navegación
 // =====================================================================
 
-var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+var MESES = [
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+];
 
 /**
  * Rellena el selector de número de periodo según el tipo elegido.
  * También habilita/deshabilita el botón Generar.
  */
 function posstockActualizarNumero() {
-    var tipo  = document.getElementById("posstockTipo").value;
-    var anio  = parseInt(document.getElementById("posstockAnio").value, 10);
-    var sel   = document.getElementById("posstockNumero");
+    var tipo = document.getElementById("posstockTipo").value;
+    var anio = parseInt(document.getElementById("posstockAnio").value, 10);
+    var sel = document.getElementById("posstockNumero");
     sel.innerHTML = "";
-    sel.disabled  = true;
+    sel.disabled = true;
     document.getElementById("posstockBtnGenerar").disabled = true;
     document.getElementById("posstockAvisoVentana").style.display = "none";
 
@@ -575,18 +729,17 @@ function posstockActualizarNumero() {
     if (tipo === "semana") {
         // Semanas ancladas al 01-Ene (misma lógica que PHP).
         var totalSem = _posstockTotalSemanas(anio);
-        for (var s = 1; s <= totalSem; s++) opciones.push({ v: s, t: "Semana " + s });
-
+        for (var s = 1; s <= totalSem; s++)
+            opciones.push({ v: s, t: "Semana " + s });
     } else if (tipo === "quincena") {
         for (var q = 1; q <= 24; q++) {
-            var mes   = Math.ceil(q / 2);
-            var mitad = (q % 2 === 1) ? "1ª" : "2ª";
+            var mes = Math.ceil(q / 2);
+            var mitad = q % 2 === 1 ? "1ª" : "2ª";
             opciones.push({ v: q, t: mitad + " quincena " + MESES[mes - 1] });
         }
-
     } else if (tipo === "mes") {
-        for (var m = 1; m <= 12; m++) opciones.push({ v: m, t: MESES[m - 1] + " " + anio });
-
+        for (var m = 1; m <= 12; m++)
+            opciones.push({ v: m, t: MESES[m - 1] + " " + anio });
     } else if (tipo === "trimestre") {
         opciones = [
             { v: 1, t: "T1 (Ene–Mar)" },
@@ -610,7 +763,7 @@ function posstockActualizarNumero() {
  */
 function _posstockFinSem1(anio) {
     var jan1 = new Date(anio, 0, 1);
-    var dow  = jan1.getDay(); // 0=dom, 1=lun … 6=sab
+    var dow = jan1.getDay(); // 0=dom, 1=lun … 6=sab
     if (dow === 0) return jan1;
     return new Date(anio, 0, 1 + (7 - dow));
 }
@@ -620,8 +773,8 @@ function _posstockFinSem1(anio) {
  * Semana 1 = 01-Ene → primer domingo. Semanas 2+ = lun→dom.
  */
 function _posstockTotalSemanas(anio) {
-    var finSem1  = _posstockFinSem1(anio);
-    var dec31    = new Date(anio, 11, 31);
+    var finSem1 = _posstockFinSem1(anio);
+    var dec31 = new Date(anio, 11, 31);
     var diasRest = Math.round((dec31 - finSem1) / 86400000);
     return 1 + Math.ceil(diasRest / 7);
 }
@@ -631,15 +784,20 @@ function _posstockTotalSemanas(anio) {
  * y si es válido llama a cargarDatosPosstock() y pinta la barra de botones.
  */
 function posstockGenerar() {
-    var tipo   = document.getElementById("posstockTipo").value;
+    var tipo = document.getElementById("posstockTipo").value;
     var numero = document.getElementById("posstockNumero").value;
-    var anio   = document.getElementById("posstockAnio").value;
+    var anio = document.getElementById("posstockAnio").value;
 
     if (!tipo || !numero || !anio) return;
 
     $.ajax({
-        data: { pulsado: "calcularPeriodoPosstock", tipo: tipo, numero: numero, anio: anio },
-        url:  "tareas.php",
+        data: {
+            pulsado: "calcularPeriodoPosstock",
+            tipo: tipo,
+            numero: numero,
+            anio: anio,
+        },
+        url: "tareas.php",
         type: "post",
         success: function (response) {
             var periodo = $.parseJSON(response);
@@ -649,27 +807,37 @@ function posstockGenerar() {
             }
 
             // ── Restricción ventana_dias ──────────────────────────────
-            var hoy        = new Date();
+            var hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
-            var limite     = new Date(hoy);
-            limite.setDate(limite.getDate() - (window.POSSTOCK_VENTANA_DIAS || 7));
-            var ffMov      = new Date(periodo.fecha_fin_movimientos);
+            var limite = new Date(hoy);
+            limite.setDate(
+                limite.getDate() - (window.POSSTOCK_VENTANA_DIAS || 7),
+            );
+            var ffMov = new Date(periodo.fecha_fin_movimientos);
 
             if (ffMov >= limite) {
-                document.getElementById("posstockAvisoVentana").style.display = "";
+                document.getElementById("posstockAvisoVentana").style.display =
+                    "";
                 return;
             }
-            document.getElementById("posstockAvisoVentana").style.display = "none";
+            document.getElementById("posstockAvisoVentana").style.display =
+                "none";
 
             // Guardar periodo activo y cargar datos
             window.posstockPeriodoActivo = periodo;
-            window.posstockTipoActivo    = tipo;
-            window.posstockAnioActivo    = parseInt(anio, 10);
+            window.posstockTipoActivo = tipo;
+            window.posstockAnioActivo = parseInt(anio, 10);
 
             cargarDatosPosstock(periodo);
-            posstockPintarBarra(tipo, parseInt(numero, 10), periodo.total_periodos);
+            posstockPintarBarra(
+                tipo,
+                parseInt(numero, 10),
+                periodo.total_periodos,
+            );
         },
-        error: function () { alert("Error de comunicación al calcular el periodo."); }
+        error: function () {
+            alert("Error de comunicación al calcular el periodo.");
+        },
     });
 }
 
@@ -693,14 +861,14 @@ function posstockFechaFinPeriodo(tipo, n, anio) {
         if (n % 2 === 1) {
             return new Date(anio, mes - 1, 15); // 1ª quincena → día 15
         } else {
-            return new Date(anio, mes, 0);      // 2ª quincena → último día del mes
+            return new Date(anio, mes, 0); // 2ª quincena → último día del mes
         }
     }
     if (tipo === "semana") {
         // Semanas ancladas al 01-Ene (igual que PHP)
         var finSem1 = _posstockFinSem1(anio);
         if (n === 1) return finSem1;
-        var dec31  = new Date(anio, 11, 31);
+        var dec31 = new Date(anio, 11, 31);
         var inicio = new Date(finSem1);
         inicio.setDate(finSem1.getDate() + (n - 1) * 7 - 6);
         var fin = new Date(inicio);
@@ -714,33 +882,46 @@ function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
     var wrap = document.getElementById("posstockBotonesPeriodo");
     wrap.innerHTML = "";
 
-    var hoy   = new Date(); hoy.setHours(0, 0, 0, 0);
+    var hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
     var limite = new Date(hoy);
     limite.setDate(limite.getDate() - (window.POSSTOCK_VENTANA_DIAS || 7));
-    var anio  = window.posstockAnioActivo || new Date().getFullYear();
+    var anio = window.posstockAnioActivo || new Date().getFullYear();
 
     for (var n = 1; n <= totalPeriodos; n++) {
-        var etiqueta  = posstockEtiquetaBoton(tipo, n);
+        var etiqueta = posstockEtiquetaBoton(tipo, n);
         var ffPeriodo = posstockFechaFinPeriodo(tipo, n, anio);
         var enVentana = ffPeriodo && ffPeriodo >= limite;
 
         var cls, extras;
         if (enVentana) {
-            cls    = "btn btn-default btn-xs disabled";
-            extras = 'disabled title="Dentro de la ventana de consolidación (' + (window.POSSTOCK_VENTANA_DIAS || 7) + ' días)"';
+            cls = "btn btn-default btn-xs disabled";
+            extras =
+                'disabled title="Dentro de la ventana de consolidación (' +
+                (window.POSSTOCK_VENTANA_DIAS || 7) +
+                ' días)"';
         } else if (n === numeroActivo) {
-            cls    = "btn btn-primary btn-xs";
-            extras = '';
+            cls = "btn btn-primary btn-xs";
+            extras = "";
         } else {
-            cls    = "btn btn-default btn-xs";
-            extras = '';
+            cls = "btn btn-default btn-xs";
+            extras = "";
         }
 
-        wrap.innerHTML += '<button type="button" class="' + cls + '" '
-            + extras + ' '
-            + 'onclick="posstockNavegar(' + n + ')" '
-            + 'id="posstockBtn_' + n + '">'
-            + etiqueta + "</button> ";
+        wrap.innerHTML +=
+            '<button type="button" class="' +
+            cls +
+            '" ' +
+            extras +
+            " " +
+            'onclick="posstockNavegar(' +
+            n +
+            ')" ' +
+            'id="posstockBtn_' +
+            n +
+            '">' +
+            etiqueta +
+            "</button> ";
     }
 
     document.getElementById("posstockBarraBotones").style.display = "";
@@ -748,12 +929,12 @@ function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
 
 /** Devuelve la etiqueta de un botón de la barra según tipo y número. */
 function posstockEtiquetaBoton(tipo, n) {
-    if (tipo === "semana")    return "S" + n;
-    if (tipo === "mes")       return MESES[n - 1];
+    if (tipo === "semana") return "S" + n;
+    if (tipo === "mes") return MESES[n - 1];
     if (tipo === "trimestre") return "T" + n;
     if (tipo === "quincena") {
-        var mes   = Math.ceil(n / 2);
-        var mitad = (n % 2 === 1) ? "a" : "b";
+        var mes = Math.ceil(n / 2);
+        var mitad = n % 2 === 1 ? "a" : "b";
         return MESES[mes - 1] + mitad;
     }
     return n;
@@ -781,25 +962,36 @@ function posstockNavegar(numero) {
     if (btnActivo) btnActivo.className = "btn btn-primary btn-xs";
 
     $.ajax({
-        data: { pulsado: "calcularPeriodoPosstock", tipo: tipo, numero: numero, anio: anio },
-        url:  "tareas.php",
+        data: {
+            pulsado: "calcularPeriodoPosstock",
+            tipo: tipo,
+            numero: numero,
+            anio: anio,
+        },
+        url: "tareas.php",
         type: "post",
         success: function (response) {
             var periodo = $.parseJSON(response);
-            if (periodo.error) { alert(periodo.error); return; }
+            if (periodo.error) {
+                alert(periodo.error);
+                return;
+            }
             window.posstockPeriodoActivo = periodo;
             cargarDatosPosstock(periodo);
-        }
+        },
     });
 }
 
 // Habilitar botón Generar cuando se elige un número de periodo
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("posstockNumero").addEventListener("change", function () {
-        document.getElementById("posstockBtnGenerar").disabled = (this.value === "");
-    });
+    document
+        .getElementById("posstockNumero")
+        .addEventListener("change", function () {
+            document.getElementById("posstockBtnGenerar").disabled =
+                this.value === "";
+        });
 });
 
 window.posstockActualizarNumero = posstockActualizarNumero;
-window.posstockGenerar          = posstockGenerar;
-window.posstockNavegar          = posstockNavegar;
+window.posstockGenerar = posstockGenerar;
+window.posstockNavegar = posstockNavegar;

@@ -30,8 +30,8 @@ switch ($pulsado) {
         if (!isset($mapa['inputVentanaDias']) || !in_array($mapa['inputVentanaDias'], ['7', '14'])) {
             $errores[] = 'Ventana de días debe ser 7 o 14.';
         }
-        if (!isset($mapa['inputUmbralSobrestock']) || !is_numeric($mapa['inputUmbralSobrestock']) || $mapa['inputUmbralSobrestock'] < 0 || $mapa['inputUmbralSobrestock'] > 1) {
-            $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 1.';
+        if (!isset($mapa['inputUmbralSobrestock']) || !is_numeric($mapa['inputUmbralSobrestock']) || $mapa['inputUmbralSobrestock'] < 0 || $mapa['inputUmbralSobrestock'] > 200) {
+            $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 200 (porcentaje).';
         }
         if (!isset($mapa['inputUmbralCaducidadSemanas']) || !ctype_digit($mapa['inputUmbralCaducidadSemanas']) || intval($mapa['inputUmbralCaducidadSemanas']) < 1) {
             $errores[] = 'Semanas sin venta debe ser un número entero positivo.';
@@ -43,9 +43,10 @@ switch ($pulsado) {
             $respuesta['error'] = implode(' | ', $errores);
         } else {
             $posstock->ventana_dias              = $mapa['inputVentanaDias'];
+            // Guardamos el umbral como porcentaje (ej. 50 = 50%).
             $posstock->umbral_sobrestock         = $mapa['inputUmbralSobrestock'];
-            $posstock->umbral_caducidad_semanas  = intval($mapa['inputUmbralCaducidadSemanas']);
-            $posstock->umbral_sin_rotacion_semanas = intval($mapa['inputUmbralSinRotacionSemanas']);
+            $posstock->umbral_semanas_desde_ultima_venta = intval($mapa['inputUmbralCaducidadSemanas']);
+            $posstock->umbral_semanas_sin_rotacion = intval($mapa['inputUmbralSinRotacionSemanas']);
             if ($ClaseParametros->save()) {
                 $respuesta['mensaje']     = 'Configuración POSStock guardada correctamente.';
                 $respuesta['ventana_dias'] = (int)$mapa['inputVentanaDias'];

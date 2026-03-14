@@ -34,9 +34,9 @@ $params = [
     'fecha_fin_movimientos'      => $ff_mov,
     'fecha_inicio_stock'         => $fi_stock,
     'fecha_fin_stock'            => $ff_stock,
-    'umbral_sobrestock'          => (float)(string)$posstock_node->umbral_sobrestock,
-    'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_caducidad_semanas,
-    'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_sin_rotacion_semanas,
+    'umbral_sobrestock'          => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
+    'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
+    'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
     'familias_incluir'           => $familias_incluir,
     'familias_excluir'           => $familias_excluir,
 ];
@@ -104,11 +104,11 @@ foreach ($filas as $f) {
                  . ' · Entra: ' . number_format((float)$f['ncant'], 2, ',', '')
                  . ' · ' . ($f['fecha'] ?? '—');
     } elseif ($f['tipo'] === 'Riesgo de caducidad teórica') {
-        $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
-                 . ' · ' . ($f['semanas_sin_venta'] ?? '—') . ' sem.';
+                $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
+                 . ' · ' . ($f['semanas_desde_ultima_venta'] ?? '—') . ' sem.';
     } elseif ($f['tipo'] === 'Entrada sin rotación previa') {
         $detalle = $f['ultima_salida']
-            ? 'Ult.salida: ' . $f['ultima_salida'] . ' · ' . $f['semanas_sin_rotacion'] . ' sem.'
+            ? 'Ult.salida: ' . $f['ultima_salida'] . ' · ' . ($f['semanas_desde_ultima_salida'] ?? '—') . ' sem.'
             : 'Sin salidas en el año';
     } elseif ($f['tipo'] === 'Stock sin entrada anual') {
         $detalle = 'Stock: '

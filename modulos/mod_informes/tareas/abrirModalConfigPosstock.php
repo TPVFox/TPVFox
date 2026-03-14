@@ -10,6 +10,8 @@ function abrirModalConfigPosstock($posstock)
     $html  = '<div class="container-fluid">';
     $html .= '<form id="formConfigPosstock" name="formConfigPosstock" class="form-horizontal">';
 
+    // Usamos title en las etiquetas individuales (no un alert global)
+
     // --- BLOQUE 1: VENTANA DE ANÁLISIS ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-calendar"></i> Ventana de análisis</div>';
@@ -34,24 +36,27 @@ function abrirModalConfigPosstock($posstock)
 
     // Umbral sobrestock
     $html .= '      <div class="col-xs-12 col-sm-4">';
-    $html .= '        <label class="control-label small">Umbral sobrestock <small class="text-muted">(Caso 2, ratio 0–1)</small></label>';
-    $html .= '        <input type="number" step="0.05" min="0" max="1" class="form-control input-sm text-right" name="inputUmbralSobrestock" value="' . (string)$posstock->umbral_sobrestock . '" required>';
+    $html .= '        <label class="control-label small" title="Porcentaje que compara el stock previo con la entrada. 100% = misma cantidad. Rango 0–200%.">Umbral sobrestock<br> <small class="text-muted">(Caso 2, porcentaje 0–200)</small></label>';
+    $html .= '        <div class="input-group">';
+    $html .= '          <input type="number" step="5" min="0" max="200" class="form-control input-sm text-right" name="inputUmbralSobrestock" value="' . (string)$posstock->umbral_sobrestock . '" required title="Porcentaje que compara el stock previo con la entrada. 100% = misma cantidad. Rango 0–200%">';
+    $html .= '          <span class="input-group-addon">%</span>';
+    $html .= '        </div>';
     $html .= '      </div>';
 
     // Umbral caducidad
     $html .= '      <div class="col-xs-12 col-sm-4">';
-    $html .= '        <label class="control-label small">Semanas sin venta <small class="text-muted">(Caso 3a)</small></label>';
+    $html .= '        <label class="control-label small" title="Número de semanas desde la última venta usado para detectar riesgo de caducidad teórica (Caso 3a).">Caducidad teórica<br> <small class="text-muted">(Caso 3a)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
-    $html .= '          <input type="number" step="1" min="1" class="form-control text-right" name="inputUmbralCaducidadSemanas" value="' . (string)$posstock->umbral_caducidad_semanas . '" required>';
+    $html .= '          <input type="number" step="1" min="1" class="form-control text-right" name="inputUmbralCaducidadSemanas" value="' . (string)$posstock->umbral_semanas_desde_ultima_venta . '" required title="Semanas desde la última venta para riesgo de caducidad teórica">';
     $html .= '          <span class="input-group-addon">sem.</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 
     // Umbral sin rotación
     $html .= '      <div class="col-xs-12 col-sm-4">';
-    $html .= '        <label class="control-label small">Semanas sin rotación <small class="text-muted">(Caso 3b)</small></label>';
+    $html .= '        <label class="control-label small" title="Número de semanas desde la última salida/venta usado para detectar entradas sin rotación previa (Caso 3b).">Semanas sin rotación<br> <small class="text-muted">(Caso 3b)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
-    $html .= '          <input type="number" step="1" min="1" class="form-control text-right" name="inputUmbralSinRotacionSemanas" value="' . (string)$posstock->umbral_sin_rotacion_semanas . '" required>';
+    $html .= '          <input type="number" step="1" min="1" class="form-control text-right" name="inputUmbralSinRotacionSemanas" value="' . (string)$posstock->umbral_semanas_sin_rotacion . '" required title="Semanas desde la última salida para detectar entrada sin rotación">';
     $html .= '          <span class="input-group-addon">sem.</span>';
     $html .= '        </div>';
     $html .= '      </div>';

@@ -543,12 +543,12 @@ class ClasePosstock
 
                 if ($semanas_sin_venta >= $umbral_caducidad) {
                     $incidencias[] = [
-                        'idArticulo'        => $id,
-                        'tipo'              => 'Riesgo de caducidad teórica',
-                        'severidad'         => 'MEDIA',
-                        'ultima_venta'      => $ultima_salida_global,
-                        'semanas_sin_venta' => round($semanas_sin_venta, 1),
-                        'posible_causa'     => "Sin ventas en más de $umbral_caducidad semanas",
+                        'idArticulo'                    => $id,
+                        'tipo'                          => 'Riesgo de caducidad teórica',
+                        'severidad'                     => 'MEDIA',
+                        'ultima_venta'                  => $ultima_salida_global,
+                        'semanas_desde_ultima_venta'    => round($semanas_sin_venta, 1),
+                        'posible_causa'                 => "Sin ventas en más de $umbral_caducidad semanas",
                     ];
                 }
             }
@@ -560,12 +560,12 @@ class ClasePosstock
 
                 if ($semanas_sin_rot >= $umbral_sin_rotacion) {
                     $incidencias[] = [
-                        'idArticulo'           => $id,
-                        'tipo'                 => 'Entrada sin rotación previa',
-                        'severidad'            => 'BAJA',
-                        'ultima_salida'        => $ultima_salida_global,
-                        'semanas_sin_rotacion' => round($semanas_sin_rot, 1),
-                        'posible_causa'        => 'Sin rotación/obsoleto o posible error de unidad',
+                        'idArticulo'                    => $id,
+                        'tipo'                          => 'Entrada sin rotación previa',
+                        'severidad'                     => 'BAJA',
+                        'ultima_salida'                  => $ultima_salida_global,
+                        'semanas_desde_ultima_salida'    => round($semanas_sin_rot, 1),
+                        'posible_causa'                 => 'Sin rotación/obsoleto o posible error de unidad',
                     ];
                 }
             } else {
@@ -575,7 +575,7 @@ class ClasePosstock
                     'tipo'                 => 'Entrada sin rotación previa',
                     'severidad'            => 'BAJA',
                     'ultima_salida'        => null,
-                    'semanas_sin_rotacion' => null,
+                    'semanas_desde_ultima_salida' => null,
                     'posible_causa'        => 'Nunca ha tenido salidas',
                 ];
             }

@@ -41,9 +41,10 @@ $params = [
     'fecha_fin_movimientos'      => $ff_mov,
     'fecha_inicio_stock'         => $fi_stock,
     'fecha_fin_stock'            => $ff_stock,
-    'umbral_sobrestock'          => (float)(string)$posstock_node->umbral_sobrestock,
-    'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_caducidad_semanas,
-    'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_sin_rotacion_semanas,
+    // Convertimos el umbral de porcentaje a valor decimal esperado por la lógica (p.ej. 50 -> 0.5)
+    'umbral_sobrestock'          => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
+    'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
+    'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
     'familias_incluir'           => $familias_incluir,
     'familias_excluir'           => $familias_excluir,
 ];

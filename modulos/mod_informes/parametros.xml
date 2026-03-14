@@ -3,9 +3,12 @@
 	<configuracion>
 		<posstock>
 			<ventana_dias>7</ventana_dias>
-			<umbral_sobrestock>0.5</umbral_sobrestock>
-			<umbral_caducidad_semanas>24</umbral_caducidad_semanas>
-			<umbral_sin_rotacion_semanas>12</umbral_sin_rotacion_semanas>
+			<!-- Umbral sobrestock expresado en porcentaje (ej: 50 = 50%). Rango 0-200 -->
+			<umbral_sobrestock>50</umbral_sobrestock>
+			<!-- Umbral: semanas desde la última venta usado para detección de caducidad teórica -->
+			<umbral_semanas_desde_ultima_venta>24</umbral_semanas_desde_ultima_venta>
+			<!-- Umbral: semanas desde la última salida/venta usado para detectar entrada sin rotación -->
+			<umbral_semanas_sin_rotacion>12</umbral_semanas_sin_rotacion>
 		</posstock>
 	</configuracion>
 </parametros>
