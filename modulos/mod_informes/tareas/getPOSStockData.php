@@ -45,6 +45,7 @@ $params = [
     'umbral_sobrestock'          => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
     'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
     'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
+    'incluir_stock_inactivo'     => (int)(string)$posstock_node->incluir_stock_inactivo === 1,
     'familias_incluir'           => $familias_incluir,
     'familias_excluir'           => $familias_excluir,
 ];

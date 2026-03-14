@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ClasePosstock — Lógica de datos para el informe POSStock.
  *
@@ -413,11 +414,12 @@ class ClasePosstock
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
 
-        $umbral_sobrestock   = (float)($params['umbral_sobrestock']           ?? 0.5);
-        $umbral_caducidad    = (int)  ($params['umbral_caducidad_semanas']    ?? 24);
-        $umbral_sin_rotacion = (int)  ($params['umbral_sin_rotacion_semanas'] ?? 12);
-        $familias_incluir    = (array)($params['familias_incluir'] ?? []);
-        $familias_excluir    = (array)($params['familias_excluir'] ?? []);
+        $umbral_sobrestock      = (float)($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad       = (int)  ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion    = (int)  ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $incluir_stock_inactivo = (bool) ($params['incluir_stock_inactivo']      ?? false);
+        $familias_incluir       = (array)($params['familias_incluir'] ?? []);
+        $familias_excluir       = (array)($params['familias_excluir'] ?? []);
 
         // ── T4.1: movimientos en la ventana ──────────────────────────────────
         $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov, $familias_incluir, $familias_excluir);
@@ -439,6 +441,16 @@ class ClasePosstock
         // ── T4.3: stock_previo y stock_tras_ultimo_albaran ────────────────────
         $entradas_calc = $this->calcularStockPrevio($movimientos, $stock_base);
 
+        // ── Balance mínimo intra-periodo por artículo (Caso 1) ────────────────
+        $min_balances = $this->calcularMinimosBalance($movimientos, $stock_base);
+
+        // ── Fechas de venta por artículo en la ventana (Caso 5) ──────────────
+        $ventas_fechas = [];
+        foreach ($movimientos as $m) {
+            if ($m['tipo_movimiento'] === 'entrada_proveedor') continue;
+            $ventas_fechas[(int)$m['idArticulo']][] = $m['fecha'];
+        }
+
         // ── Estadísticas por artículo desde T4.1 ─────────────────────────────
         $stats = [];
         foreach ($movimientos as $m) {
@@ -454,8 +466,10 @@ class ClasePosstock
             $stats[$id]['saldo_ventana'] += $signo * (float)$m['ncant'];
 
             if (in_array($m['tipo_movimiento'], ['salida_ticket', 'salida_albcli'])) {
-                if ($stats[$id]['ultima_salida_ventana'] === null
-                    || $m['fecha'] > $stats[$id]['ultima_salida_ventana']) {
+                if (
+                    $stats[$id]['ultima_salida_ventana'] === null
+                    || $m['fecha'] > $stats[$id]['ultima_salida_ventana']
+                ) {
                     $stats[$id]['ultima_salida_ventana'] = $m['fecha'];
                 }
             }
@@ -474,28 +488,35 @@ class ClasePosstock
 
         $fecha_fin_dt = new DateTime($ff_mov);
         $incidencias  = [];
-        $orden_sev    = ['CRITICA' => 0, 'MEDIA' => 1, 'BAJA' => 2];
+        $orden_sev    = ['CRITICA' => 0, 'ALTA' => 1, 'MEDIA' => 2, 'BAJA' => 3];
 
-        // ── Caso 1: Error crítico de stock (por artículo) ─────────────────────
+        // ── Caso 1a/1b: Stock negativo y desajuste puntual (por artículo) ───────
+        // 1a CRITICA — stock_actual < 0: el inventario cierra en negativo.
+        // 1b MEDIA   — min_balance < 0 pero stock_actual >= 0: hubo un momento
+        //              intra-periodo con balance negativo que luego se recuperó.
+        //              Indica problema de orden de registro, no de stock real.
         foreach ($ids as $id) {
             $id           = (int)$id;
             $stock_actual = $stats[$id]['stock_actual'];
+            $min_balance  = $min_balances[$id] ?? $stock_actual;
 
-            $stock_tras = null;
-            foreach ($entradas_calc as $e) {
-                if ((int)$e['idArticulo'] === $id) {
-                    $stock_tras = $e['stock_tras_ultimo_albaran'];
-                    break;
-                }
-            }
-
-            if ($stock_actual < 0 || ($stock_tras !== null && ($stock_tras - $stock_actual) < 0)) {
+            if ($stock_actual < 0) {
                 $incidencias[] = [
                     'idArticulo'    => $id,
-                    'tipo'          => 'Error crítico de stock',
+                    'tipo'          => 'Stock Negativo',
                     'severidad'     => 'CRITICA',
                     'stock_actual'  => $stock_actual,
-                    'posible_causa' => 'Stock negativo — revisar movimientos',
+                    'min_balance'   => $min_balance,
+                    'posible_causa' => 'Inventario negativo al cierre',
+                ];
+            } elseif ($min_balance < 0) {
+                $incidencias[] = [
+                    'idArticulo'    => $id,
+                    'tipo'          => 'Desajuste Puntual de Stock',
+                    'severidad'     => 'ALTA',
+                    'stock_actual'  => $stock_actual,
+                    'min_balance'   => $min_balance,
+                    'posible_causa' => 'Negativo puntual, recuperado al cierre',
                 ];
             }
         }
@@ -515,12 +536,12 @@ class ClasePosstock
                     'stock_tras_ultimo_albaran' => $e['stock_tras_ultimo_albaran'],
                     'idDocumento'              => $e['idDocumento'],
                     'fecha'                    => $e['fecha'],
-                    'posible_causa'            => 'Posible duplicado de albarán o sobrestock',
+                    'posible_causa'            => 'Duplicado de albarán o sobrecompra',
                 ];
             }
         }
 
-        // ── Casos 3a, 3b y 4 (por artículo con entrada real en ventana) ───────
+        // ── Casos 3a y 3b (solo artículos con entrada real en la ventana) ──────
         foreach ($ids as $id) {
             $id = (int)$id;
             if (empty($stats[$id]['tiene_entrada'])) {
@@ -548,7 +569,7 @@ class ClasePosstock
                         'severidad'                     => 'MEDIA',
                         'ultima_venta'                  => $ultima_salida_global,
                         'semanas_desde_ultima_venta'    => round($semanas_sin_venta, 1),
-                        'posible_causa'                 => "Sin ventas en más de $umbral_caducidad semanas",
+                        'posible_causa'                 => "Sin ventas >{$umbral_caducidad} sem.",
                     ];
                 }
             }
@@ -560,42 +581,109 @@ class ClasePosstock
 
                 if ($semanas_sin_rot >= $umbral_sin_rotacion) {
                     $incidencias[] = [
-                        'idArticulo'                    => $id,
-                        'tipo'                          => 'Entrada sin rotación previa',
-                        'severidad'                     => 'BAJA',
+                        'idArticulo'                     => $id,
+                        'tipo'                           => 'Entrada sin rotación previa',
+                        'severidad'                      => 'BAJA',
                         'ultima_salida'                  => $ultima_salida_global,
                         'semanas_desde_ultima_salida'    => round($semanas_sin_rot, 1),
-                        'posible_causa'                 => 'Sin rotación/obsoleto o posible error de unidad',
+                        'posible_causa'                  => 'Sin rotación / error de unidad',
                     ];
                 }
             } else {
                 // Nunca ha tenido salidas en toda la historia conocida → Caso 3b absoluto
                 $incidencias[] = [
-                    'idArticulo'           => $id,
-                    'tipo'                 => 'Entrada sin rotación previa',
-                    'severidad'            => 'BAJA',
-                    'ultima_salida'        => null,
+                    'idArticulo'                  => $id,
+                    'tipo'                        => 'Entrada sin rotación previa',
+                    'severidad'                   => 'BAJA',
+                    'ultima_salida'               => null,
                     'semanas_desde_ultima_salida' => null,
-                    'posible_causa'        => 'Nunca ha tenido salidas',
+                    'posible_causa'               => 'Nunca ha tenido salidas',
                 ];
             }
+        }
 
-            // ── Caso 4: Stock sin entrada anual ───────────────────────────────
-            // Condición: saldo_base < 0 y no hay entradas reales en el año
-            // (el artículo aparece en T4.1 solo por salidas, sin ninguna entrada)
-            if ($stats[$id]['saldo_base'] < 0 && !$stats[$id]['tiene_entrada']) {
+        // ── Caso 5: Venta Cero con Stock Positivo ─────────────────────────────
+        // Solo para artículos en T4.1 con stock_actual > 0 y al menos 2 días de
+        // venta distintos en la ventana (necesarios para calcular el ciclo medio).
+        // factor_ajuste = 1.5 (fijo por ahora).
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            if ($stats[$id]['stock_actual'] <= 0) continue;
+
+            $fechas = array_unique($ventas_fechas[$id] ?? []);
+            sort($fechas);
+            $n = count($fechas);
+            if ($n < 3) continue; // mínimo 2 gaps para calcular media + 3σ
+
+            // Intervalos entre días de venta consecutivos
+            $gaps = [];
+            for ($i = 1; $i < $n; $i++) {
+                $gap = (new DateTime($fechas[$i - 1]))->diff(new DateTime($fechas[$i]))->days;
+                if ($gap > 0) $gaps[] = $gap;
+            }
+            if (count($gaps) < 2) continue;
+
+            // Media y desviación típica muestral (n-1) de los gaps
+            $n_gaps  = count($gaps);
+            $avg_gap = array_sum($gaps) / $n_gaps;
+            $var     = array_sum(array_map(fn($g) => ($g - $avg_gap) ** 2, $gaps)) / ($n_gaps - 1);
+            $sd      = sqrt($var);
+
+            // Umbral: media + 3σ (cubre el 99.7 % de la distribución normal)
+            $umbral_rotura  = $avg_gap + 3 * $sd;
+            $ultima_venta   = end($fechas);
+            $dias_sin_venta = (new DateTime($ultima_venta))->diff($fecha_fin_dt)->days;
+
+            if ($dias_sin_venta > $umbral_rotura) {
+                // fecha_inicio_rotura: día a partir del cual el silencio supera media+3σ
+                $fecha_inicio_rotura = (new DateTime($ultima_venta))
+                    ->modify('+' . (int)ceil($umbral_rotura) . ' days')
+                    ->format('Y-m-d');
+
+                $incidencias[] = [
+                    'idArticulo'            => $id,
+                    'tipo'                  => 'Venta Cero (Posible Rotura Física)',
+                    'severidad'             => 'MEDIA',
+                    'stock_actual'          => $stats[$id]['stock_actual'],
+                    'ultima_venta'          => $ultima_venta,
+                    'fecha_inicio_rotura'   => $fecha_inicio_rotura,
+                    'dias_sin_venta'        => $dias_sin_venta,
+                    'avg_dias_entre_ventas' => round($avg_gap, 1),
+                    'sd_dias'               => round($sd, 1),
+                    'umbral_dias'           => round($umbral_rotura, 1),
+                    'posible_causa'         => 'Hueco en lineal o merma no registrada',
+                ];
+            }
+        }
+
+        // ── Caso 4: Stock Inactivo en Periodo (opcional) ──────────────────────
+        // Artículos físicos con stock positivo al cierre del periodo pero sin
+        // ningún movimiento en [fi_mov, ff_mov]. Solo se ejecuta si está habilitado.
+        if ($incluir_stock_inactivo) {
+            $articulos_sin_mov = $this->getArticulosSinMovimiento(
+                $fi_mov,
+                $ff_mov,
+                $familias_incluir,
+                $familias_excluir
+            );
+            if (isset($articulos_sin_mov['error'])) {
+                return $articulos_sin_mov;
+            }
+            foreach ($articulos_sin_mov as $id => $art) {
                 $incidencias[] = [
                     'idArticulo'    => $id,
-                    'tipo'          => 'Stock sin entrada anual',
+                    'tipo'          => 'Stock Inactivo en Periodo',
                     'severidad'     => 'BAJA',
-                    'stock_actual'  => $stats[$id]['stock_actual'],
-                    'posible_causa' => 'Stock sin entradas en el año — posible error de unidad o artículo obsoleto',
+                    'stock_actual'  => $art['saldo_acumulado'],
+                    'posible_causa' => 'Stock sin actividad en el periodo',
                 ];
             }
         }
 
         // ── Ordenar: CRITICA → MEDIA → BAJA ──────────────────────────────────
-        usort($incidencias, fn($a, $b) =>
+        usort(
+            $incidencias,
+            fn($a, $b) =>
             $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']]
         );
 
@@ -620,7 +708,201 @@ class ClasePosstock
         return $incidencias;
     }
 
-    // ── Helper ────────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Calcula el balance mínimo intra-periodo por artículo.
+     *
+     * Itera los deltas diarios en orden cronológico y registra el mínimo
+     * del saldo acumulado TRAS aplicar cada día. Permite detectar momentos
+     * en que el stock cayó a negativo aunque el saldo final sea positivo.
+     *
+     * @param array $movimientos  Resultado de getMovimientosPeriodo()
+     * @param array $stock_base   Resultado de getStockBase(), indexado por idArticulo
+     *
+     * @return array  Indexado por idArticulo → min_balance (float)
+     */
+    private function calcularMinimosBalance(array $movimientos, array $stock_base): array
+    {
+        $por_articulo = [];
+        foreach ($movimientos as $m) {
+            $por_articulo[(int)$m['idArticulo']][] = $m;
+        }
+
+        $min_balances = [];
+        foreach ($por_articulo as $idArticulo => $movs) {
+            $saldo_base = isset($stock_base[$idArticulo])
+                ? $stock_base[$idArticulo]['saldo_acumulado']
+                : 0.0;
+
+            $delta_por_fecha = [];
+            foreach ($movs as $m) {
+                $signo = ($m['tipo_movimiento'] === 'entrada_proveedor') ? 1.0 : -1.0;
+                $delta_por_fecha[$m['fecha']] = ($delta_por_fecha[$m['fecha']] ?? 0.0)
+                    + $signo * (float)$m['ncant'];
+            }
+            ksort($delta_por_fecha);
+
+            $min  = $saldo_base;
+            $acum = $saldo_base;
+            foreach ($delta_por_fecha as $delta) {
+                $acum += $delta;
+                if ($acum < $min) $min = $acum;
+            }
+            $min_balances[$idArticulo] = $min;
+        }
+
+        return $min_balances;
+    }
+
+    /**
+     * T5.5 — Artículos físicos con stock positivo pero sin movimiento en todo el año (Caso 4).
+     *
+     * Proceso en tres pasos para garantizar que "sin movimiento" significa cero filas
+     * en cualquiera de los tres tipos de movimiento durante [fi_año, ff_mov]:
+     *
+     *   1. Obtener todos los idArticulo físicos que coincidan con el filtro de familias.
+     *   2. Obtener todos los idArticulo con CUALQUIER movimiento (entrada, ticket o albcli)
+     *      en el rango [fi_año, ff_mov]. Diff en PHP → sin_movimiento_año.
+     *   3. Calcular el stock en el momento del análisis (ff_mov) rebobinando desde
+     *      articulosStocks.stockOn: stock_en_ff = stockOn − net_movimientos_posteriores.
+     *      Esto da el stock real en el periodo analizado independientemente de lo que
+     *      haya pasado después. Solo los con stock_en_ff > 0 se reportan.
+     *
+     * @param string $fi_año           Primer día del ejercicio ('YYYY-01-01')
+     * @param string $ff_mov           Último día del periodo analizado ('YYYY-MM-DD')
+     * @param array  $familias_incluir
+     * @param array  $familias_excluir
+     *
+     * @return array  Indexado por idArticulo con saldo_acumulado, ultima_compra, ultima_venta
+     *                — o array con clave 'error' si falla alguna consulta.
+     */
+    public function getArticulosSinMovimiento(
+        string $fi_año,
+        string $ff_mov,
+        array $familias_incluir = [],
+        array $familias_excluir = []
+    ): array {
+        $fi    = $this->db->real_escape_string($fi_año);
+        $ff    = $this->db->real_escape_string($ff_mov);
+        $tipos = self::TIPOS_FISICOS;
+
+        // Filtro de familias sobre la tabla articulos
+        $where_familia = '';
+        if (!empty($familias_incluir)) {
+            $ids_fam = $this->expandirFamilias($familias_incluir);
+            if ($ids_fam) $where_familia .= " AND a.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+        }
+        if (!empty($familias_excluir)) {
+            $ids_fam = $this->expandirFamilias($familias_excluir);
+            if ($ids_fam) $where_familia .= " AND a.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+        }
+
+        // Paso 1: todos los artículos físicos (con filtro de familia)
+        $smt = $this->db->query(
+            "SELECT idArticulo FROM articulos a WHERE a.tipo IN ($tipos) $where_familia"
+        );
+        if (!$smt) return ['error' => $this->db->error];
+
+        $todos_ids = [];
+        while ($r = $smt->fetch_assoc()) $todos_ids[] = (int)$r['idArticulo'];
+        if (empty($todos_ids)) return [];
+
+        // Paso 2: artículos con cualquier movimiento (los 3 tipos) en [fi_año, ff_mov]
+        $smt = $this->db->query("
+            SELECT DISTINCT idArticulo FROM (
+                SELECT l.idArticulo FROM albprolinea l
+                INNER JOIN albprot c ON c.id = l.idalbpro
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+                  AND l.estadoLinea = 'Activo'
+                UNION
+                SELECT l.idArticulo FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                UNION
+                SELECT l.idArticulo FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado', 'Procesado')
+                  AND l.estadoLinea = 'Activo'
+            ) AS movs_año
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+
+        $con_movimiento = [];
+        while ($r = $smt->fetch_assoc()) $con_movimiento[(int)$r['idArticulo']] = true;
+
+        // Diff en PHP: artículos físicos (con familia) sin ningún movimiento en el año
+        $sin_movimiento = array_values(array_filter($todos_ids, fn($id) => !isset($con_movimiento[$id])));
+        if (empty($sin_movimiento)) return [];
+
+        // Paso 3: stock en el momento del análisis (fecha ff_mov)
+        //
+        // stockOn refleja el stock a DÍA DE HOY, no al momento analizado.
+        // Para obtener el stock en ff_mov "rebobinamos": restamos los movimientos
+        // que ocurrieron DESPUÉS de ff_mov (que ya están incluidos en stockOn).
+        //
+        //   stock_en_ff = stockOn_hoy − net_posterior
+        //   net_posterior = Σ entradas_post_ff − Σ salidas_post_ff
+        //
+        // Se agrega stockOn por idTienda para cubrir instalaciones multi-tienda.
+        $ids_str = implode(',', array_map('intval', $sin_movimiento));
+        $ff_esc  = $this->db->real_escape_string($ff_mov);
+        $tipos   = self::TIPOS_FISICOS;
+
+        $smt = $this->db->query("
+            SELECT
+                base.idArticulo,
+                base.total_stockOn - COALESCE(post.net_posterior, 0) AS stock_en_periodo
+            FROM (
+                SELECT idArticulo, SUM(stockOn) AS total_stockOn
+                FROM articulosStocks
+                WHERE idArticulo IN ($ids_str)
+                GROUP BY idArticulo
+            ) AS base
+            LEFT JOIN (
+                SELECT idArticulo, SUM(ncant_signo) AS net_posterior
+                FROM (
+                    SELECT l.idArticulo,  l.ncant AS ncant_signo
+                    FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
+                    WHERE DATE(c.Fecha) > '$ff_esc'
+                      AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                      AND l.estadoLinea = 'Activo'
+                      AND l.idArticulo IN ($ids_str)
+                    UNION ALL
+                    SELECT l.idArticulo, -l.ncant AS ncant_signo
+                    FROM ticketslinea l INNER JOIN ticketst c ON c.id = l.idticketst
+                    WHERE DATE(c.Fecha) > '$ff_esc'
+                      AND c.estado = 'Cerrado'
+                      AND l.estadoLinea = 'Activo'
+                      AND l.idArticulo IN ($ids_str)
+                    UNION ALL
+                    SELECT l.idArticulo, -l.ncant AS ncant_signo
+                    FROM albclilinea l INNER JOIN albclit c ON c.id = l.idalbcli
+                    WHERE DATE(c.Fecha) > '$ff_esc'
+                      AND c.estado IN ('Guardado','Procesado')
+                      AND l.estadoLinea = 'Activo'
+                      AND l.idArticulo IN ($ids_str)
+                ) AS post_movs
+                GROUP BY idArticulo
+            ) AS post ON post.idArticulo = base.idArticulo
+            HAVING stock_en_periodo > 0
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+
+        $resultado = [];
+        while ($row = $smt->fetch_assoc()) {
+            $resultado[(int)$row['idArticulo']] = [
+                'saldo_acumulado' => (float)$row['stock_en_periodo'],
+                'ultima_compra'   => null,
+                'ultima_venta'    => null,
+            ];
+        }
+        return $resultado;
+    }
 
     private function maxFecha(?string $a, ?string $b): ?string
     {

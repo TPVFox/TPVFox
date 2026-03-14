@@ -65,6 +65,20 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
+    // --- BLOQUE 3: OPCIONES ADICIONALES ---
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="checkbox" style="margin:0;">';
+    $html .= '      <label class="small" title="Incluye artículos físicos con stock positivo al cierre del periodo pero sin ningún movimiento en el rango analizado.">';
+    $html .= '        <input type="checkbox" name="inputIncluirStockInactivo" value="1"'
+        . ((string)$posstock->incluir_stock_inactivo === '1' ? ' checked' : '') . '>';
+    $html .= '        Stock inactivo en periodo <small class="text-muted">(stock &gt; 0 y sin movimientos en el rango)</small>';
+    $html .= '      </label>';
+    $html .= '    </div>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
     $html .= '</form>';
     $html .= '</div>';
 

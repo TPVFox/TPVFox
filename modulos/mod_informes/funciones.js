@@ -479,7 +479,8 @@ function cargarDatosPosstock(periodo) {
 function pintarTablaIncidencias(filas) {
     var badgeSev = {
         CRITICA: '<span class="label label-danger">Crítica</span>',
-        MEDIA: '<span class="label label-warning">Media</span>',
+        ALTA:    '<span class="label label-danger" style="background-color:#e8600a;">Alta</span>',
+        MEDIA:   '<span class="label label-warning">Media</span>',
         BAJA: '<span class="label label-info">Baja</span>',
     };
 
@@ -510,12 +511,21 @@ function pintarTablaIncidencias(filas) {
 
     filas.forEach(function (f) {
         var detalle = "";
-        if (f.tipo === "Error crítico de stock") {
+        if (f.tipo === "Stock Negativo") {
             detalle =
-                "Stock actual: " +
-                (f.stock_actual !== undefined
-                    ? parseFloat(f.stock_actual).toFixed(2)
-                    : "—");
+                "Stock actual: <strong>" +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
+                "</strong>" +
+                (f.min_balance !== undefined
+                    ? " | Mín. intra-periodo: " + parseFloat(f.min_balance).toFixed(2)
+                    : "");
+        } else if (f.tipo === "Desajuste Puntual de Stock") {
+            detalle =
+                "Stock final: " +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
+                " | Mín. intra-periodo: <strong>" +
+                (f.min_balance !== undefined ? parseFloat(f.min_balance).toFixed(2) : "—") +
+                "</strong>";
         } else if (f.tipo === "Entrada con stock alto") {
             detalle =
                 "Stock previo: " +
@@ -531,6 +541,22 @@ function pintarTablaIncidencias(filas) {
                 " | " +
                 (f.semanas_desde_ultima_venta || "—") +
                 " sem.";
+        } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
+            detalle =
+                "Últ. venta: " +
+                (f.ultima_venta || "—") +
+                " | Rotura desde: <strong>" +
+                (f.fecha_inicio_rotura || "—") +
+                "</strong>" +
+                " | Sin venta: " +
+                (f.dias_sin_venta !== undefined ? f.dias_sin_venta + " d" : "—") +
+                " | μ: " +
+                (f.avg_dias_entre_ventas !== undefined ? f.avg_dias_entre_ventas + " d" : "—") +
+                " σ: " +
+                (f.sd_dias !== undefined ? f.sd_dias + " d" : "—") +
+                " (umbral " +
+                (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") +
+                ")";
         } else if (f.tipo === "Entrada sin rotación previa") {
             detalle = f.ultima_salida
                 ? "Últ. salida: " +
@@ -538,13 +564,11 @@ function pintarTablaIncidencias(filas) {
                   " | " +
                   (f.semanas_desde_ultima_salida || "—") +
                   " sem."
-                : "Sin salidas en el año";
-        } else if (f.tipo === "Stock sin entrada anual") {
+                : "Sin salidas registradas";
+        } else if (f.tipo === "Stock Inactivo en Periodo") {
             detalle =
-                "Stock actual: " +
-                (f.stock_actual !== undefined
-                    ? parseFloat(f.stock_actual).toFixed(2)
-                    : "—");
+                "Stock en periodo: " +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
         }
 
         var urlMayor =

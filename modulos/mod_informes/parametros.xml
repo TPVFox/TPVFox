@@ -9,6 +9,8 @@
 			<umbral_semanas_desde_ultima_venta>24</umbral_semanas_desde_ultima_venta>
 			<!-- Umbral: semanas desde la última salida/venta usado para detectar entrada sin rotación -->
 			<umbral_semanas_sin_rotacion>12</umbral_semanas_sin_rotacion>
+			<!-- 1 = incluir artículos con stock positivo y cero movimientos en el periodo analizado -->
+			<incluir_stock_inactivo>0</incluir_stock_inactivo>
 		</posstock>
 	</configuracion>
 </parametros>

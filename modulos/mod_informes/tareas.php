@@ -42,11 +42,13 @@ switch ($pulsado) {
         if (!empty($errores)) {
             $respuesta['error'] = implode(' | ', $errores);
         } else {
+            $incluir_stock_inactivo = (isset($mapa['inputIncluirStockInactivo']) && $mapa['inputIncluirStockInactivo'] === '1') ? 1 : 0;
             $posstock->ventana_dias              = $mapa['inputVentanaDias'];
             // Guardamos el umbral como porcentaje (ej. 50 = 50%).
             $posstock->umbral_sobrestock         = $mapa['inputUmbralSobrestock'];
             $posstock->umbral_semanas_desde_ultima_venta = intval($mapa['inputUmbralCaducidadSemanas']);
             $posstock->umbral_semanas_sin_rotacion = intval($mapa['inputUmbralSinRotacionSemanas']);
+            $posstock->incluir_stock_inactivo    = $incluir_stock_inactivo;
             if ($ClaseParametros->save()) {
                 $respuesta['mensaje']     = 'Configuración POSStock guardada correctamente.';
                 $respuesta['ventana_dias'] = (int)$mapa['inputVentanaDias'];
