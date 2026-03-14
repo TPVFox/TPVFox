@@ -633,10 +633,12 @@ class ClasePosstock
         }
 
         // ── Caso 5: Venta Cero con Stock Positivo ─────────────────────────────
+        // stock_actual se pasa a _calcularRoturasC5 para que lo use solo en el
+        // gap "en curso" (final → ff_mov). Las roturas recuperadas no requieren
+        // stock > 0 al cierre y se procesan aunque stock_actual sea 0.
         $ff_ts_c5 = $fecha_fin_dt->getTimestamp();
         foreach ($ids as $id) {
             $id = (int)$id;
-            if ($stats[$id]['stock_actual'] <= 0) continue;
             foreach ($this->_calcularRoturasC5(
                 $id,
                 $ventas_fechas[$id] ?? [],
@@ -726,16 +728,24 @@ class ClasePosstock
      * y devuelve 0 o más incidencias — una por brecha anómala detectada.
      * 'fecha_fin_rotura' null = rotura en curso; string = rotura recuperada.
      *
+     * IMPORTANTE — comprobación de stock:
+     *   · Roturas RECUPERADAS (gap entre dos ventas consecutivas): no necesitan
+     *     stock > 0 al cierre. Si hubo una segunda venta, había stock durante
+     *     el hueco. Se reportan siempre → visibles en vistas anuales aunque el
+     *     artículo se haya agotado posteriormente.
+     *   · Rotura EN CURSO (desde última venta hasta ff_mov): solo se reporta
+     *     si stock_actual > 0 al cierre del periodo — confirma que el artículo
+     *     sigue en el sistema y la brecha no es por discontinuación.
+     *
      * @param int   $id           idArticulo
      * @param array $fechas_map   [date => true]
-     * @param float $stock_actual Stock al cierre del periodo
+     * @param float $stock_actual Stock al cierre del periodo (solo para gap en curso)
      * @param int   $ff_ts        Timestamp de fecha_fin_movimientos
      *
      * @return array  Filas de incidencia (sin campo 'nombre')
      */
     private function _calcularRoturasC5(int $id, array $fechas_map, float $stock_actual, int $ff_ts): array
     {
-        if ($stock_actual <= 0) return [];
         $fechas = array_keys($fechas_map);
         sort($fechas);
         $n = count($fechas);
@@ -764,7 +774,8 @@ class ClasePosstock
             'posible_causa'         => 'Hueco en lineal o merma no registrada',
         ];
         $incidencias = [];
-        // Roturas recuperadas: gaps entre ventas consecutivas
+        // Roturas recuperadas: gaps entre ventas consecutivas.
+        // No se comprueba stock — si hubo segunda venta hubo stock durante el hueco.
         for ($i = 1; $i < $n; $i++) {
             $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
             if ($gap > $umbral) {
@@ -776,9 +787,10 @@ class ClasePosstock
                 ];
             }
         }
-        // Rotura en curso: desde última venta hasta ff_mov
+        // Rotura en curso: desde última venta hasta ff_mov.
+        // Solo se reporta si el artículo aún tiene stock al cierre del periodo.
         $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral) {
+        if ($dias_final > $umbral && $stock_actual > 0) {
             $incidencias[] = $campos + [
                 'ultima_venta'        => $fechas[$n - 1],
                 'fecha_inicio_rotura' => date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400),
