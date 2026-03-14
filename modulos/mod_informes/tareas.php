@@ -5,6 +5,7 @@ $pulsado = $_POST['pulsado'];
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/controllers/parametros.php';
 include_once $URLCom . '/modulos/mod_informes/funciones.php';
+include_once $URLCom . '/modulos/mod_informes/clases/ClasePosstock.php';
 
 
 
@@ -62,6 +63,9 @@ switch ($pulsado) {
         } else {
             $respuesta = $periodo;
         }
+        break;
+    case 'getPOSStockData':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getPOSStockData.php';
         break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);
