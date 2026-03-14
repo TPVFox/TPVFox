@@ -352,4 +352,224 @@ class ClasePosstock
 
         return $resultado;
     }
+
+    /**
+     * T4.4 / T5 — Método principal: orquesta T4.1→T4.2→T4.3 y aplica reglas de detección.
+     *
+     * Estructura de resultados: UNA FILA POR CASO.
+     * Un artículo puede generar múltiples filas si dispara varios casos.
+     * Esto permite ordenar por severidad y filtrar por tipo independientemente.
+     *
+     * @param array $params  Claves requeridas:
+     *   fecha_inicio_movimientos, fecha_fin_movimientos,
+     *   fecha_inicio_stock,       fecha_fin_stock
+     *   Claves opcionales (umbrales con defaults):
+     *   umbral_sobrestock            (float, default 0.5)
+     *   umbral_caducidad_semanas     (int,   default 24)
+     *   umbral_sin_rotacion_semanas  (int,   default 12)
+     *
+     * @return array  Filas ordenadas CRITICA→MEDIA→BAJA, con clave 'error' si falla.
+     */
+    public function getIncidencias(array $params): array
+    {
+        $fi_mov   = $params['fecha_inicio_movimientos'];
+        $ff_mov   = $params['fecha_fin_movimientos'];
+        $fi_stock = $params['fecha_inicio_stock'];
+        $ff_stock = $params['fecha_fin_stock'];
+
+        $umbral_sobrestock   = (float)($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad    = (int)  ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion = (int)  ($params['umbral_sin_rotacion_semanas'] ?? 12);
+
+        // ── T4.1: movimientos en la ventana ──────────────────────────────────
+        $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov);
+        if (isset($movimientos['error'])) {
+            return $movimientos;
+        }
+
+        $ids = array_unique(array_column($movimientos, 'idArticulo'));
+        if (empty($ids)) {
+            return [];
+        }
+
+        // ── T4.2: stock base por artículo ─────────────────────────────────────
+        $stock_base = $this->getStockBase($ids, $fi_stock, $ff_stock);
+        if (isset($stock_base['error'])) {
+            return $stock_base;
+        }
+
+        // ── T4.3: stock_previo y stock_tras_ultimo_albaran ────────────────────
+        $entradas_calc = $this->calcularStockPrevio($movimientos, $stock_base);
+
+        // ── Estadísticas por artículo desde T4.1 ─────────────────────────────
+        $stats = [];
+        foreach ($movimientos as $m) {
+            $id = (int)$m['idArticulo'];
+            if (!isset($stats[$id])) {
+                $stats[$id] = [
+                    'saldo_ventana'         => 0.0,
+                    'ultima_salida_ventana' => null,
+                    'tiene_entrada'         => false,
+                ];
+            }
+            $signo = ($m['tipo_movimiento'] === 'entrada_proveedor') ? 1.0 : -1.0;
+            $stats[$id]['saldo_ventana'] += $signo * (float)$m['ncant'];
+
+            if (in_array($m['tipo_movimiento'], ['salida_ticket', 'salida_albcli'])) {
+                if ($stats[$id]['ultima_salida_ventana'] === null
+                    || $m['fecha'] > $stats[$id]['ultima_salida_ventana']) {
+                    $stats[$id]['ultima_salida_ventana'] = $m['fecha'];
+                }
+            }
+            if ($m['tipo_movimiento'] === 'entrada_proveedor' && (float)$m['ncant'] > 0) {
+                $stats[$id]['tiene_entrada'] = true;
+            }
+        }
+
+        // stock_actual por artículo = saldo_base + saldo_ventana
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            $saldo_base_art             = isset($stock_base[$id]) ? $stock_base[$id]['saldo_acumulado'] : 0.0;
+            $stats[$id]['stock_actual'] = $saldo_base_art + ($stats[$id]['saldo_ventana'] ?? 0.0);
+            $stats[$id]['saldo_base']   = $saldo_base_art;
+        }
+
+        $fecha_fin_dt = new DateTime($ff_mov);
+        $incidencias  = [];
+        $orden_sev    = ['CRITICA' => 0, 'MEDIA' => 1, 'BAJA' => 2];
+
+        // ── Caso 1: Error crítico de stock (por artículo) ─────────────────────
+        foreach ($ids as $id) {
+            $id           = (int)$id;
+            $stock_actual = $stats[$id]['stock_actual'];
+
+            $stock_tras = null;
+            foreach ($entradas_calc as $e) {
+                if ((int)$e['idArticulo'] === $id) {
+                    $stock_tras = $e['stock_tras_ultimo_albaran'];
+                    break;
+                }
+            }
+
+            if ($stock_actual < 0 || ($stock_tras !== null && ($stock_tras - $stock_actual) < 0)) {
+                $incidencias[] = [
+                    'idArticulo'    => $id,
+                    'tipo'          => 'Error crítico de stock',
+                    'severidad'     => 'CRITICA',
+                    'stock_actual'  => $stock_actual,
+                    'posible_causa' => 'Stock negativo — revisar movimientos',
+                ];
+            }
+        }
+
+        // ── Caso 2: Entrada con stock alto (por entrada_proveedor, ncant > 0) ─
+        foreach ($entradas_calc as $e) {
+            if ($e['ncant'] <= 0) {
+                continue; // devoluciones excluidas
+            }
+            if ($e['stock_previo'] >= $e['ncant'] * $umbral_sobrestock) {
+                $incidencias[] = [
+                    'idArticulo'               => (int)$e['idArticulo'],
+                    'tipo'                     => 'Entrada con stock alto',
+                    'severidad'                => 'MEDIA',
+                    'ncant'                    => $e['ncant'],
+                    'stock_previo'             => $e['stock_previo'],
+                    'stock_tras_ultimo_albaran' => $e['stock_tras_ultimo_albaran'],
+                    'idDocumento'              => $e['idDocumento'],
+                    'fecha'                    => $e['fecha'],
+                    'posible_causa'            => 'Posible duplicado de albarán o sobrestock',
+                ];
+            }
+        }
+
+        // ── Casos 3a, 3b y 4 (por artículo con entrada real en ventana) ───────
+        foreach ($ids as $id) {
+            $id = (int)$id;
+            if (empty($stats[$id]['tiene_entrada'])) {
+                continue;
+            }
+
+            $ultima_salida_global = $this->maxFecha(
+                $stock_base[$id]['ultima_venta']    ?? null,
+                $stats[$id]['ultima_salida_ventana'] ?? null
+            );
+
+            // ── Caso 3a: Riesgo de caducidad teórica ─────────────────────────
+            // [TODO T5.3] Si la familia tiene viabilidad_categoria, usar
+            //             viabilidad_categoria * 0.75 como umbral en lugar de
+            //             umbral_caducidad_semanas. Pendiente de identificar
+            //             tabla/campo exacto en BD.
+            if ($ultima_salida_global !== null) {
+                $semanas_sin_venta = (new DateTime($ultima_salida_global))
+                    ->diff($fecha_fin_dt)->days / 7.0;
+
+                if ($semanas_sin_venta >= $umbral_caducidad) {
+                    $incidencias[] = [
+                        'idArticulo'        => $id,
+                        'tipo'              => 'Riesgo de caducidad teórica',
+                        'severidad'         => 'MEDIA',
+                        'ultima_venta'      => $ultima_salida_global,
+                        'semanas_sin_venta' => round($semanas_sin_venta, 1),
+                        'posible_causa'     => "Sin ventas en más de $umbral_caducidad semanas",
+                    ];
+                }
+            }
+
+            // ── Caso 3b: Entrada sin rotación previa ──────────────────────────
+            if ($ultima_salida_global !== null) {
+                $semanas_sin_rot = (new DateTime($ultima_salida_global))
+                    ->diff($fecha_fin_dt)->days / 7.0;
+
+                if ($semanas_sin_rot >= $umbral_sin_rotacion) {
+                    $incidencias[] = [
+                        'idArticulo'           => $id,
+                        'tipo'                 => 'Entrada sin rotación previa',
+                        'severidad'            => 'BAJA',
+                        'ultima_salida'        => $ultima_salida_global,
+                        'semanas_sin_rotacion' => round($semanas_sin_rot, 1),
+                        'posible_causa'        => 'Sin rotación/obsoleto o posible error de unidad',
+                    ];
+                }
+            } else {
+                // Nunca ha tenido salidas en toda la historia conocida → Caso 3b absoluto
+                $incidencias[] = [
+                    'idArticulo'           => $id,
+                    'tipo'                 => 'Entrada sin rotación previa',
+                    'severidad'            => 'BAJA',
+                    'ultima_salida'        => null,
+                    'semanas_sin_rotacion' => null,
+                    'posible_causa'        => 'Nunca ha tenido salidas',
+                ];
+            }
+
+            // ── Caso 4: Stock sin entrada anual ───────────────────────────────
+            // Condición: saldo_base < 0 y no hay entradas reales en el año
+            // (el artículo aparece en T4.1 solo por salidas, sin ninguna entrada)
+            if ($stats[$id]['saldo_base'] < 0 && !$stats[$id]['tiene_entrada']) {
+                $incidencias[] = [
+                    'idArticulo'    => $id,
+                    'tipo'          => 'Stock sin entrada anual',
+                    'severidad'     => 'BAJA',
+                    'stock_actual'  => $stats[$id]['stock_actual'],
+                    'posible_causa' => 'Stock sin entradas en el año — posible error de unidad o artículo obsoleto',
+                ];
+            }
+        }
+
+        // ── Ordenar: CRITICA → MEDIA → BAJA ──────────────────────────────────
+        usort($incidencias, fn($a, $b) =>
+            $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']]
+        );
+
+        return $incidencias;
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+
+    private function maxFecha(?string $a, ?string $b): ?string
+    {
+        if ($a === null) return $b;
+        if ($b === null) return $a;
+        return ($a >= $b) ? $a : $b;
+    }
 }
