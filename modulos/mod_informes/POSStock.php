@@ -129,6 +129,16 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
         </div>
     </div>
 
+    <!-- ── Filtro de tipos de incidencia (solo vistas no anuales) ────── -->
+    <div class="row" id="posstockFilaCasos" style="display:none;">
+        <div class="col-xs-12">
+            <span class="text-muted small">
+                <i class="glyphicon glyphicon-filter"></i> Tipos visibles:
+            </span>
+            <span id="posstockChecksCasos"></span>
+        </div>
+    </div>
+
     <!-- ── Aviso ventana_dias ────────────────────────────────────────── -->
     <div id="posstockAvisoVentana" class="row" style="display:none;">
         <div class="col-xs-12">

@@ -68,5 +68,4 @@ if (isset($resultado['error'])) {
 
 $respuesta['filas']     = $resultado['filas'];
 $respuesta['actual']    = $resultado['actual'];
-$respuesta['total']     = $resultado['total'];
 $respuesta['elementos'] = $resultado['elementos'];

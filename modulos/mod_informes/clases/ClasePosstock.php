@@ -1148,15 +1148,24 @@ class ClasePosstock
     }
 
     /**
-     * Devuelve la lista ordenada de idArticulo que tienen algún movimiento
-     * (entrada, ticket o albcli) en el rango [fi, ff], aplicando el filtro
-     * de familias. Usada para paginar getIncidenciasBatch.
+     * Devuelve una página de idArticulo con actividad en el rango usando LIMIT/OFFSET.
+     *
+     * La paginación se hace directamente en SQL: nunca se cargan todos los IDs
+     * en memoria PHP, lo que mantiene el coste constante por lote independientemente
+     * del tamaño total del periodo.
+     *
+     * Fin de datos: cuando la query devuelva menos de $pagina filas.
+     *
+     * @param int $inicial  OFFSET SQL (0, 150, 300 …)
+     * @param int $pagina   LIMIT SQL (tamaño del lote)
      */
     public function getArticulosConActividad(
         string $fi_mov,
         string $ff_mov,
         array  $familias_incluir = [],
-        array  $familias_excluir = []
+        array  $familias_excluir = [],
+        int    $inicial = 0,
+        int    $pagina  = 0        // 0 = sin límite (devuelve todos, solo para compatibilidad)
     ): array {
         $fi    = $this->db->real_escape_string($fi_mov);
         $ff    = $this->db->real_escape_string($ff_mov);
@@ -1171,6 +1180,8 @@ class ClasePosstock
             $ids = $this->expandirFamilias($familias_excluir);
             if ($ids) $where_fam .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
+
+        $limit_clause = ($pagina > 0) ? "LIMIT $pagina OFFSET $inicial" : '';
 
         $smt = $this->db->query("
             SELECT DISTINCT idArticulo FROM (
@@ -1202,6 +1213,7 @@ class ClasePosstock
                   $where_fam
             ) AS sub
             ORDER BY idArticulo
+            $limit_clause
         ");
         if (!$smt) return [];
         $ids = [];
@@ -1212,19 +1224,22 @@ class ClasePosstock
     /**
      * Procesa las incidencias en lotes de $pagina artículos.
      *
-     * Patrón idéntico a mod_reorganizacion:
-     *   JS envía inicial=0  → PHP devuelve { filas, actual, total, elementos }
-     *   JS envía inicial=N  → sigue hasta que actual >= total
+     * Patrón mod_reorganizacion: cada lote devuelve { filas, actual, elementos }.
+     * El JS continúa mientras elementos === pagina; para cuando elementos < pagina
+     * (último lote, incluido el lote vacío si el total es múltiplo exacto de pagina).
      *
-     * Para caso4 se ejecuta como lote único (no tiene artículos "con actividad").
+     * La paginación usa LIMIT/OFFSET en SQL — la query costosa de IDs se ejecuta
+     * exactamente una vez por lote y solo devuelve $pagina filas, no el total completo.
      *
-     * @return array  { filas: array, actual: int, total: int, elementos: int }
+     * Para caso4: lote único (artículos sin movimiento, no paginables por actividad).
+     *
+     * @return array  { filas: array, actual: int, elementos: int }
      *                — o array con clave 'error'
      */
     public function getIncidenciasBatch(array $params, int $inicial, int $pagina): array
     {
-        $fi_mov          = $params['fecha_inicio_movimientos'];
-        $ff_mov          = $params['fecha_fin_movimientos'];
+        $fi_mov           = $params['fecha_inicio_movimientos'];
+        $ff_mov           = $params['fecha_fin_movimientos'];
         $familias_incluir = (array)($params['familias_incluir'] ?? []);
         $familias_excluir = (array)($params['familias_excluir'] ?? []);
         $tipo_incidencia  = (string)($params['tipo_incidencia'] ?? '');
@@ -1233,22 +1248,19 @@ class ClasePosstock
         if ($tipo_incidencia === 'caso4') {
             $filas = $this->getIncidencias($params);
             if (isset($filas['error'])) return $filas;
-            $total = count($filas);
-            return ['filas' => $filas, 'actual' => $total, 'total' => $total, 'elementos' => $total];
+            return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0]; // elementos=0 → fin
         }
 
-        $ids_todos = $this->getArticulosConActividad($fi_mov, $ff_mov, $familias_incluir, $familias_excluir);
-        $total     = count($ids_todos);
-
-        if ($total === 0) {
-            return ['filas' => [], 'actual' => 0, 'total' => 0, 'elementos' => 0];
-        }
-
-        $ids_batch = array_slice($ids_todos, $inicial, $pagina);
+        // Obtener solo los IDs del lote actual via LIMIT/OFFSET — sin cargar todos en memoria
+        $ids_batch = $this->getArticulosConActividad($fi_mov, $ff_mov, $familias_incluir, $familias_excluir, $inicial, $pagina);
         $elementos = count($ids_batch);
         $actual    = $inicial + $elementos;
 
-        $params_batch              = $params;
+        if ($elementos === 0) {
+            return ['filas' => [], 'actual' => $actual, 'elementos' => 0];
+        }
+
+        $params_batch               = $params;
         $params_batch['ids_filter'] = $ids_batch;
 
         $filas = $this->getIncidencias($params_batch);
@@ -1257,7 +1269,6 @@ class ClasePosstock
         return [
             'filas'     => $filas,
             'actual'    => $actual,
-            'total'     => $total,
             'elementos' => $elementos,
         ];
     }

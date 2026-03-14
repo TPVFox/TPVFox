@@ -399,6 +399,7 @@ function cargarDatosPosstock(periodo, tipoIncidencia) {
     $("#posstockTablaWrap").hide();
     $("#posstockNavegacion").hide();
     $("#posstockBotonesWrap").hide();
+    $("#posstockFilaCasos").hide();
     $("#posstockProgreso").text("Calculando incidencias…");
 
     _posstockCargaLote(0, [], periodo, tipoIncidencia || "");
@@ -446,18 +447,24 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 return;
             }
 
-            var acum = acumuladas.concat(resultado.filas || []);
-            var actual = resultado.actual;
-            var total  = resultado.total;
+            var acum     = acumuladas.concat(resultado.filas || []);
+            var actual   = resultado.actual;
+            var elementos = resultado.elementos;
 
-            if (actual < total) {
-                // Hay más lotes: actualizar progreso y continuar
+            // Continuar mientras el lote devuelva exactamente $pagina artículos.
+            // Cuando devuelva menos (o 0) es el último lote.
+            if (elementos >= 150) {
                 $("#posstockProgreso").text(
-                    "Analizando artículos: " + actual + " / " + total + "…"
+                    "Analizando artículos: " + actual + " procesados…"
                 );
                 _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
-                // Último lote: pintar todo
+                // Último lote: ordenar globalmente y pintar
+                var ordenSev = { CRITICA: 1, ALTA: 2, MEDIA: 3, BAJA: 4 };
+                acum.sort(function (a, b) {
+                    return (ordenSev[a.severidad] || 9) - (ordenSev[b.severidad] || 9);
+                });
+
                 $("#posstockSpinner").hide();
 
                 // Actualizar labels de periodo
@@ -465,6 +472,11 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 $("#posstockLabelStock").text(periodo.label_stock || "");
 
                 pintarTablaIncidencias(acum);
+
+                // Filtro de casos: solo en vistas no anuales
+                if (window.posstockTipoActivo !== "anual") {
+                    _posstockInicializarFiltroCasos();
+                }
 
                 $("#posstockNavegacion").show();
                 $("#posstockBotonesWrap").show();
@@ -601,7 +613,7 @@ function pintarTablaIncidencias(filas) {
             ffMov;
 
         html +=
-            "<tr>" +
+            "<tr data-tipo='" + f.tipo.replace(/'/g, "&#39;") + "'>" +
             "<td>" +
             f.idArticulo +
             "</td>" +
@@ -748,6 +760,16 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso5",  t: "Venta Cero (Rotura física)",    short: "C5"  },
 ];
 
+// Mapeo de código de caso → strings del campo 'tipo' que devuelve el backend
+var POSSTOCK_TIPO_MAP = {
+    caso1:  ["Stock Negativo", "Desajuste Puntual de Stock"],
+    caso2:  ["Entrada con stock alto"],
+    caso3a: ["Riesgo de caducidad teórica"],
+    caso3b: ["Entrada sin rotación previa"],
+    caso4:  ["Stock Inactivo en Periodo"],
+    caso5:  ["Venta Cero (Posible Rotura Física)"],
+};
+
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
 function _posstockTiposActivos() {
     var tipos = POSSTOCK_TIPOS_INCIDENCIA.slice();
@@ -756,6 +778,51 @@ function _posstockTiposActivos() {
     }
     return tipos;
 }
+
+/**
+ * Renderiza los checkboxes de tipo de incidencia en #posstockChecksCasos
+ * y muestra la fila. Solo se llama en vistas no anuales.
+ * Los checks se inicializan todos marcados.
+ */
+function _posstockInicializarFiltroCasos() {
+    var wrap = document.getElementById("posstockChecksCasos");
+    if (!wrap) return;
+    var tipos = _posstockTiposActivos();
+    var html = "";
+    tipos.forEach(function (ti) {
+        html +=
+            '<label class="checkbox-inline" style="margin-left:8px; font-weight:normal;">' +
+            '<input type="checkbox" id="posstockChk_' + ti.v + '" value="' + ti.v + '" ' +
+            'checked onchange="posstockFiltrarPorCaso()"> ' +
+            '<span class="label label-default">' + ti.short + '</span> ' +
+            ti.t +
+            "</label>";
+    });
+    wrap.innerHTML = html;
+    document.getElementById("posstockFilaCasos").style.display = "";
+}
+
+/**
+ * Muestra u oculta filas de #posstockTabla según los checkboxes activos.
+ * Las filas tienen data-tipo con el tipo exacto devuelto por el backend.
+ */
+function posstockFiltrarPorCaso() {
+    // Construir el conjunto de tipos string visibles
+    var visibles = {};
+    _posstockTiposActivos().forEach(function (ti) {
+        var chk = document.getElementById("posstockChk_" + ti.v);
+        if (chk && chk.checked) {
+            (POSSTOCK_TIPO_MAP[ti.v] || []).forEach(function (t) {
+                visibles[t] = true;
+            });
+        }
+    });
+    var filas = document.querySelectorAll("#posstockTabla tbody tr[data-tipo]");
+    filas.forEach(function (tr) {
+        tr.style.display = visibles[tr.getAttribute("data-tipo")] ? "" : "none";
+    });
+}
+window.posstockFiltrarPorCaso = posstockFiltrarPorCaso;
 
 var MESES = [
     "Ene",
