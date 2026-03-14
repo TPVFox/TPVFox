@@ -76,6 +76,9 @@ switch ($pulsado) {
         // por lo que el json_encode del final de este script no se ejecuta.
         include_once $URLCom . '/modulos/mod_informes/tareas/exportarPOSStockCSV.php';
         break;
+    case 'imprimirPOSStockPDF':
+        include_once $URLCom . '/modulos/mod_informes/tareas/imprimirPOSStockPDF.php';
+        break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);
 }

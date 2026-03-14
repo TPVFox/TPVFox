@@ -106,8 +106,8 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
                     </button>
                     <button id="posstockBtnImprimir" type="button"
                             class="btn btn-default btn-sm" style="display:none;"
-                            onclick="window.print()">
-                        <i class="glyphicon glyphicon-print"></i> Imprimir
+                            onclick="imprimirPOSStockPDF()">
+                        <i class="glyphicon glyphicon-print"></i> Imprimir PDF
                     </button>
                 </div>
             </div>

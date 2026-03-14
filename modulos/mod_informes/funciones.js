@@ -1,5 +1,5 @@
 import * as JSTpv from "./../../lib/js/tpvfox.js";
-function metodoClick(pulsado) {
+function metodoClick() {
   checkID = JSTpv.TfObtenerCheck("rowCheck");
   console.log(checkID);
   if (checkID.length > 1 || checkID.length === 0) {
@@ -501,9 +501,53 @@ function exportarPOSStockCSV() {
     document.body.removeChild(form);
 }
 
+/**
+ * Genera el PDF de incidencias del periodo activo con TCPDF (servidor)
+ * y lo abre en una nueva pestaña.
+ */
+function imprimirPOSStockPDF() {
+    var periodo = window.posstockPeriodoActivo;
+    if (!periodo) return;
+
+    var btn = document.getElementById("posstockBtnImprimir");
+    if (btn) { btn.disabled = true; btn.textContent = "Generando PDF…"; }
+
+    $.ajax({
+        data: {
+            pulsado:                    "imprimirPOSStockPDF",
+            fecha_inicio_movimientos:   periodo.fecha_inicio_movimientos,
+            fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
+            fecha_inicio_stock:         periodo.fecha_inicio_stock,
+            fecha_fin_stock:            periodo.fecha_fin_stock,
+            familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
+            familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
+        },
+        url:  "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+            if (resultado.error) {
+                alert("Error al generar PDF: " + resultado.error);
+            } else {
+                window.open(resultado.url, "_blank");
+            }
+        },
+        error: function () {
+            alert("Error de comunicación al generar el PDF.");
+        },
+        complete: function () {
+            if (btn) {
+                btn.disabled    = false;
+                btn.innerHTML   = '<i class="glyphicon glyphicon-print"></i> Imprimir PDF';
+            }
+        },
+    });
+}
+
 window.cargarDatosPosstock   = cargarDatosPosstock;
 window.pintarTablaIncidencias = pintarTablaIncidencias;
 window.exportarPOSStockCSV   = exportarPOSStockCSV;
+window.imprimirPOSStockPDF   = imprimirPOSStockPDF;
 
 // =====================================================================
 //       POSSTOCK — Selectores de periodo y barra de navegación
