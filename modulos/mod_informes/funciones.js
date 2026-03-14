@@ -467,8 +467,43 @@ function pintarTablaIncidencias(filas) {
     $("#posstockTablaWrap").html(html);
 }
 
+/**
+ * Descarga las incidencias del periodo activo como fichero CSV.
+ * Usa un formulario oculto para forzar la descarga del fichero (AJAX no puede
+ * disparar una descarga de navegador directamente).
+ */
+function exportarPOSStockCSV() {
+    var periodo = window.posstockPeriodoActivo;
+    if (!periodo) return;
+
+    var params = {
+        pulsado:                    "exportarPOSStockCSV",
+        fecha_inicio_movimientos:   periodo.fecha_inicio_movimientos,
+        fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
+        fecha_inicio_stock:         periodo.fecha_inicio_stock,
+        fecha_fin_stock:            periodo.fecha_fin_stock,
+        familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
+        familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
+    };
+
+    var form = document.createElement("form");
+    form.method = "POST";
+    form.action = "tareas.php";
+    Object.keys(params).forEach(function (key) {
+        var input   = document.createElement("input");
+        input.type  = "hidden";
+        input.name  = key;
+        input.value = params[key];
+        form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
 window.cargarDatosPosstock   = cargarDatosPosstock;
 window.pintarTablaIncidencias = pintarTablaIncidencias;
+window.exportarPOSStockCSV   = exportarPOSStockCSV;
 
 // =====================================================================
 //       POSSTOCK — Selectores de periodo y barra de navegación

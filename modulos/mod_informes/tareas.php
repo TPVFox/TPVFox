@@ -71,6 +71,11 @@ switch ($pulsado) {
     case 'getFamiliasPosstock':
         include_once $URLCom . '/modulos/mod_informes/tareas/getFamiliasPosstock.php';
         break;
+    case 'exportarPOSStockCSV':
+        // El fichero include emite cabeceras HTTP + CSV y llama a exit(),
+        // por lo que el json_encode del final de este script no se ejecuta.
+        include_once $URLCom . '/modulos/mod_informes/tareas/exportarPOSStockCSV.php';
+        break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);
 }
