@@ -5,4 +5,7 @@
     </vista>
     <vista nombre="compras.php" descripcion="Informe compras" permiso="0">
     </vista>
+    <vista nombre="POSStock.php" descripcion="POSStock - Revisión de stock" permiso="0">
+        <accion nombre="ejecutar" descripcion="Ver informe POSStock" permiso="0"></accion>
+    </vista>
 </modulo>
