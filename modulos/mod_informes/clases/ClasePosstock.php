@@ -95,10 +95,43 @@ class ClasePosstock
      *   idArticulo, ncant, fecha (DATE), idDocumento
      *   — o array con clave 'error' si falla la consulta.
      */
-    public function getMovimientosPeriodo($fecha_inicio, $fecha_fin)
+    /**
+     * Expande una lista de idFamilia a todos sus descendientes usando
+     * vw_jerarquias_familias (idN1, idN2 capturan hijos de nivel 1 y 2).
+     * Devuelve el IN-clause listo para SQL, o '' si la lista está vacía.
+     */
+    private function expandirFamilias(array $ids): string
+    {
+        if (empty($ids)) return '';
+        $in = implode(',', array_map('intval', $ids));
+        $smt = $this->db->query("
+            SELECT DISTINCT idFamilia
+            FROM vw_jerarquias_familias
+            WHERE idFamilia IN ($in)
+               OR idN1      IN ($in)
+               OR idN2      IN ($in)
+        ");
+        if (!$smt) return $in; // fallback: usar IDs originales
+        $expanded = [];
+        while ($r = $smt->fetch_assoc()) $expanded[] = (int)$r['idFamilia'];
+        return implode(',', $expanded);
+    }
+
+    public function getMovimientosPeriodo($fecha_inicio, $fecha_fin, array $familias_incluir = [], array $familias_excluir = [])
     {
         $fi = $this->db->real_escape_string($fecha_inicio);
         $ff = $this->db->real_escape_string($fecha_fin);
+
+        // Construir cláusula de filtro por familia con expansión jerárquica
+        $where_familia = '';
+        if (!empty($familias_incluir)) {
+            $ids = $this->expandirFamilias($familias_incluir);
+            if ($ids) $where_familia .= " AND l.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
+        }
+        if (!empty($familias_excluir)) {
+            $ids = $this->expandirFamilias($familias_excluir);
+            if ($ids) $where_familia .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
+        }
 
         $sql = "
             -- Entradas: albaranes de proveedor (estado Guardado)
@@ -115,6 +148,7 @@ class ClasePosstock
               AND c.estado       IN ('Guardado', 'Facturado')
               AND l.estadoLinea  = 'Activo'
               AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+              $where_familia
 
             UNION ALL
 
@@ -132,6 +166,7 @@ class ClasePosstock
               AND c.estado       = 'Cerrado'
               AND l.estadoLinea  = 'Activo'
               AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+              $where_familia
 
             UNION ALL
 
@@ -149,6 +184,7 @@ class ClasePosstock
               AND c.estado       IN ('Guardado', 'Procesado')
               AND l.estadoLinea  = 'Activo'
               AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+              $where_familia
 
             ORDER BY idArticulo, fecha
         ";
@@ -380,9 +416,11 @@ class ClasePosstock
         $umbral_sobrestock   = (float)($params['umbral_sobrestock']           ?? 0.5);
         $umbral_caducidad    = (int)  ($params['umbral_caducidad_semanas']    ?? 24);
         $umbral_sin_rotacion = (int)  ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $familias_incluir    = (array)($params['familias_incluir'] ?? []);
+        $familias_excluir    = (array)($params['familias_excluir'] ?? []);
 
         // ── T4.1: movimientos en la ventana ──────────────────────────────────
-        $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov);
+        $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov, $familias_incluir, $familias_excluir);
         if (isset($movimientos['error'])) {
             return $movimientos;
         }
@@ -560,6 +598,24 @@ class ClasePosstock
         usort($incidencias, fn($a, $b) =>
             $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']]
         );
+
+        // ── Añadir nombre de artículo a cada fila ─────────────────────────────
+        if (!empty($incidencias)) {
+            $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $smt = $this->db->query(
+                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+            );
+            $nombres = [];
+            if ($smt) {
+                while ($r = $smt->fetch_assoc()) {
+                    $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+                }
+            }
+            foreach ($incidencias as &$inc) {
+                $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+            }
+            unset($inc);
+        }
 
         return $incidencias;
     }

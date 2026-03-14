@@ -47,7 +47,8 @@ switch ($pulsado) {
             $posstock->umbral_caducidad_semanas  = intval($mapa['inputUmbralCaducidadSemanas']);
             $posstock->umbral_sin_rotacion_semanas = intval($mapa['inputUmbralSinRotacionSemanas']);
             if ($ClaseParametros->save()) {
-                $respuesta['mensaje'] = 'Configuración POSStock guardada correctamente.';
+                $respuesta['mensaje']     = 'Configuración POSStock guardada correctamente.';
+                $respuesta['ventana_dias'] = (int)$mapa['inputVentanaDias'];
             } else {
                 $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
             }
@@ -66,6 +67,9 @@ switch ($pulsado) {
         break;
     case 'getPOSStockData':
         include_once $URLCom . '/modulos/mod_informes/tareas/getPOSStockData.php';
+        break;
+    case 'getFamiliasPosstock':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getFamiliasPosstock.php';
         break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);

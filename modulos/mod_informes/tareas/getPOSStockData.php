@@ -23,6 +23,19 @@ if (!preg_match($fecha_re, $fi_mov) || !preg_match($fecha_re, $ff_mov)
 $ClaseParametros = new ClaseParametros('parametros.xml');
 $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
+// Filtro de familias: dos listas independientes de IDs separados por coma
+$familias_incluir = [];
+$familias_excluir = [];
+
+foreach (explode(',', $_POST['familias_incluir'] ?? '') as $id) {
+    $id = (int)trim($id);
+    if ($id > 0) $familias_incluir[] = $id;
+}
+foreach (explode(',', $_POST['familias_excluir'] ?? '') as $id) {
+    $id = (int)trim($id);
+    if ($id > 0) $familias_excluir[] = $id;
+}
+
 $params = [
     'fecha_inicio_movimientos'   => $fi_mov,
     'fecha_fin_movimientos'      => $ff_mov,
@@ -31,6 +44,8 @@ $params = [
     'umbral_sobrestock'          => (float)(string)$posstock_node->umbral_sobrestock,
     'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_caducidad_semanas,
     'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_sin_rotacion_semanas,
+    'familias_incluir'           => $familias_incluir,
+    'familias_excluir'           => $familias_excluir,
 ];
 
 $posstock = new ClasePosstock($BDTpv);

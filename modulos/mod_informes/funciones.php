@@ -35,15 +35,34 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
     switch ($tipo) {
 
         case 'semana':
-            // Semana ISO: lunes a domingo
-            $inicio = new DateTime();
-            $inicio->setISODate($anio, $numero, 1); // lunes de la semana ISO $numero
-            $fin = clone $inicio;
-            $fin->modify('+6 days');                // domingo
+            // Semana anclada al 01-Ene del ejercicio (sistema POS anual).
+            // Semana 1: 01-Ene → primer domingo del año.
+            // Semanas 2+: lunes → domingo (o 31-Dic para la última, posiblemente corta).
+            $jan1 = new DateTime(sprintf('%04d-01-01', $anio));
+            $dow  = (int)$jan1->format('N'); // 1=lun … 7=dom
 
-            // Total de semanas ISO del año (28-Dic siempre cae en la última semana ISO)
-            $dec28 = new DateTime("$anio-12-28");
-            $total_periodos = (int)$dec28->format('W');
+            // Fin de semana 1: el domingo de la semana que contiene Jan 1
+            $fin_sem1 = clone $jan1;
+            if ($dow !== 7) {
+                $fin_sem1->modify('+' . (7 - $dow) . ' days');
+            }
+
+            $dec31 = new DateTime(sprintf('%04d-12-31', $anio));
+
+            if ($numero === 1) {
+                $inicio = clone $jan1;
+                $fin    = clone $fin_sem1;
+            } else {
+                $inicio = clone $fin_sem1;
+                $inicio->modify('+' . (($numero - 1) * 7 - 6) . ' days');
+                $fin = clone $inicio;
+                $fin->modify('+6 days');
+                if ($fin > $dec31) $fin = clone $dec31; // truncar al 31-Dic
+            }
+
+            // Total de semanas del año con este sistema
+            $dias_restantes = (int)$fin_sem1->diff($dec31)->days;
+            $total_periodos = 1 + (int)ceil($dias_restantes / 7);
 
             $label_mov = 'Semana ' . $numero . ' ('
                 . $inicio->format('d ') . $meses_cortos[(int)$inicio->format('n')]
@@ -95,18 +114,41 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
             return null;
     }
 
-    $fecha_fin_stock_dt = clone $inicio;
-    $fecha_fin_stock_dt->modify('-1 day'); // día anterior al inicio de movimientos
+    // ── Stock base ────────────────────────────────────────────────────────────
+    //
+    // Regla general: stock base = movimientos desde 01-Ene del ejercicio
+    //                hasta el día anterior al inicio del periodo.
+    //
+    // Caso especial — primer periodo del año (inicio = 01-Ene):
+    //   Jan 1 es festivo con importación de stock de apertura.
+    //   Algunos sistemas registran la apertura el 31-Dic del año anterior;
+    //   otros el 01-Ene. Para capturar ambos casos:
+    //   · stock base: 31-Dic anterior → 01-Ene (ambos inclusive)
+    //   · movimientos: arrancan desde Jan 2
 
-    $label_stock = 'Stock base: 01 Ene – '
+    $fecha_inicio_mov_dt = clone $inicio;
+    $fi_stock_dt         = new DateTime(sprintf('%04d-01-01', $anio));
+
+    if ($inicio->format('m-d') === '01-01') {
+        $fi_stock_dt = new DateTime(sprintf('%04d-12-31', $anio - 1));
+        $fecha_inicio_mov_dt->modify('+1 day'); // movimientos desde Jan 2
+    }
+
+    $fecha_fin_stock_dt = clone $fecha_inicio_mov_dt;
+    $fecha_fin_stock_dt->modify('-1 day'); // día anterior al inicio real de movimientos
+
+    $label_stock = 'Stock base: '
+        . $fi_stock_dt->format('d ')
+        . $meses_cortos[(int)$fi_stock_dt->format('n')]
+        . ' ' . $fi_stock_dt->format('Y') . ' – '
         . $fecha_fin_stock_dt->format('d ')
         . $meses_cortos[(int)$fecha_fin_stock_dt->format('n')]
-        . ' ' . $anio;
+        . ' ' . $fecha_fin_stock_dt->format('Y');
 
     return [
-        'fecha_inicio_movimientos' => $inicio->format('Y-m-d'),
+        'fecha_inicio_movimientos' => $fecha_inicio_mov_dt->format('Y-m-d'),
         'fecha_fin_movimientos'    => $fin->format('Y-m-d'),
-        'fecha_inicio_stock'       => sprintf('%04d-01-01', $anio),
+        'fecha_inicio_stock'       => $fi_stock_dt->format('Y-m-d'),
         'fecha_fin_stock'          => $fecha_fin_stock_dt->format('Y-m-d'),
         'label_movimientos'        => $label_mov,
         'label_stock'              => $label_stock,

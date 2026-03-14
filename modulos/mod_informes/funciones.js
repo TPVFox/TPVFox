@@ -84,7 +84,7 @@ function abrirModalConfigPosstock() {
         type: "post",
         success: function (response) {
             var resultado = $.parseJSON(response);
-            ventanaModal(resultado.titulo, resultado.html);
+            abrirModal(resultado.titulo, resultado.html);
         },
     });
 }
@@ -105,8 +105,24 @@ function guardarConfigPosstock() {
                 var htmlError = '<div class="alert alert-danger" role="alert">' + resultado.error + "</div>";
                 $("#formConfigPosstock").prepend(htmlError);
             } else {
+                cerrarPopUp();
+                // Actualizar ventana_dias en JS para que la barra y las restricciones
+                // reflejen el nuevo valor sin necesidad de recargar la página.
+                if (resultado.ventana_dias !== undefined) {
+                    window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
+                    // Si hay una barra de botones visible, re-pintarla con el nuevo umbral.
+                    if (window.posstockTipoActivo && window.posstockPeriodoActivo) {
+                        var numeroActivo = parseInt(
+                            document.getElementById("posstockNumero").value, 10
+                        ) || 1;
+                        posstockPintarBarra(
+                            window.posstockTipoActivo,
+                            numeroActivo,
+                            window.posstockPeriodoActivo.total_periodos
+                        );
+                    }
+                }
                 alert(resultado.mensaje);
-                cerrarModal();
             }
         },
     });
@@ -114,6 +130,191 @@ function guardarConfigPosstock() {
 
 window.abrirModalConfigPosstock = abrirModalConfigPosstock;
 window.guardarConfigPosstock    = guardarConfigPosstock;
+
+// =====================================================================
+//       POSSTOCK — Filtro de familias
+// =====================================================================
+
+// Globals: dos arrays independientes de idFamilia
+window.posstockFamiliasIncluir = []; // si no está vacío: solo estas familias
+window.posstockFamiliasExcluir = []; // si no está vacío: excluir estas familias
+
+var _posstockFamiliasCache = null;   // caché de la lista completa
+
+/**
+ * Abre el modal de dos tablas (consultar / excluir).
+ * Carga familias vía AJAX la primera vez; reutiliza caché en sucesivas.
+ */
+function posstockAbrirFiltroFamilias() {
+    if (_posstockFamiliasCache) {
+        _posstockMostrarModalFamilias();
+        return;
+    }
+    $.ajax({
+        data: { pulsado: "getFamiliasPosstock" },
+        url:  "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = $.parseJSON(response);
+            if (resultado.error) { alert(resultado.error); return; }
+            _posstockFamiliasCache = resultado.familias;
+            _posstockMostrarModalFamilias();
+        },
+        error: function () { alert("Error al cargar familias."); }
+    });
+}
+
+/** Genera y abre el modal con las dos tablas usando los globals actuales. */
+function _posstockMostrarModalFamilias() {
+    var html = _htmlPanelFamilia('incluir', 'Familias a consultar',
+            'Si hay familias aquí, solo se analizarán estas (y sus subfamilias).',
+            'panel-success', 'btn-success', window.posstockFamiliasIncluir)
+        + _htmlPanelFamilia('excluir', 'Familias excluidas',
+            'Estas familias (y sus subfamilias) serán excluidas del análisis.',
+            'panel-danger', 'btn-danger', window.posstockFamiliasExcluir)
+        + '<div style="margin-top:8px;text-align:right;">'
+        + '<button type="button" class="btn btn-primary btn-sm"'
+        +   ' onclick="posstockAplicarFiltroFamilias()">Aplicar filtro</button>'
+        + '</div>';
+
+    abrirModal('Filtrar familias — POSStock', html);
+
+    // Poblar el datalist compartido
+    var dl = document.getElementById('posstockFamiliasDatalist');
+    if (dl && dl.options.length === 0) {
+        _posstockFamiliasCache.forEach(function (f) {
+            var opt = document.createElement('option');
+            opt.value = f.ruta;
+            opt.dataset.id = f.id;
+            dl.appendChild(opt);
+        });
+    }
+}
+
+/** Genera el HTML de un panel (incluir o excluir) con su tabla y buscador. */
+function _htmlPanelFamilia(lista, titulo, descripcion, panelCls, btnCls, idsActivos) {
+    var filas = '';
+    idsActivos.forEach(function (item) {
+        filas += _htmlFilaFamilia(item.id, item.nombre);
+    });
+
+    return '<div class="panel ' + panelCls + '" style="margin-bottom:10px;">'
+        + '<div class="panel-heading small"><strong>' + titulo + '</strong></div>'
+        + '<div class="panel-body" style="padding:8px;">'
+        + '<p class="text-muted small" style="margin:0 0 6px;">' + descripcion + '</p>'
+        + '<div style="max-height:160px;overflow-y:auto;border:1px solid #ddd;">'
+        + '<table class="table table-condensed table-hover" style="margin:0;"'
+        +   ' id="posstockTabla_' + lista + '">'
+        + '<thead><tr><th class="small">ID</th><th class="small">Familia</th><th></th></tr></thead>'
+        + '<tbody>' + filas + '</tbody>'
+        + '</table></div>'
+        + '<div class="input-group" style="margin-top:6px;">'
+        + '<input type="text" class="form-control input-sm" list="posstockFamiliasDatalist"'
+        +   ' id="posstockBuscar_' + lista + '" placeholder="Buscar familia…">'
+        + '<span class="input-group-btn">'
+        + '<button type="button" class="btn btn-sm ' + btnCls + '"'
+        +   ' onclick="posstockAgregarFamilia(\'' + lista + '\')">'
+        + '<i class="glyphicon glyphicon-plus"></i> Agregar</button>'
+        + '</span></div>'
+        + '</div></div>'
+        + '<datalist id="posstockFamiliasDatalist"></datalist>';
+}
+
+/** Genera una fila de tabla para una familia en una lista. */
+function _htmlFilaFamilia(id, nombre) {
+    return '<tr data-id="' + id + '">'
+        + '<td>' + id + '</td>'
+        + '<td>' + nombre + '</td>'
+        + '<td><button type="button" class="btn btn-xs btn-link text-danger"'
+        +   ' onclick="posstockEliminarFamilia(this)">'
+        + '<i class="glyphicon glyphicon-trash"></i></button></td>'
+        + '</tr>';
+}
+
+/**
+ * Busca la familia escrita en el input, la añade a la tabla correspondiente
+ * si existe en el catálogo y no está duplicada.
+ */
+function posstockAgregarFamilia(lista) {
+    var input = document.getElementById('posstockBuscar_' + lista);
+    var texto = input.value.trim();
+    if (!texto) return;
+
+    // Buscar en el cache por ruta exacta o por nombre parcial
+    var encontrada = null;
+    _posstockFamiliasCache.forEach(function (f) {
+        if (!encontrada && (f.ruta === texto || f.nombre.trim() === texto)) {
+            encontrada = f;
+        }
+    });
+    if (!encontrada) {
+        alert('Familia no encontrada. Escribe el nombre exacto de la ruta que aparece en la lista.');
+        return;
+    }
+
+    // Verificar duplicado en la tabla
+    var tabla = document.querySelector('#posstockTabla_' + lista + ' tbody');
+    if (tabla.querySelector('tr[data-id="' + encontrada.id + '"]')) {
+        alert('Esa familia ya está en la lista.');
+        input.value = '';
+        return;
+    }
+
+    tabla.insertAdjacentHTML('beforeend', _htmlFilaFamilia(encontrada.id, encontrada.nombre.trim()));
+    input.value = '';
+}
+
+/** Elimina una fila de la tabla de una lista. */
+function posstockEliminarFamilia(boton) {
+    boton.closest('tr').remove();
+}
+
+/**
+ * Lee las dos tablas del modal, actualiza los globals y el badge,
+ * y cierra el modal.
+ */
+function posstockAplicarFiltroFamilias() {
+    window.posstockFamiliasIncluir = _leerTablaFamilias('incluir');
+    window.posstockFamiliasExcluir = _leerTablaFamilias('excluir');
+    _posstockActualizarBadgeFiltro();
+    cerrarPopUp();
+}
+
+/** Lee las filas de una tabla y devuelve array de {id, nombre}. */
+function _leerTablaFamilias(lista) {
+    var filas = document.querySelectorAll('#posstockTabla_' + lista + ' tbody tr');
+    var resultado = [];
+    filas.forEach(function (tr) {
+        resultado.push({
+            id:     parseInt(tr.dataset.id, 10),
+            nombre: tr.cells[1].textContent.trim()
+        });
+    });
+    return resultado;
+}
+
+/** Actualiza el badge del botón con el resumen activo. */
+function _posstockActualizarBadgeFiltro() {
+    var badge = document.getElementById('posstockFiltroLabel');
+    if (!badge) return;
+    var nInc = (window.posstockFamiliasIncluir || []).length;
+    var nExc = (window.posstockFamiliasExcluir || []).length;
+    if (nInc === 0 && nExc === 0) {
+        badge.textContent = 'Todas';
+        badge.className   = 'label label-default';
+    } else {
+        var partes = [];
+        if (nInc > 0) partes.push('Consultar: ' + nInc);
+        if (nExc > 0) partes.push('Excluir: ' + nExc);
+        badge.textContent = partes.join(' · ');
+        badge.className   = 'label label-warning';
+    }
+}
+
+window.posstockAbrirFiltroFamilias   = posstockAbrirFiltroFamilias;
+window.posstockAgregarFamilia        = posstockAgregarFamilia;
+window.posstockEliminarFamilia       = posstockEliminarFamilia;
+window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
 
 // =====================================================================
 //       POSSTOCK — Carga de datos e incidencias
@@ -135,6 +336,8 @@ function cargarDatosPosstock(periodo) {
         fecha_fin_movimientos:      periodo.fecha_fin_movimientos,
         fecha_inicio_stock:         periodo.fecha_inicio_stock,
         fecha_fin_stock:            periodo.fecha_fin_stock,
+        familias_incluir:           (window.posstockFamiliasIncluir || []).map(function(f){return f.id;}).join(','),
+        familias_excluir:           (window.posstockFamiliasExcluir || []).map(function(f){return f.id;}).join(','),
     };
 
     // Spinner visible, tabla y barra ocultas mientras se carga
@@ -207,13 +410,20 @@ function pintarTablaIncidencias(filas) {
         return;
     }
 
+    var periodo   = window.posstockPeriodoActivo || {};
+    var anio      = window.posstockAnioActivo   || new Date().getFullYear();
+    var ffMov     = periodo.fecha_fin_movimientos || "";
+    var fiInicio  = anio + "-01-01";
+
     var html = '<table class="table table-condensed table-hover table-bordered small" id="posstockTabla">';
     html += "<thead><tr>"
         + "<th>Artículo</th>"
+        + "<th>Nombre</th>"
         + "<th>Tipo incidencia</th>"
         + "<th>Severidad</th>"
         + "<th>Detalle</th>"
         + "<th>Posible causa</th>"
+        + "<th>Listado mayor</th>"
         + "</tr></thead><tbody>";
 
     filas.forEach(function (f) {
@@ -235,12 +445,21 @@ function pintarTablaIncidencias(filas) {
             detalle = "Stock actual: " + (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
         }
 
+        var urlMayor = "../../modulos/mod_producto/DetalleMayor.php"
+            + "?idArticulo=" + f.idArticulo
+            + "&fecha_inicial=" + fiInicio
+            + "&fecha_final="   + ffMov;
+
         html += "<tr>"
             + "<td>" + f.idArticulo + "</td>"
+            + "<td>" + (f.nombre || "—") + "</td>"
             + "<td>" + f.tipo + "</td>"
             + "<td>" + (badgeSev[f.severidad] || f.severidad) + "</td>"
             + "<td>" + detalle + "</td>"
             + "<td class='text-muted'>" + (f.posible_causa || "") + "</td>"
+            + "<td><a href='" + urlMayor + "' target='_blank'>"
+            + "<i class='glyphicon glyphicon-list-alt'></i> Ver mayor"
+            + "</a></td>"
             + "</tr>";
     });
 
@@ -275,9 +494,8 @@ function posstockActualizarNumero() {
     var opciones = [];
 
     if (tipo === "semana") {
-        // Total semanas ISO del año: 52 o 53 (dic-28 siempre está en la última)
-        var dec28 = new Date(anio, 11, 28);
-        var totalSem = getISOWeek(dec28);
+        // Semanas ancladas al 01-Ene (misma lógica que PHP).
+        var totalSem = _posstockTotalSemanas(anio);
         for (var s = 1; s <= totalSem; s++) opciones.push({ v: s, t: "Semana " + s });
 
     } else if (tipo === "quincena") {
@@ -307,14 +525,26 @@ function posstockActualizarNumero() {
 }
 
 /**
- * Calcula el número de semana ISO de una fecha.
+ * Devuelve el Date correspondiente al fin de la semana 1 del año
+ * (semana 1 = 01-Ene → primer domingo del año).
+ * Si el 01-Ene ya es domingo, la semana 1 termina el propio 01-Ene.
  */
-function getISOWeek(date) {
-    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    var dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+function _posstockFinSem1(anio) {
+    var jan1 = new Date(anio, 0, 1);
+    var dow  = jan1.getDay(); // 0=dom, 1=lun … 6=sab
+    if (dow === 0) return jan1;
+    return new Date(anio, 0, 1 + (7 - dow));
+}
+
+/**
+ * Calcula el número total de semanas del año con el sistema anclado al 01-Ene.
+ * Semana 1 = 01-Ene → primer domingo. Semanas 2+ = lun→dom.
+ */
+function _posstockTotalSemanas(anio) {
+    var finSem1  = _posstockFinSem1(anio);
+    var dec31    = new Date(anio, 11, 31);
+    var diasRest = Math.round((dec31 - finSem1) / 86400000);
+    return 1 + Math.ceil(diasRest / 7);
 }
 
 /**
@@ -388,14 +618,15 @@ function posstockFechaFinPeriodo(tipo, n, anio) {
         }
     }
     if (tipo === "semana") {
-        // Lunes de la semana ISO 1: lunes de la semana que contiene el 4-ene
-        var jan4     = new Date(anio, 0, 4);
-        var dow      = jan4.getDay() || 7; // 1=lun … 7=dom
-        var week1Mon = new Date(jan4);
-        week1Mon.setDate(jan4.getDate() - (dow - 1));
-        var sunday = new Date(week1Mon);
-        sunday.setDate(week1Mon.getDate() + (n - 1) * 7 + 6);
-        return sunday;
+        // Semanas ancladas al 01-Ene (igual que PHP)
+        var finSem1 = _posstockFinSem1(anio);
+        if (n === 1) return finSem1;
+        var dec31  = new Date(anio, 11, 31);
+        var inicio = new Date(finSem1);
+        inicio.setDate(finSem1.getDate() + (n - 1) * 7 - 6);
+        var fin = new Date(inicio);
+        fin.setDate(inicio.getDate() + 6);
+        return fin > dec31 ? dec31 : fin;
     }
     return null;
 }
