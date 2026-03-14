@@ -393,30 +393,43 @@ window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
  *     fecha_inicio_stock, fecha_fin_stock,
  *     label_movimientos, label_stock }
  */
-function cargarDatosPosstock(periodo) {
-    var parametros = {
-        pulsado: "getPOSStockData",
-        fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
-        fecha_fin_movimientos: periodo.fecha_fin_movimientos,
-        fecha_inicio_stock: periodo.fecha_inicio_stock,
-        fecha_fin_stock: periodo.fecha_fin_stock,
-        familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) {
-                return f.id;
-            })
-            .join(","),
-        familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) {
-                return f.id;
-            })
-            .join(","),
-    };
-
+function cargarDatosPosstock(periodo, tipoIncidencia) {
     // Spinner visible, tabla y barra ocultas mientras se carga
     $("#posstockSpinner").show();
     $("#posstockTablaWrap").hide();
     $("#posstockNavegacion").hide();
     $("#posstockBotonesWrap").hide();
+    $("#posstockProgreso").text("Calculando incidencias…");
+
+    _posstockCargaLote(0, [], periodo, tipoIncidencia || "");
+}
+
+/**
+ * Carga las incidencias en lotes siguiendo el patrón de mod_reorganizacion.
+ * Se llama recursivamente hasta que actual >= total.
+ *
+ * @param {number} inicial       Offset del lote actual
+ * @param {Array}  acumuladas    Incidencias acumuladas de lotes anteriores
+ * @param {Object} periodo       Objeto con las 4 fechas y los labels
+ * @param {string} tipoIncidencia
+ */
+function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
+    var parametros = {
+        pulsado: "getPOSStockBatch",
+        fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
+        fecha_fin_movimientos: periodo.fecha_fin_movimientos,
+        fecha_inicio_stock: periodo.fecha_inicio_stock,
+        fecha_fin_stock: periodo.fecha_fin_stock,
+        tipo_incidencia: tipoIncidencia,
+        inicial: inicial,
+        pagina: 150,
+        familias_incluir: (window.posstockFamiliasIncluir || [])
+            .map(function (f) { return f.id; })
+            .join(","),
+        familias_excluir: (window.posstockFamiliasExcluir || [])
+            .map(function (f) { return f.id; })
+            .join(","),
+    };
 
     $.ajax({
         data: parametros,
@@ -425,48 +438,51 @@ function cargarDatosPosstock(periodo) {
         success: function (response) {
             var resultado = $.parseJSON(response);
 
-            $("#posstockSpinner").hide();
-
             if (resultado.error) {
+                $("#posstockSpinner").hide();
                 $("#posstockTablaWrap")
-                    .html(
-                        '<div class="alert alert-danger">' +
-                            resultado.error +
-                            "</div>",
-                    )
+                    .html('<div class="alert alert-danger">' + resultado.error + "</div>")
                     .show();
                 return;
             }
 
-            // Actualizar labels de periodo
-            $("#posstockLabelMovimientos").text(
-                periodo.label_movimientos || "",
-            );
-            $("#posstockLabelStock").text(periodo.label_stock || "");
+            var acum = acumuladas.concat(resultado.filas || []);
+            var actual = resultado.actual;
+            var total  = resultado.total;
 
-            // Pintar tabla
-            pintarTablaIncidencias(resultado.filas);
-
-            // Mostrar barra de navegación y tabla
-            $("#posstockNavegacion").show();
-            $("#posstockBotonesWrap").show();
-            $("#posstockTablaWrap").show();
-
-            // Botones exportar/imprimir visibles solo si hay filas
-            if (resultado.periodo.total_incidencias > 0) {
-                $("#posstockBtnExportar, #posstockBtnImprimir").show();
+            if (actual < total) {
+                // Hay más lotes: actualizar progreso y continuar
+                $("#posstockProgreso").text(
+                    "Analizando artículos: " + actual + " / " + total + "…"
+                );
+                _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
-                $("#posstockBtnExportar, #posstockBtnImprimir").hide();
+                // Último lote: pintar todo
+                $("#posstockSpinner").hide();
+
+                // Actualizar labels de periodo
+                $("#posstockLabelMovimientos").text(periodo.label_movimientos || "");
+                $("#posstockLabelStock").text(periodo.label_stock || "");
+
+                pintarTablaIncidencias(acum);
+
+                $("#posstockNavegacion").show();
+                $("#posstockBotonesWrap").show();
+                $("#posstockTablaWrap").show();
+
+                if (acum.length > 0) {
+                    $("#posstockBtnExportar, #posstockBtnImprimir").show();
+                } else {
+                    $("#posstockBtnExportar, #posstockBtnImprimir").hide();
+                }
             }
         },
         error: function (request) {
             $("#posstockSpinner").hide();
             $("#posstockTablaWrap")
-                .html(
-                    '<div class="alert alert-danger">Error de comunicación con el servidor.</div>',
-                )
+                .html('<div class="alert alert-danger">Error de comunicación con el servidor.</div>')
                 .show();
-            console.error("getPOSStockData error", request);
+            console.error("getPOSStockBatch error", request);
         },
     });
 }
@@ -542,14 +558,18 @@ function pintarTablaIncidencias(filas) {
                 (f.semanas_desde_ultima_venta || "—") +
                 " sem.";
         } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
+            var estadoRotura = f.fecha_fin_rotura
+                ? "Recuperada " + f.fecha_fin_rotura
+                : '<span class="label label-danger">En curso</span>';
             detalle =
                 "Últ. venta: " +
                 (f.ultima_venta || "—") +
                 " | Rotura desde: <strong>" +
                 (f.fecha_inicio_rotura || "—") +
                 "</strong>" +
-                " | Sin venta: " +
-                (f.dias_sin_venta !== undefined ? f.dias_sin_venta + " d" : "—") +
+                " | " + estadoRotura +
+                " | " +
+                (f.dias_rotura !== undefined ? f.dias_rotura + " d" : "—") +
                 " | μ: " +
                 (f.avg_dias_entre_ventas !== undefined ? f.avg_dias_entre_ventas + " d" : "—") +
                 " σ: " +
@@ -718,6 +738,25 @@ window.imprimirPOSStockPDF = imprimirPOSStockPDF;
 //       POSSTOCK — Selectores de periodo y barra de navegación
 // =====================================================================
 
+// Tipos de incidencia disponibles para el filtro anual.
+// caso4 se añade dinámicamente en tiempo de ejecución si POSSTOCK_INCLUIR_STOCK_INACTIVO === true.
+var POSSTOCK_TIPOS_INCIDENCIA = [
+    { v: "caso1",  t: "Stock Negativo / Desajuste",    short: "C1"  },
+    { v: "caso2",  t: "Entrada con stock alto",         short: "C2"  },
+    { v: "caso3a", t: "Riesgo de caducidad teórica",   short: "C3a" },
+    { v: "caso3b", t: "Entrada sin rotación previa",   short: "C3b" },
+    { v: "caso5",  t: "Venta Cero (Rotura física)",    short: "C5"  },
+];
+
+/** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
+function _posstockTiposActivos() {
+    var tipos = POSSTOCK_TIPOS_INCIDENCIA.slice();
+    if (window.POSSTOCK_INCLUIR_STOCK_INACTIVO) {
+        tipos.push({ v: "caso4", t: "Stock Inactivo en Periodo", short: "C4" });
+    }
+    return tipos;
+}
+
 var MESES = [
     "Ene",
     "Feb",
@@ -746,6 +785,10 @@ function posstockActualizarNumero() {
     document.getElementById("posstockBtnGenerar").disabled = true;
     document.getElementById("posstockAvisoVentana").style.display = "none";
 
+    // Cambiar label según contexto
+    var labelEl = document.getElementById("posstockLabelNumero");
+    if (labelEl) labelEl.textContent = tipo === "anual" ? "Tipo de análisis" : "Periodo";
+
     if (!tipo || !anio) return;
 
     var opciones = [];
@@ -771,6 +814,22 @@ function posstockActualizarNumero() {
             { v: 3, t: "T3 (Jul–Sep)" },
             { v: 4, t: "T4 (Oct–Dic)" },
         ];
+    } else if (tipo === "cuatrimestre") {
+        opciones = [
+            { v: 1, t: "C1 (Ene–Abr)" },
+            { v: 2, t: "C2 (May–Ago)" },
+            { v: 3, t: "C3 (Sep–Dic)" },
+        ];
+    } else if (tipo === "semestre") {
+        opciones = [
+            { v: 1, t: "1er semestre (Ene–Jun)" },
+            { v: 2, t: "2º semestre (Jul–Dic)" },
+        ];
+    } else if (tipo === "anual") {
+        // Para anual el "número" de periodo es el tipo de incidencia a analizar
+        opciones = _posstockTiposActivos().map(function (ti) {
+            return { v: ti.v, t: ti.t };
+        });
     }
 
     sel.innerHTML = '<option value="">— seleccionar —</option>';
@@ -852,10 +911,14 @@ function posstockGenerar() {
             window.posstockTipoActivo = tipo;
             window.posstockAnioActivo = parseInt(anio, 10);
 
-            cargarDatosPosstock(periodo);
+            // Para anual: numero es el tipo de incidencia (string); resto: entero
+            var tipoInc = tipo === "anual" ? numero : "";
+            window.posstockTipoIncidenciaActivo = tipoInc;
+
+            cargarDatosPosstock(periodo, tipoInc);
             posstockPintarBarra(
                 tipo,
-                parseInt(numero, 10),
+                tipo === "anual" ? numero : parseInt(numero, 10),
                 periodo.total_periodos,
             );
         },
@@ -879,6 +942,15 @@ function posstockFechaFinPeriodo(tipo, n, anio) {
     }
     if (tipo === "trimestre") {
         return new Date(anio, n * 3, 0); // último día del mes 3n
+    }
+    if (tipo === "cuatrimestre") {
+        return new Date(anio, n * 4, 0); // último día del mes 4n
+    }
+    if (tipo === "semestre") {
+        return new Date(anio, n * 6, 0); // último día del mes 6n
+    }
+    if (tipo === "anual") {
+        return new Date(anio, 11, 31);
     }
     if (tipo === "quincena") {
         var mes = Math.ceil(n / 2);
@@ -905,6 +977,23 @@ function posstockFechaFinPeriodo(tipo, n, anio) {
 function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
     var wrap = document.getElementById("posstockBotonesPeriodo");
     wrap.innerHTML = "";
+
+    // Para anual: botones por tipo de incidencia (no por número de periodo)
+    if (tipo === "anual") {
+        _posstockTiposActivos().forEach(function (ti) {
+            var cls = ti.v === numeroActivo
+                ? "btn btn-primary btn-xs"
+                : "btn btn-default btn-xs";
+            wrap.innerHTML +=
+                '<button type="button" class="' + cls + '" ' +
+                'onclick="posstockNavegar(\'' + ti.v + '\')" ' +
+                'id="posstockBtn_' + ti.v + '">' +
+                ti.short + " " + ti.t +
+                "</button> ";
+        });
+        document.getElementById("posstockBarraBotones").style.display = "";
+        return;
+    }
 
     var hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -956,6 +1045,9 @@ function posstockEtiquetaBoton(tipo, n) {
     if (tipo === "semana") return "S" + n;
     if (tipo === "mes") return MESES[n - 1];
     if (tipo === "trimestre") return "T" + n;
+    if (tipo === "cuatrimestre") return "C" + n;
+    if (tipo === "semestre") return n === 1 ? "1S" : "2S";
+    if (tipo === "anual") return "Año";
     if (tipo === "quincena") {
         var mes = Math.ceil(n / 2);
         var mitad = n % 2 === 1 ? "a" : "b";
@@ -972,6 +1064,17 @@ function posstockNavegar(numero) {
     var tipo = window.posstockTipoActivo;
     var anio = window.posstockAnioActivo;
     if (!tipo || !anio) return;
+
+    // Para anual: numero es el tipo de incidencia (string), no hay ventana de consolidación
+    if (tipo === "anual") {
+        window.posstockTipoIncidenciaActivo = numero;
+        var botonesActuales = document.querySelectorAll("[id^='posstockBtn_']");
+        botonesActuales.forEach(function (b) { b.className = "btn btn-default btn-xs"; });
+        var btnActivo = document.getElementById("posstockBtn_" + numero);
+        if (btnActivo) btnActivo.className = "btn btn-primary btn-xs";
+        cargarDatosPosstock(window.posstockPeriodoActivo, numero);
+        return;
+    }
 
     // Ignorar botones dentro de la ventana de consolidación
     var btn = document.getElementById("posstockBtn_" + numero);

@@ -3,17 +3,16 @@
 /**
  * Calcula las fechas y etiquetas de un periodo POSStock.
  *
- * @param string $tipo    'semana' | 'quincena' | 'mes' | 'trimestre'
+ * @param string $tipo    'semana' | 'quincena' | 'mes' | 'trimestre' | 'cuatrimestre' | 'semestre' | 'anual'
  * @param int    $numero  Número del periodo dentro del año:
- *                        semana   : 1–52/53 según ISO 8601 (lunes–domingo).
- *                                   La semana 1 es la que contiene el primer jueves del año.
- *                                   El total de semanas varía: 52 la mayoría de años, 53 algunos.
- *                                   Se usa numeración ISO (no semana natural 1=1Ene) porque
- *                                   es estándar en sistemas de compras y logística.
- *                        quincena : 1–24 (impar = 1ª quincena del mes, par = 2ª quincena).
- *                                   Ej: 1=1ªEne, 2=2ªEne, 3=1ªFeb, 4=2ªFeb …
- *                        mes      : 1–12
- *                        trimestre: 1–4 (T1=Ene-Mar, T2=Abr-Jun, T3=Jul-Sep, T4=Oct-Dic)
+ *                        semana        : 1–52/53 anclado al 01-Ene (sem 1: 01-Ene → primer dom).
+ *                        quincena      : 1–24 (impar = 1ª quincena del mes, par = 2ª quincena).
+ *                                        Ej: 1=1ªEne, 2=2ªEne, 3=1ªFeb, 4=2ªFeb …
+ *                        mes           : 1–12
+ *                        trimestre     : 1–4  (T1=Ene-Mar, T2=Abr-Jun, T3=Jul-Sep, T4=Oct-Dic)
+ *                        cuatrimestre  : 1–3  (C1=Ene-Abr, C2=May-Ago, C3=Sep-Dic)
+ *                        semestre      : 1–2  (S1=Ene-Jun, S2=Jul-Dic)
+ *                        anual         : siempre 1 (01-Ene → 31-Dic)
  * @param int    $anio    Año del ejercicio
  *
  * @return array|null  Con las claves:
@@ -104,10 +103,42 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
             $mes_fin = $mes_ini + 2;
             $inicio  = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_ini));
             $fin     = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_fin));
-            $fin->modify('last day of this month'); // último día del mes del trimestre
+            $fin->modify('last day of this month');
 
             $total_periodos = 4;
             $label_mov = 'T' . $numero . ' ' . $anio;
+            break;
+
+        case 'cuatrimestre':
+            $mes_ini = ($numero - 1) * 4 + 1;
+            $mes_fin = $mes_ini + 3;
+            $inicio  = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_ini));
+            $fin     = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_fin));
+            $fin->modify('last day of this month');
+
+            $total_periodos = 3;
+            $label_mov = 'C' . $numero . ' ' . $anio
+                . ' (' . $meses_cortos[$mes_ini] . '–' . $meses_cortos[$mes_fin] . ')';
+            break;
+
+        case 'semestre':
+            $mes_ini = ($numero - 1) * 6 + 1;
+            $mes_fin = $mes_ini + 5;
+            $inicio  = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_ini));
+            $fin     = new DateTime(sprintf('%04d-%02d-01', $anio, $mes_fin));
+            $fin->modify('last day of this month');
+
+            $total_periodos = 2;
+            $label_mov = ($numero === 1 ? '1er' : '2º') . ' semestre ' . $anio
+                . ' (' . $meses_cortos[$mes_ini] . '–' . $meses_cortos[$mes_fin] . ')';
+            break;
+
+        case 'anual':
+            $inicio = new DateTime(sprintf('%04d-01-01', $anio));
+            $fin    = new DateTime(sprintf('%04d-12-31', $anio));
+
+            $total_periodos = 1;
+            $label_mov = 'Año ' . $anio;
             break;
 
         default:

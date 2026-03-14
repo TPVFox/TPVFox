@@ -118,7 +118,7 @@ class ClasePosstock
         return implode(',', $expanded);
     }
 
-    public function getMovimientosPeriodo($fecha_inicio, $fecha_fin, array $familias_incluir = [], array $familias_excluir = [])
+    public function getMovimientosPeriodo($fecha_inicio, $fecha_fin, array $familias_incluir = [], array $familias_excluir = [], array $ids_filter = [])
     {
         $fi = $this->db->real_escape_string($fecha_inicio);
         $ff = $this->db->real_escape_string($fecha_fin);
@@ -134,59 +134,72 @@ class ClasePosstock
             if ($ids) $where_familia .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
 
+        // Filtro por lote de artículos (batch)
+        $where_ids = empty($ids_filter)
+            ? ''
+            : " AND l.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
+
+        // Agrupamos por (tipo, artículo, fecha) para reducir el número de filas en memoria.
+        // Para periodos largos (semestral, anual) esto puede pasar de cientos de miles de
+        // líneas de ticket a decenas de miles de grupos (artículo × tipo × día).
+        // idDocumento se pierde por el GROUP BY; la columna se mantiene a NULL para
+        // no romper la interfaz de calcularStockPrevio (el campo no se muestra en el UI).
         $sql = "
-            -- Entradas: albaranes de proveedor (estado Guardado)
-            SELECT
-                'entrada_proveedor'    AS tipo_movimiento,
-                l.idArticulo,
-                l.ncant,
-                DATE(c.Fecha)          AS fecha,
-                c.id                   AS idDocumento
-            FROM albprolinea l
-            INNER JOIN albprot      c ON c.id         = l.idalbpro
-            INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado       IN ('Guardado', 'Facturado')
-              AND l.estadoLinea  = 'Activo'
-              AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
-              $where_familia
+            SELECT tipo_movimiento, idArticulo, SUM(ncant) AS ncant, fecha, NULL AS idDocumento
+            FROM (
+                -- Entradas: albaranes de proveedor
+                SELECT
+                    'entrada_proveedor'    AS tipo_movimiento,
+                    l.idArticulo,
+                    l.ncant,
+                    DATE(c.Fecha)          AS fecha
+                FROM albprolinea l
+                INNER JOIN albprot      c ON c.id         = l.idalbpro
+                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado       IN ('Guardado', 'Facturado')
+                  AND l.estadoLinea  = 'Activo'
+                  AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+                  $where_familia
+                  $where_ids
 
-            UNION ALL
+                UNION ALL
 
-            -- Salidas: tickets de venta (estado Cerrado)
-            SELECT
-                'salida_ticket'        AS tipo_movimiento,
-                l.idArticulo,
-                l.ncant,
-                DATE(c.Fecha)          AS fecha,
-                c.id                   AS idDocumento
-            FROM ticketslinea l
-            INNER JOIN ticketst     c ON c.id         = l.idticketst
-            INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado       = 'Cerrado'
-              AND l.estadoLinea  = 'Activo'
-              AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
-              $where_familia
+                -- Salidas: tickets de venta
+                SELECT
+                    'salida_ticket'        AS tipo_movimiento,
+                    l.idArticulo,
+                    l.ncant,
+                    DATE(c.Fecha)          AS fecha
+                FROM ticketslinea l
+                INNER JOIN ticketst     c ON c.id         = l.idticketst
+                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado       = 'Cerrado'
+                  AND l.estadoLinea  = 'Activo'
+                  AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+                  $where_familia
+                  $where_ids
 
-            UNION ALL
+                UNION ALL
 
-            -- Salidas: albaranes de cliente (estados Guardado, Procesado)
-            SELECT
-                'salida_albcli'        AS tipo_movimiento,
-                l.idArticulo,
-                l.ncant,
-                DATE(c.Fecha)          AS fecha,
-                c.id                   AS idDocumento
-            FROM albclilinea l
-            INNER JOIN albclit      c ON c.id         = l.idalbcli
-            INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado       IN ('Guardado', 'Procesado')
-              AND l.estadoLinea  = 'Activo'
-              AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
-              $where_familia
-
+                -- Salidas: albaranes de cliente
+                SELECT
+                    'salida_albcli'        AS tipo_movimiento,
+                    l.idArticulo,
+                    l.ncant,
+                    DATE(c.Fecha)          AS fecha
+                FROM albclilinea l
+                INNER JOIN albclit      c ON c.id         = l.idalbcli
+                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado       IN ('Guardado', 'Procesado')
+                  AND l.estadoLinea  = 'Activo'
+                  AND a.tipo         IN (" . self::TIPOS_FISICOS . ")
+                  $where_familia
+                  $where_ids
+            ) AS all_movs
+            GROUP BY tipo_movimiento, idArticulo, fecha
             ORDER BY idArticulo, fecha
         ";
 
@@ -414,15 +427,30 @@ class ClasePosstock
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
 
-        $umbral_sobrestock      = (float)($params['umbral_sobrestock']           ?? 0.5);
-        $umbral_caducidad       = (int)  ($params['umbral_caducidad_semanas']    ?? 24);
-        $umbral_sin_rotacion    = (int)  ($params['umbral_sin_rotacion_semanas'] ?? 12);
-        $incluir_stock_inactivo = (bool) ($params['incluir_stock_inactivo']      ?? false);
-        $familias_incluir       = (array)($params['familias_incluir'] ?? []);
-        $familias_excluir       = (array)($params['familias_excluir'] ?? []);
+        $umbral_sobrestock      = (float) ($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad       = (int)   ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion    = (int)   ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $incluir_stock_inactivo = (bool)  ($params['incluir_stock_inactivo']      ?? false);
+        $tipo_incidencia        = (string)($params['tipo_incidencia']             ?? '');
+        $familias_incluir       = (array) ($params['familias_incluir'] ?? []);
+        $familias_excluir       = (array) ($params['familias_excluir'] ?? []);
+        $ids_filter             = (array) ($params['ids_filter']       ?? []);
+
+        // caso4 solo necesita getArticulosSinMovimiento; forzar el flag si se solicita
+        if ($tipo_incidencia === 'caso4') {
+            $incluir_stock_inactivo = true;
+        }
+
+        // ── Caso 5 optimizado: query ligera, sin cargar todos los movimientos ──
+        // getCaso5Data solo trae fechas de venta únicas + rebobinado de stock.
+        // Se usa siempre que tipo_incidencia = 'caso5' (cualquier periodo).
+        if ($tipo_incidencia === 'caso5') {
+            return $this->getIncidenciasCaso5($fi_mov, $ff_mov, $umbral_sobrestock,
+                $familias_incluir, $familias_excluir, $ids_filter);
+        }
 
         // ── T4.1: movimientos en la ventana ──────────────────────────────────
-        $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov, $familias_incluir, $familias_excluir);
+        $movimientos = $this->getMovimientosPeriodo($fi_mov, $ff_mov, $familias_incluir, $familias_excluir, $ids_filter);
         if (isset($movimientos['error'])) {
             return $movimientos;
         }
@@ -445,10 +473,12 @@ class ClasePosstock
         $min_balances = $this->calcularMinimosBalance($movimientos, $stock_base);
 
         // ── Fechas de venta por artículo en la ventana (Caso 5) ──────────────
+        // Usamos la fecha como clave para deduplicar en el momento de inserción,
+        // evitando array_unique posterior sobre arrays potencialmente enormes.
         $ventas_fechas = [];
         foreach ($movimientos as $m) {
             if ($m['tipo_movimiento'] === 'entrada_proveedor') continue;
-            $ventas_fechas[(int)$m['idArticulo']][] = $m['fecha'];
+            $ventas_fechas[(int)$m['idArticulo']][$m['fecha']] = true;
         }
 
         // ── Estadísticas por artículo desde T4.1 ─────────────────────────────
@@ -603,56 +633,17 @@ class ClasePosstock
         }
 
         // ── Caso 5: Venta Cero con Stock Positivo ─────────────────────────────
-        // Solo para artículos en T4.1 con stock_actual > 0 y al menos 2 días de
-        // venta distintos en la ventana (necesarios para calcular el ciclo medio).
-        // factor_ajuste = 1.5 (fijo por ahora).
+        $ff_ts_c5 = $fecha_fin_dt->getTimestamp();
         foreach ($ids as $id) {
             $id = (int)$id;
             if ($stats[$id]['stock_actual'] <= 0) continue;
-
-            $fechas = array_unique($ventas_fechas[$id] ?? []);
-            sort($fechas);
-            $n = count($fechas);
-            if ($n < 3) continue; // mínimo 2 gaps para calcular media + 3σ
-
-            // Intervalos entre días de venta consecutivos
-            $gaps = [];
-            for ($i = 1; $i < $n; $i++) {
-                $gap = (new DateTime($fechas[$i - 1]))->diff(new DateTime($fechas[$i]))->days;
-                if ($gap > 0) $gaps[] = $gap;
-            }
-            if (count($gaps) < 2) continue;
-
-            // Media y desviación típica muestral (n-1) de los gaps
-            $n_gaps  = count($gaps);
-            $avg_gap = array_sum($gaps) / $n_gaps;
-            $var     = array_sum(array_map(fn($g) => ($g - $avg_gap) ** 2, $gaps)) / ($n_gaps - 1);
-            $sd      = sqrt($var);
-
-            // Umbral: media + 3σ (cubre el 99.7 % de la distribución normal)
-            $umbral_rotura  = $avg_gap + 3 * $sd;
-            $ultima_venta   = end($fechas);
-            $dias_sin_venta = (new DateTime($ultima_venta))->diff($fecha_fin_dt)->days;
-
-            if ($dias_sin_venta > $umbral_rotura) {
-                // fecha_inicio_rotura: día a partir del cual el silencio supera media+3σ
-                $fecha_inicio_rotura = (new DateTime($ultima_venta))
-                    ->modify('+' . (int)ceil($umbral_rotura) . ' days')
-                    ->format('Y-m-d');
-
-                $incidencias[] = [
-                    'idArticulo'            => $id,
-                    'tipo'                  => 'Venta Cero (Posible Rotura Física)',
-                    'severidad'             => 'MEDIA',
-                    'stock_actual'          => $stats[$id]['stock_actual'],
-                    'ultima_venta'          => $ultima_venta,
-                    'fecha_inicio_rotura'   => $fecha_inicio_rotura,
-                    'dias_sin_venta'        => $dias_sin_venta,
-                    'avg_dias_entre_ventas' => round($avg_gap, 1),
-                    'sd_dias'               => round($sd, 1),
-                    'umbral_dias'           => round($umbral_rotura, 1),
-                    'posible_causa'         => 'Hueco en lineal o merma no registrada',
-                ];
+            foreach ($this->_calcularRoturasC5(
+                $id,
+                $ventas_fechas[$id] ?? [],
+                $stats[$id]['stock_actual'],
+                $ff_ts_c5
+            ) as $inc) {
+                $incidencias[] = $inc;
             }
         }
 
@@ -677,6 +668,24 @@ class ClasePosstock
                     'stock_actual'  => $art['saldo_acumulado'],
                     'posible_causa' => 'Stock sin actividad en el periodo',
                 ];
+            }
+        }
+
+        // ── Filtrar por tipo de incidencia (vista anual) ──────────────────────
+        if ($tipo_incidencia !== '') {
+            $tipo_map = [
+                'caso1'  => ['Stock Negativo', 'Desajuste Puntual de Stock'],
+                'caso2'  => ['Entrada con stock alto'],
+                'caso3a' => ['Riesgo de caducidad teórica'],
+                'caso3b' => ['Entrada sin rotación previa'],
+                'caso4'  => ['Stock Inactivo en Periodo'],
+            ];
+            if (isset($tipo_map[$tipo_incidencia])) {
+                $tipos_ok = $tipo_map[$tipo_incidencia];
+                $incidencias = array_values(array_filter(
+                    $incidencias,
+                    fn($inc) => in_array($inc['tipo'], $tipos_ok, true)
+                ));
             }
         }
 
@@ -709,6 +718,76 @@ class ClasePosstock
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Detecta todos los gaps anómalos (> media+3σ) para un artículo.
+     *
+     * Recibe la fecha_map (date => true), calcula estadísticas de intervalos
+     * y devuelve 0 o más incidencias — una por brecha anómala detectada.
+     * 'fecha_fin_rotura' null = rotura en curso; string = rotura recuperada.
+     *
+     * @param int   $id           idArticulo
+     * @param array $fechas_map   [date => true]
+     * @param float $stock_actual Stock al cierre del periodo
+     * @param int   $ff_ts        Timestamp de fecha_fin_movimientos
+     *
+     * @return array  Filas de incidencia (sin campo 'nombre')
+     */
+    private function _calcularRoturasC5(int $id, array $fechas_map, float $stock_actual, int $ff_ts): array
+    {
+        if ($stock_actual <= 0) return [];
+        $fechas = array_keys($fechas_map);
+        sort($fechas);
+        $n = count($fechas);
+        if ($n < 3) return [];
+        $ts = array_map('strtotime', $fechas);
+        $gaps = [];
+        for ($i = 1; $i < $n; $i++) {
+            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            if ($gap > 0) $gaps[] = $gap;
+        }
+        if (count($gaps) < 2) return [];
+        $n_gaps  = count($gaps);
+        $avg_gap = array_sum($gaps) / $n_gaps;
+        $var     = array_sum(array_map(fn($g) => ($g - $avg_gap) ** 2, $gaps)) / ($n_gaps - 1);
+        $sd      = sqrt($var);
+        $umbral  = $avg_gap + 3 * $sd;
+        $umbral_ceil = (int)ceil($umbral);
+        $campos = [
+            'idArticulo'            => $id,
+            'tipo'                  => 'Venta Cero (Posible Rotura Física)',
+            'severidad'             => 'MEDIA',
+            'stock_actual'          => $stock_actual,
+            'avg_dias_entre_ventas' => round($avg_gap, 1),
+            'sd_dias'               => round($sd, 1),
+            'umbral_dias'           => round($umbral, 1),
+            'posible_causa'         => 'Hueco en lineal o merma no registrada',
+        ];
+        $incidencias = [];
+        // Roturas recuperadas: gaps entre ventas consecutivas
+        for ($i = 1; $i < $n; $i++) {
+            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            if ($gap > $umbral) {
+                $incidencias[] = $campos + [
+                    'ultima_venta'        => $fechas[$i - 1],
+                    'fecha_inicio_rotura' => date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400),
+                    'fecha_fin_rotura'    => $fechas[$i],
+                    'dias_rotura'         => $gap,
+                ];
+            }
+        }
+        // Rotura en curso: desde última venta hasta ff_mov
+        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
+        if ($dias_final > $umbral) {
+            $incidencias[] = $campos + [
+                'ultima_venta'        => $fechas[$n - 1],
+                'fecha_inicio_rotura' => date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400),
+                'fecha_fin_rotura'    => null,
+                'dias_rotura'         => $dias_final,
+            ];
+        }
+        return $incidencias;
+    }
 
     /**
      * Calcula el balance mínimo intra-periodo por artículo.
@@ -904,10 +983,270 @@ class ClasePosstock
         return $resultado;
     }
 
+    /**
+     * Ruta optimizada para Caso 5 (Venta Cero / Posible Rotura Física).
+     *
+     * Evita cargar getMovimientosPeriodo (que para periodos largos puede agotar
+     * la memoria). En su lugar:
+     *   1. Query DISTINCT (idArticulo, fecha) solo de ventas en [fi_mov, ff_mov].
+     *   2. Rebobinado de stockOn para obtener stock en ff_mov por artículo.
+     *   3. Cálculo de media+3σ sobre los gaps entre días de venta.
+     *
+     * Funciona para cualquier longitud de periodo (semana, mes, anual…).
+     */
+    private function getIncidenciasCaso5(
+        string $fi_mov,
+        string $ff_mov,
+        float  $umbral_sobrestock,   // no usado en C5, recibido por firma uniforme
+        array  $familias_incluir,
+        array  $familias_excluir,
+        array  $ids_filter = []
+    ): array {
+        $fi   = $this->db->real_escape_string($fi_mov);
+        $ff   = $this->db->real_escape_string($ff_mov);
+        $tipos = self::TIPOS_FISICOS;
+
+        $where_fam = '';
+        if (!empty($familias_incluir)) {
+            $ids_fam = $this->expandirFamilias($familias_incluir);
+            if ($ids_fam) $where_fam .= " AND l.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+        }
+        if (!empty($familias_excluir)) {
+            $ids_fam = $this->expandirFamilias($familias_excluir);
+            if ($ids_fam) $where_fam .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+        }
+
+        $where_ids = empty($ids_filter)
+            ? ''
+            : " AND l.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
+
+        // Paso 1: fechas de venta únicas (ticket + albcli) por artículo físico
+        $smt = $this->db->query("
+            SELECT idArticulo, fecha FROM (
+                SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM ticketslinea l
+                INNER JOIN ticketst  c ON c.id = l.idticketst
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                  $where_ids
+                UNION
+                SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM albclilinea l
+                INNER JOIN albclit   c ON c.id = l.idalbcli
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                  $where_ids
+            ) AS ventas
+            ORDER BY idArticulo, fecha
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+
+        $ventas_fechas = [];
+        while ($r = $smt->fetch_assoc()) {
+            $ventas_fechas[(int)$r['idArticulo']][$r['fecha']] = true;
+        }
+        if (empty($ventas_fechas)) return [];
+
+        // Paso 2: stock en ff_mov via rebobinado desde articulosStocks.stockOn
+        $ids_str = implode(',', array_keys($ventas_fechas));
+        $smt = $this->db->query("
+            SELECT base.idArticulo,
+                   base.total_stockOn - COALESCE(post.net_posterior, 0) AS stock_actual
+            FROM (
+                SELECT idArticulo, SUM(stockOn) AS total_stockOn
+                FROM articulosStocks WHERE idArticulo IN ($ids_str)
+                GROUP BY idArticulo
+            ) AS base
+            LEFT JOIN (
+                SELECT idArticulo, SUM(ncant_signo) AS net_posterior FROM (
+                    SELECT l.idArticulo,  l.ncant AS ncant_signo
+                    FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
+                    WHERE DATE(c.Fecha) > '$ff'
+                      AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                      AND l.estadoLinea = 'Activo' AND l.idArticulo IN ($ids_str)
+                    UNION ALL
+                    SELECT l.idArticulo, -l.ncant
+                    FROM ticketslinea l INNER JOIN ticketst c ON c.id = l.idticketst
+                    WHERE DATE(c.Fecha) > '$ff' AND c.estado = 'Cerrado'
+                      AND l.estadoLinea = 'Activo' AND l.idArticulo IN ($ids_str)
+                    UNION ALL
+                    SELECT l.idArticulo, -l.ncant
+                    FROM albclilinea l INNER JOIN albclit c ON c.id = l.idalbcli
+                    WHERE DATE(c.Fecha) > '$ff'
+                      AND c.estado IN ('Guardado','Procesado')
+                      AND l.estadoLinea = 'Activo' AND l.idArticulo IN ($ids_str)
+                ) AS post_movs GROUP BY idArticulo
+            ) AS post ON post.idArticulo = base.idArticulo
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+
+        $stock_actual = [];
+        while ($r = $smt->fetch_assoc()) {
+            $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_actual'];
+        }
+
+        // Paso 3: lógica Caso 5 (media + 3σ) — detecta TODAS las roturas
+        $ff_ts       = strtotime($ff_mov);
+        $incidencias = [];
+
+        foreach ($ventas_fechas as $id => $fechas_map) {
+            $roturas = $this->_calcularRoturasC5(
+                $id,
+                $fechas_map,
+                $stock_actual[$id] ?? 0.0,
+                $ff_ts
+            );
+            foreach ($roturas as $r) $incidencias[] = $r;
+        }
+
+        // Añadir nombres
+        if (!empty($incidencias)) {
+            $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $smt = $this->db->query(
+                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+            );
+            $nombres = [];
+            if ($smt) {
+                while ($r = $smt->fetch_assoc()) {
+                    $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+                }
+            }
+            foreach ($incidencias as &$inc) {
+                $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+            }
+            unset($inc);
+        }
+
+        return $incidencias;
+    }
+
     private function maxFecha(?string $a, ?string $b): ?string
     {
         if ($a === null) return $b;
         if ($b === null) return $a;
         return ($a >= $b) ? $a : $b;
+    }
+
+    /**
+     * Devuelve la lista ordenada de idArticulo que tienen algún movimiento
+     * (entrada, ticket o albcli) en el rango [fi, ff], aplicando el filtro
+     * de familias. Usada para paginar getIncidenciasBatch.
+     */
+    public function getArticulosConActividad(
+        string $fi_mov,
+        string $ff_mov,
+        array  $familias_incluir = [],
+        array  $familias_excluir = []
+    ): array {
+        $fi    = $this->db->real_escape_string($fi_mov);
+        $ff    = $this->db->real_escape_string($ff_mov);
+        $tipos = self::TIPOS_FISICOS;
+
+        $where_fam = '';
+        if (!empty($familias_incluir)) {
+            $ids = $this->expandirFamilias($familias_incluir);
+            if ($ids) $where_fam .= " AND l.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
+        }
+        if (!empty($familias_excluir)) {
+            $ids = $this->expandirFamilias($familias_excluir);
+            if ($ids) $where_fam .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
+        }
+
+        $smt = $this->db->query("
+            SELECT DISTINCT idArticulo FROM (
+                SELECT l.idArticulo FROM albprolinea l
+                INNER JOIN albprot c ON c.id = l.idalbpro
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                UNION
+                SELECT l.idArticulo FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                UNION
+                SELECT l.idArticulo FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+            ) AS sub
+            ORDER BY idArticulo
+        ");
+        if (!$smt) return [];
+        $ids = [];
+        while ($r = $smt->fetch_assoc()) $ids[] = (int)$r['idArticulo'];
+        return $ids;
+    }
+
+    /**
+     * Procesa las incidencias en lotes de $pagina artículos.
+     *
+     * Patrón idéntico a mod_reorganizacion:
+     *   JS envía inicial=0  → PHP devuelve { filas, actual, total, elementos }
+     *   JS envía inicial=N  → sigue hasta que actual >= total
+     *
+     * Para caso4 se ejecuta como lote único (no tiene artículos "con actividad").
+     *
+     * @return array  { filas: array, actual: int, total: int, elementos: int }
+     *                — o array con clave 'error'
+     */
+    public function getIncidenciasBatch(array $params, int $inicial, int $pagina): array
+    {
+        $fi_mov          = $params['fecha_inicio_movimientos'];
+        $ff_mov          = $params['fecha_fin_movimientos'];
+        $familias_incluir = (array)($params['familias_incluir'] ?? []);
+        $familias_excluir = (array)($params['familias_excluir'] ?? []);
+        $tipo_incidencia  = (string)($params['tipo_incidencia'] ?? '');
+
+        // caso4: lote único (artículos sin movimiento, no paginables por actividad)
+        if ($tipo_incidencia === 'caso4') {
+            $filas = $this->getIncidencias($params);
+            if (isset($filas['error'])) return $filas;
+            $total = count($filas);
+            return ['filas' => $filas, 'actual' => $total, 'total' => $total, 'elementos' => $total];
+        }
+
+        $ids_todos = $this->getArticulosConActividad($fi_mov, $ff_mov, $familias_incluir, $familias_excluir);
+        $total     = count($ids_todos);
+
+        if ($total === 0) {
+            return ['filas' => [], 'actual' => 0, 'total' => 0, 'elementos' => 0];
+        }
+
+        $ids_batch = array_slice($ids_todos, $inicial, $pagina);
+        $elementos = count($ids_batch);
+        $actual    = $inicial + $elementos;
+
+        $params_batch              = $params;
+        $params_batch['ids_filter'] = $ids_batch;
+
+        $filas = $this->getIncidencias($params_batch);
+        if (isset($filas['error'])) return $filas;
+
+        return [
+            'filas'     => $filas,
+            'actual'    => $actual,
+            'total'     => $total,
+            'elementos' => $elementos,
+        ];
     }
 }

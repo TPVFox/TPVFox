@@ -66,12 +66,15 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
                     <option value="quincena">Quincenal</option>
                     <option value="mes">Mensual</option>
                     <option value="trimestre">Trimestral</option>
+                    <option value="cuatrimestre">Cuatrimestral</option>
+                    <option value="semestre">Semestral</option>
+                    <option value="anual">Anual</option>
                 </select>
             </div>
         </div>
         <div class="col-xs-12 col-sm-3">
             <div class="form-group">
-                <label class="control-label small">Periodo</label>
+                <label class="control-label small" id="posstockLabelNumero">Periodo</label>
                 <select id="posstockNumero" class="form-control input-sm" disabled>
                     <option value="">— elige tipo primero —</option>
                 </select>
@@ -162,7 +165,7 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
     <div id="posstockSpinner" class="row text-center" style="display:none; padding:30px 0;">
         <div class="col-xs-12">
             <img src="<?php echo $HostNombre; ?>/css/img/loading.gif" alt="Cargando…">
-            <p class="text-muted small">Calculando incidencias…</p>
+            <p class="text-muted small" id="posstockProgreso">Calculando incidencias…</p>
         </div>
     </div>
 
@@ -179,6 +182,8 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
 <script>
     // Ventana de consolidación leída desde PHP para usarla en JS
     var POSSTOCK_VENTANA_DIAS = <?php echo $ventana_dias; ?>;
+    // Caso 4 habilitado (stock inactivo en periodo)
+    var POSSTOCK_INCLUIR_STOCK_INACTIVO = <?php echo ((string)$posstock_cfg->incluir_stock_inactivo === '1') ? 'true' : 'false'; ?>;
 
     // Periodo activo (se rellena al generar o pulsar botón de barra)
     var posstockPeriodoActivo = null;

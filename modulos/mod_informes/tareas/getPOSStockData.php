@@ -1,5 +1,8 @@
 <?php
 // @ Objetivo: calcular incidencias POSStock para el periodo recibido por POST.
+// Periodos largos (trimestral, semestral, anual) requieren más recursos.
+ini_set('memory_limit', '512M');
+set_time_limit(300);
 // Recibe las fechas del periodo y devuelve JSON { filas: [...], periodo: {...} }.
 //
 // POST esperado:
@@ -22,6 +25,11 @@ if (!preg_match($fecha_re, $fi_mov) || !preg_match($fecha_re, $ff_mov)
 // Leer umbrales desde parametros.xml (cache si existe)
 $ClaseParametros = new ClaseParametros('parametros.xml');
 $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
+
+// Tipo de incidencia filtrado (solo un caso): validar contra lista blanca
+$tipo_incidencia_raw = $_POST['tipo_incidencia'] ?? '';
+$tipos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', ''];
+$tipo_incidencia = in_array($tipo_incidencia_raw, $tipos_validos, true) ? $tipo_incidencia_raw : '';
 
 // Filtro de familias: dos listas independientes de IDs separados por coma
 $familias_incluir = [];
@@ -46,6 +54,7 @@ $params = [
     'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
     'umbral_sin_rotacion_semanas'=> (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
     'incluir_stock_inactivo'     => (int)(string)$posstock_node->incluir_stock_inactivo === 1,
+    'tipo_incidencia'            => $tipo_incidencia,
     'familias_incluir'           => $familias_incluir,
     'familias_excluir'           => $familias_excluir,
 ];
