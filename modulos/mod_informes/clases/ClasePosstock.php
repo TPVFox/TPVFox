@@ -643,6 +643,25 @@ class ClasePosstock
     }
 
     /**
+     * Proveedor — idArticulo vinculados a los proveedores indicados.
+     * Usa articulosProveedores (estado Activo).
+     *
+     * @param  string $ids_prov  IN-clause de idProveedor ya preparado
+     * @return array  Filas raw (idArticulo) o ['error' => ...]
+     */
+    private function _queryIdsArticulosByProveedores(string $ids_prov): array
+    {
+        $smt = $this->db->query(
+            "SELECT DISTINCT idArticulo FROM articulosProveedores
+             WHERE idProveedor IN ($ids_prov) AND estado = 'Activo'"
+        );
+        if (!$smt) return ['error' => $this->db->error];
+        $rows = [];
+        while ($r = $smt->fetch_assoc()) $rows[] = $r;
+        return $rows;
+    }
+
+    /**
      * Paginación — DISTINCT idArticulo con actividad en el rango, con LIMIT/OFFSET.
      *
      * @return array  Filas raw (idArticulo) o ['error' => ...]
@@ -651,7 +670,8 @@ class ClasePosstock
         string $fi,
         string $ff,
         string $where_fam,
-        string $limit_clause
+        string $limit_clause,
+        string $where_prov = ''   // cláusula AND idArticulo IN (...) de proveedores
     ): array {
         $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query("
@@ -663,7 +683,7 @@ class ClasePosstock
                   AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                   AND l.estadoLinea = 'Activo'
                   AND a.tipo IN ($tipos)
-                  $where_fam
+                  $where_fam $where_prov
                 UNION
                 SELECT l.idArticulo FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
@@ -672,7 +692,7 @@ class ClasePosstock
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   AND a.tipo IN ($tipos)
-                  $where_fam
+                  $where_fam $where_prov
                 UNION
                 SELECT l.idArticulo FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
@@ -681,7 +701,7 @@ class ClasePosstock
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                   AND a.tipo IN ($tipos)
-                  $where_fam
+                  $where_fam $where_prov
             ) AS sub
             ORDER BY idArticulo
             $limit_clause
@@ -931,6 +951,29 @@ class ClasePosstock
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
+
+        // ── Filtro de proveedores → intersectar article IDs ───────────────────
+        // ids_proveedor_filter: pre-resueltos por getIncidenciasBatch (evita doble query).
+        // proveedores_incluir: IDs de proveedor raw (cuando se llama directamente).
+        $ids_proveedor_filter = (array)($params['ids_proveedor_filter'] ?? []);
+        if (empty($ids_proveedor_filter)) {
+            $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
+            if (!empty($proveedores_incluir)) {
+                $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
+                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+                if (isset($rows_prov['error'])) return $rows_prov;
+                $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
+                if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
+            }
+        }
+        if (!empty($ids_proveedor_filter)) {
+            if (!empty($ids_filter)) {
+                $ids_filter = array_values(array_intersect($ids_filter, $ids_proveedor_filter));
+                if (empty($ids_filter)) return []; // intersección vacía
+            } else {
+                $ids_filter = $ids_proveedor_filter;
+            }
+        }
 
         // casos_incluir [] = todos los casos activos excepto C4
         $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5'];
@@ -1762,7 +1805,8 @@ class ClasePosstock
         array  $familias_incluir = [],
         array  $familias_excluir = [],
         int    $inicial = 0,
-        int    $pagina  = 0        // 0 = sin límite (devuelve todos, solo para compatibilidad)
+        int    $pagina  = 0,       // 0 = sin límite (devuelve todos, solo para compatibilidad)
+        array  $ids_proveedor_filter = []   // article IDs ya resueltos desde proveedores
     ): array {
         $fi = $this->db->real_escape_string($fi_mov);
         $ff = $this->db->real_escape_string($ff_mov);
@@ -1777,9 +1821,10 @@ class ClasePosstock
             if ($ids) $where_fam .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
 
+        $where_prov   = $this->_idsWhere($ids_proveedor_filter);
         $limit_clause = ($pagina > 0) ? "LIMIT $pagina OFFSET $inicial" : '';
 
-        $rows = $this->_queryIdsConActividad($fi, $ff, $where_fam, $limit_clause);
+        $rows = $this->_queryIdsConActividad($fi, $ff, $where_fam, $limit_clause, $where_prov);
         if (isset($rows['error'])) return [];
 
         $ids = [];
@@ -1810,6 +1855,20 @@ class ClasePosstock
         $familias_excluir = (array)($params['familias_excluir'] ?? []);
         $casos_incluir    = (array)($params['casos_incluir']    ?? []);
 
+        // ── Resolver filtro de proveedores una sola vez para toda la paginación ──
+        // Se pasa pre-resuelto a getIncidencias para evitar una segunda query por lote.
+        $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
+        $ids_proveedor_filter = [];
+        if (!empty($proveedores_incluir)) {
+            $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
+            $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+            if (isset($rows_prov['error'])) return $rows_prov;
+            $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
+            if (empty($ids_proveedor_filter)) {
+                return ['filas' => [], 'actual' => $inicial, 'elementos' => 0];
+            }
+        }
+
         // C4 no es paginable por actividad — ruta especial si es el único caso solicitado
         if ($casos_incluir === ['caso4']) {
             $filas = $this->getIncidencias($params);
@@ -1820,9 +1879,14 @@ class ClasePosstock
         // En batches mixtos, excluir C4 (no paginable por actividad)
         $params_batch = $params;
         $params_batch['casos_incluir'] = array_values(array_filter($casos_incluir, fn($c) => $c !== 'caso4'));
+        // Pasar IDs de proveedor pre-resueltos para que getIncidencias no repita la query
+        $params_batch['ids_proveedor_filter'] = $ids_proveedor_filter;
 
         // Obtener solo los IDs del lote actual via LIMIT/OFFSET — sin cargar todos en memoria
-        $ids_batch = $this->getArticulosConActividad($fi_mov, $ff_mov, $familias_incluir, $familias_excluir, $inicial, $pagina);
+        $ids_batch = $this->getArticulosConActividad(
+            $fi_mov, $ff_mov, $familias_incluir, $familias_excluir,
+            $inicial, $pagina, $ids_proveedor_filter
+        );
         $elementos = count($ids_batch);
         $actual    = $inicial + $elementos;
 

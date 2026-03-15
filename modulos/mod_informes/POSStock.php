@@ -117,14 +117,20 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
         </div>
     </div>
 
-    <!-- ── Filtro de familias ────────────────────────────────────────── -->
-    <div class="row" id="posstockFilaFamilias">
-        <div class="col-xs-12">
+    <!-- ── Filtros ───────────────────────────────────────────────────── -->
+    <div class="row" id="posstockFilaFiltros">
+        <div class="col-xs-12" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <button type="button" class="btn btn-default btn-xs"
                     onclick="posstockAbrirFiltroFamilias()">
                 <i class="glyphicon glyphicon-filter"></i>
                 Filtrar familias:
                 <span id="posstockFiltroLabel" class="label label-default">Todas</span>
+            </button>
+            <button type="button" class="btn btn-default btn-xs"
+                    onclick="posstockAbrirFiltroProveedores()">
+                <i class="glyphicon glyphicon-filter"></i>
+                Filtrar proveedor:
+                <span id="posstockFiltroProveedorLabel" class="label label-default">Todos</span>
             </button>
         </div>
     </div>

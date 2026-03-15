@@ -52,6 +52,9 @@ switch ($pulsado) {
     case 'getInfoPeriodos':
         include_once $URLCom . '/modulos/mod_informes/tareas/getInfoPeriodos.php';
         break;
+    case 'getProveedoresList':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getProveedoresList.php';
+        break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);
 }

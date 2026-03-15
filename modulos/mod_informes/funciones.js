@@ -439,6 +439,178 @@ window.posstockEliminarFamilia = posstockEliminarFamilia;
 window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
 
 // =====================================================================
+//       POSSTOCK — Filtro de proveedores
+// =====================================================================
+
+// Global: lista de {id, nombre} de proveedores seleccionados (solo incluir)
+window.posstockProveedoresIncluir = [];
+
+var _posstockProveedoresCache = null; // caché de la lista completa
+
+/**
+ * Abre el modal de selección de proveedores.
+ * Carga la lista vía AJAX la primera vez; reutiliza caché en sucesivas.
+ */
+function posstockAbrirFiltroProveedores() {
+    if (_posstockProveedoresCache) {
+        _posstockMostrarModalProveedores();
+        return;
+    }
+    $.ajax({
+        data: { pulsado: "getProveedoresList" },
+        url: "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = JSON.parse(response);
+            if (resultado.error) {
+                _posstockMostrarError("Error al cargar proveedores: " + resultado.error);
+                return;
+            }
+            _posstockProveedoresCache = resultado.proveedores;
+            _posstockMostrarModalProveedores();
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al cargar proveedores.");
+        },
+    });
+}
+
+/** Genera y abre el modal de selección de proveedores. */
+function _posstockMostrarModalProveedores() {
+    var filas = window.posstockProveedoresIncluir
+        .map(function (p) { return _htmlFilaProveedor(p.id, p.nombre); })
+        .join("");
+
+    var html =
+        '<div class="panel panel-success" style="margin-bottom:10px;">' +
+        '<div class="panel-heading small"><strong>Proveedores a consultar</strong></div>' +
+        '<div class="panel-body" style="padding:8px;">' +
+        '<p class="text-muted small" style="margin:0 0 6px;">' +
+        "Si hay proveedores aquí, solo se analizarán artículos de estos proveedores." +
+        "</p>" +
+        '<div style="max-height:180px;overflow-y:auto;border:1px solid #ddd;">' +
+        '<table class="table table-condensed table-hover" style="margin:0;"' +
+        ' id="posstockTablaProveedores">' +
+        '<thead><tr><th class="small">ID</th><th class="small">Proveedor</th><th></th></tr></thead>' +
+        "<tbody>" + filas + "</tbody>" +
+        "</table></div>" +
+        '<div id="posstockProveedorError"></div>' +
+        '<div class="input-group" style="margin-top:6px;">' +
+        '<input type="text" class="form-control input-sm" list="posstockProveedoresDatalist"' +
+        ' id="posstockBuscarProveedor" placeholder="Buscar proveedor…">' +
+        '<span class="input-group-btn">' +
+        '<button type="button" class="btn btn-sm btn-success"' +
+        ' onclick="posstockAgregarProveedor()">' +
+        '<i class="glyphicon glyphicon-plus"></i> Agregar</button>' +
+        "</span></div>" +
+        "</div></div>" +
+        '<datalist id="posstockProveedoresDatalist"></datalist>' +
+        '<div style="margin-top:8px;text-align:right;">' +
+        '<button type="button" class="btn btn-primary btn-sm"' +
+        ' onclick="posstockAplicarFiltroProveedores()">Aplicar filtro</button>' +
+        "</div>";
+
+    abrirModal("Filtrar proveedor — POSStock", html);
+
+    // Poblar el datalist
+    var dl = document.getElementById("posstockProveedoresDatalist");
+    if (dl && dl.options.length === 0) {
+        _posstockProveedoresCache.forEach(function (p) {
+            var opt = document.createElement("option");
+            opt.value = p.nombre;
+            opt.dataset.id = p.id;
+            dl.appendChild(opt);
+        });
+    }
+}
+
+/** Genera una fila de tabla para un proveedor. */
+function _htmlFilaProveedor(id, nombre) {
+    return (
+        '<tr data-id="' + id + '">' +
+        "<td>" + id + "</td>" +
+        "<td>" + nombre + "</td>" +
+        '<td><button type="button" class="btn btn-xs btn-link text-danger"' +
+        ' onclick="posstockEliminarProveedor(this)">' +
+        '<i class="glyphicon glyphicon-trash"></i></button></td>' +
+        "</tr>"
+    );
+}
+
+/** Busca el proveedor escrito, lo añade si existe y no está duplicado. */
+function posstockAgregarProveedor() {
+    var input = document.getElementById("posstockBuscarProveedor");
+    var texto = input.value.trim();
+    if (!texto) return;
+
+    var encontrado = null;
+    _posstockProveedoresCache.forEach(function (p) {
+        if (!encontrado && p.nombre.trim() === texto) encontrado = p;
+    });
+
+    var wrapErr = document.getElementById("posstockProveedorError");
+    if (!encontrado) {
+        if (wrapErr) wrapErr.innerHTML =
+            '<div class="alert alert-warning alert-sm" role="alert">' +
+            "Proveedor no encontrado. Selecciona un nombre exacto de la lista." +
+            "</div>";
+        return;
+    }
+
+    var tabla = document.querySelector("#posstockTablaProveedores tbody");
+    if (tabla.querySelector('tr[data-id="' + encontrado.id + '"]')) {
+        if (wrapErr) wrapErr.innerHTML =
+            '<div class="alert alert-warning alert-sm" role="alert">' +
+            "Ese proveedor ya está en la lista." +
+            "</div>";
+        input.value = "";
+        return;
+    }
+
+    if (wrapErr) wrapErr.innerHTML = "";
+    tabla.insertAdjacentHTML("beforeend", _htmlFilaProveedor(encontrado.id, encontrado.nombre.trim()));
+    input.value = "";
+}
+
+/** Elimina una fila de la tabla de proveedores. */
+function posstockEliminarProveedor(boton) {
+    boton.closest("tr").remove();
+}
+
+/** Lee la tabla, actualiza el global y el badge, y cierra el modal. */
+function posstockAplicarFiltroProveedores() {
+    var filas = document.querySelectorAll("#posstockTablaProveedores tbody tr");
+    window.posstockProveedoresIncluir = [];
+    filas.forEach(function (tr) {
+        window.posstockProveedoresIncluir.push({
+            id: parseInt(tr.dataset.id, 10),
+            nombre: tr.cells[1].textContent.trim(),
+        });
+    });
+    _posstockActualizarBadgeProveedores();
+    cerrarPopUp();
+}
+
+/** Actualiza el badge del botón de proveedores. */
+function _posstockActualizarBadgeProveedores() {
+    var badge = document.getElementById("posstockFiltroProveedorLabel");
+    if (!badge) return;
+    var n = (window.posstockProveedoresIncluir || []).length;
+    if (n === 0) {
+        badge.textContent = "Todos";
+        badge.className = "label label-default";
+    } else {
+        badge.textContent = n === 1 ? "1 proveedor" : n + " proveedores";
+        badge.className = "label label-warning";
+    }
+}
+
+window.posstockAbrirFiltroProveedores = posstockAbrirFiltroProveedores;
+window.posstockAgregarProveedor = posstockAgregarProveedor;
+window.posstockEliminarProveedor = posstockEliminarProveedor;
+window.posstockAplicarFiltroProveedores = posstockAplicarFiltroProveedores;
+
+// =====================================================================
 //       POSSTOCK — Carga de datos e incidencias
 // =====================================================================
 
@@ -489,14 +661,13 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         inicial: inicial,
         pagina: 500,
         familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
             .join(","),
         familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
+            .join(","),
+        proveedores_incluir: (window.posstockProveedoresIncluir || [])
+            .map(function (p) { return p.id; })
             .join(","),
     };
 
@@ -748,14 +919,13 @@ function exportarPOSStockCSV() {
         tipo_periodo: window.posstockTipoActivo || "",
         min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
             .join(","),
         familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
+            .join(","),
+        proveedores_incluir: (window.posstockProveedoresIncluir || [])
+            .map(function (p) { return p.id; })
             .join(","),
     };
 
@@ -801,14 +971,13 @@ function imprimirPOSStockPDF() {
             tipo_periodo: window.posstockTipoActivo || "",
             min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
             familias_incluir: (window.posstockFamiliasIncluir || [])
-                .map(function (f) {
-                    return f.id;
-                })
+                .map(function (f) { return f.id; })
                 .join(","),
             familias_excluir: (window.posstockFamiliasExcluir || [])
-                .map(function (f) {
-                    return f.id;
-                })
+                .map(function (f) { return f.id; })
+                .join(","),
+            proveedores_incluir: (window.posstockProveedoresIncluir || [])
+                .map(function (p) { return p.id; })
                 .join(","),
         },
         url: "tareas.php",

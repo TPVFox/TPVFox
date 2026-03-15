@@ -54,6 +54,13 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         if ($id > 0) $familias_excluir[] = $id;
     }
 
+    // Filtro de proveedores: lista de idProveedor separados por coma (solo incluir)
+    $proveedores_incluir = [];
+    foreach (explode(',', $_POST['proveedores_incluir'] ?? '') as $id) {
+        $id = (int)trim($id);
+        if ($id > 0) $proveedores_incluir[] = $id;
+    }
+
     // min_ventas_c5: calculado en backend según tipo de periodo (evita lógica en JS).
     // Si el tipo de periodo está disponible, se usa la tabla del backend.
     // En último caso se toma el valor POST (compatibilidad) con mínimo 3.
@@ -86,5 +93,6 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'umbral_confianza_poisson'    => (float)(string)$posstock_node->umbral_confianza_poisson ?: 0.05,
         'familias_incluir'            => $familias_incluir,
         'familias_excluir'            => $familias_excluir,
+        'proveedores_incluir'         => $proveedores_incluir,
     ];
 }
