@@ -13,14 +13,16 @@
 			<incluir_stock_inactivo>0</incluir_stock_inactivo>
 			<!-- C6 — días de lead time por defecto cuando no hay pedidos históricos suficientes -->
 			<c6_lead_time_defecto>14</c6_lead_time_defecto>
-			<!-- C6 — nivel de servicio para el stock de seguridad: 0.90, 0.95 o 0.99 -->
-			<c6_nivel_servicio>0.95</c6_nivel_servicio>
-			<!-- Modelo estadístico para detección de roturas C5: binomial (media+3σ) o poisson -->
-			<modelo_rotura_c5>binomial</modelo_rotura_c5>
-			<!-- Umbral de probabilidad para el modelo Poisson (0.05 = 95% confianza, 0.01 = 99%) -->
-			<umbral_confianza_poisson>0.05</umbral_confianza_poisson>
+			<!-- Modelo estadístico para C5 y C6: automatico | binomial | poisson_bn | gamma -->
+			<modelo_estadistico>automatico</modelo_estadistico>
+			<!-- Significancia / nivel de servicio (C5: umbral de gap; C6: nivel ROP): 0.90 | 0.95 | 0.99 -->
+			<modelo_significancia>0.95</modelo_significancia>
+			<!-- Multiplicador σ para modo Binomial (C5: umbral=μ+nσ; C6: SS=nσ·σ_d·√L). Rango 2.0–4.0 -->
+			<binomial_sigma_mult>3.0</binomial_sigma_mult>
 			<!-- 1 = incluir en C5 artículos con stock negativo al cierre (roturas recuperadas solo; KO requiere stock > 0) -->
 			<c5_incluir_stock_negativo>0</c5_incluir_stock_negativo>
+			<!-- 1 = incluir albaranes de cliente como ventas en C5 y C6 (por defecto solo tickets de caja) -->
+			<incluir_albcli_ventas>0</incluir_albcli_ventas>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

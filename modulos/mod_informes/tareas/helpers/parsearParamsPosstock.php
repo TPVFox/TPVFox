@@ -79,6 +79,25 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         ? $min_ventas_c5_por_tipo[$tipo_periodo]
         : max(3, (int)($_POST['min_ventas_c5'] ?? 3));
 
+    // ── Modelo estadístico ────────────────────────────────────────────────────
+    // modelo_estadistico: 'automatico' | 'binomial' | 'poisson_bn' | 'gamma'
+    // modelo_significancia: 0.90 | 0.95 | 0.99
+    //   → umbral_confianza (C5 gap threshold) = 1 - significancia
+    //   → nivel_servicio   (C6 ROP quantile)  = significancia
+    // binomial_sigma_mult: 2.0–4.0 (solo modo binomial)
+    $modelos_validos  = ['automatico', 'binomial', 'poisson_bn', 'gamma'];
+    $sig_validas      = ['0.90', '0.95', '0.99'];
+
+    $modelo_raw = (string)$posstock_node->modelo_estadistico;
+    $modelo_estadistico = in_array($modelo_raw, $modelos_validos, true) ? $modelo_raw : 'automatico';
+
+    $sig_raw = number_format((float)(string)$posstock_node->modelo_significancia, 2);
+    $modelo_significancia = in_array($sig_raw, $sig_validas, true) ? (float)$sig_raw : 0.95;
+
+    $binomial_sigma_mult = (float)(string)$posstock_node->binomial_sigma_mult;
+    $binomial_sigma_mult = ($binomial_sigma_mult >= 2.0 && $binomial_sigma_mult <= 4.0)
+        ? $binomial_sigma_mult : 3.0;
+
     return [
         'fecha_inicio_movimientos'    => $fi_mov,
         'fecha_fin_movimientos'       => $ff_mov,
@@ -90,15 +109,21 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'umbral_sin_rotacion_semanas' => (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
         'casos_incluir'               => $casos_incluir,
         'min_ventas_c5'               => $min_ventas_c5,
-        'modelo_rotura_c5'            => (string)$posstock_node->modelo_rotura_c5 ?: 'binomial',
-        'umbral_confianza_poisson'    => (float)(string)$posstock_node->umbral_confianza_poisson ?: 0.05,
+        // Modelo estadístico unificado C5+C6
+        'modelo_estadistico'          => $modelo_estadistico,
+        'modelo_significancia'        => $modelo_significancia,
+        'binomial_sigma_mult'         => $binomial_sigma_mult,
+        // Derivados para compatibilidad interna con ClasePosstock
+        'modelo_rotura_c5'            => $modelo_estadistico,
+        'umbral_confianza_poisson'    => round(1.0 - $modelo_significancia, 2),
+        'c6_nivel_servicio'           => $modelo_significancia,
         'c5_incluir_stock_negativo'   => (string)$posstock_node->c5_incluir_stock_negativo === '1',
+        'incluir_albcli_ventas'       => (string)$posstock_node->incluir_albcli_ventas === '1',
         'familias_incluir'            => $familias_incluir,
         'familias_excluir'            => $familias_excluir,
         'proveedores_incluir'         => $proveedores_incluir,
         'proveedor_todos_productos'   => $proveedor_todos_productos,
-        // C6 — Agotamiento Estimado / Punto de Pedido
+        // C6 — lead time por defecto
         'c6_lead_time_defecto'        => (int)(string)$posstock_node->c6_lead_time_defecto ?: 14,
-        'c6_nivel_servicio'           => (float)(string)$posstock_node->c6_nivel_servicio ?: 0.95,
     ];
 }

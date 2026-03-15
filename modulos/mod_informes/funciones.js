@@ -172,15 +172,28 @@ function guardarConfigPosstock() {
     });
 }
 
-/** Muestra u oculta el bloque de confianza Poisson dentro del modal de config. */
-function modalTogglePoissonConfianza() {
-    var sel = document.getElementById("modalModeloRoturaC5");
-    var bloque = document.getElementById("modalPoissonConfianzaBloque");
-    if (sel && bloque) {
-        bloque.style.display = sel.value === "poisson" ? "" : "none";
+/**
+ * Muestra/oculta los bloques secundarios del selector de modelo estadístico:
+ *   - #modalSignificanciaBloque : visible para todos los modos excepto 'binomial'
+ *   - #modalBinomialSigmaBloque : visible solo para 'binomial'
+ *   - #modalModeloDesc          : actualiza la descripción del modo seleccionado
+ */
+function modalToggleModeloEstadistico() {
+    var sel    = document.getElementById("modalModeloEstadistico");
+    var bSig   = document.getElementById("modalSignificanciaBloque");
+    var bSigma = document.getElementById("modalBinomialSigmaBloque");
+    var bDesc  = document.getElementById("modalModeloDesc");
+    if (!sel) return;
+    var v = sel.value;
+    if (bSig)   bSig.style.display   = (v === "binomial") ? "none" : "";
+    if (bSigma) bSigma.style.display = (v === "binomial") ? "" : "none";
+    if (bDesc && window._modeloDescPosstock && window._modeloDescPosstock[v]) {
+        bDesc.textContent = window._modeloDescPosstock[v];
     }
 }
-window.modalTogglePoissonConfianza = modalTogglePoissonConfianza;
+window.modalToggleModeloEstadistico = modalToggleModeloEstadistico;
+// Alias de compatibilidad (por si algún HTML antiguo llama a la función previa)
+window.modalTogglePoissonConfianza  = modalToggleModeloEstadistico;
 
 window.abrirModalConfigPosstock = abrirModalConfigPosstock;
 window.guardarConfigPosstock = guardarConfigPosstock;
@@ -826,15 +839,46 @@ function pintarTablaIncidencias(filas) {
             var badgeRK = f.rk
                 ? ' <span class="label label-warning" title="Rotura confirmada significativa (≥ cadencia media)">RK</span>'
                 : "";
-            var badgeModelo = f.modelo_usado === "BN"
-                ? ' <span class="label label-info" title="Sobredispersión detectada: umbral calculado con Binomial Negativa">BN</span>'
-                : "";
+
+            // Badge de distribución + descripción del comportamiento del artículo
+            var _avgC5  = parseFloat(f.avg_dias_entre_ventas) || 0;
+            var _c5mCfg = {
+                // Alta rotación (>80 % días), gaps muy regulares → cuantil Gamma
+                "GammaReg": { lbl: "Γ", cls: "label-success",
+                              comp: "Alta rotación, patrón muy regular",
+                              tip:  "Gamma — alta rotación con intervalos regulares. Umbral = cuantil Gamma ajustado a los gaps." },
+                // Rotación moderada o tipo peso → cuantil Gamma general
+                "Gamma":    { lbl: "Γ", cls: "label-default",
+                              comp: "Rotación moderada, gaps ajustados a Gamma",
+                              tip:  "Gamma — ajuste directo a la distribución de gaps histórica. Umbral = cuantil de probabilidad." },
+                // Gaps casi uniformes (varianza ≈ 0) → aproximación Normal (μ + 3σ)
+                "Normal":   { lbl: "N",  cls: "label-default",
+                              comp: "Intervalos muy uniformes (aproximación Normal)",
+                              tip:  "Normal — gaps prácticamente constantes (varianza ≈ 0). Umbral = media + 3σ." },
+                // Demanda agrupada en rachas → Binomial Negativa
+                "BN":       { lbl: "BN", cls: "label-info",
+                              comp: "Demanda en rachas o lotes",
+                              tip:  "Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra." },
+                // Alta rotación, gaps con dispersión normal → Poisson
+                "Poisson":  _avgC5 > 0 && _avgC5 < 4
+                    ? { lbl: "Poi", cls: "label-primary",
+                        comp: "Alta rotación, gaps ~ exponencial",
+                        tip:  "Poisson — alta rotación con dispersión normal. Umbral: gap > −ln(p)/λ." }
+                    // Demanda esporádica → Poisson conservador
+                    : { lbl: "Poi", cls: "label-default",
+                        comp: "Demanda esporádica, baja frecuencia",
+                        tip:  "Poisson — artículo de venta poco frecuente. Umbral conservador para eventos raros." }
+            };
+            var _c5m        = _c5mCfg[f.modelo_usado] || _c5mCfg["Poisson"];
+            var badgeModelo = ' <span class="label ' + _c5m.cls + '" title="' + _c5m.tip + '">' + _c5m.lbl + '</span>';
+            var textoComp   = ' <small class="text-muted">· ' + _c5m.comp + '</small>';
+
             var sdStr = f.sd_dias !== null && f.sd_dias !== undefined
                 ? " σ=" + f.sd_dias + " d"
                 : "";
             detalle =
-                badgeKO + badgeCR + badgeRK + badgeModelo +
-                " Desde: <strong>" + (f.fecha_inicio_rotura || "—") + "</strong>" +
+                badgeKO + badgeCR + badgeRK + badgeModelo + textoComp +
+                " | Desde: <strong>" + (f.fecha_inicio_rotura || "—") + "</strong>" +
                 " | " + estadoRotura +
                 " | " + (f.dias_rotura !== undefined ? f.dias_rotura + " d" : "—") +
                 " | Últ. venta: " + (f.ultima_venta || "—") +
@@ -855,12 +899,37 @@ function pintarTablaIncidencias(filas) {
                 "Stock: " +
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
         } else if (f.tipo === "Agotamiento Estimado") {
-            // C6 — recomendación primero, contexto después; SS y d/día eliminados (técnicos)
-            var esBN       = f.modelo_usado === "BN";
-            var stockC6    = parseFloat(f.stock_actual)    || 0;
-            var ropC6      = parseFloat(f.rop)             || 0;
-            var ssC6       = parseFloat(f.stock_seguridad) || 0;
-            var dC6        = parseFloat(f.d_diaria)        || 0;
+            // C6 — recomendación primero, contexto después
+            var stockC6 = parseFloat(f.stock_actual)    || 0;
+            var ropC6   = parseFloat(f.rop)             || 0;
+            var ssC6    = parseFloat(f.stock_seguridad) || 0;
+            var dC6     = parseFloat(f.d_diaria)        || 0;
+
+            // Distribución usada y comportamiento del artículo
+            var _c6mCfg = {
+                "Normal":   { lbl: "N",   cls: "label-success",
+                              comp: "Rotación regular",
+                              tip:  "Normal — demanda estable y regular (gran consumo). ROP calculado con varianza empírica de la demanda.",
+                              qTip: "Llevar stock hasta el ROP (demanda predecible)." },
+                "Gamma":    { lbl: "Γ",   cls: "label-warning",
+                              comp: "Demanda asimétrica",
+                              tip:  "Gamma — demanda asimétrica o lead time variable. ROP = cuantil Gamma directo sobre la demanda en L.",
+                              qTip: "Demanda asimétrica: cuantil Gamma ya incluye el SS necesario." },
+                "BN":       { lbl: "BN",  cls: "label-info",
+                              comp: "Compras en rachas",
+                              tip:  "Binomial Negativa — demanda con sobredispersión (ventas agrupadas en lotes o rachas). SS ampliado.",
+                              qTip: "Demanda en rachas: se añade SS extra sobre el ROP por mayor incertidumbre." },
+                "Binomial": { lbl: "Bin", cls: "label-primary",
+                              comp: "Rotación acotada",
+                              tip:  "Binomial compuesta — distribución acotada (configurada por el usuario). SS según multiplicador σ.",
+                              qTip: "Binomial: llevar stock hasta el ROP con SS por multiplicador σ." },
+                "Poisson":  { lbl: "Poi", cls: "label-default",
+                              comp: "Artículo esporádico",
+                              tip:  "Poisson — demanda baja o poco frecuente. ROP conservador para artículos de baja rotación.",
+                              qTip: "Poisson: llevar stock hasta el ROP (varianza ≈ media)." }
+            };
+            var _c6m  = _c6mCfg[f.modelo_usado] || _c6mCfg["Poisson"];
+            var esBN  = f.modelo_usado === "BN";
 
             var qBase        = Math.max(0, ropC6 - stockC6);
             var qRecomendada = Math.ceil(esBN ? qBase + ssC6 : qBase);
@@ -868,21 +937,18 @@ function pintarTablaIncidencias(filas) {
                 ? Math.round((stockC6 + qRecomendada) / dC6)
                 : null;
 
-            var badgeC6Modelo = esBN
-                ? ' <span class="label label-info" title="Demanda irregular (rachas): Binomial Negativa. Se añade un SS extra a la cantidad orientativa.">BN</span>'
-                : ' <span class="label label-default" title="Demanda regular: Poisson. Estimación fiable.">P</span>';
+            var badgeC6Modelo = ' <span class="label ' + _c6m.cls + '" title="' + _c6m.tip + '">' + _c6m.lbl + '</span>';
             var badgeC6LT = f.lead_time_fuente === "proveedor"
                 ? ' <span class="label label-success" title="Lead time calculado desde intervalo entre albaranes del proveedor">LT prov.</span>'
                 : "";
             var badgeC6Q = qRecomendada > 0
-                ? ' <span class="label label-warning" title="' +
-                  (esBN ? "BN: ROP + SS extra por variabilidad" : "Poisson: llevar stock hasta ROP") +
-                  '">Pedir ~' + qRecomendada + " ud.</span>"
+                ? ' <span class="label label-warning" title="' + _c6m.qTip + '">Pedir ~' + qRecomendada + " ud.</span>"
                 : ' <span class="label label-success">Stock OK</span>';
 
             detalle =
                 badgeC6Modelo + badgeC6LT + badgeC6Q +
-                " Stock: <strong>" + stockC6.toFixed(2) + "</strong>" +
+                ' <small class="text-muted">· ' + _c6m.comp + '</small>' +
+                " | Stock: <strong>" + stockC6.toFixed(2) + "</strong>" +
                 " | Autonomía: <strong>" +
                 (f.dias_autonomia !== undefined ? f.dias_autonomia + " d" : "—") + "</strong>" +
                 " | LT: " + (f.lead_time_dias !== undefined ? f.lead_time_dias + " d" : "—") +

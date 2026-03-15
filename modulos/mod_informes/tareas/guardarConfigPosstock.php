@@ -36,15 +36,18 @@ if (!isset($mapa['inputUmbralSinRotacionSemanas'])
     $errores[] = 'Semanas sin rotación debe ser un número entero positivo.';
 }
 
-$modelos_validos    = ['binomial', 'poisson'];
-$confianzas_validas = ['0.10', '0.05', '0.01'];
-$niveles_c6_validos = ['0.90', '0.95', '0.99'];
+$modelos_validos  = ['automatico', 'binomial', 'poisson_bn', 'gamma'];
+$sig_validas      = ['0.90', '0.95', '0.99'];
+$sigma_validos    = ['2.0', '2.5', '3.0', '3.5', '4.0'];
 
-if (!isset($mapa['inputModeloRoturaC5']) || !in_array($mapa['inputModeloRoturaC5'], $modelos_validos, true)) {
-    $mapa['inputModeloRoturaC5'] = 'binomial';
+if (!isset($mapa['inputModeloEstadistico']) || !in_array($mapa['inputModeloEstadistico'], $modelos_validos, true)) {
+    $mapa['inputModeloEstadistico'] = 'automatico';
 }
-if (!isset($mapa['inputUmbralConfianzaPoisson']) || !in_array($mapa['inputUmbralConfianzaPoisson'], $confianzas_validas, true)) {
-    $mapa['inputUmbralConfianzaPoisson'] = '0.05';
+if (!isset($mapa['inputModeloSignificancia']) || !in_array($mapa['inputModeloSignificancia'], $sig_validas, true)) {
+    $mapa['inputModeloSignificancia'] = '0.95';
+}
+if (!isset($mapa['inputBinomialSigmaMult']) || !in_array($mapa['inputBinomialSigmaMult'], $sigma_validos, true)) {
+    $mapa['inputBinomialSigmaMult'] = '3.0';
 }
 if (!isset($mapa['inputC6LeadTimeDefecto'])
     || !ctype_digit($mapa['inputC6LeadTimeDefecto'])
@@ -52,32 +55,31 @@ if (!isset($mapa['inputC6LeadTimeDefecto'])
 ) {
     $mapa['inputC6LeadTimeDefecto'] = '14';
 }
-if (!isset($mapa['inputC6NivelServicio']) || !in_array($mapa['inputC6NivelServicio'], $niveles_c6_validos, true)) {
-    $mapa['inputC6NivelServicio'] = '0.95';
-}
 
 if (!empty($errores)) {
     $respuesta['error'] = implode(' | ', $errores);
 } else {
-    $incluir_stock_inactivo      = (isset($mapa['inputIncluirStockInactivo'])      && $mapa['inputIncluirStockInactivo']      === '1') ? 1 : 0;
-    $c5_incluir_stock_negativo   = (isset($mapa['inputC5IncluirStockNegativo'])   && $mapa['inputC5IncluirStockNegativo']   === '1') ? 1 : 0;
+    $incluir_stock_inactivo    = (isset($mapa['inputIncluirStockInactivo'])    && $mapa['inputIncluirStockInactivo']    === '1') ? 1 : 0;
+    $c5_incluir_stock_negativo = (isset($mapa['inputC5IncluirStockNegativo']) && $mapa['inputC5IncluirStockNegativo'] === '1') ? 1 : 0;
+    $incluir_albcli_ventas     = (isset($mapa['inputIncluirAlbcliVentas'])    && $mapa['inputIncluirAlbcliVentas']    === '1') ? 1 : 0;
 
-    $posstock->ventana_dias                       = $mapa['inputVentanaDias'];
-    $posstock->umbral_sobrestock                  = $mapa['inputUmbralSobrestock'];
-    $posstock->umbral_semanas_desde_ultima_venta  = intval($mapa['inputUmbralCaducidadSemanas']);
-    $posstock->umbral_semanas_sin_rotacion        = intval($mapa['inputUmbralSinRotacionSemanas']);
-    $posstock->incluir_stock_inactivo             = $incluir_stock_inactivo;
-    $posstock->modelo_rotura_c5                   = $mapa['inputModeloRoturaC5'];
-    $posstock->umbral_confianza_poisson           = $mapa['inputUmbralConfianzaPoisson'];
-    $posstock->c5_incluir_stock_negativo          = $c5_incluir_stock_negativo;
-    $posstock->c6_lead_time_defecto               = intval($mapa['inputC6LeadTimeDefecto']);
-    $posstock->c6_nivel_servicio                  = $mapa['inputC6NivelServicio'];
+    $posstock->ventana_dias                      = $mapa['inputVentanaDias'];
+    $posstock->umbral_sobrestock                 = $mapa['inputUmbralSobrestock'];
+    $posstock->umbral_semanas_desde_ultima_venta = intval($mapa['inputUmbralCaducidadSemanas']);
+    $posstock->umbral_semanas_sin_rotacion       = intval($mapa['inputUmbralSinRotacionSemanas']);
+    $posstock->incluir_stock_inactivo            = $incluir_stock_inactivo;
+    $posstock->modelo_estadistico                = $mapa['inputModeloEstadistico'];
+    $posstock->modelo_significancia              = $mapa['inputModeloSignificancia'];
+    $posstock->binomial_sigma_mult               = $mapa['inputBinomialSigmaMult'];
+    $posstock->c5_incluir_stock_negativo         = $c5_incluir_stock_negativo;
+    $posstock->incluir_albcli_ventas             = $incluir_albcli_ventas;
+    $posstock->c6_lead_time_defecto              = intval($mapa['inputC6LeadTimeDefecto']);
 
     if ($ClaseParametros->save()) {
-        $respuesta['mensaje']                  = 'Configuración POSStock guardada correctamente.';
-        $respuesta['ventana_dias']             = (int)$mapa['inputVentanaDias'];
-        $respuesta['modelo_rotura_c5']         = $mapa['inputModeloRoturaC5'];
-        $respuesta['umbral_confianza_poisson'] = $mapa['inputUmbralConfianzaPoisson'];
+        $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';
+        $respuesta['ventana_dias']         = (int)$mapa['inputVentanaDias'];
+        $respuesta['modelo_estadistico']   = $mapa['inputModeloEstadistico'];
+        $respuesta['modelo_significancia'] = $mapa['inputModeloSignificancia'];
     } else {
         $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
     }
