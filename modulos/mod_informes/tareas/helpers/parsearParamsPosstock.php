@@ -35,7 +35,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
     $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
     // Filtro de casos: lista de IDs separados por coma
-    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5'];
+    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6'];
     $casos_incluir = [];
     foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
         $c = trim($c);
@@ -97,5 +97,8 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'familias_excluir'            => $familias_excluir,
         'proveedores_incluir'         => $proveedores_incluir,
         'proveedor_todos_productos'   => $proveedor_todos_productos,
+        // C6 — Agotamiento Estimado / Punto de Pedido
+        'c6_lead_time_defecto'        => (int)(string)$posstock_node->c6_lead_time_defecto ?: 14,
+        'c6_nivel_servicio'           => (float)(string)$posstock_node->c6_nivel_servicio ?: 0.95,
     ];
 }

@@ -94,7 +94,43 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
-    // --- BLOQUE 4: OPCIONES ADICIONALES ---
+    // --- BLOQUE 4: CASO 6 — AGOTAMIENTO ESTIMADO ---
+    $lead_defecto_actual = (string)$posstock->c6_lead_time_defecto ?: '14';
+    $nivel_servicio_actual = (string)$posstock->c6_nivel_servicio ?: '0.95';
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-shopping-cart"></i> Punto de pedido (Caso 6)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+
+    // Lead time por defecto
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Días de lead time usados cuando un artículo no tiene pedidos históricos suficientes para estimar el plazo real.">Lead time por defecto <small class="text-muted">(sin pedidos históricos)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="1" max="365" class="form-control text-right" name="inputC6LeadTimeDefecto" value="' . htmlspecialchars($lead_defecto_actual) . '" required title="Días de lead time por defecto">';
+    $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    // Nivel de servicio
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Nivel de servicio para el stock de seguridad (SS). A mayor nivel, mayor colchón de stock.">Nivel de servicio (SS)</label>';
+    $html .= '        <select class="form-control input-sm" name="inputC6NivelServicio">';
+    $html .= '          <option value="0.90"' . ($nivel_servicio_actual === '0.90' ? ' selected' : '') . '>90 % — z = 1,28</option>';
+    $html .= '          <option value="0.95"' . ($nivel_servicio_actual === '0.95' ? ' selected' : '') . '>95 % — z = 1,65</option>';
+    $html .= '          <option value="0.99"' . ($nivel_servicio_actual === '0.99' ? ' selected' : '') . '>99 % — z = 2,33</option>';
+    $html .= '        </select>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
+    $html .= '      El lead time se estima automáticamente desde el intervalo medio entre pedidos al proveedor en el rango anual. ';
+    $html .= '      Si no hay suficientes pedidos históricos se usa el valor por defecto.';
+    $html .= '    </p>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
+    // --- BLOQUE 5: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
     $html .= '  <div class="panel-body">';

@@ -688,6 +688,74 @@ class ClasePosstock
     }
 
     /**
+     * C6 — Fechas únicas de albarán por proveedor en el rango dado.
+     * Usado para estimar el lead time desde el intervalo entre albaranes consecutivos.
+     *
+     * @return array  Filas raw (idProveedor, fecha_albaran) o ['error' => ...]
+     */
+    private function _queryFechasAlbaranesByProveedores(string $fi, string $ff, string $ids_prov): array
+    {
+        $smt = $this->db->query("
+            SELECT idProveedor, DATE(Fecha) AS fecha_albaran
+            FROM albprot
+            WHERE DATE(Fecha) BETWEEN '$fi' AND '$ff'
+              AND estado       IN ('Guardado','Facturado','Exportado','Importado')
+              AND idProveedor  IN ($ids_prov)
+            GROUP BY idProveedor, DATE(Fecha)
+            ORDER BY idProveedor, DATE(Fecha)
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+        $rows = [];
+        while ($r = $smt->fetch_assoc()) $rows[] = $r;
+        return $rows;
+    }
+
+    /**
+     * C6 — Calcula el lead time medio (días entre albaranes consecutivos)
+     * para los proveedores indicados en el rango anual [fi_stock, ff_mov].
+     *
+     * Si hay varios proveedores se promedia el LT individual de cada uno.
+     * Devuelve 0 si no hay suficientes albaranes (< 2 por proveedor) en ninguno.
+     *
+     * @return int  Días de LT calculado, o 0 si no hay datos suficientes.
+     */
+    private function _calcularLeadTimeProveedores(string $fi_stock, string $ff_mov, array $proveedores_incluir): int
+    {
+        if (empty($proveedores_incluir)) return 0;
+
+        $fi       = $this->db->real_escape_string($fi_stock);
+        $ff       = $this->db->real_escape_string($ff_mov);
+        $ids_prov = implode(',', array_map('intval', $proveedores_incluir));
+
+        $rows = $this->_queryFechasAlbaranesByProveedores($fi, $ff, $ids_prov);
+        if (isset($rows['error']) || empty($rows)) return 0;
+
+        // Agrupar fechas por proveedor
+        $por_proveedor = [];
+        foreach ($rows as $r) {
+            $por_proveedor[(int)$r['idProveedor']][] = $r['fecha_albaran'];
+        }
+
+        $lts = [];
+        foreach ($por_proveedor as $fechas) {
+            if (count($fechas) < 2) continue;
+            $ts = array_map('strtotime', $fechas);
+            sort($ts);
+            $intervalos = [];
+            for ($i = 1, $np = count($ts); $i < $np; $i++) {
+                $dias = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+                if ($dias > 0) $intervalos[] = $dias;
+            }
+            if (!empty($intervalos)) {
+                $lts[] = array_sum($intervalos) / count($intervalos);
+            }
+        }
+
+        if (empty($lts)) return 0;
+        return max(1, (int)round(array_sum($lts) / count($lts)));
+    }
+
+    /**
      * Paginación — DISTINCT idArticulo con actividad en el rango, con LIMIT/OFFSET.
      *
      * @return array  Filas raw (idArticulo) o ['error' => ...]
@@ -1003,7 +1071,7 @@ class ClasePosstock
         }
 
         // casos_incluir [] = todos los casos activos excepto C4
-        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5'];
+        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6'];
         $casos_raw     = (array)($params['casos_incluir'] ?? []);
         $casos_set     = array_flip(
             empty($casos_raw)
@@ -1081,6 +1149,7 @@ class ClasePosstock
             $c5 = $this->getIncidenciasCaso5(
                 $fi_mov,
                 $ff_mov,
+                $fi_stock,
                 $umbral_sobrestock,
                 $familias_incluir,
                 $familias_excluir,
@@ -1092,6 +1161,26 @@ class ClasePosstock
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
+        }
+
+        // ── C6 ───────────────────────────────────────────────────────────────
+        if (isset($casos_set['caso6'])) {
+            $c6 = $this->getIncidenciasCaso6(
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                (array)($params['proveedores_incluir'] ?? []),
+                (int)  ($params['c6_lead_time_defecto'] ?? 14),
+                (float)($params['c6_nivel_servicio']    ?? 0.95),
+                $min_ventas_c5,
+                $modelo_rotura_c5,
+                $umbral_confianza_c5
+            );
+            if (isset($c6['error'])) return $c6;
+            $incidencias = array_merge($incidencias, $c6);
         }
 
         // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
@@ -1114,7 +1203,8 @@ class ClasePosstock
         $orden_tipo_media = [
             'Entrada con stock alto'             => 0,  // C2
             'Venta Cero (Posible Rotura Física)' => 1,  // C5
-            'Riesgo de caducidad teórica'        => 2,  // C3a
+            'Agotamiento Estimado'               => 2,  // C6 MEDIA (BN, stock suficiente)
+            'Riesgo de caducidad teórica'        => 3,  // C3a
         ];
 
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
@@ -1142,7 +1232,8 @@ class ClasePosstock
         $orden_tipo_media_clave = [
             'Entrada con stock alto'             => '0',
             'Venta Cero (Posible Rotura Física)' => '1',
-            'Riesgo de caducidad teórica'        => '2',
+            'Agotamiento Estimado'               => '2',
+            'Riesgo de caducidad teórica'        => '3',
         ];
 
         // C5: pre-calcular la fecha de inicio de rotura más reciente por artículo
@@ -1167,6 +1258,12 @@ class ClasePosstock
                 $max_f = $max_fecha_c5[$inc['idArticulo']] ?? '0000-00-00';
                 $fi_r  = $inc['fecha_inicio_rotura'] ?? '0000-00-00';
                 $inc['orden_clave'] = $sev_idx . '1' . $max_f . sprintf('%08d', $inc['idArticulo']) . $fi_r;
+            } elseif ($inc['tipo'] === 'Agotamiento Estimado') {
+                // C6 CRITICA/ALTA: ordenar por dias_autonomia ascendente (más urgente primero).
+                // C6 MEDIA: se ordena por tipo dentro del bloque MEDIA (ya cubierto por orden_tipo_media).
+                $dias_pad = str_pad((int)($inc['dias_autonomia'] * 10), 8, '0', STR_PAD_LEFT);
+                $sub      = ($inc['severidad'] === 'MEDIA') ? '2' : '0';
+                $inc['orden_clave'] = $sev_idx . $sub . $dias_pad . sprintf('%08d', $inc['idArticulo']);
             } elseif ($inc['severidad'] === 'MEDIA') {
                 $sub = $orden_tipo_media_clave[$inc['tipo']] ?? '9';
                 $inc['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $inc['idArticulo']);
@@ -1304,7 +1401,6 @@ class ClasePosstock
         $campos = [
             'idArticulo'            => $id,
             'tipo'                  => 'Venta Cero (Posible Rotura Física)',
-            'severidad'             => 'MEDIA',
             'stock_actual'          => $stock_actual,
             'avg_dias_entre_ventas' => round($periodo_dias / $n, 1),
             'sd_dias'               => null,
@@ -1321,20 +1417,23 @@ class ClasePosstock
                 $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
                 $fin               = $fechas[$i];
                 $dias_confirmados  = $gap - $umbral_ceil;
-                // inicio debe ser estrictamente anterior a fin (rotura confirmada por venta posterior)
                 $rotura_confirmada = $inicio < $fin;
                 $cr                = $rotura_confirmada && ($dias_confirmados > $umbral_ceil);
-                // RK: confirmada pero no CR, y el periodo confirmado supera al menos avg_gap días
                 $dias_real         = (int)((strtotime($fin) - strtotime($inicio)) / 86400);
+                $rk                = $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap_real);
+                // KO no aplica en roturas recuperadas (no tenemos el stock en el momento del gap)
+                // Severidad: CR→ALTA; resto→MEDIA (RK y detecciones básicas se muestran igual)
+                $sev = $cr ? 'ALTA' : 'MEDIA';
                 $incidencias[] = $campos + [
+                    'severidad'           => $sev,
                     'ultima_venta'        => $fechas[$i - 1],
                     'fecha_inicio_rotura' => $inicio,
                     'fecha_fin_rotura'    => $fin,
                     'dias_rotura'         => $gap,
                     'rotura_confirmada'   => $rotura_confirmada,
                     'cr'                  => $cr,
-                    'rk'                  => $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap_real),
-                    'ko'                  => $stock_actual < 0,
+                    'rk'                  => $rk,
+                    'ko'                  => false,
                 ];
             }
         }
@@ -1346,21 +1445,25 @@ class ClasePosstock
             $hoy_ts       = time();
             $fin_virtual  = date('Y-m-d', min($ff_ts, $hoy_ts));
             $dias_conf_ko = $dias_final - $umbral_ceil;
-            // rot_conf_ko solo si inicio ya pasó (inicio < hoy)
             $rot_conf_ko  = $inicio_ko < $fin_virtual;
             $cr_ko        = $rot_conf_ko && ($dias_conf_ko > $umbral_ceil);
             $dias_real_ko = $rot_conf_ko
                 ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
                 : 0;
+            $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real);
+            $ko_val = $stock_actual < 0;
+            // KO (stock negativo durante rotura en curso) → CRITICA; CR→ALTA; resto→MEDIA
+            $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
             $incidencias[] = $campos + [
+                'severidad'           => $sev_ko,
                 'ultima_venta'        => $fechas[$n - 1],
                 'fecha_inicio_rotura' => $inicio_ko,
                 'fecha_fin_rotura'    => null,
                 'dias_rotura'         => $dias_final,
                 'rotura_confirmada'   => false,
                 'cr'                  => $cr_ko,
-                'rk'                  => $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real),
-                'ko'                  => $stock_actual < 0,
+                'rk'                  => $rk_ko,
+                'ko'                  => $ko_val,
             ];
         }
         return $incidencias;
@@ -1389,7 +1492,6 @@ class ClasePosstock
         $campos = [
             'idArticulo'            => $id,
             'tipo'                  => 'Venta Cero (Posible Rotura Física)',
-            'severidad'             => 'MEDIA',
             'stock_actual'          => $stock_actual,
             'avg_dias_entre_ventas' => round($avg_gap, 1),
             'sd_dias'               => round($sd, 1),
@@ -1397,33 +1499,33 @@ class ClasePosstock
             'posible_causa'         => 'Hueco en lineal o merma no registrada',
         ];
         $incidencias = [];
-        // Roturas recuperadas: gaps entre ventas consecutivas.
-        // No se comprueba stock — si hubo segunda venta hubo stock durante el hueco.
         for ($i = 1; $i < $n; $i++) {
             $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
             if ($gap > $umbral) {
                 $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
                 $fin               = $fechas[$i];
                 $dias_confirmados  = $gap - $umbral_ceil;
-                // inicio debe ser estrictamente anterior a fin (rotura confirmada por venta posterior)
                 $rotura_confirmada = $inicio < $fin;
                 $cr                = $rotura_confirmada && ($dias_confirmados > $umbral_ceil);
-                // RK: confirmada pero no CR, y el periodo confirmado supera al menos avg_gap días
                 $dias_real         = (int)((strtotime($fin) - strtotime($inicio)) / 86400);
+                $rk                = $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap);
+                // KO no aplica en roturas recuperadas (no disponemos del stock durante el gap)
+                // Severidad: CR→ALTA; resto→MEDIA (RK y detecciones básicas se muestran igual)
+                $sev = $cr ? 'ALTA' : 'MEDIA';
                 $incidencias[] = $campos + [
+                    'severidad'           => $sev,
                     'ultima_venta'        => $fechas[$i - 1],
                     'fecha_inicio_rotura' => $inicio,
                     'fecha_fin_rotura'    => $fin,
                     'dias_rotura'         => $gap,
                     'rotura_confirmada'   => $rotura_confirmada,
                     'cr'                  => $cr,
-                    'rk'                  => $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap),
-                    'ko'                  => $stock_actual < 0,
+                    'rk'                  => $rk,
+                    'ko'                  => false,
                 ];
             }
         }
         // Rotura en curso: desde última venta hasta ff_mov.
-        // Solo se reporta si el artículo aún tiene stock al cierre del periodo.
         // CR/RK capados a hoy para evitar marcar roturas que aún no han empezado.
         $dias_final   = (int)(($ff_ts - $ts[$n - 1]) / 86400);
         if ($dias_final > $umbral && ($incluir_stock_negativo || $stock_actual > 0)) {
@@ -1436,15 +1538,20 @@ class ClasePosstock
             $dias_real_ko = $rot_conf_ko
                 ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
                 : 0;
+            $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap);
+            $ko_val = $stock_actual < 0;
+            // KO (stock negativo durante rotura en curso) → CRITICA; CR→ALTA; resto→MEDIA
+            $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
             $incidencias[] = $campos + [
+                'severidad'           => $sev_ko,
                 'ultima_venta'        => $fechas[$n - 1],
                 'fecha_inicio_rotura' => $inicio_ko,
                 'fecha_fin_rotura'    => null,
                 'dias_rotura'         => $dias_final,
                 'rotura_confirmada'   => false,
                 'cr'                  => $cr_ko,
-                'rk'                  => $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap),
-                'ko'                  => $stock_actual < 0,
+                'rk'                  => $rk_ko,
+                'ko'                  => $ko_val,
             ];
         }
         return $incidencias;
@@ -1581,10 +1688,13 @@ class ClasePosstock
      *   3. Cálculo de media+3σ sobre los gaps entre días de venta.
      *
      * Funciona para cualquier longitud de periodo (semana, mes, anual…).
+     * La ventana de análisis estadístico arranca en $fi_stock (inicio del rango anual)
+     * para garantizar suficiente histórico en vistas cortas (semanal, quincenal, mensual).
      */
     private function getIncidenciasCaso5(
         string $fi_mov,
         string $ff_mov,
+        string $fi_stock,            // inicio del rango anual — ventana de análisis histórico
         float  $umbral_sobrestock,   // no usado en C5, recibido por firma uniforme
         array  $familias_incluir,
         array  $familias_excluir,
@@ -1594,7 +1704,9 @@ class ClasePosstock
         float  $umbral_prob             = 0.05,         // solo Poisson: P(0) < umbral → rotura
         bool   $c5_incluir_stock_negativo = false       // si false, excluye stock_actual < 0
     ): array {
-        $fi   = $this->db->real_escape_string($fi_mov);
+        // Usar fi_stock como inicio del análisis para tener suficiente histórico
+        // en vistas cortas (semana/quincena). ff_mov sigue siendo el límite.
+        $fi   = $this->db->real_escape_string($fi_stock);
         $ff   = $this->db->real_escape_string($ff_mov);
 
         $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
@@ -1633,8 +1745,10 @@ class ClasePosstock
         }
 
         // Paso 3: lógica Caso 5 — detecta TODAS las roturas (binomial o Poisson)
+        // periodo_dias se calcula sobre la ventana histórica real (fi_stock→ff_mov)
+        // para que la media y σ sean representativos independientemente de la vista activa.
         $ff_ts        = strtotime($ff_mov);
-        $periodo_dias = max(1, (int)round((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
+        $periodo_dias = max(1, (int)round(($ff_ts - strtotime($fi_stock)) / 86400) + 1);
         $incidencias  = [];
 
         foreach ($ventas_fechas as $id => $fechas_map) {
@@ -1664,6 +1778,205 @@ class ClasePosstock
         if (!empty($incidencias)) {
             $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
             $smt = $this->db->query(
+                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+            );
+            $nombres = [];
+            if ($smt) {
+                while ($r = $smt->fetch_assoc()) {
+                    $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+                }
+            }
+            foreach ($incidencias as &$inc) {
+                $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+            }
+            unset($inc);
+        }
+
+        return $incidencias;
+    }
+
+    /**
+     * Caso 6 — Agotamiento Estimado / Punto de Pedido (ROP).
+     *
+     * Proyecta hacia el futuro usando los mismos modelos estadísticos que C5:
+     *   · Estima la demanda diaria (d) y su dispersión (Poisson o Binomial Negativa)
+     *     a partir de las fechas de venta en el periodo analizado [fi_mov, ff_mov].
+     *   · Lead time (L): si hay proveedores seleccionados se calcula como el intervalo
+     *     medio entre albaranes consecutivos de esos proveedores en el rango anual
+     *     [fi_stock, ff_mov]. Si no hay datos suficientes (< 2 albaranes por proveedor),
+     *     o si no hay ningún proveedor seleccionado, se usa lead_time_defecto.
+     *     Con varios proveedores se promedia el LT individual de cada uno.
+     *   · Calcula SS = z × σ_d × √L  y  ROP = d × L + SS.
+     *   · Clasifica por severidad según la relación entre stock_actual y ROP:
+     *       CRITICA — dias_autonomia < L  (agotamiento antes del próximo pedido)
+     *       ALTA    — stock < ROP         (por debajo del punto de pedido)
+     *       MEDIA   — stock ≥ ROP y modelo BN (stock suficiente pero alta variabilidad)
+     *   · Solo devuelve artículos accionables (CRITICA, ALTA, o MEDIA+BN).
+     *
+     * @param string $fi_mov              Inicio del periodo de análisis de ventas
+     * @param string $ff_mov              Fin del periodo de análisis (= fecha actual del informe)
+     * @param string $fi_stock            Inicio del rango anual (para calcular LT desde albaranes)
+     * @param array  $familias_incluir
+     * @param array  $familias_excluir
+     * @param array  $ids_filter
+     * @param array  $proveedores_incluir IDs de proveedor seleccionados ([] = sin filtro)
+     * @param int    $lead_time_defecto   Días usados si no hay proveedor o datos insuficientes
+     * @param float  $nivel_servicio      0.90 | 0.95 | 0.99  (z = 1.28 | 1.65 | 2.33)
+     * @param int    $min_ventas          Mínimo de días con venta para incluir el artículo
+     * @param string $modelo              'binomial' | 'poisson' (selección del modelo C5)
+     * @param float  $umbral_prob         Umbral de probabilidad para el modelo Poisson
+     *
+     * @return array  Filas de incidencia o ['error' => ...]
+     */
+    private function getIncidenciasCaso6(
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        array  $familias_incluir,
+        array  $familias_excluir,
+        array  $ids_filter,
+        array  $proveedores_incluir,
+        int    $lead_time_defecto,
+        float  $nivel_servicio,
+        int    $min_ventas,
+        string $modelo,
+        float  $umbral_prob
+    ): array {
+        $fi = $this->db->real_escape_string($fi_mov);
+        $ff = $this->db->real_escape_string($ff_mov);
+
+        $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $where_ids = $this->_idsWhere($ids_filter);
+
+        // Paso 1 — Fechas de venta únicas por artículo en el periodo (igual que C5)
+        $rows_ventas = $this->_queryVentasFechasC5($fi, $ff, $where_fam, $where_ids);
+        if (isset($rows_ventas['error'])) return $rows_ventas;
+        if (empty($rows_ventas)) return [];
+
+        $ventas_fechas = [];
+        foreach ($rows_ventas as $r) {
+            $ventas_fechas[(int)$r['idArticulo']][$r['fecha']] = true;
+        }
+
+        // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
+        $ids_str    = implode(',', array_keys($ventas_fechas));
+        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, false);
+        if (isset($rows_stock['error'])) return $rows_stock;
+
+        $stock_actual = [];
+        foreach ($rows_stock as $r) {
+            $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        }
+
+        // Lead time: desde albaranes del proveedor si hay selección; defecto en caso contrario
+        $lead_fuente = 'defecto';
+        $L           = max(1, $lead_time_defecto);
+        if (!empty($proveedores_incluir)) {
+            $lt_prov = $this->_calcularLeadTimeProveedores($fi_stock, $ff_mov, $proveedores_incluir);
+            if ($lt_prov > 0) {
+                $L           = $lt_prov;
+                $lead_fuente = 'proveedor';
+            }
+        }
+
+        // Z-score según nivel de servicio
+        $z_map = ['0.90' => 1.28, '0.95' => 1.65, '0.99' => 2.33];
+        $z     = $z_map[number_format($nivel_servicio, 2)] ?? 1.65;
+
+        $ff_ts = strtotime($ff_mov);
+
+        // Periodos no finalizados (trimestral, semestral, anual…): usar solo los días
+        // transcurridos hasta hoy. Sin este ajuste, d_diaria = n_ventas / días_totales
+        // se diluye artificialmente (ej. anual en marzo → n/365 en lugar de n/74),
+        // produciendo ROP y cantidad de pedido muy por debajo de la realidad.
+        $ff_efectivo  = min($ff_ts, time());
+        $periodo_dias = max(1, (int)round(($ff_efectivo - strtotime($fi_mov)) / 86400) + 1);
+
+        // Granularidad de sub-ventanas (misma lógica que _calcularRoturasC5Poisson)
+        if ($periodo_dias < 40)       $chunk_days = 1;
+        elseif ($periodo_dias <= 130) $chunk_days = 5;
+        else                          $chunk_days = 10;
+
+        $fi_period_ts = $ff_efectivo - ($periodo_dias - 1) * 86400;
+
+        $incidencias = [];
+
+        foreach ($ventas_fechas as $id => $fechas_map) {
+            $fechas = array_keys($fechas_map);
+            $n      = count($fechas);
+            if ($n < $min_ventas) continue;
+
+            $d = $n / $periodo_dias;   // demanda diaria estimada
+            if ($d <= 0) continue;
+
+            // ── Parámetros estadísticos (misma lógica que _calcularRoturasC5Poisson) ──
+            $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
+            $chunk_counts = array_fill(0, $n_chunks, 0);
+            foreach (array_map('strtotime', $fechas) as $t) {
+                $offset = (int)(($t - $fi_period_ts) / 86400);
+                $chunk  = min($n_chunks - 1, max(0, (int)floor($offset / $chunk_days)));
+                $chunk_counts[$chunk]++;
+            }
+
+            $mu_chunk = $n / $n_chunks;
+            $s2_chunk = 0.0;
+            if ($n_chunks > 1) {
+                foreach ($chunk_counts as $c) $s2_chunk += ($c - $mu_chunk) ** 2;
+                $s2_chunk /= ($n_chunks - 1);
+            }
+
+            // σ_d: desviación estándar de la demanda diaria según modelo
+            $modelo_usado = 'Poisson';
+            if ($n_chunks >= 4 && $s2_chunk > $mu_chunk + 1e-9 && $mu_chunk > 1e-9) {
+                $r_bn         = max(0.001, ($mu_chunk ** 2) / ($s2_chunk - $mu_chunk));
+                $sigma_d      = sqrt($d * (1.0 + $d / $r_bn));
+                $modelo_usado = 'BN';
+            } else {
+                $sigma_d = sqrt($d);   // Poisson: varianza = media
+            }
+
+            // ── ROP y Stock de Seguridad ──────────────────────────────────────
+            $SS  = $z * $sigma_d * sqrt((float)$L);
+            $ROP = $d * $L + $SS;
+
+            $stock = $stock_actual[$id] ?? 0.0;
+            $dias_autonomia = $d > 0 ? max(0.0, $stock / $d) : PHP_FLOAT_MAX;
+
+            // Solo artículos accionables: bajo ROP, o BN con riesgo latente
+            if ($stock >= $ROP && $modelo_usado !== 'BN') continue;
+
+            // ── Severidad ─────────────────────────────────────────────────────
+            if ($dias_autonomia < $L) {
+                $severidad     = 'CRITICA';
+                $posible_causa = 'Agotamiento estimado antes del próximo pedido';
+            } elseif ($stock < $ROP) {
+                $severidad     = 'ALTA';
+                $posible_causa = 'Stock por debajo del punto de pedido (ROP)';
+            } else {
+                $severidad     = 'MEDIA';
+                $posible_causa = 'Stock suficiente pero con alta variabilidad de demanda';
+            }
+
+            $incidencias[] = [
+                'idArticulo'      => $id,
+                'tipo'            => 'Agotamiento Estimado',
+                'severidad'       => $severidad,
+                'stock_actual'    => $stock,
+                'dias_autonomia'  => round($dias_autonomia, 1),
+                'lead_time_dias'  => $L,
+                'lead_time_fuente' => $lead_fuente,
+                'd_diaria'        => round($d, 4),
+                'stock_seguridad' => round($SS, 2),
+                'rop'             => round($ROP, 2),
+                'modelo_usado'    => $modelo_usado,
+                'posible_causa'   => $posible_causa,
+            ];
+        }
+
+        // Añadir nombres
+        if (!empty($incidencias)) {
+            $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $smt     = $this->db->query(
                 "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
             );
             $nombres = [];

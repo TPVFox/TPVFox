@@ -11,6 +11,10 @@
 			<umbral_semanas_sin_rotacion>12</umbral_semanas_sin_rotacion>
 			<!-- 1 = incluir artículos con stock positivo y cero movimientos en el periodo analizado -->
 			<incluir_stock_inactivo>0</incluir_stock_inactivo>
+			<!-- C6 — días de lead time por defecto cuando no hay pedidos históricos suficientes -->
+			<c6_lead_time_defecto>14</c6_lead_time_defecto>
+			<!-- C6 — nivel de servicio para el stock de seguridad: 0.90, 0.95 o 0.99 -->
+			<c6_nivel_servicio>0.95</c6_nivel_servicio>
 			<!-- Modelo estadístico para detección de roturas C5: binomial (media+3σ) o poisson -->
 			<modelo_rotura_c5>binomial</modelo_rotura_c5>
 			<!-- Umbral de probabilidad para el modelo Poisson (0.05 = 95% confianza, 0.01 = 99%) -->

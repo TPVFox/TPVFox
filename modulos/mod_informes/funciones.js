@@ -781,96 +781,115 @@ function pintarTablaIncidencias(filas) {
     filas.forEach(function (f) {
         var detalle = "";
         if (f.tipo === "Stock Negativo") {
+            // C1a — lo más urgente primero: el déficit actual
             detalle =
-                "Stock actual: <strong>" +
-                (f.stock_actual !== undefined
-                    ? parseFloat(f.stock_actual).toFixed(2)
-                    : "—") +
+                "Stock: <strong>" +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
                 "</strong>" +
                 (f.min_balance !== undefined
-                    ? " | Mín. intra-periodo: " +
-                      parseFloat(f.min_balance).toFixed(2)
+                    ? " | Mín. periodo: " + parseFloat(f.min_balance).toFixed(2)
                     : "");
         } else if (f.tipo === "Desajuste Puntual de Stock") {
+            // C1b — el mínimo es el dato clave (el cierre ya es positivo)
             detalle =
-                "Stock final: " +
-                (f.stock_actual !== undefined
-                    ? parseFloat(f.stock_actual).toFixed(2)
-                    : "—") +
-                " | Mín. intra-periodo: <strong>" +
-                (f.min_balance !== undefined
-                    ? parseFloat(f.min_balance).toFixed(2)
-                    : "—") +
-                "</strong>";
+                "Mín. intra-periodo: <strong>" +
+                (f.min_balance !== undefined ? parseFloat(f.min_balance).toFixed(2) : "—") +
+                "</strong>" +
+                " | Stock al cierre: " +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
         } else if (f.tipo === "Entrada con stock alto") {
+            // C2 — ratio para ver de un vistazo cuán excesiva fue la entrada
+            var previo = parseFloat(f.stock_previo) || 0;
+            var ncant  = parseFloat(f.ncant) || 0;
+            var ratio  = ncant > 0 ? (previo / ncant).toFixed(1) + "×" : "—";
             detalle =
-                "Stock previo: " +
-                parseFloat(f.stock_previo).toFixed(2) +
-                " | Entrada: " +
-                parseFloat(f.ncant).toFixed(2) +
-                " | Fecha: " +
-                (f.fecha || "—");
+                "Previo: " + previo.toFixed(2) +
+                " | Entrada: <strong>" + ncant.toFixed(2) + " ud. (" + ratio + " previo)</strong>" +
+                " | Fecha: " + (f.fecha || "—");
         } else if (f.tipo === "Riesgo de caducidad teórica") {
+            // C3a — stock primero: determina la urgencia real del riesgo
             detalle =
-                "Últ. venta: " +
-                (f.ultima_venta || "—") +
-                " | " +
-                (f.semanas_desde_ultima_venta || "—") +
-                " sem.";
+                "Stock: " +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
+                " | Últ. venta: " + (f.ultima_venta || "—") +
+                " | <strong>" + (f.semanas_desde_ultima_venta || "—") + " sem.</strong> sin venta";
         } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
             var estadoRotura = f.fecha_fin_rotura
                 ? "Recuperada " + f.fecha_fin_rotura
                 : '<span class="label label-warning">En curso</span>';
             var badgeKO = f.ko
-                ? ' <span class="label label-danger" title="Rotura en curso con stock positivo al cierre del periodo">KO</span>'
+                ? ' <span class="label label-danger" title="Stock negativo durante la rotura en curso: inventario en descubierto">KO</span>'
                 : "";
             var badgeCR = f.cr
-                ? ' <span class="label" style="background:#e67e22;" title="Rotura crítica: la recuperación superó fecha de inicio + umbral">CR</span>'
+                ? ' <span class="label" style="background:#e67e22;" title="Rotura crítica: duración confirmada supera el umbral">CR</span>'
                 : "";
             var badgeRK = f.rk
-                ? ' <span class="label label-warning" title="Rotura confirmada significativa: hueco verificado pero no crítico">RK</span>'
+                ? ' <span class="label label-warning" title="Rotura confirmada significativa (≥ cadencia media)">RK</span>'
                 : "";
-            var badgeModelo =
-                f.modelo_usado === "BN"
-                    ? ' <span class="label label-info" title="Sobredispersión detectada (s²>μ): umbral calculado con Binomial Negativa">BN</span>'
-                    : "";
+            var badgeModelo = f.modelo_usado === "BN"
+                ? ' <span class="label label-info" title="Sobredispersión detectada: umbral calculado con Binomial Negativa">BN</span>'
+                : "";
+            var sdStr = f.sd_dias !== null && f.sd_dias !== undefined
+                ? " σ=" + f.sd_dias + " d"
+                : "";
             detalle =
-                badgeKO +
-                badgeCR +
-                badgeRK +
-                badgeModelo +
-                " Últ. venta: " +
-                (f.ultima_venta || "—") +
-                " | Rotura desde: <strong>" +
-                (f.fecha_inicio_rotura || "—") +
-                "</strong>" +
-                " | " +
-                estadoRotura +
-                " | " +
-                (f.dias_rotura !== undefined ? f.dias_rotura + " d" : "—") +
-                " | μ: " +
-                (f.avg_dias_entre_ventas !== undefined
-                    ? f.avg_dias_entre_ventas + " d"
-                    : "—") +
-                " σ: " +
-                (f.sd_dias !== undefined ? f.sd_dias + " d" : "—") +
-                " (umbral " +
-                (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") +
-                ")";
+                badgeKO + badgeCR + badgeRK + badgeModelo +
+                " Desde: <strong>" + (f.fecha_inicio_rotura || "—") + "</strong>" +
+                " | " + estadoRotura +
+                " | " + (f.dias_rotura !== undefined ? f.dias_rotura + " d" : "—") +
+                " | Últ. venta: " + (f.ultima_venta || "—") +
+                " | Cadencia: " +
+                (f.avg_dias_entre_ventas !== undefined ? f.avg_dias_entre_ventas + " d" : "—") +
+                sdStr +
+                " (umbral " + (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") + ")";
         } else if (f.tipo === "Entrada sin rotación previa") {
-            detalle = f.ultima_salida
-                ? "Últ. salida: " +
-                  f.ultima_salida +
-                  " | " +
-                  (f.semanas_desde_ultima_salida || "—") +
-                  " sem."
-                : "Sin salidas registradas";
+            // C3b — stock primero; luego la última salida o ausencia de ella
+            var stockC3b = f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—";
+            detalle = "Stock: " + stockC3b + " | " + (f.ultima_salida
+                ? "Últ. salida: " + f.ultima_salida +
+                  " | <strong>" + (f.semanas_desde_ultima_salida || "—") + " sem.</strong>"
+                : "<strong>Sin salidas registradas</strong>");
         } else if (f.tipo === "Stock Inactivo en Periodo") {
+            // C4 — solo el stock; el resto ya está en tipo y causa
             detalle =
-                "Stock en periodo: " +
-                (f.stock_actual !== undefined
-                    ? parseFloat(f.stock_actual).toFixed(2)
-                    : "—");
+                "Stock: " +
+                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
+        } else if (f.tipo === "Agotamiento Estimado") {
+            // C6 — recomendación primero, contexto después; SS y d/día eliminados (técnicos)
+            var esBN       = f.modelo_usado === "BN";
+            var stockC6    = parseFloat(f.stock_actual)    || 0;
+            var ropC6      = parseFloat(f.rop)             || 0;
+            var ssC6       = parseFloat(f.stock_seguridad) || 0;
+            var dC6        = parseFloat(f.d_diaria)        || 0;
+
+            var qBase        = Math.max(0, ropC6 - stockC6);
+            var qRecomendada = Math.ceil(esBN ? qBase + ssC6 : qBase);
+            var diasTrasPedido = dC6 > 0
+                ? Math.round((stockC6 + qRecomendada) / dC6)
+                : null;
+
+            var badgeC6Modelo = esBN
+                ? ' <span class="label label-info" title="Demanda irregular (rachas): Binomial Negativa. Se añade un SS extra a la cantidad orientativa.">BN</span>'
+                : ' <span class="label label-default" title="Demanda regular: Poisson. Estimación fiable.">P</span>';
+            var badgeC6LT = f.lead_time_fuente === "proveedor"
+                ? ' <span class="label label-success" title="Lead time calculado desde intervalo entre albaranes del proveedor">LT prov.</span>'
+                : "";
+            var badgeC6Q = qRecomendada > 0
+                ? ' <span class="label label-warning" title="' +
+                  (esBN ? "BN: ROP + SS extra por variabilidad" : "Poisson: llevar stock hasta ROP") +
+                  '">Pedir ~' + qRecomendada + " ud.</span>"
+                : ' <span class="label label-success">Stock OK</span>';
+
+            detalle =
+                badgeC6Modelo + badgeC6LT + badgeC6Q +
+                " Stock: <strong>" + stockC6.toFixed(2) + "</strong>" +
+                " | Autonomía: <strong>" +
+                (f.dias_autonomia !== undefined ? f.dias_autonomia + " d" : "—") + "</strong>" +
+                " | LT: " + (f.lead_time_dias !== undefined ? f.lead_time_dias + " d" : "—") +
+                " | ROP: " + ropC6.toFixed(2) +
+                (diasTrasPedido !== null
+                    ? " | Cobertura tras pedido: <strong>" + diasTrasPedido + " d</strong>"
+                    : "");
         }
 
         var urlMayor =
@@ -1040,6 +1059,7 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso3a", t: "Riesgo de caducidad teórica", short: "C3a" },
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
+    { v: "caso6", t: "Agotamiento Estimado (ROP)", short: "C6" },
 ];
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
@@ -1139,6 +1159,13 @@ function posstockActualizarNumero() {
     sel.disabled = true;
     document.getElementById("posstockBtnGenerar").disabled = true;
     document.getElementById("posstockAvisoVentana").style.display = "none";
+
+    // Ocultar la barra de botones de navegación rápida al cambiar el tipo de periodo
+    // para que los botones del tipo anterior no induzcan a error.
+    var barra = document.getElementById("posstockBarraBotones");
+    if (barra) barra.style.display = "none";
+    var wrapBotones = document.getElementById("posstockBotonesPeriodo");
+    if (wrapBotones) wrapBotones.innerHTML = "";
 
     // Cambiar label según contexto
     var labelEl = document.getElementById("posstockLabelNumero");

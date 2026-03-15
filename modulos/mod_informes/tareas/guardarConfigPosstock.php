@@ -36,14 +36,24 @@ if (!isset($mapa['inputUmbralSinRotacionSemanas'])
     $errores[] = 'Semanas sin rotación debe ser un número entero positivo.';
 }
 
-$modelos_validos   = ['binomial', 'poisson'];
+$modelos_validos    = ['binomial', 'poisson'];
 $confianzas_validas = ['0.10', '0.05', '0.01'];
+$niveles_c6_validos = ['0.90', '0.95', '0.99'];
 
 if (!isset($mapa['inputModeloRoturaC5']) || !in_array($mapa['inputModeloRoturaC5'], $modelos_validos, true)) {
     $mapa['inputModeloRoturaC5'] = 'binomial';
 }
 if (!isset($mapa['inputUmbralConfianzaPoisson']) || !in_array($mapa['inputUmbralConfianzaPoisson'], $confianzas_validas, true)) {
     $mapa['inputUmbralConfianzaPoisson'] = '0.05';
+}
+if (!isset($mapa['inputC6LeadTimeDefecto'])
+    || !ctype_digit($mapa['inputC6LeadTimeDefecto'])
+    || intval($mapa['inputC6LeadTimeDefecto']) < 1
+) {
+    $mapa['inputC6LeadTimeDefecto'] = '14';
+}
+if (!isset($mapa['inputC6NivelServicio']) || !in_array($mapa['inputC6NivelServicio'], $niveles_c6_validos, true)) {
+    $mapa['inputC6NivelServicio'] = '0.95';
 }
 
 if (!empty($errores)) {
@@ -60,6 +70,8 @@ if (!empty($errores)) {
     $posstock->modelo_rotura_c5                   = $mapa['inputModeloRoturaC5'];
     $posstock->umbral_confianza_poisson           = $mapa['inputUmbralConfianzaPoisson'];
     $posstock->c5_incluir_stock_negativo          = $c5_incluir_stock_negativo;
+    $posstock->c6_lead_time_defecto               = intval($mapa['inputC6LeadTimeDefecto']);
+    $posstock->c6_nivel_servicio                  = $mapa['inputC6NivelServicio'];
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']                  = 'Configuración POSStock guardada correctamente.';
