@@ -419,7 +419,6 @@ function cargarDatosPosstock(periodo, tipoIncidencia) {
     $("#posstockTablaWrap").hide();
     $("#posstockNavegacion").hide();
     $("#posstockBotonesWrap").hide();
-    $("#posstockFilaCasos").hide();
     $("#posstockProgreso").text("Calculando incidencias…");
 
     _posstockCargaLote(0, [], periodo, tipoIncidencia || "");
@@ -441,7 +440,7 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
-        tipo_incidencia: tipoIncidencia,
+        casos_incluir: _posstockGetCasosIncluir(tipoIncidencia),
         inicial: inicial,
         pagina: 150,
         familias_incluir: (window.posstockFamiliasIncluir || [])
@@ -629,11 +628,6 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 $("#posstockLabelStock").text(periodo.label_stock || "");
 
                 pintarTablaIncidencias(acum);
-
-                // Filtro de casos: solo en vistas no anuales
-                if (window.posstockTipoActivo !== "anual") {
-                    _posstockInicializarFiltroCasos();
-                }
 
                 $("#posstockNavegacion").show();
                 $("#posstockBotonesWrap").show();
@@ -868,6 +862,7 @@ function exportarPOSStockCSV() {
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
+        casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
         familias_incluir: (window.posstockFamiliasIncluir || [])
             .map(function (f) {
                 return f.id;
@@ -916,6 +911,7 @@ function imprimirPOSStockPDF() {
             fecha_fin_movimientos: periodo.fecha_fin_movimientos,
             fecha_inicio_stock: periodo.fecha_inicio_stock,
             fecha_fin_stock: periodo.fecha_fin_stock,
+            casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
             familias_incluir: (window.posstockFamiliasIncluir || [])
                 .map(function (f) {
                     return f.id;
@@ -969,16 +965,6 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
 ];
 
-// Mapeo de código de caso → strings del campo 'tipo' que devuelve el backend
-var POSSTOCK_TIPO_MAP = {
-    caso1: ["Stock Negativo", "Desajuste Puntual de Stock"],
-    caso2: ["Entrada con stock alto"],
-    caso3a: ["Riesgo de caducidad teórica"],
-    caso3b: ["Entrada sin rotación previa"],
-    caso4: ["Stock Inactivo en Periodo"],
-    caso5: ["Venta Cero (Posible Rotura Física)"],
-};
-
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
 function _posstockTiposActivos() {
     var tipos = POSSTOCK_TIPOS_INCIDENCIA.slice();
@@ -986,6 +972,23 @@ function _posstockTiposActivos() {
         tipos.push({ v: "caso4", t: "Stock Inactivo en Periodo", short: "C4" });
     }
     return tipos;
+}
+
+/**
+ * Devuelve el valor de casos_incluir para enviar al backend.
+ *
+ * - Vista anual: tipoIncidenciaAnual es el caso concreto (string); se devuelve tal cual.
+ * - Resto: lee los checkboxes marcados y devuelve una cadena separada por comas.
+ *   Si no hay checkboxes (aún no inicializados), devuelve "" (todos los casos activos).
+ */
+function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
+    if (tipoIncidenciaAnual) return tipoIncidenciaAnual;
+    var seleccionados = [];
+    _posstockTiposActivos().forEach(function (ti) {
+        var chk = document.getElementById("posstockChk_" + ti.v);
+        if (!chk || chk.checked) seleccionados.push(ti.v);
+    });
+    return seleccionados.join(",");
 }
 
 /**
@@ -1006,7 +1009,7 @@ function _posstockInicializarFiltroCasos() {
             '" value="' +
             ti.v +
             '" ' +
-            'checked onchange="posstockFiltrarPorCaso()"> ' +
+            'checked onchange="posstockRecargarPorCasos()"> ' +
             '<span class="label label-default">' +
             ti.short +
             "</span> " +
@@ -1018,26 +1021,17 @@ function _posstockInicializarFiltroCasos() {
 }
 
 /**
- * Muestra u oculta filas de #posstockTabla según los checkboxes activos.
- * Las filas tienen data-tipo con el tipo exacto devuelto por el backend.
+ * Relanza la consulta al backend con los casos actualmente seleccionados.
+ * Se llama desde onchange de los checkboxes de tipo de incidencia.
  */
-function posstockFiltrarPorCaso() {
-    // Construir el conjunto de tipos string visibles
-    var visibles = {};
-    _posstockTiposActivos().forEach(function (ti) {
-        var chk = document.getElementById("posstockChk_" + ti.v);
-        if (chk && chk.checked) {
-            (POSSTOCK_TIPO_MAP[ti.v] || []).forEach(function (t) {
-                visibles[t] = true;
-            });
-        }
-    });
-    var filas = document.querySelectorAll("#posstockTabla tbody tr[data-tipo]");
-    filas.forEach(function (tr) {
-        tr.style.display = visibles[tr.getAttribute("data-tipo")] ? "" : "none";
-    });
+function posstockRecargarPorCasos() {
+    if (!window.posstockPeriodoActivo) return;
+    cargarDatosPosstock(
+        window.posstockPeriodoActivo,
+        window.posstockTipoIncidenciaActivo || ""
+    );
 }
-window.posstockFiltrarPorCaso = posstockFiltrarPorCaso;
+window.posstockRecargarPorCasos = posstockRecargarPorCasos;
 
 var MESES = [
     "Ene",
@@ -1404,6 +1398,7 @@ function posstockNavegar(numero) {
 }
 
 // Habilitar botón Generar cuando se elige un número de periodo
+// e inicializar los checkboxes de casos en la carga de página.
 document.addEventListener("DOMContentLoaded", function () {
     document
         .getElementById("posstockNumero")
@@ -1411,6 +1406,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("posstockBtnGenerar").disabled =
                 this.value === "";
         });
+
+    _posstockInicializarFiltroCasos();
 });
 
 window.posstockActualizarNumero = posstockActualizarNumero;

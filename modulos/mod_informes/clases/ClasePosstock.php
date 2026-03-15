@@ -472,12 +472,17 @@ class ClasePosstock
      * @param array $params  Claves requeridas:
      *   fecha_inicio_movimientos, fecha_fin_movimientos,
      *   fecha_inicio_stock,       fecha_fin_stock
-     *   Claves opcionales (umbrales con defaults):
-     *   umbral_sobrestock            (float, default 0.5)
-     *   umbral_caducidad_semanas     (int,   default 24)
-     *   umbral_sin_rotacion_semanas  (int,   default 12)
+     *   Claves opcionales:
+     *   casos_incluir                (array,  default [] = todos excepto caso4)
+     *   umbral_sobrestock            (float,  default 0.5)
+     *   umbral_caducidad_semanas     (int,    default 24)
+     *   umbral_sin_rotacion_semanas  (int,    default 12)
      *
-     * @return array  Filas ordenadas CRITICA→MEDIA→BAJA, con clave 'error' si falla.
+     * casos_incluir acepta: 'caso1','caso2','caso3a','caso3b','caso4','caso5'.
+     * [] o ausente = C1+C2+C3a+C3b+C5 (todos los activos; C4 excluido salvo indicación explícita).
+     *
+     * @return array  Filas ordenadas CRITICA→ALTA→MEDIA(C2→C5→C3a)→BAJA(C3b→C4),
+     *               o array con clave 'error' si falla.
      */
     public function getIncidencias(array $params): array
     {
@@ -486,151 +491,83 @@ class ClasePosstock
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
 
-        $umbral_sobrestock      = (float) ($params['umbral_sobrestock']           ?? 0.5);
-        $umbral_caducidad       = (int)   ($params['umbral_caducidad_semanas']    ?? 24);
-        $umbral_sin_rotacion    = (int)   ($params['umbral_sin_rotacion_semanas'] ?? 12);
-        $incluir_stock_inactivo = (bool)  ($params['incluir_stock_inactivo']      ?? false);
-        $tipo_incidencia        = (string)($params['tipo_incidencia']             ?? '');
-        $familias_incluir       = (array) ($params['familias_incluir'] ?? []);
-        $familias_excluir       = (array) ($params['familias_excluir'] ?? []);
-        $ids_filter             = (array) ($params['ids_filter']       ?? []);
+        $umbral_sobrestock   = (float) ($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad    = (int)   ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion = (int)   ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
+        $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
+        $ids_filter          = (array) ($params['ids_filter']       ?? []);
 
-        // ── Rutas dedicadas por tipo (sin cargar getMovimientosPeriodo) ───────
-        switch ($tipo_incidencia) {
-            case 'caso5':
-                return $this->getIncidenciasCaso5(
-                    $fi_mov,
-                    $ff_mov,
-                    $umbral_sobrestock,
-                    $familias_incluir,
-                    $familias_excluir,
-                    $ids_filter
-                );
+        // casos_incluir [] = todos los casos activos excepto C4
+        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5'];
+        $casos_raw     = (array)($params['casos_incluir'] ?? []);
+        $casos_set     = array_flip(
+            empty($casos_raw)
+                ? $validos_todos
+                : array_intersect($casos_raw, [...$validos_todos, 'caso4'])
+        );
 
-            case 'caso1':
-                $filas = $this->getIncidenciasC1(
-                    $fi_mov,
-                    $ff_mov,
-                    $fi_stock,
-                    $ff_stock,
-                    $familias_incluir,
-                    $familias_excluir,
-                    $ids_filter
-                );
-                return isset($filas['error']) ? $filas : $this->_anadirNombres($filas);
+        $incidencias = [];
 
-            case 'caso2':
-                $filas = $this->getIncidenciasC2(
-                    $fi_mov,
-                    $ff_mov,
-                    $fi_stock,
-                    $ff_stock,
-                    $umbral_sobrestock,
-                    $familias_incluir,
-                    $familias_excluir,
-                    $ids_filter
-                );
-                return isset($filas['error']) ? $filas : $this->_anadirNombres($filas);
-
-            case 'caso3a':
-            case 'caso3b':
-                $all_c3 = $this->getIncidenciasC3(
-                    $fi_mov,
-                    $ff_mov,
-                    $fi_stock,
-                    $umbral_caducidad,
-                    $umbral_sin_rotacion,
-                    $familias_incluir,
-                    $familias_excluir,
-                    $ids_filter
-                );
-                if (isset($all_c3['error'])) return $all_c3;
-                $tipo_filtrar = $tipo_incidencia === 'caso3a'
-                    ? 'Riesgo de caducidad teórica'
-                    : 'Entrada sin rotación previa';
-                $filas = array_values(array_filter(
-                    $all_c3,
-                    fn($inc) => $inc['tipo'] === $tipo_filtrar
-                ));
-                return $this->_anadirNombres($filas);
-
-            case 'caso4':
-                $articulos = $this->getArticulosSinMovimiento(
-                    $fi_mov,
-                    $ff_mov,
-                    $familias_incluir,
-                    $familias_excluir
-                );
-                if (isset($articulos['error'])) return $articulos;
-                return $this->_anadirNombres($this->_formatearCaso4($articulos));
-        }
-
-        // ── Todos los casos: consultas dedicadas por caso, fusionar y ordenar ─
-
-        // Precalcular stock_base una sola vez cuando hay lote de IDs conocidos,
-        // para compartirlo entre C1 y C2 sin repetir la consulta.
+        // ── Precalcular stock_base compartido para C1 y C2 ───────────────────
         $sb_shared = [];
-        if (!empty($ids_filter)) {
+        if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']))) {
             $sb_shared = $this->getStockBase($ids_filter, $fi_stock, $ff_stock);
             if (isset($sb_shared['error'])) return $sb_shared;
         }
 
-        $c1 = $this->getIncidenciasC1(
-            $fi_mov,
-            $ff_mov,
-            $fi_stock,
-            $ff_stock,
-            $familias_incluir,
-            $familias_excluir,
-            $ids_filter,
-            $sb_shared
-        );
-        if (isset($c1['error'])) return $c1;
+        // ── C1 ───────────────────────────────────────────────────────────────
+        if (isset($casos_set['caso1'])) {
+            $c1 = $this->getIncidenciasC1(
+                $fi_mov, $ff_mov, $fi_stock, $ff_stock,
+                $familias_incluir, $familias_excluir, $ids_filter, $sb_shared
+            );
+            if (isset($c1['error'])) return $c1;
+            $incidencias = array_merge($incidencias, $c1);
+        }
 
-        $c2 = $this->getIncidenciasC2(
-            $fi_mov,
-            $ff_mov,
-            $fi_stock,
-            $ff_stock,
-            $umbral_sobrestock,
-            $familias_incluir,
-            $familias_excluir,
-            $ids_filter,
-            $sb_shared
-        );
-        if (isset($c2['error'])) return $c2;
+        // ── C2 ───────────────────────────────────────────────────────────────
+        if (isset($casos_set['caso2'])) {
+            $c2 = $this->getIncidenciasC2(
+                $fi_mov, $ff_mov, $fi_stock, $ff_stock,
+                $umbral_sobrestock, $familias_incluir, $familias_excluir, $ids_filter, $sb_shared
+            );
+            if (isset($c2['error'])) return $c2;
+            $incidencias = array_merge($incidencias, $c2);
+        }
 
-        $c3 = $this->getIncidenciasC3(
-            $fi_mov,
-            $ff_mov,
-            $fi_stock,
-            $umbral_caducidad,
-            $umbral_sin_rotacion,
-            $familias_incluir,
-            $familias_excluir,
-            $ids_filter
-        );
-        if (isset($c3['error'])) return $c3;
+        // ── C3 (3a y/o 3b — una sola query, filtrar resultado por sub-caso) ──
+        if (isset($casos_set['caso3a']) || isset($casos_set['caso3b'])) {
+            $c3 = $this->getIncidenciasC3(
+                $fi_mov, $ff_mov, $fi_stock,
+                $umbral_caducidad, $umbral_sin_rotacion,
+                $familias_incluir, $familias_excluir, $ids_filter
+            );
+            if (isset($c3['error'])) return $c3;
+            // Filtrar sub-casos si no se piden ambos
+            if (!isset($casos_set['caso3a']) || !isset($casos_set['caso3b'])) {
+                $tipos_c3 = [];
+                if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Riesgo de caducidad teórica';
+                if (isset($casos_set['caso3b'])) $tipos_c3[] = 'Entrada sin rotación previa';
+                $c3 = array_values(array_filter($c3, fn($inc) => in_array($inc['tipo'], $tipos_c3, true)));
+            }
+            $incidencias = array_merge($incidencias, $c3);
+        }
 
-        $c5 = $this->getIncidenciasCaso5(
-            $fi_mov,
-            $ff_mov,
-            $umbral_sobrestock,
-            $familias_incluir,
-            $familias_excluir,
-            $ids_filter
-        );
-        if (isset($c5['error'])) return $c5;
+        // ── C5 ───────────────────────────────────────────────────────────────
+        if (isset($casos_set['caso5'])) {
+            $c5 = $this->getIncidenciasCaso5(
+                $fi_mov, $ff_mov, $umbral_sobrestock,
+                $familias_incluir, $familias_excluir, $ids_filter
+            );
+            if (isset($c5['error'])) return $c5;
+            $incidencias = array_merge($incidencias, $c5);
+        }
 
-        $incidencias = array_merge($c1, $c2, $c3, $c5);
-
-        // ── Caso 4 opcional ───────────────────────────────────────────────────
-        if ($incluir_stock_inactivo) {
+        // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
+        if (isset($casos_set['caso4'])) {
             $articulos_sin_mov = $this->getArticulosSinMovimiento(
-                $fi_mov,
-                $ff_mov,
-                $familias_incluir,
-                $familias_excluir
+                $fi_mov, $ff_mov, $familias_incluir, $familias_excluir
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
             foreach ($this->_formatearCaso4($articulos_sin_mov) as $inc) {
@@ -638,13 +575,34 @@ class ClasePosstock
             }
         }
 
-        // ── Ordenar: CRITICA → ALTA → MEDIA → BAJA ───────────────────────────
+        // ── Ordenar: CRITICA → ALTA → MEDIA (C2→C5→C3a) → BAJA (C3b sin-rot→C3b nunca→C4) ─
         $orden_sev = ['CRITICA' => 0, 'ALTA' => 1, 'MEDIA' => 2, 'BAJA' => 3];
-        usort(
-            $incidencias,
-            fn($a, $b) =>
-            $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']]
-        );
+
+        $orden_tipo_media = [
+            'Entrada con stock alto'             => 0,  // C2
+            'Venta Cero (Posible Rotura Física)' => 1,  // C5
+            'Riesgo de caducidad teórica'        => 2,  // C3a
+        ];
+
+        // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
+        $subtipo_baja = static function (array $inc): int {
+            if ($inc['tipo'] === 'Entrada sin rotación previa') {
+                return (isset($inc['ultima_salida']) && $inc['ultima_salida'] !== null) ? 0 : 1;
+            }
+            return 2; // 'Stock Inactivo en Periodo' (C4)
+        };
+
+        usort($incidencias, static function ($a, $b) use ($orden_sev, $orden_tipo_media, $subtipo_baja) {
+            $cmp = $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']];
+            if ($cmp !== 0) return $cmp;
+            if ($a['severidad'] === 'MEDIA') {
+                return ($orden_tipo_media[$a['tipo']] ?? 99) <=> ($orden_tipo_media[$b['tipo']] ?? 99);
+            }
+            if ($a['severidad'] === 'BAJA') {
+                return $subtipo_baja($a) <=> $subtipo_baja($b);
+            }
+            return 0;
+        });
 
         return $this->_anadirNombres($incidencias);
     }
@@ -1534,14 +1492,18 @@ class ClasePosstock
         $ff_mov           = $params['fecha_fin_movimientos'];
         $familias_incluir = (array)($params['familias_incluir'] ?? []);
         $familias_excluir = (array)($params['familias_excluir'] ?? []);
-        $tipo_incidencia  = (string)($params['tipo_incidencia'] ?? '');
+        $casos_incluir    = (array)($params['casos_incluir']    ?? []);
 
-        // caso4: lote único (artículos sin movimiento, no paginables por actividad)
-        if ($tipo_incidencia === 'caso4') {
+        // C4 no es paginable por actividad — ruta especial si es el único caso solicitado
+        if ($casos_incluir === ['caso4']) {
             $filas = $this->getIncidencias($params);
             if (isset($filas['error'])) return $filas;
             return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0]; // elementos=0 → fin
         }
+
+        // En batches mixtos, excluir C4 (no paginable por actividad)
+        $params_batch = $params;
+        $params_batch['casos_incluir'] = array_values(array_filter($casos_incluir, fn($c) => $c !== 'caso4'));
 
         // Obtener solo los IDs del lote actual via LIMIT/OFFSET — sin cargar todos en memoria
         $ids_batch = $this->getArticulosConActividad($fi_mov, $ff_mov, $familias_incluir, $familias_excluir, $inicial, $pagina);
@@ -1552,7 +1514,6 @@ class ClasePosstock
             return ['filas' => [], 'actual' => $actual, 'elementos' => 0];
         }
 
-        $params_batch               = $params;
         $params_batch['ids_filter'] = $ids_batch;
 
         $filas = $this->getIncidencias($params_batch);

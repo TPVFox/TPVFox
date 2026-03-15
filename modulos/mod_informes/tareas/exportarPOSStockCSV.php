@@ -21,6 +21,13 @@ if (
 $ClaseParametros = new ClaseParametros('parametros.xml');
 $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
+$casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5'];
+$casos_incluir = [];
+foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
+    $c = trim($c);
+    if (in_array($c, $casos_validos, true)) $casos_incluir[] = $c;
+}
+
 $familias_incluir = [];
 $familias_excluir = [];
 foreach (explode(',', $_POST['familias_incluir'] ?? '') as $id) {
@@ -33,15 +40,16 @@ foreach (explode(',', $_POST['familias_excluir'] ?? '') as $id) {
 }
 
 $params = [
-    'fecha_inicio_movimientos'   => $fi_mov,
-    'fecha_fin_movimientos'      => $ff_mov,
-    'fecha_inicio_stock'         => $fi_stock,
-    'fecha_fin_stock'            => $ff_stock,
-    'umbral_sobrestock'          => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
-    'umbral_caducidad_semanas'   => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
+    'fecha_inicio_movimientos'    => $fi_mov,
+    'fecha_fin_movimientos'       => $ff_mov,
+    'fecha_inicio_stock'          => $fi_stock,
+    'fecha_fin_stock'             => $ff_stock,
+    'umbral_sobrestock'           => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
+    'umbral_caducidad_semanas'    => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
     'umbral_sin_rotacion_semanas' => (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
-    'familias_incluir'           => $familias_incluir,
-    'familias_excluir'           => $familias_excluir,
+    'casos_incluir'               => $casos_incluir,
+    'familias_incluir'            => $familias_incluir,
+    'familias_excluir'            => $familias_excluir,
 ];
 
 $posstock = new ClasePosstock($BDTpv);
