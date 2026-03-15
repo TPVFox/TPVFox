@@ -441,6 +441,7 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
         casos_incluir: _posstockGetCasosIncluir(tipoIncidencia),
+        min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
         inicial: inicial,
         pagina: 150,
         familias_incluir: (window.posstockFamiliasIncluir || [])
@@ -862,7 +863,10 @@ function exportarPOSStockCSV() {
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
-        casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
+        casos_incluir: _posstockGetCasosIncluir(
+            window.posstockTipoIncidenciaActivo || "",
+        ),
+        min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
             .map(function (f) {
                 return f.id;
@@ -911,7 +915,11 @@ function imprimirPOSStockPDF() {
             fecha_fin_movimientos: periodo.fecha_fin_movimientos,
             fecha_inicio_stock: periodo.fecha_inicio_stock,
             fecha_fin_stock: periodo.fecha_fin_stock,
-            casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
+            casos_incluir: _posstockGetCasosIncluir(
+                window.posstockTipoIncidenciaActivo || "",
+            ),
+            min_ventas_c5:
+                POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
             familias_incluir: (window.posstockFamiliasIncluir || [])
                 .map(function (f) {
                     return f.id;
@@ -964,6 +972,17 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
 ];
+
+// Mínimo de ventas requerido para calcular C5 (media+3σ) según tipo de periodo.
+var POSSTOCK_MIN_VENTAS_C5 = {
+    semana: 4,
+    quincena: 6,
+    mes: 8,
+    trimestre: 11,
+    cuatrimestre: 13,
+    semestre: 16,
+    anual: 21,
+};
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
 function _posstockTiposActivos() {
@@ -1028,7 +1047,7 @@ function posstockRecargarPorCasos() {
     if (!window.posstockPeriodoActivo) return;
     cargarDatosPosstock(
         window.posstockPeriodoActivo,
-        window.posstockTipoIncidenciaActivo || ""
+        window.posstockTipoIncidenciaActivo || "",
     );
 }
 window.posstockRecargarPorCasos = posstockRecargarPorCasos;

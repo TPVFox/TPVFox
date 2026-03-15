@@ -494,6 +494,7 @@ class ClasePosstock
         $umbral_sobrestock   = (float) ($params['umbral_sobrestock']           ?? 0.5);
         $umbral_caducidad    = (int)   ($params['umbral_caducidad_semanas']    ?? 24);
         $umbral_sin_rotacion = (int)   ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $min_ventas_c5       = (int)   ($params['min_ventas_c5']               ?? 3);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -558,7 +559,7 @@ class ClasePosstock
         if (isset($casos_set['caso5'])) {
             $c5 = $this->getIncidenciasCaso5(
                 $fi_mov, $ff_mov, $umbral_sobrestock,
-                $familias_incluir, $familias_excluir, $ids_filter
+                $familias_incluir, $familias_excluir, $ids_filter, $min_ventas_c5
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
@@ -632,13 +633,12 @@ class ClasePosstock
      *
      * @return array  Filas de incidencia (sin campo 'nombre')
      */
-    private function _calcularRoturasC5(int $id, array $fechas_map, float $stock_actual, int $ff_ts): array
+    private function _calcularRoturasC5(int $id, array $fechas_map, float $stock_actual, int $ff_ts, int $min_ventas): array
     {
         $fechas = array_keys($fechas_map);
         sort($fechas);
         $n = count($fechas);
-        // Requerir más de 10 ventas para aplicar el método (mayor fiabilidad)
-        if ($n < 11) return [];
+        if ($n < $min_ventas) return [];
         $ts = array_map('strtotime', $fechas);
         $gaps = [];
         for ($i = 1; $i < $n; $i++) {
@@ -901,7 +901,8 @@ class ClasePosstock
         float  $umbral_sobrestock,   // no usado en C5, recibido por firma uniforme
         array  $familias_incluir,
         array  $familias_excluir,
-        array  $ids_filter = []
+        array  $ids_filter = [],
+        int    $min_ventas = 3
     ): array {
         $fi   = $this->db->real_escape_string($fi_mov);
         $ff   = $this->db->real_escape_string($ff_mov);
@@ -1003,7 +1004,8 @@ class ClasePosstock
                 $id,
                 $fechas_map,
                 $stock_actual[$id] ?? 0.0,
-                $ff_ts
+                $ff_ts,
+                $min_ventas
             );
             foreach ($roturas as $r) $incidencias[] = $r;
         }
