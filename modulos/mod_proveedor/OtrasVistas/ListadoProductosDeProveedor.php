@@ -11,6 +11,10 @@ $CFamilia = new ClaseFamilias();
 $Controler = new ControladorComun;
 $style = '';
 $familiasProductos = array(); // Familias que hay en los productos de ese proveedor
+$estados = [];
+$productos = [];
+$id = null;
+$html_familias = '';
 if (isset($_GET['campoorden'])) {
     $campoOrden = $_GET['campoorden'];
 } else {
@@ -44,10 +48,13 @@ if (isset($_GET['id'])) {
         'mensaje' => 'Error no se ha enviado el id del proveedor'
     );
 }
-$ProductosPrincipales = $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden);
+$ProductosPrincipales = $id ? $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden) : ['NItems' => 0];
+if ($ProductosPrincipales['NItems'] == 0 && $id) {
+    $nombreProveedor = isset($datosProveedor['datos'][0]['nombrecomercial']) ? $datosProveedor['datos'][0]['nombrecomercial'] : '';
+    header('Location: ../ListaProveedores.php?alerta=sin_productos&id_proveedor=' . urlencode($id) . '&nombre_proveedor=' . urlencode($nombreProveedor));
+    exit;
+}
 if ($ProductosPrincipales['NItems'] > 0) {
-    $estados = [];
-    $productos = [];
     foreach ($ProductosPrincipales['Items'] as $key => $item) {
         // Obtenemos datos producto, para añadir nombre Codbarras.
         $productos[$key] = $CTArticulos->GetProducto($item['idArticulo']);

@@ -41,6 +41,16 @@
     ?>
 
     <div class="container">
+        <?php
+        if (isset($_GET['alerta']) && $_GET['alerta'] === 'sin_productos') {
+            $idProv = isset($_GET['id_proveedor']) ? (int)$_GET['id_proveedor'] : '';
+            $nombreProv = isset($_GET['nombre_proveedor']) ? htmlspecialchars($_GET['nombre_proveedor']) : '';
+            echo '<div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                    <strong>Aviso:</strong> El proveedor <strong>' . $idProv . ' - ' . $nombreProv . '</strong> no tiene ningún producto como principal.
+                  </div>';
+        }
+        ?>
         <div class="row">
             <div class="col-md-12 text-center">
                 <h2> Proveedores: Editar y Añadir Proveedor </h2>
