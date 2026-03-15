@@ -48,27 +48,7 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion) {
             console.log("******** Obteniendo Loading****************");
         },
         success: function (response) {
-            var resultado = $.parseJSON(response);
-
-            // Depuración: mostrar resumen del lote recibido
-            try {
-                console.debug("[POSStock] lote recibido", {
-                    offset: inicial,
-                    elementos: resultado.elementos,
-                    filas_mostradas: (resultado.filas || [])
-                        .slice(0, 5)
-                        .map(function (f) {
-                            return {
-                                id: f.idArticulo,
-                                orden: f.orden_clave,
-                                tipo: f.tipo,
-                                sev: f.severidad,
-                            };
-                        }),
-                });
-            } catch (e) {
-                console.debug("[POSStock] depuracion lote fallo", e);
-            }
+            var resultado = JSON.parse(response);
             abrirModal("Procesando", resultado.html); // Abre una ventana y muestra el texto
             // Ahora montamos link y redirecionamos
             setTimeout(function () {
@@ -93,6 +73,36 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion) {
 window.metodoClick = metodoClick;
 
 // =====================================================================
+//       POSSTOCK — Helpers internos
+// =====================================================================
+
+/**
+ * Muestra un mensaje de error en el área de resultados (Bootstrap alert).
+ * Sustituye el uso de alert() para mantener la UI coherente con el resto del programa.
+ */
+function _posstockMostrarError(msg) {
+    $("#posstockSpinner").hide();
+    $("#posstockTablaWrap")
+        .html('<div class="alert alert-danger" role="alert">' + msg + "</div>")
+        .show();
+}
+
+/**
+ * Comparador de ordenación para el array de incidencias.
+ * Usa el campo orden_clave generado por el backend para evitar duplicar
+ * la lógica de prioridad CRITICA→ALTA→MEDIA→BAJA en el frontend.
+ */
+function _posstockSortComparator(a, b) {
+    if (a && b && a.orden_clave && b.orden_clave) {
+        if (a.orden_clave < b.orden_clave) return -1;
+        if (a.orden_clave > b.orden_clave) return 1;
+        return (a.idArticulo || 0) - (b.idArticulo || 0);
+    }
+    // Fallback mínimo: orden por id (no debería alcanzarse si el backend es correcto)
+    return (a ? a.idArticulo || 0 : 0) - (b ? b.idArticulo || 0 : 0);
+}
+
+// =====================================================================
 //       POSSTOCK — Configuración
 // =====================================================================
 
@@ -103,8 +113,11 @@ function abrirModalConfigPosstock() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = $.parseJSON(response);
+            var resultado = JSON.parse(response);
             abrirModal(resultado.titulo, resultado.html);
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al abrir la configuración.");
         },
     });
 }
@@ -120,7 +133,7 @@ function guardarConfigPosstock() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = $.parseJSON(response);
+            var resultado = JSON.parse(response);
             if (resultado.error) {
                 var htmlError =
                     '<div class="alert alert-danger" role="alert">' +
@@ -145,12 +158,16 @@ function guardarConfigPosstock() {
                         posstockPintarBarra(
                             window.posstockTipoActivo,
                             numeroActivo,
-                            window.posstockPeriodoActivo.total_periodos,
                         );
                     }
                 }
-                alert(resultado.mensaje);
+                var htmlOk = '<div class="alert alert-success" role="alert">'
+                    + (resultado.mensaje || "Configuración guardada.") + "</div>";
+                $("#posstockTablaWrap").html(htmlOk).show();
             }
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al guardar la configuración.");
         },
     });
 }
@@ -192,16 +209,16 @@ function posstockAbrirFiltroFamilias() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = $.parseJSON(response);
+            var resultado = JSON.parse(response);
             if (resultado.error) {
-                alert(resultado.error);
+                _posstockMostrarError("Error al cargar familias: " + resultado.error);
                 return;
             }
             _posstockFamiliasCache = resultado.familias;
             _posstockMostrarModalFamilias();
         },
         error: function () {
-            alert("Error al cargar familias.");
+            _posstockMostrarError("Error de comunicación al cargar familias.");
         },
     });
 }
@@ -279,6 +296,7 @@ function _htmlPanelFamilia(
         filas +
         "</tbody>" +
         "</table></div>" +
+        '<div id="posstockFamiliaError_' + lista + '"></div>' +
         '<div class="input-group" style="margin-top:6px;">' +
         '<input type="text" class="form-control input-sm" list="posstockFamiliasDatalist"' +
         ' id="posstockBuscar_' +
@@ -334,19 +352,30 @@ function posstockAgregarFamilia(lista) {
         }
     });
     if (!encontrada) {
-        alert(
-            "Familia no encontrada. Escribe el nombre exacto de la ruta que aparece en la lista.",
-        );
+        var wrapErr = document.getElementById("posstockFamiliaError_" + lista);
+        if (wrapErr) {
+            wrapErr.innerHTML = '<div class="alert alert-warning alert-sm" role="alert">'
+                + "Familia no encontrada. Escribe el nombre exacto de la ruta que aparece en la lista."
+                + "</div>";
+        }
         return;
     }
 
     // Verificar duplicado en la tabla
     var tabla = document.querySelector("#posstockTabla_" + lista + " tbody");
     if (tabla.querySelector('tr[data-id="' + encontrada.id + '"]')) {
-        alert("Esa familia ya está en la lista.");
+        var wrapDup = document.getElementById("posstockFamiliaError_" + lista);
+        if (wrapDup) {
+            wrapDup.innerHTML = '<div class="alert alert-warning alert-sm" role="alert">'
+                + "Esa familia ya está en la lista."
+                + "</div>";
+        }
         input.value = "";
         return;
     }
+
+    var wrapOk = document.getElementById("posstockFamiliaError_" + lista);
+    if (wrapOk) wrapOk.innerHTML = "";
 
     tabla.insertAdjacentHTML(
         "beforeend",
@@ -455,7 +484,8 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
         casos_incluir: _posstockGetCasosIncluir(tipoIncidencia),
-        min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
+        tipo_periodo: window.posstockTipoActivo || "",
+        min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
         inicial: inicial,
         pagina: 500,
         familias_incluir: (window.posstockFamiliasIncluir || [])
@@ -475,164 +505,29 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = $.parseJSON(response);
+            var resultado = JSON.parse(response);
 
             if (resultado.error) {
-                $("#posstockSpinner").hide();
-                $("#posstockTablaWrap")
-                    .html(
-                        '<div class="alert alert-danger">' +
-                            resultado.error +
-                            "</div>",
-                    )
-                    .show();
+                _posstockMostrarError(resultado.error);
                 return;
             }
 
+            // Mantener acumulado ordenado entre lotes (usa orden_clave del backend)
             var acum = acumuladas.concat(resultado.filas || []);
-            try {
-                console.debug("[POSStock] tras concat — muestra primer lote", {
-                    offset: inicial,
-                    muestras: (resultado.filas || [])
-                        .slice(0, 6)
-                        .map(function (f) {
-                            return {
-                                id: f.idArticulo,
-                                orden: f.orden_clave,
-                                tipo: f.tipo,
-                                sev: f.severidad,
-                            };
-                        }),
-                });
-                console.debug(
-                    "[POSStock] acum longitud",
-                    acum.length,
-                    "primeros",
-                    acum.slice(0, 8).map(function (f) {
-                        return { id: f.idArticulo, orden: f.orden_clave };
-                    }),
-                );
-            } catch (e) {
-                console.debug("[POSStock] depuracion concat fallo", e);
-            }
-            // Mantener `acum` ordenado entre lotes para evitar mezclas al concatenar.
-            acum.sort(function (a, b) {
-                if (a && b && a.orden_clave && b.orden_clave) {
-                    if (a.orden_clave < b.orden_clave) return -1;
-                    if (a.orden_clave > b.orden_clave) return 1;
-                    return (a.idArticulo || 0) - (b.idArticulo || 0);
-                }
-                var ordenSev = { CRITICA: 1, ALTA: 2, MEDIA: 3, BAJA: 4 };
-                var sa = ordenSev[a.severidad] || 9;
-                var sb = ordenSev[b.severidad] || 9;
-                if (sa !== sb) return sa - sb;
+            acum.sort(_posstockSortComparator);
 
-                // Dentro de MEDIA: C2 -> C5 -> C3a
-                if (sa === 3) {
-                    var mapMedia = {
-                        "Entrada con stock alto": 0,
-                        "Venta Cero (Posible Rotura Física)": 1,
-                        "Riesgo de caducidad teórica": 2,
-                    };
-                    var ta = mapMedia[a.tipo] ?? 99;
-                    var tb = mapMedia[b.tipo] ?? 99;
-                    if (ta !== tb) return ta - tb;
-                }
-
-                // Dentro de BAJA: C3b con ultima_salida (0) -> C3b sin ultima (1) -> C4 (2)
-                if (sa === 4) {
-                    function subTipo(x) {
-                        if (x.tipo === "Entrada sin rotación previa") {
-                            return x.ultima_salida && x.ultima_salida !== null
-                                ? 0
-                                : 1;
-                        }
-                        if (x.tipo === "Stock Inactivo en Periodo") return 2;
-                        return 99;
-                    }
-                    var sra = subTipo(a),
-                        srb = subTipo(b);
-                    if (sra !== srb) return sra - srb;
-                }
-
-                // Desempate final por idArticulo
-                return (a.idArticulo || 0) - (b.idArticulo || 0);
-            });
             var actual = resultado.actual;
             var elementos = resultado.elementos;
 
-            // Continuar mientras el lote devuelva exactamente $pagina artículos.
-            // Cuando devuelva menos (o 0) es el último lote.
+            // Continuar mientras el lote devuelva datos suficientes para haber más.
             if (elementos >= 150) {
                 $("#posstockProgreso").text(
                     "Analizando artículos: " + actual + " procesados…",
                 );
                 _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
-                // Último lote: ordenar globalmente y pintar.
-                // Preferimos la clave lexicográfica `orden_clave` proporcionada por el
-                // backend; si no existe, usamos un fallback por severidad/tipo/id.
-                acum.sort(function (a, b) {
-                    if (a && b && a.orden_clave && b.orden_clave) {
-                        if (a.orden_clave < b.orden_clave) return -1;
-                        if (a.orden_clave > b.orden_clave) return 1;
-                        return (a.idArticulo || 0) - (b.idArticulo || 0);
-                    }
-
-                    var ordenSev = { CRITICA: 1, ALTA: 2, MEDIA: 3, BAJA: 4 };
-                    var sa = ordenSev[a.severidad] || 9;
-                    var sb = ordenSev[b.severidad] || 9;
-                    if (sa !== sb) return sa - sb;
-
-                    // Dentro de MEDIA: C2 -> C5 -> C3a
-                    if (sa === 3) {
-                        var mapMedia = {
-                            "Entrada con stock alto": 0,
-                            "Venta Cero (Posible Rotura Física)": 1,
-                            "Riesgo de caducidad teórica": 2,
-                        };
-                        var ta = mapMedia[a.tipo] ?? 99;
-                        var tb = mapMedia[b.tipo] ?? 99;
-                        if (ta !== tb) return ta - tb;
-                    }
-
-                    // Dentro de BAJA: C3b con ultima_salida (0) -> C3b sin ultima (1) -> C4 (2)
-                    if (sa === 4) {
-                        function subTipo(x) {
-                            if (x.tipo === "Entrada sin rotación previa") {
-                                return x.ultima_salida &&
-                                    x.ultima_salida !== null
-                                    ? 0
-                                    : 1;
-                            }
-                            if (x.tipo === "Stock Inactivo en Periodo")
-                                return 2;
-                            return 99;
-                        }
-                        var sra = subTipo(a),
-                            srb = subTipo(b);
-                        if (sra !== srb) return sra - srb;
-                    }
-
-                    // Desempate final por idArticulo
-                    return (a.idArticulo || 0) - (b.idArticulo || 0);
-                });
-
-                try {
-                    console.debug(
-                        "[POSStock] orden final antes de pintar — primeros 20",
-                        acum.slice(0, 20).map(function (f) {
-                            return {
-                                id: f.idArticulo,
-                                orden: f.orden_clave,
-                                tipo: f.tipo,
-                                sev: f.severidad,
-                            };
-                        }),
-                    );
-                } catch (e) {
-                    console.debug("[POSStock] depuracion orden final fallo", e);
-                }
+                // Último lote: ordenación final y pintado.
+                acum.sort(_posstockSortComparator);
 
                 $("#posstockSpinner").hide();
 
@@ -655,14 +550,8 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 }
             }
         },
-        error: function (request) {
-            $("#posstockSpinner").hide();
-            $("#posstockTablaWrap")
-                .html(
-                    '<div class="alert alert-danger">Error de comunicación con el servidor.</div>',
-                )
-                .show();
-            console.error("getPOSStockBatch error", request);
+        error: function () {
+            _posstockMostrarError("Error de comunicación con el servidor.");
         },
     });
 }
@@ -687,41 +576,8 @@ function pintarTablaIncidencias(filas) {
         return;
     }
 
-    // Asegurar orden consistente antes de renderizar (fallback si backend no envía orden_clave)
-    filas.sort(function (a, b) {
-        if (a && b && a.orden_clave && b.orden_clave) {
-            if (a.orden_clave < b.orden_clave) return -1;
-            if (a.orden_clave > b.orden_clave) return 1;
-            return (a.idArticulo || 0) - (b.idArticulo || 0);
-        }
-        var ordenSev = { CRITICA: 1, ALTA: 2, MEDIA: 3, BAJA: 4 };
-        var sa = ordenSev[a.severidad] || 9;
-        var sb = ordenSev[b.severidad] || 9;
-        if (sa !== sb) return sa - sb;
-        if (sa === 3) {
-            var mapMedia = {
-                "Entrada con stock alto": 0,
-                "Venta Cero (Posible Rotura Física)": 1,
-                "Riesgo de caducidad teórica": 2,
-            };
-            var ta = mapMedia[a.tipo] ?? 99;
-            var tb = mapMedia[b.tipo] ?? 99;
-            if (ta !== tb) return ta - tb;
-        }
-        if (sa === 4) {
-            function subTipo(x) {
-                if (x.tipo === "Entrada sin rotación previa") {
-                    return x.ultima_salida && x.ultima_salida !== null ? 0 : 1;
-                }
-                if (x.tipo === "Stock Inactivo en Periodo") return 2;
-                return 99;
-            }
-            var sra = subTipo(a),
-                srb = subTipo(b);
-            if (sra !== srb) return sra - srb;
-        }
-        return (a.idArticulo || 0) - (b.idArticulo || 0);
-    });
+    // Ordenar usando la clave generada por el backend (orden_clave)
+    filas.sort(_posstockSortComparator);
 
     var periodo = window.posstockPeriodoActivo || {};
     var anio = window.posstockAnioActivo || new Date().getFullYear();
@@ -889,7 +745,8 @@ function exportarPOSStockCSV() {
         casos_incluir: _posstockGetCasosIncluir(
             window.posstockTipoIncidenciaActivo || "",
         ),
-        min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
+        tipo_periodo: window.posstockTipoActivo || "",
+        min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
             .map(function (f) {
                 return f.id;
@@ -941,8 +798,8 @@ function imprimirPOSStockPDF() {
             casos_incluir: _posstockGetCasosIncluir(
                 window.posstockTipoIncidenciaActivo || "",
             ),
-            min_ventas_c5:
-                POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
+            tipo_periodo: window.posstockTipoActivo || "",
+            min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
             familias_incluir: (window.posstockFamiliasIncluir || [])
                 .map(function (f) {
                     return f.id;
@@ -957,15 +814,15 @@ function imprimirPOSStockPDF() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = $.parseJSON(response);
+            var resultado = JSON.parse(response);
             if (resultado.error) {
-                alert("Error al generar PDF: " + resultado.error);
+                _posstockMostrarError("Error al generar PDF: " + resultado.error);
             } else {
                 window.open(resultado.url, "_blank");
             }
         },
         error: function () {
-            alert("Error de comunicación al generar el PDF.");
+            _posstockMostrarError("Error de comunicación al generar el PDF.");
         },
         complete: function () {
             if (btn) {
@@ -995,17 +852,6 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
 ];
-
-// Mínimo de ventas requerido para calcular C5 (media+3σ) según tipo de periodo.
-var POSSTOCK_MIN_VENTAS_C5 = {
-    semana: 4,
-    quincena: 6,
-    mes: 8,
-    trimestre: 11,
-    cuatrimestre: 15,
-    semestre: 20,
-    anual: 28,
-};
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
 function _posstockTiposActivos() {
@@ -1210,9 +1056,9 @@ function posstockGenerar() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var periodo = $.parseJSON(response);
+            var periodo = JSON.parse(response);
             if (periodo.error) {
-                alert("Error al calcular periodo: " + periodo.error);
+                _posstockMostrarError("Error al calcular periodo: " + periodo.error);
                 return;
             }
 
@@ -1224,14 +1070,11 @@ function posstockGenerar() {
                 limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
                 var ffMov = new Date(periodo.fecha_fin_movimientos);
                 if (ffMov >= limite) {
-                    document.getElementById(
-                        "posstockAvisoVentana",
-                    ).style.display = "";
+                    document.getElementById("posstockAvisoVentana").style.display = "";
                     return;
                 }
             }
-            document.getElementById("posstockAvisoVentana").style.display =
-                "none";
+            document.getElementById("posstockAvisoVentana").style.display = "none";
 
             // Guardar periodo activo y cargar datos
             window.posstockPeriodoActivo = periodo;
@@ -1243,139 +1086,88 @@ function posstockGenerar() {
             window.posstockTipoIncidenciaActivo = tipoInc;
 
             cargarDatosPosstock(periodo, tipoInc);
-            posstockPintarBarra(
-                tipo,
-                tipo === "anual" ? numero : parseInt(numero, 10),
-                periodo.total_periodos,
-            );
+            posstockPintarBarra(tipo, tipo === "anual" ? numero : parseInt(numero, 10));
         },
         error: function () {
-            alert("Error de comunicación al calcular el periodo.");
+            _posstockMostrarError("Error de comunicación al calcular el periodo.");
         },
     });
 }
 
 /**
- * Pinta la barra de botones numerados bajo los selectores.
- * El botón del periodo activo queda resaltado (btn-primary).
+ * Pinta la barra de botones de navegación entre periodos.
+ * Consulta al backend (getInfoPeriodos) para obtener el estado en_ventana de cada
+ * periodo, evitando duplicar la lógica de fechas en el frontend.
+ *
+ * @param {string}         tipo          Tipo de periodo activo
+ * @param {number|string}  numeroActivo  Número (o tipo de incidencia si anual) activo
  */
-/**
- * Calcula la fecha_fin_movimientos de un periodo directamente en JS,
- * sin AJAX, para poder marcar botones fuera de ventana.
- */
-function posstockFechaFinPeriodo(tipo, n, anio) {
-    if (tipo === "mes") {
-        return new Date(anio, n, 0); // día 0 del mes siguiente = último día del mes n
-    }
-    if (tipo === "trimestre") {
-        return new Date(anio, n * 3, 0); // último día del mes 3n
-    }
-    if (tipo === "cuatrimestre") {
-        return new Date(anio, n * 4, 0); // último día del mes 4n
-    }
-    if (tipo === "semestre") {
-        return new Date(anio, n * 6, 0); // último día del mes 6n
-    }
-    if (tipo === "anual") {
-        return new Date(anio, 11, 31);
-    }
-    if (tipo === "quincena") {
-        var mes = Math.ceil(n / 2);
-        if (n % 2 === 1) {
-            return new Date(anio, mes - 1, 15); // 1ª quincena → día 15
-        } else {
-            return new Date(anio, mes, 0); // 2ª quincena → último día del mes
-        }
-    }
-    if (tipo === "semana") {
-        // Semanas ancladas al 01-Ene (igual que PHP)
-        var finSem1 = _posstockFinSem1(anio);
-        if (n === 1) return finSem1;
-        var dec31 = new Date(anio, 11, 31);
-        var inicio = new Date(finSem1);
-        inicio.setDate(finSem1.getDate() + (n - 1) * 7 - 6);
-        var fin = new Date(inicio);
-        fin.setDate(inicio.getDate() + 6);
-        return fin > dec31 ? dec31 : fin;
-    }
-    return null;
-}
-
-function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
+function posstockPintarBarra(tipo, numeroActivo) {
     var wrap = document.getElementById("posstockBotonesPeriodo");
     wrap.innerHTML = "";
 
-    // Para anual: botones por tipo de incidencia (no por número de periodo)
+    // Para anual: botones por tipo de incidencia (no hay ventana de consolidación)
     if (tipo === "anual") {
         _posstockTiposActivos().forEach(function (ti) {
-            var cls =
-                ti.v === numeroActivo
-                    ? "btn btn-primary btn-xs"
-                    : "btn btn-default btn-xs";
+            var cls = ti.v === numeroActivo
+                ? "btn btn-primary btn-xs"
+                : "btn btn-default btn-xs";
             wrap.innerHTML +=
-                '<button type="button" class="' +
-                cls +
-                '" ' +
-                "onclick=\"posstockNavegar('" +
-                ti.v +
-                "')\" " +
-                'id="posstockBtn_' +
-                ti.v +
-                '">' +
-                ti.short +
-                " " +
-                ti.t +
-                "</button> ";
+                '<button type="button" class="' + cls + '" ' +
+                "onclick=\"posstockNavegar('" + ti.v + "')\" " +
+                'id="posstockBtn_' + ti.v + '">' +
+                ti.short + " " + ti.t + "</button> ";
         });
         document.getElementById("posstockBarraBotones").style.display = "";
         return;
     }
 
-    var hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    var sinRestriccion = !(window.POSSTOCK_VENTANA_DIAS > 0);
-    var limite = new Date(hoy);
-    if (!sinRestriccion)
-        limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
+    // Consultar al backend el estado (en_ventana) de cada periodo
     var anio = window.posstockAnioActivo || new Date().getFullYear();
+    $.ajax({
+        data: {
+            pulsado:      "getInfoPeriodos",
+            tipo:         tipo,
+            anio:         anio,
+            ventana_dias: window.POSSTOCK_VENTANA_DIAS || 0,
+        },
+        url:  "tareas.php",
+        type: "post",
+        success: function (response) {
+            var resultado = JSON.parse(response);
+            if (resultado.error) return; // fallo silencioso en la barra
 
-    for (var n = 1; n <= totalPeriodos; n++) {
-        var etiqueta = posstockEtiquetaBoton(tipo, n);
-        var ffPeriodo = posstockFechaFinPeriodo(tipo, n, anio);
-        var enVentana = !sinRestriccion && ffPeriodo && ffPeriodo >= limite;
+            var periodos = resultado.periodos || [];
+            wrap.innerHTML = "";
+            periodos.forEach(function (p) {
+                var n = p.numero;
+                var enVentana = p.en_ventana;
+                var etiqueta  = posstockEtiquetaBoton(tipo, n);
 
-        var cls, extras;
-        if (enVentana) {
-            cls = "btn btn-default btn-xs disabled";
-            extras =
-                'disabled title="Dentro de la ventana de consolidación (' +
-                window.POSSTOCK_VENTANA_DIAS +
-                ' días)"';
-        } else if (n === numeroActivo) {
-            cls = "btn btn-primary btn-xs";
-            extras = "";
-        } else {
-            cls = "btn btn-default btn-xs";
-            extras = "";
-        }
+                var cls, extras;
+                if (enVentana) {
+                    cls    = "btn btn-default btn-xs disabled";
+                    extras = 'disabled title="Dentro de la ventana de consolidación ('
+                        + window.POSSTOCK_VENTANA_DIAS + ' días)"';
+                } else if (n === numeroActivo) {
+                    cls    = "btn btn-primary btn-xs";
+                    extras = "";
+                } else {
+                    cls    = "btn btn-default btn-xs";
+                    extras = "";
+                }
 
-        wrap.innerHTML +=
-            '<button type="button" class="' +
-            cls +
-            '" ' +
-            extras +
-            " " +
-            'onclick="posstockNavegar(' +
-            n +
-            ')" ' +
-            'id="posstockBtn_' +
-            n +
-            '">' +
-            etiqueta +
-            "</button> ";
-    }
+                wrap.innerHTML +=
+                    '<button type="button" class="' + cls + '" ' +
+                    extras + " " +
+                    'onclick="posstockNavegar(' + n + ')" ' +
+                    'id="posstockBtn_' + n + '">' +
+                    etiqueta + "</button> ";
+            });
 
-    document.getElementById("posstockBarraBotones").style.display = "";
+            document.getElementById("posstockBarraBotones").style.display = "";
+        },
+    });
 }
 
 /** Devuelve la etiqueta de un botón de la barra según tipo y número. */
@@ -1438,13 +1230,16 @@ function posstockNavegar(numero) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var periodo = $.parseJSON(response);
+            var periodo = JSON.parse(response);
             if (periodo.error) {
-                alert(periodo.error);
+                _posstockMostrarError(periodo.error);
                 return;
             }
             window.posstockPeriodoActivo = periodo;
             cargarDatosPosstock(periodo);
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al navegar entre periodos.");
         },
     });
 }

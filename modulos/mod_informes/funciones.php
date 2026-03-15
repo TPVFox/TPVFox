@@ -26,10 +26,36 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
     $anio   = (int)$anio;
     $numero = (int)$numero;
 
-    $meses_cortos = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    $meses_largos = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    $meses_cortos = [
+        '',
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic'
+    ];
+    $meses_largos = [
+        '',
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ];
 
     switch ($tipo) {
 
@@ -176,6 +202,18 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
         . $meses_cortos[(int)$fecha_fin_stock_dt->format('n')]
         . ' ' . $fecha_fin_stock_dt->format('Y');
 
+    // Mínimo de ventas necesario para calcular C5 según la granularidad del periodo.
+    // Centralizado aquí para no duplicar lógica en el frontend.
+    $min_ventas_c5_por_tipo = [
+        'semana'       => 4,
+        'quincena'     => 7,
+        'mes'          => 10,
+        'trimestre'    => 16,
+        'cuatrimestre' => 25,
+        'semestre'     => 40,
+        'anual'        => 64,
+    ];
+
     return [
         'fecha_inicio_movimientos' => $fecha_inicio_mov_dt->format('Y-m-d'),
         'fecha_fin_movimientos'    => $fin->format('Y-m-d'),
@@ -184,6 +222,7 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
         'label_movimientos'        => $label_mov,
         'label_stock'              => $label_stock,
         'total_periodos'           => $total_periodos,
+        'min_ventas_c5'            => $min_ventas_c5_por_tipo[$tipo] ?? 3,
     ];
 }
 

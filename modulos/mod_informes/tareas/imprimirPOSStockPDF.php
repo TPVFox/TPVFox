@@ -4,53 +4,15 @@
 // El PDF se guarda en $rutatmp y la URL se devuelve como JSON al cliente.
 
 require_once $RutaServidor . $HostNombre . '/clases/claseimprimir.php';
+require_once __DIR__ . '/helpers/parsearParamsPosstock.php';
 
-$fi_mov   = $_POST['fecha_inicio_movimientos'] ?? '';
-$ff_mov   = $_POST['fecha_fin_movimientos']    ?? '';
-$fi_stock = $_POST['fecha_inicio_stock']       ?? '';
-$ff_stock = $_POST['fecha_fin_stock']          ?? '';
+$params = parsearParamsPosstock($respuesta);
+if ($params === null) return;
 
-$fecha_re = '/^\d{4}-\d{2}-\d{2}$/';
-if (!preg_match($fecha_re, $fi_mov) || !preg_match($fecha_re, $ff_mov)
- || !preg_match($fecha_re, $fi_stock) || !preg_match($fecha_re, $ff_stock)) {
-    $respuesta['error'] = 'Fechas no válidas o incompletas.';
-    return;
-}
-
-$ClaseParametros = new ClaseParametros('parametros.xml');
-$posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
-
-$casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5'];
-$casos_incluir = [];
-foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
-    $c = trim($c);
-    if (in_array($c, $casos_validos, true)) $casos_incluir[] = $c;
-}
-
-$familias_incluir = [];
-$familias_excluir = [];
-foreach (explode(',', $_POST['familias_incluir'] ?? '') as $id) {
-    $id = (int)trim($id); if ($id > 0) $familias_incluir[] = $id;
-}
-foreach (explode(',', $_POST['familias_excluir'] ?? '') as $id) {
-    $id = (int)trim($id); if ($id > 0) $familias_excluir[] = $id;
-}
-
-$params = [
-    'fecha_inicio_movimientos'    => $fi_mov,
-    'fecha_fin_movimientos'       => $ff_mov,
-    'fecha_inicio_stock'          => $fi_stock,
-    'fecha_fin_stock'             => $ff_stock,
-    'umbral_sobrestock'           => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
-    'umbral_caducidad_semanas'    => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
-    'umbral_sin_rotacion_semanas' => (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
-    'casos_incluir'               => $casos_incluir,
-    'min_ventas_c5'               => max(3, (int)($_POST['min_ventas_c5'] ?? 3)),
-    'modelo_rotura_c5'            => (string)$posstock_node->modelo_rotura_c5 ?: 'binomial',
-    'umbral_confianza_poisson'    => (float)(string)$posstock_node->umbral_confianza_poisson ?: 0.05,
-    'familias_incluir'            => $familias_incluir,
-    'familias_excluir'            => $familias_excluir,
-];
+$fi_mov   = $params['fecha_inicio_movimientos'];
+$ff_mov   = $params['fecha_fin_movimientos'];
+$fi_stock = $params['fecha_inicio_stock'];
+$ff_stock = $params['fecha_fin_stock'];
 
 $posstock = new ClasePosstock($BDTpv);
 $filas    = $posstock->getIncidencias($params);
@@ -83,15 +45,15 @@ $html_cabecera = '
 </table>';
 
 // ── Estadísticas por severidad ────────────────────────────────────────────────
-$totales = ['CRITICA' => 0, 'MEDIA' => 0, 'BAJA' => 0];
+$totales = ['CRITICA' => 0, 'ALTA' => 0, 'MEDIA' => 0, 'BAJA' => 0];
 foreach ($filas as $f) {
     if (isset($totales[$f['severidad']])) $totales[$f['severidad']]++;
 }
 
 // ── Tabla de incidencias ──────────────────────────────────────────────────────
-// Severidad: bgcolor de celda + texto blanco (no solo color de texto)
 $sev_cfg = [
     'CRITICA' => ['bg' => '#c0392b', 'label' => 'CRITICA'],
+    'ALTA'    => ['bg' => '#e8600a', 'label' => 'ALTA'],
     'MEDIA'   => ['bg' => '#d35400', 'label' => 'MEDIA'],
     'BAJA'    => ['bg' => '#2980b9', 'label' => 'BAJA'],
 ];
@@ -105,25 +67,39 @@ foreach ($filas as $f) {
     $bg = $zebra[$i % 2];
     $i++;
 
-    // Detalle en una sola línea: se usa · como separador para evitar <br> y filas partidas
     $detalle = '';
-    if ($f['tipo'] === 'Error crítico de stock') {
-        $detalle = 'Stock: '
-            . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, ',', '') : '—');
+    if ($f['tipo'] === 'Stock Negativo') {
+        $detalle = 'Stock: ' . (isset($f['stock_actual'])
+            ? number_format((float)$f['stock_actual'], 2, ',', '')
+            : '—');
+    } elseif ($f['tipo'] === 'Desajuste Puntual de Stock') {
+        $detalle = 'Stock final: ' . (isset($f['stock_actual'])
+            ? number_format((float)$f['stock_actual'], 2, ',', '')
+            : '—')
+            . ' · Mín: ' . (isset($f['min_balance'])
+            ? number_format((float)$f['min_balance'], 2, ',', '')
+            : '—');
     } elseif ($f['tipo'] === 'Entrada con stock alto') {
         $detalle = 'Previo: ' . number_format((float)$f['stock_previo'], 2, ',', '')
                  . ' · Entra: ' . number_format((float)$f['ncant'], 2, ',', '')
                  . ' · ' . ($f['fecha'] ?? '—');
     } elseif ($f['tipo'] === 'Riesgo de caducidad teórica') {
-                $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
+        $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
                  . ' · ' . ($f['semanas_desde_ultima_venta'] ?? '—') . ' sem.';
+    } elseif ($f['tipo'] === 'Venta Cero (Posible Rotura Física)') {
+        $estado  = $f['fecha_fin_rotura'] ? 'Recup. ' . $f['fecha_fin_rotura'] : 'En curso';
+        $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
+                 . ' · Desde: ' . ($f['fecha_inicio_rotura'] ?? '—')
+                 . ' · ' . $estado
+                 . ' · ' . ($f['dias_rotura'] ?? '—') . ' d';
     } elseif ($f['tipo'] === 'Entrada sin rotación previa') {
         $detalle = $f['ultima_salida']
             ? 'Ult.salida: ' . $f['ultima_salida'] . ' · ' . ($f['semanas_desde_ultima_salida'] ?? '—') . ' sem.'
-            : 'Sin salidas en el año';
-    } elseif ($f['tipo'] === 'Stock sin entrada anual') {
-        $detalle = 'Stock: '
-            . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, ',', '') : '—');
+            : 'Sin salidas registradas';
+    } elseif ($f['tipo'] === 'Stock Inactivo en Periodo') {
+        $detalle = 'Stock: ' . (isset($f['stock_actual'])
+            ? number_format((float)$f['stock_actual'], 2, ',', '')
+            : '—');
     }
 
     $sev       = $f['severidad'] ?? 'BAJA';
@@ -157,6 +133,8 @@ $filas_html .= '
     <td colspan="2" align="right"><font color="#ffffff"><b>Total incidencias: ' . count($filas) . '</b></font></td>
     <td colspan="4">
         <font color="#e74c3c"><b>' . $totales['CRITICA'] . ' CR&Iacute;TICA</b></font>
+        &nbsp;&nbsp;
+        <font color="#e8600a"><b>' . $totales['ALTA'] . ' ALTA</b></font>
         &nbsp;&nbsp;
         <font color="#f39c12"><b>' . $totales['MEDIA']   . ' MEDIA</b></font>
         &nbsp;&nbsp;
