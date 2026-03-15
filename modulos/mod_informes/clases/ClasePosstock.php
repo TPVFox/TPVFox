@@ -668,11 +668,15 @@ class ClasePosstock
         for ($i = 1; $i < $n; $i++) {
             $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
             if ($gap > $umbral) {
+                $inicio = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
+                $fin    = $fechas[$i];
                 $incidencias[] = $campos + [
                     'ultima_venta'        => $fechas[$i - 1],
-                    'fecha_inicio_rotura' => date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400),
-                    'fecha_fin_rotura'    => $fechas[$i],
+                    'fecha_inicio_rotura' => $inicio,
+                    'fecha_fin_rotura'    => $fin,
                     'dias_rotura'         => $gap,
+                    // Rotura confirmada: recuperada con gap real entre inicio y fin
+                    'rotura_confirmada'   => $inicio !== $fin,
                 ];
             }
         }
@@ -685,6 +689,7 @@ class ClasePosstock
                 'fecha_inicio_rotura' => date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400),
                 'fecha_fin_rotura'    => null,
                 'dias_rotura'         => $dias_final,
+                'rotura_confirmada'   => false,
             ];
         }
         return $incidencias;

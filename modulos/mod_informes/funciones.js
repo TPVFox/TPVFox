@@ -770,8 +770,12 @@ function pintarTablaIncidencias(filas) {
             var estadoRotura = f.fecha_fin_rotura
                 ? "Recuperada " + f.fecha_fin_rotura
                 : '<span class="label label-danger">En curso</span>';
+            var badgeConfirmada = f.rotura_confirmada
+                ? ' <span class="label label-warning" title="Rotura confirmada: hueco verificado por venta posterior">&#9888; Confirmada</span>'
+                : "";
             detalle =
-                "Últ. venta: " +
+                badgeConfirmada +
+                " Últ. venta: " +
                 (f.ultima_venta || "—") +
                 " | Rotura desde: <strong>" +
                 (f.fecha_inicio_rotura || "—") +
