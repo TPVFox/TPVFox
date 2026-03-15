@@ -457,7 +457,7 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         casos_incluir: _posstockGetCasosIncluir(tipoIncidencia),
         min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
         inicial: inicial,
-        pagina: 150,
+        pagina: 500,
         familias_incluir: (window.posstockFamiliasIncluir || [])
             .map(function (f) {
                 return f.id;
@@ -1002,9 +1002,9 @@ var POSSTOCK_MIN_VENTAS_C5 = {
     quincena: 6,
     mes: 8,
     trimestre: 11,
-    cuatrimestre: 13,
-    semestre: 16,
-    anual: 21,
+    cuatrimestre: 15,
+    semestre: 20,
+    anual: 28,
 };
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
@@ -1052,7 +1052,8 @@ function _posstockInicializarFiltroCasos() {
             '" value="' +
             ti.v +
             '" ' +
-            checked + ' onchange="posstockRecargarPorCasos()"> ' +
+            checked +
+            ' onchange="posstockRecargarPorCasos()"> ' +
             '<span class="label label-default">' +
             ti.short +
             "</span> " +
@@ -1223,11 +1224,14 @@ function posstockGenerar() {
                 limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
                 var ffMov = new Date(periodo.fecha_fin_movimientos);
                 if (ffMov >= limite) {
-                    document.getElementById("posstockAvisoVentana").style.display = "";
+                    document.getElementById(
+                        "posstockAvisoVentana",
+                    ).style.display = "";
                     return;
                 }
             }
-            document.getElementById("posstockAvisoVentana").style.display = "none";
+            document.getElementById("posstockAvisoVentana").style.display =
+                "none";
 
             // Guardar periodo activo y cargar datos
             window.posstockPeriodoActivo = periodo;
@@ -1331,7 +1335,8 @@ function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
     hoy.setHours(0, 0, 0, 0);
     var sinRestriccion = !(window.POSSTOCK_VENTANA_DIAS > 0);
     var limite = new Date(hoy);
-    if (!sinRestriccion) limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
+    if (!sinRestriccion)
+        limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
     var anio = window.posstockAnioActivo || new Date().getFullYear();
 
     for (var n = 1; n <= totalPeriodos; n++) {

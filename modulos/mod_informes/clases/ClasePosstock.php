@@ -522,8 +522,14 @@ class ClasePosstock
         // ── C1 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso1'])) {
             $c1 = $this->getIncidenciasC1(
-                $fi_mov, $ff_mov, $fi_stock, $ff_stock,
-                $familias_incluir, $familias_excluir, $ids_filter, $sb_shared
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $ff_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $sb_shared
             );
             if (isset($c1['error'])) return $c1;
             $incidencias = array_merge($incidencias, $c1);
@@ -532,8 +538,15 @@ class ClasePosstock
         // ── C2 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso2'])) {
             $c2 = $this->getIncidenciasC2(
-                $fi_mov, $ff_mov, $fi_stock, $ff_stock,
-                $umbral_sobrestock, $familias_incluir, $familias_excluir, $ids_filter, $sb_shared
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $ff_stock,
+                $umbral_sobrestock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $sb_shared
             );
             if (isset($c2['error'])) return $c2;
             $incidencias = array_merge($incidencias, $c2);
@@ -542,9 +555,14 @@ class ClasePosstock
         // ── C3 (3a y/o 3b — una sola query, filtrar resultado por sub-caso) ──
         if (isset($casos_set['caso3a']) || isset($casos_set['caso3b'])) {
             $c3 = $this->getIncidenciasC3(
-                $fi_mov, $ff_mov, $fi_stock,
-                $umbral_caducidad, $umbral_sin_rotacion,
-                $familias_incluir, $familias_excluir, $ids_filter
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $umbral_caducidad,
+                $umbral_sin_rotacion,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter
             );
             if (isset($c3['error'])) return $c3;
             // Filtrar sub-casos si no se piden ambos
@@ -560,9 +578,15 @@ class ClasePosstock
         // ── C5 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso5'])) {
             $c5 = $this->getIncidenciasCaso5(
-                $fi_mov, $ff_mov, $umbral_sobrestock,
-                $familias_incluir, $familias_excluir, $ids_filter,
-                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5
+                $fi_mov,
+                $ff_mov,
+                $umbral_sobrestock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $min_ventas_c5,
+                $modelo_rotura_c5,
+                $umbral_confianza_c5
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
@@ -571,7 +595,10 @@ class ClasePosstock
         // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
         if (isset($casos_set['caso4'])) {
             $articulos_sin_mov = $this->getArticulosSinMovimiento(
-                $fi_mov, $ff_mov, $familias_incluir, $familias_excluir
+                $fi_mov,
+                $ff_mov,
+                $familias_incluir,
+                $familias_excluir
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
             foreach ($this->_formatearCaso4($articulos_sin_mov) as $inc) {
@@ -679,7 +706,17 @@ class ClasePosstock
         // ── Detectar sobredispersión mediante sub-ventanas ───────────────────
         // chunk_days: granularidad de las sub-ventanas (diaria ≤14 días, semanal el resto)
         $fi_period_ts = $ff_ts - ($periodo_dias - 1) * 86400;
-        $chunk_days   = $periodo_dias <= 14 ? 1 : 7;
+        // Ajuste de granularidad de sub-ventanas según duración del periodo:
+        // - <= 31 días: ventanas diarias (semanal/quincenal/mensual)
+        // - 32..120 días: ventanas de 5 días (trimestral, cuatrimestral)
+        // - > 120 días: ventanas de 10 días (semestral, anual)
+        if ($periodo_dias < 40) {
+            $chunk_days = 1;
+        } elseif ($periodo_dias <= 130) {
+            $chunk_days = 5;
+        } else {
+            $chunk_days = 10;
+        }
         $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
 
         $chunk_counts = array_fill(0, $n_chunks, 0);
@@ -1133,13 +1170,21 @@ class ClasePosstock
         foreach ($ventas_fechas as $id => $fechas_map) {
             $roturas = $modelo === 'poisson'
                 ? $this->_calcularRoturasC5Poisson(
-                    $id, $fechas_map, $stock_actual[$id] ?? 0.0,
-                    $ff_ts, $min_ventas, $umbral_prob, $periodo_dias
-                  )
+                    $id,
+                    $fechas_map,
+                    $stock_actual[$id] ?? 0.0,
+                    $ff_ts,
+                    $min_ventas,
+                    $umbral_prob,
+                    $periodo_dias
+                )
                 : $this->_calcularRoturasC5(
-                    $id, $fechas_map, $stock_actual[$id] ?? 0.0,
-                    $ff_ts, $min_ventas
-                  );
+                    $id,
+                    $fechas_map,
+                    $stock_actual[$id] ?? 0.0,
+                    $ff_ts,
+                    $min_ventas
+                );
             foreach ($roturas as $r) $incidencias[] = $r;
         }
 
