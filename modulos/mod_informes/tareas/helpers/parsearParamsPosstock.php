@@ -60,18 +60,19 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         $id = (int)trim($id);
         if ($id > 0) $proveedores_incluir[] = $id;
     }
+    $proveedor_todos_productos = isset($_POST['proveedor_todos_productos']) && $_POST['proveedor_todos_productos'] === '1';
 
     // min_ventas_c5: calculado en backend según tipo de periodo (evita lógica en JS).
     // Si el tipo de periodo está disponible, se usa la tabla del backend.
     // En último caso se toma el valor POST (compatibilidad) con mínimo 3.
     $min_ventas_c5_por_tipo = [
         'semana'       => 4,
-        'quincena'     => 7,
-        'mes'          => 10,
-        'trimestre'    => 16,
-        'cuatrimestre' => 25,
-        'semestre'     => 40,
-        'anual'        => 64,
+        'quincena'     => 5,
+        'mes'          => 7,
+        'trimestre'    => 10,
+        'cuatrimestre' => 15,
+        'semestre'     => 21,
+        'anual'        => 30,
     ];
     $tipo_periodo = $tipo_periodo ?: ($_POST['tipo_periodo'] ?? '');
     $min_ventas_c5 = isset($min_ventas_c5_por_tipo[$tipo_periodo])
@@ -91,8 +92,10 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'min_ventas_c5'               => $min_ventas_c5,
         'modelo_rotura_c5'            => (string)$posstock_node->modelo_rotura_c5 ?: 'binomial',
         'umbral_confianza_poisson'    => (float)(string)$posstock_node->umbral_confianza_poisson ?: 0.05,
+        'c5_incluir_stock_negativo'   => (string)$posstock_node->c5_incluir_stock_negativo === '1',
         'familias_incluir'            => $familias_incluir,
         'familias_excluir'            => $familias_excluir,
         'proveedores_incluir'         => $proveedores_incluir,
+        'proveedor_todos_productos'   => $proveedor_todos_productos,
     ];
 }

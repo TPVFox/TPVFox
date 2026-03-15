@@ -105,6 +105,13 @@ function abrirModalConfigPosstock($posstock)
     $html .= '        Stock inactivo en periodo <small class="text-muted">(stock &gt; 0 y sin movimientos en el rango)</small>';
     $html .= '      </label>';
     $html .= '    </div>';
+    $html .= '    <div class="checkbox" style="margin:4px 0 0;">';
+    $html .= '      <label class="small" title="Cuando está activo, los artículos con stock negativo al cierre también se incluyen en el análisis C5 de detección de venta cero (roturas físicas). KO aplica igualmente si el gap supera el umbral.">';
+    $html .= '        <input type="checkbox" name="inputC5IncluirStockNegativo" value="1"'
+        . ((string)$posstock->c5_incluir_stock_negativo === '1' ? ' checked' : '') . '>';
+    $html .= '        C5 — analizar artículos con stock negativo <small class="text-muted">(incluye detección completa, igual que stock positivo)</small>';
+    $html .= '      </label>';
+    $html .= '    </div>';
     $html .= '  </div>';
     $html .= '</div>';
 

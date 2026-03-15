@@ -206,12 +206,12 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
     // Centralizado aquí para no duplicar lógica en el frontend.
     $min_ventas_c5_por_tipo = [
         'semana'       => 4,
-        'quincena'     => 7,
-        'mes'          => 10,
-        'trimestre'    => 16,
-        'cuatrimestre' => 25,
-        'semestre'     => 40,
-        'anual'        => 64,
+        'quincena'     => 5,
+        'mes'          => 7,
+        'trimestre'    => 10,
+        'cuatrimestre' => 15,
+        'semestre'     => 21,
+        'anual'        => 30,
     ];
 
     return [

@@ -15,6 +15,8 @@
 			<modelo_rotura_c5>binomial</modelo_rotura_c5>
 			<!-- Umbral de probabilidad para el modelo Poisson (0.05 = 95% confianza, 0.01 = 99%) -->
 			<umbral_confianza_poisson>0.05</umbral_confianza_poisson>
+			<!-- 1 = incluir en C5 artículos con stock negativo al cierre (roturas recuperadas solo; KO requiere stock > 0) -->
+			<c5_incluir_stock_negativo>0</c5_incluir_stock_negativo>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

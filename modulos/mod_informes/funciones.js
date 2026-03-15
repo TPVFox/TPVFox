@@ -444,6 +444,8 @@ window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
 
 // Global: lista de {id, nombre} de proveedores seleccionados (solo incluir)
 window.posstockProveedoresIncluir = [];
+// Global: analizar todos los artículos del proveedor (sin filtrar por actividad en el periodo)
+window.posstockProveedorTodosProductos = false;
 
 var _posstockProveedoresCache = null; // caché de la lista completa
 
@@ -505,7 +507,12 @@ function _posstockMostrarModalProveedores() {
         "</span></div>" +
         "</div></div>" +
         '<datalist id="posstockProveedoresDatalist"></datalist>' +
-        '<div style="margin-top:8px;text-align:right;">' +
+        '<div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;">' +
+        '<label class="small" style="margin:0;font-weight:normal;" title="Analiza todos los artículos asignados al proveedor, aunque no tengan movimientos en el periodo analizado.">' +
+        '<input type="checkbox" id="posstockChkTodosProductos"' +
+        (window.posstockProveedorTodosProductos ? " checked" : "") +
+        '> Todos los artículos del proveedor <small class="text-muted">(ignora actividad en el periodo)</small>' +
+        "</label>" +
         '<button type="button" class="btn btn-primary btn-sm"' +
         ' onclick="posstockAplicarFiltroProveedores()">Aplicar filtro</button>' +
         "</div>";
@@ -577,7 +584,7 @@ function posstockEliminarProveedor(boton) {
     boton.closest("tr").remove();
 }
 
-/** Lee la tabla, actualiza el global y el badge, y cierra el modal. */
+/** Lee la tabla y el checkbox, actualiza los globals y el badge, y cierra el modal. */
 function posstockAplicarFiltroProveedores() {
     var filas = document.querySelectorAll("#posstockTablaProveedores tbody tr");
     window.posstockProveedoresIncluir = [];
@@ -587,6 +594,8 @@ function posstockAplicarFiltroProveedores() {
             nombre: tr.cells[1].textContent.trim(),
         });
     });
+    var chk = document.getElementById("posstockChkTodosProductos");
+    window.posstockProveedorTodosProductos = chk ? chk.checked : false;
     _posstockActualizarBadgeProveedores();
     cerrarPopUp();
 }
@@ -669,6 +678,7 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         proveedores_incluir: (window.posstockProveedoresIncluir || [])
             .map(function (p) { return p.id; })
             .join(","),
+        proveedor_todos_productos: window.posstockProveedorTodosProductos ? "1" : "0",
     };
 
     $.ajax({
@@ -810,16 +820,24 @@ function pintarTablaIncidencias(filas) {
         } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
             var estadoRotura = f.fecha_fin_rotura
                 ? "Recuperada " + f.fecha_fin_rotura
-                : '<span class="label label-danger">En curso</span>';
-            var badgeConfirmada = f.rotura_confirmada
-                ? ' <span class="label label-warning" title="Rotura confirmada: hueco verificado por venta posterior">KO</span>'
+                : '<span class="label label-warning">En curso</span>';
+            var badgeKO = f.ko
+                ? ' <span class="label label-danger" title="Rotura en curso con stock positivo al cierre del periodo">KO</span>'
+                : "";
+            var badgeCR = f.cr
+                ? ' <span class="label" style="background:#e67e22;" title="Rotura crítica: la recuperación superó fecha de inicio + umbral">CR</span>'
+                : "";
+            var badgeRK = f.rk
+                ? ' <span class="label label-warning" title="Rotura confirmada significativa: hueco verificado pero no crítico">RK</span>'
                 : "";
             var badgeModelo =
                 f.modelo_usado === "BN"
                     ? ' <span class="label label-info" title="Sobredispersión detectada (s²>μ): umbral calculado con Binomial Negativa">BN</span>'
                     : "";
             detalle =
-                badgeConfirmada +
+                badgeKO +
+                badgeCR +
+                badgeRK +
                 badgeModelo +
                 " Últ. venta: " +
                 (f.ultima_venta || "—") +
@@ -927,6 +945,7 @@ function exportarPOSStockCSV() {
         proveedores_incluir: (window.posstockProveedoresIncluir || [])
             .map(function (p) { return p.id; })
             .join(","),
+        proveedor_todos_productos: window.posstockProveedorTodosProductos ? "1" : "0",
     };
 
     var form = document.createElement("form");
@@ -979,6 +998,7 @@ function imprimirPOSStockPDF() {
             proveedores_incluir: (window.posstockProveedoresIncluir || [])
                 .map(function (p) { return p.id; })
                 .join(","),
+            proveedor_todos_productos: window.posstockProveedorTodosProductos ? "1" : "0",
         },
         url: "tareas.php",
         type: "post",

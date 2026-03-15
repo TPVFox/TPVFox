@@ -49,7 +49,8 @@ if (!isset($mapa['inputUmbralConfianzaPoisson']) || !in_array($mapa['inputUmbral
 if (!empty($errores)) {
     $respuesta['error'] = implode(' | ', $errores);
 } else {
-    $incluir_stock_inactivo = (isset($mapa['inputIncluirStockInactivo']) && $mapa['inputIncluirStockInactivo'] === '1') ? 1 : 0;
+    $incluir_stock_inactivo      = (isset($mapa['inputIncluirStockInactivo'])      && $mapa['inputIncluirStockInactivo']      === '1') ? 1 : 0;
+    $c5_incluir_stock_negativo   = (isset($mapa['inputC5IncluirStockNegativo'])   && $mapa['inputC5IncluirStockNegativo']   === '1') ? 1 : 0;
 
     $posstock->ventana_dias                       = $mapa['inputVentanaDias'];
     $posstock->umbral_sobrestock                  = $mapa['inputUmbralSobrestock'];
@@ -58,6 +59,7 @@ if (!empty($errores)) {
     $posstock->incluir_stock_inactivo             = $incluir_stock_inactivo;
     $posstock->modelo_rotura_c5                   = $mapa['inputModeloRoturaC5'];
     $posstock->umbral_confianza_poisson           = $mapa['inputUmbralConfianzaPoisson'];
+    $posstock->c5_incluir_stock_negativo          = $c5_incluir_stock_negativo;
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']                  = 'Configuración POSStock guardada correctamente.';
