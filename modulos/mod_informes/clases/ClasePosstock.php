@@ -491,10 +491,12 @@ class ClasePosstock
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
 
-        $umbral_sobrestock   = (float) ($params['umbral_sobrestock']           ?? 0.5);
-        $umbral_caducidad    = (int)   ($params['umbral_caducidad_semanas']    ?? 24);
-        $umbral_sin_rotacion = (int)   ($params['umbral_sin_rotacion_semanas'] ?? 12);
-        $min_ventas_c5       = (int)   ($params['min_ventas_c5']               ?? 3);
+        $umbral_sobrestock      = (float)  ($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad       = (int)    ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion    = (int)    ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $min_ventas_c5          = (int)    ($params['min_ventas_c5']               ?? 3);
+        $modelo_rotura_c5       = (string) ($params['modelo_rotura_c5']            ?? 'binomial');
+        $umbral_confianza_c5    = (float)  ($params['umbral_confianza_poisson']    ?? 0.05);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -559,7 +561,8 @@ class ClasePosstock
         if (isset($casos_set['caso5'])) {
             $c5 = $this->getIncidenciasCaso5(
                 $fi_mov, $ff_mov, $umbral_sobrestock,
-                $familias_incluir, $familias_excluir, $ids_filter, $min_ventas_c5
+                $familias_incluir, $familias_excluir, $ids_filter,
+                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
@@ -633,6 +636,78 @@ class ClasePosstock
      *
      * @return array  Filas de incidencia (sin campo 'nombre')
      */
+    /**
+     * Modelo Poisson para detección de roturas (C5).
+     *
+     * λ_día = n_ventas / dias_periodo
+     * Umbral de gap: gap > −ln(umbral_prob) / λ_día
+     *   → la probabilidad de 0 ventas durante ese gap es < umbral_prob (p.ej. < 0.05)
+     *
+     * Ventaja frente a media+3σ: no asume distribución normal de gaps; es más
+     * preciso en artículos con pocos datos o ventas muy irregulares.
+     */
+    private function _calcularRoturasC5Poisson(
+        int   $id,
+        array $fechas_map,
+        float $stock_actual,
+        int   $ff_ts,
+        int   $min_ventas,
+        float $umbral_prob,
+        int   $periodo_dias
+    ): array {
+        $fechas = array_keys($fechas_map);
+        sort($fechas);
+        $n = count($fechas);
+        if ($n < $min_ventas) return [];
+
+        $ts         = array_map('strtotime', $fechas);
+        $lambda_dia = $n / max(1, $periodo_dias);
+        if ($lambda_dia <= 0) return [];
+
+        // d > −ln(p) / λ  ⟹  P(0 ventas en d días) < p
+        $umbral_gap  = -log($umbral_prob) / $lambda_dia;
+        $umbral_ceil = (int)ceil($umbral_gap);
+
+        $campos = [
+            'idArticulo'            => $id,
+            'tipo'                  => 'Venta Cero (Posible Rotura Física)',
+            'severidad'             => 'MEDIA',
+            'stock_actual'          => $stock_actual,
+            'avg_dias_entre_ventas' => round($periodo_dias / $n, 1),
+            'sd_dias'               => null,   // no aplica en modelo Poisson
+            'umbral_dias'           => round($umbral_gap, 1),
+            'posible_causa'         => 'Hueco en lineal o merma no registrada',
+        ];
+
+        $incidencias = [];
+        for ($i = 1; $i < $n; $i++) {
+            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            if ($gap > $umbral_gap) {
+                $inicio = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
+                $fin    = $fechas[$i];
+                $incidencias[] = $campos + [
+                    'ultima_venta'        => $fechas[$i - 1],
+                    'fecha_inicio_rotura' => $inicio,
+                    'fecha_fin_rotura'    => $fin,
+                    'dias_rotura'         => $gap,
+                    'rotura_confirmada'   => $inicio !== $fin,
+                ];
+            }
+        }
+        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
+        if ($dias_final > $umbral_gap && $stock_actual > 0) {
+            $incidencias[] = $campos + [
+                'ultima_venta'        => $fechas[$n - 1],
+                'fecha_inicio_rotura' => date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400),
+                'fecha_fin_rotura'    => null,
+                'dias_rotura'         => $dias_final,
+                'rotura_confirmada'   => false,
+            ];
+        }
+        return $incidencias;
+    }
+
+    /** Modelo clásico media+3σ para detección de roturas (C5). */
     private function _calcularRoturasC5(int $id, array $fechas_map, float $stock_actual, int $ff_ts, int $min_ventas): array
     {
         $fechas = array_keys($fechas_map);
@@ -906,8 +981,10 @@ class ClasePosstock
         float  $umbral_sobrestock,   // no usado en C5, recibido por firma uniforme
         array  $familias_incluir,
         array  $familias_excluir,
-        array  $ids_filter = [],
-        int    $min_ventas = 3
+        array  $ids_filter  = [],
+        int    $min_ventas  = 3,
+        string $modelo      = 'binomial',   // 'binomial' | 'poisson'
+        float  $umbral_prob = 0.05          // solo Poisson: P(0) < umbral → rotura
     ): array {
         $fi   = $this->db->real_escape_string($fi_mov);
         $ff   = $this->db->real_escape_string($ff_mov);
@@ -1000,18 +1077,21 @@ class ClasePosstock
             $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_actual'];
         }
 
-        // Paso 3: lógica Caso 5 (media + 3σ) — detecta TODAS las roturas
-        $ff_ts       = strtotime($ff_mov);
-        $incidencias = [];
+        // Paso 3: lógica Caso 5 — detecta TODAS las roturas (binomial o Poisson)
+        $ff_ts        = strtotime($ff_mov);
+        $periodo_dias = max(1, (int)round((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
+        $incidencias  = [];
 
         foreach ($ventas_fechas as $id => $fechas_map) {
-            $roturas = $this->_calcularRoturasC5(
-                $id,
-                $fechas_map,
-                $stock_actual[$id] ?? 0.0,
-                $ff_ts,
-                $min_ventas
-            );
+            $roturas = $modelo === 'poisson'
+                ? $this->_calcularRoturasC5Poisson(
+                    $id, $fechas_map, $stock_actual[$id] ?? 0.0,
+                    $ff_ts, $min_ventas, $umbral_prob, $periodo_dias
+                  )
+                : $this->_calcularRoturasC5(
+                    $id, $fechas_map, $stock_actual[$id] ?? 0.0,
+                    $ff_ts, $min_ventas
+                  );
             foreach ($roturas as $r) $incidencias[] = $r;
         }
 

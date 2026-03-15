@@ -57,6 +57,8 @@ $params = [
     'umbral_sin_rotacion_semanas' => (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
     'casos_incluir'               => $casos_incluir,
     'min_ventas_c5'               => max(3, (int)($_POST['min_ventas_c5'] ?? 3)),
+    'modelo_rotura_c5'            => (string)$posstock_node->modelo_rotura_c5 ?: 'binomial',
+    'umbral_confianza_poisson'    => (float)(string)$posstock_node->umbral_confianza_poisson ?: 0.05,
     'familias_incluir'            => $familias_incluir,
     'familias_excluir'            => $familias_excluir,
 ];

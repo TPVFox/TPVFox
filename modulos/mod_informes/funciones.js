@@ -133,16 +133,9 @@ function guardarConfigPosstock() {
                 // reflejen el nuevo valor sin necesidad de recargar la página.
                 if (resultado.ventana_dias !== undefined) {
                     window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
-                    // Si hay una barra de botones visible, re-pintarla con el nuevo umbral.
-                    if (
-                        window.posstockTipoActivo &&
-                        window.posstockPeriodoActivo
-                    ) {
+                    if (window.posstockTipoActivo && window.posstockPeriodoActivo) {
                         var numeroActivo =
-                            parseInt(
-                                document.getElementById("posstockNumero").value,
-                                10,
-                            ) || 1;
+                            parseInt(document.getElementById("posstockNumero").value, 10) || 1;
                         posstockPintarBarra(
                             window.posstockTipoActivo,
                             numeroActivo,
@@ -155,6 +148,16 @@ function guardarConfigPosstock() {
         },
     });
 }
+
+/** Muestra u oculta el bloque de confianza Poisson dentro del modal de config. */
+function modalTogglePoissonConfianza() {
+    var sel = document.getElementById("modalModeloRoturaC5");
+    var bloque = document.getElementById("modalPoissonConfianzaBloque");
+    if (sel && bloque) {
+        bloque.style.display = sel.value === "poisson" ? "" : "none";
+    }
+}
+window.modalTogglePoissonConfianza = modalTogglePoissonConfianza;
 
 window.abrirModalConfigPosstock = abrirModalConfigPosstock;
 window.guardarConfigPosstock = guardarConfigPosstock;
@@ -872,19 +875,13 @@ function exportarPOSStockCSV() {
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
-        casos_incluir: _posstockGetCasosIncluir(
-            window.posstockTipoIncidenciaActivo || "",
-        ),
+        casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
         min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
             .join(","),
         familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) {
-                return f.id;
-            })
+            .map(function (f) { return f.id; })
             .join(","),
     };
 
@@ -924,11 +921,8 @@ function imprimirPOSStockPDF() {
             fecha_fin_movimientos: periodo.fecha_fin_movimientos,
             fecha_inicio_stock: periodo.fecha_inicio_stock,
             fecha_fin_stock: periodo.fecha_fin_stock,
-            casos_incluir: _posstockGetCasosIncluir(
-                window.posstockTipoIncidenciaActivo || "",
-            ),
-            min_ventas_c5:
-                POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
+            casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
+            min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
             familias_incluir: (window.posstockFamiliasIncluir || [])
                 .map(function (f) {
                     return f.id;
@@ -1442,6 +1436,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     _posstockInicializarFiltroCasos();
+
 });
 
 window.posstockActualizarNumero = posstockActualizarNumero;

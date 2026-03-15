@@ -65,7 +65,35 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
-    // --- BLOQUE 3: OPCIONES ADICIONALES ---
+    // --- BLOQUE 3: MODELO ROTURA C5 ---
+    $modelo_actual    = (string)$posstock->modelo_rotura_c5 ?: 'binomial';
+    $confianza_actual = (string)$posstock->umbral_confianza_poisson ?: '0.05';
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-stats"></i> Modelo de rotura (Caso 5)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Algoritmo para detectar roturas físicas (C5).">Modelo estadístico</label>';
+    $html .= '        <select class="form-control input-sm" name="inputModeloRoturaC5" id="modalModeloRoturaC5" onchange="modalTogglePoissonConfianza()">';
+    $html .= '          <option value="binomial"' . ($modelo_actual === 'binomial' ? ' selected' : '') . '>Binomial (media + 3σ)</option>';
+    $html .= '          <option value="poisson"'  . ($modelo_actual === 'poisson'  ? ' selected' : '') . '>Poisson</option>';
+    $html .= '        </select>';
+    $html .= '      </div>';
+    $html .= '      <div class="col-xs-12 col-sm-4" id="modalPoissonConfianzaBloque"'
+           . ($modelo_actual !== 'poisson' ? ' style="display:none;"' : '') . '>';
+    $html .= '        <label class="control-label small" title="Probabilidad límite: si P(0 ventas) es menor a este valor con stock positivo, se declara rotura.">Nivel de confianza</label>';
+    $html .= '        <select class="form-control input-sm" name="inputUmbralConfianzaPoisson">';
+    $html .= '          <option value="0.10"' . ($confianza_actual === '0.10' ? ' selected' : '') . '>90 % confianza</option>';
+    $html .= '          <option value="0.05"' . ($confianza_actual === '0.05' ? ' selected' : '') . '>95 % confianza</option>';
+    $html .= '          <option value="0.01"' . ($confianza_actual === '0.01' ? ' selected' : '') . '>99 % confianza</option>';
+    $html .= '        </select>';
+    $html .= '      </div>';
+    $html .= '    </div>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
+    // --- BLOQUE 4: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
     $html .= '  <div class="panel-body">';

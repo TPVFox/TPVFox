@@ -11,6 +11,10 @@
 			<umbral_semanas_sin_rotacion>12</umbral_semanas_sin_rotacion>
 			<!-- 1 = incluir artículos con stock positivo y cero movimientos en el periodo analizado -->
 			<incluir_stock_inactivo>0</incluir_stock_inactivo>
+			<!-- Modelo estadístico para detección de roturas C5: binomial (media+3σ) o poisson -->
+			<modelo_rotura_c5>binomial</modelo_rotura_c5>
+			<!-- Umbral de probabilidad para el modelo Poisson (0.05 = 95% confianza, 0.01 = 99%) -->
+			<umbral_confianza_poisson>0.05</umbral_confianza_poisson>
 		</posstock>
 	</configuracion>
 </parametros>
