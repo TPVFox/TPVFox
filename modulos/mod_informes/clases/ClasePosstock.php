@@ -498,36 +498,68 @@ class ClasePosstock
         // ── Rutas dedicadas por tipo (sin cargar getMovimientosPeriodo) ───────
         switch ($tipo_incidencia) {
             case 'caso5':
-                return $this->getIncidenciasCaso5($fi_mov, $ff_mov, $umbral_sobrestock,
-                    $familias_incluir, $familias_excluir, $ids_filter);
+                return $this->getIncidenciasCaso5(
+                    $fi_mov,
+                    $ff_mov,
+                    $umbral_sobrestock,
+                    $familias_incluir,
+                    $familias_excluir,
+                    $ids_filter
+                );
 
             case 'caso1':
-                $filas = $this->getIncidenciasC1($fi_mov, $ff_mov, $fi_stock, $ff_stock,
-                    $familias_incluir, $familias_excluir, $ids_filter);
+                $filas = $this->getIncidenciasC1(
+                    $fi_mov,
+                    $ff_mov,
+                    $fi_stock,
+                    $ff_stock,
+                    $familias_incluir,
+                    $familias_excluir,
+                    $ids_filter
+                );
                 return isset($filas['error']) ? $filas : $this->_anadirNombres($filas);
 
             case 'caso2':
-                $filas = $this->getIncidenciasC2($fi_mov, $ff_mov, $fi_stock, $ff_stock,
-                    $umbral_sobrestock, $familias_incluir, $familias_excluir, $ids_filter);
+                $filas = $this->getIncidenciasC2(
+                    $fi_mov,
+                    $ff_mov,
+                    $fi_stock,
+                    $ff_stock,
+                    $umbral_sobrestock,
+                    $familias_incluir,
+                    $familias_excluir,
+                    $ids_filter
+                );
                 return isset($filas['error']) ? $filas : $this->_anadirNombres($filas);
 
             case 'caso3a':
             case 'caso3b':
-                $all_c3 = $this->getIncidenciasC3($fi_mov, $ff_mov, $fi_stock,
-                    $umbral_caducidad, $umbral_sin_rotacion,
-                    $familias_incluir, $familias_excluir, $ids_filter);
+                $all_c3 = $this->getIncidenciasC3(
+                    $fi_mov,
+                    $ff_mov,
+                    $fi_stock,
+                    $umbral_caducidad,
+                    $umbral_sin_rotacion,
+                    $familias_incluir,
+                    $familias_excluir,
+                    $ids_filter
+                );
                 if (isset($all_c3['error'])) return $all_c3;
                 $tipo_filtrar = $tipo_incidencia === 'caso3a'
                     ? 'Riesgo de caducidad teórica'
                     : 'Entrada sin rotación previa';
                 $filas = array_values(array_filter(
-                    $all_c3, fn($inc) => $inc['tipo'] === $tipo_filtrar
+                    $all_c3,
+                    fn($inc) => $inc['tipo'] === $tipo_filtrar
                 ));
                 return $this->_anadirNombres($filas);
 
             case 'caso4':
                 $articulos = $this->getArticulosSinMovimiento(
-                    $fi_mov, $ff_mov, $familias_incluir, $familias_excluir
+                    $fi_mov,
+                    $ff_mov,
+                    $familias_incluir,
+                    $familias_excluir
                 );
                 if (isset($articulos['error'])) return $articulos;
                 return $this->_anadirNombres($this->_formatearCaso4($articulos));
@@ -543,21 +575,51 @@ class ClasePosstock
             if (isset($sb_shared['error'])) return $sb_shared;
         }
 
-        $c1 = $this->getIncidenciasC1($fi_mov, $ff_mov, $fi_stock, $ff_stock,
-            $familias_incluir, $familias_excluir, $ids_filter, $sb_shared);
+        $c1 = $this->getIncidenciasC1(
+            $fi_mov,
+            $ff_mov,
+            $fi_stock,
+            $ff_stock,
+            $familias_incluir,
+            $familias_excluir,
+            $ids_filter,
+            $sb_shared
+        );
         if (isset($c1['error'])) return $c1;
 
-        $c2 = $this->getIncidenciasC2($fi_mov, $ff_mov, $fi_stock, $ff_stock,
-            $umbral_sobrestock, $familias_incluir, $familias_excluir, $ids_filter, $sb_shared);
+        $c2 = $this->getIncidenciasC2(
+            $fi_mov,
+            $ff_mov,
+            $fi_stock,
+            $ff_stock,
+            $umbral_sobrestock,
+            $familias_incluir,
+            $familias_excluir,
+            $ids_filter,
+            $sb_shared
+        );
         if (isset($c2['error'])) return $c2;
 
-        $c3 = $this->getIncidenciasC3($fi_mov, $ff_mov, $fi_stock,
-            $umbral_caducidad, $umbral_sin_rotacion,
-            $familias_incluir, $familias_excluir, $ids_filter);
+        $c3 = $this->getIncidenciasC3(
+            $fi_mov,
+            $ff_mov,
+            $fi_stock,
+            $umbral_caducidad,
+            $umbral_sin_rotacion,
+            $familias_incluir,
+            $familias_excluir,
+            $ids_filter
+        );
         if (isset($c3['error'])) return $c3;
 
-        $c5 = $this->getIncidenciasCaso5($fi_mov, $ff_mov, $umbral_sobrestock,
-            $familias_incluir, $familias_excluir, $ids_filter);
+        $c5 = $this->getIncidenciasCaso5(
+            $fi_mov,
+            $ff_mov,
+            $umbral_sobrestock,
+            $familias_incluir,
+            $familias_excluir,
+            $ids_filter
+        );
         if (isset($c5['error'])) return $c5;
 
         $incidencias = array_merge($c1, $c2, $c3, $c5);
@@ -565,7 +627,10 @@ class ClasePosstock
         // ── Caso 4 opcional ───────────────────────────────────────────────────
         if ($incluir_stock_inactivo) {
             $articulos_sin_mov = $this->getArticulosSinMovimiento(
-                $fi_mov, $ff_mov, $familias_incluir, $familias_excluir
+                $fi_mov,
+                $ff_mov,
+                $familias_incluir,
+                $familias_excluir
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
             foreach ($this->_formatearCaso4($articulos_sin_mov) as $inc) {
@@ -575,7 +640,9 @@ class ClasePosstock
 
         // ── Ordenar: CRITICA → ALTA → MEDIA → BAJA ───────────────────────────
         $orden_sev = ['CRITICA' => 0, 'ALTA' => 1, 'MEDIA' => 2, 'BAJA' => 3];
-        usort($incidencias, fn($a, $b) =>
+        usort(
+            $incidencias,
+            fn($a, $b) =>
             $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']]
         );
 
@@ -612,7 +679,8 @@ class ClasePosstock
         $fechas = array_keys($fechas_map);
         sort($fechas);
         $n = count($fechas);
-        if ($n < 3) return [];
+        // Requerir más de 10 ventas para aplicar el método (mayor fiabilidad)
+        if ($n < 11) return [];
         $ts = array_map('strtotime', $fechas);
         $gaps = [];
         for ($i = 1; $i < $n; $i++) {
@@ -1013,9 +1081,12 @@ class ClasePosstock
      * C1b ALTA    — min_running < 0 pero stock_actual >= 0  (negativo puntual recuperado)
      */
     private function getIncidenciasC1(
-        string $fi_mov,   string $ff_mov,
-        string $fi_stock, string $ff_stock,
-        array  $familias_incluir, array $familias_excluir,
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        string $ff_stock,
+        array  $familias_incluir,
+        array $familias_excluir,
         array  $ids_filter = [],
         array  $stock_base_cache = []   // pre-calculado por el caller para evitar doble consulta
     ): array {
@@ -1128,10 +1199,13 @@ class ClasePosstock
      * C2 MEDIA — stock_previo >= ncant * umbral_sobrestock
      */
     private function getIncidenciasC2(
-        string $fi_mov,   string $ff_mov,
-        string $fi_stock, string $ff_stock,
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        string $ff_stock,
         float  $umbral_sobrestock,
-        array  $familias_incluir, array $familias_excluir,
+        array  $familias_incluir,
+        array $familias_excluir,
         array  $ids_filter = [],
         array  $stock_base_cache = []   // pre-calculado por el caller para evitar doble consulta
     ): array {
@@ -1255,9 +1329,13 @@ class ClasePosstock
      * "historial conocido" que el cálculo original (stock_base + periodo actual).
      */
     private function getIncidenciasC3(
-        string $fi_mov,  string $ff_mov, string $fi_stock,
-        int    $umbral_caducidad, int $umbral_sin_rotacion,
-        array  $familias_incluir, array $familias_excluir,
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        int    $umbral_caducidad,
+        int $umbral_sin_rotacion,
+        array  $familias_incluir,
+        array $familias_excluir,
         array  $ids_filter = []
     ): array {
         $fi_m  = $this->db->real_escape_string($fi_mov);
