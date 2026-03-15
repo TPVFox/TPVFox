@@ -77,6 +77,11 @@ class ClasePosstock
     // Tipos de artículo considerados físicos (confirmar en BD si se añaden nuevos tipos)
     const TIPOS_FISICOS = "'unidad', 'peso'";
 
+    // Antigüedad máxima de la vinculación artículo-proveedor (fechaActualizacion).
+    // Relaciones no actualizadas en más de este número de años se consideran obsoletas
+    // y se excluyen del filtro de proveedor en POSStock.
+    const PROV_MAX_ANTIGUEDAD_ANOS = 2;
+
     public function __construct($conexion)
     {
         $this->db = $conexion;
@@ -441,6 +446,56 @@ class ClasePosstock
     }
 
     /**
+     * C6 paso 1 — Cantidad vendida por día (ticket + albcli) por artículo físico.
+     *
+     * A diferencia de _queryVentasFechasC5 (que devuelve fechas únicas para detectar gaps),
+     * esta query devuelve la cantidad total vendida cada día, necesaria para estimar
+     * la demanda media en unidades/día usada en el cálculo del ROP.
+     *
+     * @return array  Filas raw (idArticulo, fecha, ncant_dia) o ['error' => ...]
+     */
+    private function _queryVentasCantidadesC6(
+        string $fi,
+        string $ff,
+        string $where_fam,
+        string $where_ids
+    ): array {
+        $tipos = self::TIPOS_FISICOS;
+        $smt = $this->db->query("
+            SELECT idArticulo, fecha, SUM(ncant) AS ncant_dia
+            FROM (
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant
+                FROM ticketslinea l
+                INNER JOIN ticketst  c ON c.id = l.idticketst
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                  $where_ids
+                UNION ALL
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant
+                FROM albclilinea l
+                INNER JOIN albclit   c ON c.id = l.idalbcli
+                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
+                  AND a.tipo IN ($tipos)
+                  $where_fam
+                  $where_ids
+            ) AS ventas
+            GROUP BY idArticulo, fecha
+            ORDER BY idArticulo, fecha
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+        $rows = [];
+        while ($r = $smt->fetch_assoc()) $rows[] = $r;
+        return $rows;
+    }
+
+    /**
      * C1 — Delta total y mínimo de la suma acumulada por artículo mediante window function.
      * Una fila por artículo con delta_total (saldo del periodo) y min_running (mínimo acumulado).
      * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
@@ -644,16 +699,22 @@ class ClasePosstock
 
     /**
      * Proveedor — idArticulo vinculados a los proveedores indicados.
-     * Usa articulosProveedores (estado Activo).
+     * Usa articulosProveedores (estado Activo, fechaActualizacion dentro de PROV_MAX_ANTIGUEDAD_ANOS
+     * años antes de $ff_mov para que el corte sea coherente con el periodo de análisis).
      *
      * @param  string $ids_prov  IN-clause de idProveedor ya preparado
+     * @param  string $ff_mov    Fecha fin del periodo de análisis ('YYYY-MM-DD')
      * @return array  Filas raw (idArticulo) o ['error' => ...]
      */
-    private function _queryIdsArticulosByProveedores(string $ids_prov): array
+    private function _queryIdsArticulosByProveedores(string $ids_prov, string $ff_mov): array
     {
+        $ff   = $this->db->real_escape_string($ff_mov);
+        $anos = self::PROV_MAX_ANTIGUEDAD_ANOS;
         $smt = $this->db->query(
             "SELECT DISTINCT idArticulo FROM articulosProveedores
-             WHERE idProveedor IN ($ids_prov) AND estado = 'Activo'"
+             WHERE idProveedor IN ($ids_prov)
+               AND estado = 'Activo'
+               AND fechaActualizacion >= DATE_SUB('$ff', INTERVAL $anos YEAR)"
         );
         if (!$smt) return ['error' => $this->db->error];
         $rows = [];
@@ -665,11 +726,15 @@ class ClasePosstock
      * Paginación de artículos de un proveedor sin filtro de actividad en el periodo.
      * Usado cuando proveedor_todos_productos=true para analizar todos los artículos
      * del proveedor independientemente del rango analizado.
+     * Aplica el mismo corte de antigüedad (PROV_MAX_ANTIGUEDAD_ANOS relativo a $ff_mov)
+     * que _queryIdsArticulosByProveedores.
      *
      * @return int[]  Array de idArticulo, o array con clave 'error'.
      */
-    private function _queryArticulosProveedorPaginados(string $ids_prov, int $offset, int $limit): array
+    private function _queryArticulosProveedorPaginados(string $ids_prov, string $ff_mov, int $offset, int $limit): array
     {
+        $ff   = $this->db->real_escape_string($ff_mov);
+        $anos = self::PROV_MAX_ANTIGUEDAD_ANOS;
         $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query(
             "SELECT DISTINCT ap.idArticulo
@@ -677,6 +742,7 @@ class ClasePosstock
              INNER JOIN articulos a ON a.idArticulo = ap.idArticulo
              WHERE ap.idProveedor IN ($ids_prov)
                AND ap.estado = 'Activo'
+               AND ap.fechaActualizacion >= DATE_SUB('$ff', INTERVAL $anos YEAR)
                AND a.tipo IN ($tipos)
              ORDER BY ap.idArticulo
              LIMIT $limit OFFSET $offset"
@@ -1055,7 +1121,7 @@ class ClasePosstock
             $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
             if (!empty($proveedores_incluir)) {
                 $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov, $ff_mov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
@@ -1799,8 +1865,8 @@ class ClasePosstock
      * Caso 6 — Agotamiento Estimado / Punto de Pedido (ROP).
      *
      * Proyecta hacia el futuro usando los mismos modelos estadísticos que C5:
-     *   · Estima la demanda diaria (d) y su dispersión (Poisson o Binomial Negativa)
-     *     a partir de las fechas de venta en el periodo analizado [fi_mov, ff_mov].
+     *   · Estima la demanda diaria (d = unidades_vendidas / periodo_dias) y su dispersión
+     *     (Poisson o Binomial Negativa) a partir de las cantidades vendidas por día en [fi_mov, ff_mov].
      *   · Lead time (L): si hay proveedores seleccionados se calcula como el intervalo
      *     medio entre albaranes consecutivos de esos proveedores en el rango anual
      *     [fi_stock, ff_mov]. Si no hay datos suficientes (< 2 albaranes por proveedor),
@@ -1822,7 +1888,7 @@ class ClasePosstock
      * @param array  $proveedores_incluir IDs de proveedor seleccionados ([] = sin filtro)
      * @param int    $lead_time_defecto   Días usados si no hay proveedor o datos insuficientes
      * @param float  $nivel_servicio      0.90 | 0.95 | 0.99  (z = 1.28 | 1.65 | 2.33)
-     * @param int    $min_ventas          Mínimo de días con venta para incluir el artículo
+     * @param int    $min_ventas          Mínimo de días únicos con venta (base estadística del modelo)
      * @param string $modelo              'binomial' | 'poisson' (selección del modelo C5)
      * @param float  $umbral_prob         Umbral de probabilidad para el modelo Poisson
      *
@@ -1848,18 +1914,20 @@ class ClasePosstock
         $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
         $where_ids = $this->_idsWhere($ids_filter);
 
-        // Paso 1 — Fechas de venta únicas por artículo en el periodo (igual que C5)
-        $rows_ventas = $this->_queryVentasFechasC5($fi, $ff, $where_fam, $where_ids);
+        // Paso 1 — Cantidades vendidas por día y artículo en el periodo
+        // (no fechas únicas: necesitamos unidades para d = unidades/día)
+        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff, $where_fam, $where_ids);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
-        $ventas_fechas = [];
+        // $ventas_cant[idArticulo][fecha] = ncant_dia  (float)
+        $ventas_cant = [];
         foreach ($rows_ventas as $r) {
-            $ventas_fechas[(int)$r['idArticulo']][$r['fecha']] = true;
+            $ventas_cant[(int)$r['idArticulo']][$r['fecha']] = (float)$r['ncant_dia'];
         }
 
         // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
-        $ids_str    = implode(',', array_keys($ventas_fechas));
+        $ids_str    = implode(',', array_keys($ventas_cant));
         $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, false);
         if (isset($rows_stock['error'])) return $rows_stock;
 
@@ -1901,24 +1969,29 @@ class ClasePosstock
 
         $incidencias = [];
 
-        foreach ($ventas_fechas as $id => $fechas_map) {
-            $fechas = array_keys($fechas_map);
-            $n      = count($fechas);
+        foreach ($ventas_cant as $id => $fechas_map) {
+            // $n  = días únicos con venta (base estadística del modelo)
+            // $total_units = unidades totales vendidas (base de la demanda media)
+            $n           = count($fechas_map);
+            $total_units = array_sum($fechas_map);
             if ($n < $min_ventas) continue;
 
-            $d = $n / $periodo_dias;   // demanda diaria estimada
+            $d = $total_units / $periodo_dias;   // demanda diaria en unidades
             if ($d <= 0) continue;
 
-            // ── Parámetros estadísticos (misma lógica que _calcularRoturasC5Poisson) ──
+            // ── Parámetros estadísticos sobre cantidades por sub-ventana ──────────
+            // chunk_counts acumula unidades (no días de presencia) para que
+            // la varianza refleje la dispersión real de la demanda.
             $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
-            $chunk_counts = array_fill(0, $n_chunks, 0);
-            foreach (array_map('strtotime', $fechas) as $t) {
+            $chunk_counts = array_fill(0, $n_chunks, 0.0);
+            foreach ($fechas_map as $fecha => $qty) {
+                $t      = strtotime($fecha);
                 $offset = (int)(($t - $fi_period_ts) / 86400);
                 $chunk  = min($n_chunks - 1, max(0, (int)floor($offset / $chunk_days)));
-                $chunk_counts[$chunk]++;
+                $chunk_counts[$chunk] += $qty;
             }
 
-            $mu_chunk = $n / $n_chunks;
+            $mu_chunk = $total_units / $n_chunks;   // unidades medias por chunk
             $s2_chunk = 0.0;
             if ($n_chunks > 1) {
                 foreach ($chunk_counts as $c) $s2_chunk += ($c - $mu_chunk) ** 2;
@@ -2289,7 +2362,7 @@ class ClasePosstock
             $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
             if (!$proveedor_todos) {
                 // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov, $ff_mov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) {
@@ -2313,7 +2386,7 @@ class ClasePosstock
         if ($proveedor_todos && $ids_str_prov !== '') {
             // Modo "todos los productos del proveedor": paginar directamente sobre
             // articulosProveedores, sin filtro de actividad en el periodo.
-            $ids_batch = $this->_queryArticulosProveedorPaginados($ids_str_prov, $inicial, $pagina);
+            $ids_batch = $this->_queryArticulosProveedorPaginados($ids_str_prov, $ff_mov, $inicial, $pagina);
             if (isset($ids_batch['error'])) return $ids_batch;
             // El filtro de proveedor ya está embebido en ids_filter; no aplicar doble filtro
             $params_batch['ids_proveedor_filter'] = [];
