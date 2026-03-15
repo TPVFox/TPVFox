@@ -71,6 +71,21 @@ switch ($pulsado) {
 		$respuesta = $resultado;
 		break;
 
+	case 'eliminarRefProveedorArticulo':
+		$mod_vista_proveedor = array('modulo' => 'mod_proveedor', 'vista' => 'ListaProveedores.php');
+		if (!isset($ClasePermisos) || $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) != 1) {
+			$respuesta = array('error' => 'No tienes permisos para realizar esta acción');
+			break;
+		}
+		$idArticulo  = isset($_POST['idArticulo'])  ? intval($_POST['idArticulo'])  : 0;
+		$idProveedor = isset($_POST['idProveedor']) ? intval($_POST['idProveedor']) : 0;
+		if ($idArticulo > 0 && $idProveedor > 0) {
+			$respuesta = $NCArticulo->EliminarRefProveedor($idArticulo, $idProveedor);
+		} else {
+			$respuesta = array('error' => 'Parámetros incorrectos');
+		}
+		break;
+
 	case 'obtenerEstadoProductoWeb';
 		// Objetivo es obtener el estado de los productos que enviemos a la web.
 		// @ Parametros:

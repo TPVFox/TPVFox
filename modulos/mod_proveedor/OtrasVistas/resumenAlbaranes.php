@@ -68,8 +68,8 @@ if (isset($_GET['fechaIni']) & isset($_GET['fechaFin'])) {
         $errores = $arrayNums['error'];
     }
 }
-// Obtenemos referencias principales de proveedor.
-$num_ref_principales_proveedor = $CTArticulos->GetProductosProveedor($id);
+// Obtenemos referencias principales de proveedor (solo artículos donde es proveedor principal).
+$num_ref_principales_proveedor = $CTArticulos->GetProductosProveedor($id, 'articulo_name', 'ASC', true);
 $num_ref_principales_proveedor = $num_ref_principales_proveedor['NItems'];
 $num_referencias_compradas = 0;
 $num_ref_principales_compradas = 0;

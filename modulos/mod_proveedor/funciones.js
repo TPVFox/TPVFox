@@ -198,6 +198,28 @@ function imprimirSeleccion(id) {
     alert("No has seleccionado ningún articulo");
   }
 }
+function eliminarRefProveedorArticulo(idArticulo, idProveedor, nombreArticulo) {
+  if (!confirm('¿Eliminar la asociación de este proveedor con el artículo "' + nombreArticulo + '"?\n\nEsto no elimina el artículo, solo la referencia de coste de este proveedor.')) {
+    return;
+  }
+  $.ajax({
+    data: { pulsado: 'eliminarRefProveedorArticulo', idArticulo: idArticulo, idProveedor: idProveedor },
+    url: '../tareas.php',
+    type: 'post',
+    success: function (response) {
+      var resultado = $.parseJSON(response);
+      if (resultado.error) {
+        alert('Error al eliminar: ' + resultado.error);
+      } else {
+        $('#fila_articulo_' + idArticulo).fadeOut(400, function () { $(this).remove(); });
+      }
+    },
+    error: function () {
+      alert('Error de conexión al intentar eliminar la referencia.');
+    }
+  });
+}
+
 function obtenerEstadoProductoWeb(ids_productos, id_tiendaWeb) {
   // Objetivo es obtener el estado de los productos que enviemos a la web.
   // @ Parametros:

@@ -10,6 +10,7 @@ $CProveedor = new ClaseProveedor();
 $CFamilia = new ClaseFamilias();
 $Controler = new ControladorComun;
 $style = '';
+$mod_vista_proveedor = array('modulo' => 'mod_proveedor', 'vista' => 'ListaProveedores.php');
 $familiasProductos = array(); // Familias que hay en los productos de ese proveedor
 $estados = [];
 $productos = [];
@@ -29,6 +30,7 @@ if (isset($_GET['sentidoorden'])) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
+    $idProveedor = (int)$id; // ID del proveedor protegido frente a sobreescrituras de bucles internos
     $datosProveedor = $CProveedor->getProveedor($id);
     if (isset($datosProveedor['error'])) {
         $errores[1] = array(
@@ -58,6 +60,7 @@ if ($ProductosPrincipales['NItems'] > 0) {
     foreach ($ProductosPrincipales['Items'] as $key => $item) {
         // Obtenemos datos producto, para añadir nombre Codbarras.
         $productos[$key] = $CTArticulos->GetProducto($item['idArticulo']);
+        $productos[$key]['es_principal'] = (int)$item['es_principal'];
         //Costes proveedor.
         foreach ($productos[$key]['proveedores_costes'] as $pc) {
             if ($pc['idProveedor'] == $id) {
@@ -255,8 +258,13 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                 echo '</div>';
                 echo '<div>';
                 echo '<h4>Otros Datos</h4>';
-                echo '<strong>Productos:</strong>' . count($productos);
-                echo '<br/><br/><a onclick="imprimirSeleccion(' . $id . ')">Imprimir selección</a>';
+                $total_principales = count(array_filter($productos, fn($p) => $p['es_principal']));
+                $total_secundarios = count($productos) - $total_principales;
+                echo '<strong>Productos principales:</strong> ' . $total_principales . '<br/>';
+                if ($total_secundarios > 0) {
+                    echo '<strong>Asociados (secundario):</strong> ' . $total_secundarios . '<br/>';
+                }
+                echo '<br/><br/><a onclick="imprimirSeleccion(' . $idProveedor . ')">Imprimir selección</a>';
                 echo '</div>';
                 echo '<div><h4>Filtrar por estado:</h4>';
                 foreach ($estados_index as $estado) {
@@ -296,13 +304,27 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                                 <?php echo $icon; ?>
                             </th>
                             <th></th>
+                            <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) == 1): ?>
+                            <th><span class="glyphicon glyphicon-trash" title="Eliminar asociación proveedor"></span></th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
 
                         <?php
-
+                        $grupo_actual = null;
                         foreach ($productos as $producto) {
+                            // Separador de grupo al cambiar entre principales y secundarios
+                            $grupo = $producto['es_principal'] ? 'principal' : 'secundario';
+                            if ($grupo !== $grupo_actual) {
+                                if ($grupo === 'secundario') {
+                                    $colspan = (isset($ClasePermisos) && $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) == 1) ? 14 : 13;
+                                    echo '<tr><td colspan="' . $colspan . '" class="active" style="text-align:center; font-weight:bold; background:#f5f5f5; border-top:3px solid #aaa;">'
+                                        . '<span class="glyphicon glyphicon-link"></span> Artículos asociados (no es proveedor principal)</td></tr>';
+                                }
+                                $grupo_actual = $grupo;
+                            }
+
                             $link_producto = '<a class="glyphicon glyphicon-eye-open" target="_blank" href="./../../mod_producto/producto.php?id=' . $producto['idArticulo'] . '"></a>';
                             $link_mayor = '<a class="glyphicon glyphicon-list" target="_blank" href="./../../mod_producto/DetalleMayor.php?idArticulo='
                                 . $producto['idArticulo'] . '"></a>';
@@ -310,7 +332,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                             if (number_format($producto['stocks']['stockOn'], 0) < $producto['stocks']['stockMin']) {
                                 $lineaRoja = 'danger';
                             } else {
-                                $lineaRoja = '';
+                                $lineaRoja = $producto['es_principal'] ? '' : 'active';
                             }
                             $htmlFamilia = "";
                             $claseFamilias = "";
@@ -321,12 +343,19 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                                 $claseFamilias .= ' Familia_' . $familia['idFamilia'];
                                 $htmlFamilia  .= '<span class="label label-info">' . $familia['familiaNombre'] . '</span>';
                             }
+                            $badge_principal = !$producto['es_principal']
+                                ? ' <span class="label label-default" title="Este proveedor no es el proveedor principal de este artículo">Secundario</span>'
+                                : '';
+                            $btn_eliminar = (!$producto['es_principal'] && isset($ClasePermisos) && $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) == 1)
+                                ? '<a id="eliminarRefProv_' . $producto['idArticulo'] . '" class="glyphicon glyphicon-trash"'
+                                    . ' onclick="eliminarRefProveedorArticulo(' . $producto['idArticulo'] . ',' . $idProveedor . ',' . htmlspecialchars(json_encode($producto['articulo_name']), ENT_QUOTES) . ')"></a>'
+                                : '';
                             echo
-                            '<tr class="' . $lineaRoja . ' Row_' . $idEstado . $claseFamilias . '">
+                            '<tr id="fila_articulo_' . $producto['idArticulo'] . '" class="' . $lineaRoja . ' Row_' . $idEstado . $claseFamilias . '">
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="' . $producto['idArticulo'] . '">
                                 <td>' . $producto['idArticulo'] . '</td>
                                 <td>' . $link_producto . '</td>
-                                <td>' . $producto['articulo_name'] . '<br>' . $htmlFamilia . '</td>
+                                <td>' . $producto['articulo_name'] . $badge_principal . '<br>' . $htmlFamilia . '</td>
                                 <td>' . number_format($producto['ultimoCoste'], 2) . '</td>
                                 <td>' . $producto['Ref_proveedor'] . '</td>
                                 <td>' . number_format($producto['costeProveedor'], 2) . '</td>
@@ -346,7 +375,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                             }
                             echo '</td>
                                 <td>' . $producto['estado'] . '</td>
-                                <td>' . $link_mayor . '<td>
+                                <td>' . $link_mayor . '</td>
                                 <td id="idProducto_estadoWeb_' . $producto['idArticulo'] . '" class="icono_web despublicado">';
 
                             if (isset($producto['ref_tiendas'])) {
@@ -358,8 +387,11 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                                 }
                             }
 
-                            echo '</td>
-                            </tr>';
+                            echo '</td>';
+                            if (isset($ClasePermisos) && $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) == 1) {
+                                echo '<td>' . $btn_eliminar . '</td>';
+                            }
+                            echo '</tr>';
                         }
                         ?>
                     </tbody>

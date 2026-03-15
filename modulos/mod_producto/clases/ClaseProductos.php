@@ -205,17 +205,29 @@ class ClaseProductos extends ClaseTablaArticulos
         return $respuesta;
     }
 
-    public function GetProductosProveedor($idProveedor, $campoOrden = 'articulo_name', $sentidoOrden = 'ASC')
+    public function GetProductosProveedor($idProveedor, $campoOrden = 'articulo_name', $sentidoOrden = 'ASC', $solo_principales = false)
     {
         // @ Objetivo:
-        // Obtener los ids de los productos que tienen como predeterminado un proveedor.
-        $sql = 'SELECT a.idArticulo as idArticulo FROM articulos as a '
-            . '  LEFT JOIN articulosPrecios as prec ON (a.idArticulo=prec.idArticulo )'
-            . '  LEFT JOIN articulosProveedores as aprov ON (a.idArticulo=aprov.idArticulo AND a.idproveedor = aprov.idProveedor)'
-            . '  WHERE a.idProveedor=' . $idProveedor . ' AND  prec.idTienda= ' . $this->idTienda;
-        $sql .= ' ORDER BY ' . $campoOrden . ' ' . $sentidoOrden;
+        // Obtener artículos asociados a un proveedor.
+        // $solo_principales = true  -> solo artículos donde es proveedor principal (articulos.idProveedor = X)
+        // $solo_principales = false -> todos los artículos en articulosProveedores, con flag es_principal
+        $idProveedor = intval($idProveedor);
+        if ($solo_principales) {
+            $sql = 'SELECT a.idArticulo, 1 AS es_principal'
+                . ' FROM articulos AS a'
+                . ' LEFT JOIN articulosPrecios AS prec ON (a.idArticulo = prec.idArticulo)'
+                . ' LEFT JOIN articulosProveedores AS aprov ON (a.idArticulo = aprov.idArticulo AND a.idProveedor = aprov.idProveedor)'
+                . ' WHERE a.idProveedor = ' . $idProveedor . ' AND prec.idTienda = ' . $this->idTienda
+                . ' ORDER BY ' . $campoOrden . ' ' . $sentidoOrden;
+        } else {
+            $sql = 'SELECT a.idArticulo, IF(a.idProveedor = ' . $idProveedor . ', 1, 0) AS es_principal'
+                . ' FROM articulos AS a'
+                . ' INNER JOIN articulosProveedores AS aprov ON (a.idArticulo = aprov.idArticulo AND aprov.idProveedor = ' . $idProveedor . ')'
+                . ' LEFT JOIN articulosPrecios AS prec ON (a.idArticulo = prec.idArticulo AND prec.idTienda = ' . $this->idTienda . ')'
+                . ' ORDER BY es_principal DESC, ' . $campoOrden . ' ' . $sentidoOrden;
+        }
 
-        $respuesta =  parent::Consulta($sql);
+        $respuesta = parent::Consulta($sql);
         return $respuesta;
     }
 
