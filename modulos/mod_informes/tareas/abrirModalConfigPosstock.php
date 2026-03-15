@@ -18,8 +18,9 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  <div class="panel-body">';
     $html .= '    <div class="row">';
     $html .= '      <div class="col-xs-12">';
-    $html .= '        <label class="control-label small">Días hacia atrás para consolidar stock (7 o 14)</label>';
+    $html .= '        <label class="control-label small">Días hacia atrás para consolidar stock (Actual,7 o 14)</label>';
     $html .= '        <select class="form-control input-sm" name="inputVentanaDias">';
+    $html .= '          <option value="0"'  . ((string)$posstock->ventana_dias === '0'  ? ' selected' : '') . '>Actual</option>';
     $html .= '          <option value="7"'  . ((string)$posstock->ventana_dias === '7'  ? ' selected' : '') . '>7 días</option>';
     $html .= '          <option value="14"' . ((string)$posstock->ventana_dias === '14' ? ' selected' : '') . '>14 días</option>';
     $html .= '        </select>';
@@ -81,7 +82,7 @@ function abrirModalConfigPosstock($posstock)
     $html .= '        </select>';
     $html .= '      </div>';
     $html .= '      <div class="col-xs-12 col-sm-4" id="modalPoissonConfianzaBloque"'
-           . ($modelo_actual !== 'poisson' ? ' style="display:none;"' : '') . '>';
+        . ($modelo_actual !== 'poisson' ? ' style="display:none;"' : '') . '>';
     $html .= '        <label class="control-label small" title="Probabilidad límite: si P(0 ventas) es menor a este valor con stock positivo, se declara rotura.">Nivel de confianza</label>';
     $html .= '        <select class="form-control input-sm" name="inputUmbralConfianzaPoisson">';
     $html .= '          <option value="0.10"' . ($confianza_actual === '0.10' ? ' selected' : '') . '>90 % confianza</option>';

@@ -133,9 +133,15 @@ function guardarConfigPosstock() {
                 // reflejen el nuevo valor sin necesidad de recargar la página.
                 if (resultado.ventana_dias !== undefined) {
                     window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
-                    if (window.posstockTipoActivo && window.posstockPeriodoActivo) {
+                    if (
+                        window.posstockTipoActivo &&
+                        window.posstockPeriodoActivo
+                    ) {
                         var numeroActivo =
-                            parseInt(document.getElementById("posstockNumero").value, 10) || 1;
+                            parseInt(
+                                document.getElementById("posstockNumero").value,
+                                10,
+                            ) || 1;
                         posstockPintarBarra(
                             window.posstockTipoActivo,
                             numeroActivo,
@@ -779,10 +785,15 @@ function pintarTablaIncidencias(filas) {
                 ? "Recuperada " + f.fecha_fin_rotura
                 : '<span class="label label-danger">En curso</span>';
             var badgeConfirmada = f.rotura_confirmada
-                ? ' <span class="label label-warning" title="Rotura confirmada: hueco verificado por venta posterior">&#9888; Confirmada</span>'
+                ? ' <span class="label label-warning" title="Rotura confirmada: hueco verificado por venta posterior">KO</span>'
                 : "";
+            var badgeModelo =
+                f.modelo_usado === "BN"
+                    ? ' <span class="label label-info" title="Sobredispersión detectada (s²>μ): umbral calculado con Binomial Negativa">BN</span>'
+                    : "";
             detalle =
                 badgeConfirmada +
+                badgeModelo +
                 " Últ. venta: " +
                 (f.ultima_venta || "—") +
                 " | Rotura desde: <strong>" +
@@ -875,13 +886,19 @@ function exportarPOSStockCSV() {
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
         fecha_inicio_stock: periodo.fecha_inicio_stock,
         fecha_fin_stock: periodo.fecha_fin_stock,
-        casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
+        casos_incluir: _posstockGetCasosIncluir(
+            window.posstockTipoIncidenciaActivo || "",
+        ),
         min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) { return f.id; })
+            .map(function (f) {
+                return f.id;
+            })
             .join(","),
         familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) { return f.id; })
+            .map(function (f) {
+                return f.id;
+            })
             .join(","),
     };
 
@@ -921,8 +938,11 @@ function imprimirPOSStockPDF() {
             fecha_fin_movimientos: periodo.fecha_fin_movimientos,
             fecha_inicio_stock: periodo.fecha_inicio_stock,
             fecha_fin_stock: periodo.fecha_fin_stock,
-            casos_incluir: _posstockGetCasosIncluir(window.posstockTipoIncidenciaActivo || ""),
-            min_ventas_c5: POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
+            casos_incluir: _posstockGetCasosIncluir(
+                window.posstockTipoIncidenciaActivo || "",
+            ),
+            min_ventas_c5:
+                POSSTOCK_MIN_VENTAS_C5[window.posstockTipoActivo] || 3,
             familias_incluir: (window.posstockFamiliasIncluir || [])
                 .map(function (f) {
                     return f.id;
@@ -1016,7 +1036,7 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
 /**
  * Renderiza los checkboxes de tipo de incidencia en #posstockChecksCasos
  * y muestra la fila. Solo se llama en vistas no anuales.
- * Los checks se inicializan todos marcados.
+ * Solo caso1 aparece marcado por defecto; el resto lo elige el usuario.
  */
 function _posstockInicializarFiltroCasos() {
     var wrap = document.getElementById("posstockChecksCasos");
@@ -1024,6 +1044,7 @@ function _posstockInicializarFiltroCasos() {
     var tipos = _posstockTiposActivos();
     var html = "";
     tipos.forEach(function (ti) {
+        var checked = ti.v === "caso1" ? "checked" : "";
         html +=
             '<label class="checkbox-inline" style="margin-left:8px; font-weight:normal;">' +
             '<input type="checkbox" id="posstockChk_' +
@@ -1031,7 +1052,7 @@ function _posstockInicializarFiltroCasos() {
             '" value="' +
             ti.v +
             '" ' +
-            'checked onchange="posstockRecargarPorCasos()"> ' +
+            checked + ' onchange="posstockRecargarPorCasos()"> ' +
             '<span class="label label-default">' +
             ti.short +
             "</span> " +
@@ -1436,7 +1457,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     _posstockInicializarFiltroCasos();
-
 });
 
 window.posstockActualizarNumero = posstockActualizarNumero;

@@ -637,14 +637,26 @@ class ClasePosstock
      * @return array  Filas de incidencia (sin campo 'nombre')
      */
     /**
-     * Modelo Poisson para detección de roturas (C5).
+     * Modelo Poisson / Binomial Negativa adaptativo para detección de roturas (C5).
      *
-     * λ_día = n_ventas / dias_periodo
-     * Umbral de gap: gap > −ln(umbral_prob) / λ_día
-     *   → la probabilidad de 0 ventas durante ese gap es < umbral_prob (p.ej. < 0.05)
+     * El modelo se selecciona automáticamente en función de la dispersión real
+     * de las ventas del artículo dentro del periodo:
      *
-     * Ventaja frente a media+3σ: no asume distribución normal de gaps; es más
-     * preciso en artículos con pocos datos o ventas muy irregulares.
+     *   1. Se divide el periodo en sub-ventanas semanales (o diarias si ≤ 14 días)
+     *      y se cuenta el número de días con venta por sub-ventana.
+     *   2. Se calculan μ (media) y s² (varianza muestral) de esos conteos.
+     *   3. Si s² > μ  → sobredispersión → Binomial Negativa (ventas en "rachas")
+     *      Si s² ≤ μ  → dispersión normal → Poisson puro
+     *
+     * Poisson (umbral de gap):
+     *   gap > −ln(p) / λ_día
+     *
+     * Binomial Negativa:
+     *   r = μ² / (s² − μ)          [parámetro de forma]
+     *   P(0 en d días) = (r/(r+μ))^(r·d/chunk_days) < p
+     *   → gap > ln(p) · chunk_days / (r · ln(r/(r+μ)))
+     *
+     * La fórmula BN converge a Poisson cuando r → ∞ (s² → μ).
      */
     private function _calcularRoturasC5Poisson(
         int   $id,
@@ -664,8 +676,43 @@ class ClasePosstock
         $lambda_dia = $n / max(1, $periodo_dias);
         if ($lambda_dia <= 0) return [];
 
-        // d > −ln(p) / λ  ⟹  P(0 ventas en d días) < p
-        $umbral_gap  = -log($umbral_prob) / $lambda_dia;
+        // ── Detectar sobredispersión mediante sub-ventanas ───────────────────
+        // chunk_days: granularidad de las sub-ventanas (diaria ≤14 días, semanal el resto)
+        $fi_period_ts = $ff_ts - ($periodo_dias - 1) * 86400;
+        $chunk_days   = $periodo_dias <= 14 ? 1 : 7;
+        $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
+
+        $chunk_counts = array_fill(0, $n_chunks, 0);
+        foreach ($ts as $t) {
+            $offset = (int)(($t - $fi_period_ts) / 86400);
+            $chunk  = min($n_chunks - 1, max(0, (int)floor($offset / $chunk_days)));
+            $chunk_counts[$chunk]++;
+        }
+
+        $mu_chunk = $n / $n_chunks;
+        $s2_chunk = 0.0;
+        if ($n_chunks > 1) {
+            foreach ($chunk_counts as $c) {
+                $s2_chunk += ($c - $mu_chunk) ** 2;
+            }
+            $s2_chunk /= ($n_chunks - 1);   // varianza muestral insesgada
+        }
+
+        // ── Selección del modelo y cálculo del umbral de gap ────────────────
+        $modelo_usado = 'Poisson';
+        if ($n_chunks >= 4 && $s2_chunk > $mu_chunk + 1e-9 && $mu_chunk > 1e-9) {
+            // Sobredispersión confirmada → Binomial Negativa
+            // r = μ² / (s² − μ);  cuanto más pequeño r, más volátil el artículo
+            $r        = max(0.001, ($mu_chunk ** 2) / ($s2_chunk - $mu_chunk));
+            $ln_ratio = log($r / ($r + $mu_chunk));   // siempre < 0
+            // d > ln(p)·chunk_days / (r·ln(r/(r+μ)))  — ambos ln negativos → d > 0
+            $umbral_gap   = log($umbral_prob) * $chunk_days / ($r * $ln_ratio);
+            $modelo_usado = 'BN';
+        } else {
+            // Poisson puro: gap > −ln(p) / λ_día
+            $umbral_gap = -log($umbral_prob) / $lambda_dia;
+        }
+
         $umbral_ceil = (int)ceil($umbral_gap);
 
         $campos = [
@@ -674,9 +721,10 @@ class ClasePosstock
             'severidad'             => 'MEDIA',
             'stock_actual'          => $stock_actual,
             'avg_dias_entre_ventas' => round($periodo_dias / $n, 1),
-            'sd_dias'               => null,   // no aplica en modelo Poisson
+            'sd_dias'               => null,
             'umbral_dias'           => round($umbral_gap, 1),
             'posible_causa'         => 'Hueco en lineal o merma no registrada',
+            'modelo_usado'          => $modelo_usado,
         ];
 
         $incidencias = [];
