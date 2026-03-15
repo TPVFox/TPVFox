@@ -27,8 +27,8 @@ switch ($pulsado) {
             $mapa[$campo['name']] = $campo['value'];
         }
         $errores = array();
-        if (!isset($mapa['inputVentanaDias']) || !in_array($mapa['inputVentanaDias'], ['7', '14'])) {
-            $errores[] = 'Ventana de días debe ser 7 o 14.';
+        if (!isset($mapa['inputVentanaDias']) || !in_array($mapa['inputVentanaDias'], ['0', '7', '14'])) {
+            $errores[] = 'Ventana de días debe ser 0 (sin restricción), 7 o 14.';
         }
         if (!isset($mapa['inputUmbralSobrestock']) || !is_numeric($mapa['inputUmbralSobrestock']) || $mapa['inputUmbralSobrestock'] < 0 || $mapa['inputUmbralSobrestock'] > 200) {
             $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 200 (porcentaje).';

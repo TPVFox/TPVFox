@@ -1215,22 +1215,19 @@ function posstockGenerar() {
                 return;
             }
 
-            // ── Restricción ventana_dias ──────────────────────────────
-            var hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            var limite = new Date(hoy);
-            limite.setDate(
-                limite.getDate() - (window.POSSTOCK_VENTANA_DIAS || 7),
-            );
-            var ffMov = new Date(periodo.fecha_fin_movimientos);
-
-            if (ffMov >= limite) {
-                document.getElementById("posstockAvisoVentana").style.display =
-                    "";
-                return;
+            // ── Restricción ventana_dias (0 = sin restricción) ───────
+            if (window.POSSTOCK_VENTANA_DIAS > 0) {
+                var hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                var limite = new Date(hoy);
+                limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
+                var ffMov = new Date(periodo.fecha_fin_movimientos);
+                if (ffMov >= limite) {
+                    document.getElementById("posstockAvisoVentana").style.display = "";
+                    return;
+                }
             }
-            document.getElementById("posstockAvisoVentana").style.display =
-                "none";
+            document.getElementById("posstockAvisoVentana").style.display = "none";
 
             // Guardar periodo activo y cargar datos
             window.posstockPeriodoActivo = periodo;
@@ -1332,21 +1329,22 @@ function posstockPintarBarra(tipo, numeroActivo, totalPeriodos) {
 
     var hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
+    var sinRestriccion = !(window.POSSTOCK_VENTANA_DIAS > 0);
     var limite = new Date(hoy);
-    limite.setDate(limite.getDate() - (window.POSSTOCK_VENTANA_DIAS || 7));
+    if (!sinRestriccion) limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
     var anio = window.posstockAnioActivo || new Date().getFullYear();
 
     for (var n = 1; n <= totalPeriodos; n++) {
         var etiqueta = posstockEtiquetaBoton(tipo, n);
         var ffPeriodo = posstockFechaFinPeriodo(tipo, n, anio);
-        var enVentana = ffPeriodo && ffPeriodo >= limite;
+        var enVentana = !sinRestriccion && ffPeriodo && ffPeriodo >= limite;
 
         var cls, extras;
         if (enVentana) {
             cls = "btn btn-default btn-xs disabled";
             extras =
                 'disabled title="Dentro de la ventana de consolidación (' +
-                (window.POSSTOCK_VENTANA_DIAS || 7) +
+                window.POSSTOCK_VENTANA_DIAS +
                 ' días)"';
         } else if (n === numeroActivo) {
             cls = "btn btn-primary btn-xs";
