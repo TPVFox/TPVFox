@@ -421,6 +421,11 @@ function cargarDatosPosstock(periodo, tipoIncidencia) {
     $("#posstockBotonesWrap").hide();
     $("#posstockProgreso").text("Calculando incidencias…");
 
+    // El filtro de casos no aplica en la vista anual (cada botón ya filtra por caso)
+    if (window.posstockTipoActivo === "anual") {
+        $("#posstockFilaCasos").hide();
+    }
+
     _posstockCargaLote(0, [], periodo, tipoIncidencia || "");
 }
 
@@ -1088,6 +1093,12 @@ function posstockActualizarNumero() {
     var labelEl = document.getElementById("posstockLabelNumero");
     if (labelEl)
         labelEl.textContent = tipo === "anual" ? "Tipo de análisis" : "Periodo";
+
+    // Ocultar/mostrar filtro de casos según tipo de periodo
+    var filaCasos = document.getElementById("posstockFilaCasos");
+    if (filaCasos) {
+        filaCasos.style.display = tipo === "anual" ? "none" : "";
+    }
 
     if (!tipo || !anio) return;
 

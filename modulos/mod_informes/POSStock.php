@@ -130,7 +130,7 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
     </div>
 
     <!-- ── Filtro de tipos de incidencia (solo vistas no anuales) ────── -->
-    <div class="row" id="posstockFilaCasos" style="display:none;">
+    <div class="row" id="posstockFilaCasos" style="display:none; margin-top:12px; margin-bottom:16px;">
         <div class="col-xs-12">
             <span class="text-muted small">
                 <i class="glyphicon glyphicon-filter"></i> Tipos visibles:
@@ -152,7 +152,7 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
     </div>
 
     <!-- ── Labels de periodo ─────────────────────────────────────────── -->
-    <div id="posstockNavegacion" class="row" style="display:none;">
+    <div id="posstockNavegacion" class="row" style="display:none; margin-top:14px;">
         <div class="col-xs-12">
             <p class="small text-muted">
                 <strong>Periodo movimientos:</strong>
