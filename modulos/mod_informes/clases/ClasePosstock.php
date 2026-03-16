@@ -1705,8 +1705,8 @@ class ClasePosstock
             'Agotamiento Estimado'               => 2,  // C6a MEDIA (BN, stock suficiente)
             'Punto de Pedido'                    => 2,  // C6b MEDIA (mismo nivel que C6a)
             'Riesgo de caducidad teórica'        => 3,  // C3a
-            'Recepción no registrada (C7b)'      => 4,  // C7b
-            'Merma no registrada (C7a)'          => 4,  // C7a
+            'Entrada no registrada'              => 4,  // C7b
+            'Merma acumulada'                    => 4,  // C7a
         ];
 
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
@@ -1737,8 +1737,8 @@ class ClasePosstock
             'Agotamiento Estimado'               => '2',  // C6a
             'Punto de Pedido'                    => '2',  // C6b
             'Riesgo de caducidad teórica'        => '3',
-            'Recepción no registrada (C7b)'      => '4',  // C7b
-            'Merma no registrada (C7a)'          => '4',  // C7a
+            'Entrada no registrada'              => '4',  // C7b
+            'Merma acumulada'                    => '4',  // C7a
         ];
 
         // C5: pre-calcular la fecha de inicio de rotura más reciente por artículo
@@ -4220,21 +4220,22 @@ class ClasePosstock
             // · CV < 0.5: patrón estable
             // · IQR < 1.5 × |media|: sin outliers que dominen la dispersión
             if (isset($subcasos_set['C7b']) && $ic95_upper < 0 && $cv < 0.5 && $iqr < 1.5 * abs($mean)) {
-                $severidad = abs($mean) >= 2.0 ? 'ALTA' : 'MEDIA';
+                $abs_mean = abs($mean);
+                $severidad = $abs_mean >= 5.0 ? 'ALTA' : 'MEDIA';
                 $incidencias[] = [
                     'idArticulo'      => $id,
-                    'tipo'            => 'Recepción no registrada (C7b)',
+                    'tipo'            => 'Entrada no registrada',
                     'severidad'       => $severidad,
                     'c7_subcaso'      => 'C7b',
                     'n_recepciones'   => $n_rec,
-                    'offset_estimado' => round($mean, 2),
-                    'dispersion'      => round($std_dev, 2),
+                    'offset_estimado' => round($mean, 1),
+                    'dispersion'      => round($std_dev, 1),
                     'fecha_primera'   => $fechas_rec[0],
                     'fecha_ultima'    => $fechas_rec[$n_rec - 1],
                     '_floors_raw'     => $floors_map,   // temporal; se elimina al final
                     'posible_causa'   => sprintf(
-                        'Registrar la entrada omitida (~%d ud.). ¿Proveedor que entrega sin albarán o devolución a proveedor no descontada?',
-                        (int)round(abs($mean))
+                        'Déficit estable de ~%d ud. en el periodo: posible recepción no registrada, devolución a proveedor no descontada o ajuste de inventario inicial incorrecto',
+                        (int)round($abs_mean)
                     ),
                 ];
                 continue;
@@ -4253,22 +4254,23 @@ class ClasePosstock
                 && $reg['r2']     >= 0.40
                 && $delta_total >= 2.0
             ) {
-                $severidad = $slope >= 1.5 ? 'ALTA' : 'MEDIA';
+                $severidad = ($delta_total >= 10 || $slope >= 2.0) ? 'ALTA' : 'MEDIA';
                 $incidencias[] = [
-                    'idArticulo'      => $id,
-                    'tipo'            => 'Merma no registrada (C7a)',
-                    'severidad'       => $severidad,
-                    'c7_subcaso'      => 'C7a',
-                    'n_recepciones'   => $n_rec,
-                    'offset_estimado' => round($mean, 2),
-                    'dispersion'      => round($std_dev, 2),
-                    'tendencia'       => round($slope, 2),
-                    'fecha_primera'   => $fechas_rec[0],
-                    'fecha_ultima'    => $fechas_rec[$n_rec - 1],
-                    '_floors_raw'     => $floors_map,   // temporal; se elimina al final
-                    'posible_causa'   => sprintf(
-                        'Crear albarán de merma por ~%.0f ud. acumuladas. ¿Caducidad o rotura no registrada? ¿Devolución de cliente reintegrada al stock?',
-                        $delta_total
+                    'idArticulo'       => $id,
+                    'tipo'             => 'Merma acumulada',
+                    'severidad'        => $severidad,
+                    'c7_subcaso'       => 'C7a',
+                    'n_recepciones'    => $n_rec,
+                    'offset_estimado'  => round($mean, 1),
+                    'dispersion'       => round($std_dev, 1),
+                    'tendencia'        => round($slope, 1),
+                    'delta_acumulado'  => round($delta_total, 1),
+                    'fecha_primera'    => $fechas_rec[0],
+                    'fecha_ultima'     => $fechas_rec[$n_rec - 1],
+                    '_floors_raw'      => $floors_map,   // temporal; se elimina al final
+                    'posible_causa'    => sprintf(
+                        'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción): posible merma no registrada, caducidad sistemática o salida sin documentar',
+                        $delta_total, $slope
                     ),
                 ];
             }
@@ -4410,8 +4412,8 @@ class ClasePosstock
                         'nivel' => $mejor_nivel,
                     ];
                     $inc['posible_causa'] = sprintf(
-                        'Crear albarán de merma — cruce %s con artículo %d (score=%.2f; posible error en balanza de autopesaje).',
-                        $mejor_nivel, $mejor_id, $mejor_score
+                        'Merma con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza de autopesaje entre ambos artículos',
+                        $mejor_id, $mejor_nivel, $mejor_score
                     );
                 }
             }
@@ -4436,8 +4438,8 @@ class ClasePosstock
                     $inc['cruce_score']       = $score;
                     $inc['cruce_nivel']       = $nivel;
                     $inc['posible_causa'] = sprintf(
-                        'Verificar cruce %s con artículo %d (score=%.2f; posible error en balanza de autopesaje). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
-                        $nivel, $id_a, $score, abs((float)$inc['offset_estimado'])
+                        'Déficit de ~%.0f ud. con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza o recepción no registrada',
+                        abs((float)$inc['offset_estimado']), $id_a, $nivel, $score
                     );
                 }
                 unset($inc);
@@ -4585,8 +4587,8 @@ class ClasePosstock
                     $inc['cruce_nivel']       = $mejor_trio['nivel'];
                     $trios[$inc['idArticulo']] = $mejor_trio;
                     $inc['posible_causa'] = sprintf(
-                        'Crear albarán de merma — trío %s: artículos %d y %d escaneados como este producto (score=%.2f; posible error en balanza de autopesaje).',
-                        $mejor_trio['nivel'], $mejor_trio['id_a'], $mejor_trio['id_b'], $mejor_trio['score']
+                        'Merma con patrón trío art. %d + art. %d (%s, score=%.2f): posible confusión sistemática en la balanza de autopesaje',
+                        $mejor_trio['id_a'], $mejor_trio['id_b'], $mejor_trio['nivel'], $mejor_trio['score']
                     );
                 }
             }
@@ -4605,8 +4607,8 @@ class ClasePosstock
                     $inc['cruce_score']       = $trio['score'];
                     $inc['cruce_nivel']       = $trio['nivel'];
                     $inc['posible_causa'] = sprintf(
-                        'Verificar trío %s: este artículo y art. %d podrían estar siendo escaneados como art. %d (score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
-                        $trio['nivel'], $otro, $id_c, $trio['score'], abs((float)$inc['offset_estimado'])
+                        'Déficit de ~%.0f ud. incluido en trío junto a art. %d → art. %d (%s, score=%.2f): probable confusión en balanza o recepción no registrada',
+                        abs((float)$inc['offset_estimado']), $otro, $id_c, $trio['nivel'], $trio['score']
                     );
                 }
                 unset($inc);
@@ -4787,12 +4789,12 @@ class ClasePosstock
             if ($mejor_id !== null) {
                 $causa = ($mejor_dir === 'A_por_B')
                     ? sprintf(
-                        'Pérdida fantasma (C7e) — %d uds. de este art. escaneadas como 1 ud. de art. %d (ratio k=%d, score=%.2f; balanza autopesaje).',
-                        $mejor_k, $mejor_id, $mejor_k, $mejor_score
+                        'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de %d uds. de este artículo como 1 ud. de art. %d en la balanza',
+                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
                     )
                     : sprintf(
-                        'Pérdida fantasma (C7e) — 1 ud. de este art. escaneada como %d uds. de art. %d (ratio k=%d, score=%.2f; balanza autopesaje).',
-                        $mejor_k, $mejor_id, $mejor_k, $mejor_score
+                        'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de 1 ud. de este artículo como %d uds. de art. %d en la balanza',
+                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
                     );
 
                 $inc['posible_cruce_con'] = $mejor_id;
@@ -4832,15 +4834,10 @@ class ClasePosstock
                 $dir  = $data['dir'];
                 $id_a = $data['id_a'];
 
-                $causa_b = ($dir === 'A_por_B')
-                    ? sprintf(
-                        'Pérdida fantasma (C7e) — %d uds. de art. %d escaneadas como 1 ud. de este art. (ratio k=%d, score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
-                        $k, $id_a, $k, $data['score'], abs((float)$inc['offset_estimado'])
-                    )
-                    : sprintf(
-                        'Pérdida fantasma (C7e) — 1 ud. de art. %d escaneada como %d uds. de este art. (ratio k=%d, score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
-                        $id_a, $k, $k, $data['score'], abs((float)$inc['offset_estimado'])
-                    );
+                $causa_b = sprintf(
+                    'Déficit de ~%.0f ud. con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): probable confusión en balanza o recepción no registrada',
+                    abs((float)$inc['offset_estimado']), $k, $id_a, $data['nivel'], $data['score']
+                );
 
                 $inc['posible_cruce_con'] = $id_a;
                 $inc['cruce_score']       = $data['score'];
