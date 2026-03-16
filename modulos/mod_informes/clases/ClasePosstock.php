@@ -453,6 +453,57 @@ class ClasePosstock
     }
 
     /**
+     * C5 anti-falso-positivo — Primera venta post-periodo por artículo.
+     *
+     * Para stockouts en curso detectados al final del periodo, comprueba si el
+     * artículo vendió en los $dias_post días siguientes a ff_mov. Si es así,
+     * la rotura se considera recuperada y se actualiza en PHP sin nueva consulta SQL.
+     *
+     * @param string $ids_str       IN-clause ya preparado (idArticulo)
+     * @param string $fi_esc        Primer día post-periodo escapado (ff_mov + 1)
+     * @param string $ff_esc        Último día de la ventana post-periodo escapado
+     * @param bool   $incluir_albcli Incluir albaranes de cliente como ventas
+     * @return array  [idArticulo => 'YYYY-MM-DD'] primera venta post-periodo
+     */
+    private function _queryVentasPostPeriodoC5(
+        string $ids_str,
+        string $fi_esc,
+        string $ff_esc,
+        bool   $incluir_albcli = false
+    ): array {
+        $union_albcli = $incluir_albcli ? "
+                UNION ALL
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                WHERE l.idArticulo IN ($ids_str)
+                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
+                  AND c.estado IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'" : '';
+
+        $smt = $this->db->query("
+            SELECT idArticulo, MIN(fecha) AS primera_venta_post
+            FROM (
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE l.idArticulo IN ($ids_str)
+                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                $union_albcli
+            ) AS ventas_post
+            GROUP BY idArticulo
+        ");
+        if (!$smt) return [];
+        $result = [];
+        while ($r = $smt->fetch_assoc()) {
+            $result[(int)$r['idArticulo']] = $r['primera_venta_post'];
+        }
+        return $result;
+    }
+
+    /**
      * C6 paso 1 — Cantidad vendida por día por artículo físico.
      *
      * Por defecto solo incluye tickets de caja. Cuando $incluir_albcli = true
@@ -594,6 +645,52 @@ class ClasePosstock
     }
 
     /**
+     * C1b — Confirma hipótesis de timing: comprueba si hay una entrada de proveedor
+     * dentro de los $ventana_dias días posteriores a la fecha en que el balance fue mínimo.
+     *
+     * Solo dispara el badge "Timing recepción" cuando la entrada es temporalmente
+     * próxima al negativo, descartando el ruido en periodos largos.
+     *
+     * @param array $id_fecha_map  [idArticulo => 'YYYY-MM-DD' (fecha_minimo), ...]
+     * @param int   $ventana_dias  Días máximos tras fecha_minimo para considerar timing (default 3)
+     * @return array  Set de idArticulo con timing confirmado [idArticulo => true]
+     */
+    private function _queryTimingC1b(array $id_fecha_map, int $ventana_dias = 1): array
+    {
+        if (empty($id_fecha_map)) return [];
+
+        $conditions = [];
+        foreach ($id_fecha_map as $id => $fecha) {
+            if (!$fecha) continue;
+            $id_esc    = (int)$id;
+            $f_esc     = $this->db->real_escape_string($fecha);
+            $f_fin_esc = $this->db->real_escape_string(
+                date('Y-m-d', strtotime($fecha . " +{$ventana_dias} days"))
+            );
+            $conditions[] = "(l.idArticulo = $id_esc AND DATE(c.Fecha) BETWEEN '$f_esc' AND '$f_fin_esc')";
+        }
+
+        if (empty($conditions)) return [];
+
+        $where_or = implode(' OR ', $conditions);
+        $smt = $this->db->query("
+            SELECT DISTINCT l.idArticulo
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE ($where_or)
+              AND c.estado      IN ('Guardado','Facturado')
+              AND l.estadoLinea = 'Activo'
+        ");
+        if (!$smt) return [];
+
+        $resultado = [];
+        while ($r = $smt->fetch_assoc()) {
+            $resultado[(int)$r['idArticulo']] = true;
+        }
+        return $resultado;
+    }
+
+    /**
      * C1 — Delta total y mínimo de la suma acumulada por artículo mediante window function.
      * Una fila por artículo con delta_total (saldo del periodo) y min_running (mínimo acumulado).
      * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
@@ -608,46 +705,52 @@ class ClasePosstock
     ): array {
         $tipos = self::TIPOS_FISICOS;
         $sql = "
-            SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running
+            SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running,
+                   MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo
             FROM (
-                SELECT idArticulo, fecha, day_delta,
-                       SUM(day_delta) OVER (PARTITION BY idArticulo ORDER BY fecha
-                                            ROWS UNBOUNDED PRECEDING) AS cum_sum
+                SELECT idArticulo, fecha, day_delta, cum_sum,
+                       ROW_NUMBER() OVER (PARTITION BY idArticulo
+                                          ORDER BY cum_sum ASC, fecha ASC) AS rn_min
                 FROM (
-                    SELECT idArticulo, fecha, SUM(delta) AS day_delta
+                    SELECT idArticulo, fecha, day_delta,
+                           SUM(day_delta) OVER (PARTITION BY idArticulo ORDER BY fecha
+                                                ROWS UNBOUNDED PRECEDING) AS cum_sum
                     FROM (
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
-                        FROM albprolinea l
-                        INNER JOIN albprot    c ON c.id        = l.idalbpro
-                        INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      IN ('Guardado','Facturado')
-                          AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
-                          $wf $wi
-                        UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
-                        FROM ticketslinea l
-                        INNER JOIN ticketst  c ON c.id        = l.idticketst
-                        INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      = 'Cerrado'
-                          AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
-                          $wf $wi
-                        UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
-                        FROM albclilinea l
-                        INNER JOIN albclit   c ON c.id        = l.idalbcli
-                        INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      IN ('Guardado','Procesado')
-                          AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
-                          $wf $wi
-                    ) AS all_movs
-                    GROUP BY idArticulo, fecha
-                ) AS daily
+                        SELECT idArticulo, fecha, SUM(delta) AS day_delta
+                        FROM (
+                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                            FROM albprolinea l
+                            INNER JOIN albprot    c ON c.id        = l.idalbpro
+                            INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
+                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                              AND c.estado      IN ('Guardado','Facturado')
+                              AND l.estadoLinea = 'Activo'
+                              AND a.tipo        IN ($tipos)
+                              $wf $wi
+                            UNION ALL
+                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                            FROM ticketslinea l
+                            INNER JOIN ticketst  c ON c.id        = l.idticketst
+                            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                              AND c.estado      = 'Cerrado'
+                              AND l.estadoLinea = 'Activo'
+                              AND a.tipo        IN ($tipos)
+                              $wf $wi
+                            UNION ALL
+                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                            FROM albclilinea l
+                            INNER JOIN albclit   c ON c.id        = l.idalbcli
+                            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                              AND c.estado      IN ('Guardado','Procesado')
+                              AND l.estadoLinea = 'Activo'
+                              AND a.tipo        IN ($tipos)
+                              $wf $wi
+                        ) AS all_movs
+                        GROUP BY idArticulo, fecha
+                    ) AS daily
+                ) AS windowed_inner
             ) AS windowed
             GROUP BY idArticulo
             HAVING MIN(cum_sum) < 0 OR SUM(day_delta) < 0
@@ -1237,6 +1340,9 @@ class ClasePosstock
         $ff_mov   = $params['fecha_fin_movimientos'];
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
+        // Ventana estadística ampliada para semana/quincena/mes (±1 periodo)
+        $fi_stats = $params['fecha_inicio_stats'] ?? $fi_stock;
+        $ff_stats = $params['fecha_fin_stats']    ?? $ff_mov;
 
         $umbral_sobrestock         = (float)  ($params['umbral_sobrestock']           ?? 0.5);
         $umbral_caducidad          = (int)    ($params['umbral_caducidad_semanas']    ?? 24);
@@ -1276,7 +1382,7 @@ class ClasePosstock
         }
 
         // casos_incluir [] = todos los casos activos excepto C4
-        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6'];
+        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6a', 'caso6b'];
         $casos_raw     = (array)($params['casos_incluir'] ?? []);
         $casos_set     = array_flip(
             empty($casos_raw)
@@ -1359,28 +1465,58 @@ class ClasePosstock
         // ── C5 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso5'])) {
             $c5 = $this->getIncidenciasCaso5(
-                $fi_mov, $ff_mov, $fi_stock, $umbral_sobrestock,
+                $fi_mov, $ff_mov, $fi_stats, $umbral_sobrestock,
                 $familias_incluir, $familias_excluir, $ids_filter,
                 $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
-                $c5_incluir_stock_negativo, $binomial_sigma_mult, $incluir_albcli
+                $c5_incluir_stock_negativo, $binomial_sigma_mult, $incluir_albcli,
+                $c3b_dias_post, $ff_stats
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
         }
 
-        // ── C6 ───────────────────────────────────────────────────────────────
-        if (isset($casos_set['caso6'])) {
-            $c6 = $this->getIncidenciasCaso6(
+        $c6_proveedores  = (array)($params['proveedores_incluir']  ?? []);
+        $c6_lead_time    = (int)  ($params['c6_lead_time_defecto'] ?? 14);
+        $c6_nivel_serv   = (float)($params['c6_nivel_servicio']    ?? 0.95);
+
+        // ── C6a — ROP estacional (ventana ligada al periodo ±1) ──────────────
+        if (isset($casos_set['caso6a'])) {
+            $c6a = $this->getIncidenciasCaso6(
                 $fi_mov, $ff_mov, $fi_stock,
                 $familias_incluir, $familias_excluir, $ids_filter,
-                (array)($params['proveedores_incluir']  ?? []),
-                (int)  ($params['c6_lead_time_defecto'] ?? 14),
-                (float)($params['c6_nivel_servicio']    ?? 0.95),
+                $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
                 $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
-                $binomial_sigma_mult, $incluir_albcli
+                $binomial_sigma_mult, $incluir_albcli,
+                $fi_stats, $ff_stats,
+                'Agotamiento Estimado'
             );
-            if (isset($c6['error'])) return $c6;
-            $incidencias = array_merge($incidencias, $c6);
+            if (isset($c6a['error'])) return $c6a;
+            $incidencias = array_merge($incidencias, $c6a);
+        }
+
+        // ── C6b — ROP operacional (ventana histórica fija anclada en hoy) ───
+        // A diferencia de C6a (anclada en ff_mov), C6b usa siempre la fecha actual
+        // como referencia: fi = hoy-N días, ff = hoy, stock = hoy.
+        // Así el resultado es estable e independiente del periodo analizado.
+        if (isset($casos_set['caso6b'])) {
+            $c6b_dias    = (int)($params['c6b_dias_historico'] ?? 90);
+            $ff_hoy      = date('Y-m-d');
+            $anio_hoy    = (int)substr($ff_hoy, 0, 4);
+            $fi_stats_6b = max(
+                date('Y-m-d', strtotime("$ff_hoy -{$c6b_dias} days")),
+                "{$anio_hoy}-01-01"   // límite BD anualizada; resoluble con mod_api
+            );
+            $c6b = $this->getIncidenciasCaso6(
+                $ff_hoy, $ff_hoy, $fi_stock,   // fi_mov = ff_mov = hoy → stock actual
+                $familias_incluir, $familias_excluir, $ids_filter,
+                $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
+                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
+                $binomial_sigma_mult, $incluir_albcli,
+                $fi_stats_6b, $ff_hoy,
+                'Punto de Pedido'
+            );
+            if (isset($c6b['error'])) return $c6b;
+            $incidencias = array_merge($incidencias, $c6b);
         }
 
         // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
@@ -1403,7 +1539,8 @@ class ClasePosstock
         $orden_tipo_media = [
             'Entrada con stock alto'             => 0,  // C2
             'Venta Cero (Posible Rotura Física)' => 1,  // C5
-            'Agotamiento Estimado'               => 2,  // C6 MEDIA (BN, stock suficiente)
+            'Agotamiento Estimado'               => 2,  // C6a MEDIA (BN, stock suficiente)
+            'Punto de Pedido'                    => 2,  // C6b MEDIA (mismo nivel que C6a)
             'Riesgo de caducidad teórica'        => 3,  // C3a
         ];
 
@@ -1432,7 +1569,8 @@ class ClasePosstock
         $orden_tipo_media_clave = [
             'Entrada con stock alto'             => '0',
             'Venta Cero (Posible Rotura Física)' => '1',
-            'Agotamiento Estimado'               => '2',
+            'Agotamiento Estimado'               => '2',  // C6a
+            'Punto de Pedido'                    => '2',  // C6b
             'Riesgo de caducidad teórica'        => '3',
         ];
 
@@ -1458,12 +1596,14 @@ class ClasePosstock
                 $max_f = $max_fecha_c5[$inc['idArticulo']] ?? '0000-00-00';
                 $fi_r  = $inc['fecha_inicio_rotura'] ?? '0000-00-00';
                 $inc['orden_clave'] = $sev_idx . '1' . $max_f . sprintf('%08d', $inc['idArticulo']) . $fi_r;
-            } elseif ($inc['tipo'] === 'Agotamiento Estimado') {
-                // C6 CRITICA/ALTA: ordenar por dias_autonomia ascendente (más urgente primero).
-                // C6 MEDIA: se ordena por tipo dentro del bloque MEDIA (ya cubierto por orden_tipo_media).
+            } elseif ($inc['tipo'] === 'Agotamiento Estimado' || $inc['tipo'] === 'Punto de Pedido') {
+                // C6a/C6b CRITICA/ALTA: ordenar por dias_autonomia ascendente (más urgente primero).
+                // C6a/C6b MEDIA: se ordena por tipo dentro del bloque MEDIA (ya cubierto por orden_tipo_media).
+                // C6b (Punto de Pedido) se desplaza un sub-nivel respecto a C6a dentro de la misma severidad.
                 $dias_pad = str_pad((int)($inc['dias_autonomia'] * 10), 8, '0', STR_PAD_LEFT);
-                $sub      = ($inc['severidad'] === 'MEDIA') ? '2' : '0';
-                $inc['orden_clave'] = $sev_idx . $sub . $dias_pad . sprintf('%08d', $inc['idArticulo']);
+                $c6b_shift = ($inc['tipo'] === 'Punto de Pedido') ? '1' : '0';
+                $sub       = ($inc['severidad'] === 'MEDIA') ? '2' : '0';
+                $inc['orden_clave'] = $sev_idx . $sub . $c6b_shift . $dias_pad . sprintf('%08d', $inc['idArticulo']);
             } elseif ($inc['severidad'] === 'MEDIA') {
                 $sub = $orden_tipo_media_clave[$inc['tipo']] ?? '9';
                 $inc['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $inc['idArticulo']);
@@ -1655,9 +1795,11 @@ class ClasePosstock
             }
         }
 
-        // Rotura en curso: desde última venta hasta ff_mov
+        // Rotura en curso: desde última venta hasta ff_mov.
+        // El filtro de inclusión (c5_incluir_stock_negativo) ya se aplicó upstream;
+        // aquí se detecta para todos los artículos incluidos sin restricción adicional.
         $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral_gap && ($incluir_stock_negativo || $stock_actual > 0)) {
+        if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
             $fin_virtual  = date('Y-m-d', min($ff_ts, $hoy_ts));
@@ -1668,7 +1810,8 @@ class ClasePosstock
                 ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
                 : 0;
             $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real);
-            $ko_val = $stock_actual < 0;
+            // KO: stock agotado (≤ 0) durante rotura en curso → inventario en descubierto
+            $ko_val = $stock_actual <= 0;
             $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
             $incidencias[] = $campos + [
                 'severidad'           => $sev_ko,
@@ -1711,7 +1854,8 @@ class ClasePosstock
         int   $min_ventas,
         float $umbral_prob,
         int   $periodo_dias,
-        bool  $incluir_stock_negativo
+        bool  $incluir_stock_negativo,
+        int   $ff_stats_ts = 0   // extremo de la ventana estadística (0 = usar $ff_ts)
     ): array {
         $fechas = array_keys($fechas_map);
         sort($fechas);
@@ -1737,7 +1881,10 @@ class ClasePosstock
         }
 
         // ── Sobredispersión de chunks (ventas en rachas) ─────────────────────
-        $fi_period_ts = $ff_ts - ($periodo_dias - 1) * 86400;
+        // fi_period_ts: usar ff_stats_ts (extremo estadístico) para que las chunks
+        // cubran exactamente [fi_stats, ff_stats] y no queden chunks vacíos artificiales.
+        $ff_for_chunks = $ff_stats_ts ?: $ff_ts;
+        $fi_period_ts = $ff_for_chunks - ($periodo_dias - 1) * 86400;
         if ($periodo_dias < 40)       $chunk_days = 1;
         elseif ($periodo_dias <= 130) $chunk_days = 5;
         else                          $chunk_days = 10;
@@ -1785,7 +1932,7 @@ class ClasePosstock
             }
             // Alta rotación, gaps más variables → Poisson (inter-arrivals ~ Exponencial)
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo
+                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
             );
         }
 
@@ -1793,14 +1940,14 @@ class ClasePosstock
         // 2a. Demanda en rachas → Binomial Negativa (activa internamente en _calcularRoturasC5Poisson)
         if ($overdispersed) {
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo
+                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
             );
         }
 
         // 2b. Muy esporádico (no tipo peso) → Poisson (proceso de eventos raros)
         if (!$is_peso && $rotation < 0.15) {
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo
+                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
             );
         }
 
@@ -1840,7 +1987,8 @@ class ClasePosstock
         int   $min_ventas,
         float $umbral_prob,
         int   $periodo_dias,
-        bool  $incluir_stock_negativo = false
+        bool  $incluir_stock_negativo = false,
+        int   $ff_stats_ts = 0   // extremo de la ventana estadística (0 = usar $ff_ts)
     ): array {
         $fechas = array_keys($fechas_map);
         sort($fechas);
@@ -1853,7 +2001,7 @@ class ClasePosstock
 
         // ── Detectar sobredispersión mediante sub-ventanas ───────────────────
         // chunk_days: granularidad de las sub-ventanas (diaria ≤14 días, semanal el resto)
-        $fi_period_ts = $ff_ts - ($periodo_dias - 1) * 86400;
+        $fi_period_ts = ($ff_stats_ts ?: $ff_ts) - ($periodo_dias - 1) * 86400;
         // Ajuste de granularidad de sub-ventanas según duración del periodo:
         // - <= 31 días: ventanas diarias (semanal/quincenal/mensual)
         // - 32..120 días: ventanas de 5 días (trimestral, cuatrimestral)
@@ -1940,7 +2088,7 @@ class ClasePosstock
             }
         }
         $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral_gap && ($incluir_stock_negativo || $stock_actual > 0)) {
+        if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             // Capamos a hoy: si el periodo analizado termina en el futuro (trimestral, etc.),
             // la rotura estimada puede no haber comenzado aún → CR/RK no aplican
@@ -1953,8 +2101,8 @@ class ClasePosstock
                 ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
                 : 0;
             $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real);
-            $ko_val = $stock_actual < 0;
-            // KO (stock negativo durante rotura en curso) → CRITICA; CR→ALTA; resto→MEDIA
+            // KO: stock agotado (≤ 0) durante rotura en curso → inventario en descubierto
+            $ko_val = $stock_actual <= 0;
             $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
             $incidencias[] = $campos + [
                 'severidad'           => $sev_ko,
@@ -2032,8 +2180,9 @@ class ClasePosstock
         }
         // Rotura en curso: desde última venta hasta ff_mov.
         // CR/RK capados a hoy para evitar marcar roturas que aún no han empezado.
+        // El filtro de inclusión (c5_incluir_stock_negativo) ya se aplicó upstream.
         $dias_final   = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral && ($incluir_stock_negativo || $stock_actual > 0)) {
+        if ($dias_final > $umbral) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
             $fin_virtual  = date('Y-m-d', min($ff_ts, $hoy_ts));
@@ -2044,8 +2193,8 @@ class ClasePosstock
                 ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
                 : 0;
             $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap);
-            $ko_val = $stock_actual < 0;
-            // KO (stock negativo durante rotura en curso) → CRITICA; CR→ALTA; resto→MEDIA
+            // KO: stock agotado (≤ 0) durante rotura en curso → inventario en descubierto
+            $ko_val = $stock_actual <= 0;
             $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
             $incidencias[] = $campos + [
                 'severidad'           => $sev_ko,
@@ -2154,7 +2303,7 @@ class ClasePosstock
     private function getIncidenciasCaso5(
         string $fi_mov,
         string $ff_mov,
-        string $fi_stock,            // inicio del rango anual — ventana de análisis histórico
+        string $fi_stats,            // inicio de la ventana estadística (±1 periodo para semana/quincena/mes)
         float  $umbral_sobrestock,   // no usado en C5, recibido por firma uniforme
         array  $familias_incluir,
         array  $familias_excluir,
@@ -2164,18 +2313,23 @@ class ClasePosstock
         float  $umbral_prob               = 0.05,        // auto/poisson_bn/gamma: P(gap > umbral) < p
         bool   $c5_incluir_stock_negativo = false,       // si false, excluye stock_actual < 0
         float  $binomial_sigma_mult       = 3.0,         // multiplicador σ para modo binomial
-        bool   $incluir_albcli            = false         // incluir albaranes de cliente como ventas
+        bool   $incluir_albcli            = false,        // incluir albaranes de cliente como ventas
+        int    $dias_post               = 14,            // días post-periodo para validar stockouts en curso
+        string $ff_stats                = ''             // fin de la ventana estadística; vacío = ff_mov
     ): array {
-        // Usar fi_stock como inicio del análisis para tener suficiente histórico
-        // en vistas cortas (semana/quincena). ff_mov sigue siendo el límite.
-        $fi   = $this->db->real_escape_string($fi_stock);
+        // fi_stats/ff_stats: ventana de datos para estadísticas (gaps, distribución).
+        // Para semana/quincena/mes se amplía ±1 periodo preservando estacionalidad.
+        // ff_mov sigue siendo el límite de detección y rebobinado de stock.
+        $ff_stats = $ff_stats ?: $ff_mov;
+        $fi   = $this->db->real_escape_string($fi_stats);
         $ff   = $this->db->real_escape_string($ff_mov);
+        $ff_stats_esc = $this->db->real_escape_string($ff_stats);
 
         $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
         $where_ids = $this->_idsWhere($ids_filter);
 
-        // Paso 1: fechas de venta únicas por artículo físico
-        $rows_ventas = $this->_queryVentasFechasC5($fi, $ff, $where_fam, $where_ids, $incluir_albcli);
+        // Paso 1: fechas de venta únicas por artículo físico (ventana estadística fi_stats→ff_stats)
+        $rows_ventas = $this->_queryVentasFechasC5($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
@@ -2207,19 +2361,20 @@ class ClasePosstock
         }
 
         // Paso 3: lógica Caso 5 — detecta TODAS las roturas (binomial o Poisson)
-        // periodo_dias se calcula sobre la ventana histórica real (fi_stock→ff_mov)
-        // para que la media y σ sean representativos independientemente de la vista activa.
-        $ff_ts        = strtotime($ff_mov);
-        $periodo_dias = max(1, (int)round(($ff_ts - strtotime($fi_stock)) / 86400) + 1);
+        // periodo_dias usa la ventana estadística completa (fi_stats→ff_stats) para que
+        // la media y σ sean representativos incluso en vistas cortas (semana/quincena/mes).
+        $ff_ts        = strtotime($ff_mov);    // límite de detección (no cambia)
+        $periodo_dias = max(1, (int)round((strtotime($ff_stats) - strtotime($fi_stats)) / 86400) + 1);
         $incidencias  = [];
 
         foreach ($ventas_fechas as $id => $fechas_map) {
             $sa = $stock_actual[$id] ?? 0.0;
+            $ff_stats_ts = strtotime($ff_stats);
             $roturas = match ($modelo) {
                 'automatico' => $this->_autoDispatchC5(
                     $id, $fechas_map, $sa,
                     $ff_ts, $min_ventas, $umbral_prob, $periodo_dias,
-                    $c5_incluir_stock_negativo
+                    $c5_incluir_stock_negativo, $ff_stats_ts
                 ),
                 'gamma' => $this->_calcularRoturasC5Gamma(
                     $id, $fechas_map, $sa,
@@ -2229,7 +2384,7 @@ class ClasePosstock
                 'poisson_bn', 'poisson' => $this->_calcularRoturasC5Poisson(
                     $id, $fechas_map, $sa,
                     $ff_ts, $min_ventas, $umbral_prob, $periodo_dias,
-                    $c5_incluir_stock_negativo
+                    $c5_incluir_stock_negativo, $ff_stats_ts
                 ),
                 default => $this->_calcularRoturasC5(  // 'binomial'
                     $id, $fechas_map, $sa,
@@ -2238,6 +2393,55 @@ class ClasePosstock
             };
             foreach ($roturas as $r) $incidencias[] = $r;
         }
+
+        // Paso 4: anti-falso-positivo — validar stockouts en curso con ventas post-periodo.
+        // Si el artículo vendió en los $dias_post días siguientes a ff_mov, la rotura
+        // se considera recuperada (igual que el mecanismo C3b "primera_venta_post").
+        if ($dias_post > 0 && !empty($incidencias)) {
+            $ids_en_curso = [];
+            foreach ($incidencias as $inc) {
+                if ($inc['fecha_fin_rotura'] === null) {
+                    $ids_en_curso[$inc['idArticulo']] = true;
+                }
+            }
+            if (!empty($ids_en_curso)) {
+                $ids_str_curso = implode(',', array_keys($ids_en_curso));
+                $fi_post_esc   = $this->db->real_escape_string(
+                    date('Y-m-d', strtotime($ff_mov . ' +1 day'))
+                );
+                $ff_post_esc   = $this->db->real_escape_string(
+                    date('Y-m-d', strtotime($ff_mov . " +{$dias_post} days"))
+                );
+                $ventas_post = $this->_queryVentasPostPeriodoC5(
+                    $ids_str_curso, $fi_post_esc, $ff_post_esc, $incluir_albcli
+                );
+                foreach ($incidencias as &$inc) {
+                    if ($inc['fecha_fin_rotura'] !== null) continue;
+                    $fecha_post = $ventas_post[$inc['idArticulo']] ?? null;
+                    if ($fecha_post === null) continue;
+                    // Rotura recuperada: actualizar campos
+                    $dias_total              = (int)((strtotime($fecha_post) - strtotime($inc['ultima_venta'])) / 86400);
+                    $inc['fecha_fin_rotura'] = $fecha_post;
+                    $inc['dias_rotura']      = $dias_total;
+                    $inc['ko']               = false;
+                    // Recalcular CR y RK con el gap real (ahora extendido al post-periodo)
+                    $umbral_rec  = (float)($inc['umbral_dias'] ?? 0);
+                    $dias_conf   = $dias_total - $umbral_rec;
+                    $avg_gap_rec = (float)($inc['avg_dias_entre_ventas'] ?? PHP_INT_MAX);
+                    $inc['cr']        = $umbral_rec > 0 && $dias_conf > $umbral_rec;
+                    $inc['rk']        = !$inc['cr'] && $umbral_rec > 0 && $dias_total >= $avg_gap_rec;
+                    $inc['severidad'] = $inc['cr'] ? 'ALTA' : 'MEDIA';
+                }
+                unset($inc);
+            }
+        }
+
+        // Filtrar: solo reportar roturas cuyo inicio cae dentro del periodo seleccionado.
+        // El histórico desde fi_stock se usó solo para el cálculo estadístico interno.
+        $incidencias = array_values(array_filter(
+            $incidencias,
+            fn($inc) => isset($inc['fecha_inicio_rotura']) && $inc['fecha_inicio_rotura'] >= $fi_mov
+        ));
 
         // Añadir nombres
         if (!empty($incidencias)) {
@@ -2304,7 +2508,7 @@ class ClasePosstock
     private function getIncidenciasCaso6(
         string $fi_mov,
         string $ff_mov,
-        string $fi_stock,
+        string $fi_stock,              // inicio del rango anual — para lead time desde albaranes
         array  $familias_incluir,
         array  $familias_excluir,
         array  $ids_filter,
@@ -2315,17 +2519,24 @@ class ClasePosstock
         string $modelo,
         float  $umbral_prob,           // reservado — no usado en C6 (compatibilidad de firma)
         float  $binomial_sigma_mult = 3.0,
-        bool   $incluir_albcli      = false   // incluir albaranes de cliente como ventas
+        bool   $incluir_albcli      = false,  // incluir albaranes de cliente como ventas
+        string $fi_stats            = '',     // inicio ventana estadística (±1 periodo para semana/quincena/mes)
+        string $ff_stats            = '',     // fin ventana estadística; vacío = ff_mov
+        string $tipo_override       = ''      // tipo de incidencia ('Agotamiento Estimado' | 'Punto de Pedido')
     ): array {
-        $fi = $this->db->real_escape_string($fi_mov);
+        $fi_stats = $fi_stats ?: $fi_mov;
+        $ff_stats = $ff_stats ?: $ff_mov;
+        $fi = $this->db->real_escape_string($fi_stats);
         $ff = $this->db->real_escape_string($ff_mov);
+        $ff_stats_esc = $this->db->real_escape_string($ff_stats);
 
         $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
         $where_ids = $this->_idsWhere($ids_filter);
 
         // Paso 1 — Cantidades vendidas por día y artículo en el periodo
         // (no fechas únicas: necesitamos unidades para d = unidades/día)
-        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff, $where_fam, $where_ids, $incluir_albcli);
+        // Ventana estadística fi_stats→ff_stats para mayor muestra en vistas cortas
+        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
@@ -2360,21 +2571,23 @@ class ClasePosstock
         $z_map = ['0.90' => 1.28, '0.95' => 1.65, '0.99' => 2.33];
         $z     = $z_map[number_format($nivel_servicio, 2)] ?? 1.65;
 
-        $ff_ts = strtotime($ff_mov);
-
         // Periodos no finalizados (trimestral, semestral, anual…): usar solo los días
         // transcurridos hasta hoy. Sin este ajuste, d_diaria = n_ventas / días_totales
         // se diluye artificialmente (ej. anual en marzo → n/365 en lugar de n/74),
         // produciendo ROP y cantidad de pedido muy por debajo de la realidad.
-        $ff_efectivo  = min($ff_ts, time());
-        $periodo_dias = max(1, (int)round(($ff_efectivo - strtotime($fi_mov)) / 86400) + 1);
+        // Se usa la ventana estadística (fi_stats→ff_stats) para mayor muestra en periodos cortos.
+        $ff_stats_ts  = strtotime($ff_stats);
+        $ff_efectivo  = min($ff_stats_ts, time());
+        $periodo_dias = max(1, (int)round(($ff_efectivo - strtotime($fi_stats)) / 86400) + 1);
 
         // Granularidad de sub-ventanas (misma lógica que _calcularRoturasC5Poisson)
         if ($periodo_dias < 40)       $chunk_days = 1;
         elseif ($periodo_dias <= 130) $chunk_days = 5;
         else                          $chunk_days = 10;
 
-        $fi_period_ts = $ff_efectivo - ($periodo_dias - 1) * 86400;
+        // fi_period_ts: usar ff_stats_ts (no ff_efectivo) para alinear las chunks
+        // con la ventana estadística real y evitar chunks vacíos al inicio.
+        $fi_period_ts = $ff_stats_ts - ($periodo_dias - 1) * 86400;
 
         $incidencias = [];
 
@@ -2545,7 +2758,7 @@ class ClasePosstock
 
             $incidencias[] = [
                 'idArticulo'      => $id,
-                'tipo'            => 'Agotamiento Estimado',
+                'tipo'            => $tipo_override ?: 'Agotamiento Estimado',
                 'severidad'       => $severidad,
                 'stock_actual'    => $stock,
                 'dias_autonomia'  => round($dias_autonomia, 1),
@@ -2612,8 +2825,9 @@ class ClasePosstock
         $ids       = [];
         foreach ($rows as $r) {
             $delta_map[(int)$r['idArticulo']] = [
-                'delta_total' => (float)$r['delta_total'],
-                'min_running' => (float)$r['min_running'],
+                'delta_total'  => (float)$r['delta_total'],
+                'min_running'  => (float)$r['min_running'],
+                'fecha_minimo' => $r['fecha_minimo'],
             ];
             $ids[] = (int)$r['idArticulo'];
         }
@@ -2654,13 +2868,14 @@ class ClasePosstock
                 $es_fraccionado = $frac_c1b > 0.05;
 
                 $incidencias[] = [
-                    'idArticulo'    => $id,
-                    'tipo'          => 'Desajuste Puntual de Stock',
-                    'severidad'     => 'ALTA',
-                    'stock_actual'  => $stock_actual,
-                    'min_balance'   => $min_balance,
+                    'idArticulo'     => $id,
+                    'tipo'           => 'Desajuste Puntual de Stock',
+                    'severidad'      => 'ALTA',
+                    'stock_actual'   => $stock_actual,
+                    'min_balance'    => $min_balance,
                     'es_fraccionado' => $es_fraccionado,
-                    'posible_causa' => 'Negativo puntual, recuperado al cierre',
+                    'fecha_minimo'   => $data['fecha_minimo'],
+                    'posible_causa'  => 'Negativo puntual, recuperado al cierre',
                 ];
                 $ids_c1b[] = $id;
             }
@@ -2697,6 +2912,16 @@ class ClasePosstock
         if (!empty($ids_c1b)) {
             $ids_str = implode(',', $ids_c1b);
             $detalle = $this->_queryDetalleC1($ids_str, $fi, $ff);
+
+            // Confirmar timing: entrada dentro de 3 días tras la fecha del mínimo
+            $id_fecha_map = [];
+            foreach ($incidencias as $inc) {
+                if ($inc['tipo'] === 'Desajuste Puntual de Stock' && !empty($inc['fecha_minimo'])) {
+                    $id_fecha_map[$inc['idArticulo']] = $inc['fecha_minimo'];
+                }
+            }
+            $timing_set = $this->_queryTimingC1b($id_fecha_map);
+
             foreach ($incidencias as &$inc) {
                 if ($inc['tipo'] !== 'Desajuste Puntual de Stock') continue;
                 $d     = $detalle[$inc['idArticulo']] ?? null;
@@ -2704,9 +2929,12 @@ class ClasePosstock
                 $inc['n_entradas']     = $n_ent;
                 $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
                 $inc['n_ventas']       = $d['n_ventas']       ?? 0;
+                $inc['timing_proximo'] = isset($timing_set[$inc['idArticulo']]);
 
-                if ($n_ent > 0) {
+                if ($inc['timing_proximo']) {
                     $inc['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
+                } elseif ($n_ent > 0) {
+                    $inc['posible_causa'] = 'Entradas en el periodo pero no coinciden con el momento del negativo: revisar si hay un desajuste de inventario puntual';
                 } elseif ($inc['es_fraccionado']) {
                     $inc['posible_causa'] = 'Stock con decimales: posible acumulación de imprecisiones en ventas por peso o fraccionado';
                 } else {

@@ -35,7 +35,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
     $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
     // Filtro de casos: lista de IDs separados por coma
-    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6'];
+    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6a', 'caso6b'];
     $casos_incluir = [];
     foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
         $c = trim($c);
@@ -79,6 +79,22 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         ? $min_ventas_c5_por_tipo[$tipo_periodo]
         : max(3, (int)($_POST['min_ventas_c5'] ?? 3));
 
+    // ── Ventana estadística triple (semana / quincena / mes) ──────────────────
+    // Para periodos cortos se amplía ±1 periodo (centrado) para aumentar la muestra
+    // sin romper estacionalidad. Trimestre/semestre/anual tienen datos suficientes.
+    $tipos_ventana_triple = ['semana', 'quincena', 'mes'];
+    if (in_array($tipo_periodo, $tipos_ventana_triple, true)) {
+        $dur_dias     = (int)round((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1;
+        $anio_mov     = (int)substr($fi_mov, 0, 4);
+        $fi_stats_raw = date('Y-m-d', strtotime("$fi_mov -{$dur_dias} days"));
+        $ff_stats_raw = date('Y-m-d', strtotime("$ff_mov +{$dur_dias} days"));
+        $fi_stats     = max($fi_stats_raw, "{$anio_mov}-01-01");
+        $ff_stats     = min($ff_stats_raw, "{$anio_mov}-12-31");
+    } else {
+        $fi_stats = $fi_stock; // Jan 1 — ya tiene suficiente histórico
+        $ff_stats = $ff_mov;   // sin extensión post-periodo
+    }
+
     // ── Modelo estadístico ────────────────────────────────────────────────────
     // modelo_estadistico: 'automatico' | 'binomial' | 'poisson_bn' | 'gamma'
     // modelo_significancia: 0.90 | 0.95 | 0.99
@@ -103,6 +119,9 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'fecha_fin_movimientos'       => $ff_mov,
         'fecha_inicio_stock'          => $fi_stock,
         'fecha_fin_stock'             => $ff_stock,
+        // Ventana estadística (±1 periodo para semana/quincena/mes; igual a fi_stock/ff_mov en el resto)
+        'fecha_inicio_stats'          => $fi_stats,
+        'fecha_fin_stats'             => $ff_stats,
         // Umbral de sobrestock: de porcentaje a factor (50% → 0.5)
         'umbral_sobrestock'           => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
         // C2: umbrales de clasificación derivados del umbral_sobrestock (escalan con él)
@@ -134,6 +153,8 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c6_lead_time_defecto'        => (int)(string)$posstock_node->c6_lead_time_defecto ?: 14,
         // C3b — días post-periodo para validar falsos positivos "nunca vendido"
         'c3b_dias_post_periodo'       => max(7, min(30, (int)(string)($posstock_node->c3b_dias_post_periodo ?: '14'))),
+        // C6b — ventana histórica fija (días hacia atrás desde ff_mov) para ROP operacional
+        'c6b_dias_historico'          => max(30, min(365, (int)(string)($posstock_node->c6b_dias_historico ?: '90'))),
         // C3a — multiplicador sobre la cadencia media histórica para el umbral dinámico de rotación
         'c3a_multiplicador_cadencia'  => max(2.0, min(6.0, (float)(string)($posstock_node->c3a_multiplicador_cadencia ?: '3.0'))),
     ];

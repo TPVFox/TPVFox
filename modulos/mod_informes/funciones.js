@@ -779,7 +779,10 @@ function pintarTablaIncidencias(filas) {
     // Labels de visualización para el personal de tienda (el tipo interno se conserva
     // en data-tipo para filtros; aquí solo cambia lo que se muestra en la celda).
     var tipoLabels = {
-        "Entrada sin rotación previa": "Pedido sin rotación",
+        "Inventario en negativo":            "Stock negativo",
+        "Desajuste Puntual de Stock":        "Descuadre temporal",
+        "Venta Cero (Posible Rotura Física)": "Rotura de stock",
+        "Entrada sin rotación previa":       "Pedido sin rotación",
     };
 
     // Formatea YYYY-MM-DD → DD/MM para lectura rápida en tabla
@@ -849,7 +852,7 @@ function pintarTablaIncidencias(filas) {
 
             // Ventas del periodo
             if (f.n_ventas !== undefined && f.n_ventas !== null) {
-                detalle += " | Ventas: " + parseInt(f.n_ventas) + " líneas";
+                detalle += " | Ventas: " + parseInt(f.n_ventas);
             }
 
             // Última recepción (solo si hubo alguna)
@@ -864,8 +867,8 @@ function pintarTablaIncidencias(filas) {
             var _badges1b = "";
             var nEnt1b = f.n_entradas !== undefined && f.n_entradas !== null ? parseInt(f.n_entradas) : null;
 
-            if (nEnt1b !== null && nEnt1b > 0) {
-                _badges1b += ' <span class="label label-info" title="Hubo recepciones en el periodo: el negativo pudo producirse al vender antes de registrar la entrada.">Timing recepción</span>';
+            if (!!f.timing_proximo) {
+                _badges1b += ' <span class="label label-info" title="Entrada de proveedor registrada en los 3 días siguientes al momento del negativo: probable venta registrada antes que la recepción.">Timing recepción</span>';
             }
             if (f.es_fraccionado) {
                 _badges1b += ' <span class="label label-info" title="El mínimo tiene decimales: probable artículo de peso o fraccionado.">Stock decimal</span>';
@@ -882,7 +885,7 @@ function pintarTablaIncidencias(filas) {
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
 
             if (f.n_ventas !== undefined && f.n_ventas !== null) {
-                detalle += " | Ventas: " + parseInt(f.n_ventas) + " líneas";
+                detalle += " | Ventas: " + parseInt(f.n_ventas);
             }
             if (nEnt1b !== null && nEnt1b > 0) {
                 var ultEnt1b = f.ultima_entrada
@@ -1009,9 +1012,6 @@ function pintarTablaIncidencias(filas) {
                 " | Stock: <strong>" + stkStr3a + "</strong>" +
                 " | " + refFechaStr3a;
         } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
-            var estadoRotura = f.fecha_fin_rotura
-                ? "Recuperada " + f.fecha_fin_rotura
-                : '<span class="label label-warning">En curso</span>';
             var badgeKO = f.ko
                 ? ' <span class="label label-danger" title="Stock negativo durante la rotura en curso: inventario en descubierto">KO</span>'
                 : "";
@@ -1022,7 +1022,17 @@ function pintarTablaIncidencias(filas) {
                 ? ' <span class="label label-warning" title="Rotura confirmada significativa (≥ cadencia media)">RK</span>'
                 : "";
 
-            // Badge de distribución + descripción del comportamiento del artículo
+            // Estado de la rotura: en curso o recuperada
+            var badgeEstado = f.fecha_fin_rotura
+                ? '<span class="label label-success">Recuperada ' + _fmtF(f.fecha_fin_rotura) + '</span>'
+                : '<span class="label label-warning">En curso</span>';
+
+            // Días de rotura + fecha de inicio
+            var diasRoturaStr = f.dias_rotura !== undefined
+                ? "<strong>" + f.dias_rotura + " d</strong>"
+                : "<strong>—</strong>";
+
+            // Badge de distribución (técnico, va al final)
             var _avgC5  = parseFloat(f.avg_dias_entre_ventas) || 0;
             var _c5mCfg = {
                 // Alta rotación (>80 % días), gaps muy regulares → cuantil Gamma
@@ -1053,21 +1063,19 @@ function pintarTablaIncidencias(filas) {
             };
             var _c5m        = _c5mCfg[f.modelo_usado] || _c5mCfg["Poisson"];
             var badgeModelo = ' <span class="label ' + _c5m.cls + '" title="' + _c5m.tip + '">' + _c5m.lbl + '</span>';
-            var textoComp   = ' <small class="text-muted">· ' + _c5m.comp + '</small>';
 
             var sdStr = f.sd_dias !== null && f.sd_dias !== undefined
                 ? " σ=" + f.sd_dias + " d"
                 : "";
             detalle =
-                badgeKO + badgeCR + badgeRK + badgeModelo + textoComp +
-                " | Desde: <strong>" + (f.fecha_inicio_rotura || "—") + "</strong>" +
-                " | " + estadoRotura +
-                " | " + (f.dias_rotura !== undefined ? f.dias_rotura + " d" : "—") +
-                " | Últ. venta: " + (f.ultima_venta || "—") +
+                badgeKO + badgeCR + badgeRK + " " + badgeEstado + " " + diasRoturaStr +
+                " | Desde: " + _fmtF(f.fecha_inicio_rotura) +
+                " | Últ. venta: " + _fmtF(f.ultima_venta) +
                 " | Cadencia: " +
                 (f.avg_dias_entre_ventas !== undefined ? f.avg_dias_entre_ventas + " d" : "—") +
                 sdStr +
-                " (umbral " + (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") + ")";
+                " (umbral " + (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") + ")" +
+                badgeModelo + ' <small class="text-muted">· ' + _c5m.comp + '</small>';
         } else if (f.tipo === "Entrada sin rotación previa") {
             // C3b — badge + stock + entradas + última salida o ausencia
             var stockC3b  = f.stock_actual !== undefined && f.stock_actual !== null
@@ -1115,8 +1123,8 @@ function pintarTablaIncidencias(filas) {
             detalle =
                 "Stock: " +
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
-        } else if (f.tipo === "Agotamiento Estimado") {
-            // C6 — recomendación primero, contexto después
+        } else if (f.tipo === "Agotamiento Estimado" || f.tipo === "Punto de Pedido") {
+            // C6a / C6b — recomendación primero, contexto después
             var stockC6 = parseFloat(f.stock_actual)    || 0;
             var ropC6   = parseFloat(f.rop)             || 0;
             var ssC6    = parseFloat(f.stock_seguridad) || 0;
@@ -1155,6 +1163,9 @@ function pintarTablaIncidencias(filas) {
                 : null;
 
             var badgeC6Modelo = ' <span class="label ' + _c6m.cls + '" title="' + _c6m.tip + '">' + _c6m.lbl + '</span>';
+            var badgeC6Fuente = f.tipo === "Punto de Pedido"
+                ? ' <span class="label label-default" title="ROP calculado sobre ventana histórica fija (C6b)">hist.</span>'
+                : ' <span class="label label-default" title="ROP calculado con el periodo analizado ±1 (C6a)">estac.</span>';
             var badgeC6LT = f.lead_time_fuente === "proveedor"
                 ? ' <span class="label label-success" title="Lead time calculado desde intervalo entre albaranes del proveedor">LT prov.</span>'
                 : "";
@@ -1163,7 +1174,7 @@ function pintarTablaIncidencias(filas) {
                 : ' <span class="label label-success">Stock OK</span>';
 
             detalle =
-                badgeC6Modelo + badgeC6LT + badgeC6Q +
+                badgeC6Modelo + badgeC6Fuente + badgeC6LT + badgeC6Q +
                 ' <small class="text-muted">· ' + _c6m.comp + '</small>' +
                 " | Stock: <strong>" + stockC6.toFixed(2) + "</strong>" +
                 " | Autonomía: <strong>" +
@@ -1175,11 +1186,14 @@ function pintarTablaIncidencias(filas) {
                     : "");
         }
 
-        // C3b "nunca": el rango del mayor cubre exactamente el mismo rango que usa
-        // el backend — desde fecha_inicio_stock hasta ffMov + diasPost.
+        // C3b "nunca" y C5 en curso: el rango del mayor se extiende diasPost días
+        // después del fin del periodo para cubrir la ventana de validación post-periodo.
         var fiMayor = fiInicio;
         var ffMayor = ffMov;
-        if (f.tipo === "Entrada sin rotación previa" && !f.ultima_salida && ffMov) {
+        var _needsPostWindow =
+            (f.tipo === "Entrada sin rotación previa" && !f.ultima_salida) ||
+            (f.tipo === "Venta Cero (Posible Rotura Física)" && !f.fecha_fin_rotura);
+        if (_needsPostWindow && ffMov) {
             var diasPost = window.POSSTOCK_C3B_DIAS_POST || 14;
             fiMayor = periodo.fecha_inicio_stock || fiInicio;
             var dtFin = new Date(ffMov);
@@ -1204,6 +1218,32 @@ function pintarTablaIncidencias(filas) {
             tipoLabel = _avgCadTipo > 0 && _avgCadTipo <= 7 && !f.desde_reposicion
                 ? "Riesgo caducidad"
                 : "Rotación caída";
+        } else if (f.tipo === "Entrada con stock alto") {
+            if (f.c2_categoria === "acumulacion") {
+                tipoLabel = "Acumulación crónica";
+            } else if (f.c2_categoria === "tendencia") {
+                tipoLabel = "Pedidos excesivos";
+            } else {
+                var _ncantC2  = parseFloat(f.ncant) || 0;
+                var _ncantAC2 = f.ncant_anterior !== undefined && f.ncant_anterior !== null ? parseFloat(f.ncant_anterior) : null;
+                var _diasC2   = f.dias_desde_anterior !== undefined && f.dias_desde_anterior !== null ? parseInt(f.dias_desde_anterior) : null;
+                var _dupProb  = _diasC2 !== null && _diasC2 <= 1 && _ncantAC2 !== null
+                    && Math.abs(_ncantC2 - _ncantAC2) / Math.max(_ncantC2, _ncantAC2) < 0.15;
+                var _dupPos   = !_dupProb && _diasC2 !== null && _diasC2 <= 3 && _ncantAC2 !== null
+                    && Math.abs(_ncantC2 - _ncantAC2) / Math.max(_ncantC2, _ncantAC2) < 0.15;
+                tipoLabel = _dupProb ? "Duplicado probable"
+                          : _dupPos  ? "Posible duplicado"
+                          : "Sobrestock entrada";
+            }
+        } else if (f.tipo === "Agotamiento Estimado" || f.tipo === "Punto de Pedido") {
+            // C6a / C6b — dinámica: "Reponer ahora" si hay cantidad a pedir, "ROP alcanzado" si stock suficiente
+            var _ropTL  = parseFloat(f.rop)             || 0;
+            var _stTL   = parseFloat(f.stock_actual)    || 0;
+            var _ssTL   = parseFloat(f.stock_seguridad) || 0;
+            var _qTL    = Math.ceil(f.modelo_usado === "BN"
+                ? Math.max(0, _ropTL - _stTL) + _ssTL
+                : Math.max(0, _ropTL - _stTL));
+            tipoLabel = _qTL > 0 ? "Reponer ahora" : "ROP alcanzado";
         } else {
             tipoLabel = tipoLabels[f.tipo] || f.tipo;
         }
@@ -1366,7 +1406,8 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso3a", t: "Caída de rotación", short: "C3a" },
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
-    { v: "caso6", t: "Agotamiento Estimado (ROP)", short: "C6" },
+    { v: "caso6a", t: "Agotamiento Estimado — C6a (ROP estacional)", short: "C6a" },
+    { v: "caso6b", t: "Punto de Pedido — C6b (ROP histórico fijo)", short: "C6b" },
 ];
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
@@ -1398,15 +1439,16 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
 /**
  * Renderiza los checkboxes de tipo de incidencia en #posstockChecksCasos
  * y muestra la fila. Solo se llama en vistas no anuales.
- * Solo caso1 aparece marcado por defecto; el resto lo elige el usuario.
+ * caso1, caso6a y caso6b aparecen marcados por defecto.
  */
 function _posstockInicializarFiltroCasos() {
     var wrap = document.getElementById("posstockChecksCasos");
     if (!wrap) return;
     var tipos = _posstockTiposActivos();
+    var _defChecked = { caso1: true, caso6a: true, caso6b: true };
     var html = "";
     tipos.forEach(function (ti) {
-        var checked = ti.v === "caso1" ? "checked" : "";
+        var checked = _defChecked[ti.v] ? "checked" : "";
         html +=
             '<label class="checkbox-inline" style="margin-left:8px; font-weight:normal;">' +
             '<input type="checkbox" id="posstockChk_' +

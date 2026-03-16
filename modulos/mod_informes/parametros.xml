@@ -17,6 +17,10 @@
 			<incluir_stock_inactivo>0</incluir_stock_inactivo>
 			<!-- C6 — días de lead time por defecto cuando no hay pedidos históricos suficientes -->
 			<c6_lead_time_defecto>14</c6_lead_time_defecto>
+			<!-- C6b — ventana histórica fija para el ROP operacional (días hacia atrás desde ff_mov).
+			     C6a usa el periodo seleccionado ±1; C6b siempre usa los últimos N días para una
+			     estimación estable e independiente del rango de análisis elegido. -->
+			<c6b_dias_historico>90</c6b_dias_historico>
 			<!-- Modelo estadístico para C5 y C6: automatico | binomial | poisson_bn | gamma -->
 			<modelo_estadistico>automatico</modelo_estadistico>
 			<!-- Significancia / nivel de servicio (C5: umbral de gap; C6: nivel ROP): 0.90 | 0.95 | 0.99 -->

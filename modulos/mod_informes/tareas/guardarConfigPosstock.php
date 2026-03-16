@@ -62,6 +62,13 @@ if (!isset($mapa['inputC6LeadTimeDefecto'])
 ) {
     $mapa['inputC6LeadTimeDefecto'] = '14';
 }
+if (!isset($mapa['inputC6bDiasHistorico'])
+    || !ctype_digit($mapa['inputC6bDiasHistorico'])
+    || intval($mapa['inputC6bDiasHistorico']) < 30
+    || intval($mapa['inputC6bDiasHistorico']) > 365
+) {
+    $mapa['inputC6bDiasHistorico'] = '90';
+}
 if (!isset($mapa['inputC3bDiasPost'])
     || !ctype_digit($mapa['inputC3bDiasPost'])
     || intval($mapa['inputC3bDiasPost']) < 7
@@ -92,6 +99,7 @@ if (!empty($errores)) {
     $posstock->c5_incluir_stock_negativo         = $c5_incluir_stock_negativo;
     $posstock->incluir_albcli_ventas             = $incluir_albcli_ventas;
     $posstock->c6_lead_time_defecto              = intval($mapa['inputC6LeadTimeDefecto']);
+    $posstock->c6b_dias_historico                = intval($mapa['inputC6bDiasHistorico']);
     $posstock->c3b_dias_post_periodo             = intval($mapa['inputC3bDiasPost']);
     $posstock->c3a_multiplicador_cadencia        = $mapa['inputC3aMultiplicadorCadencia'];
 

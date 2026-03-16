@@ -206,10 +206,11 @@ function abrirModalConfigPosstock($posstock)
     $html .= '</div>';
 
     // --- BLOQUE 4: CASO 6 — LEAD TIME ---
-    $lead_defecto_actual = (string)$posstock->c6_lead_time_defecto ?: '14';
+    $lead_defecto_actual  = (string)$posstock->c6_lead_time_defecto  ?: '14';
+    $c6b_dias_hist_actual = (string)$posstock->c6b_dias_historico    ?: '90';
 
     $html .= '<div class="panel panel-default">';
-    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-shopping-cart"></i> Punto de pedido (Caso 6)</div>';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-shopping-cart"></i> Punto de pedido (C6a / C6b)</div>';
     $html .= '  <div class="panel-body">';
     $html .= '    <div class="row">';
 
@@ -221,10 +222,18 @@ function abrirModalConfigPosstock($posstock)
     $html .= '        </div>';
     $html .= '      </div>';
 
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="C6b usa una ventana histórica fija (últimos N días desde el fin del periodo) para calcular el ROP operacional, independientemente del tipo de periodo seleccionado. Recomendado: 60–180 días.">C6b — ventana histórica <small class="text-muted">(ROP operacional)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="30" max="365" class="form-control text-right" name="inputC6bDiasHistorico" value="' . htmlspecialchars($c6b_dias_hist_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
     $html .= '    </div>';
     $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
-    $html .= '      Lead time calculado automáticamente desde el intervalo medio entre pedidos al proveedor. ';
-    $html .= '      El nivel de servicio para el ROP queda definido por la significancia del modelo estadístico.';
+    $html .= '      <strong>C6a</strong>: ROP calculado con el periodo analizado (±1 periodo para semana/quincena/mes). ';
+    $html .= '      <strong>C6b</strong>: ROP fijo sobre los últimos N días — estimación estable para uso operativo de reposición.';
     $html .= '    </p>';
     $html .= '  </div>';
     $html .= '</div>';
