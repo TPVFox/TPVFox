@@ -35,7 +35,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
     $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
     // Filtro de casos: lista de IDs separados por coma
-    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6a', 'caso6b'];
+    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b'];
     $casos_incluir = [];
     foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
         $c = trim($c);

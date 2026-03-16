@@ -1126,6 +1126,73 @@ function pintarTablaIncidencias(filas) {
             detalle =
                 "Stock: " +
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
+        } else if (f.tipo === "Recepción no registrada (C7b)") {
+            // C7b — offset negativo sistemático
+            var offsetB = f.offset_estimado !== undefined ? parseFloat(f.offset_estimado) : null;
+            var dispB   = f.dispersion      !== undefined ? parseFloat(f.dispersion)      : null;
+            var nRecB   = parseInt(f.n_recepciones) || 0;
+            var _cruceScoreB = f.cruce_score !== undefined ? "score=" + parseFloat(f.cruce_score).toFixed(2) + " — " : "";
+            var _cruceNivelB = f.cruce_nivel === "confirmado" ? "cruce confirmado"
+                             : f.cruce_nivel === "probable"  ? "cruce probable" : "posible cruce";
+            var cruceCls     = f.cruce_nivel === "confirmado" ? "label-success"
+                             : f.cruce_nivel === "probable"  ? "label-danger"
+                             :                                 "label-warning";
+            var badgeCruceB  = "";
+            if (f.posible_cruce_con) {
+                if (f.cruce_tipo === "trio" && f.cruce_fuente_b) {
+                    var cruceTipB = _cruceScoreB + _cruceNivelB + ": este art. y art. " + f.cruce_fuente_b + " escaneados como art. " + f.posible_cruce_con + " (balanza autopesaje)";
+                    badgeCruceB = ' <span class="label ' + cruceCls + '" title="' + cruceTipB + '">Trío →art. ' + f.posible_cruce_con + '</span>';
+                } else if (f.cruce_tipo === "multiplo" && f.cruce_ratio_k) {
+                    var cruceTipB = _cruceScoreB + _cruceNivelB + " con art. " + f.posible_cruce_con + " (ratio ×" + f.cruce_ratio_k + "; pérdida fantasma por múltiplo)";
+                    badgeCruceB = ' <span class="label ' + cruceCls + '" title="' + cruceTipB + '">\xd7' + f.cruce_ratio_k + ' art. ' + f.posible_cruce_con + '</span>';
+                } else {
+                    var cruceTipB = _cruceScoreB + _cruceNivelB + " con art. " + f.posible_cruce_con + " (posible error balanza autopesaje)";
+                    badgeCruceB = ' <span class="label ' + cruceCls + '" title="' + cruceTipB + '">Cruce art. ' + f.posible_cruce_con + '</span>';
+                }
+            }
+            detalle =
+                '<span class="label label-danger" title="El stock baja sistemáticamente hasta valores negativos estables entre recepciones.">Sin albarán</span>' +
+                badgeCruceB +
+                " Offset: <strong>" + (offsetB !== null ? offsetB.toFixed(2) : "—") + " ud.</strong>" +
+                (dispB !== null ? " ±" + dispB.toFixed(2) : "") +
+                " | " + nRecB + " rec." +
+                " | " + _fmtF(f.fecha_primera) + " → " + _fmtF(f.fecha_ultima);
+        } else if (f.tipo === "Merma no registrada (C7a)") {
+            // C7a — suelos positivos crecientes
+            var offsetA = f.offset_estimado !== undefined ? parseFloat(f.offset_estimado) : null;
+            var dispA   = f.dispersion      !== undefined ? parseFloat(f.dispersion)      : null;
+            var slopeA  = f.tendencia       !== undefined ? parseFloat(f.tendencia)       : null;
+            var nRecA   = parseInt(f.n_recepciones) || 0;
+            var _cruceScoreA = f.cruce_score !== undefined ? "score=" + parseFloat(f.cruce_score).toFixed(2) + " — " : "";
+            var _cruceNivelA = f.cruce_nivel === "confirmado" ? "cruce confirmado"
+                             : f.cruce_nivel === "probable"  ? "cruce probable" : "posible cruce";
+            var cruceCls     = f.cruce_nivel === "confirmado" ? "label-success"
+                             : f.cruce_nivel === "probable"  ? "label-danger"
+                             :                                 "label-warning";
+            var badgeCruceA  = "";
+            if (f.posible_cruce_con) {
+                if (f.cruce_tipo === "trio" && f.cruce_fuente_b) {
+                    // C7d: este C7a es el destino; las fuentes son posible_cruce_con y cruce_fuente_b
+                    var cruceTipA = _cruceScoreA + _cruceNivelA + ": art. " + f.posible_cruce_con + " y art. " + f.cruce_fuente_b + " escaneados como este producto (balanza autopesaje)";
+                    badgeCruceA = ' <span class="label ' + cruceCls + '" title="' + cruceTipA + '">Trío art. ' + f.posible_cruce_con + '+' + f.cruce_fuente_b + '</span>';
+                } else if (f.cruce_tipo === "multiplo" && f.cruce_ratio_k) {
+                    // C7e: múltiplo k≥2
+                    var cruceTipA = _cruceScoreA + _cruceNivelA + " con art. " + f.posible_cruce_con + " (ratio ×" + f.cruce_ratio_k + "; pérdida fantasma por múltiplo)";
+                    badgeCruceA = ' <span class="label ' + cruceCls + '" title="' + cruceTipA + '">\xd7' + f.cruce_ratio_k + ' art. ' + f.posible_cruce_con + '</span>';
+                } else {
+                    // C7c: par simple
+                    var cruceTipA = _cruceScoreA + _cruceNivelA + " con art. " + f.posible_cruce_con + " (posible error balanza autopesaje)";
+                    badgeCruceA = ' <span class="label ' + cruceCls + '" title="' + cruceTipA + '">Cruce art. ' + f.posible_cruce_con + '</span>';
+                }
+            }
+            detalle =
+                '<span class="label label-warning" title="El suelo de stock sube acumulativamente entre recepciones: el sistema tiene más stock del que existe físicamente.">Merma acumulada</span>' +
+                badgeCruceA +
+                " Acumulado: <strong>" + (offsetA !== null ? "+" + offsetA.toFixed(2) : "—") + " ud.</strong>" +
+                (dispA !== null ? " ±" + dispA.toFixed(2) : "") +
+                (slopeA !== null ? " | +" + slopeA.toFixed(2) + " ud./rec." : "") +
+                " | " + nRecA + " rec." +
+                " | " + _fmtF(f.fecha_primera) + " → " + _fmtF(f.fecha_ultima);
         } else if (f.tipo === "Agotamiento Estimado" || f.tipo === "Punto de Pedido") {
             // C6a / C6b — recomendación primero, contexto después
             var stockC6 = parseFloat(f.stock_actual)    || 0;
@@ -1440,6 +1507,8 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
     { v: "caso6a", t: "Agotamiento Estimado — C6a (ROP estacional)", short: "C6a" },
     { v: "caso6b", t: "Punto de Pedido — C6b (ROP histórico fijo)", short: "C6b", soloAnual: true },
+    { v: "caso7b", t: "Recepción no registrada — C7b", short: "C7b" },
+    { v: "caso7a", t: "Merma no registrada — C7a", short: "C7a" },
 ];
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */

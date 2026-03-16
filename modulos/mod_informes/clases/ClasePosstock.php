@@ -936,6 +936,91 @@ class ClasePosstock
         return $rows;
     }
 
+    // ── C7 ────────────────────────────────────────────────────────────────────
+
+    /**
+     * C7 — Fechas de recepción de proveedor por artículo físico en el periodo.
+     *
+     * Devuelve una fila por (idArticulo, fecha) de recepción.
+     * Se usa en PHP para filtrar artículos con ≥ N fechas distintas de recepción.
+     *
+     * @return array  Filas [{idArticulo, fecha}] o ['error' => ...]
+     */
+    private function _queryRecepcionesFechasC7(
+        string $fi, string $ff,
+        string $wf, string $wi
+    ): array {
+        $tipos = self::TIPOS_FISICOS;
+        $sql = "
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+            FROM albprolinea l
+            INNER JOIN albprot c  ON c.id = l.idalbpro
+            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea = 'Activo'
+              AND l.ncant > 0
+              AND a.tipo IN ($tipos)
+              $wf $wi
+            GROUP BY l.idArticulo, DATE(c.Fecha)
+            ORDER BY l.idArticulo, DATE(c.Fecha)
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C7 recepciones: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
+    /**
+     * C7 — Timeline de movimientos diarios (entradas + salidas de ticket + salidas albcli)
+     * para los artículos candidatos. Devuelve el delta neto por (idArticulo, fecha).
+     *
+     * @param  string $ids_str  IN-clause de idArticulo ya preparado
+     * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error' => ...]
+     */
+    private function _queryTimelineMovimientosC7(
+        string $fi, string $ff,
+        string $ids_str
+    ): array {
+        if (empty($ids_str)) return [];
+        $sql = "
+            SELECT idArticulo, fecha, SUM(delta) AS day_delta
+            FROM (
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                FROM albprolinea l
+                INNER JOIN albprot c ON c.id = l.idalbpro
+                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                  AND l.estadoLinea = 'Activo'
+                  AND l.idArticulo IN ($ids_str)
+                UNION ALL
+                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, -l.ncant AS delta
+                FROM ticketslinea l
+                INNER JOIN ticketst t ON t.id = l.idticketst
+                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND t.estado = 'Cerrado'
+                  AND l.idArticulo IN ($ids_str)
+                UNION ALL
+                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.ncant AS delta
+                FROM albclilinea l
+                INNER JOIN albclit a ON a.id = l.idalbcli
+                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND a.estado IN ('Guardado','Procesado')
+                  AND l.idArticulo IN ($ids_str)
+            ) AS all_movs
+            GROUP BY idArticulo, fecha
+            ORDER BY idArticulo, fecha
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C7 timeline: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
     /**
      * Proveedor — idArticulo vinculados a los proveedores indicados (estado Activo).
      *
@@ -1427,7 +1512,7 @@ class ClasePosstock
         }
 
         // casos_incluir [] = todos los casos activos excepto C4
-        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6a', 'caso6b'];
+        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b'];
         $casos_raw     = (array)($params['casos_incluir'] ?? []);
         $casos_set     = array_flip(
             empty($casos_raw)
@@ -1437,9 +1522,9 @@ class ClasePosstock
 
         $incidencias = [];
 
-        // ── Precalcular stock_base compartido para C1 y C2 ───────────────────
+        // ── Precalcular stock_base compartido para C1, C2 y C7 ──────────────
         $sb_shared = [];
-        if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']))) {
+        if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']) || isset($casos_set['caso7a']) || isset($casos_set['caso7b']))) {
             $sb_shared = $this->getStockBase($ids_filter, $fi_stock, $ff_stock);
             if (isset($sb_shared['error'])) return $sb_shared;
         }
@@ -1574,6 +1659,29 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c6b);
         }
 
+        // ── C7a / C7b — Offset sistemático de inventario ────────────────────
+        // Se ejecutan con una sola pasada SQL si ambos están activos.
+        $c7_subcasos = [];
+        if (isset($casos_set['caso7a'])) $c7_subcasos[] = 'C7a';
+        if (isset($casos_set['caso7b'])) $c7_subcasos[] = 'C7b';
+        if (!empty($c7_subcasos)) {
+            $c7 = $this->getIncidenciasC7(
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $ff_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $sb_shared,
+                $c7_subcasos
+            );
+            if (isset($c7['error'])) return $c7;
+            $this->getIncidenciasC7e($c7);   // k-múltiplos (k≥2); requiere _floors_raw
+            $this->getIncidenciasC7d($c7);   // tríos A+B→C; también borra _floors_raw
+            $incidencias = array_merge($incidencias, $c7);
+        }
+
         // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
         if (isset($casos_set['caso4'])) {
             $articulos_sin_mov = $this->getArticulosSinMovimiento(
@@ -1597,6 +1705,8 @@ class ClasePosstock
             'Agotamiento Estimado'               => 2,  // C6a MEDIA (BN, stock suficiente)
             'Punto de Pedido'                    => 2,  // C6b MEDIA (mismo nivel que C6a)
             'Riesgo de caducidad teórica'        => 3,  // C3a
+            'Recepción no registrada (C7b)'      => 4,  // C7b
+            'Merma no registrada (C7a)'          => 4,  // C7a
         ];
 
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
@@ -1627,6 +1737,8 @@ class ClasePosstock
             'Agotamiento Estimado'               => '2',  // C6a
             'Punto de Pedido'                    => '2',  // C6b
             'Riesgo de caducidad teórica'        => '3',
+            'Recepción no registrada (C7b)'      => '4',  // C7b
+            'Merma no registrada (C7a)'          => '4',  // C7a
         ];
 
         // C5: pre-calcular la fecha de inicio de rotura más reciente por artículo
@@ -3720,6 +3832,1026 @@ class ClasePosstock
             }
         }
         return $incidencias;
+    }
+
+    /**
+     * C7 helper — Estadísticos básicos de un array de suelos (valores float).
+     *
+     * @param  float[] $floors  Valores de suelo (pueden ser negativos para C7b)
+     * @return array  [media, desv_típica_muestral, n]
+     */
+    private function _statsFloors(array $floors): array
+    {
+        $n = count($floors);
+        if ($n === 0) return [0.0, 0.0, 0];
+        $mean = array_sum($floors) / $n;
+        $var  = 0.0;
+        foreach ($floors as $v) $var += ($v - $mean) ** 2;
+        $sd = $n > 1 ? sqrt($var / ($n - 1)) : 0.0;
+        return [$mean, $sd, $n];
+    }
+
+    /**
+     * Correlación de Pearson entre dos arrays de igual longitud.
+     * Devuelve 0.0 si n < 2 o si alguna serie es constante.
+     */
+    private function _pearsonCorr(array $x, array $y): float
+    {
+        $n = count($x);
+        if ($n < 2 || $n !== count($y)) return 0.0;
+        $mx = array_sum($x) / $n;
+        $my = array_sum($y) / $n;
+        $num = 0.0; $dx2 = 0.0; $dy2 = 0.0;
+        for ($i = 0; $i < $n; $i++) {
+            $dx  = $x[$i] - $mx;
+            $dy  = $y[$i] - $my;
+            $num += $dx * $dy;
+            $dx2 += $dx * $dx;
+            $dy2 += $dy * $dy;
+        }
+        $denom = sqrt($dx2 * $dy2);
+        return $denom > 0.0 ? $num / $denom : 0.0;
+    }
+
+    /**
+     * Regresión lineal simple OLS sobre y[0..n-1] con x = 0, 1, …, n-1.
+     *
+     * Devuelve:
+     *   'slope'   — pendiente β̂₁  (ud/recepción)
+     *   'r2'      — coeficiente de determinación R²
+     *   'p_value' — p-valor bilateral aproximado para el test t sobre β̂₁
+     *               (0.05 si significativa al 10 %, 0.15 si no lo es)
+     *
+     * Devuelve p_value = 1.0 si n < 3 (grados de libertad insuficientes).
+     */
+    private function _regressionStats(array $y): array
+    {
+        $n = count($y);
+        if ($n < 3) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0];
+
+        $sum_x  = 0;   $sum_y  = 0.0;
+        $sum_xy = 0.0; $sum_xx = 0;
+        for ($i = 0; $i < $n; $i++) {
+            $sum_x  += $i;
+            $sum_y  += $y[$i];
+            $sum_xy += $i * $y[$i];
+            $sum_xx += $i * $i;
+        }
+        $denom = $n * $sum_xx - $sum_x * $sum_x;
+        if ($denom == 0.0) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0];
+
+        $slope     = ($n * $sum_xy - $sum_x * $sum_y) / $denom;
+        $intercept = ($sum_y - $slope * $sum_x) / $n;
+        $mean_y    = $sum_y / $n;
+
+        $ss_tot = 0.0; $ss_res = 0.0;
+        for ($i = 0; $i < $n; $i++) {
+            $y_hat   = $intercept + $slope * $i;
+            $ss_res += ($y[$i] - $y_hat) ** 2;
+            $ss_tot += ($y[$i] - $mean_y) ** 2;
+        }
+        $r2 = ($ss_tot > 0.0) ? max(0.0, 1.0 - $ss_res / $ss_tot) : 0.0;
+
+        // t-estadístico: β̂₁ / se(β̂₁), df = n-2
+        $sxx = (float)$sum_xx - (float)($sum_x * $sum_x) / $n;
+        if ($ss_res <= 0.0 || $sxx <= 0.0) {
+            return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($slope == 0.0 ? 1.0 : 0.0)];
+        }
+        $se = sqrt(($ss_res / ($n - 2)) / $sxx);
+        $t  = abs($slope / $se);
+
+        // Valores críticos t_{df, 0.95} (bilateral α = 0.10) — lookup + interpolación lineal
+        static $t_tab = [
+            1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
+            6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
+            11 => 1.796, 12 => 1.782, 13 => 1.771, 14 => 1.761, 15 => 1.753,
+            16 => 1.746, 17 => 1.740, 18 => 1.734, 19 => 1.729, 20 => 1.725,
+            25 => 1.708, 30 => 1.697, 40 => 1.684, 60 => 1.671, 120 => 1.658,
+        ];
+        $df = $n - 2;
+        if ($df > 120) {
+            $t_crit = 1.645;
+        } elseif (isset($t_tab[$df])) {
+            $t_crit = $t_tab[$df];
+        } else {
+            $keys = array_keys($t_tab);
+            $lo = $hi = null;
+            foreach ($keys as $k) {
+                if ($k <= $df) $lo = $k;
+                if ($k >= $df && $hi === null) $hi = $k;
+            }
+            $t_crit = ($lo !== null && $hi !== null && $lo !== $hi)
+                ? $t_tab[$lo] + ($df - $lo) / ($hi - $lo) * ($t_tab[$hi] - $t_tab[$lo])
+                : ($lo !== null ? $t_tab[$lo] : 1.645);
+        }
+        return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($t >= $t_crit ? 0.05 : 0.15)];
+    }
+
+    /**
+     * C7c — Metadatos de artículos para la detección de cruces.
+     * Devuelve [idArticulo => ['nombre' => string, 'tipo' => string, 'familias' => int[]]].
+     */
+    private function _queryMetaC7c(string $ids_str): array
+    {
+        if (empty($ids_str)) return [];
+        $meta = [];
+
+        // Nombre y tipo de venta
+        $smt = $this->db->query(
+            "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($ids_str)"
+        );
+        if ($smt) {
+            while ($r = $smt->fetch_assoc()) {
+                $meta[(int)$r['idArticulo']] = [
+                    'nombre'      => (string)$r['articulo_name'],
+                    'tipo'        => (string)$r['tipo'],
+                    'familias'    => [],   // familia directa del artículo
+                    'familias_n2' => [],   // nivel 2 de la jerarquía
+                    'familias_n1' => [],   // nivel 1 (departamento)
+                ];
+            }
+        }
+
+        // Familia directa + N1/N2 desde la vista de jerarquía (una sola query)
+        $smt = $this->db->query("
+            SELECT af.idArticulo,
+                   vj.idFamilia,
+                   vj.idN1,
+                   vj.idN2
+            FROM   articulosFamilias af
+            JOIN   vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            WHERE  af.idArticulo IN ($ids_str)
+        ");
+        if ($smt) {
+            while ($r = $smt->fetch_assoc()) {
+                $id = (int)$r['idArticulo'];
+                if (!isset($meta[$id])) continue;
+                $meta[$id]['familias'][]    = (int)$r['idFamilia'];
+                if (!empty($r['idN2'])) $meta[$id]['familias_n2'][] = (int)$r['idN2'];
+                if (!empty($r['idN1'])) $meta[$id]['familias_n1'][] = (int)$r['idN1'];
+            }
+        }
+
+        // Deduplica los arrays de jerarquía
+        foreach ($meta as &$m) {
+            $m['familias']    = array_unique($m['familias']);
+            $m['familias_n2'] = array_unique($m['familias_n2']);
+            $m['familias_n1'] = array_unique($m['familias_n1']);
+        }
+        unset($m);
+
+        return $meta;
+    }
+
+    /**
+     * Similitud de Jaccard sobre bolsa de palabras (insensible a mayúsculas).
+     * Devuelve 0.0–1.0; 1.0 = mismas palabras exactas.
+     */
+    private function _jaccardNombre(string $a, string $b): float
+    {
+        $wa = array_filter(preg_split('/\s+/', mb_strtolower($a)));
+        $wb = array_filter(preg_split('/\s+/', mb_strtolower($b)));
+        if (empty($wa) || empty($wb)) return 0.0;
+        $inter = count(array_intersect($wa, $wb));
+        $union = count(array_unique(array_merge($wa, $wb)));
+        return $union > 0 ? $inter / $union : 0.0;
+    }
+
+    /**
+     * C7 — Offset sistemático de inventario.
+     *
+     * Detecta artículos cuyo suelo de stock post-recepción sigue un patrón consistente
+     * a través de 3 o más recepciones en el periodo:
+     *
+     *  · C7b — Offset negativo sistemático: el suelo se estabiliza en un nivel negativo
+     *    y estable (σ/|μ| < 0.5). Señal: el sistema lleva N unidades "de más" registradas
+     *    que no existen físicamente (inventario inicial erróneo o devoluciones no descontadas).
+     *
+     *  · C7a — Merma sistemática no registrada: el suelo sube acumulativamente de recepción
+     *    en recepción (pendiente positiva ≥ 0.5 ud/recepción, acumulado ≥ 2 ud.).
+     *    Señal: merma/caducidad no registrada o ventas no escaneadas sistemáticamente.
+     *
+     * Algoritmo:
+     *  1. Obtener fechas de recepción por artículo; descartar los que tienen < 3.
+     *  2. Construir el timeline de stock (saldo_base + Σ deltas diarios) para los candidatos.
+     *  3. Para cada intervalo [recepción_i, recepción_{i+1}) calcular el mínimo de stock.
+     *  4. Analizar estadísticamente el array de suelos: media, desviación típica, pendiente
+     *     de regresión lineal. Clasificar según los umbrales definidos.
+     *
+     * @param string $fi_mov
+     * @param string $ff_mov
+     * @param string $fi_stock        Inicio ventana stock base (Jan 1 del año del periodo)
+     * @param string $ff_stock        Fin ventana stock base (día anterior al inicio del periodo)
+     * @param array  $familias_incluir
+     * @param array  $familias_excluir
+     * @param array  $ids_filter
+     * @param array  $stock_base_cache  Pre-calculado por getIncidencias si C1/C2 también activos
+     *
+     * @return array  Incidencias detectadas (sin campo 'nombre'; lo añade getIncidencias)
+     */
+    private function getIncidenciasC7(
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        string $ff_stock,
+        array  $familias_incluir,
+        array  $familias_excluir,
+        array  $ids_filter = [],
+        array  $stock_base_cache = [],
+        array  $subcasos = ['C7a', 'C7b']  // subconjunto a emitir; permite activar solo uno
+    ): array {
+        $subcasos_set = array_flip($subcasos);
+        $min_recepciones = 3;
+
+        $fi = $this->db->real_escape_string($fi_mov);
+        $ff = $this->db->real_escape_string($ff_mov);
+        $wf = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $wi = $this->_idsWhere($ids_filter);
+
+        // ── Paso 1: obtener fechas de recepción por artículo ─────────────────
+        $rows_rec = $this->_queryRecepcionesFechasC7($fi, $ff, $wf, $wi);
+        if (isset($rows_rec['error'])) return $rows_rec;
+        if (empty($rows_rec)) return [];
+
+        // Agrupar por artículo; filtrar los que tienen ≥ $min_recepciones fechas distintas
+        $recepciones_map = [];
+        foreach ($rows_rec as $r) {
+            $recepciones_map[(int)$r['idArticulo']][] = $r['fecha'];
+        }
+
+        $candidatos_ids = [];
+        foreach ($recepciones_map as $id => $fechas) {
+            $fechas_unicas = array_values(array_unique($fechas));
+            sort($fechas_unicas);
+            if (count($fechas_unicas) >= $min_recepciones) {
+                $recepciones_map[$id] = $fechas_unicas;
+                $candidatos_ids[]     = $id;
+            } else {
+                unset($recepciones_map[$id]);
+            }
+        }
+
+        if (empty($candidatos_ids)) return [];
+
+        // ── Paso 2: timeline de movimientos para los candidatos ──────────────
+        $ids_str       = implode(',', array_map('intval', $candidatos_ids));
+        $rows_timeline = $this->_queryTimelineMovimientosC7($fi, $ff, $ids_str);
+        if (isset($rows_timeline['error'])) return $rows_timeline;
+
+        // Indexar delta diario por [idArticulo][fecha]
+        $daily_map = [];
+        foreach ($rows_timeline as $r) {
+            $daily_map[(int)$r['idArticulo']][$r['fecha']] = (float)$r['day_delta'];
+        }
+
+        // ── Paso 3: stock base para los candidatos ───────────────────────────
+        $stock_base = empty($stock_base_cache)
+            ? $this->getStockBase($candidatos_ids, $fi_stock, $ff_stock)
+            : $stock_base_cache;
+        if (isset($stock_base['error'])) return $stock_base;
+
+        // ── Paso 4: calcular suelos inter-recepción y detectar patrón ────────
+        $incidencias = [];
+
+        foreach ($candidatos_ids as $id) {
+            $saldo_base = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
+            $fechas_rec = $recepciones_map[$id];
+            $daily      = $daily_map[$id] ?? [];
+            $n_rec      = count($fechas_rec);
+
+            // Construir stock acumulado por fecha dentro del periodo
+            // stock(d) = saldo_base + Σ day_delta desde fi hasta d inclusive
+            $cum_delta     = 0.0;
+            $stock_by_date = [];
+            $all_dates     = array_keys($daily);
+            sort($all_dates);
+            foreach ($all_dates as $d) {
+                $cum_delta    += $daily[$d];
+                $stock_by_date[$d] = $saldo_base + $cum_delta;
+            }
+
+            if (empty($stock_by_date)) continue;   // sin movimientos registrados
+
+            // Calcular suelo (mínimo de stock) para cada intervalo inter-recepción.
+            // El intervalo i cubre [fecha_rec_i, fecha_rec_{i+1}), es decir:
+            //   · incluye el día de la recepción i (post-recepción)
+            //   · excluye el día de la recepción i+1 (se calcula en el intervalo i+1)
+            // El último intervalo va hasta ff_mov (fin del periodo).
+            $floors = [];
+            for ($i = 0; $i < $n_rec; $i++) {
+                $fecha_ini  = $fechas_rec[$i];
+                $fecha_fin  = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null; // null = hasta ff
+
+                $min_floor = null;
+                foreach ($stock_by_date as $d => $stock) {
+                    if ($d < $fecha_ini) continue;
+                    if ($fecha_fin !== null && $d >= $fecha_fin) continue;
+                    if ($min_floor === null || $stock < $min_floor) {
+                        $min_floor = $stock;
+                    }
+                }
+
+                if ($min_floor !== null) {
+                    $floors[] = $min_floor;
+                }
+            }
+
+            $n_floors = count($floors);
+            if ($n_floors < $min_recepciones) continue;   // suelos insuficientes para el análisis
+
+            // Mapa fecha_recepción → suelo (para la validación con periodo común en C7c)
+            $floors_map = [];
+            for ($i = 0; $i < $n_floors; $i++) {
+                $floors_map[$fechas_rec[$i]] = $floors[$i];
+            }
+
+            // ── Estadísticos ─────────────────────────────────────────────────
+            $n    = $n_floors;
+            $mean = array_sum($floors) / $n;
+
+            $variance = 0.0;
+            foreach ($floors as $floor) {
+                $variance += ($floor - $mean) ** 2;
+            }
+            // Desviación típica muestral (n-1)
+            $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
+            $cv      = $mean != 0.0 ? $std_dev / abs($mean) : PHP_FLOAT_MAX;
+
+            // Regresión lineal sobre los suelos (slope, R², p-valor bilateral)
+            $reg   = $this->_regressionStats($floors);
+            $slope = $reg['slope'];
+
+            // ── IC 95 % superior de la media (para filtro C7b) ───────────────
+            // t_{n-1, 0.975}: si el IC superior es < 0, el offset negativo es
+            // estadísticamente significativo al 95 %.
+            static $t_975_tab = [
+                1 => 12.706, 2 => 4.303, 3 => 3.182, 4 => 2.776, 5 => 2.571,
+                6 => 2.447,  7 => 2.365, 8 => 2.306, 9 => 2.262, 10 => 2.228,
+                15 => 2.131, 20 => 2.086, 30 => 2.042, 60 => 2.000, 120 => 1.980,
+            ];
+            $df_ic = $n - 1;
+            if ($df_ic > 120) {
+                $t_975 = 1.960;
+            } elseif (isset($t_975_tab[$df_ic])) {
+                $t_975 = $t_975_tab[$df_ic];
+            } else {
+                $keys_ic = array_keys($t_975_tab);
+                $lo_ic = $hi_ic = null;
+                foreach ($keys_ic as $k) {
+                    if ($k <= $df_ic) $lo_ic = $k;
+                    if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
+                }
+                $t_975 = ($lo_ic !== null && $hi_ic !== null && $lo_ic !== $hi_ic)
+                    ? $t_975_tab[$lo_ic] + ($df_ic - $lo_ic) / ($hi_ic - $lo_ic) * ($t_975_tab[$hi_ic] - $t_975_tab[$lo_ic])
+                    : ($lo_ic !== null ? $t_975_tab[$lo_ic] : 1.960);
+            }
+            $ic95_upper = $mean + $t_975 * ($std_dev / sqrt($n));
+
+            // IQR de los suelos (Q3 − Q1) para el filtro de estabilidad de C7b
+            $sf = $floors; sort($sf);
+            $q1_idx = (int)floor(($n - 1) * 0.25);
+            $q3_idx = (int)ceil(($n - 1) * 0.75);
+            $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
+
+            // ── Clasificación ────────────────────────────────────────────────
+
+            // C7b — offset negativo sistemático
+            // · IC 95 % superior de la media < 0 (offset negativo estadísticamente significativo)
+            // · CV < 0.5: patrón estable
+            // · IQR < 1.5 × |media|: sin outliers que dominen la dispersión
+            if (isset($subcasos_set['C7b']) && $ic95_upper < 0 && $cv < 0.5 && $iqr < 1.5 * abs($mean)) {
+                $severidad = abs($mean) >= 2.0 ? 'ALTA' : 'MEDIA';
+                $incidencias[] = [
+                    'idArticulo'      => $id,
+                    'tipo'            => 'Recepción no registrada (C7b)',
+                    'severidad'       => $severidad,
+                    'c7_subcaso'      => 'C7b',
+                    'n_recepciones'   => $n_rec,
+                    'offset_estimado' => round($mean, 2),
+                    'dispersion'      => round($std_dev, 2),
+                    'fecha_primera'   => $fechas_rec[0],
+                    'fecha_ultima'    => $fechas_rec[$n_rec - 1],
+                    '_floors_raw'     => $floors_map,   // temporal; se elimina al final
+                    'posible_causa'   => sprintf(
+                        'Registrar la entrada omitida (~%d ud.). ¿Proveedor que entrega sin albarán o devolución a proveedor no descontada?',
+                        (int)round(abs($mean))
+                    ),
+                ];
+                continue;
+            }
+
+            // C7a — merma sistemática no registrada (suelos positivos en alza)
+            // · Suelo medio ≥ 0 (no hay negativos sistemáticos: el caso C7b ya los cubre)
+            // · Pendiente ≥ 0.5 ud/recepción, estadísticamente significativa (p < 0.10)
+            // · R² ≥ 0.40: la tendencia lineal explica la mayor parte de la varianza
+            // · Variación total significativa (suelo final − suelo inicial ≥ 2 ud.)
+            $delta_total = $floors[$n - 1] - $floors[0];
+            if (isset($subcasos_set['C7a'])
+                && $mean >= 0
+                && $slope >= 0.5
+                && $reg['p_value'] < 0.10
+                && $reg['r2']     >= 0.40
+                && $delta_total >= 2.0
+            ) {
+                $severidad = $slope >= 1.5 ? 'ALTA' : 'MEDIA';
+                $incidencias[] = [
+                    'idArticulo'      => $id,
+                    'tipo'            => 'Merma no registrada (C7a)',
+                    'severidad'       => $severidad,
+                    'c7_subcaso'      => 'C7a',
+                    'n_recepciones'   => $n_rec,
+                    'offset_estimado' => round($mean, 2),
+                    'dispersion'      => round($std_dev, 2),
+                    'tendencia'       => round($slope, 2),
+                    'fecha_primera'   => $fechas_rec[0],
+                    'fecha_ultima'    => $fechas_rec[$n_rec - 1],
+                    '_floors_raw'     => $floors_map,   // temporal; se elimina al final
+                    'posible_causa'   => sprintf(
+                        'Crear albarán de merma por ~%.0f ud. acumuladas. ¿Caducidad o rotura no registrada? ¿Devolución de cliente reintegrada al stock?',
+                        $delta_total
+                    ),
+                ];
+            }
+        }
+
+        // ── C7c: detección de cruces entre artículos (C7a + C7b activos) ─────
+        // Se ejecuta solo cuando ambos subcasos están activos (sin checkbox propio).
+        //
+        // Hipótesis: un cajero confunde artículo A (C7a, merma aparente) con
+        // artículo B (C7b, déficit sistemático) al pesar en la balanza. Los offsets
+        // de A (positivos) y B (negativos) se cancelan: μ_A + μ_B ≈ 0.
+        //
+        // Filtros rígidos:
+        //   · Mismo departamento N1 (distinto → imposible físicamente)
+        //   · |μ_A + μ_B| / max(|μ_A|, |μ_B|) ≤ 0.45 (los offsets se cancelan, relativo)
+        //   · ≥ 4 pares temporalmente solapados (±7 días)
+        //   · CV < 0.70 en ambos (patrón regular)
+        //   · Pearson ≥ 0.50 si n ≥ 4 (covarianza de los valores absolutos)
+        //
+        // Score = 0.50 × s_mag + 0.25 × correlación + 0.15 × s_disp + 0.10 × s_nombre
+        //   · s_mag  = 1 − |μ_A + μ_B| / max(|μ_A|, |μ_B|)
+        //   · s_disp = 1 − |log(σ_A / σ_B)| / 2  (similitud de dispersiones)
+        //   · s_nombre: Jaccard sobre nombres
+        //
+        // Niveles: confirmado ≥ 0.80 | probable ≥ 0.65 | posible ≥ 0.50
+        if (isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
+
+            // Indexar C7b con sus floors por fecha
+            $c7b_data = [];
+            foreach ($incidencias as $inc) {
+                if ($inc['c7_subcaso'] !== 'C7b') continue;
+                $c7b_data[$inc['idArticulo']] = [
+                    'floors_raw' => $inc['_floors_raw'],
+                ];
+            }
+
+            // Meta (nombre, familias N1) de todos los artículos C7 — una sola query
+            $ids_c7   = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $meta_c7c = $this->_queryMetaC7c($ids_c7);
+
+            $cruces = [];   // id_c7a => ['id_b' => int, 'score' => float, 'nivel' => string]
+
+            foreach ($incidencias as &$inc) {
+                if ($inc['c7_subcaso'] !== 'C7a') continue;
+
+                $mejor_score = 0.0;
+                $mejor_id    = null;
+                $mejor_nivel = '';
+
+                $n1_a = $meta_c7c[$inc['idArticulo']]['familias_n1'] ?? [];
+
+                foreach ($c7b_data as $id_b => $cb) {
+
+                    // ── 1. Filtro duro N1: mismo departamento ────────────────────────
+                    $n1_b = $meta_c7c[$id_b]['familias_n1'] ?? [];
+                    if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
+
+                    // ── 2. Emparejar suelos por fecha más próxima (±7 días) ──────────
+                    // pairs_b guarda el valor negativo original del C7b
+                    $pairs_a = [];
+                    $pairs_b = [];
+                    $ventana  = 7 * 86400;
+                    foreach ($inc['_floors_raw'] as $da => $va) {
+                        $ts_a      = strtotime($da);
+                        $best_diff = $ventana + 1;
+                        $best_vb   = null;
+                        foreach ($cb['floors_raw'] as $db => $vb) {
+                            $diff = abs($ts_a - strtotime($db));
+                            if ($diff <= $ventana && $diff < $best_diff) {
+                                $best_diff = $diff;
+                                $best_vb   = $vb;
+                            }
+                        }
+                        if ($best_vb !== null) {
+                            $pairs_a[] = $va;
+                            $pairs_b[] = $best_vb;   // valor negativo del C7b
+                        }
+                    }
+
+                    $n_pairs = count($pairs_a);
+                    if ($n_pairs < 4) continue;   // mínimo 4 pares solapados
+
+                    [$mu_a, $sd_a] = $this->_statsFloors($pairs_a);
+                    [$mu_b, $sd_b] = $this->_statsFloors($pairs_b);   // mu_b < 0
+
+                    if ($mu_a < 1.5 || abs($mu_b) < 1.5) continue;   // offset pequeño → falsos positivos
+
+                    // ── 3. Filtros rígidos ───────────────────────────────────────────
+                    // 3a. |μ_A + μ_B| / max(|μ_A|, |μ_B|) ≤ 0.45: los offsets se cancelan
+                    // (filtro relativo para que escale con la magnitud de los artículos)
+                    $suma_mu     = abs($mu_a + $mu_b);
+                    $suma_mu_rel = $suma_mu / max(abs($mu_a), abs($mu_b));
+                    if ($suma_mu_rel > 0.45) continue;
+
+                    // 3b. CV < 0.70 en ambos
+                    $cv_a = ($mu_a > 0.0) ? $sd_a / $mu_a : PHP_FLOAT_MAX;
+                    $cv_b = (abs($mu_b) > 0.0) ? $sd_b / abs($mu_b) : PHP_FLOAT_MAX;
+                    if ($cv_a > 0.70 || $cv_b > 0.70) continue;
+
+                    // ── 4. Correlación de Pearson (en valor absoluto) ────────────────
+                    $pairs_b_abs = array_map('abs', $pairs_b);
+                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($pairs_a, $pairs_b_abs) : 0.5;
+                    if ($n_pairs >= 4 && $corr < 0.50) continue;
+
+                    // ── 5. Score compuesto ───────────────────────────────────────────
+                    $s_mag  = 1.0 - $suma_mu_rel;   // ya normalizado por max(|μ|)
+                    $s_corr = max(0.0, (float)$corr);
+                    $s_disp = ($sd_a > 0.0 && $sd_b > 0.0)
+                        ? max(0.0, 1.0 - abs(log($sd_a / $sd_b)) / 2.0)
+                        : 0.5;
+                    $s_nombre = $this->_jaccardNombre(
+                        $meta_c7c[$inc['idArticulo']]['nombre'] ?? '',
+                        $meta_c7c[$id_b]['nombre'] ?? ''
+                    );
+
+                    $score = $s_mag    * 0.50
+                           + $s_corr   * 0.25
+                           + $s_disp   * 0.15
+                           + $s_nombre * 0.10;
+
+                    if ($score < 0.50) continue;
+                    $nivel = ($score >= 0.80) ? 'confirmado'
+                           : (($score >= 0.65) ? 'probable' : 'posible');
+
+                    if ($score > $mejor_score) {
+                        $mejor_score = $score;
+                        $mejor_id    = $id_b;
+                        $mejor_nivel = $nivel;
+                    }
+                }
+
+                if ($mejor_id !== null) {
+                    $inc['posible_cruce_con'] = $mejor_id;
+                    $inc['cruce_score']       = round($mejor_score, 2);
+                    $inc['cruce_nivel']       = $mejor_nivel;
+                    $cruces[$inc['idArticulo']] = [
+                        'id_b'  => $mejor_id,
+                        'score' => round($mejor_score, 2),
+                        'nivel' => $mejor_nivel,
+                    ];
+                    $inc['posible_causa'] = sprintf(
+                        'Crear albarán de merma — cruce %s con artículo %d (score=%.2f; posible error en balanza de autopesaje).',
+                        $mejor_nivel, $mejor_id, $mejor_score
+                    );
+                }
+            }
+            unset($inc);
+
+            // Propagar estado de cruce al lado C7b
+            if (!empty($cruces)) {
+                $c7b_cruce = [];   // id_c7b => [id_a, score, nivel] del mejor candidato C7a
+                foreach ($cruces as $id_a => $data) {
+                    $id_b = $data['id_b'];
+                    if (!isset($c7b_cruce[$id_b]) || $data['score'] > $c7b_cruce[$id_b]['score']) {
+                        $c7b_cruce[$id_b] = ['id_a' => $id_a, 'score' => $data['score'], 'nivel' => $data['nivel']];
+                    }
+                }
+                foreach ($incidencias as &$inc) {
+                    if ($inc['c7_subcaso'] !== 'C7b') continue;
+                    if (!isset($c7b_cruce[$inc['idArticulo']])) continue;
+                    $id_a  = $c7b_cruce[$inc['idArticulo']]['id_a'];
+                    $score = $c7b_cruce[$inc['idArticulo']]['score'];
+                    $nivel = $c7b_cruce[$inc['idArticulo']]['nivel'];
+                    $inc['posible_cruce_con'] = $id_a;
+                    $inc['cruce_score']       = $score;
+                    $inc['cruce_nivel']       = $nivel;
+                    $inc['posible_causa'] = sprintf(
+                        'Verificar cruce %s con artículo %d (score=%.2f; posible error en balanza de autopesaje). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
+                        $nivel, $id_a, $score, abs((float)$inc['offset_estimado'])
+                    );
+                }
+                unset($inc);
+            }
+        }
+
+        // Nota: _floors_raw NO se elimina aquí; lo hace getIncidenciasC7d
+        // para que pueda acceder a los suelos en la detección de tríos.
+        return $incidencias;
+    }
+
+    /**
+     * C7d — Detección de tríos: dos artículos con déficit (C7b) explican
+     * la merma de un tercer artículo (C7a).
+     *
+     * Hipótesis: μ_A + μ_B ≈ μ_C  (los déficits de A y B cancelan la merma de C).
+     *
+     * Criterios:
+     *   · |μ_C − (μ_A + μ_B)| ≤ 0.5 ud  (suma casi exacta)
+     *   · max(σ_A, σ_B, σ_C) / min(...) ≤ 2.0  (variabilidades similares)
+     *   · Pearson(suma_AB, merma_C) ≥ 0.7
+     *   · ≥ 6 triples solapados (ancla = intervalo de C, ±7 días para A y B)
+     *   · Score = s_mag×0.60 + correlación×0.40; probable ≥ 0.75, posible ≥ 0.50
+     *
+     * Solo sustituye el match de C7c-par si el score del trío es estrictamente mayor.
+     * Complejidad: O(N_c7a × N_c7b² × N_floors) — aceptable para N_c7b ≲ 100.
+     *
+     * Borra _floors_raw de todas las incidencias al finalizar.
+     *
+     * @param array &$incidencias  Incidencias C7 (con _floors_raw presentes).
+     */
+    private function getIncidenciasC7d(array &$incidencias): void
+    {
+        // Activar solo si hay al menos un C7a y un C7b en esta pasada
+        $has_c7a = $has_c7b = false;
+        foreach ($incidencias as $inc) {
+            if ($inc['c7_subcaso'] === 'C7a') $has_c7a = true;
+            if ($inc['c7_subcaso'] === 'C7b') $has_c7b = true;
+            if ($has_c7a && $has_c7b) break;
+        }
+
+        if ($has_c7a && $has_c7b) {
+
+            // Indexar C7b (reutiliza la misma estructura que C7c)
+            $c7b_data = [];
+            foreach ($incidencias as $inc) {
+                if ($inc['c7_subcaso'] !== 'C7b') continue;
+                $c7b_data[$inc['idArticulo']] = ['floors_raw' => $inc['_floors_raw']];
+            }
+
+            $c7b_ids = array_keys($c7b_data);
+            $n_c7b   = count($c7b_ids);
+            $trios   = [];   // id_c7a => ['id_a', 'id_b', 'score', 'nivel']
+
+            foreach ($incidencias as &$inc) {
+                if ($inc['c7_subcaso'] !== 'C7a') continue;
+
+                // Superar el score del par (si C7c ya encontró algo)
+                $mejor_score = isset($inc['cruce_score']) ? (float)$inc['cruce_score'] : 0.0;
+                $mejor_trio  = null;
+
+                for ($i = 0; $i < $n_c7b - 1; $i++) {
+                    $id_a = $c7b_ids[$i];
+                    $ca   = $c7b_data[$id_a];
+
+                    for ($j = $i + 1; $j < $n_c7b; $j++) {
+                        $id_b = $c7b_ids[$j];
+                        $cb   = $c7b_data[$id_b];
+
+                        // Construir triples (ancla en cada intervalo de C, ±7 días)
+                        $triples_c  = [];
+                        $triples_a  = [];
+                        $triples_b  = [];
+                        $triples_ab = [];
+                        $ventana     = 7 * 86400;
+
+                        foreach ($inc['_floors_raw'] as $dc => $vc) {
+                            $ts_c = strtotime($dc);
+
+                            $best_va = null; $best_diff_a = $ventana + 1;
+                            foreach ($ca['floors_raw'] as $da => $va) {
+                                $diff = abs($ts_c - strtotime($da));
+                                if ($diff <= $ventana && $diff < $best_diff_a) {
+                                    $best_diff_a = $diff; $best_va = $va;
+                                }
+                            }
+                            $best_vb = null; $best_diff_b = $ventana + 1;
+                            foreach ($cb['floors_raw'] as $db => $vb) {
+                                $diff = abs($ts_c - strtotime($db));
+                                if ($diff <= $ventana && $diff < $best_diff_b) {
+                                    $best_diff_b = $diff; $best_vb = $vb;
+                                }
+                            }
+                            if ($best_va !== null && $best_vb !== null) {
+                                $triples_c[]  = $vc;
+                                $triples_a[]  = abs($best_va);
+                                $triples_b[]  = abs($best_vb);
+                                $triples_ab[] = abs($best_va) + abs($best_vb);
+                            }
+                        }
+
+                        if (count($triples_c) < 6) continue;
+
+                        [$mu_c,  $sd_c]  = $this->_statsFloors($triples_c);
+                        [$mu_ab        ] = $this->_statsFloors($triples_ab);
+                        [,       $sd_a_t] = $this->_statsFloors($triples_a);
+                        [,       $sd_b_t] = $this->_statsFloors($triples_b);
+
+                        if ($mu_c < 1.5 || $mu_ab < 1.5) continue;
+
+                        // Criterio 1: |μ_C − (μ_A + μ_B)| ≤ 0.5 ud
+                        $suma_neta = abs($mu_c - $mu_ab);
+                        if ($suma_neta > 0.5) continue;
+
+                        // Criterio 2: ratio dispersiones individuales ≤ 2.0
+                        $sds = array_filter([$sd_a_t, $sd_b_t, $sd_c], fn($s) => $s > 0.0);
+                        if (!empty($sds) && max($sds) / min($sds) > 2.0) continue;
+
+                        // Criterio 3: Pearson(suma_AB, merma_C) ≥ 0.7
+                        $corr = $this->_pearsonCorr($triples_ab, $triples_c);
+                        if ($corr < 0.7) continue;
+
+                        // Score: magnitud (60 %) + correlación (40 %)
+                        $s_mag = max(0.0, 1.0 - $suma_neta / max(0.5, $mu_c));
+                        $score = $s_mag * 0.60 + max(0.0, $corr) * 0.40;
+                        $nivel = ($score >= 0.75) ? 'probable' : 'posible';
+
+                        if ($score > $mejor_score) {
+                            $mejor_score = $score;
+                            $mejor_trio  = [
+                                'id_a'  => $id_a,
+                                'id_b'  => $id_b,
+                                'score' => round($score, 2),
+                                'nivel' => $nivel,
+                            ];
+                        }
+                    }
+                }
+
+                if ($mejor_trio !== null) {
+                    $inc['posible_cruce_con'] = $mejor_trio['id_a'];
+                    $inc['cruce_fuente_b']    = $mejor_trio['id_b'];
+                    $inc['cruce_tipo']        = 'trio';
+                    $inc['cruce_score']       = $mejor_trio['score'];
+                    $inc['cruce_nivel']       = $mejor_trio['nivel'];
+                    $trios[$inc['idArticulo']] = $mejor_trio;
+                    $inc['posible_causa'] = sprintf(
+                        'Crear albarán de merma — trío %s: artículos %d y %d escaneados como este producto (score=%.2f; posible error en balanza de autopesaje).',
+                        $mejor_trio['nivel'], $mejor_trio['id_a'], $mejor_trio['id_b'], $mejor_trio['score']
+                    );
+                }
+            }
+            unset($inc);
+
+            // Propagar a los dos artículos C7b fuente
+            foreach ($trios as $id_c => $trio) {
+                foreach ($incidencias as &$inc) {
+                    if ($inc['c7_subcaso'] !== 'C7b') continue;
+                    $id_inc = $inc['idArticulo'];
+                    if ($id_inc !== $trio['id_a'] && $id_inc !== $trio['id_b']) continue;
+                    $otro = ($id_inc === $trio['id_a']) ? $trio['id_b'] : $trio['id_a'];
+                    $inc['posible_cruce_con'] = $id_c;
+                    $inc['cruce_fuente_b']    = $otro;
+                    $inc['cruce_tipo']        = 'trio';
+                    $inc['cruce_score']       = $trio['score'];
+                    $inc['cruce_nivel']       = $trio['nivel'];
+                    $inc['posible_causa'] = sprintf(
+                        'Verificar trío %s: este artículo y art. %d podrían estar siendo escaneados como art. %d (score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
+                        $trio['nivel'], $otro, $id_c, $trio['score'], abs((float)$inc['offset_estimado'])
+                    );
+                }
+                unset($inc);
+            }
+        }
+
+        // Eliminar campo interno _floors_raw antes de devolver
+        foreach ($incidencias as &$inc) {
+            unset($inc['_floors_raw']);
+        }
+        unset($inc);
+    }
+
+    /**
+     * C7e — Pérdidas fantasma por múltiplos: k unidades de A escaneadas como 1 de B
+     * (o 1 de A como k de B), con k ∈ {2, 3, 4, 5}.
+     *
+     * Extensión de C7c para ratios k ≠ 1. Mientras C7c exige |μ_A + μ_B| ≤ 0.40,
+     * C7e busca pares donde |μ_A| ≈ k × |μ_B| (dir A_por_B) o |μ_B| ≈ k × |μ_A|
+     * (dir B_por_A), con k entero dentro del 20 % de tolerancia relativa.
+     *
+     * Casos típicos:
+     *   · 2 barras de pan (A) cobradas como 1 paquete (B): k=2, dir=A_por_B
+     *   · 1 kg de fruta (A) cobrado como 2 bandejas (B):  k=2, dir=B_por_A
+     *
+     * Criterios:
+     *   · Mismo departamento N1 (filtro duro)
+     *   · ≥ 5 pares solapados (±7 días)
+     *   · Tolerancia: |k_raw − k| / k ≤ 0.20
+     *   · Magnitud escalada: |μ_A + k×μ_B| ≤ 0.4×k  (dir A_por_B)
+     *     o              |k×μ_A + μ_B| ≤ 0.4×k  (dir B_por_A)
+     *   · Ratio de varianzas escaladas k²×σ²_A/σ²_B ∈ [0.5, 2]
+     *   · CV < 0.70 en ambos
+     *   · Pearson ≥ 0.50 sobre pares escalados (si n ≥ 4)
+     *   · Score = 0.40×s_mag + 0.30×s_corr + 0.20×s_disp + 0.10×s_nombre
+     *   · Solo anota si el score supera el match previo (C7c u otro C7e)
+     *
+     * Debe llamarse ANTES de getIncidenciasC7d (que borra _floors_raw).
+     *
+     * @param array &$incidencias  Incidencias C7 con _floors_raw presentes.
+     */
+    private function getIncidenciasC7e(array &$incidencias): void
+    {
+        $has_c7a = $has_c7b = false;
+        foreach ($incidencias as $inc) {
+            if ($inc['c7_subcaso'] === 'C7a') $has_c7a = true;
+            if ($inc['c7_subcaso'] === 'C7b') $has_c7b = true;
+            if ($has_c7a && $has_c7b) break;
+        }
+        if (!$has_c7a || !$has_c7b) return;
+
+        // Indexar C7b con sus floors por fecha
+        $c7b_data = [];
+        foreach ($incidencias as $inc) {
+            if ($inc['c7_subcaso'] !== 'C7b') continue;
+            $c7b_data[$inc['idArticulo']] = ['floors_raw' => $inc['_floors_raw']];
+        }
+
+        $ids_c7 = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+        $meta   = $this->_queryMetaC7c($ids_c7);
+
+        $cruces_e = [];   // id_c7a => ['id_b', 'score', 'nivel', 'k', 'dir']
+
+        foreach ($incidencias as &$inc) {
+            if ($inc['c7_subcaso'] !== 'C7a') continue;
+
+            // Solo anotar si se supera el score previo (C7c u otro C7e)
+            $mejor_score = $inc['cruce_score'] ?? 0.0;
+            $mejor_id    = null;
+            $mejor_nivel = '';
+            $mejor_k     = 0;
+            $mejor_dir   = '';
+
+            $n1_a = $meta[$inc['idArticulo']]['familias_n1'] ?? [];
+
+            foreach ($c7b_data as $id_b => $cb) {
+
+                // ── Filtro duro N1 ────────────────────────────────────────────
+                $n1_b = $meta[$id_b]['familias_n1'] ?? [];
+                if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
+
+                // ── Emparejamiento temporal ±7 días ───────────────────────────
+                $pairs_a = []; $pairs_b = [];
+                $ventana  = 7 * 86400;
+                foreach ($inc['_floors_raw'] as $da => $va) {
+                    $ts_a = strtotime($da);
+                    $best_diff = $ventana + 1; $best_vb = null;
+                    foreach ($cb['floors_raw'] as $db => $vb) {
+                        $diff = abs($ts_a - strtotime($db));
+                        if ($diff <= $ventana && $diff < $best_diff) {
+                            $best_diff = $diff;
+                            $best_vb   = $vb;
+                        }
+                    }
+                    if ($best_vb !== null) { $pairs_a[] = $va; $pairs_b[] = $best_vb; }
+                }
+
+                $n_pairs = count($pairs_a);
+                if ($n_pairs < 5) continue;
+
+                [$mu_a, $sd_a] = $this->_statsFloors($pairs_a);
+                [$mu_b, $sd_b] = $this->_statsFloors($pairs_b);   // mu_b < 0
+
+                if ($mu_a < 1.5 || abs($mu_b) < 1.5) continue;
+
+                // ── Determinar k y dirección ──────────────────────────────────
+                $k_raw = $mu_a / abs($mu_b);   // > 0
+
+                if ($k_raw >= 1.4) {
+                    $k   = (int)round($k_raw);
+                    $dir = 'A_por_B';   // k unidades de A por 1 de B
+                } elseif ($k_raw <= 0.71) {
+                    $k   = (int)round(1.0 / $k_raw);
+                    $dir = 'B_por_A';   // 1 unidad de A por k de B
+                } else {
+                    continue;   // k ≈ 1: cubierto por C7c
+                }
+
+                if ($k < 2 || $k > 5) continue;
+
+                // Tolerancia relativa ≤ 20 %
+                $k_real  = ($dir === 'A_por_B') ? $k_raw : (1.0 / $k_raw);
+                if (abs($k_real - $k) / $k > 0.20) continue;
+
+                // ── Magnitud escalada ─────────────────────────────────────────
+                $eps = 0.4 * $k;
+                $suma_scaled = ($dir === 'A_por_B')
+                    ? abs($mu_a + $k * $mu_b)    // μ_A + k×μ_B ≈ 0 (μ_b < 0)
+                    : abs($k * $mu_a + $mu_b);   // k×μ_A + μ_B ≈ 0 (μ_b < 0)
+                if ($suma_scaled > $eps) continue;
+
+                // ── CV ────────────────────────────────────────────────────────
+                $cv_a = ($mu_a > 0.0) ? $sd_a / $mu_a : PHP_FLOAT_MAX;
+                $cv_b = (abs($mu_b) > 0.0) ? $sd_b / abs($mu_b) : PHP_FLOAT_MAX;
+                if ($cv_a > 0.70 || $cv_b > 0.70) continue;
+
+                // ── Ratio de varianzas escaladas k²×Var_A/Var_B ∈ [0.5, 2] ──
+                $var_ratio = 1.0;
+                if ($sd_a > 0.0 && $sd_b > 0.0) {
+                    $var_ratio = ($dir === 'A_por_B')
+                        ? ($k * $k * $sd_a * $sd_a) / ($sd_b * $sd_b)
+                        : ($sd_a * $sd_a) / ($k * $k * $sd_b * $sd_b);
+                    if ($var_ratio < 0.5 || $var_ratio > 2.0) continue;
+                }
+
+                // ── Pearson sobre pares escalados ─────────────────────────────
+                if ($dir === 'A_por_B') {
+                    $scaled_b = array_map(fn($v) => $k * abs($v), $pairs_b);
+                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($pairs_a, $scaled_b) : 0.5;
+                } else {
+                    $scaled_a = array_map(fn($v) => $k * $v, $pairs_a);
+                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($scaled_a, array_map('abs', $pairs_b)) : 0.5;
+                }
+                if ($n_pairs >= 4 && $corr < 0.50) continue;
+
+                // ── Score ─────────────────────────────────────────────────────
+                $s_mag    = max(0.0, 1.0 - $suma_scaled / $eps);
+                $s_corr   = max(0.0, (float)$corr);
+                $s_disp   = max(0.0, 1.0 - abs(log(sqrt($var_ratio))) / 2.0);
+                $s_nombre = $this->_jaccardNombre(
+                    $meta[$inc['idArticulo']]['nombre'] ?? '',
+                    $meta[$id_b]['nombre'] ?? ''
+                );
+                $score = $s_mag * 0.40 + $s_corr * 0.30 + $s_disp * 0.20 + $s_nombre * 0.10;
+
+                if ($score < 0.50) continue;
+                $nivel = ($score >= 0.85) ? 'confirmado' : (($score >= 0.70) ? 'probable' : 'posible');
+
+                if ($score > $mejor_score) {
+                    $mejor_score = $score;
+                    $mejor_id    = $id_b;
+                    $mejor_nivel = $nivel;
+                    $mejor_k     = $k;
+                    $mejor_dir   = $dir;
+                }
+            }
+
+            if ($mejor_id !== null) {
+                $causa = ($mejor_dir === 'A_por_B')
+                    ? sprintf(
+                        'Pérdida fantasma (C7e) — %d uds. de este art. escaneadas como 1 ud. de art. %d (ratio k=%d, score=%.2f; balanza autopesaje).',
+                        $mejor_k, $mejor_id, $mejor_k, $mejor_score
+                    )
+                    : sprintf(
+                        'Pérdida fantasma (C7e) — 1 ud. de este art. escaneada como %d uds. de art. %d (ratio k=%d, score=%.2f; balanza autopesaje).',
+                        $mejor_k, $mejor_id, $mejor_k, $mejor_score
+                    );
+
+                $inc['posible_cruce_con'] = $mejor_id;
+                $inc['cruce_score']       = round($mejor_score, 2);
+                $inc['cruce_nivel']       = $mejor_nivel;
+                $inc['cruce_tipo']        = 'multiplo';
+                $inc['cruce_ratio_k']     = $mejor_k;
+                $inc['cruce_ratio_dir']   = $mejor_dir;
+                $inc['posible_causa']     = $causa;
+                $cruces_e[$inc['idArticulo']] = [
+                    'id_b'  => $mejor_id,
+                    'score' => round($mejor_score, 2),
+                    'nivel' => $mejor_nivel,
+                    'k'     => $mejor_k,
+                    'dir'   => $mejor_dir,
+                ];
+            }
+        }
+        unset($inc);
+
+        // Propagar al lado C7b (solo si mejora el match actual)
+        if (!empty($cruces_e)) {
+            $c7b_cruce = [];
+            foreach ($cruces_e as $id_a => $data) {
+                $id_b = $data['id_b'];
+                if (!isset($c7b_cruce[$id_b]) || $data['score'] > $c7b_cruce[$id_b]['score']) {
+                    $c7b_cruce[$id_b] = ['id_a' => $id_a] + $data;
+                }
+            }
+            foreach ($incidencias as &$inc) {
+                if ($inc['c7_subcaso'] !== 'C7b') continue;
+                if (!isset($c7b_cruce[$inc['idArticulo']])) continue;
+                $data = $c7b_cruce[$inc['idArticulo']];
+                if (isset($inc['cruce_score']) && $data['score'] <= $inc['cruce_score']) continue;
+
+                $k    = $data['k'];
+                $dir  = $data['dir'];
+                $id_a = $data['id_a'];
+
+                $causa_b = ($dir === 'A_por_B')
+                    ? sprintf(
+                        'Pérdida fantasma (C7e) — %d uds. de art. %d escaneadas como 1 ud. de este art. (ratio k=%d, score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
+                        $k, $id_a, $k, $data['score'], abs((float)$inc['offset_estimado'])
+                    )
+                    : sprintf(
+                        'Pérdida fantasma (C7e) — 1 ud. de art. %d escaneada como %d uds. de este art. (ratio k=%d, score=%.2f). Si no hay cruce, registrar recepciones omitidas (~%.0f ud.).',
+                        $id_a, $k, $k, $data['score'], abs((float)$inc['offset_estimado'])
+                    );
+
+                $inc['posible_cruce_con'] = $id_a;
+                $inc['cruce_score']       = $data['score'];
+                $inc['cruce_nivel']       = $data['nivel'];
+                $inc['cruce_tipo']        = 'multiplo';
+                $inc['cruce_ratio_k']     = $k;
+                $inc['cruce_ratio_dir']   = $dir;
+                $inc['posible_causa']     = $causa_b;
+            }
+            unset($inc);
+        }
     }
 
     /**
