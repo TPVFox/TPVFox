@@ -25,9 +25,16 @@ $hoy_ts  = mktime(0, 0, 0, (int)date('m'), (int)date('d'), (int)date('Y'));
 $limite_ts = ($ventana_dias > 0) ? $hoy_ts - ($ventana_dias * 86400) : null;
 
 $periodos = [];
+$anio_actual = (int)date('Y');
 for ($n = 1; $n <= $total_periodos; $n++) {
     $p = calcularPeriodoPosstock($tipo, $n, $anio);
     if ($p === null) continue;
+
+    // Para el año en curso omitir periodos que aún no han comenzado
+    if ($anio === $anio_actual) {
+        $fi_ts = strtotime($p['fecha_inicio_movimientos']);
+        if ($fi_ts !== false && $fi_ts > $hoy_ts) break; // periodos son consecutivos
+    }
 
     $en_ventana = false;
     if ($limite_ts !== null) {

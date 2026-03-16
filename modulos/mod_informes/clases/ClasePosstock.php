@@ -77,10 +77,10 @@ class ClasePosstock
     // Tipos de artículo considerados físicos (confirmar en BD si se añaden nuevos tipos)
     const TIPOS_FISICOS = "'unidad', 'peso'";
 
-    // Antigüedad máxima de la vinculación artículo-proveedor (fechaActualizacion).
-    // Relaciones no actualizadas en más de este número de años se consideran obsoletas
-    // y se excluyen del filtro de proveedor en POSStock.
-    const PROV_MAX_ANTIGUEDAD_ANOS = 2;
+    // Umbral de stock negativo a partir del cual C6 reconstruye el stock
+    // desde la última entrada de proveedor (más fiable que el stockOn acumulado).
+    const STOCK_NEGATIVO_UMBRAL = -2.0;
+
 
     public function __construct($conexion)
     {
@@ -937,23 +937,17 @@ class ClasePosstock
     }
 
     /**
-     * Proveedor — idArticulo vinculados a los proveedores indicados.
-     * Usa articulosProveedores (estado Activo, fechaActualizacion dentro de PROV_MAX_ANTIGUEDAD_ANOS
-     * años antes de $ff_mov para que el corte sea coherente con el periodo de análisis).
+     * Proveedor — idArticulo vinculados a los proveedores indicados (estado Activo).
      *
      * @param  string $ids_prov  IN-clause de idProveedor ya preparado
-     * @param  string $ff_mov    Fecha fin del periodo de análisis ('YYYY-MM-DD')
      * @return array  Filas raw (idArticulo) o ['error' => ...]
      */
-    private function _queryIdsArticulosByProveedores(string $ids_prov, string $ff_mov): array
+    private function _queryIdsArticulosByProveedores(string $ids_prov): array
     {
-        $ff   = $this->db->real_escape_string($ff_mov);
-        $anos = self::PROV_MAX_ANTIGUEDAD_ANOS;
         $smt = $this->db->query(
             "SELECT DISTINCT idArticulo FROM articulosProveedores
              WHERE idProveedor IN ($ids_prov)
-               AND estado = 'Activo'
-               AND fechaActualizacion >= DATE_SUB('$ff', INTERVAL $anos YEAR)"
+               AND estado = 'Activo'"
         );
         if (!$smt) return ['error' => $this->db->error];
         $rows = [];
@@ -965,15 +959,11 @@ class ClasePosstock
      * Paginación de artículos de un proveedor sin filtro de actividad en el periodo.
      * Usado cuando proveedor_todos_productos=true para analizar todos los artículos
      * del proveedor independientemente del rango analizado.
-     * Aplica el mismo corte de antigüedad (PROV_MAX_ANTIGUEDAD_ANOS relativo a $ff_mov)
-     * que _queryIdsArticulosByProveedores.
      *
      * @return int[]  Array de idArticulo, o array con clave 'error'.
      */
-    private function _queryArticulosProveedorPaginados(string $ids_prov, string $ff_mov, int $offset, int $limit): array
+    private function _queryArticulosProveedorPaginados(string $ids_prov, int $offset, int $limit): array
     {
-        $ff   = $this->db->real_escape_string($ff_mov);
-        $anos = self::PROV_MAX_ANTIGUEDAD_ANOS;
         $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query(
             "SELECT DISTINCT ap.idArticulo
@@ -981,7 +971,6 @@ class ClasePosstock
              INNER JOIN articulos a ON a.idArticulo = ap.idArticulo
              WHERE ap.idProveedor IN ($ids_prov)
                AND ap.estado = 'Activo'
-               AND ap.fechaActualizacion >= DATE_SUB('$ff', INTERVAL $anos YEAR)
                AND a.tipo IN ($tipos)
              ORDER BY ap.idArticulo
              LIMIT $limit OFFSET $offset"
@@ -1013,6 +1002,60 @@ class ClasePosstock
         $rows = [];
         while ($r = $smt->fetch_assoc()) $rows[] = $r;
         return $rows;
+    }
+
+    /**
+     * C6 — Reconstrucción de stock desde la última entrada de proveedor.
+     *
+     * Cuando el stock rebobinado está muy por debajo de -2 (errores de inventario,
+     * pesajes mal registrados, etc.) este método ofrece una estimación más fiable:
+     *   stock_reconstituido = ncant_última_entrada − ventas_desde_esa_entrada_hasta_ff_esc
+     *
+     * Solo se aplica a los artículos cuyo stock rebobinado < STOCK_NEGATIVO_UMBRAL.
+     *
+     * @param  string $ids_str  IDs de artículo separados por coma (ya validados)
+     * @param  string $ff_esc   Fecha tope de ventas (= hoy para C6b), ya escapada
+     * @return array  [idArticulo => stock_reconstituido] o ['error' => ...]
+     */
+    private function _queryStockReconstituido(string $ids_str, string $ff_esc): array
+    {
+        $smt = $this->db->query("
+            SELECT e.idArticulo,
+                   e.ncant_entrada - COALESCE(SUM(v.ncant), 0) AS stock_reconstituido
+            FROM (
+                -- Última línea de albarán de proveedor (ROW_NUMBER garantiza exactamente una por artículo)
+                SELECT ult.idArticulo, ult.ncant AS ncant_entrada, DATE(cab.Fecha) AS fecha_entrada
+                FROM (
+                    SELECT l.idArticulo, l.ncant, l.idalbpro,
+                           ROW_NUMBER() OVER (PARTITION BY l.idArticulo ORDER BY h.Fecha DESC, l.id DESC) AS rn
+                    FROM albprolinea l
+                    INNER JOIN albprot h ON h.id = l.idalbpro
+                    WHERE l.idArticulo IN ($ids_str)
+                      AND h.estado IN ('Guardado','Facturado','Exportado','Importado')
+                      AND l.estadoLinea = 'Activo'
+                ) ult
+                INNER JOIN albprot cab ON cab.id = ult.idalbpro
+                WHERE ult.rn = 1
+            ) e
+            LEFT JOIN (
+                -- Ventas por ticket hasta ff_esc (sin albcli: solo salidas reales de caja)
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha_venta, l.ncant
+                FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE l.idArticulo IN ($ids_str)
+                  AND c.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                  AND DATE(c.Fecha) <= '$ff_esc'
+            ) v ON v.idArticulo = e.idArticulo
+                AND v.fecha_venta >= e.fecha_entrada
+            GROUP BY e.idArticulo, e.ncant_entrada
+        ");
+        if (!$smt) return ['error' => $this->db->error];
+        $result = [];
+        while ($r = $smt->fetch_assoc()) {
+            $result[(int)$r['idArticulo']] = (float)$r['stock_reconstituido'];
+        }
+        return $result;
     }
 
     /**
@@ -1349,6 +1392,8 @@ class ClasePosstock
         $umbral_sin_rotacion       = (int)    ($params['umbral_sin_rotacion_semanas'] ?? 12);
         $c3b_dias_post             = (int)    ($params['c3b_dias_post_periodo']       ?? 14);
         $c3a_multiplicador         = (float)  ($params['c3a_multiplicador_cadencia']  ?? 3.0);
+        $umbral_rop_mult           = max(3.0, (float)($params['umbral_reconstituir_rop'] ?? 10.0));
+        $umbral_stock_neg          = max(0.0, (float)($params['umbral_stock_negativo']   ?? 2.0));
         $min_ventas_c5          = (int)    ($params['min_ventas_c5']               ?? 3);
         $modelo_rotura_c5           = (string) ($params['modelo_rotura_c5']              ?? 'automatico');
         $umbral_confianza_c5        = (float)  ($params['umbral_confianza_poisson']      ?? 0.05);
@@ -1366,7 +1411,7 @@ class ClasePosstock
             $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
             if (!empty($proveedores_incluir)) {
                 $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov, $ff_mov);
+                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
@@ -1488,16 +1533,25 @@ class ClasePosstock
                 $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
                 $binomial_sigma_mult, $incluir_albcli,
                 $fi_stats, $ff_stats,
-                'Agotamiento Estimado'
+                'Agotamiento Estimado', '',
+                $umbral_rop_mult, $umbral_stock_neg
             );
             if (isset($c6a['error'])) return $c6a;
             $incidencias = array_merge($incidencias, $c6a);
         }
 
-        // ── C6b — ROP operacional (ventana histórica fija anclada en hoy) ───
-        // A diferencia de C6a (anclada en ff_mov), C6b usa siempre la fecha actual
-        // como referencia: fi = hoy-N días, ff = hoy, stock = hoy.
-        // Así el resultado es estable e independiente del periodo analizado.
+        // ── C6b — ROP operacional (ventana histórica fija anclada en hoy) ───────
+        // A diferencia de C6a (ligada al periodo analizado), C6b siempre mide
+        // la demanda de los últimos N días desde hoy. Así:
+        //   · El stock reflejado es el real actual (no rebobinado a ff_mov).
+        //   · La muestra estadística corresponde a la demanda reciente real.
+        //   · Productos de temporada no generan falsas alarmas fuera de su época.
+        // Resultado: responde directamente a "¿debo pedir hoy?".
+        //
+        // IMPORTANTE: se pasa $ids_proveedor_filter (lista completa del proveedor)
+        // en lugar de $ids_filter (que contiene solo artículos activos en el periodo
+        // analizado, restringido por el batch). C6b selecciona artículos por su propia
+        // ventana temporal, no por el periodo analizado.
         if (isset($casos_set['caso6b'])) {
             $c6b_dias    = (int)($params['c6b_dias_historico'] ?? 90);
             $ff_hoy      = date('Y-m-d');
@@ -1507,13 +1561,14 @@ class ClasePosstock
                 "{$anio_hoy}-01-01"   // límite BD anualizada; resoluble con mod_api
             );
             $c6b = $this->getIncidenciasCaso6(
-                $ff_hoy, $ff_hoy, $fi_stock,   // fi_mov = ff_mov = hoy → stock actual
-                $familias_incluir, $familias_excluir, $ids_filter,
+                $ff_hoy, $ff_hoy, $fi_stock,
+                $familias_incluir, $familias_excluir, $ids_proveedor_filter,
                 $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
                 $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
                 $binomial_sigma_mult, $incluir_albcli,
                 $fi_stats_6b, $ff_hoy,
-                'Punto de Pedido'
+                'Punto de Pedido', $ff_hoy,
+                $umbral_rop_mult, $umbral_stock_neg
             );
             if (isset($c6b['error'])) return $c6b;
             $incidencias = array_merge($incidencias, $c6b);
@@ -2522,16 +2577,23 @@ class ClasePosstock
         bool   $incluir_albcli      = false,  // incluir albaranes de cliente como ventas
         string $fi_stats            = '',     // inicio ventana estadística (±1 periodo para semana/quincena/mes)
         string $ff_stats            = '',     // fin ventana estadística; vacío = ff_mov
-        string $tipo_override       = ''      // tipo de incidencia ('Agotamiento Estimado' | 'Punto de Pedido')
+        string $tipo_override       = '',     // tipo de incidencia ('Agotamiento Estimado' | 'Punto de Pedido')
+        string $stock_anchor        = '',     // fecha de rebobinado de stock; vacío = ff_mov (C6a). C6b pasa date('Y-m-d')
+        float  $umbral_rop_mult     = 10.0,  // umbral configurable: stock > N×ROP → reconstruir
+        float  $umbral_stock_neg    = 2.0    // umbral configurable: stock < -N → reconstruir
     ): array {
         $fi_stats = $fi_stats ?: $fi_mov;
         $ff_stats = $ff_stats ?: $ff_mov;
         $fi = $this->db->real_escape_string($fi_stats);
-        $ff = $this->db->real_escape_string($ff_mov);
+        $ff = $this->db->real_escape_string($stock_anchor ?: $ff_mov);  // rebobinar a hoy (C6b) o ff_mov (C6a)
         $ff_stats_esc = $this->db->real_escape_string($ff_stats);
 
         $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
         $where_ids = $this->_idsWhere($ids_filter);
+
+        // Umbrales de reconstrucción (recibidos como parámetros desde getIncidencias)
+        $umbral_rop_mult  = max(3.0, $umbral_rop_mult);
+        $umbral_stock_neg = max(0.0, $umbral_stock_neg);
 
         // Paso 1 — Cantidades vendidas por día y artículo en el periodo
         // (no fechas únicas: necesitamos unidades para d = unidades/día)
@@ -2554,6 +2616,26 @@ class ClasePosstock
         $stock_actual = [];
         foreach ($rows_stock as $r) {
             $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        }
+
+        // ── Stock reconstruido para artículos muy negativos ───────────────────
+        // Cuando el stockOn acumula errores (pesajes parciales, ajustes no registrados…)
+        // el stock rebobinado puede ser irreal. Si cae por debajo del umbral se usa:
+        //   stock_reconstituido = última_entrada − ventas_desde_esa_entrada
+        // Esto da un valor orientativo más seguro para calcular el pedido.
+        $ids_muy_negativos = array_keys(
+            array_filter($stock_actual, fn($s) => $s < -$umbral_stock_neg)
+        );
+        $stock_reconstituido_set = [];
+        if (!empty($ids_muy_negativos)) {
+            $ids_neg_str = implode(',', $ids_muy_negativos);
+            $rows_rec    = $this->_queryStockReconstituido($ids_neg_str, $ff);
+            if (!isset($rows_rec['error'])) {
+                foreach ($rows_rec as $id_rec => $stock_rec) {
+                    $stock_actual[$id_rec]             = $stock_rec;
+                    $stock_reconstituido_set[$id_rec]  = 'negativo';
+                }
+            }
         }
 
         // Lead time: desde albaranes del proveedor si hay selección; defecto en caso contrario
@@ -2589,7 +2671,8 @@ class ClasePosstock
         // con la ventana estadística real y evitar chunks vacíos al inicio.
         $fi_period_ts = $ff_stats_ts - ($periodo_dias - 1) * 86400;
 
-        $incidencias = [];
+        $incidencias          = [];
+        $pending_reconstruction = []; // artículos con stock > 10×ROP: parámetros estadísticos ya calculados
 
         foreach ($ventas_cant as $id => $fechas_map) {
             // $n  = días únicos con venta (base estadística del modelo)
@@ -2741,6 +2824,20 @@ class ClasePosstock
             // Modelos con alta variabilidad intrínseca también reportan en MEDIA
             $alta_variabilidad = in_array($modelo_usado, ['BN', 'Gamma', 'Binomial']);
 
+            // Stock muy superior al ROP (> 10×): posible error en stockOn,
+            // independientemente del modelo (incluye BN/Gamma/Binomial con alta_variabilidad).
+            // Se guarda para reconstrucción posterior; nunca se genera incidencia con stock irreal.
+            if ($ROP > 0 && $stock > $umbral_rop_mult * $ROP) {
+                $pending_reconstruction[$id] = [
+                    'd'                => $d,
+                    'ROP'              => $ROP,
+                    'SS'               => $SS,
+                    'modelo_usado'     => $modelo_usado,
+                    'alta_variabilidad' => $alta_variabilidad,
+                ];
+                continue;
+            }
+
             // Solo artículos accionables: bajo ROP, o modelo de alta variabilidad
             if ($stock >= $ROP && !$alta_variabilidad) continue;
 
@@ -2764,28 +2861,83 @@ class ClasePosstock
                 'dias_autonomia'  => round($dias_autonomia, 1),
                 'lead_time_dias'  => $L,
                 'lead_time_fuente' => $lead_fuente,
-                'd_diaria'        => round($d, 4),
-                'stock_seguridad' => round($SS, 2),
-                'rop'             => round($ROP, 2),
-                'modelo_usado'    => $modelo_usado,
-                'posible_causa'   => $posible_causa,
+                'd_diaria'           => round($d, 4),
+                'stock_seguridad'    => round($SS, 2),
+                'rop'                => round($ROP, 2),
+                'modelo_usado'            => $modelo_usado,
+                'posible_causa'           => $posible_causa,
+                'stock_reconstituido'     => isset($stock_reconstituido_set[$id]),
+                'stock_rec_motivo'        => $stock_reconstituido_set[$id] ?? null,
             ];
         }
 
-        // Añadir nombres
+        // ── Reconstrucción post-bucle para sobrestock sospechoso (> 10×ROP) ─────
+        // Los artículos en $pending_reconstruction tienen stock > 10×ROP pero sus
+        // parámetros estadísticos (d, ROP, SS) ya están calculados.
+        // Se reconstruye el stock desde la última entrada y se re-evalúa si son accionables.
+        if (!empty($pending_reconstruction)) {
+            $ids_pend_str = implode(',', array_keys($pending_reconstruction));
+            $rows_rec_alt = $this->_queryStockReconstituido($ids_pend_str, $ff);
+            if (!isset($rows_rec_alt['error'])) {
+                foreach ($rows_rec_alt as $id_rec => $stock_rec) {
+                    if (!isset($pending_reconstruction[$id_rec])) continue;
+                    $pr            = $pending_reconstruction[$id_rec];
+                    $d_rec         = (float)$pr['d'];
+                    $ROP_rec       = (float)$pr['ROP'];
+                    $SS_rec        = (float)$pr['SS'];
+                    $modelo_rec    = (string)$pr['modelo_usado'];
+                    $alta_var_rec  = (bool)$pr['alta_variabilidad'];
+
+                    // Solo añadir si el stock reconstruido hace al artículo accionable
+                    if ($stock_rec >= $ROP_rec && !$alta_var_rec) continue;
+
+                    $dias_auto_rec = $d_rec > 0 ? max(0.0, $stock_rec / $d_rec) : PHP_FLOAT_MAX;
+
+                    if ($dias_auto_rec < $L) {
+                        $sev_rec   = 'CRITICA';
+                        $causa_rec = 'Agotamiento estimado antes del próximo pedido';
+                    } elseif ($stock_rec < $ROP_rec) {
+                        $sev_rec   = 'ALTA';
+                        $causa_rec = 'Stock por debajo del punto de pedido (ROP)';
+                    } else {
+                        $sev_rec   = 'MEDIA';
+                        $causa_rec = 'Stock suficiente pero con alta variabilidad de demanda';
+                    }
+
+                    $incidencias[] = [
+                        'idArticulo'          => $id_rec,
+                        'tipo'                => $tipo_override ?: 'Agotamiento Estimado',
+                        'severidad'           => $sev_rec,
+                        'stock_actual'        => $stock_rec,
+                        'dias_autonomia'      => round($dias_auto_rec, 1),
+                        'lead_time_dias'      => $L,
+                        'lead_time_fuente'    => $lead_fuente,
+                        'd_diaria'            => round($d_rec, 4),
+                        'stock_seguridad'     => round($SS_rec, 2),
+                        'rop'                 => round($ROP_rec, 2),
+                        'modelo_usado'        => $modelo_rec,
+                        'posible_causa'       => $causa_rec,
+                        'stock_reconstituido' => true,
+                    ];
+                }
+            }
+        }
+
+        // Añadir nombres y tipo (peso / unidad)
         if (!empty($incidencias)) {
             $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
             $smt     = $this->db->query(
-                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+                "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($ids_inc)"
             );
-            $nombres = [];
+            $meta = [];
             if ($smt) {
                 while ($r = $smt->fetch_assoc()) {
-                    $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+                    $meta[(int)$r['idArticulo']] = ['nombre' => $r['articulo_name'], 'tipo' => $r['tipo']];
                 }
             }
             foreach ($incidencias as &$inc) {
-                $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+                $inc['nombre']        = $meta[$inc['idArticulo']]['nombre'] ?? '';
+                $inc['tipo_articulo'] = $meta[$inc['idArticulo']]['tipo']   ?? 'unidad';
             }
             unset($inc);
         }
@@ -3647,7 +3799,7 @@ class ClasePosstock
             $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
             if (!$proveedor_todos) {
                 // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov, $ff_mov);
+                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) {
@@ -3656,22 +3808,29 @@ class ClasePosstock
             }
         }
 
-        // C4 no es paginable por actividad — ruta especial si es el único caso solicitado
-        if ($casos_incluir === ['caso4']) {
+        // C4 y C6b no son paginables por actividad en el periodo:
+        //   · C4: artículos sin movimiento (nunca aparecerían en la paginación normal)
+        //   · C6b: ventana fija anclada en hoy, independiente del periodo analizado
+        // Ruta especial cuando son el único caso solicitado: lote único, elementos=0 → JS para
+        $casos_no_paginables = ['caso4', 'caso6b'];
+        $casos_sin_paginables = array_values(array_diff($casos_incluir, $casos_no_paginables));
+
+        if (empty($casos_sin_paginables)) {
             $filas = $this->getIncidencias($params);
             if (isset($filas['error'])) return $filas;
             return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0]; // elementos=0 → fin
         }
 
-        // En batches mixtos, excluir C4 (no paginable por actividad)
+        // En batches mixtos, excluir C4 y C6b de la paginación;
+        // C6b se añade al primer lote (inicial === 0) para que aparezca una sola vez.
         $params_batch = $params;
-        $params_batch['casos_incluir'] = array_values(array_filter($casos_incluir, fn($c) => $c !== 'caso4'));
+        $params_batch['casos_incluir'] = $casos_sin_paginables;
 
         // ── Obtener IDs del lote según modo de proveedor ─────────────────────
         if ($proveedor_todos && $ids_str_prov !== '') {
             // Modo "todos los productos del proveedor": paginar directamente sobre
             // articulosProveedores, sin filtro de actividad en el periodo.
-            $ids_batch = $this->_queryArticulosProveedorPaginados($ids_str_prov, $ff_mov, $inicial, $pagina);
+            $ids_batch = $this->_queryArticulosProveedorPaginados($ids_str_prov, $inicial, $pagina);
             if (isset($ids_batch['error'])) return $ids_batch;
             // El filtro de proveedor ya está embebido en ids_filter; no aplicar doble filtro
             $params_batch['ids_proveedor_filter'] = [];
@@ -3695,6 +3854,19 @@ class ClasePosstock
 
         $filas = $this->getIncidencias($params_batch);
         if (isset($filas['error'])) return $filas;
+
+        // Añadir C4/C6b al primer lote únicamente (evita duplicados en lotes sucesivos)
+        if ($inicial === 0) {
+            $casos_extra = array_values(array_intersect($casos_incluir, $casos_no_paginables));
+            if (!empty($casos_extra)) {
+                $params_extra = $params;
+                $params_extra['casos_incluir'] = $casos_extra;
+                $filas_extra = $this->getIncidencias($params_extra);
+                if (!isset($filas_extra['error'])) {
+                    $filas = array_merge($filas, $filas_extra);
+                }
+            }
+        }
 
         return [
             'filas'     => $filas,

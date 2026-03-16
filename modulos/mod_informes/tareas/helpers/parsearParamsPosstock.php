@@ -153,9 +153,13 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c6_lead_time_defecto'        => (int)(string)$posstock_node->c6_lead_time_defecto ?: 14,
         // C3b — días post-periodo para validar falsos positivos "nunca vendido"
         'c3b_dias_post_periodo'       => max(7, min(30, (int)(string)($posstock_node->c3b_dias_post_periodo ?: '14'))),
-        // C6b — ventana histórica fija (días hacia atrás desde ff_mov) para ROP operacional
+        // C6b — ventana de demanda activa (días hacia atrás desde hoy) para el ROP operacional
         'c6b_dias_historico'          => max(30, min(365, (int)(string)($posstock_node->c6b_dias_historico ?: '90'))),
         // C3a — multiplicador sobre la cadencia media histórica para el umbral dinámico de rotación
         'c3a_multiplicador_cadencia'  => max(2.0, min(6.0, (float)(string)($posstock_node->c3a_multiplicador_cadencia ?: '3.0'))),
+        // Umbral ROP para reconstruir stock: si stock > N×ROP se asume stockOn erróneo y se recalcula
+        'umbral_reconstituir_rop'     => max(3.0, (float)(string)($posstock_node->umbral_reconstituir_rop ?: '10')),
+        // Umbral negativo: si stock < -N se reconstruye (almacenado como positivo, aplicado como -N)
+        'umbral_stock_negativo'       => max(0.0, (float)(string)($posstock_node->umbral_stock_negativo ?: '2')),
     ];
 }

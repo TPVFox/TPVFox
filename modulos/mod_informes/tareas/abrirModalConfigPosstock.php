@@ -206,8 +206,10 @@ function abrirModalConfigPosstock($posstock)
     $html .= '</div>';
 
     // --- BLOQUE 4: CASO 6 — LEAD TIME ---
-    $lead_defecto_actual  = (string)$posstock->c6_lead_time_defecto  ?: '14';
-    $c6b_dias_hist_actual = (string)$posstock->c6b_dias_historico    ?: '90';
+    $lead_defecto_actual    = (string)$posstock->c6_lead_time_defecto    ?: '14';
+    $c6b_dias_hist_actual   = (string)$posstock->c6b_dias_historico      ?: '90';
+    $umbral_rec_rop_actual  = (string)$posstock->umbral_reconstituir_rop ?: '10';
+    $umbral_stock_neg_actual = (string)$posstock->umbral_stock_negativo  ?: '2';
 
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-shopping-cart"></i> Punto de pedido (C6a / C6b)</div>';
@@ -223,7 +225,7 @@ function abrirModalConfigPosstock($posstock)
     $html .= '      </div>';
 
     $html .= '      <div class="col-xs-12 col-sm-5">';
-    $html .= '        <label class="control-label small" title="C6b usa una ventana histórica fija (últimos N días desde el fin del periodo) para calcular el ROP operacional, independientemente del tipo de periodo seleccionado. Recomendado: 60–180 días.">C6b — ventana histórica <small class="text-muted">(ROP operacional)</small></label>';
+    $html .= '        <label class="control-label small" title="C6b mide la demanda de los últimos N días desde hoy (independiente del periodo analizado). Evita falsas alarmas en productos de temporada fuera de su época. Recomendado: 60–180 días.">C6b — ventana de demanda activa <small class="text-muted">(días hacia atrás desde hoy)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="1" min="30" max="365" class="form-control text-right" name="inputC6bDiasHistorico" value="' . htmlspecialchars($c6b_dias_hist_actual) . '" required>';
     $html .= '          <span class="input-group-addon">días</span>';
@@ -231,9 +233,26 @@ function abrirModalConfigPosstock($posstock)
     $html .= '      </div>';
 
     $html .= '    </div>';
+    $html .= '    <div class="row" style="margin-top:10px;">';
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Si el stock actual supera N veces el ROP calculado se asume que el dato es incorrecto y se reconstitituye desde la última entrada de compra menos las ventas. Mínimo recomendado: 3. Valor por defecto: 10.">Umbral stock sobredimensionado<br><small class="text-muted">(reconstrucción — múltiplo del ROP)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="3" max="50" class="form-control text-right" name="inputUmbralReconstituirRop" value="' . htmlspecialchars($umbral_rec_rop_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">× ROP</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Si el stock es menor que este valor negativo (ej: 2 = reconstruir si stock &lt; -2) se recalcula desde la última entrada menos ventas. Valor por defecto: 2.">Umbral stock negativo<br><small class="text-muted">(reconstrucción — unidades negativas)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <span class="input-group-addon">-</span>';
+    $html .= '          <input type="number" step="0.5" min="0" max="100" class="form-control text-right" name="inputUmbralStockNegativo" value="' . htmlspecialchars($umbral_stock_neg_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+    $html .= '    </div>';
     $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
-    $html .= '      <strong>C6a</strong>: ROP calculado con el periodo analizado (±1 periodo para semana/quincena/mes). ';
-    $html .= '      <strong>C6b</strong>: ROP fijo sobre los últimos N días — estimación estable para uso operativo de reposición.';
+    $html .= '      <strong>C6a</strong>: ROP con el periodo analizado (±1 periodo para semana/quincena/mes) — visión estacional. ';
+    $html .= '      <strong>C6b</strong>: ROP sobre los últimos N días desde hoy — responde directamente a "¿debo pedir ahora?".';
     $html .= '    </p>';
     $html .= '  </div>';
     $html .= '</div>';

@@ -150,6 +150,9 @@ function guardarConfigPosstock() {
                 if (resultado.c3a_multiplicador !== undefined) {
                     window.POSSTOCK_C3A_MULTIPLICADOR = resultado.c3a_multiplicador;
                 }
+                if (resultado.c6b_dias_historico !== undefined) {
+                    window.POSSTOCK_C6B_DIAS_HISTORICO = resultado.c6b_dias_historico;
+                }
                 if (resultado.ventana_dias !== undefined) {
                     window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
                     if (
@@ -1126,6 +1129,11 @@ function pintarTablaIncidencias(filas) {
         } else if (f.tipo === "Agotamiento Estimado" || f.tipo === "Punto de Pedido") {
             // C6a / C6b — recomendación primero, contexto después
             var stockC6 = parseFloat(f.stock_actual)    || 0;
+            // Si el stock es reconstruido y sigue siendo negativo se usa 0 como base de cálculo
+            // para no sobreestimar el pedido. El valor real se muestra como referencia:
+            // indica un posible cruce de albarán o entrada sin registrar.
+            var _recNegativo    = f.stock_reconstituido && stockC6 < 0;
+            var stockC6Calculo  = _recNegativo ? 0 : stockC6;
             var ropC6   = parseFloat(f.rop)             || 0;
             var ssC6    = parseFloat(f.stock_seguridad) || 0;
             var dC6     = parseFloat(f.d_diaria)        || 0;
@@ -1156,31 +1164,54 @@ function pintarTablaIncidencias(filas) {
             var _c6m  = _c6mCfg[f.modelo_usado] || _c6mCfg["Poisson"];
             var esBN  = f.modelo_usado === "BN";
 
-            var qBase        = Math.max(0, ropC6 - stockC6);
+            var qBase        = Math.max(0, ropC6 - stockC6Calculo);
             var qRecomendada = Math.ceil(esBN ? qBase + ssC6 : qBase);
             var diasTrasPedido = dC6 > 0
-                ? Math.round((stockC6 + qRecomendada) / dC6)
+                ? Math.round((stockC6Calculo + qRecomendada) / dC6)
                 : null;
+
+            var _esPeso   = f.tipo_articulo === "peso";
+            var _unidadC6 = _esPeso ? "kg" : "ud.";
 
             var badgeC6Modelo = ' <span class="label ' + _c6m.cls + '" title="' + _c6m.tip + '">' + _c6m.lbl + '</span>';
             var badgeC6Fuente = f.tipo === "Punto de Pedido"
-                ? ' <span class="label label-default" title="ROP calculado sobre ventana histórica fija (C6b)">hist.</span>'
-                : ' <span class="label label-default" title="ROP calculado con el periodo analizado ±1 (C6a)">estac.</span>';
+                ? (function () {
+                    var dias = window.POSSTOCK_C6B_DIAS_HISTORICO || 90;
+                    var aviso = dias < 60
+                        ? ' ⚠ ventana corta — puede no reflejar estacionalidad'
+                        : '';
+                    return ' <span class="label label-default" title="ROP calculado sobre los últimos ' + dias + ' días desde hoy (C6b)' + aviso + '">' + dias + 'd</span>';
+                  })()
+                : '';
             var badgeC6LT = f.lead_time_fuente === "proveedor"
                 ? ' <span class="label label-success" title="Lead time calculado desde intervalo entre albaranes del proveedor">LT prov.</span>'
                 : "";
+            var _recMotivo = f.stock_rec_motivo;
+            var _recTipBase = _recMotivo === "negativo"
+                ? "stockOn muy negativo (&lt; -2) — estimado desde última entrada de proveedor menos ventas posteriores"
+                : "stockOn sospechosamente alto (&gt; N\xD7ROP) — estimado desde última entrada de proveedor menos ventas posteriores";
+            var _recTip = _recNegativo
+                ? _recTipBase + ". Stock estimado negativo: se asume stock=0 para el cálculo del pedido (posible cruce de albarán o entrada sin registrar)"
+                : _recTipBase;
+            var badgeC6Rec = f.stock_reconstituido
+                ? ' <span class="label ' + (_recNegativo ? "label-danger" : "label-warning") + '" title="' + _recTip + '">~stk</span>'
+                : "";
             var badgeC6Q = qRecomendada > 0
-                ? ' <span class="label label-warning" title="' + _c6m.qTip + '">Pedir ~' + qRecomendada + " ud.</span>"
+                ? ' <span class="label label-warning" title="' + _c6m.qTip + '">Pedir ~' + (_esPeso ? qRecomendada.toFixed(2) : qRecomendada) + " " + _unidadC6 + '</span>'
                 : ' <span class="label label-success">Stock OK</span>';
 
+            var _stockLabel = f.stock_reconstituido
+                ? ' | <span title="' + _recTip + '">Stock ~est: <strong>' + stockC6.toFixed(2) + " " + _unidadC6 + "</strong>" + (_recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') + "</span>"
+                : " | Stock: <strong>" + stockC6.toFixed(2) + " " + _unidadC6 + "</strong>";
+
             detalle =
-                badgeC6Modelo + badgeC6Fuente + badgeC6LT + badgeC6Q +
+                badgeC6Modelo + badgeC6Fuente + badgeC6LT + badgeC6Rec + badgeC6Q +
                 ' <small class="text-muted">· ' + _c6m.comp + '</small>' +
-                " | Stock: <strong>" + stockC6.toFixed(2) + "</strong>" +
+                _stockLabel +
                 " | Autonomía: <strong>" +
                 (f.dias_autonomia !== undefined ? f.dias_autonomia + " d" : "—") + "</strong>" +
                 " | LT: " + (f.lead_time_dias !== undefined ? f.lead_time_dias + " d" : "—") +
-                " | ROP: " + ropC6.toFixed(2) +
+                " | ROP: " + ropC6.toFixed(2) + " " + _unidadC6 +
                 (diasTrasPedido !== null
                     ? " | Cobertura tras pedido: <strong>" + diasTrasPedido + " d</strong>"
                     : "");
@@ -1238,7 +1269,8 @@ function pintarTablaIncidencias(filas) {
         } else if (f.tipo === "Agotamiento Estimado" || f.tipo === "Punto de Pedido") {
             // C6a / C6b — dinámica: "Reponer ahora" si hay cantidad a pedir, "ROP alcanzado" si stock suficiente
             var _ropTL  = parseFloat(f.rop)             || 0;
-            var _stTL   = parseFloat(f.stock_actual)    || 0;
+            var _stTLRaw = parseFloat(f.stock_actual)   || 0;
+            var _stTL   = (f.stock_reconstituido && _stTLRaw < 0) ? 0 : _stTLRaw;
             var _ssTL   = parseFloat(f.stock_seguridad) || 0;
             var _qTL    = Math.ceil(f.modelo_usado === "BN"
                 ? Math.max(0, _ropTL - _stTL) + _ssTL
@@ -1407,7 +1439,7 @@ var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
     { v: "caso6a", t: "Agotamiento Estimado — C6a (ROP estacional)", short: "C6a" },
-    { v: "caso6b", t: "Punto de Pedido — C6b (ROP histórico fijo)", short: "C6b" },
+    { v: "caso6b", t: "Punto de Pedido — C6b (ROP histórico fijo)", short: "C6b", soloAnual: true },
 ];
 
 /** Devuelve los tipos de incidencia aplicables incluyendo caso4 si está habilitado. */
@@ -1431,7 +1463,15 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
     var seleccionados = [];
     _posstockTiposActivos().forEach(function (ti) {
         var chk = document.getElementById("posstockChk_" + ti.v);
-        if (!chk || chk.checked) seleccionados.push(ti.v);
+        if (chk) {
+            // Checkbox renderizado → respetar su estado
+            if (chk.checked) seleccionados.push(ti.v);
+        } else if (!ti.soloAnual) {
+            // Sin checkbox y no es exclusivo de vista anual → incluir por defecto
+            // (ocurre antes de que se inicialicen los checkboxes)
+            seleccionados.push(ti.v);
+        }
+        // soloAnual sin checkbox → NO incluir en vistas no anuales
     });
     return seleccionados.join(",");
 }
@@ -1439,13 +1479,14 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
 /**
  * Renderiza los checkboxes de tipo de incidencia en #posstockChecksCasos
  * y muestra la fila. Solo se llama en vistas no anuales.
- * caso1, caso6a y caso6b aparecen marcados por defecto.
+ * caso1 y caso6a aparecen marcados por defecto.
+ * Los tipos con soloAnual:true se omiten (solo aparecen en el selector anual).
  */
 function _posstockInicializarFiltroCasos() {
     var wrap = document.getElementById("posstockChecksCasos");
     if (!wrap) return;
-    var tipos = _posstockTiposActivos();
-    var _defChecked = { caso1: true, caso6a: true, caso6b: true };
+    var tipos = _posstockTiposActivos().filter(function (ti) { return !ti.soloAnual; });
+    var _defChecked = { caso1: true, caso6a: true };
     var html = "";
     tipos.forEach(function (ti) {
         var checked = _defChecked[ti.v] ? "checked" : "";
@@ -1500,10 +1541,14 @@ var MESES = [
  * Rellena el selector de número de periodo según el tipo elegido.
  * También habilita/deshabilita el botón Generar.
  */
-function posstockActualizarNumero() {
+function posstockActualizarNumero(mantenerNumero) {
     var tipo = document.getElementById("posstockTipo").value;
     var anio = parseInt(document.getElementById("posstockAnio").value, 10);
-    var sel = document.getElementById("posstockNumero");
+    var sel  = document.getElementById("posstockNumero");
+
+    // Cuando se cambia el año conservamos el número/tipo-incidencia actual para restaurarlo.
+    var prevNumero = (mantenerNumero && sel.value) ? sel.value : null;
+
     sel.innerHTML = "";
     sel.disabled = true;
     document.getElementById("posstockBtnGenerar").disabled = true;
@@ -1529,52 +1574,120 @@ function posstockActualizarNumero() {
 
     if (!tipo || !anio) return;
 
-    var opciones = [];
+    var anioActual  = new Date().getFullYear();
+    var ventanaDias = window.POSSTOCK_VENTANA_DIAS || 0;
 
+    // Intenta restaurar el número previo: si existe la opción y no está disabled, la selecciona
+    // y lanza posstockGenerar() automáticamente.
+    function _intentarRestaurar() {
+        if (!prevNumero) return;
+        var opts = sel.options;
+        for (var i = 0; i < opts.length; i++) {
+            if (String(opts[i].value) === String(prevNumero) && !opts[i].disabled) {
+                sel.value = prevNumero;
+                document.getElementById("posstockBtnGenerar").disabled = false;
+                posstockGenerar();
+                return;
+            }
+        }
+    }
+
+    if (tipo === "anual") {
+        // El "número" es el tipo de incidencia.
+        // Para el año en curso con ventana activa todos los tipos excepto C6b están bloqueados.
+        var anualEnVentana = (anio === anioActual && ventanaDias > 0);
+        sel.innerHTML = '<option value="">— seleccionar —</option>';
+        _posstockTiposActivos().forEach(function (ti) {
+            var bloqueado = anualEnVentana && ti.v !== "caso6b";
+            var opt = document.createElement("option");
+            opt.value    = ti.v;
+            opt.text     = ti.t + (bloqueado ? " ⚠ (ventana)" : "");
+            opt.disabled = bloqueado;
+            if (bloqueado) opt.title = "Periodo dentro de la ventana de consolidación (" + ventanaDias + " días)";
+            sel.appendChild(opt);
+        });
+        sel.disabled = false;
+        _intentarRestaurar();
+        return;
+    }
+
+    if (anio === anioActual) {
+        // Año en curso: AJAX para obtener solo periodos iniciados y marcar ventana
+        $.ajax({
+            data: {
+                pulsado:      "getInfoPeriodos",
+                tipo:         tipo,
+                anio:         anio,
+                ventana_dias: ventanaDias,
+            },
+            url:  "tareas.php",
+            type: "post",
+            success: function (response) {
+                var resultado = JSON.parse(response);
+                if (resultado.error) return;
+                sel.innerHTML = '<option value="">— seleccionar —</option>';
+                (resultado.periodos || []).forEach(function (p) {
+                    var etiqueta = _posstockEtiquetaOpcion(tipo, p.numero, anio);
+                    var opt = document.createElement("option");
+                    opt.value    = p.numero;
+                    opt.text     = etiqueta + (p.en_ventana ? " ⚠ (ventana)" : "");
+                    opt.disabled = p.en_ventana;
+                    if (p.en_ventana) opt.title = "Dentro de la ventana de consolidación (" + ventanaDias + " días)";
+                    sel.appendChild(opt);
+                });
+                sel.disabled = false;
+                _intentarRestaurar();
+            },
+        });
+    } else {
+        // Año pasado/futuro: opciones estáticas, sin restricciones de fecha
+        sel.innerHTML = '<option value="">— seleccionar —</option>';
+        _posstockOpcionesNumeroPeriodo(tipo, anio).forEach(function (o) {
+            sel.innerHTML += '<option value="' + o.v + '">' + o.t + "</option>";
+        });
+        sel.disabled = false;
+        _intentarRestaurar();
+    }
+}
+
+/** Genera todas las opciones {v, t} de un tipo de periodo para un año dado. */
+function _posstockOpcionesNumeroPeriodo(tipo, anio) {
+    var opciones = [];
     if (tipo === "semana") {
-        // Semanas ancladas al 01-Ene (misma lógica que PHP).
         var totalSem = _posstockTotalSemanas(anio);
-        for (var s = 1; s <= totalSem; s++)
-            opciones.push({ v: s, t: "Semana " + s });
+        for (var s = 1; s <= totalSem; s++) opciones.push({ v: s, t: "Semana " + s });
     } else if (tipo === "quincena") {
         for (var q = 1; q <= 24; q++) {
-            var mes = Math.ceil(q / 2);
+            var mes  = Math.ceil(q / 2);
             var mitad = q % 2 === 1 ? "1ª" : "2ª";
             opciones.push({ v: q, t: mitad + " quincena " + MESES[mes - 1] });
         }
     } else if (tipo === "mes") {
-        for (var m = 1; m <= 12; m++)
-            opciones.push({ v: m, t: MESES[m - 1] + " " + anio });
+        for (var m = 1; m <= 12; m++) opciones.push({ v: m, t: MESES[m - 1] + " " + anio });
     } else if (tipo === "trimestre") {
         opciones = [
-            { v: 1, t: "T1 (Ene–Mar)" },
-            { v: 2, t: "T2 (Abr–Jun)" },
-            { v: 3, t: "T3 (Jul–Sep)" },
-            { v: 4, t: "T4 (Oct–Dic)" },
+            { v: 1, t: "T1 (Ene–Mar)" }, { v: 2, t: "T2 (Abr–Jun)" },
+            { v: 3, t: "T3 (Jul–Sep)" }, { v: 4, t: "T4 (Oct–Dic)" },
         ];
     } else if (tipo === "cuatrimestre") {
         opciones = [
-            { v: 1, t: "C1 (Ene–Abr)" },
-            { v: 2, t: "C2 (May–Ago)" },
-            { v: 3, t: "C3 (Sep–Dic)" },
+            { v: 1, t: "C1 (Ene–Abr)" }, { v: 2, t: "C2 (May–Ago)" }, { v: 3, t: "C3 (Sep–Dic)" },
         ];
     } else if (tipo === "semestre") {
         opciones = [
-            { v: 1, t: "1er semestre (Ene–Jun)" },
-            { v: 2, t: "2º semestre (Jul–Dic)" },
+            { v: 1, t: "1er semestre (Ene–Jun)" }, { v: 2, t: "2º semestre (Jul–Dic)" },
         ];
-    } else if (tipo === "anual") {
-        // Para anual el "número" de periodo es el tipo de incidencia a analizar
-        opciones = _posstockTiposActivos().map(function (ti) {
-            return { v: ti.v, t: ti.t };
-        });
     }
+    return opciones;
+}
 
-    sel.innerHTML = '<option value="">— seleccionar —</option>';
-    opciones.forEach(function (o) {
-        sel.innerHTML += '<option value="' + o.v + '">' + o.t + "</option>";
-    });
-    sel.disabled = false;
+/** Devuelve la etiqueta de dropdown de un periodo concreto. */
+function _posstockEtiquetaOpcion(tipo, n, anio) {
+    var lista = _posstockOpcionesNumeroPeriodo(tipo, anio);
+    for (var i = 0; i < lista.length; i++) {
+        if (lista[i].v === n) return lista[i].t;
+    }
+    return tipo + " " + n;
 }
 
 /**
@@ -1627,7 +1740,11 @@ function posstockGenerar() {
                 return;
             }
 
+            // Para anual: numero es el tipo de incidencia (string); resto: entero
+            var tipoInc = tipo === "anual" ? numero : "";
+
             // ── Restricción ventana_dias (0 = sin restricción) ───────
+            var _enVentana = false;
             if (window.POSSTOCK_VENTANA_DIAS > 0) {
                 var hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
@@ -1636,18 +1753,19 @@ function posstockGenerar() {
                 var ffMov = new Date(periodo.fecha_fin_movimientos);
                 if (ffMov >= limite) {
                     document.getElementById("posstockAvisoVentana").style.display = "";
-                    return;
+                    // C6b usa hoy como ancla y no depende del periodo analizado:
+                    // se permite ejecutar aunque el periodo esté en la ventana de consolidación.
+                    if (tipoInc !== "caso6b") return;
+                    _enVentana = true;
                 }
             }
-            document.getElementById("posstockAvisoVentana").style.display = "none";
+            if (!_enVentana) document.getElementById("posstockAvisoVentana").style.display = "none";
+            window._posstockAnualEnVentana = _enVentana;
 
             // Guardar periodo activo y cargar datos
             window.posstockPeriodoActivo = periodo;
             window.posstockTipoActivo = tipo;
             window.posstockAnioActivo = parseInt(anio, 10);
-
-            // Para anual: numero es el tipo de incidencia (string); resto: entero
-            var tipoInc = tipo === "anual" ? numero : "";
             window.posstockTipoIncidenciaActivo = tipoInc;
 
             cargarDatosPosstock(periodo, tipoInc);
@@ -1671,14 +1789,21 @@ function posstockPintarBarra(tipo, numeroActivo) {
     var wrap = document.getElementById("posstockBotonesPeriodo");
     wrap.innerHTML = "";
 
-    // Para anual: botones por tipo de incidencia (no hay ventana de consolidación)
+    // Para anual: botones por tipo de incidencia
     if (tipo === "anual") {
+        var _barraEnVentana = window._posstockAnualEnVentana || false;
         _posstockTiposActivos().forEach(function (ti) {
-            var cls = ti.v === numeroActivo
-                ? "btn btn-primary btn-xs"
-                : "btn btn-default btn-xs";
+            var cls, extras;
+            if (_barraEnVentana && ti.v !== "caso6b") {
+                cls    = "btn btn-default btn-xs disabled";
+                extras = 'disabled title="Periodo en ventana de consolidación — solo C6b disponible"';
+            } else {
+                cls    = ti.v === numeroActivo ? "btn btn-primary btn-xs" : "btn btn-default btn-xs";
+                extras = "";
+            }
             wrap.innerHTML +=
                 '<button type="button" class="' + cls + '" ' +
+                extras + " " +
                 "onclick=\"posstockNavegar('" + ti.v + "')\" " +
                 'id="posstockBtn_' + ti.v + '">' +
                 ti.short + " " + ti.t + "</button> ";
@@ -1760,12 +1885,14 @@ function posstockNavegar(numero) {
     var anio = window.posstockAnioActivo;
     if (!tipo || !anio) return;
 
-    // Para anual: numero es el tipo de incidencia (string), no hay ventana de consolidación
+    // Para anual: numero es el tipo de incidencia (string)
     if (tipo === "anual") {
+        // Si el periodo está en la ventana de consolidación solo se permite C6b
+        if (window._posstockAnualEnVentana && numero !== "caso6b") return;
         window.posstockTipoIncidenciaActivo = numero;
         var botonesActuales = document.querySelectorAll("[id^='posstockBtn_']");
         botonesActuales.forEach(function (b) {
-            b.className = "btn btn-default btn-xs";
+            if (!b.disabled) b.className = "btn btn-default btn-xs";
         });
         var btnActivo = document.getElementById("posstockBtn_" + numero);
         if (btnActivo) btnActivo.className = "btn btn-primary btn-xs";

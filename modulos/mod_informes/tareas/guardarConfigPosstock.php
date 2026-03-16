@@ -69,6 +69,20 @@ if (!isset($mapa['inputC6bDiasHistorico'])
 ) {
     $mapa['inputC6bDiasHistorico'] = '90';
 }
+if (!isset($mapa['inputUmbralReconstituirRop'])
+    || !is_numeric($mapa['inputUmbralReconstituirRop'])
+    || floatval($mapa['inputUmbralReconstituirRop']) < 3.0
+    || floatval($mapa['inputUmbralReconstituirRop']) > 50.0
+) {
+    $mapa['inputUmbralReconstituirRop'] = '10';
+}
+if (!isset($mapa['inputUmbralStockNegativo'])
+    || !is_numeric($mapa['inputUmbralStockNegativo'])
+    || floatval($mapa['inputUmbralStockNegativo']) < 0.0
+    || floatval($mapa['inputUmbralStockNegativo']) > 100.0
+) {
+    $mapa['inputUmbralStockNegativo'] = '2';
+}
 if (!isset($mapa['inputC3bDiasPost'])
     || !ctype_digit($mapa['inputC3bDiasPost'])
     || intval($mapa['inputC3bDiasPost']) < 7
@@ -100,6 +114,8 @@ if (!empty($errores)) {
     $posstock->incluir_albcli_ventas             = $incluir_albcli_ventas;
     $posstock->c6_lead_time_defecto              = intval($mapa['inputC6LeadTimeDefecto']);
     $posstock->c6b_dias_historico                = intval($mapa['inputC6bDiasHistorico']);
+    $posstock->umbral_reconstituir_rop           = floatval($mapa['inputUmbralReconstituirRop']);
+    $posstock->umbral_stock_negativo             = floatval($mapa['inputUmbralStockNegativo']);
     $posstock->c3b_dias_post_periodo             = intval($mapa['inputC3bDiasPost']);
     $posstock->c3a_multiplicador_cadencia        = $mapa['inputC3aMultiplicadorCadencia'];
 
@@ -110,6 +126,7 @@ if (!empty($errores)) {
         $respuesta['modelo_significancia'] = $mapa['inputModeloSignificancia'];
         $respuesta['c3b_dias_post']           = (int)$mapa['inputC3bDiasPost'];
         $respuesta['c3a_multiplicador']       = (float)$mapa['inputC3aMultiplicadorCadencia'];
+        $respuesta['c6b_dias_historico']      = (int)$mapa['inputC6bDiasHistorico'];
     } else {
         $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
     }

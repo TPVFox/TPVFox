@@ -17,9 +17,9 @@
 			<incluir_stock_inactivo>0</incluir_stock_inactivo>
 			<!-- C6 — días de lead time por defecto cuando no hay pedidos históricos suficientes -->
 			<c6_lead_time_defecto>14</c6_lead_time_defecto>
-			<!-- C6b — ventana histórica fija para el ROP operacional (días hacia atrás desde ff_mov).
-			     C6a usa el periodo seleccionado ±1; C6b siempre usa los últimos N días para una
-			     estimación estable e independiente del rango de análisis elegido. -->
+			<!-- C6b — ventana de demanda activa (días hacia atrás desde hoy) para el ROP operacional.
+			     C6a usa el periodo analizado ±1; C6b siempre mide los últimos N días desde hoy
+			     para evitar falsas alarmas en productos de temporada fuera de su época. -->
 			<c6b_dias_historico>90</c6b_dias_historico>
 			<!-- Modelo estadístico para C5 y C6: automatico | binomial | poisson_bn | gamma -->
 			<modelo_estadistico>automatico</modelo_estadistico>
@@ -39,6 +39,10 @@
 			     Ejemplo: artículo que vende cada 3 días → alerta con 3×3=9 días sin venta.
 			     Rango recomendado: 2.0–6.0 -->
 			<c3a_multiplicador_cadencia>3.0</c3a_multiplicador_cadencia>
+			<!-- Umbral de reconstrucción de stock: si stock > N�ROP se recalcula desde la última entrada de compra menos ventas. Mínimo: 3.0 -->
+			<umbral_reconstituir_rop>10</umbral_reconstituir_rop>
+			<!-- Umbral de stock negativo para reconstrucción: si stock < -N se recalcula desde la última entrada. Valor positivo (ej: 2 = reconstruir si stock < -2). -->
+			<umbral_stock_negativo>2</umbral_stock_negativo>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>
