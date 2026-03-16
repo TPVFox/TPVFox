@@ -793,23 +793,84 @@ function pintarTablaIncidencias(filas) {
 
     filas.forEach(function (f) {
         var detalle = "";
-        if (f.tipo === "Stock Negativo") {
-            // C1a — lo más urgente primero: el déficit actual
-            detalle =
-                "Stock: <strong>" +
+        if (f.tipo === "Inventario en negativo") {
+            // C1a — badges de diagnóstico primero (qué buscar), luego números de contexto
+            var _badges = "";
+
+            // Señal 1: sin recepciones → lo más accionable, va primero
+            var nEnt = f.n_entradas !== undefined && f.n_entradas !== null ? parseInt(f.n_entradas) : null;
+            if (nEnt !== null && nEnt === 0) {
+                _badges += ' <span class="label label-danger"' +
+                    ' title="No se registró ninguna recepción de proveedor en el periodo.' +
+                    ' Probable recepción sin registrar.">Sin recepciones</span>';
+            }
+
+            // Señal 2: stock decimal → unidad o fraccionado mal configurado
+            if (f.es_fraccionado) {
+                _badges += ' <span class="label label-info"' +
+                    ' title="El stock tiene valor decimal. Posible artículo de peso o fraccionado' +
+                    ' con la unidad mal configurada.">Stock decimal</span>';
+            }
+
+            // Señal 3: problema arrastrado de periodos anteriores
+            if (f.ya_negativo_inicio) {
+                _badges += ' <span class="label label-warning"' +
+                    ' title="El inventario ya estaba en negativo al inicio del periodo.' +
+                    ' El problema viene de un rango anterior.">Arrastrado</span>';
+            }
+
+            // Números de contexto
+            detalle = _badges +
+                " Stock: <strong>" +
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
                 "</strong>" +
                 (f.min_balance !== undefined
-                    ? " | Mín. periodo: " + parseFloat(f.min_balance).toFixed(2)
+                    ? " | Mínimo: " + parseFloat(f.min_balance).toFixed(2)
                     : "");
+
+            // Ventas del periodo
+            if (f.n_ventas !== undefined && f.n_ventas !== null) {
+                detalle += " | Ventas: " + parseInt(f.n_ventas) + " líneas";
+            }
+
+            // Última recepción (solo si hubo alguna)
+            if (nEnt !== null && nEnt > 0) {
+                var ultEnt = f.ultima_entrada
+                    ? f.ultima_entrada.split("-").reverse().join("/")
+                    : "—";
+                detalle += " | Últ. recepción: " + ultEnt;
+            }
         } else if (f.tipo === "Desajuste Puntual de Stock") {
-            // C1b — el mínimo es el dato clave (el cierre ya es positivo)
-            detalle =
-                "Mín. intra-periodo: <strong>" +
+            // C1b — negativo puntual recuperado al cierre
+            var _badges1b = "";
+            var nEnt1b = f.n_entradas !== undefined && f.n_entradas !== null ? parseInt(f.n_entradas) : null;
+
+            if (nEnt1b !== null && nEnt1b > 0) {
+                _badges1b += ' <span class="label label-info" title="Hubo recepciones en el periodo: el negativo pudo producirse al vender antes de registrar la entrada.">Timing recepción</span>';
+            }
+            if (f.es_fraccionado) {
+                _badges1b += ' <span class="label label-info" title="El mínimo tiene decimales: probable artículo de peso o fraccionado.">Stock decimal</span>';
+            }
+            if (nEnt1b !== null && nEnt1b === 0) {
+                _badges1b += ' <span class="label label-warning" title="Sin recepciones que justifiquen la recuperación. Revisar posibles movimientos duplicados, devoluciones o ajustes manuales.">Sin entradas</span>';
+            }
+
+            detalle = _badges1b +
+                " Mín.: <strong>" +
                 (f.min_balance !== undefined ? parseFloat(f.min_balance).toFixed(2) : "—") +
                 "</strong>" +
-                " | Stock al cierre: " +
+                " | Cierre: " +
                 (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—");
+
+            if (f.n_ventas !== undefined && f.n_ventas !== null) {
+                detalle += " | Ventas: " + parseInt(f.n_ventas) + " líneas";
+            }
+            if (nEnt1b !== null && nEnt1b > 0) {
+                var ultEnt1b = f.ultima_entrada
+                    ? f.ultima_entrada.split("-").reverse().join("/")
+                    : "—";
+                detalle += " | Últ. recepción: " + ultEnt1b;
+            }
         } else if (f.tipo === "Entrada con stock alto") {
             // C2 — ratio para ver de un vistazo cuán excesiva fue la entrada
             var previo = parseFloat(f.stock_previo) || 0;

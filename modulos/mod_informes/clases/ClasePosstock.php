@@ -521,6 +521,79 @@ class ClasePosstock
     }
 
     /**
+     * C1 — Detalle de actividad en el periodo para los artículos ya identificados con stock negativo.
+     * Devuelve n_entradas, ultima_entrada y n_ventas para cada idArticulo del listado.
+     * Usado para enriquecer el detalle de C1a con señales de diagnóstico.
+     *
+     * @param  string $ids  Lista de IDs separados por coma (ya validados como enteros)
+     * @return array  ['idArticulo' => ['n_entradas'=>int, 'ultima_entrada'=>string|null, 'n_ventas'=>int]]
+     */
+    private function _queryDetalleC1(string $ids, string $fi, string $ff): array
+    {
+        $detalle = [];
+
+        // Recepciones de proveedor en el periodo
+        $smt = $this->db->query("
+            SELECT l.idArticulo,
+                   COUNT(*)           AS n_entradas,
+                   MAX(DATE(c.Fecha)) AS ultima_entrada
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE l.idArticulo IN ($ids)
+              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND c.estado      IN ('Guardado','Facturado')
+              AND l.estadoLinea = 'Activo'
+            GROUP BY l.idArticulo
+        ");
+        if ($smt) {
+            while ($r = $smt->fetch_assoc()) {
+                $id = (int)$r['idArticulo'];
+                $detalle[$id] = [
+                    'n_entradas'     => (int)$r['n_entradas'],
+                    'ultima_entrada' => $r['ultima_entrada'],
+                    'n_ventas'       => 0,
+                ];
+            }
+        }
+
+        // Líneas de venta en el periodo (tickets + albcli)
+        $smt2 = $this->db->query("
+            SELECT idArticulo, SUM(cnt) AS n_ventas
+            FROM (
+                SELECT l.idArticulo, COUNT(*) AS cnt
+                FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE l.idArticulo IN ($ids)
+                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado      = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                GROUP BY l.idArticulo
+                UNION ALL
+                SELECT l.idArticulo, COUNT(*) AS cnt
+                FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                WHERE l.idArticulo IN ($ids)
+                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND c.estado      IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
+                GROUP BY l.idArticulo
+            ) v
+            GROUP BY idArticulo
+        ");
+        if ($smt2) {
+            while ($r = $smt2->fetch_assoc()) {
+                $id = (int)$r['idArticulo'];
+                if (!isset($detalle[$id])) {
+                    $detalle[$id] = ['n_entradas' => 0, 'ultima_entrada' => null];
+                }
+                $detalle[$id]['n_ventas'] = (int)$r['n_ventas'];
+            }
+        }
+
+        return $detalle;
+    }
+
+    /**
      * C1 — Delta total y mínimo de la suma acumulada por artículo mediante window function.
      * Una fila por artículo con delta_total (saldo del periodo) y min_running (mínimo acumulado).
      * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
@@ -2550,32 +2623,99 @@ class ClasePosstock
             : $stock_base_cache;
         if (isset($stock_base['error'])) return $stock_base;
 
-        $incidencias = [];
+        $incidencias    = [];
+        $ids_c1a        = [];   // negativos al cierre (detalle enriquecido)
+        $ids_c1b        = [];   // negativos puntuales recuperados (detalle enriquecido)
+
         foreach ($delta_map as $id => $data) {
             $saldo_base   = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
             $stock_actual = $saldo_base + $data['delta_total'];
             $min_balance  = $saldo_base + $data['min_running'];
 
             if ($stock_actual < 0) {
+                // Señales derivables sin query extra
+                $ya_negativo_inicio = $saldo_base < 0;
+                $frac               = abs($stock_actual - round($stock_actual));
+                $es_fraccionado     = $frac > 0.05;
+
                 $incidencias[] = [
-                    'idArticulo'    => $id,
-                    'tipo'          => 'Stock Negativo',
-                    'severidad'     => 'CRITICA',
-                    'stock_actual'  => $stock_actual,
-                    'min_balance'   => $min_balance,
-                    'posible_causa' => 'Inventario negativo al cierre',
+                    'idArticulo'         => $id,
+                    'tipo'               => 'Inventario en negativo',
+                    'severidad'          => 'CRITICA',
+                    'stock_actual'       => $stock_actual,
+                    'min_balance'        => $min_balance,
+                    'ya_negativo_inicio' => $ya_negativo_inicio,
+                    'es_fraccionado'     => $es_fraccionado,
+                    'posible_causa'      => '',   // se sobreescribe en el bloque de enriquecimiento
                 ];
+                $ids_c1a[] = $id;
             } elseif ($min_balance < 0) {
+                $frac_c1b       = abs($min_balance - round($min_balance));
+                $es_fraccionado = $frac_c1b > 0.05;
+
                 $incidencias[] = [
                     'idArticulo'    => $id,
                     'tipo'          => 'Desajuste Puntual de Stock',
                     'severidad'     => 'ALTA',
                     'stock_actual'  => $stock_actual,
                     'min_balance'   => $min_balance,
+                    'es_fraccionado' => $es_fraccionado,
                     'posible_causa' => 'Negativo puntual, recuperado al cierre',
                 ];
+                $ids_c1b[] = $id;
             }
         }
+
+        // Enriquecer C1a con actividad del periodo (recepciones y ventas)
+        if (!empty($ids_c1a)) {
+            $ids_str = implode(',', $ids_c1a);
+            $detalle = $this->_queryDetalleC1($ids_str, $fi, $ff);
+            foreach ($incidencias as &$inc) {
+                if ($inc['tipo'] !== 'Inventario en negativo') continue;
+                $d     = $detalle[$inc['idArticulo']] ?? null;
+                $n_ent = $d['n_entradas'] ?? 0;
+                $inc['n_entradas']     = $n_ent;
+                $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
+                $inc['n_ventas']       = $d['n_ventas']       ?? 0;
+
+                if ($inc['ya_negativo_inicio']) {
+                    $inc['posible_causa'] = 'Stock ya negativo al inicio del periodo: el problema viene de antes, revisar inventario anterior';
+                } elseif ($n_ent === 0 && $inc['n_ventas'] > 0) {
+                    $inc['posible_causa'] = 'Ventas registradas sin ninguna recepción en el periodo: comprobar si falta dar entrada de mercancía';
+                } elseif ($n_ent > 0) {
+                    $inc['posible_causa'] = 'Entradas registradas pero el stock sigue negativo: revisar si falta alguna recepción o si hay ventas duplicadas';
+                } elseif ($inc['es_fraccionado']) {
+                    $inc['posible_causa'] = 'Stock con decimales: posible acumulación de imprecisiones en ventas por peso o fraccionado';
+                } else {
+                    $inc['posible_causa'] = 'Sin movimientos que justifiquen el negativo: verificar si hay ajustes o movimientos no registrados';
+                }
+            }
+            unset($inc);
+        }
+
+        // Enriquecer C1b con actividad del periodo (recepciones y ventas) + causa dinámica
+        if (!empty($ids_c1b)) {
+            $ids_str = implode(',', $ids_c1b);
+            $detalle = $this->_queryDetalleC1($ids_str, $fi, $ff);
+            foreach ($incidencias as &$inc) {
+                if ($inc['tipo'] !== 'Desajuste Puntual de Stock') continue;
+                $d     = $detalle[$inc['idArticulo']] ?? null;
+                $n_ent = $d['n_entradas'] ?? 0;
+                $inc['n_entradas']     = $n_ent;
+                $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
+                $inc['n_ventas']       = $d['n_ventas']       ?? 0;
+
+                if ($n_ent > 0) {
+                    $inc['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
+                } elseif ($inc['es_fraccionado']) {
+                    $inc['posible_causa'] = 'Stock con decimales: posible acumulación de imprecisiones en ventas por peso o fraccionado';
+                } else {
+                    $inc['posible_causa'] = 'Sin recepciones en el periodo: revisar movimientos duplicados o ajustes manuales';
+                }
+            }
+            unset($inc);
+        }
+
         return $incidencias;
     }
 
