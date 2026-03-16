@@ -19,9 +19,15 @@ if (!isset($mapa['inputVentanaDias']) || !in_array($mapa['inputVentanaDias'], ['
 if (!isset($mapa['inputUmbralSobrestock'])
     || !is_numeric($mapa['inputUmbralSobrestock'])
     || $mapa['inputUmbralSobrestock'] < 0
-    || $mapa['inputUmbralSobrestock'] > 200
+    || $mapa['inputUmbralSobrestock'] > 100
 ) {
-    $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 200 (porcentaje).';
+    $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 100 (porcentaje).';
+}
+if (!isset($mapa['inputC2UmbralCobertura'])
+    || !ctype_digit($mapa['inputC2UmbralCobertura'])
+    || intval($mapa['inputC2UmbralCobertura']) < 7
+) {
+    $errores[] = 'Cobertura mínima C2 debe ser un número entero de al menos 7 días.';
 }
 if (!isset($mapa['inputUmbralCaducidadSemanas'])
     || !ctype_digit($mapa['inputUmbralCaducidadSemanas'])
@@ -65,6 +71,7 @@ if (!empty($errores)) {
 
     $posstock->ventana_dias                      = $mapa['inputVentanaDias'];
     $posstock->umbral_sobrestock                 = $mapa['inputUmbralSobrestock'];
+    $posstock->c2_umbral_cobertura_dias          = intval($mapa['inputC2UmbralCobertura']);
     $posstock->umbral_semanas_desde_ultima_venta = intval($mapa['inputUmbralCaducidadSemanas']);
     $posstock->umbral_semanas_sin_rotacion       = intval($mapa['inputUmbralSinRotacionSemanas']);
     $posstock->incluir_stock_inactivo            = $incluir_stock_inactivo;

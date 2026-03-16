@@ -34,10 +34,18 @@ function abrirModalConfigPosstock($posstock)
     $html .= '    <div class="row">';
 
     $html .= '      <div class="col-xs-12 col-sm-4">';
-    $html .= '        <label class="control-label small" title="Porcentaje que compara el stock previo con la entrada. 100% = misma cantidad. Rango 0–200%.">Umbral sobrestock<br><small class="text-muted">(Caso 2, porcentaje 0–200)</small></label>';
+    $html .= '        <label class="control-label small" title="Porcentaje que compara el stock previo con la entrada. 100% = la entrada ya estaba cubierta. Rango 0–100%.">Umbral sobrestock<br><small class="text-muted">(Caso 2, porcentaje 0–100)</small></label>';
     $html .= '        <div class="input-group">';
-    $html .= '          <input type="number" step="5" min="0" max="200" class="form-control input-sm text-right" name="inputUmbralSobrestock" value="' . (string)$posstock->umbral_sobrestock . '" required>';
+    $html .= '          <input type="number" step="5" min="0" max="100" class="form-control input-sm text-right" name="inputUmbralSobrestock" value="' . (string)$posstock->umbral_sobrestock . '" required>';
     $html .= '          <span class="input-group-addon">%</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Días de ventas que cubre el stock previo a la recepción. Si la cobertura es menor que este umbral la recepción no se considera problemática (producto de alta rotación).">Cobertura mínima C2<br><small class="text-muted">(Caso 2, días)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="7" max="365" class="form-control text-right" name="inputC2UmbralCobertura" value="' . (string)($posstock->c2_umbral_cobertura_dias ?: '21') . '" required>';
+    $html .= '          <span class="input-group-addon">días</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 

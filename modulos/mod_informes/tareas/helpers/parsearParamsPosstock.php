@@ -105,6 +105,13 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'fecha_fin_stock'             => $ff_stock,
         // Umbral de sobrestock: de porcentaje a factor (50% → 0.5)
         'umbral_sobrestock'           => ((float)(string)$posstock_node->umbral_sobrestock) / 100.0,
+        // C2: umbrales de clasificación derivados del umbral_sobrestock (escalan con él)
+        // ratio ≤ factor×2 → posible duplicado   (umbral=50% → ≤1.0×; umbral=100% → ≤2.0×)
+        // ratio ≥ factor×6 → sobrestock severo   (umbral=50% → ≥3.0×; umbral=100% → ≥6.0×)
+        'c2_umbral_duplicado'         => (((float)(string)$posstock_node->umbral_sobrestock) / 100.0) * 2.0,
+        'c2_umbral_sobrestock_severo' => (((float)(string)$posstock_node->umbral_sobrestock) / 100.0) * 6.0,
+        // C2: días de cobertura mínimos (stock_previo / ventas_diarias) para filtrar falsos positivos
+        'c2_umbral_cobertura_dias'    => max(7, (int)(string)($posstock_node->c2_umbral_cobertura_dias ?: '21')),
         'umbral_caducidad_semanas'    => (int)(string)$posstock_node->umbral_semanas_desde_ultima_venta,
         'umbral_sin_rotacion_semanas' => (int)(string)$posstock_node->umbral_semanas_sin_rotacion,
         'casos_incluir'               => $casos_incluir,

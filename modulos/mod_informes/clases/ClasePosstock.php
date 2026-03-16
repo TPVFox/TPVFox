@@ -1277,6 +1277,9 @@ class ClasePosstock
                 $fi_stock,
                 $ff_stock,
                 $umbral_sobrestock,
+                $params['c2_umbral_duplicado']         ?? 1.0,
+                $params['c2_umbral_sobrestock_severo'] ?? 6.0,
+                $params['c2_umbral_cobertura_dias']    ?? 21,
                 $familias_incluir,
                 $familias_excluir,
                 $ids_filter,
@@ -2018,51 +2021,6 @@ class ClasePosstock
     }
 
     /**
-     * Calcula el balance mínimo intra-periodo por artículo.
-     *
-     * Itera los deltas diarios en orden cronológico y registra el mínimo
-     * del saldo acumulado TRAS aplicar cada día. Permite detectar momentos
-     * en que el stock cayó a negativo aunque el saldo final sea positivo.
-     *
-     * @param array $movimientos  Resultado de getMovimientosPeriodo()
-     * @param array $stock_base   Resultado de getStockBase(), indexado por idArticulo
-     *
-     * @return array  Indexado por idArticulo → min_balance (float)
-     */
-    private function calcularMinimosBalance(array $movimientos, array $stock_base): array
-    {
-        $por_articulo = [];
-        foreach ($movimientos as $m) {
-            $por_articulo[(int)$m['idArticulo']][] = $m;
-        }
-
-        $min_balances = [];
-        foreach ($por_articulo as $idArticulo => $movs) {
-            $saldo_base = isset($stock_base[$idArticulo])
-                ? $stock_base[$idArticulo]['saldo_acumulado']
-                : 0.0;
-
-            $delta_por_fecha = [];
-            foreach ($movs as $m) {
-                $signo = ($m['tipo_movimiento'] === 'entrada_proveedor') ? 1.0 : -1.0;
-                $delta_por_fecha[$m['fecha']] = ($delta_por_fecha[$m['fecha']] ?? 0.0)
-                    + $signo * (float)$m['ncant'];
-            }
-            ksort($delta_por_fecha);
-
-            $min  = $saldo_base;
-            $acum = $saldo_base;
-            foreach ($delta_por_fecha as $delta) {
-                $acum += $delta;
-                if ($acum < $min) $min = $acum;
-            }
-            $min_balances[$idArticulo] = $min;
-        }
-
-        return $min_balances;
-    }
-
-    /**
      * T5.5 — Artículos físicos con stock positivo pero sin movimiento en todo el año (Caso 4).
      *
      * Proceso en tres pasos para garantizar que "sin movimiento" significa cero filas
@@ -2727,14 +2685,128 @@ class ClasePosstock
      *
      * C2 MEDIA — stock_previo >= ncant * umbral_sobrestock
      */
+    /**
+     * Ventas por ticket en el periodo para los artículos candidatos de C2.
+     * Usado para calcular cobertura_dias = stock_previo / ventas_diarias.
+     */
+    private function _queryVentasC2(string $ids, string $fi, string $ff): array
+    {
+        if (empty($ids)) return [];
+        $smt = $this->db->query("
+            SELECT l.idArticulo, SUM(l.ncant) AS ventas_total
+            FROM ticketslinea l
+            INNER JOIN ticketst c ON c.id = l.idticketst
+            WHERE l.idArticulo IN ($ids)
+              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND c.estado      = 'Cerrado'
+              AND l.estadoLinea = 'Activo'
+            GROUP BY l.idArticulo
+        ");
+        if (!$smt) return [];
+        $map = [];
+        while ($r = $smt->fetch_assoc()) {
+            $map[(int)$r['idArticulo']] = (float)$r['ventas_total'];
+        }
+        return $map;
+    }
+
+    /**
+     * Enriquece cada incidencia C2 con datos de la recepción anterior al evento:
+     *   - dias_desde_anterior  : días entre la recepción anterior y la actual (null si no hay)
+     *   - ncant_anterior       : cantidad de la recepción anterior (null si no hay)
+     *   - ventas_entre_recepciones : unidades vendidas por ticket entre ambas recepciones (null si no hay anterior)
+     * Busca recepciones hasta 90 días antes de fi para cubrir el primer pedido del periodo.
+     */
+    private function _queryDetalleC2(array &$incidencias, string $fi, string $ff): void
+    {
+        if (empty($incidencias)) return;
+
+        $ids     = array_unique(array_column($incidencias, 'idArticulo'));
+        $ids_str = implode(',', $ids);
+        $fi_ext  = $this->db->real_escape_string(date('Y-m-d', strtotime($fi . ' -90 days')));
+
+        // ── Todas las recepciones del periodo extendido ───────────────────────
+        $smt = $this->db->query("
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS ncant
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE l.idArticulo IN ($ids_str)
+              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
+              AND c.estado      IN ('Guardado','Facturado')
+              AND l.estadoLinea = 'Activo'
+              AND l.ncant       > 0
+            GROUP BY l.idArticulo, DATE(c.Fecha)
+            ORDER BY l.idArticulo, DATE(c.Fecha)
+        ");
+        $rec_por_art = [];
+        if ($smt) {
+            while ($r = $smt->fetch_assoc()) {
+                $rec_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'ncant' => (float)$r['ncant']];
+            }
+        }
+
+        // ── Ventas por ticket, por día, del periodo extendido ─────────────────
+        $smt2 = $this->db->query("
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS qty
+            FROM ticketslinea l
+            INNER JOIN ticketst c ON c.id = l.idticketst
+            WHERE l.idArticulo IN ($ids_str)
+              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
+              AND c.estado      = 'Cerrado'
+              AND l.estadoLinea = 'Activo'
+            GROUP BY l.idArticulo, DATE(c.Fecha)
+        ");
+        $vtas_por_art = [];
+        if ($smt2) {
+            while ($r = $smt2->fetch_assoc()) {
+                $vtas_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'qty' => (float)$r['qty']];
+            }
+        }
+
+        // ── Enriquecer cada incidencia ────────────────────────────────────────
+        foreach ($incidencias as &$inc) {
+            $id           = $inc['idArticulo'];
+            $fecha_actual = $inc['fecha'];
+
+            // Recepción anterior más reciente (la última antes de fecha_actual)
+            $anterior = null;
+            foreach ($rec_por_art[$id] ?? [] as $rec) {
+                if ($rec['fecha'] < $fecha_actual) $anterior = $rec;
+                elseif ($rec['fecha'] >= $fecha_actual) break;
+            }
+
+            if ($anterior !== null) {
+                $dias = (int)((strtotime($fecha_actual) - strtotime($anterior['fecha'])) / 86400);
+                $inc['dias_desde_anterior'] = $dias;
+                $inc['ncant_anterior']      = $anterior['ncant'];
+
+                $ventas_entre = 0.0;
+                foreach ($vtas_por_art[$id] ?? [] as $v) {
+                    if ($v['fecha'] > $anterior['fecha'] && $v['fecha'] < $fecha_actual) {
+                        $ventas_entre += $v['qty'];
+                    }
+                }
+                $inc['ventas_entre_recepciones'] = $ventas_entre;
+            } else {
+                $inc['dias_desde_anterior']      = null;
+                $inc['ncant_anterior']            = null;
+                $inc['ventas_entre_recepciones']  = null;
+            }
+        }
+        unset($inc);
+    }
+
     private function getIncidenciasC2(
         string $fi_mov,
         string $ff_mov,
         string $fi_stock,
         string $ff_stock,
         float  $umbral_sobrestock,
+        float  $umbral_duplicado,
+        float  $umbral_severo,
+        int    $umbral_cobertura_dias,
         array  $familias_incluir,
-        array $familias_excluir,
+        array  $familias_excluir,
         array  $ids_filter = [],
         array  $stock_base_cache = []   // pre-calculado por el caller para evitar doble consulta
     ): array {
@@ -2756,25 +2828,241 @@ class ClasePosstock
             : $stock_base_cache;
         if (isset($stock_base['error'])) return $stock_base;
 
-        $incidencias = [];
+        // ── Paso 1: recoger candidatos (filtro ratio) ────────────────────────
+        $candidatos = [];
         foreach ($filas_sql as $e) {
             $id           = (int)$e['idArticulo'];
             $saldo_base   = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
             $stock_previo = $saldo_base + (float)$e['cum_before'];
             $ncant        = (float)$e['ncant'];
-            if ($ncant > 0 && $stock_previo >= $ncant * $umbral_sobrestock) {
-                $incidencias[] = [
-                    'idArticulo'    => $id,
-                    'tipo'          => 'Entrada con stock alto',
-                    'severidad'     => 'MEDIA',
-                    'ncant'         => $ncant,
-                    'stock_previo'  => $stock_previo,
-                    'fecha'         => $e['fecha'],
-                    'posible_causa' => 'Duplicado de albarán o sobrecompra',
-                ];
+            if ($ncant <= 0 || $stock_previo < $ncant * $umbral_sobrestock) continue;
+
+            $ratio = $stock_previo / $ncant;
+            if ($ratio <= $umbral_duplicado) {
+                $categoria     = 'duplicado';
+                $posible_causa = 'Stock disponible similar a la entrada recibida: el pedido podría no estar justificado';
+            } elseif ($ratio >= $umbral_severo) {
+                $categoria     = 'severo';
+                $posible_causa = 'Sobrestock significativo: el stock previo superaba ampliamente la cantidad recibida';
+            } else {
+                $categoria     = 'elevado';
+                $posible_causa = 'Sobrestock moderado: el stock disponible superaba el umbral establecido antes de recibir la entrada';
+            }
+
+            $candidatos[] = [
+                'idArticulo'    => $id,
+                'tipo'          => 'Entrada con stock alto',
+                'severidad'     => 'MEDIA',
+                'ncant'         => $ncant,
+                'stock_previo'  => $stock_previo,
+                'ratio'         => round($ratio, 2),
+                'c2_categoria'  => $categoria,
+                'fecha'         => $e['fecha'],
+                'posible_causa' => $posible_causa,
+            ];
+        }
+        if (empty($candidatos)) return [];
+
+        // ── Paso 2: filtro de cobertura ───────────────────────────────────────
+        $ids_cands  = array_unique(array_column($candidatos, 'idArticulo'));
+        $ventas_map = $this->_queryVentasC2(implode(',', $ids_cands), $fi, $ff);
+        $n_dias     = max(1, (int)((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
+
+        $incidencias = [];
+        foreach ($candidatos as $cand) {
+            $ventas = $ventas_map[$cand['idArticulo']] ?? 0.0;
+            if ($ventas > 0) {
+                $cobertura = (int)round($cand['stock_previo'] / ($ventas / $n_dias));
+                if ($cobertura <= $umbral_cobertura_dias) continue;  // rotación suficiente, falso positivo
+                $cand['cobertura_dias'] = $cobertura;
+            } else {
+                $cand['cobertura_dias'] = null;  // sin ventas = cobertura infinita, siempre flagear
+            }
+            $incidencias[] = $cand;
+        }
+        if (empty($incidencias)) return [];
+
+        // ── Paso 3: enriquecer con recepción anterior ─────────────────────────
+        $this->_queryDetalleC2($incidencias, $fi_mov, $ff_mov);
+
+        // ── Paso 4: reasignar severidad y posible_causa con todas las señales ─
+        foreach ($incidencias as &$inc) {
+            $dias    = $inc['dias_desde_anterior'];
+            $ncant_a = $inc['ncant_anterior'];
+            $vtr     = $inc['ventas_entre_recepciones'];
+            $cob     = $inc['cobertura_dias'];
+
+            // Duplicado probable: mismo día o día anterior + cantidad similar (diferencia < 15%)
+            $es_duplicado_probable = $dias !== null && $dias <= 1 && $ncant_a !== null
+                && (abs($inc['ncant'] - $ncant_a) / max($inc['ncant'], $ncant_a)) < 0.15;
+
+            // Posible duplicado: hasta 3 días + cantidad similar (señal más débil)
+            $es_duplicado_posible = !$es_duplicado_probable && $dias !== null && $dias <= 3 && $ncant_a !== null
+                && (abs($inc['ncant'] - $ncant_a) / max($inc['ncant'], $ncant_a)) < 0.15;
+
+            // Severidad
+            if ($cob === null || $es_duplicado_probable) {
+                $inc['severidad'] = 'ALTA';
+            }
+
+            // Posible causa (prioridad de señales)
+            if ($es_duplicado_probable) {
+                $inc['posible_causa'] = "Recepción de cantidad similar hace {$dias} día(s): probable albarán registrado dos veces";
+            } elseif ($es_duplicado_posible) {
+                $inc['posible_causa'] = "Recepción de cantidad similar hace {$dias} días: verificar si el albarán se registró dos veces";
+            } elseif ($cob === null) {
+                $inc['posible_causa'] = 'Sobrestock sin salida: el artículo no registra ventas en el periodo analizado';
+            } elseif ($dias !== null && $dias <= 14 && $vtr !== null && $vtr < 1) {
+                $inc['posible_causa'] = "Sobrestock por acumulación: no hubo ventas entre la recepción anterior y esta nueva entrada ({$dias} días)";
+            } elseif ($cob > 180) {
+                $inc['posible_causa'] = 'Sobrestock crónico: el stock disponible cubre más de 6 meses al ritmo de ventas actual';
+            }
+            // Si ninguna condición override, se mantiene la posible_causa basada en ratio del paso 1
+        }
+        unset($inc);
+
+        // ── Paso 5: consolidar secuencias de acumulación por artículo ─────────
+        // Cuando un artículo acumula ≥3 incidencias con cero ventas entre recepciones
+        // (≥70% del grupo), las colapsa en una sola fila. Aplica independientemente
+        // del gap entre recepciones: captura desde ciclo diario (periódicos) hasta
+        // ciclo semanal (pan, revistas, artículos de servicio recurrentes).
+        $grupos = [];
+        foreach ($incidencias as $inc) {
+            $grupos[$inc['idArticulo']][] = $inc;
+        }
+
+        $incidencias_final = [];
+
+        foreach ($grupos as $idArt => $lista) {
+            usort($lista, fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+
+            $n_total = count($lista);
+            if ($n_total >= 3) {
+                $n_acum = 0;
+                foreach ($lista as $inc) {
+                    $vtr = $inc['ventas_entre_recepciones'];
+                    $cob = $inc['cobertura_dias'];
+                    // Sin ventas entre las dos recepciones adyacentes, o sin
+                    // datos de recepción anterior pero tampoco ventas globales
+                    $es_acum = ($vtr !== null && $vtr < 1)
+                            || ($vtr === null && $cob === null);
+                    if ($es_acum) $n_acum++;
+                }
+                if ($n_acum / $n_total >= 0.70) {
+                    $primero   = $lista[0];
+                    $ultimo    = end($lista);
+                    $stock_max = max(array_column($lista, 'stock_previo'));
+
+                    // Calcular gap medio entre recepciones para adaptar el diagnóstico
+                    $gaps = [];
+                    foreach ($lista as $inc) {
+                        if ($inc['dias_desde_anterior'] !== null) $gaps[] = $inc['dias_desde_anterior'];
+                    }
+                    $gap_medio = !empty($gaps) ? (int)round(array_sum($gaps) / count($gaps)) : null;
+
+                    if ($gap_medio !== null && $gap_medio <= 3) {
+                        // Ciclo diario: no se puede distinguir automáticamente entre prensa (devoluciones)
+                        // y carnicería/bollería (merma/ventas no escaneadas) sin datos de familia.
+                        // Se presentan los tres motivos sin ranking para que el responsable evalúe.
+                        $causa = "Verificar: merma no registrada · devoluciones no gestionadas · ventas no escaneadas en mostrador";
+                    } elseif ($gap_medio !== null && $gap_medio <= 10) {
+                        $causa = "(1) Merma no registrada — descartes sin movimiento de baja · (2) Devoluciones pendientes — {$n_total} recepciones semanales sin retorno · (3) Cruce de artículo — verificar si se vende bajo referencia similar";
+                    } else {
+                        $causa = "(1) Cruce de artículo — verificar si se vende bajo referencia similar · (2) Merma no registrada · (3) Stock inmovilizado — {$n_total} pedidos acumulados sin salida registrada";
+                    }
+
+                    $incidencias_final[] = [
+                        'idArticulo'               => $idArt,
+                        'tipo'                     => 'Entrada con stock alto',
+                        'severidad'                => 'ALTA',
+                        'ncant'                    => $ultimo['ncant'],
+                        'stock_previo'             => $stock_max,
+                        'ratio'                    => $ultimo['ratio'],
+                        'c2_categoria'             => 'acumulacion',
+                        'fecha'                    => $ultimo['fecha'],
+                        'fecha_inicio'             => $primero['fecha'],
+                        'n_eventos'                => $n_total,
+                        'gap_medio'                => $gap_medio,
+                        'cobertura_dias'           => $ultimo['cobertura_dias'],
+                        'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
+                        'ncant_anterior'           => $ultimo['ncant_anterior'],
+                        'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
+                        'posible_causa'            => $causa,
+                    ];
+                    continue;
+                }
+            }
+            foreach ($lista as $inc) {
+                $incidencias_final[] = $inc;
             }
         }
-        return $incidencias;
+
+        // ── Paso 6: C2b — sobrestock progresivo (cobertura creciente con ventas) ─
+        // Artículos con ≥3 eventos individuales donde la cobertura creció ≥50%
+        // y la cobertura final supera los 45 días. Distinto de acumulación sin ventas:
+        // el artículo SÍ vende, pero los pedidos superan sistemáticamente el ritmo.
+        $consolidadas = [];
+        $individuales = [];
+        foreach ($incidencias_final as $inc) {
+            if (($inc['c2_categoria'] ?? '') === 'acumulacion') {
+                $consolidadas[] = $inc;
+            } else {
+                $individuales[] = $inc;
+            }
+        }
+
+        $grupos_b = [];
+        foreach ($individuales as $inc) {
+            $grupos_b[$inc['idArticulo']][] = $inc;
+        }
+
+        $resultado_b = [];
+        foreach ($grupos_b as $idArt => $lista) {
+            usort($lista, fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+            $n = count($lista);
+
+            if ($n >= 3) {
+                $cobs = array_values(array_filter(
+                    array_column($lista, 'cobertura_dias'),
+                    fn($c) => $c !== null
+                ));
+
+                if (count($cobs) >= 3) {
+                    $cob_ini = (int)$cobs[0];
+                    $cob_fin = (int)end($cobs);
+
+                    if ($cob_ini > 0 && ($cob_fin / $cob_ini) >= 1.5 && $cob_fin >= 45) {
+                        $primero   = $lista[0];
+                        $ultimo    = end($lista);
+                        $stock_max = max(array_column($lista, 'stock_previo'));
+                        $resultado_b[] = [
+                            'idArticulo'               => $idArt,
+                            'tipo'                     => 'Entrada con stock alto',
+                            'severidad'                => 'ALTA',
+                            'ncant'                    => $ultimo['ncant'],
+                            'stock_previo'             => $stock_max,
+                            'ratio'                    => $ultimo['ratio'],
+                            'c2_categoria'             => 'tendencia',
+                            'fecha'                    => $ultimo['fecha'],
+                            'fecha_inicio'             => $primero['fecha'],
+                            'n_eventos'                => $n,
+                            'cobertura_inicio'         => $cob_ini,
+                            'cobertura_dias'           => $cob_fin,
+                            'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
+                            'ncant_anterior'           => $ultimo['ncant_anterior'],
+                            'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
+                            'posible_causa'            => "Sobrestock progresivo: la cobertura creció de {$cob_ini} a {$cob_fin} días en {$n} entregas — el ritmo de pedidos supera sistemáticamente las ventas",
+                        ];
+                        continue;
+                    }
+                }
+            }
+            foreach ($lista as $inc) {
+                $resultado_b[] = $inc;
+            }
+        }
+
+        return array_merge($consolidadas, $resultado_b);
     }
 
     /**
@@ -2856,13 +3144,6 @@ class ClasePosstock
             }
         }
         return $incidencias;
-    }
-
-    private function maxFecha(?string $a, ?string $b): ?string
-    {
-        if ($a === null) return $b;
-        if ($b === null) return $a;
-        return ($a >= $b) ? $a : $b;
     }
 
     /**

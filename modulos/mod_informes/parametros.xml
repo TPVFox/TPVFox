@@ -3,8 +3,12 @@
 	<configuracion>
 		<posstock>
 			<ventana_dias>7</ventana_dias>
-			<!-- Umbral sobrestock expresado en porcentaje (ej: 50 = 50%). Rango 0-200 -->
+			<!-- Umbral sobrestock expresado en porcentaje (ej: 50 = 50%). Rango 0-100 -->
 			<umbral_sobrestock>50</umbral_sobrestock>
+			<!-- C2: días de cobertura mínimos (stock_previo / ventas_diarias_periodo) para que la recepción
+			     se considere problemática. Si la cobertura es menor, se asume que la rotación justifica el stock.
+			     Ej: 21 = solo flagear si el stock previo cubre más de 21 días de ventas -->
+			<c2_umbral_cobertura_dias>21</c2_umbral_cobertura_dias>
 			<!-- Umbral: semanas desde la última venta usado para detección de caducidad teórica -->
 			<umbral_semanas_desde_ultima_venta>24</umbral_semanas_desde_ultima_venta>
 			<!-- Umbral: semanas desde la última salida/venta usado para detectar entrada sin rotación -->

@@ -872,14 +872,79 @@ function pintarTablaIncidencias(filas) {
                 detalle += " | Últ. recepción: " + ultEnt1b;
             }
         } else if (f.tipo === "Entrada con stock alto") {
-            // C2 — ratio para ver de un vistazo cuán excesiva fue la entrada
-            var previo = parseFloat(f.stock_previo) || 0;
-            var ncant  = parseFloat(f.ncant) || 0;
-            var ratio  = ncant > 0 ? (previo / ncant).toFixed(1) + "×" : "—";
-            detalle =
-                "Previo: " + previo.toFixed(2) +
-                " | Entrada: <strong>" + ncant.toFixed(2) + " ud. (" + ratio + " previo)</strong>" +
-                " | Fecha: " + (f.fecha || "—");
+            // C2 — badges por señales + detalle enriquecido
+            var _badgeC2 = "";
+            var ncant    = parseFloat(f.ncant) || 0;
+            var ncantA   = f.ncant_anterior !== undefined && f.ncant_anterior !== null ? parseFloat(f.ncant_anterior) : null;
+            var dias     = f.dias_desde_anterior !== undefined && f.dias_desde_anterior !== null ? parseInt(f.dias_desde_anterior) : null;
+            var vtr      = f.ventas_entre_recepciones !== undefined && f.ventas_entre_recepciones !== null ? parseFloat(f.ventas_entre_recepciones) : null;
+            var cob      = f.cobertura_dias !== undefined && f.cobertura_dias !== null ? parseInt(f.cobertura_dias) : null;
+
+            if (f.c2_categoria === "tendencia") {
+                // C2b — sobrestock progresivo: el artículo vende pero los pedidos superan el ritmo
+                var nEvt    = parseInt(f.n_eventos) || 1;
+                var cobIni  = f.cobertura_inicio !== undefined && f.cobertura_inicio !== null ? parseInt(f.cobertura_inicio) + " días" : "—";
+                var cobFin  = cob !== null ? cob + " días" : "sin ventas";
+                var fInicio = f.fecha_inicio || "—";
+                var fFin    = f.fecha || "—";
+                var stockMax = parseFloat(f.stock_previo) || 0;
+                _badgeC2 = '<span class="label label-warning" title="La cobertura crece de ' + cobIni + ' a ' + cobFin + ' en ' + nEvt + ' entregas: las compras superan el ritmo de ventas de forma sistemática.">Tendencia creciente</span>';
+                detalle = _badgeC2 +
+                    " <strong>" + nEvt + " entregas</strong>" +
+                    " | Cobertura: " + cobIni + " → <strong>" + cobFin + "</strong>" +
+                    " | Periodo: " + fInicio + " → " + fFin +
+                    " | Stock máx.: " + stockMax.toFixed(2);
+            } else if (f.c2_categoria === "acumulacion") {
+                // Patrón de acumulación crónica (periódico, pan, etc. con devoluciones no gestionadas)
+                var nEvt      = parseInt(f.n_eventos) || 1;
+                var cobFin    = cob !== null ? cob + " días" : "sin ventas";
+                var fInicio   = f.fecha_inicio || "—";
+                var fFin      = f.fecha || "—";
+                var stockMax  = parseFloat(f.stock_previo) || 0;
+                _badgeC2 = '<span class="label label-danger" title="' + nEvt + ' recepciones consecutivas sin retorno: el stock se acumula sin salida. Revisar gestión de devoluciones.">Acumulación crónica</span>';
+                detalle = _badgeC2 +
+                    " <strong>" + nEvt + " recepciones</strong> consolidadas" +
+                    " | Periodo: " + fInicio + " → " + fFin +
+                    " | Stock máx.: " + stockMax.toFixed(2) +
+                    " | Cobertura final: <strong>" + cobFin + "</strong>";
+            } else {
+                // Duplicado probable (mismo día o día anterior + cantidad similar)
+                var esDupProbable = dias !== null && dias <= 1 && ncantA !== null
+                    && Math.abs(ncant - ncantA) / Math.max(ncant, ncantA) < 0.15;
+
+                // Posible duplicado (gap ≤3 días + cantidad similar, señal más débil)
+                var esDupPosible = !esDupProbable && dias !== null && dias <= 3 && ncantA !== null
+                    && Math.abs(ncant - ncantA) / Math.max(ncant, ncantA) < 0.15;
+
+                if (esDupProbable) {
+                    _badgeC2 += ' <span class="label label-danger" title="Cantidad similar recibida hace ' + dias + ' día(s): muy probable albarán registrado dos veces.">Duplicado probable</span>';
+                } else if (esDupPosible) {
+                    _badgeC2 += ' <span class="label label-warning" title="Cantidad similar recibida hace ' + dias + ' días: verificar si el albarán se registró dos veces.">Posible duplicado</span>';
+                }
+                if (cob === null) {
+                    _badgeC2 += ' <span class="label label-danger" title="El artículo no registra ventas en el periodo analizado.">Sin ventas</span>';
+                }
+                if (dias !== null && dias <= 14 && vtr !== null && vtr < 1) {
+                    _badgeC2 += ' <span class="label label-warning" title="No hubo ventas entre la recepción anterior (' + dias + ' días antes) y esta: el pedido anterior no había rotado.">Pedido prematuro</span>';
+                }
+                if (!esDupProbable && f.c2_categoria === "severo") {
+                    _badgeC2 += ' <span class="label label-warning" title="El stock previo supera ampliamente la entrada recibida.">Sobrestock severo</span>';
+                }
+
+                var previo = parseFloat(f.stock_previo) || 0;
+                var ratio  = f.ratio !== undefined ? parseFloat(f.ratio).toFixed(1) + "×" : (ncant > 0 ? (previo / ncant).toFixed(1) + "×" : "—");
+                var cobStr = cob !== null ? cob + " días" : "sin ventas";
+
+                detalle = _badgeC2 +
+                    " Previo: " + previo.toFixed(2) +
+                    " | Entrada: <strong>" + ncant.toFixed(2) + " ud. (" + ratio + " previo)</strong>" +
+                    " | Cobertura: <strong>" + cobStr + "</strong>";
+
+                if (dias !== null) {
+                    detalle += " | Anter.: " + dias + " días";
+                }
+                detalle += " | Fecha: " + (f.fecha || "—");
+            }
         } else if (f.tipo === "Riesgo de caducidad teórica") {
             // C3a — stock primero: determina la urgencia real del riesgo
             detalle =
