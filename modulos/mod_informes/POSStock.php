@@ -14,7 +14,9 @@ if ($ClasePermisos->getAccion('ejecutar') == 0) {
 // ── Parámetros POSStock ───────────────────────────────────────────────
 $ClaseParametros = new ClaseParametros('parametros.xml');
 $posstock_cfg    = $ClaseParametros->getNode('configuracion/posstock');
-$ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
+$ventana_dias          = (int)(string)$posstock_cfg->ventana_dias;
+$c3b_dias_post         = (int)(string)$posstock_cfg->c3b_dias_post_periodo ?: 14;
+$c3a_multiplicador     = max(2.0, min(6.0, (float)(string)($posstock_cfg->c3a_multiplicador_cadencia ?: '3.0')));
 ?>
 <!DOCTYPE html>
 <html>
@@ -197,7 +199,9 @@ $ventana_dias    = (int)(string)$posstock_cfg->ventana_dias;
 
 <script>
     // Ventana de consolidación leída desde PHP para usarla en JS
-    var POSSTOCK_VENTANA_DIAS = <?php echo $ventana_dias; ?>;
+    var POSSTOCK_VENTANA_DIAS        = <?php echo $ventana_dias; ?>;
+    var POSSTOCK_C3B_DIAS_POST       = <?php echo $c3b_dias_post; ?>;
+    var POSSTOCK_C3A_MULTIPLICADOR   = <?php echo $c3a_multiplicador; ?>;
     // Caso 4 habilitado (stock inactivo en periodo)
     var POSSTOCK_INCLUIR_STOCK_INACTIVO = <?php echo ((string)$posstock_cfg->incluir_stock_inactivo === '1') ? 'true' : 'false'; ?>;
 

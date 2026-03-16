@@ -154,6 +154,57 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
+    // --- BLOQUE 3a: C3a — MULTIPLICADOR DE CADENCIA ---
+    $c3a_mult_validos = ['2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0'];
+    $c3a_mult_actual  = number_format((float)(string)$posstock->c3a_multiplicador_cadencia ?: '3.0', 1);
+    if (!in_array($c3a_mult_actual, $c3a_mult_validos, true)) $c3a_mult_actual = '3.0';
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-repeat"></i> Caída de rotación (Caso 3a)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Multiplicador sobre la cadencia media histórica del artículo para calcular el umbral de alerta. Umbral = avg_cadencia × multiplicador. Ej: artículo que vende cada 3 días → alerta con 3×3=9 días sin venta. Rango recomendado: 2.0–6.0.">Multiplicador de cadencia<br><small class="text-muted">(Caso 3a — umbral dinámico)</small></label>';
+    $html .= '        <select class="form-control input-sm" name="inputC3aMultiplicadorCadencia">';
+    $html .= '          <option value="2.0"' . ($c3a_mult_actual === '2.0' ? ' selected' : '') . '>2.0× — más sensible</option>';
+    $html .= '          <option value="2.5"' . ($c3a_mult_actual === '2.5' ? ' selected' : '') . '>2.5×</option>';
+    $html .= '          <option value="3.0"' . ($c3a_mult_actual === '3.0' ? ' selected' : '') . '>3.0× (estándar)</option>';
+    $html .= '          <option value="3.5"' . ($c3a_mult_actual === '3.5' ? ' selected' : '') . '>3.5×</option>';
+    $html .= '          <option value="4.0"' . ($c3a_mult_actual === '4.0' ? ' selected' : '') . '>4.0×</option>';
+    $html .= '          <option value="4.5"' . ($c3a_mult_actual === '4.5' ? ' selected' : '') . '>4.5×</option>';
+    $html .= '          <option value="5.0"' . ($c3a_mult_actual === '5.0' ? ' selected' : '') . '>5.0×</option>';
+    $html .= '          <option value="5.5"' . ($c3a_mult_actual === '5.5' ? ' selected' : '') . '>5.5×</option>';
+    $html .= '          <option value="6.0"' . ($c3a_mult_actual === '6.0' ? ' selected' : '') . '>6.0× — menos sensible</option>';
+    $html .= '        </select>';
+    $html .= '      </div>';
+    $html .= '    </div>';
+    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
+    $html .= '      Alerta cuando el artículo lleva más de <em>cadencia media × multiplicador</em> días sin vender desde la última venta. Artículos con cadencia corta (&le;7 días) se muestran como riesgo de caducidad.';
+    $html .= '    </p>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
+    // --- BLOQUE 3b: C3b — DÍAS POST-PERIODO ---
+    $c3b_dias_post_actual = (string)$posstock->c3b_dias_post_periodo ?: '14';
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-time"></i> Entrada sin rotación previa (Caso 3b)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Días posteriores al rango analizado que se comprueban para descartar falsos positivos en C3b: si el artículo vendió en esa ventana, la entrada al final del periodo no se considera incidencia.">Días post-periodo para validar C3b &laquo;nunca vendido&raquo;</label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="7" max="30" class="form-control text-right" name="inputC3bDiasPost" value="' . htmlspecialchars($c3b_dias_post_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+    $html .= '    </div>';
+    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
+    $html .= '      Un artículo que entra el último día del rango y vende en los siguientes X días no se cuenta como "sin ventas registradas". Rango recomendado: 7–14 días.';
+    $html .= '    </p>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
     // --- BLOQUE 4: CASO 6 — LEAD TIME ---
     $lead_defecto_actual = (string)$posstock->c6_lead_time_defecto ?: '14';
 

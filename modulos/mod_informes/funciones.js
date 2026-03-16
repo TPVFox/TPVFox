@@ -144,6 +144,12 @@ function guardarConfigPosstock() {
                 cerrarPopUp();
                 // Actualizar ventana_dias en JS para que la barra y las restricciones
                 // reflejen el nuevo valor sin necesidad de recargar la página.
+                if (resultado.c3b_dias_post !== undefined) {
+                    window.POSSTOCK_C3B_DIAS_POST = resultado.c3b_dias_post;
+                }
+                if (resultado.c3a_multiplicador !== undefined) {
+                    window.POSSTOCK_C3A_MULTIPLICADOR = resultado.c3a_multiplicador;
+                }
                 if (resultado.ventana_dias !== undefined) {
                     window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
                     if (
@@ -770,6 +776,19 @@ function pintarTablaIncidencias(filas) {
         return;
     }
 
+    // Labels de visualización para el personal de tienda (el tipo interno se conserva
+    // en data-tipo para filtros; aquí solo cambia lo que se muestra en la celda).
+    var tipoLabels = {
+        "Entrada sin rotación previa": "Pedido sin rotación",
+    };
+
+    // Formatea YYYY-MM-DD → DD/MM para lectura rápida en tabla
+    function _fmtF(d) {
+        if (!d) return "—";
+        var p = d.split("-");
+        return p.length === 3 ? p[2] + "/" + p[1] : d;
+    }
+
     // Ordenar usando la clave generada por el backend (orden_clave)
     filas.sort(_posstockSortComparator);
 
@@ -945,13 +964,50 @@ function pintarTablaIncidencias(filas) {
                 }
                 detalle += " | Fecha: " + (f.fecha || "—");
             }
-        } else if (f.tipo === "Riesgo de caducidad teórica") {
-            // C3a — stock primero: determina la urgencia real del riesgo
-            detalle =
-                "Stock: " +
-                (f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—") +
-                " | Últ. venta: " + (f.ultima_venta || "—") +
-                " | <strong>" + (f.semanas_desde_ultima_venta || "—") + " sem.</strong> sin venta";
+        } else if (f.tipo === "Caída de rotación") {
+            // C3a — badge + días sin stock disponible vs cadencia habitual + stock
+            var avgCad3a       = parseFloat(f.avg_cadencia_dias) || 0;
+            var semVal3a       = parseFloat(f.semanas_desde_ultima_venta) || 0;
+            var diasSV3a       = semVal3a > 0 ? Math.round(semVal3a * 7) : null;
+            var desdeRep3a     = !!f.desde_reposicion;
+            var stkRaw3a       = f.stock_actual !== undefined && f.stock_actual !== null
+                ? parseFloat(f.stock_actual) : null;
+            // Stock sin decimales innecesarios: enteros → "12", fracciones → "2.50"
+            var stkStr3a = stkRaw3a !== null
+                ? (stkRaw3a % 1 === 0 ? stkRaw3a.toFixed(0) : stkRaw3a.toFixed(2))
+                : "—";
+            // Badge: fast mover solo muestra "Riesgo caducidad" cuando el stock ha
+            // estado presente continuamente (no tras reposición por agotamiento).
+            // Si es desde_reposicion el artículo rotó bien antes → "Rotación caída".
+            var badgeC3a;
+            var esFast3a = avgCad3a > 0 && avgCad3a <= 7 && !desdeRep3a;
+            if (esFast3a) {
+                badgeC3a = f.severidad === "ALTA"
+                    ? '<span class="label label-danger" title="Alta rotación y más del doble del umbral sin venta: riesgo de caducidad o merma">Riesgo caducidad</span>'
+                    : '<span class="label label-warning" title="Artículo de alta rotación por encima del umbral dinámico sin venta">Riesgo caducidad</span>';
+            } else {
+                badgeC3a = f.severidad === "ALTA"
+                    ? '<span class="label label-danger" title="Más del doble del umbral dinámico sin venta: rotación caída drásticamente">Caída severa</span>'
+                    : '<span class="label label-warning" title="Por encima del umbral dinámico de rotación">Rotación caída</span>';
+            }
+            // Referencia temporal: "desde recepción" si el artículo se agotó y se repuso,
+            // "últ. venta" si el stock ha estado presente continuamente.
+            var refFechaStr3a = desdeRep3a
+                ? "Desde recep.: " + _fmtF(f.fecha_primera_entrada)
+                : "Últ. venta: "  + _fmtF(f.ultima_venta);
+            // Días sin venta con cadencia habitual al lado para comparación inmediata
+            var sinVentaStr3a;
+            if (diasSV3a !== null && diasSV3a > 0) {
+                sinVentaStr3a = "<strong>" + diasSV3a + " d</strong> sin venta";
+                if (avgCad3a > 0) {
+                    sinVentaStr3a += ' <small class="text-muted">(normal ' + avgCad3a.toFixed(1) + " d)</small>";
+                }
+            } else {
+                sinVentaStr3a = "<strong>—</strong>";
+            }
+            detalle = badgeC3a + " " + sinVentaStr3a +
+                " | Stock: <strong>" + stkStr3a + "</strong>" +
+                " | " + refFechaStr3a;
         } else if (f.tipo === "Venta Cero (Posible Rotura Física)") {
             var estadoRotura = f.fecha_fin_rotura
                 ? "Recuperada " + f.fecha_fin_rotura
@@ -1013,12 +1069,47 @@ function pintarTablaIncidencias(filas) {
                 sdStr +
                 " (umbral " + (f.umbral_dias !== undefined ? f.umbral_dias + " d" : "—") + ")";
         } else if (f.tipo === "Entrada sin rotación previa") {
-            // C3b — stock primero; luego la última salida o ausencia de ella
-            var stockC3b = f.stock_actual !== undefined ? parseFloat(f.stock_actual).toFixed(2) : "—";
-            detalle = "Stock: " + stockC3b + " | " + (f.ultima_salida
-                ? "Últ. salida: " + f.ultima_salida +
-                  " | <strong>" + (f.semanas_desde_ultima_salida || "—") + " sem.</strong>"
-                : "<strong>Sin salidas registradas</strong>");
+            // C3b — badge + stock + entradas + última salida o ausencia
+            var stockC3b  = f.stock_actual !== undefined && f.stock_actual !== null
+                ? parseFloat(f.stock_actual).toFixed(2) : "—";
+            var nEnt3b    = parseInt(f.n_entradas) || 1;
+            var qty3b     = f.cantidad_recibida !== undefined && f.cantidad_recibida !== null
+                ? parseFloat(f.cantidad_recibida).toFixed(2) : null;
+            var badgeC3b;
+            if (!f.ultima_salida) {
+                badgeC3b = nEnt3b >= 3
+                    ? '<span class="label label-danger" title="Pedido ' + nEnt3b + ' veces sin ninguna venta registrada">Pedidos repetidos sin venta</span>'
+                    : '<span class="label label-danger" title="Artículo que nunca ha tenido ventas registradas">Sin ventas</span>';
+            } else {
+                badgeC3b = nEnt3b >= 2
+                    ? '<span class="label label-warning" title="Se repone ' + nEnt3b + ' veces pese a no tener rotación activa">Reposición sin rotación</span>'
+                    : '<span class="label label-warning" title="Artículo con rotación muy baja o nula">Sin rotación</span>';
+            }
+            var nDev3b  = parseInt(f.n_devoluciones) || 0;
+            var qDev3b  = f.cantidad_devuelta !== undefined && f.cantidad_devuelta !== null
+                ? parseFloat(f.cantidad_devuelta) : 0;
+            var badgeDev3b = "";
+            if (nDev3b > 0) {
+                var ratioDevStr = qty3b !== null && parseFloat(qty3b) > 0
+                    ? " (" + Math.round(qDev3b / parseFloat(qty3b) * 100) + "%)"
+                    : "";
+                var devTip = qDev3b >= parseFloat(qty3b || 0) * 0.8
+                    ? "Devuelto casi en su totalidad al proveedor"
+                    : "Devolución parcial al proveedor";
+                badgeDev3b = ' <span class="label label-default" title="' + devTip + '">'
+                    + "Dev." + ratioDevStr + "</span>";
+            }
+            var entStr3b = "Recepciones: " + nEnt3b + (qty3b !== null ? " (" + qty3b + " ud.)" : "");
+            var movStr3b = f.ultima_salida
+                ? "Últ. venta: " + _fmtF(f.ultima_salida) +
+                  " | <strong>" + (f.semanas_desde_ultima_salida || "—") + " sem.</strong> sin movimiento"
+                : (f.fecha_primera_entrada
+                    ? "Primera recepción: " + _fmtF(f.fecha_primera_entrada) + " | <strong>Sin ventas en historial</strong>"
+                    : "<strong>Sin ventas en historial</strong>");
+            detalle = badgeC3b + badgeDev3b +
+                " Stock: <strong>" + stockC3b + "</strong>" +
+                " | " + entStr3b +
+                " | " + movStr3b;
         } else if (f.tipo === "Stock Inactivo en Periodo") {
             // C4 — solo el stock; el resto ya está en tipo y causa
             detalle =
@@ -1084,14 +1175,38 @@ function pintarTablaIncidencias(filas) {
                     : "");
         }
 
+        // C3b "nunca": el rango del mayor cubre exactamente el mismo rango que usa
+        // el backend — desde fecha_inicio_stock hasta ffMov + diasPost.
+        var fiMayor = fiInicio;
+        var ffMayor = ffMov;
+        if (f.tipo === "Entrada sin rotación previa" && !f.ultima_salida && ffMov) {
+            var diasPost = window.POSSTOCK_C3B_DIAS_POST || 14;
+            fiMayor = periodo.fecha_inicio_stock || fiInicio;
+            var dtFin = new Date(ffMov);
+            dtFin.setDate(dtFin.getDate() + diasPost);
+            ffMayor = dtFin.toISOString().split("T")[0];
+        }
         var urlMayor =
             "../../modulos/mod_producto/DetalleMayor.php" +
             "?idArticulo=" +
             f.idArticulo +
             "&fecha_inicial=" +
-            fiInicio +
+            fiMayor +
             "&fecha_final=" +
-            ffMov;
+            ffMayor;
+
+        // Tipo de incidencia para mostrar en celda:
+        // C3a diferencia fast mover (cadencia ≤7d = riesgo caducidad/merma)
+        // de slow mover (rotación caída = problema de surtido o estacionalidad).
+        var tipoLabel;
+        if (f.tipo === "Caída de rotación") {
+            var _avgCadTipo = parseFloat(f.avg_cadencia_dias) || 0;
+            tipoLabel = _avgCadTipo > 0 && _avgCadTipo <= 7 && !f.desde_reposicion
+                ? "Riesgo caducidad"
+                : "Rotación caída";
+        } else {
+            tipoLabel = tipoLabels[f.tipo] || f.tipo;
+        }
 
         html +=
             "<tr data-tipo='" +
@@ -1104,7 +1219,7 @@ function pintarTablaIncidencias(filas) {
             (f.nombre || "—") +
             "</td>" +
             "<td>" +
-            f.tipo +
+            tipoLabel +
             "</td>" +
             "<td>" +
             (badgeSev[f.severidad] || f.severidad) +
@@ -1112,7 +1227,7 @@ function pintarTablaIncidencias(filas) {
             "<td>" +
             detalle +
             "</td>" +
-            "<td class='text-muted'>" +
+            "<td>" +
             (f.posible_causa || "") +
             "</td>" +
             "<td><a href='" +
@@ -1248,7 +1363,7 @@ window.imprimirPOSStockPDF = imprimirPOSStockPDF;
 var POSSTOCK_TIPOS_INCIDENCIA = [
     { v: "caso1", t: "Stock Negativo / Desajuste", short: "C1" },
     { v: "caso2", t: "Entrada con stock alto", short: "C2" },
-    { v: "caso3a", t: "Riesgo de caducidad teórica", short: "C3a" },
+    { v: "caso3a", t: "Caída de rotación", short: "C3a" },
     { v: "caso3b", t: "Entrada sin rotación previa", short: "C3b" },
     { v: "caso5", t: "Venta Cero (Rotura física)", short: "C5" },
     { v: "caso6", t: "Agotamiento Estimado (ROP)", short: "C6" },

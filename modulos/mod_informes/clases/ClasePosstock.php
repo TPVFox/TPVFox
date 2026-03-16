@@ -752,22 +752,40 @@ class ClasePosstock
         string $fi_s,
         string $wf,
         string $wi,
-        int    $min_u
+        int    $min_u,
+        int    $dias_post = 14,
+        float  $multiplicador_cadencia = 3.0
     ): array {
-        $tipos = self::TIPOS_FISICOS;
+        $tipos          = self::TIPOS_FISICOS;
+        // Mínimo floor SQL para C3a: al menos ceil(multiplicador) días sin venta
+        $c3a_floor_dias = max(3, (int)ceil($multiplicador_cadencia));
         $sql = "
-            SELECT ent.idArticulo, MAX(sal.fecha) AS ultima_venta
+            SELECT ent.idArticulo,
+                   MAX(sal.fecha)              AS ultima_venta,
+                   COUNT(DISTINCT sal.fecha)   AS n_ventas_historico,
+                   MIN(sal_post.fecha)         AS primera_venta_post,
+                   ent.n_entradas,
+                   ent.cantidad_recibida,
+                   ent.fecha_primera_entrada,
+                   ent.n_devoluciones,
+                   ent.cantidad_devuelta
             FROM (
-                SELECT DISTINCT l.idArticulo
+                SELECT l.idArticulo,
+                       COUNT(DISTINCT CASE WHEN l.ncant > 0 THEN c.id END)        AS n_entradas,
+                       SUM(CASE WHEN l.ncant > 0 THEN l.ncant ELSE 0 END)         AS cantidad_recibida,
+                       MIN(CASE WHEN l.ncant > 0 THEN DATE(c.Fecha) END)          AS fecha_primera_entrada,
+                       COUNT(DISTINCT CASE WHEN l.ncant < 0 THEN c.id END)        AS n_devoluciones,
+                       SUM(CASE WHEN l.ncant < 0 THEN ABS(l.ncant) ELSE 0 END)   AS cantidad_devuelta
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
                 WHERE DATE(c.Fecha) BETWEEN '$fi_m' AND '$ff_m'
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
-                  AND l.ncant       > 0
                   AND a.tipo        IN ($tipos)
                   $wf $wi
+                GROUP BY l.idArticulo
+                HAVING COUNT(DISTINCT CASE WHEN l.ncant > 0 THEN c.id END) > 0
             ) AS ent
             LEFT JOIN (
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
@@ -784,9 +802,29 @@ class ClasePosstock
                   AND c.estado      IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
             ) AS sal ON sal.idArticulo = ent.idArticulo
+            LEFT JOIN (
+                -- Ventas en los $dias_post días posteriores al periodo: detecta falsos positivos
+                -- de C3b-nunca cuando el artículo entra al final del rango y aún no ha vendido
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
+                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
+                  AND c.estado      = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
+                UNION ALL
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+                FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
+                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
+                  AND c.estado      IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
+            ) AS sal_post ON sal_post.idArticulo = ent.idArticulo
             GROUP BY ent.idArticulo
             HAVING MAX(sal.fecha) IS NULL
                 OR DATEDIFF('$ff_m', MAX(sal.fecha)) / 7.0 >= $min_u
+                OR DATEDIFF('$ff_m', MAX(sal.fecha)) >= $c3a_floor_dias
         ";
         $smt = $this->db->query($sql);
         if (!$smt) return ['error' => $this->db->error];
@@ -1200,9 +1238,11 @@ class ClasePosstock
         $fi_stock = $params['fecha_inicio_stock'];
         $ff_stock = $params['fecha_fin_stock'];
 
-        $umbral_sobrestock      = (float)  ($params['umbral_sobrestock']           ?? 0.5);
-        $umbral_caducidad       = (int)    ($params['umbral_caducidad_semanas']    ?? 24);
-        $umbral_sin_rotacion    = (int)    ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $umbral_sobrestock         = (float)  ($params['umbral_sobrestock']           ?? 0.5);
+        $umbral_caducidad          = (int)    ($params['umbral_caducidad_semanas']    ?? 24);
+        $umbral_sin_rotacion       = (int)    ($params['umbral_sin_rotacion_semanas'] ?? 12);
+        $c3b_dias_post             = (int)    ($params['c3b_dias_post_periodo']       ?? 14);
+        $c3a_multiplicador         = (float)  ($params['c3a_multiplicador_cadencia']  ?? 3.0);
         $min_ventas_c5          = (int)    ($params['min_ventas_c5']               ?? 3);
         $modelo_rotura_c5           = (string) ($params['modelo_rotura_c5']              ?? 'automatico');
         $umbral_confianza_c5        = (float)  ($params['umbral_confianza_poisson']      ?? 0.05);
@@ -1299,13 +1339,15 @@ class ClasePosstock
                 $umbral_sin_rotacion,
                 $familias_incluir,
                 $familias_excluir,
-                $ids_filter
+                $ids_filter,
+                $c3b_dias_post,
+                $c3a_multiplicador
             );
             if (isset($c3['error'])) return $c3;
             // Filtrar sub-casos si no se piden ambos
             if (!isset($casos_set['caso3a']) || !isset($casos_set['caso3b'])) {
                 $tipos_c3 = [];
-                if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Riesgo de caducidad teórica';
+                if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Caída de rotación';
                 if (isset($casos_set['caso3b'])) $tipos_c3[] = 'Entrada sin rotación previa';
                 $c3 = array_values(array_filter($c3, fn($inc) => in_array($inc['tipo'], $tipos_c3, true)));
             }
@@ -3082,10 +3124,12 @@ class ClasePosstock
         string $ff_mov,
         string $fi_stock,
         int    $umbral_caducidad,
-        int $umbral_sin_rotacion,
+        int    $umbral_sin_rotacion,
         array  $familias_incluir,
-        array $familias_excluir,
-        array  $ids_filter = []
+        array  $familias_excluir,
+        array  $ids_filter           = [],
+        int    $dias_post            = 14,
+        float  $multiplicador_cadencia = 3.0
     ): array {
         $fi_m  = $this->db->real_escape_string($fi_mov);
         $ff_m  = $this->db->real_escape_string($ff_mov);
@@ -3094,15 +3138,36 @@ class ClasePosstock
         $wi    = $this->_idsWhere($ids_filter);
         $min_u = min($umbral_caducidad, $umbral_sin_rotacion);
 
-        $rows = $this->_queryUltimaVentaC3($fi_m, $ff_m, $fi_s, $wf, $wi, $min_u);
+        $rows = $this->_queryUltimaVentaC3($fi_m, $ff_m, $fi_s, $wf, $wi, $min_u, $dias_post, $multiplicador_cadencia);
         if (isset($rows['error'])) return $rows;
 
+        // Stock al cierre del periodo para los artículos afectados
+        $stock_map = [];
+        if (!empty($rows)) {
+            $ids_c3    = implode(',', array_unique(array_map(fn($r) => (int)$r['idArticulo'], $rows)));
+            $rows_stk  = $this->_queryStockRebobinado($ids_c3, $ff_m, false);
+            if (!isset($rows_stk['error'])) {
+                foreach ($rows_stk as $rs) {
+                    $stock_map[(int)$rs['idArticulo']] = (float)$rs['stock_en_periodo'];
+                }
+            }
+        }
+
         $fecha_fin_dt = new DateTime($ff_mov);
+        // Días totales del historial de ventas consultado (fi_stock → ff_mov)
+        $periodo_dias = (new DateTime($fi_stock))->diff(new DateTime($ff_mov))->days + 1;
         $incidencias  = [];
 
         foreach ($rows as $r) {
-            $id            = (int)$r['idArticulo'];
-            $ultima_venta  = $r['ultima_venta'];
+            $id                    = (int)$r['idArticulo'];
+            $ultima_venta          = $r['ultima_venta'];
+            $stock_actual          = $stock_map[$id] ?? null;
+            $n_entradas            = (int)$r['n_entradas'];
+            $cantidad_recibida     = (float)$r['cantidad_recibida'];
+            $fecha_primera_entrada = $r['fecha_primera_entrada'];
+            $n_devoluciones        = (int)$r['n_devoluciones'];
+            $cantidad_devuelta     = (float)$r['cantidad_devuelta'];
+            $tiene_devolucion      = $n_devoluciones > 0;
 
             if ($ultima_venta !== null) {
                 $semanas = (new DateTime($ultima_venta))->diff($fecha_fin_dt)->days / 7.0;
@@ -3110,36 +3175,167 @@ class ClasePosstock
                 $semanas = null;
             }
 
-            // C3a: riesgo de caducidad teórica
-            if ($ultima_venta !== null && $semanas >= $umbral_caducidad) {
+            // C3a: caída de rotación (umbral dinámico: avg_cadencia × multiplicador)
+            $n_ventas_historico = (int)$r['n_ventas_historico'];
+            $avg_cadencia_dias  = $n_ventas_historico > 0
+                ? round($periodo_dias / $n_ventas_historico, 1)
+                : null;
+            $umbral_efectivo_dias = $avg_cadencia_dias !== null
+                ? $avg_cadencia_dias * $multiplicador_cadencia
+                : PHP_INT_MAX;
+
+            // Referente de "días sin venta":
+            // Si el pedido llegó DESPUÉS de la última venta (el artículo se agotó y se
+            // repuso), los días de stockout no son imputables a rotación caída — el
+            // artículo rotó bien hasta agotar el stock.
+            // En ese caso se cuenta desde fecha_primera_entrada, no desde ultima_venta.
+            $desde_reposicion = $fecha_primera_entrada !== null
+                && $ultima_venta !== null
+                && strcmp($fecha_primera_entrada, $ultima_venta) > 0;
+            $ref_c3a     = $desde_reposicion ? $fecha_primera_entrada : $ultima_venta;
+            $semanas_c3a = $ref_c3a !== null
+                ? (new DateTime($ref_c3a))->diff($fecha_fin_dt)->days / 7.0
+                : null;
+
+            // Stock > 0 requerido: sin stock no hay inventario inmovilizado.
+            // n_ventas_historico >= 3: cadencia mínimamente fiable.
+            $c3a_ok = $semanas_c3a !== null
+                && $n_ventas_historico >= 3
+                && ($stock_actual === null || $stock_actual > 0)
+                && ($semanas_c3a * 7) >= $umbral_efectivo_dias;
+            if ($c3a_ok) {
+                $ratio_a   = ($semanas_c3a * 7) / max(1, $umbral_efectivo_dias);
+                $severidad = $ratio_a >= 2.0 ? 'ALTA' : 'MEDIA';
+                $wsem_c3a  = round($semanas_c3a, 1);
+                $es_fast   = $avg_cadencia_dias !== null && $avg_cadencia_dias <= 7.0;
+                if ($desde_reposicion) {
+                    // Artículo agotó stock (rotó bien) y el nuevo pedido no gira.
+                    // Las causas apuntan al nuevo stock, no al historial general.
+                    if ($es_fast) {
+                        if ($ratio_a <= 1.5) {
+                            $causa = "Recibido sin venta desde la última recepción — verificar ubicación en sala, EAN y precio";
+                        } elseif ($ratio_a <= 2.5) {
+                            $causa = "Nuevo pedido sin rotación en artículo de alta rotación — posible merma no registrada o problema de EAN";
+                        } else {
+                            $causa = "Nuevo stock paralizado desde la recepción — revisión urgente: exposición, estado del producto y precio";
+                        }
+                    } else {
+                        if ($ratio_a <= 1.5) {
+                            $causa = "Repuesto tras agotamiento sin rotación posterior — verificar si hay demanda activa antes del próximo pedido";
+                        } elseif ($ratio_a <= 2.5) {
+                            $causa = "Artículo repuesto pero sin demanda activa — posible artículo estacional o referencia sustituida";
+                        } else {
+                            $causa = "Nuevo stock sin movimiento desde la recepción — valorar devolución al proveedor o liquidación";
+                        }
+                    }
+                } elseif ($es_fast) {
+                    if ($ratio_a <= 1.5) {
+                        $causa = "Artículo de alta rotación con caída reciente — verificar ubicación en sala, EAN y precio";
+                    } elseif ($ratio_a <= 2.5) {
+                        $causa = "Alta rotación interrumpida — posible merma no registrada, problema de EAN o artículo agotado en lineal";
+                    } else {
+                        $causa = "Artículo de alta rotación sin ventas desde hace {$wsem_c3a} sem. — revisión urgente de exposición y estado del producto";
+                    }
+                } else {
+                    if ($ratio_a <= 1.5) {
+                        $causa = "Posible artículo estacional — revisar ventas en el mismo periodo del año anterior";
+                    } elseif ($ratio_a <= 2.5) {
+                        $causa = "Posible referencia sustituida — verificar si hay artículo similar activo con rotación";
+                    } else {
+                        $causa = "Sin demanda desde hace {$wsem_c3a} sem. — valorar liquidación o baja de referencia";
+                    }
+                }
                 $incidencias[] = [
                     'idArticulo'                 => $id,
-                    'tipo'                       => 'Riesgo de caducidad teórica',
-                    'severidad'                  => 'MEDIA',
+                    'tipo'                       => 'Caída de rotación',
+                    'severidad'                  => $severidad,
+                    'stock_actual'               => $stock_actual,
                     'ultima_venta'               => $ultima_venta,
-                    'semanas_desde_ultima_venta' => round($semanas, 1),
-                    'posible_causa'              => "Sin ventas >{$umbral_caducidad} sem.",
+                    'fecha_primera_entrada'      => $fecha_primera_entrada,
+                    'desde_reposicion'           => $desde_reposicion,
+                    'semanas_desde_ultima_venta' => $wsem_c3a,
+                    'avg_cadencia_dias'          => $avg_cadencia_dias,
+                    'n_entradas'                 => $n_entradas,
+                    'cantidad_recibida'          => $cantidad_recibida,
+                    'posible_causa'              => $causa,
                 ];
             }
 
             // C3b: entrada sin rotación previa
             if ($ultima_venta === null) {
+                // Seguridad anti-falso-positivo: solo aplica cuando hay una única entrada
+                // en el periodo (artículo que acaba de llegar y aún no ha tenido tiempo
+                // de vender). Con n_entradas >= 2 el patrón es una incidencia real
+                // independientemente de si vende justo después del periodo.
+                if ($n_entradas <= 1 && $r['primera_venta_post'] !== null) {
+                    continue;
+                }
+                // posible_causa diferenciada según patrón de entradas y devoluciones
+                if ($tiene_devolucion) {
+                    $ratio_dev = $cantidad_recibida > 0 ? $cantidad_devuelta / $cantidad_recibida : 0;
+                    if ($ratio_dev >= 0.8) {
+                        $causa_nunca = "Artículo recibido y devuelto casi en su totalidad — verificar si el pedido fue rechazado o si hubo un error en el albarán";
+                    } else {
+                        $causa_nunca = "Artículo con recepciones y devoluciones parciales sin ventas — posible problema de calidad o pedido incorrecto";
+                    }
+                } elseif ($n_entradas >= 3) {
+                    $causa_nunca = "Recibido {$n_entradas} veces sin ninguna venta registrada — prioritario: verificar código de barras o referencia duplicada";
+                } elseif ($n_entradas >= 2) {
+                    $causa_nunca = "Recibido {$n_entradas} veces sin ninguna venta — verificar si el código de barras es correcto o si las ventas se registran bajo otra referencia";
+                } else {
+                    $causa_nunca = "Sin ventas registradas — verificar si el código de barras es correcto o si las ventas se registran bajo otra referencia";
+                }
+                // Severidad: MEDIA si se ha pedido varias veces sin ninguna venta (problema sistémico)
+                $sev_nunca = ($n_entradas >= 2 || $tiene_devolucion) ? 'MEDIA' : 'BAJA';
                 $incidencias[] = [
                     'idArticulo'                  => $id,
                     'tipo'                        => 'Entrada sin rotación previa',
-                    'severidad'                   => 'BAJA',
+                    'severidad'                   => $sev_nunca,
+                    'stock_actual'                => $stock_actual,
                     'ultima_salida'               => null,
                     'semanas_desde_ultima_salida' => null,
-                    'posible_causa'               => 'Nunca ha tenido salidas',
+                    'n_entradas'                  => $n_entradas,
+                    'cantidad_recibida'           => $cantidad_recibida,
+                    'fecha_primera_entrada'       => $fecha_primera_entrada,
+                    'n_devoluciones'              => $n_devoluciones,
+                    'cantidad_devuelta'           => $cantidad_devuelta,
+                    'posible_causa'               => $causa_nunca,
                 ];
             } elseif ($semanas >= $umbral_sin_rotacion) {
+                $ratio_b  = $semanas / $umbral_sin_rotacion;
+                $wsem     = round($semanas, 1);
+                // Severidad: MEDIA si se sigue reponiendo con alta inmovilización
+                $sev_largo = ($n_entradas >= 2 || $ratio_b >= 2.0) ? 'MEDIA' : 'BAJA';
+                if ($n_entradas >= 2) {
+                    if ($ratio_b <= 1.5) {
+                        $causa_b = "Pedido {$n_entradas} veces sin rotación activa — verificar si el comprador tiene visibilidad del stock disponible";
+                    } elseif ($ratio_b <= 2.5) {
+                        $causa_b = "Pedido {$n_entradas} veces pese a {$wsem} sem. sin movimiento — posible referencia sustituida sin darse de baja";
+                    } else {
+                        $causa_b = "Artículo inmovilizado con reposición activa ({$n_entradas} pedidos, {$wsem} sem. sin venta) — revisar proceso de compra";
+                    }
+                } else {
+                    if ($ratio_b <= 1.5) {
+                        $causa_b = "Sin movimiento en {$wsem} sem. — verificar si hay demanda estacional o si el artículo está bien ubicado en sala";
+                    } elseif ($ratio_b <= 2.5) {
+                        $causa_b = "Posible referencia sustituida o sin demanda activa — revisar si las ventas se registran bajo otra referencia similar";
+                    } else {
+                        $causa_b = "Artículo inmovilizado ({$wsem} sem. sin movimiento) — valorar eliminar del surtido activo o liquidar";
+                    }
+                }
                 $incidencias[] = [
                     'idArticulo'                  => $id,
                     'tipo'                        => 'Entrada sin rotación previa',
-                    'severidad'                   => 'BAJA',
+                    'severidad'                   => $sev_largo,
+                    'stock_actual'                => $stock_actual,
                     'ultima_salida'               => $ultima_venta,
                     'semanas_desde_ultima_salida' => round($semanas, 1),
-                    'posible_causa'               => 'Sin rotación / error de unidad',
+                    'n_entradas'                  => $n_entradas,
+                    'cantidad_recibida'           => $cantidad_recibida,
+                    'fecha_primera_entrada'       => $fecha_primera_entrada,
+                    'n_devoluciones'              => $n_devoluciones,
+                    'cantidad_devuelta'           => $cantidad_devuelta,
+                    'posible_causa'               => $causa_b,
                 ];
             }
         }

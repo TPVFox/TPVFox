@@ -45,6 +45,7 @@ if (!isset($mapa['inputUmbralSinRotacionSemanas'])
 $modelos_validos  = ['automatico', 'binomial', 'poisson_bn', 'gamma'];
 $sig_validas      = ['0.90', '0.95', '0.99'];
 $sigma_validos    = ['2.0', '2.5', '3.0', '3.5', '4.0'];
+$mult_c3a_validos = ['2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0'];
 
 if (!isset($mapa['inputModeloEstadistico']) || !in_array($mapa['inputModeloEstadistico'], $modelos_validos, true)) {
     $mapa['inputModeloEstadistico'] = 'automatico';
@@ -60,6 +61,16 @@ if (!isset($mapa['inputC6LeadTimeDefecto'])
     || intval($mapa['inputC6LeadTimeDefecto']) < 1
 ) {
     $mapa['inputC6LeadTimeDefecto'] = '14';
+}
+if (!isset($mapa['inputC3bDiasPost'])
+    || !ctype_digit($mapa['inputC3bDiasPost'])
+    || intval($mapa['inputC3bDiasPost']) < 7
+    || intval($mapa['inputC3bDiasPost']) > 30
+) {
+    $mapa['inputC3bDiasPost'] = '14';
+}
+if (!isset($mapa['inputC3aMultiplicadorCadencia']) || !in_array($mapa['inputC3aMultiplicadorCadencia'], $mult_c3a_validos, true)) {
+    $mapa['inputC3aMultiplicadorCadencia'] = '3.0';
 }
 
 if (!empty($errores)) {
@@ -81,12 +92,16 @@ if (!empty($errores)) {
     $posstock->c5_incluir_stock_negativo         = $c5_incluir_stock_negativo;
     $posstock->incluir_albcli_ventas             = $incluir_albcli_ventas;
     $posstock->c6_lead_time_defecto              = intval($mapa['inputC6LeadTimeDefecto']);
+    $posstock->c3b_dias_post_periodo             = intval($mapa['inputC3bDiasPost']);
+    $posstock->c3a_multiplicador_cadencia        = $mapa['inputC3aMultiplicadorCadencia'];
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';
         $respuesta['ventana_dias']         = (int)$mapa['inputVentanaDias'];
         $respuesta['modelo_estadistico']   = $mapa['inputModeloEstadistico'];
         $respuesta['modelo_significancia'] = $mapa['inputModeloSignificancia'];
+        $respuesta['c3b_dias_post']           = (int)$mapa['inputC3bDiasPost'];
+        $respuesta['c3a_multiplicador']       = (float)$mapa['inputC3aMultiplicadorCadencia'];
     } else {
         $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
     }

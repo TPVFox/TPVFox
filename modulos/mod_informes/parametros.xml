@@ -27,6 +27,14 @@
 			<c5_incluir_stock_negativo>0</c5_incluir_stock_negativo>
 			<!-- 1 = incluir albaranes de cliente como ventas en C5 y C6 (por defecto solo tickets de caja) -->
 			<incluir_albcli_ventas>0</incluir_albcli_ventas>
+			<!-- C3b — días posteriores al rango analizado para validar que un artículo "nunca vendido"
+			     no es un falso positivo (entró al final del periodo y aún no había tenido tiempo de vender) -->
+			<c3b_dias_post_periodo>14</c3b_dias_post_periodo>
+			<!-- C3a — multiplicador sobre la cadencia media histórica del artículo para calcular
+			     el umbral dinámico de rotación: umbral_dias = avg_cadencia_dias × multiplicador.
+			     Ejemplo: artículo que vende cada 3 días → alerta con 3×3=9 días sin venta.
+			     Rango recomendado: 2.0–6.0 -->
+			<c3a_multiplicador_cadencia>3.0</c3a_multiplicador_cadencia>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>
