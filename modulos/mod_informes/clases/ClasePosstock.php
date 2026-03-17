@@ -153,7 +153,6 @@ class ClasePosstock
         string $where_familia,
         string $where_ids
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         $sql = "
             SELECT tipo_movimiento, idArticulo, SUM(ncant) AS ncant, fecha, NULL AS idDocumento
             FROM (
@@ -168,7 +167,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado       IN ('Guardado', 'Facturado')
                   AND l.estadoLinea  = 'Activo'
-                  AND a.tipo         IN ($tipos)
                   $where_familia
                   $where_ids
 
@@ -185,7 +183,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado       = 'Cerrado'
                   AND l.estadoLinea  = 'Activo'
-                  AND a.tipo         IN ($tipos)
                   $where_familia
                   $where_ids
 
@@ -202,7 +199,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado       IN ('Guardado', 'Procesado')
                   AND l.estadoLinea  = 'Activo'
-                  AND a.tipo         IN ($tipos)
                   $where_familia
                   $where_ids
             ) AS all_movs
@@ -417,7 +413,6 @@ class ClasePosstock
         string $where_ids,
         bool   $incluir_albcli = false
     ): array {
-        $tipos    = self::TIPOS_FISICOS;
         $union_albcli = $incluir_albcli ? "
                 UNION
                 SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
@@ -427,7 +422,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
                   $where_fam
                   $where_ids" : '';
         $smt = $this->db->query("
@@ -439,7 +433,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
                   $where_fam
                   $where_ids
                 $union_albcli
@@ -517,9 +510,9 @@ class ClasePosstock
         string $ff,
         string $where_fam,
         string $where_ids,
-        bool   $incluir_albcli = false
+        bool   $incluir_albcli = false,
+        bool   $incluir_todos_tipos = false
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         if ($incluir_albcli) {
             $smt = $this->db->query("
                 SELECT idArticulo, fecha, SUM(ncant) AS ncant_dia
@@ -528,23 +521,21 @@ class ClasePosstock
                     FROM ticketslinea l
                     INNER JOIN ticketst  c ON c.id = l.idticketst
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                    WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                      AND c.estado = 'Cerrado'
-                      AND l.estadoLinea = 'Activo'
-                      AND a.tipo IN ($tipos)
-                      $where_fam
-                      $where_ids
+                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                            AND c.estado = 'Cerrado'
+                                            AND l.estadoLinea = 'Activo'
+                                            $where_fam
+                                            $where_ids
                     UNION ALL
                     SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant
                     FROM albclilinea l
                     INNER JOIN albclit   c ON c.id = l.idalbcli
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                    WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                      AND c.estado IN ('Guardado','Procesado')
-                      AND l.estadoLinea = 'Activo'
-                      AND a.tipo IN ($tipos)
-                      $where_fam
-                      $where_ids
+                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                            AND c.estado IN ('Guardado','Procesado')
+                                            AND l.estadoLinea = 'Activo'
+                                            $where_fam
+                                            $where_ids
                 ) AS ventas
                 GROUP BY idArticulo, fecha
                 ORDER BY idArticulo, fecha
@@ -552,15 +543,14 @@ class ClasePosstock
         } else {
             $smt = $this->db->query("
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS ncant_dia
-                FROM ticketslinea l
-                INNER JOIN ticketst  c ON c.id = l.idticketst
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
-                  $where_fam
-                  $where_ids
+                                FROM ticketslinea l
+                                INNER JOIN ticketst  c ON c.id = l.idticketst
+                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                    AND c.estado = 'Cerrado'
+                                    AND l.estadoLinea = 'Activo'
+                                    $where_fam
+                                    $where_ids
                 GROUP BY l.idArticulo, DATE(c.Fecha)
                 ORDER BY l.idArticulo, DATE(c.Fecha)
             ");
@@ -703,7 +693,6 @@ class ClasePosstock
         string $wf,
         string $wi
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         $sql = "
             SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running,
                    MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo
@@ -725,7 +714,6 @@ class ClasePosstock
                             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                               AND c.estado      IN ('Guardado','Facturado')
                               AND l.estadoLinea = 'Activo'
-                              AND a.tipo        IN ($tipos)
                               $wf $wi
                             UNION ALL
                             SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
@@ -735,7 +723,6 @@ class ClasePosstock
                             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                               AND c.estado      = 'Cerrado'
                               AND l.estadoLinea = 'Activo'
-                              AND a.tipo        IN ($tipos)
                               $wf $wi
                             UNION ALL
                             SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
@@ -745,7 +732,6 @@ class ClasePosstock
                             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                               AND c.estado      IN ('Guardado','Procesado')
                               AND l.estadoLinea = 'Activo'
-                              AND a.tipo        IN ($tipos)
                               $wf $wi
                         ) AS all_movs
                         GROUP BY idArticulo, fecha
@@ -774,7 +760,6 @@ class ClasePosstock
         string $wf,
         string $wi
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         $sql = "
             SELECT e.idArticulo, e.fecha, e.ncant,
                    COALESCE(r.cum_before, 0) AS cum_before
@@ -788,7 +773,6 @@ class ClasePosstock
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
                   AND l.ncant       > 0
-                  AND a.tipo        IN ($tipos)
                   $wf $wi
                 GROUP BY l.idArticulo, DATE(c.Fecha)
             ) AS e
@@ -809,7 +793,6 @@ class ClasePosstock
                         WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                           AND c.estado      IN ('Guardado','Facturado')
                           AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
                           $wf $wi
                         UNION ALL
                         SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
@@ -819,7 +802,6 @@ class ClasePosstock
                         WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                           AND c.estado      = 'Cerrado'
                           AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
                           $wf $wi
                         UNION ALL
                         SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
@@ -829,7 +811,6 @@ class ClasePosstock
                         WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                           AND c.estado      IN ('Guardado','Procesado')
                           AND l.estadoLinea = 'Activo'
-                          AND a.tipo        IN ($tipos)
                           $wf $wi
                     ) AS all_movs
                     GROUP BY idArticulo, fecha
@@ -947,10 +928,11 @@ class ClasePosstock
      * @return array  Filas [{idArticulo, fecha}] o ['error' => ...]
      */
     private function _queryRecepcionesFechasC7(
-        string $fi, string $ff,
-        string $wf, string $wi
+        string $fi,
+        string $ff,
+        string $wf,
+        string $wi
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         $sql = "
             SELECT l.idArticulo, DATE(c.Fecha) AS fecha
             FROM albprolinea l
@@ -960,7 +942,6 @@ class ClasePosstock
               AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
               AND l.ncant > 0
-              AND a.tipo IN ($tipos)
               $wf $wi
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
@@ -981,7 +962,8 @@ class ClasePosstock
      * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error' => ...]
      */
     private function _queryTimelineMovimientosC7(
-        string $fi, string $ff,
+        string $fi,
+        string $ff,
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
@@ -1069,14 +1051,12 @@ class ClasePosstock
      */
     private function _queryArticulosProveedorPaginados(string $ids_prov, int $offset, int $limit): array
     {
-        $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query(
             "SELECT DISTINCT ap.idArticulo
              FROM articulosProveedores ap
              INNER JOIN articulos a ON a.idArticulo = ap.idArticulo
              WHERE ap.idProveedor IN ($ids_prov)
                AND ap.estado = 'Activo'
-               AND a.tipo IN ($tipos)
              ORDER BY ap.idArticulo
              LIMIT $limit OFFSET $offset"
         );
@@ -1220,7 +1200,6 @@ class ClasePosstock
         string $limit_clause,
         string $where_prov = ''   // cláusula AND idArticulo IN (...) de proveedores
     ): array {
-        $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query("
             SELECT DISTINCT idArticulo FROM (
                 SELECT l.idArticulo FROM albprolinea l
@@ -1229,7 +1208,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
                   $where_fam $where_prov
                 UNION
                 SELECT l.idArticulo FROM ticketslinea l
@@ -1238,7 +1216,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
                   $where_fam $where_prov
                 UNION
                 SELECT l.idArticulo FROM albclilinea l
@@ -1247,7 +1224,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo IN ($tipos)
                   $where_fam $where_prov
             ) AS sub
             ORDER BY idArticulo
@@ -1615,11 +1591,21 @@ class ClasePosstock
         // ── C5 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso5'])) {
             $c5 = $this->getIncidenciasCaso5(
-                $fi_mov, $ff_mov, $fi_stats, $umbral_sobrestock,
-                $familias_incluir, $familias_excluir, $ids_filter,
-                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
-                $c5_incluir_stock_negativo, $binomial_sigma_mult, $incluir_albcli,
-                $c3b_dias_post, $ff_stats
+                $fi_mov,
+                $ff_mov,
+                $fi_stats,
+                $umbral_sobrestock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $min_ventas_c5,
+                $modelo_rotura_c5,
+                $umbral_confianza_c5,
+                $c5_incluir_stock_negativo,
+                $binomial_sigma_mult,
+                $incluir_albcli,
+                $c3b_dias_post,
+                $ff_stats
             );
             if (isset($c5['error'])) return $c5;
             $incidencias = array_merge($incidencias, $c5);
@@ -1632,14 +1618,26 @@ class ClasePosstock
         // ── C6a — ROP estacional (ventana ligada al periodo ±1) ──────────────
         if (isset($casos_set['caso6a'])) {
             $c6a = $this->getIncidenciasCaso6(
-                $fi_mov, $ff_mov, $fi_stock,
-                $familias_incluir, $familias_excluir, $ids_filter,
-                $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
-                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
-                $binomial_sigma_mult, $incluir_albcli,
-                $fi_stats, $ff_stats,
-                'Agotamiento Estimado', '',
-                $umbral_rop_mult, $umbral_stock_neg
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $c6_proveedores,
+                $c6_lead_time,
+                $c6_nivel_serv,
+                $min_ventas_c5,
+                $modelo_rotura_c5,
+                $umbral_confianza_c5,
+                $binomial_sigma_mult,
+                $incluir_albcli,
+                $fi_stats,
+                $ff_stats,
+                'Agotamiento Estimado',
+                '',
+                $umbral_rop_mult,
+                $umbral_stock_neg
             );
             if (isset($c6a['error'])) return $c6a;
             $incidencias = array_merge($incidencias, $c6a);
@@ -1684,14 +1682,26 @@ class ClasePosstock
                 $ids_c6b = $ids_proveedor_filter;  // sin filtro de proveedor: comportamiento normal
             }
             $c6b = $this->getIncidenciasCaso6(
-                $ff_hoy, $ff_hoy, $fi_stock,
-                $familias_incluir, $familias_excluir, $ids_c6b,
-                $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
-                $min_ventas_c6b, $modelo_rotura_c5, $umbral_confianza_c5,
-                $binomial_sigma_mult, $incluir_albcli,
-                $fi_stats_6b, $ff_hoy,
-                'Punto de Pedido', $ff_hoy,
-                $umbral_rop_mult, $umbral_stock_neg
+                $ff_hoy,
+                $ff_hoy,
+                $fi_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_c6b,
+                $c6_proveedores,
+                $c6_lead_time,
+                $c6_nivel_serv,
+                $min_ventas_c6b,
+                $modelo_rotura_c5,
+                $umbral_confianza_c5,
+                $binomial_sigma_mult,
+                $incluir_albcli,
+                $fi_stats_6b,
+                $ff_hoy,
+                'Punto de Pedido',
+                $ff_hoy,
+                $umbral_rop_mult,
+                $umbral_stock_neg
             );
             if (isset($c6b['error'])) return $c6b;
             // Marcar si el proveedor seleccionado es el proveedor principal (estado='Activo') de cada artículo
@@ -1865,32 +1875,50 @@ class ClasePosstock
     private function _normalQuantile(float $p): float
     {
         $p = max(1e-15, min(1 - 1e-15, $p));
-        $a = [-3.969683028665376e+01,  2.209460984245205e+02,
-              -2.759285104469687e+02,  1.383577518672690e+02,
-              -3.066479806614716e+01,  2.506628277459239e+00];
-        $b = [-5.447609879822406e+01,  1.615858368580409e+02,
-              -1.556989798598866e+02,  6.680131188771972e+01,
-              -1.328068155288572e+01];
-        $c = [-7.784894002430293e-03, -3.223964580411365e-01,
-              -2.400758277161838e+00, -2.549732539343734e+00,
-               4.374664141464968e+00,  2.938163982698783e+00];
-        $d = [7.784695709041462e-03,  3.224671290700398e-01,
-              2.445134137142996e+00,  3.754408661907416e+00];
+        $a = [
+            -3.969683028665376e+01,
+            2.209460984245205e+02,
+            -2.759285104469687e+02,
+            1.383577518672690e+02,
+            -3.066479806614716e+01,
+            2.506628277459239e+00
+        ];
+        $b = [
+            -5.447609879822406e+01,
+            1.615858368580409e+02,
+            -1.556989798598866e+02,
+            6.680131188771972e+01,
+            -1.328068155288572e+01
+        ];
+        $c = [
+            -7.784894002430293e-03,
+            -3.223964580411365e-01,
+            -2.400758277161838e+00,
+            -2.549732539343734e+00,
+            4.374664141464968e+00,
+            2.938163982698783e+00
+        ];
+        $d = [
+            7.784695709041462e-03,
+            3.224671290700398e-01,
+            2.445134137142996e+00,
+            3.754408661907416e+00
+        ];
 
         $p_low = 0.02425;
         if ($p < $p_low) {
             $q = sqrt(-2.0 * log($p));
-            return (((((($c[0]*$q+$c[1])*$q+$c[2])*$q+$c[3])*$q+$c[4])*$q+$c[5]) /
-                    ((((($d[0]*$q+$d[1])*$q+$d[2])*$q+$d[3])*$q+1.0)));
+            return (((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5]) /
+                ((((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0)));
         } elseif ($p <= 1.0 - $p_low) {
             $q = $p - 0.5;
             $r = $q * $q;
-            return (((((($a[0]*$r+$a[1])*$r+$a[2])*$r+$a[3])*$r+$a[4])*$r+$a[5])*$q /
-                    (((((($b[0]*$r+$b[1])*$r+$b[2])*$r+$b[3])*$r+$b[4])*$r+1.0)));
+            return (((((($a[0] * $r + $a[1]) * $r + $a[2]) * $r + $a[3]) * $r + $a[4]) * $r + $a[5]) * $q /
+                (((((($b[0] * $r + $b[1]) * $r + $b[2]) * $r + $b[3]) * $r + $b[4]) * $r + 1.0)));
         } else {
             $q = sqrt(-2.0 * log(1.0 - $p));
-            return -(((((($c[0]*$q+$c[1])*$q+$c[2])*$q+$c[3])*$q+$c[4])*$q+$c[5]) /
-                     ((((($d[0]*$q+$d[1])*$q+$d[2])*$q+$d[3])*$q+1.0)));
+            return - (((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5]) /
+                ((((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0)));
         }
     }
 
@@ -2137,12 +2165,27 @@ class ClasePosstock
             $cv_th = $is_peso ? 0.65 : 0.45;
             if ($cv_g < $cv_th) {
                 return $this->_calcularRoturasC5Gamma(
-                    $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $incluir_stock_negativo, 'GammaReg'
+                    $id,
+                    $fechas_map,
+                    $stock_actual,
+                    $ff_ts,
+                    $min_ventas,
+                    $umbral_prob,
+                    $incluir_stock_negativo,
+                    'GammaReg'
                 );
             }
             // Alta rotación, gaps más variables → Poisson (inter-arrivals ~ Exponencial)
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
+                $id,
+                $fechas_map,
+                $stock_actual,
+                $ff_ts,
+                $min_ventas,
+                $umbral_prob,
+                $periodo_dias,
+                $incluir_stock_negativo,
+                $ff_stats_ts
             );
         }
 
@@ -2150,20 +2193,42 @@ class ClasePosstock
         // 2a. Demanda en rachas → Binomial Negativa (activa internamente en _calcularRoturasC5Poisson)
         if ($overdispersed) {
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
+                $id,
+                $fechas_map,
+                $stock_actual,
+                $ff_ts,
+                $min_ventas,
+                $umbral_prob,
+                $periodo_dias,
+                $incluir_stock_negativo,
+                $ff_stats_ts
             );
         }
 
         // 2b. Muy esporádico (no tipo peso) → Poisson (proceso de eventos raros)
         if (!$is_peso && $rotation < 0.15) {
             return $this->_calcularRoturasC5Poisson(
-                $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $periodo_dias, $incluir_stock_negativo, $ff_stats_ts
+                $id,
+                $fechas_map,
+                $stock_actual,
+                $ff_ts,
+                $min_ventas,
+                $umbral_prob,
+                $periodo_dias,
+                $incluir_stock_negativo,
+                $ff_stats_ts
             );
         }
 
         // 2c. General / tipo peso → Gamma (ajuste a distribución de gaps, cuantil de rotura)
         return $this->_calcularRoturasC5Gamma(
-            $id, $fechas_map, $stock_actual, $ff_ts, $min_ventas, $umbral_prob, $incluir_stock_negativo
+            $id,
+            $fechas_map,
+            $stock_actual,
+            $ff_ts,
+            $min_ventas,
+            $umbral_prob,
+            $incluir_stock_negativo
         );
     }
 
@@ -2582,23 +2647,44 @@ class ClasePosstock
             $ff_stats_ts = strtotime($ff_stats);
             $roturas = match ($modelo) {
                 'automatico' => $this->_autoDispatchC5(
-                    $id, $fechas_map, $sa,
-                    $ff_ts, $min_ventas, $umbral_prob, $periodo_dias,
-                    $c5_incluir_stock_negativo, $ff_stats_ts
+                    $id,
+                    $fechas_map,
+                    $sa,
+                    $ff_ts,
+                    $min_ventas,
+                    $umbral_prob,
+                    $periodo_dias,
+                    $c5_incluir_stock_negativo,
+                    $ff_stats_ts
                 ),
                 'gamma' => $this->_calcularRoturasC5Gamma(
-                    $id, $fechas_map, $sa,
-                    $ff_ts, $min_ventas, $umbral_prob,
+                    $id,
+                    $fechas_map,
+                    $sa,
+                    $ff_ts,
+                    $min_ventas,
+                    $umbral_prob,
                     $c5_incluir_stock_negativo
                 ),
                 'poisson_bn', 'poisson' => $this->_calcularRoturasC5Poisson(
-                    $id, $fechas_map, $sa,
-                    $ff_ts, $min_ventas, $umbral_prob, $periodo_dias,
-                    $c5_incluir_stock_negativo, $ff_stats_ts
+                    $id,
+                    $fechas_map,
+                    $sa,
+                    $ff_ts,
+                    $min_ventas,
+                    $umbral_prob,
+                    $periodo_dias,
+                    $c5_incluir_stock_negativo,
+                    $ff_stats_ts
                 ),
                 default => $this->_calcularRoturasC5(  // 'binomial'
-                    $id, $fechas_map, $sa,
-                    $ff_ts, $min_ventas, $c5_incluir_stock_negativo, $binomial_sigma_mult
+                    $id,
+                    $fechas_map,
+                    $sa,
+                    $ff_ts,
+                    $min_ventas,
+                    $c5_incluir_stock_negativo,
+                    $binomial_sigma_mult
                 ),
             };
             foreach ($roturas as $r) $incidencias[] = $r;
@@ -2623,7 +2709,10 @@ class ClasePosstock
                     date('Y-m-d', strtotime($ff_mov . " +{$dias_post} days"))
                 );
                 $ventas_post = $this->_queryVentasPostPeriodoC5(
-                    $ids_str_curso, $fi_post_esc, $ff_post_esc, $incluir_albcli
+                    $ids_str_curso,
+                    $fi_post_esc,
+                    $ff_post_esc,
+                    $incluir_albcli
                 );
                 foreach ($incidencias as &$inc) {
                     if ($inc['fecha_fin_rotura'] !== null) continue;
@@ -2753,7 +2842,9 @@ class ClasePosstock
         // Paso 1 — Cantidades vendidas por día y artículo en el periodo
         // (no fechas únicas: necesitamos unidades para d = unidades/día)
         // Ventana estadística fi_stats→ff_stats para mayor muestra en vistas cortas
-        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
+        // Si se filtra por proveedores (C6b) incluir todos los tipos de artículo
+        $incluir_todos_tipos = !empty($proveedores_incluir);
+        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli, $incluir_todos_tipos);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
@@ -2829,12 +2920,15 @@ class ClasePosstock
         $incidencias          = [];
         $pending_reconstruction = []; // artículos con stock > 10×ROP: parámetros estadísticos ya calculados
 
+        // En C6b (filtrado por proveedor) no aplicar el umbral mínimo de días con venta
+        $min_ventas_effective = !empty($proveedores_incluir) ? 5 : $min_ventas;
+
         foreach ($ventas_cant as $id => $fechas_map) {
             // $n  = días únicos con venta (base estadística del modelo)
             // $total_units = unidades totales vendidas (base de la demanda media)
             $n           = count($fechas_map);
             $total_units = array_sum($fechas_map);
-            if ($n < $min_ventas) continue;
+            if ($n < $min_ventas_effective) continue;
 
             $d = $total_units / $periodo_dias;   // demanda diaria en unidades
             if ($d <= 0) continue;
@@ -2884,7 +2978,6 @@ class ClasePosstock
                     $sigma_d      = sqrt($d);
                     $modelo_usado = 'Poisson';
                 }
-
             } elseif ($modelo === 'binomial') {
                 // Compound Binomial: cada día ~ Bernoulli(p); en días con venta
                 // la cantidad sigue su propia distribución.
@@ -2898,7 +2991,6 @@ class ClasePosstock
                 }
                 $sigma_d      = sqrt(max(0.0, $p_sale * (1.0 - $p_sale) * $q_mean ** 2 + $p_sale * $s2_q));
                 $modelo_usado = 'Binomial';
-
             } elseif ($modelo === 'automatico') {
                 // ── Árbol de decisión C6 ─────────────────────────────────────────
                 // Métricas base
@@ -2919,21 +3011,21 @@ class ClasePosstock
                     $sigma_d      = sqrt(max(0.0, $var_d_auto));
                     $modelo_usado = 'Normal';
 
-                // RAMA 2: Demanda en rachas/lotes (sobredispersión fuerte)
-                //   → BN: σ² ajustada al parámetro r de la Binomial Negativa
+                    // RAMA 2: Demanda en rachas/lotes (sobredispersión fuerte)
+                    //   → BN: σ² ajustada al parámetro r de la Binomial Negativa
                 } elseif ($overdispersed_auto) {
                     $r_bn         = max(0.001, ($mu_chunk ** 2) / ($s2_chunk - $mu_chunk));
                     $sigma_d      = sqrt($d * (1.0 + $d / $r_bn));
                     $modelo_usado = 'BN';
 
-                // RAMA 3: Demanda muy baja o esporádica (especias, ferretería lenta)
-                //   → Poisson: varianza ≈ media (proceso de eventos raros)
+                    // RAMA 3: Demanda muy baja o esporádica (especias, ferretería lenta)
+                    //   → Poisson: varianza ≈ media (proceso de eventos raros)
                 } elseif ($rotation_auto < 0.10 || $d < 0.3) {
                     $sigma_d      = sqrt($d);
                     $modelo_usado = 'Poisson';
 
-                // RAMA 4: Demanda muy asimétrica (CV alto) o lead time muy variable
-                //   → Gamma: cuantil directo desde ajuste Gamma a la demanda en L
+                    // RAMA 4: Demanda muy asimétrica (CV alto) o lead time muy variable
+                    //   → Gamma: cuantil directo desde ajuste Gamma a la demanda en L
                 } elseif ($cv_d_auto > 1.0 && $var_d_auto > 1e-9 && $d > 1e-9) {
                     $alpha_auto   = ($d ** 2) / $var_d_auto;
                     $theta_auto   = $var_d_auto / $d;
@@ -2941,7 +3033,7 @@ class ClasePosstock
                     $SS           = max(0.0, $ROP - $d * $L);
                     $modelo_usado = 'Gamma';
 
-                // RAMA 5: General — Normal si volumen suficiente (d ≥ 1), Poisson si bajo
+                    // RAMA 5: General — Normal si volumen suficiente (d ≥ 1), Poisson si bajo
                 } else {
                     if ($d >= 1.0) {
                         $sigma_d      = sqrt(max(0.0, $var_d_auto));
@@ -2951,7 +3043,6 @@ class ClasePosstock
                         $modelo_usado = 'Poisson';
                     }
                 }
-
             } else {
                 // 'poisson_bn' / 'poisson' — BN si sobredispersado, Poisson si no
                 if ($n_chunks >= 4 && $s2_chunk > $mu_chunk + 1e-9 && $mu_chunk > 1e-9) {
@@ -3522,7 +3613,7 @@ class ClasePosstock
                     // Sin ventas entre las dos recepciones adyacentes, o sin
                     // datos de recepción anterior pero tampoco ventas globales
                     $es_acum = ($vtr !== null && $vtr < 1)
-                            || ($vtr === null && $cob === null);
+                        || ($vtr === null && $cob === null);
                     if ($es_acum) $n_acum++;
                 }
                 if ($n_acum / $n_total >= 0.70) {
@@ -3904,7 +3995,9 @@ class ClasePosstock
         if ($n < 2 || $n !== count($y)) return 0.0;
         $mx = array_sum($x) / $n;
         $my = array_sum($y) / $n;
-        $num = 0.0; $dx2 = 0.0; $dy2 = 0.0;
+        $num = 0.0;
+        $dx2 = 0.0;
+        $dy2 = 0.0;
         for ($i = 0; $i < $n; $i++) {
             $dx  = $x[$i] - $mx;
             $dy  = $y[$i] - $my;
@@ -3932,8 +4025,10 @@ class ClasePosstock
         $n = count($y);
         if ($n < 3) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0];
 
-        $sum_x  = 0;   $sum_y  = 0.0;
-        $sum_xy = 0.0; $sum_xx = 0;
+        $sum_x  = 0;
+        $sum_y  = 0.0;
+        $sum_xy = 0.0;
+        $sum_xx = 0;
         for ($i = 0; $i < $n; $i++) {
             $sum_x  += $i;
             $sum_y  += $y[$i];
@@ -3947,7 +4042,8 @@ class ClasePosstock
         $intercept = ($sum_y - $slope * $sum_x) / $n;
         $mean_y    = $sum_y / $n;
 
-        $ss_tot = 0.0; $ss_res = 0.0;
+        $ss_tot = 0.0;
+        $ss_res = 0.0;
         for ($i = 0; $i < $n; $i++) {
             $y_hat   = $intercept + $slope * $i;
             $ss_res += ($y[$i] - $y_hat) ** 2;
@@ -3965,11 +4061,31 @@ class ClasePosstock
 
         // Valores críticos t_{df, 0.95} (bilateral α = 0.10) — lookup + interpolación lineal
         static $t_tab = [
-            1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
-            6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
-            11 => 1.796, 12 => 1.782, 13 => 1.771, 14 => 1.761, 15 => 1.753,
-            16 => 1.746, 17 => 1.740, 18 => 1.734, 19 => 1.729, 20 => 1.725,
-            25 => 1.708, 30 => 1.697, 40 => 1.684, 60 => 1.671, 120 => 1.658,
+            1 => 6.314,
+            2 => 2.920,
+            3 => 2.353,
+            4 => 2.132,
+            5 => 2.015,
+            6 => 1.943,
+            7 => 1.895,
+            8 => 1.860,
+            9 => 1.833,
+            10 => 1.812,
+            11 => 1.796,
+            12 => 1.782,
+            13 => 1.771,
+            14 => 1.761,
+            15 => 1.753,
+            16 => 1.746,
+            17 => 1.740,
+            18 => 1.734,
+            19 => 1.729,
+            20 => 1.725,
+            25 => 1.708,
+            30 => 1.697,
+            40 => 1.684,
+            60 => 1.671,
+            120 => 1.658,
         ];
         $df = $n - 2;
         if ($df > 120) {
@@ -4228,9 +4344,21 @@ class ClasePosstock
             // t_{n-1, 0.975}: si el IC superior es < 0, el offset negativo es
             // estadísticamente significativo al 95 %.
             static $t_975_tab = [
-                1 => 12.706, 2 => 4.303, 3 => 3.182, 4 => 2.776, 5 => 2.571,
-                6 => 2.447,  7 => 2.365, 8 => 2.306, 9 => 2.262, 10 => 2.228,
-                15 => 2.131, 20 => 2.086, 30 => 2.042, 60 => 2.000, 120 => 1.980,
+                1 => 12.706,
+                2 => 4.303,
+                3 => 3.182,
+                4 => 2.776,
+                5 => 2.571,
+                6 => 2.447,
+                7 => 2.365,
+                8 => 2.306,
+                9 => 2.262,
+                10 => 2.228,
+                15 => 2.131,
+                20 => 2.086,
+                30 => 2.042,
+                60 => 2.000,
+                120 => 1.980,
             ];
             $df_ic = $n - 1;
             if ($df_ic > 120) {
@@ -4251,7 +4379,8 @@ class ClasePosstock
             $ic95_upper = $mean + $t_975 * ($std_dev / sqrt($n));
 
             // IQR de los suelos (Q3 − Q1) para el filtro de estabilidad de C7b
-            $sf = $floors; sort($sf);
+            $sf = $floors;
+            sort($sf);
             $q1_idx = (int)floor(($n - 1) * 0.25);
             $q3_idx = (int)ceil(($n - 1) * 0.75);
             $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
@@ -4290,7 +4419,8 @@ class ClasePosstock
             // · R² ≥ 0.40: la tendencia lineal explica la mayor parte de la varianza
             // · Variación total significativa (suelo final − suelo inicial ≥ 2 ud.)
             $delta_total = $floors[$n - 1] - $floors[0];
-            if (isset($subcasos_set['C7a'])
+            if (
+                isset($subcasos_set['C7a'])
                 && $mean >= 0
                 && $slope >= 0.5
                 && $reg['p_value'] < 0.10
@@ -4313,7 +4443,8 @@ class ClasePosstock
                     '_floors_raw'      => $floors_map,   // temporal; se elimina al final
                     'posible_causa'    => sprintf(
                         'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción): posible merma no registrada, caducidad sistemática o salida sin documentar',
-                        $delta_total, $slope
+                        $delta_total,
+                        $slope
                     ),
                 ];
             }
@@ -4430,13 +4561,13 @@ class ClasePosstock
                     );
 
                     $score = $s_mag    * 0.50
-                           + $s_corr   * 0.25
-                           + $s_disp   * 0.15
-                           + $s_nombre * 0.10;
+                        + $s_corr   * 0.25
+                        + $s_disp   * 0.15
+                        + $s_nombre * 0.10;
 
                     if ($score < 0.50) continue;
                     $nivel = ($score >= 0.80) ? 'confirmado'
-                           : (($score >= 0.65) ? 'probable' : 'posible');
+                        : (($score >= 0.65) ? 'probable' : 'posible');
 
                     if ($score > $mejor_score) {
                         $mejor_score = $score;
@@ -4456,7 +4587,9 @@ class ClasePosstock
                     ];
                     $inc['posible_causa'] = sprintf(
                         'Merma con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza de autopesaje entre ambos artículos',
-                        $mejor_id, $mejor_nivel, $mejor_score
+                        $mejor_id,
+                        $mejor_nivel,
+                        $mejor_score
                     );
                 }
             }
@@ -4482,7 +4615,10 @@ class ClasePosstock
                     $inc['cruce_nivel']       = $nivel;
                     $inc['posible_causa'] = sprintf(
                         'Déficit de ~%.0f ud. con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza o recepción no registrada',
-                        abs((float)$inc['offset_estimado']), $id_a, $nivel, $score
+                        abs((float)$inc['offset_estimado']),
+                        $id_a,
+                        $nivel,
+                        $score
                     );
                 }
                 unset($inc);
@@ -4562,18 +4698,22 @@ class ClasePosstock
                         foreach ($inc['_floors_raw'] as $dc => $vc) {
                             $ts_c = strtotime($dc);
 
-                            $best_va = null; $best_diff_a = $ventana + 1;
+                            $best_va = null;
+                            $best_diff_a = $ventana + 1;
                             foreach ($ca['floors_raw'] as $da => $va) {
                                 $diff = abs($ts_c - strtotime($da));
                                 if ($diff <= $ventana && $diff < $best_diff_a) {
-                                    $best_diff_a = $diff; $best_va = $va;
+                                    $best_diff_a = $diff;
+                                    $best_va = $va;
                                 }
                             }
-                            $best_vb = null; $best_diff_b = $ventana + 1;
+                            $best_vb = null;
+                            $best_diff_b = $ventana + 1;
                             foreach ($cb['floors_raw'] as $db => $vb) {
                                 $diff = abs($ts_c - strtotime($db));
                                 if ($diff <= $ventana && $diff < $best_diff_b) {
-                                    $best_diff_b = $diff; $best_vb = $vb;
+                                    $best_diff_b = $diff;
+                                    $best_vb = $vb;
                                 }
                             }
                             if ($best_va !== null && $best_vb !== null) {
@@ -4587,7 +4727,7 @@ class ClasePosstock
                         if (count($triples_c) < 6) continue;
 
                         [$mu_c,  $sd_c]  = $this->_statsFloors($triples_c);
-                        [$mu_ab        ] = $this->_statsFloors($triples_ab);
+                        [$mu_ab] = $this->_statsFloors($triples_ab);
                         [,       $sd_a_t] = $this->_statsFloors($triples_a);
                         [,       $sd_b_t] = $this->_statsFloors($triples_b);
 
@@ -4631,7 +4771,10 @@ class ClasePosstock
                     $trios[$inc['idArticulo']] = $mejor_trio;
                     $inc['posible_causa'] = sprintf(
                         'Merma con patrón trío art. %d + art. %d (%s, score=%.2f): posible confusión sistemática en la balanza de autopesaje',
-                        $mejor_trio['id_a'], $mejor_trio['id_b'], $mejor_trio['nivel'], $mejor_trio['score']
+                        $mejor_trio['id_a'],
+                        $mejor_trio['id_b'],
+                        $mejor_trio['nivel'],
+                        $mejor_trio['score']
                     );
                 }
             }
@@ -4651,7 +4794,11 @@ class ClasePosstock
                     $inc['cruce_nivel']       = $trio['nivel'];
                     $inc['posible_causa'] = sprintf(
                         'Déficit de ~%.0f ud. incluido en trío junto a art. %d → art. %d (%s, score=%.2f): probable confusión en balanza o recepción no registrada',
-                        abs((float)$inc['offset_estimado']), $otro, $id_c, $trio['nivel'], $trio['score']
+                        abs((float)$inc['offset_estimado']),
+                        $otro,
+                        $id_c,
+                        $trio['nivel'],
+                        $trio['score']
                     );
                 }
                 unset($inc);
@@ -4734,11 +4881,13 @@ class ClasePosstock
                 if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
 
                 // ── Emparejamiento temporal ±7 días ───────────────────────────
-                $pairs_a = []; $pairs_b = [];
+                $pairs_a = [];
+                $pairs_b = [];
                 $ventana  = 7 * 86400;
                 foreach ($inc['_floors_raw'] as $da => $va) {
                     $ts_a = strtotime($da);
-                    $best_diff = $ventana + 1; $best_vb = null;
+                    $best_diff = $ventana + 1;
+                    $best_vb = null;
                     foreach ($cb['floors_raw'] as $db => $vb) {
                         $diff = abs($ts_a - strtotime($db));
                         if ($diff <= $ventana && $diff < $best_diff) {
@@ -4746,7 +4895,10 @@ class ClasePosstock
                             $best_vb   = $vb;
                         }
                     }
-                    if ($best_vb !== null) { $pairs_a[] = $va; $pairs_b[] = $best_vb; }
+                    if ($best_vb !== null) {
+                        $pairs_a[] = $va;
+                        $pairs_b[] = $best_vb;
+                    }
                 }
 
                 $n_pairs = count($pairs_a);
@@ -4833,11 +4985,21 @@ class ClasePosstock
                 $causa = ($mejor_dir === 'A_por_B')
                     ? sprintf(
                         'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de %d uds. de este artículo como 1 ud. de art. %d en la balanza',
-                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
+                        $mejor_k,
+                        $mejor_id,
+                        $mejor_nivel,
+                        $mejor_score,
+                        $mejor_k,
+                        $mejor_id
                     )
                     : sprintf(
                         'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de 1 ud. de este artículo como %d uds. de art. %d en la balanza',
-                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
+                        $mejor_k,
+                        $mejor_id,
+                        $mejor_nivel,
+                        $mejor_score,
+                        $mejor_k,
+                        $mejor_id
                     );
 
                 $inc['posible_cruce_con'] = $mejor_id;
@@ -4879,7 +5041,11 @@ class ClasePosstock
 
                 $causa_b = sprintf(
                     'Déficit de ~%.0f ud. con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): probable confusión en balanza o recepción no registrada',
-                    abs((float)$inc['offset_estimado']), $k, $id_a, $data['nivel'], $data['score']
+                    abs((float)$inc['offset_estimado']),
+                    $k,
+                    $id_a,
+                    $data['nivel'],
+                    $data['score']
                 );
 
                 $inc['posible_cruce_con'] = $id_a;
@@ -5017,8 +5183,13 @@ class ClasePosstock
             // Modo normal: artículos con actividad en el periodo (intersectado con proveedor si aplica)
             $params_batch['ids_proveedor_filter'] = $ids_proveedor_filter;
             $ids_batch = $this->getArticulosConActividad(
-                $fi_mov, $ff_mov, $familias_incluir, $familias_excluir,
-                $inicial, $pagina, $ids_proveedor_filter
+                $fi_mov,
+                $ff_mov,
+                $familias_incluir,
+                $familias_excluir,
+                $inicial,
+                $pagina,
+                $ids_proveedor_filter
             );
         }
 
