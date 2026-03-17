@@ -39,6 +39,9 @@ foreach ($tiposParaChks as $ti) {
 <html>
 <head>
     <?php include_once $URLCom . '/head.php'; ?>
+    <style>
+        #posstockTabla .label[title] { cursor: help; }
+    </style>
 </head>
 <body>
 <?php include_once $URLCom . '/modulos/mod_menu/menu.php'; ?>

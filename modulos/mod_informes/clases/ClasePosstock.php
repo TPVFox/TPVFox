@@ -1041,6 +1041,26 @@ class ClasePosstock
     }
 
     /**
+     * Proveedor — idArticulo vinculados a los proveedores indicados (sin filtro de estado).
+     * Usado por C6b: un artículo puede estar inactivo en la relación proveedor
+     * pero seguir en stock y vendiendo, y debe evaluarse para el punto de pedido.
+     *
+     * @param  string $ids_prov  IN-clause de idProveedor ya preparado
+     * @return array  Filas raw (idArticulo) o ['error' => ...]
+     */
+    private function _queryIdsArticulosByProveedoresTodos(string $ids_prov): array
+    {
+        $smt = $this->db->query(
+            "SELECT DISTINCT idArticulo FROM articulosProveedores
+             WHERE idProveedor IN ($ids_prov)"
+        );
+        if (!$smt) return ['error' => $this->db->error];
+        $rows = [];
+        while ($r = $smt->fetch_assoc()) $rows[] = $r;
+        return $rows;
+    }
+
+    /**
      * Paginación de artículos de un proveedor sin filtro de actividad en el periodo.
      * Usado cuando proveedor_todos_productos=true para analizar todos los artículos
      * del proveedor independientemente del rango analizado.
@@ -1633,10 +1653,10 @@ class ClasePosstock
         //   · Productos de temporada no generan falsas alarmas fuera de su época.
         // Resultado: responde directamente a "¿debo pedir hoy?".
         //
-        // IMPORTANTE: se pasa $ids_proveedor_filter (lista completa del proveedor)
-        // en lugar de $ids_filter (que contiene solo artículos activos en el periodo
-        // analizado, restringido por el batch). C6b selecciona artículos por su propia
-        // ventana temporal, no por el periodo analizado.
+        // IMPORTANTE: C6b resuelve sus propios IDs de artículo sin filtro de estado,
+        // independientemente de cómo se haya llamado (batch, lote único o directo).
+        // Un artículo con estado='Tarifa' o cualquier otro estado distinto de 'Activo'
+        // en articulosProveedores puede seguir en stock y vendiendo; C6b debe evaluarlo.
         if (isset($casos_set['caso6b'])) {
             $c6b_dias    = (int)($params['c6b_dias_historico'] ?? 90);
             $ff_hoy      = date('Y-m-d');
@@ -1645,17 +1665,40 @@ class ClasePosstock
                 date('Y-m-d', strtotime("$ff_hoy -{$c6b_dias} days")),
                 "{$anio_hoy}-01-01"   // límite BD anualizada; resoluble con mod_api
             );
+            // min_ventas propio de C6b: anclado a su ventana temporal, no al periodo analizado.
+            // Evita que un min_ventas_c5 alto (ej. 30 en anual) elimine productos válidos
+            // que en 90 días solo registran 10-15 días con venta.
+            $min_ventas_c6b = (int)($params['min_ventas_c6b'] ?? max(5, min(20, (int)round($c6b_dias * 0.15))));
+            // Resolver IDs para C6b directamente, sin filtro de estado en articulosProveedores.
+            // No se reutiliza ids_proveedor_filter (que sí filtra estado='Activo') ni se delega
+            // en getIncidenciasBatch, ya que esa resolución ocurre antes de llegar aquí.
+            // IDs activos del proveedor (estado='Activo'): para marcar proveedor_es_principal en cada incidencia.
+            $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
+            if (!empty($proveedores_incluir)) {
+                $ids_str_prov_c6b = implode(',', array_map('intval', $proveedores_incluir));
+                $rows_c6b = $this->_queryIdsArticulosByProveedoresTodos($ids_str_prov_c6b);
+                $ids_c6b  = isset($rows_c6b['error']) ? $ids_proveedor_filter : array_column($rows_c6b, 'idArticulo');
+                // ids_proveedor_filter ya contiene solo estado='Activo' (resuelto al inicio de getIncidencias)
+                $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
+            } else {
+                $ids_c6b = $ids_proveedor_filter;  // sin filtro de proveedor: comportamiento normal
+            }
             $c6b = $this->getIncidenciasCaso6(
                 $ff_hoy, $ff_hoy, $fi_stock,
-                $familias_incluir, $familias_excluir, $ids_proveedor_filter,
+                $familias_incluir, $familias_excluir, $ids_c6b,
                 $c6_proveedores, $c6_lead_time, $c6_nivel_serv,
-                $min_ventas_c5, $modelo_rotura_c5, $umbral_confianza_c5,
+                $min_ventas_c6b, $modelo_rotura_c5, $umbral_confianza_c5,
                 $binomial_sigma_mult, $incluir_albcli,
                 $fi_stats_6b, $ff_hoy,
                 'Punto de Pedido', $ff_hoy,
                 $umbral_rop_mult, $umbral_stock_neg
             );
             if (isset($c6b['error'])) return $c6b;
+            // Marcar si el proveedor seleccionado es el proveedor principal (estado='Activo') de cada artículo
+            foreach ($c6b as &$inc_c6b) {
+                $inc_c6b['proveedor_es_principal'] = isset($ids_activos_c6b[$inc_c6b['idArticulo']]);
+            }
+            unset($inc_c6b);
             $incidencias = array_merge($incidencias, $c6b);
         }
 
@@ -4923,6 +4966,7 @@ class ClasePosstock
         $proveedores_incluir      = (array)($params['proveedores_incluir']      ?? []);
         $proveedor_todos          = (bool)  ($params['proveedor_todos_productos'] ?? false);
         $ids_proveedor_filter     = [];
+        $ids_proveedor_filter_c6b = [];  // C6b: todos los artículos del proveedor, sin filtro de estado
         $ids_str_prov             = '';
         if (!empty($proveedores_incluir)) {
             $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
@@ -4934,6 +4978,12 @@ class ClasePosstock
                 if (empty($ids_proveedor_filter)) {
                     return ['filas' => [], 'actual' => $inicial, 'elementos' => 0];
                 }
+            }
+            // C6b evalúa todos los artículos del proveedor independientemente del estado:
+            // un artículo inactivo en articulosProveedores puede seguir en stock y vendiendo.
+            $rows_prov_c6b = $this->_queryIdsArticulosByProveedoresTodos($ids_str_prov);
+            if (!isset($rows_prov_c6b['error'])) {
+                $ids_proveedor_filter_c6b = array_column($rows_prov_c6b, 'idArticulo');
             }
         }
 
@@ -4990,6 +5040,10 @@ class ClasePosstock
             if (!empty($casos_extra)) {
                 $params_extra = $params;
                 $params_extra['casos_incluir'] = $casos_extra;
+                // C6b usa su propio conjunto de IDs (todos los artículos del proveedor, sin filtro de estado)
+                if (!empty($ids_proveedor_filter_c6b)) {
+                    $params_extra['ids_proveedor_filter_c6b'] = $ids_proveedor_filter_c6b;
+                }
                 $filas_extra = $this->getIncidencias($params_extra);
                 if (!isset($filas_extra['error'])) {
                     $filas = array_merge($filas, $filas_extra);

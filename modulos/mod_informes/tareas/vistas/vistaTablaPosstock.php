@@ -32,7 +32,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
         'BAJA'    => '<span class="label label-info">Baja</span>',
     ];
 
-    $html  = '<table class="table table-condensed table-hover table-bordered small" id="posstockTabla">';
+    $html  = '<table class="table table-condensed table-hover table-bordered" id="posstockTabla">';
     $html .= '<thead><tr>'
         . '<th>Artículo</th>'
         . '<th>Nombre</th>'
@@ -379,11 +379,13 @@ function renderTablaPosstock(array $filas, array $cfg): string
         } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
             $stockC6     = (float)($f['stock_actual'] ?? 0);
             $recNegativo = !empty($f['stock_reconstituido']) && $stockC6 < 0;
-            $stockCalc   = $recNegativo ? 0.0 : $stockC6;
             $ropC6       = (float)($f['rop'] ?? 0);
-            $ssC6        = (float)($f['stock_seguridad'] ?? 0);
+            // Para el cálculo del pedido, el déficit se acota a -ROP como máximo.
+            // Un stock más negativo que -ROP es casi siempre un error de stockOn
+            // (sin entradas registradas, pesajes incorrectos…) y no debe inflar el pedido.
+            // Si fue reconstruido y sigue negativo se usa 0 (déficit irrecuperable).
+            $stockCalc = $recNegativo ? 0.0 : max($stockC6, -$ropC6);
             $dC6         = (float)($f['d_diaria'] ?? 0);
-            $esBN        = ($f['modelo_usado'] ?? '') === 'BN';
             $esPeso      = ($f['tipo_articulo'] ?? '') === 'peso';
             $unidad      = $esPeso ? 'kg' : 'ud.';
 
@@ -397,7 +399,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $c6m = $c6mCfg[$f['modelo_usado'] ?? ''] ?? $c6mCfg['Poisson'];
 
             $qBase       = max(0.0, $ropC6 - $stockCalc);
-            $qRecomendada = (int)ceil($esBN ? $qBase + $ssC6 : $qBase);
+            $qRecomendada = (int)ceil($qBase);
             $diasTrasPedido = $dC6 > 0 ? (int)round(($stockCalc + $qRecomendada) / $dC6) : null;
 
             $badgeC6Modelo = ' <span class="label ' . $c6m['cls'] . '" title="' . htmlspecialchars($c6m['tip']) . '">' . $c6m['lbl'] . '</span>';
@@ -509,9 +511,13 @@ function renderTablaPosstock(array $filas, array $cfg): string
         // ── Fila HTML ─────────────────────────────────────────────────────────
         $sevBadge = $badgeSev[$f['severidad'] ?? ''] ?? htmlspecialchars($f['severidad'] ?? '');
 
+        $badgeNombrePrincipal = ($tipo === 'Punto de Pedido' && !empty($f['proveedor_es_principal']))
+            ? ' <span class="label label-success" title="Este proveedor es el proveedor principal (Activo) de este artículo">principal</span>'
+            : '';
+
         $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
-            . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . '</td>'
+            . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . $badgeNombrePrincipal . '</td>'
             . '<td>' . htmlspecialchars($tipoLabel) . '</td>'
             . '<td>' . $sevBadge . '</td>'
             . '<td>' . $detalle . '</td>'

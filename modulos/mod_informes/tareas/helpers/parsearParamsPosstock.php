@@ -155,6 +155,11 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c3b_dias_post_periodo'       => max(7, min(30, (int)(string)($posstock_node->c3b_dias_post_periodo ?: '14'))),
         // C6b — ventana de demanda activa (días hacia atrás desde hoy) para el ROP operacional
         'c6b_dias_historico'          => max(30, min(365, (int)(string)($posstock_node->c6b_dias_historico ?: '90'))),
+        // C6b — min_ventas propio: días únicos con venta mínimos dentro de la ventana c6b_dias_historico.
+        // Independiente del periodo analizado (min_ventas_c5 escala con el periodo y sería 30 en anual).
+        // ~15% de los días de la ventana: en 90 días → 13; garantiza al menos 4 chunks con datos para BN/Gamma.
+        // Mínimo 5 (productos de baja rotación válidos), máximo 20 (no excluir rotación media-baja).
+        'min_ventas_c6b'              => max(5, min(20, (int)round(max(30, min(365, (int)(string)($posstock_node->c6b_dias_historico ?: '90'))) * 0.15))),
         // C3a — multiplicador sobre la cadencia media histórica para el umbral dinámico de rotación
         'c3a_multiplicador_cadencia'  => max(2.0, min(6.0, (float)(string)($posstock_node->c3a_multiplicador_cadencia ?: '3.0'))),
         // Umbral ROP para reconstruir stock: si stock > N×ROP se asume stockOn erróneo y se recalcula

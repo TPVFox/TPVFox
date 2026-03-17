@@ -100,8 +100,10 @@ function abrirModalConfigPosstock() {
 
 function guardarConfigPosstock() {
     var datosFormulario = $("#formConfigPosstock").serializeArray();
-    var params = { pulsado: "guardarConfigPosstock" };
-    datosFormulario.forEach(function (item) { params[item.name] = item.value; });
+    var params = {
+        pulsado:         "guardarConfigPosstock",
+        datosFormulario: JSON.stringify(datosFormulario)
+    };
 
     $.ajax({
         data: params,
