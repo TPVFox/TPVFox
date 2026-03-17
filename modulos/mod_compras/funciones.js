@@ -1,3 +1,13 @@
+// Protección contra doble envío en formulario de albarán
+function onSubmitForm(form) {
+    prepararAjustesParaGuardar();
+    var btnGuardar = document.getElementById("bGuardar");
+    if (btnGuardar) {
+        btnGuardar.disabled = true;
+        btnGuardar.value = "Guardando...";
+    }
+    return true;
+}
 // JS para modulo compras
 // Este se carga en todas las vistas , por lo que debemos poner solo
 // aquellas funciones que se utilizan en todas las vistas.

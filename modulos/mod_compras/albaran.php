@@ -429,7 +429,7 @@ if ($idDocumentoTemporal === 0) {
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-48"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-49"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <?php
     include_once $URLCom . '/modulos/mod_menu/menu.php';
@@ -460,7 +460,7 @@ if ($idDocumentoTemporal === 0) {
             }
         }
         ?>
-        <form action="" method="post" name="formProducto" onkeypress="return anular(event)" onsubmit="prepararAjustesParaGuardar()">
+        <form action="" method="post" name="formProducto" onkeypress="return anular(event)" onsubmit="return onSubmitForm(this)">
             <input type="hidden" name="ajustesCentimos" id="ajustesCentimosHidden" value="">
             <?php
             echo '<h3 class="text-center">' . $titulo . '</h3>';
