@@ -625,12 +625,12 @@ class AlbaranesCompras extends ClaseCompras
         // $idProveedor
         // $numAlbaran -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
         // $estado -> Lo pedidos queremos buscar segun su estado.
-          // Validar idProveedor para evitar SQL malformado
-          $idProveedor = intval($idProveedor);
-          if ($idProveedor <= 0) {
+        // Validar idProveedor para evitar SQL malformado
+        $idProveedor = intval($idProveedor);
+        if ($idProveedor <= 0) {
             return array('error' => 'idProveedor inválido', 'consulta' => 'Falta idProveedor');
-          }
-          $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
+        }
+        $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
               a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a
               INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . '
               and a.estado="' . $estado . '"';
@@ -793,22 +793,40 @@ class AlbaranesCompras extends ClaseCompras
                 error_log('guardarAlbaran - ajustesRawString: ' . substr($ajustesRawString, 0, 200));
                 error_log('guardarAlbaran - ajustesGuardados decodificado: ' . json_encode($ajustesGuardados));
 
-                // Aplicar ajustes si vienen desglose o si viene override de total
+                // Solo validar si hay diferencias reales en los ajustes
+                $hayDiferencias = false;
                 if ($ajustesGuardados !== null && (isset($ajustesGuardados['desglose']) || isset($ajustesGuardados['total']))) {
-                    // Leer max_ajuste desde parametros.xml
-                    global $URLCom;
-                    include_once $URLCom . '/controllers/parametros.php';
-                    $CParamAjuste = new ClaseParametros('parametros.xml');
-                    $confAjuste = $CParamAjuste->ArrayElementos('configuracion');
-                    $maxAjuste = isset($confAjuste['max_ajuste_centimos']) ? intval($confAjuste['max_ajuste_centimos']) : 1;
-                    // Validar ajustes (la función valida tanto desglose como total)
-                    $validacion = validarAjustesCentimos($CalculoTotales, $ajustesGuardados, $maxAjuste);
-                    if ($validacion['valido']) {
-                        $CalculoTotales = aplicarAjustesATotales($CalculoTotales, $ajustesGuardados);
-                        $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
-                    } else {
-                        foreach ($validacion['errores'] as $msgErr) {
-                            array_push($errores, $this->montarAdvertencia('warning', $msgErr));
+                    // Comprobar si hay diferencias en desglose
+                    if (isset($ajustesGuardados['desglose']) && is_array($ajustesGuardados['desglose'])) {
+                        foreach ($ajustesGuardados['desglose'] as $tipo => $valores) {
+                            foreach ($valores as $campo => $valor) {
+                                if (abs(floatval($valor)) > 0.001) {
+                                    $hayDiferencias = true;
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                    // Comprobar si hay diferencia en total
+                    if (isset($ajustesGuardados['total']) && abs(floatval($ajustesGuardados['total'])) > 0.001) {
+                        $hayDiferencias = true;
+                    }
+                    if ($hayDiferencias) {
+                        // Leer max_ajuste desde parametros.xml
+                        global $URLCom;
+                        include_once $URLCom . '/controllers/parametros.php';
+                        $CParamAjuste = new ClaseParametros('parametros.xml');
+                        $confAjuste = $CParamAjuste->ArrayElementos('configuracion');
+                        $maxAjuste = isset($confAjuste['max_ajuste_centimos']) ? intval($confAjuste['max_ajuste_centimos']) : 1;
+                        // Validar ajustes (la función valida tanto desglose como total)
+                        $validacion = validarAjustesCentimos($CalculoTotales, $ajustesGuardados, $maxAjuste);
+                        if ($validacion['valido']) {
+                            $CalculoTotales = aplicarAjustesATotales($CalculoTotales, $ajustesGuardados);
+                            $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
+                        } else {
+                            foreach ($validacion['errores'] as $msgErr) {
+                                array_push($errores, $this->montarAdvertencia('warning', $msgErr));
+                            }
                         }
                     }
                 }

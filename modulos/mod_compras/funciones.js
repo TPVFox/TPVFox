@@ -622,16 +622,16 @@ function comprobarDecimalNumber(value) {
  * Ej: "1.000,50" → "1000.50", "3,5" → "3.5", "3.5" → "3.5"
  */
 function sanitizarDecimal(valor) {
-    if (typeof valor !== 'string') {
+    if (typeof valor !== "string") {
         valor = String(valor);
     }
     // Si tiene coma y punto, asumimos formato europeo: 1.000,50
-    if (valor.indexOf('.') !== -1 && valor.indexOf(',') !== -1) {
+    if (valor.indexOf(".") !== -1 && valor.indexOf(",") !== -1) {
         // Quitar puntos de miles, coma -> punto decimal
-        valor = valor.replace(/\./g, '').replace(',', '.');
-    } else if (valor.indexOf(',') !== -1) {
+        valor = valor.replace(/\./g, "").replace(",", ".");
+    } else if (valor.indexOf(",") !== -1) {
         // Solo coma: reemplazar por punto
-        valor = valor.replace(',', '.');
+        valor = valor.replace(",", ".");
     }
     return valor;
 }
@@ -1130,7 +1130,8 @@ function recalculoImporte(cantidad, num_item, dedonde = "") {
 
     // Sanitizar valores: coma → punto para evitar problemas de locale
     cantidad = parseFloat(sanitizarDecimal(cantidad)) || 0;
-    var coste = parseFloat(sanitizarDecimal(productos[num_item].ultimoCoste)) || 0;
+    var coste =
+        parseFloat(sanitizarDecimal(productos[num_item].ultimoCoste)) || 0;
 
     productos[num_item].nunidades = cantidad;
     productos[num_item].importe = coste * cantidad;
@@ -1461,11 +1462,24 @@ function ObjProducto(datos) {
         this.nfila = datos.nfila;
     }
     this.ultimoCoste = sanitizarDecimal(datos.coste);
+    // Lógica para CosteAnt:
+    // Si el producto es nuevo y no tiene coste anterior, CosteAnt = ultimoCoste
+    // Si tiene historial, CosteAnt = datos.CosteAnt (último coste registrado)
+    if (typeof datos.CosteAnt !== "undefined" && datos.CosteAnt !== null) {
+        this.CosteAnt = sanitizarDecimal(datos.CosteAnt);
+    } else {
+        // Producto nuevo: CosteAnt igual a ultimoCoste
+        this.CosteAnt = this.ultimoCoste;
+    }
     var importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);
     this.importe = importe.toFixed(2);
     this.getCoste = function (nuevoCoste) {
         // Metodo para cambiar Coste y ademas importe del producto.
         this.ultimoCoste = sanitizarDecimal(datos.ultimoCoste);
+        // Si cambia el coste, actualizamos CosteAnt solo si no existe
+        if (typeof this.CosteAnt === "undefined" || this.CosteAnt === null) {
+            this.CosteAnt = this.ultimoCoste;
+        }
         importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);
         this.importe = importe.toFixed(2);
     };
@@ -1968,7 +1982,7 @@ function aplicarAjusteCentimos() {
     $("#btnCancelarAjuste").hide();
 
     // Persistir los ajustes al temporal inmediatamente
-    if (typeof window.dedonde !== 'undefined') {
+    if (typeof window.dedonde !== "undefined") {
         addTemporal(window.dedonde);
     }
 }
@@ -2084,10 +2098,15 @@ function getAjustesCentimosJSON() {
  * Popula el hidden input de ajustesCentimos antes de enviar el formulario Guardar.
  */
 function prepararAjustesParaGuardar() {
-    var ajustesJSON = getAjustesCentimosJSON();
     var hidden = document.getElementById("ajustesCentimosHidden");
+    // Solo enviar ajustesCentimos si el modo ajuste está activo
     if (hidden) {
-        hidden.value = ajustesJSON !== null ? ajustesJSON : "";
+        if (ajustesCentimos && ajustesCentimos.activo) {
+            var ajustesJSON = getAjustesCentimosJSON();
+            hidden.value = ajustesJSON !== null ? ajustesJSON : "";
+        } else {
+            hidden.value = "";
+        }
     }
 }
 

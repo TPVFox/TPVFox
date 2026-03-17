@@ -233,6 +233,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false ){
                                     'html' => htmlTablaHistoricoPrecios($Producto['productos_historico'])
                                 );
 
+    // Initialize $precioNuevo to avoid undefined variable warning
+    if (!isset($precioNuevo)) {
+        $precioNuevo = null;
+    }
     if ($precioNuevo && $Producto['tipo'] == 'peso') {
         $ComunicacionBalanza = array('Comprobaciones' => array());
         $faltanDatos = [];
