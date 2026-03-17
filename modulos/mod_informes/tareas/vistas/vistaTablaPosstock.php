@@ -1,0 +1,573 @@
+<?php
+/**
+ * Vista: tabla de incidencias POSStock.
+ *
+ * @param array $filas  Array de incidencias devuelto por getIncidencias().
+ * @param array $cfg    Parámetros de contexto:
+ *                      - fecha_fin_movimientos  string  YYYY-MM-DD
+ *                      - fecha_inicio_stock     string  YYYY-MM-DD
+ *                      - anio                   int
+ *                      - c3b_dias_post          int
+ *                      - c6b_dias_historico     int
+ * @return string  HTML de la tabla.
+ */
+function renderTablaPosstock(array $filas, array $cfg): string
+{
+    if (empty($filas)) {
+        return '<div class="alert alert-success">Sin incidencias detectadas para este periodo.</div>';
+    }
+
+    $ffMov    = $cfg['fecha_fin_movimientos'] ?? '';
+    $fiStock  = $cfg['fecha_inicio_stock']    ?? '';
+    $anio     = (int)($cfg['anio']             ?? date('Y'));
+    $diasPost = (int)($cfg['c3b_dias_post']    ?? 14);
+    $c6bDias  = (int)($cfg['c6b_dias_historico'] ?? 90);
+
+    $fiInicio = $anio . '-01-01';
+
+    $badgeSev = [
+        'CRITICA' => '<span class="label label-danger">Crítica</span>',
+        'ALTA'    => '<span class="label label-danger" style="background-color:#e8600a;">Alta</span>',
+        'MEDIA'   => '<span class="label label-warning">Media</span>',
+        'BAJA'    => '<span class="label label-info">Baja</span>',
+    ];
+
+    $html  = '<table class="table table-condensed table-hover table-bordered small" id="posstockTabla">';
+    $html .= '<thead><tr>'
+        . '<th>Artículo</th>'
+        . '<th>Nombre</th>'
+        . '<th>Tipo incidencia</th>'
+        . '<th>Severidad</th>'
+        . '<th>Detalle</th>'
+        . '<th>Posible causa</th>'
+        . '<th>Listado mayor</th>'
+        . '</tr></thead><tbody>';
+
+    foreach ($filas as $f) {
+        $detalle   = '';
+        $tipoLabel = '';
+        $tipo      = $f['tipo'] ?? '';
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+        $fmtF = static function (?string $d): string {
+            if (!$d) return '—';
+            $p = explode('-', $d);
+            return (count($p) === 3) ? ($p[2] . '/' . $p[1]) : $d;
+        };
+
+        $fmtN = static function ($v, int $dec = 2): string {
+            return ($v !== null && $v !== '') ? number_format((float)$v, $dec, '.', '') : '—';
+        };
+
+        // ── C1a / C1b ─────────────────────────────────────────────────────────
+        if ($tipo === 'Inventario en negativo') {
+            $badges = '';
+            $nEnt   = isset($f['n_entradas']) && $f['n_entradas'] !== null ? (int)$f['n_entradas'] : null;
+
+            if ($nEnt !== null && $nEnt === 0) {
+                $badges .= ' <span class="label label-danger"'
+                    . ' title="No se registró ninguna recepción de proveedor en el periodo.'
+                    . ' Probable recepción sin registrar.">Sin recepciones</span>';
+            }
+            if (!empty($f['es_fraccionado'])) {
+                $badges .= ' <span class="label label-info"'
+                    . ' title="El stock tiene valor decimal. Posible artículo de peso o fraccionado'
+                    . ' con la unidad mal configurada.">Stock decimal</span>';
+            }
+            if (!empty($f['ya_negativo_inicio'])) {
+                $badges .= ' <span class="label label-warning"'
+                    . ' title="El inventario ya estaba en negativo al inicio del periodo.'
+                    . ' El problema viene de un rango anterior.">Arrastrado</span>';
+            }
+
+            $detalle = $badges
+                . ' Stock: <strong>' . $fmtN($f['stock_actual'] ?? null) . '</strong>'
+                . (isset($f['min_balance']) ? ' | Mínimo: ' . $fmtN($f['min_balance']) : '');
+
+            if (isset($f['n_ventas']) && $f['n_ventas'] !== null) {
+                $detalle .= ' | Ventas: ' . (int)$f['n_ventas'];
+            }
+            if ($nEnt !== null && $nEnt > 0) {
+                $detalle .= ' | Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+            }
+
+        // ── C1b ───────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Desajuste Puntual de Stock') {
+            $badges1b = '';
+            $nEnt1b   = isset($f['n_entradas']) && $f['n_entradas'] !== null ? (int)$f['n_entradas'] : null;
+
+            if (!empty($f['timing_proximo'])) {
+                $badges1b .= ' <span class="label label-info" title="Entrada de proveedor registrada en los 3 días siguientes al momento del negativo: probable venta registrada antes que la recepción.">Timing recepción</span>';
+            }
+            if (!empty($f['es_fraccionado'])) {
+                $badges1b .= ' <span class="label label-info" title="El mínimo tiene decimales: probable artículo de peso o fraccionado.">Stock decimal</span>';
+            }
+            if ($nEnt1b !== null && $nEnt1b === 0) {
+                $badges1b .= ' <span class="label label-warning" title="Sin recepciones que justifiquen la recuperación. Revisar posibles movimientos duplicados, devoluciones o ajustes manuales.">Sin entradas</span>';
+            }
+
+            $detalle = $badges1b
+                . ' Mín.: <strong>' . $fmtN($f['min_balance'] ?? null) . '</strong>'
+                . ' | Cierre: ' . $fmtN($f['stock_actual'] ?? null);
+
+            if (isset($f['n_ventas']) && $f['n_ventas'] !== null) {
+                $detalle .= ' | Ventas: ' . (int)$f['n_ventas'];
+            }
+            if ($nEnt1b !== null && $nEnt1b > 0) {
+                $detalle .= ' | Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+            }
+
+        // ── C2 ────────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Entrada con stock alto') {
+            $badgeC2  = '';
+            $ncant    = (float)($f['ncant'] ?? 0);
+            $ncantA   = isset($f['ncant_anterior']) && $f['ncant_anterior'] !== null ? (float)$f['ncant_anterior'] : null;
+            $dias     = isset($f['dias_desde_anterior']) && $f['dias_desde_anterior'] !== null ? (int)$f['dias_desde_anterior'] : null;
+            $vtr      = isset($f['ventas_entre_recepciones']) && $f['ventas_entre_recepciones'] !== null ? (float)$f['ventas_entre_recepciones'] : null;
+            $cob      = isset($f['cobertura_dias']) && $f['cobertura_dias'] !== null ? (int)$f['cobertura_dias'] : null;
+            $c2Cat    = $f['c2_categoria'] ?? '';
+
+            if ($c2Cat === 'tendencia') {
+                $nEvt   = (int)($f['n_eventos'] ?? 1);
+                $cobIni = isset($f['cobertura_inicio']) && $f['cobertura_inicio'] !== null ? (int)$f['cobertura_inicio'] . ' días' : '—';
+                $cobFin = $cob !== null ? $cob . ' días' : 'sin ventas';
+                $fInicio = $f['fecha_inicio'] ?? '—';
+                $fFin    = $f['fecha'] ?? '—';
+                $stockMax = (float)($f['stock_previo'] ?? 0);
+                $badgeC2 = '<span class="label label-warning" title="La cobertura crece de ' . $cobIni . ' a ' . $cobFin
+                    . ' en ' . $nEvt . ' entregas: las compras superan el ritmo de ventas de forma sistemática.">Tendencia creciente</span>';
+                $detalle = $badgeC2
+                    . ' <strong>' . $nEvt . ' entregas</strong>'
+                    . ' | Cobertura: ' . $cobIni . ' → <strong>' . $cobFin . '</strong>'
+                    . ' | Periodo: ' . $fInicio . ' → ' . $fFin
+                    . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '');
+
+            } elseif ($c2Cat === 'acumulacion') {
+                $nEvt    = (int)($f['n_eventos'] ?? 1);
+                $cobFin  = $cob !== null ? $cob . ' días' : 'sin ventas';
+                $fInicio = $f['fecha_inicio'] ?? '—';
+                $fFin    = $f['fecha'] ?? '—';
+                $stockMax = (float)($f['stock_previo'] ?? 0);
+                $badgeC2 = '<span class="label label-danger" title="' . $nEvt
+                    . ' recepciones consecutivas sin retorno: el stock se acumula sin salida. Revisar gestión de devoluciones.">Acumulación crónica</span>';
+                $detalle = $badgeC2
+                    . ' <strong>' . $nEvt . ' recepciones</strong> consolidadas'
+                    . ' | Periodo: ' . $fInicio . ' → ' . $fFin
+                    . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '')
+                    . ' | Cobertura final: <strong>' . $cobFin . '</strong>';
+
+            } else {
+                $esDupProbable = $dias !== null && $dias <= 1 && $ncantA !== null
+                    && (max($ncant, $ncantA) > 0) && (abs($ncant - $ncantA) / max($ncant, $ncantA)) < 0.15;
+                $esDupPosible  = !$esDupProbable && $dias !== null && $dias <= 3 && $ncantA !== null
+                    && (max($ncant, $ncantA) > 0) && (abs($ncant - $ncantA) / max($ncant, $ncantA)) < 0.15;
+
+                if ($esDupProbable) {
+                    $badgeC2 .= ' <span class="label label-danger" title="Cantidad similar recibida hace ' . $dias
+                        . ' día(s): muy probable albarán registrado dos veces.">Duplicado probable</span>';
+                } elseif ($esDupPosible) {
+                    $badgeC2 .= ' <span class="label label-warning" title="Cantidad similar recibida hace ' . $dias
+                        . ' días: verificar si el albarán se registró dos veces.">Posible duplicado</span>';
+                }
+                if ($cob === null) {
+                    $badgeC2 .= ' <span class="label label-danger" title="El artículo no registra ventas en el periodo analizado.">Sin ventas</span>';
+                }
+                if ($dias !== null && $dias <= 14 && $vtr !== null && $vtr < 1) {
+                    $badgeC2 .= ' <span class="label label-warning" title="No hubo ventas entre la recepción anterior (' . $dias
+                        . ' días antes) y esta: el pedido anterior no había rotado.">Pedido prematuro</span>';
+                }
+                if (!$esDupProbable && $c2Cat === 'severo') {
+                    $badgeC2 .= ' <span class="label label-warning" title="El stock previo supera ampliamente la entrada recibida.">Sobrestock severo</span>';
+                }
+
+                $previo = (float)($f['stock_previo'] ?? 0);
+                if (isset($f['ratio']) && $f['ratio'] !== null) {
+                    $ratio = number_format((float)$f['ratio'], 1, '.', '') . '×';
+                } elseif ($ncant > 0) {
+                    $ratio = number_format($previo / $ncant, 1, '.', '') . '×';
+                } else {
+                    $ratio = '—';
+                }
+                $cobStr = $cob !== null ? $cob . ' días' : 'sin ventas';
+
+                $detalle = $badgeC2
+                    . ' Previo: ' . number_format($previo, 2, '.', '')
+                    . ' | Entrada: <strong>' . number_format($ncant, 2, '.', '') . ' ud. (' . $ratio . ' previo)</strong>'
+                    . ' | Cobertura: <strong>' . $cobStr . '</strong>';
+
+                if ($dias !== null) {
+                    $detalle .= ' | Anter.: ' . $dias . ' días';
+                }
+                $detalle .= ' | Fecha: ' . ($f['fecha'] ?? '—');
+            }
+
+        // ── C3a ───────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Caída de rotación') {
+            $avgCad      = (float)($f['avg_cadencia_dias'] ?? 0);
+            $semVal      = (float)($f['semanas_desde_ultima_venta'] ?? 0);
+            $diasSV      = $semVal > 0 ? (int)round($semVal * 7) : null;
+            $desdeRep    = !empty($f['desde_reposicion']);
+            $stkRaw      = isset($f['stock_actual']) && $f['stock_actual'] !== null ? (float)$f['stock_actual'] : null;
+            $stkStr      = $stkRaw !== null ? (($stkRaw == (int)$stkRaw) ? (string)(int)$stkRaw : number_format($stkRaw, 2, '.', '')) : '—';
+            $esFast      = $avgCad > 0 && $avgCad <= 7 && !$desdeRep;
+            $sev         = $f['severidad'] ?? '';
+
+            if ($esFast) {
+                $badgeC3a = $sev === 'ALTA'
+                    ? '<span class="label label-danger" title="Alta rotación y más del doble del umbral sin venta: riesgo de caducidad o merma">Riesgo caducidad</span>'
+                    : '<span class="label label-warning" title="Artículo de alta rotación por encima del umbral dinámico sin venta">Riesgo caducidad</span>';
+            } else {
+                $badgeC3a = $sev === 'ALTA'
+                    ? '<span class="label label-danger" title="Más del doble del umbral dinámico sin venta: rotación caída drásticamente">Caída severa</span>'
+                    : '<span class="label label-warning" title="Por encima del umbral dinámico de rotación">Rotación caída</span>';
+            }
+
+            $refFechaStr = $desdeRep
+                ? 'Desde recep.: ' . $fmtF($f['fecha_primera_entrada'] ?? null)
+                : 'Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null);
+
+            if ($diasSV !== null && $diasSV > 0) {
+                $sinVentaStr = '<strong>' . $diasSV . ' d</strong> sin venta';
+                if ($avgCad > 0) {
+                    $sinVentaStr .= ' <small class="text-muted">(normal ' . number_format($avgCad, 1, '.', '') . ' d)</small>';
+                }
+            } else {
+                $sinVentaStr = '<strong>—</strong>';
+            }
+
+            $detalle = $badgeC3a . ' ' . $sinVentaStr
+                . ' | Stock: <strong>' . $stkStr . '</strong>'
+                . ' | ' . $refFechaStr;
+
+        // ── C5 ────────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Venta Cero (Posible Rotura Física)') {
+            $badgeKO = !empty($f['ko'])
+                ? ' <span class="label label-danger" title="Stock negativo durante la rotura en curso: inventario en descubierto">KO</span>'
+                : '';
+            $badgeCR = !empty($f['cr'])
+                ? ' <span class="label" style="background:#e67e22;" title="Rotura crítica: duración confirmada supera el umbral">CR</span>'
+                : '';
+            $badgeRK = !empty($f['rk'])
+                ? ' <span class="label label-warning" title="Rotura confirmada significativa (≥ cadencia media)">RK</span>'
+                : '';
+            $badgeEstado = isset($f['fecha_fin_rotura']) && $f['fecha_fin_rotura']
+                ? '<span class="label label-success">Recuperada ' . $fmtF($f['fecha_fin_rotura']) . '</span>'
+                : '<span class="label label-warning">En curso</span>';
+
+            $diasRoturaStr = isset($f['dias_rotura'])
+                ? '<strong>' . $f['dias_rotura'] . ' d</strong>'
+                : '<strong>—</strong>';
+
+            $avgC5 = (float)($f['avg_dias_entre_ventas'] ?? 0);
+            $c5mCfg = [
+                'GammaReg' => ['lbl' => 'Γ', 'cls' => 'label-success',  'comp' => 'Alta rotación, patrón muy regular',     'tip' => 'Gamma — alta rotación con intervalos regulares. Umbral = cuantil Gamma ajustado a los gaps.'],
+                'Gamma'    => ['lbl' => 'Γ', 'cls' => 'label-default',  'comp' => 'Rotación moderada, gaps ajustados a Gamma', 'tip' => 'Gamma — ajuste directo a la distribución de gaps histórica. Umbral = cuantil de probabilidad.'],
+                'Normal'   => ['lbl' => 'N', 'cls' => 'label-default',  'comp' => 'Intervalos muy uniformes (aproximación Normal)', 'tip' => 'Normal — gaps prácticamente constantes (varianza ≈ 0). Umbral = media + 3σ.'],
+                'BN'       => ['lbl' => 'BN','cls' => 'label-info',     'comp' => 'Demanda en rachas o lotes',               'tip' => 'Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra.'],
+                'Poisson'  => $avgC5 > 0 && $avgC5 < 4
+                    ? ['lbl' => 'Poi', 'cls' => 'label-primary', 'comp' => 'Alta rotación, gaps ~ exponencial',   'tip' => 'Poisson — alta rotación con dispersión normal. Umbral: gap > −ln(p)/λ.']
+                    : ['lbl' => 'Poi', 'cls' => 'label-default', 'comp' => 'Demanda esporádica, baja frecuencia', 'tip' => 'Poisson — artículo de venta poco frecuente. Umbral conservador para eventos raros.'],
+            ];
+            $modelo   = $f['modelo_usado'] ?? 'Poisson';
+            $c5m      = $c5mCfg[$modelo] ?? $c5mCfg['Poisson'];
+            $badgeMod = ' <span class="label ' . $c5m['cls'] . '" title="' . htmlspecialchars($c5m['tip']) . '">' . $c5m['lbl'] . '</span>';
+            $sdStr    = (isset($f['sd_dias']) && $f['sd_dias'] !== null) ? ' σ=' . $f['sd_dias'] . ' d' : '';
+
+            $detalle = $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado . ' ' . $diasRoturaStr
+                . ' | Desde: ' . $fmtF($f['fecha_inicio_rotura'] ?? null)
+                . ' | Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null)
+                . ' | Cadencia: ' . (isset($f['avg_dias_entre_ventas']) ? $f['avg_dias_entre_ventas'] . ' d' : '—')
+                . $sdStr
+                . ' (umbral ' . (isset($f['umbral_dias']) ? $f['umbral_dias'] . ' d' : '—') . ')'
+                . $badgeMod
+                . ' <small class="text-muted">· ' . htmlspecialchars($c5m['comp']) . '</small>';
+
+        // ── C3b ───────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Entrada sin rotación previa') {
+            $stockC3b = isset($f['stock_actual']) && $f['stock_actual'] !== null ? number_format((float)$f['stock_actual'], 2, '.', '') : '—';
+            $nEnt3b   = (int)($f['n_entradas'] ?? 1) ?: 1;
+            $qty3b    = isset($f['cantidad_recibida']) && $f['cantidad_recibida'] !== null ? number_format((float)$f['cantidad_recibida'], 2, '.', '') : null;
+
+            if (empty($f['ultima_salida'])) {
+                $badgeC3b = $nEnt3b >= 3
+                    ? '<span class="label label-danger" title="Pedido ' . $nEnt3b . ' veces sin ninguna venta registrada">Pedidos repetidos sin venta</span>'
+                    : '<span class="label label-danger" title="Artículo que nunca ha tenido ventas registradas">Sin ventas</span>';
+            } else {
+                $badgeC3b = $nEnt3b >= 2
+                    ? '<span class="label label-warning" title="Se repone ' . $nEnt3b . ' veces pese a no tener rotación activa">Reposición sin rotación</span>'
+                    : '<span class="label label-warning" title="Artículo con rotación muy baja o nula">Sin rotación</span>';
+            }
+
+            $nDev3b  = (int)($f['n_devoluciones'] ?? 0);
+            $qDev3b  = isset($f['cantidad_devuelta']) && $f['cantidad_devuelta'] !== null ? (float)$f['cantidad_devuelta'] : 0.0;
+            $badgeDev3b = '';
+            if ($nDev3b > 0) {
+                $qQty = $qty3b !== null ? (float)$qty3b : 0.0;
+                $ratioDevStr = ($qQty > 0) ? ' (' . (int)round(($qDev3b / $qQty) * 100) . '%)' : '';
+                $devTip = ($qQty > 0 && $qDev3b >= $qQty * 0.8)
+                    ? 'Devuelto casi en su totalidad al proveedor'
+                    : 'Devolución parcial al proveedor';
+                $badgeDev3b = ' <span class="label label-default" title="' . htmlspecialchars($devTip) . '">Dev.' . $ratioDevStr . '</span>';
+            }
+
+            $entStr3b = 'Recepciones: ' . $nEnt3b . ($qty3b !== null ? ' (' . $qty3b . ' ud.)' : '');
+            if (!empty($f['ultima_salida'])) {
+                $movStr3b = 'Últ. venta: ' . $fmtF($f['ultima_salida'])
+                    . ' | <strong>' . ($f['semanas_desde_ultima_salida'] ?? '—') . ' sem.</strong> sin movimiento';
+            } elseif (!empty($f['fecha_primera_entrada'])) {
+                $movStr3b = 'Primera recepción: ' . $fmtF($f['fecha_primera_entrada']) . ' | <strong>Sin ventas en historial</strong>';
+            } else {
+                $movStr3b = '<strong>Sin ventas en historial</strong>';
+            }
+
+            $detalle = $badgeC3b . $badgeDev3b
+                . ' Stock: <strong>' . $stockC3b . '</strong>'
+                . ' | ' . $entStr3b
+                . ' | ' . $movStr3b;
+
+        // ── C4 ────────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Stock Inactivo en Periodo') {
+            $detalle = 'Stock: ' . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, '.', '') : '—');
+
+        // ── C7b ───────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Entrada no registrada') {
+            $offsetB = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
+            $dispB   = isset($f['dispersion'])       ? (float)$f['dispersion']      : null;
+            $nRecB   = (int)($f['n_recepciones'] ?? 0);
+
+            $badgeCruceB  = '';
+            $cruceCls     = _posstockCruceCls($f['cruce_nivel'] ?? '');
+            $cruceScore   = isset($f['cruce_score']) ? 'score=' . number_format((float)$f['cruce_score'], 2, '.', '') . ' — ' : '';
+            $cruceNivel   = _posstockCruceNivel($f['cruce_nivel'] ?? '');
+
+            if (!empty($f['posible_cruce_con'])) {
+                $badgeCruceB = _posstockBadgeCruce($f, $cruceCls, $cruceScore, $cruceNivel, false);
+            }
+
+            $deficitB = $offsetB !== null ? abs($offsetB) : null;
+            $detalle = '<span class="label label-danger" title="El stock cae a valores negativos estables: el sistema registra más stock del que existe físicamente entre recepciones.">Déficit estable</span>'
+                . $badgeCruceB
+                . ' Déficit: <strong>~' . ($deficitB !== null ? number_format($deficitB, 1, '.', '') : '—') . ' ud.</strong>'
+                . ($dispB !== null ? ' (±' . number_format($dispB, 1, '.', '') . ')' : '')
+                . ' | ' . $nRecB . ' rec.'
+                . ' | ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+
+        // ── C7a ───────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Merma acumulada') {
+            $deltaA  = isset($f['delta_acumulado']) && $f['delta_acumulado'] !== null ? (float)$f['delta_acumulado'] : null;
+            $dispA   = isset($f['dispersion'])       ? (float)$f['dispersion']        : null;
+            $slopeA  = isset($f['tendencia'])         ? (float)$f['tendencia']         : null;
+            $nRecA   = (int)($f['n_recepciones'] ?? 0);
+
+            $cruceCls  = _posstockCruceCls($f['cruce_nivel'] ?? '');
+            $cruceScore = isset($f['cruce_score']) ? 'score=' . number_format((float)$f['cruce_score'], 2, '.', '') . ' — ' : '';
+            $cruceNivel = _posstockCruceNivel($f['cruce_nivel'] ?? '');
+            $badgeCruceA = '';
+            if (!empty($f['posible_cruce_con'])) {
+                $badgeCruceA = _posstockBadgeCruce($f, $cruceCls, $cruceScore, $cruceNivel, true);
+            }
+
+            $detalle = '<span class="label label-warning" title="El suelo mínimo de stock sube recepción a recepción: el artículo pierde unidades de forma sistemática sin quedar registrado.">Merma progresiva</span>'
+                . $badgeCruceA
+                . ' Pérdida total: <strong>~' . ($deltaA !== null ? number_format($deltaA, 0, '.', '') : '—') . ' ud.</strong>'
+                . ($slopeA !== null ? ' | <strong>+' . number_format($slopeA, 1, '.', '') . ' ud./rec.</strong>' : '')
+                . ($dispA !== null ? ' (±' . number_format($dispA, 1, '.', '') . ')' : '')
+                . ' | ' . $nRecA . ' rec.'
+                . ' | ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+
+        // ── C6a / C6b ─────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
+            $stockC6     = (float)($f['stock_actual'] ?? 0);
+            $recNegativo = !empty($f['stock_reconstituido']) && $stockC6 < 0;
+            $stockCalc   = $recNegativo ? 0.0 : $stockC6;
+            $ropC6       = (float)($f['rop'] ?? 0);
+            $ssC6        = (float)($f['stock_seguridad'] ?? 0);
+            $dC6         = (float)($f['d_diaria'] ?? 0);
+            $esBN        = ($f['modelo_usado'] ?? '') === 'BN';
+            $esPeso      = ($f['tipo_articulo'] ?? '') === 'peso';
+            $unidad      = $esPeso ? 'kg' : 'ud.';
+
+            $c6mCfg = [
+                'Normal'   => ['lbl' => 'N',   'cls' => 'label-success', 'comp' => 'Rotación regular',        'tip' => 'Normal — demanda estable y regular (gran consumo). ROP calculado con varianza empírica de la demanda.',    'qTip' => 'Llevar stock hasta el ROP (demanda predecible).'],
+                'Gamma'    => ['lbl' => 'Γ',   'cls' => 'label-warning', 'comp' => 'Demanda asimétrica',      'tip' => 'Gamma — demanda asimétrica o lead time variable. ROP = cuantil Gamma directo sobre la demanda en L.',     'qTip' => 'Demanda asimétrica: cuantil Gamma ya incluye el SS necesario.'],
+                'BN'       => ['lbl' => 'BN',  'cls' => 'label-info',    'comp' => 'Compras en rachas',       'tip' => 'Binomial Negativa — demanda con sobredispersión (ventas agrupadas en lotes o rachas). SS ampliado.',      'qTip' => 'Demanda en rachas: se añade SS extra sobre el ROP por mayor incertidumbre.'],
+                'Binomial' => ['lbl' => 'Bin', 'cls' => 'label-primary', 'comp' => 'Rotación acotada',        'tip' => 'Binomial compuesta — distribución acotada (configurada por el usuario). SS según multiplicador σ.',       'qTip' => 'Binomial: llevar stock hasta el ROP con SS por multiplicador σ.'],
+                'Poisson'  => ['lbl' => 'Poi', 'cls' => 'label-default', 'comp' => 'Artículo esporádico',     'tip' => 'Poisson — demanda baja o poco frecuente. ROP conservador para artículos de baja rotación.',             'qTip' => 'Poisson: llevar stock hasta el ROP (varianza ≈ media).'],
+            ];
+            $c6m = $c6mCfg[$f['modelo_usado'] ?? ''] ?? $c6mCfg['Poisson'];
+
+            $qBase       = max(0.0, $ropC6 - $stockCalc);
+            $qRecomendada = (int)ceil($esBN ? $qBase + $ssC6 : $qBase);
+            $diasTrasPedido = $dC6 > 0 ? (int)round(($stockCalc + $qRecomendada) / $dC6) : null;
+
+            $badgeC6Modelo = ' <span class="label ' . $c6m['cls'] . '" title="' . htmlspecialchars($c6m['tip']) . '">' . $c6m['lbl'] . '</span>';
+
+            $badgeC6Fuente = '';
+            if ($tipo === 'Punto de Pedido') {
+                $aviso = $c6bDias < 60 ? ' ⚠ ventana corta — puede no reflejar estacionalidad' : '';
+                $badgeC6Fuente = ' <span class="label label-default" title="ROP calculado sobre los últimos ' . $c6bDias . ' días desde hoy (C6b)' . $aviso . '">' . $c6bDias . 'd</span>';
+            }
+
+            $badgeC6LT = (($f['lead_time_fuente'] ?? '') === 'proveedor')
+                ? ' <span class="label label-success" title="Lead time calculado desde intervalo entre albaranes del proveedor">LT prov.</span>'
+                : '';
+
+            $recMotivo = $f['stock_rec_motivo'] ?? '';
+            $recTipBase = ($recMotivo === 'negativo')
+                ? 'stockOn muy negativo (&lt; -2) — estimado desde última entrada de proveedor menos ventas posteriores'
+                : 'stockOn sospechosamente alto (&gt; N×ROP) — estimado desde última entrada de proveedor menos ventas posteriores';
+            $recTip = $recNegativo
+                ? $recTipBase . '. Stock estimado negativo: se asume stock=0 para el cálculo del pedido (posible cruce de albarán o entrada sin registrar)'
+                : $recTipBase;
+
+            $badgeC6Rec = !empty($f['stock_reconstituido'])
+                ? ' <span class="label ' . ($recNegativo ? 'label-danger' : 'label-warning') . '" title="' . htmlspecialchars($recTip) . '">~stk</span>'
+                : '';
+
+            $badgeC6Q = $qRecomendada > 0
+                ? ' <span class="label label-warning" title="' . htmlspecialchars($c6m['qTip']) . '">Pedir ~' . ($esPeso ? number_format($qRecomendada, 2, '.', '') : $qRecomendada) . ' ' . $unidad . '</span>'
+                : ' <span class="label label-success">Stock OK</span>';
+
+            $stockLabel = !empty($f['stock_reconstituido'])
+                ? ' | <span title="' . htmlspecialchars($recTip) . '">Stock ~est: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>'
+                    . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
+                : ' | Stock: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>';
+
+            $detalle = $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT . $badgeC6Rec . $badgeC6Q
+                . ' <small class="text-muted">· ' . htmlspecialchars($c6m['comp']) . '</small>'
+                . $stockLabel
+                . ' | Autonomía: <strong>' . (isset($f['dias_autonomia']) ? $f['dias_autonomia'] . ' d' : '—') . '</strong>'
+                . ' | LT: ' . (isset($f['lead_time_dias']) ? $f['lead_time_dias'] . ' d' : '—')
+                . ' | ROP: ' . number_format($ropC6, 2, '.', '') . ' ' . $unidad
+                . ($diasTrasPedido !== null ? ' | Cobertura tras pedido: <strong>' . $diasTrasPedido . ' d</strong>' : '');
+        }
+
+        // ── tipoLabel ──────────────────────────────────────────────────────────
+        switch ($tipo) {
+            case 'Inventario en negativo':
+                $tipoLabel = 'Stock negativo'; break;
+            case 'Desajuste Puntual de Stock':
+                $tipoLabel = 'Descuadre temporal'; break;
+            case 'Caída de rotación':
+                $avgCadTipo = (float)($f['avg_cadencia_dias'] ?? 0);
+                $tipoLabel = ($avgCadTipo > 0 && $avgCadTipo <= 7 && empty($f['desde_reposicion']))
+                    ? 'Riesgo caducidad' : 'Rotación caída';
+                break;
+            case 'Entrada con stock alto':
+                $c2CatTL = $f['c2_categoria'] ?? '';
+                if ($c2CatTL === 'acumulacion') {
+                    $tipoLabel = 'Acumulación crónica';
+                } elseif ($c2CatTL === 'tendencia') {
+                    $tipoLabel = 'Pedidos excesivos';
+                } else {
+                    $_ncant   = (float)($f['ncant'] ?? 0);
+                    $_ncantA  = isset($f['ncant_anterior']) && $f['ncant_anterior'] !== null ? (float)$f['ncant_anterior'] : null;
+                    $_dias    = isset($f['dias_desde_anterior']) && $f['dias_desde_anterior'] !== null ? (int)$f['dias_desde_anterior'] : null;
+                    $_dupP    = $_dias !== null && $_dias <= 1 && $_ncantA !== null && (max($_ncant, $_ncantA) > 0) && (abs($_ncant - $_ncantA) / max($_ncant, $_ncantA)) < 0.15;
+                    $_dupPos  = !$_dupP && $_dias !== null && $_dias <= 3 && $_ncantA !== null && (max($_ncant, $_ncantA) > 0) && (abs($_ncant - $_ncantA) / max($_ncant, $_ncantA)) < 0.15;
+                    $tipoLabel = $_dupP ? 'Duplicado probable' : ($_dupPos ? 'Posible duplicado' : 'Sobrestock entrada');
+                }
+                break;
+            case 'Venta Cero (Posible Rotura Física)':
+                $tipoLabel = 'Rotura de stock'; break;
+            case 'Entrada sin rotación previa':
+                $tipoLabel = 'Pedido sin rotación'; break;
+            case 'Agotamiento Estimado':
+            case 'Punto de Pedido':
+                $_ropTL   = (float)($f['rop'] ?? 0);
+                $_stTLRaw = (float)($f['stock_actual'] ?? 0);
+                $_stTL    = (!empty($f['stock_reconstituido']) && $_stTLRaw < 0) ? 0.0 : $_stTLRaw;
+                $_ssTL    = (float)($f['stock_seguridad'] ?? 0);
+                $_qTL     = (int)ceil((($f['modelo_usado'] ?? '') === 'BN')
+                    ? max(0, $_ropTL - $_stTL) + $_ssTL
+                    : max(0, $_ropTL - $_stTL));
+                $tipoLabel = $_qTL > 0 ? 'Reponer ahora' : 'ROP alcanzado';
+                break;
+            default:
+                $tipoLabel = $tipo;
+        }
+
+        // ── URL Listado Mayor ──────────────────────────────────────────────────
+        $fiMayor = $fiInicio;
+        $ffMayor = $ffMov;
+        $needsPostWindow =
+            ($tipo === 'Entrada sin rotación previa' && empty($f['ultima_salida'])) ||
+            ($tipo === 'Venta Cero (Posible Rotura Física)' && empty($f['fecha_fin_rotura']));
+
+        if ($needsPostWindow && $ffMov) {
+            $fiMayor = $fiStock ?: $fiInicio;
+            $dtFin   = new DateTime($ffMov);
+            $dtFin->modify('+' . $diasPost . ' days');
+            $ffMayor = $dtFin->format('Y-m-d');
+        }
+
+        $urlMayor = '../../modulos/mod_producto/DetalleMayor.php'
+            . '?idArticulo=' . (int)($f['idArticulo'] ?? 0)
+            . '&fecha_inicial=' . urlencode($fiMayor)
+            . '&fecha_final='   . urlencode($ffMayor);
+
+        // ── Fila HTML ─────────────────────────────────────────────────────────
+        $sevBadge = $badgeSev[$f['severidad'] ?? ''] ?? htmlspecialchars($f['severidad'] ?? '');
+
+        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '">'
+            . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
+            . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . '</td>'
+            . '<td>' . htmlspecialchars($tipoLabel) . '</td>'
+            . '<td>' . $sevBadge . '</td>'
+            . '<td>' . $detalle . '</td>'
+            . '<td>' . htmlspecialchars($f['posible_causa'] ?? '') . '</td>'
+            . '<td><a href="' . $urlMayor . '" target="_blank">'
+            . '<i class="glyphicon glyphicon-list-alt"></i> Ver mayor'
+            . '</a></td>'
+            . '</tr>';
+    }
+
+    $html .= '</tbody></table>';
+    return $html;
+}
+
+// ── Helpers privados de cruce ─────────────────────────────────────────────────
+
+function _posstockCruceCls(string $nivel): string
+{
+    if ($nivel === 'confirmado') return 'label-success';
+    if ($nivel === 'probable')   return 'label-danger';
+    return 'label-warning';
+}
+
+function _posstockCruceNivel(string $nivel): string
+{
+    if ($nivel === 'confirmado') return 'cruce confirmado';
+    if ($nivel === 'probable')   return 'cruce probable';
+    return 'posible cruce';
+}
+
+/**
+ * Genera el badge de cruce para C7a / C7b.
+ * @param bool $esDest  true = artículo destino (C7a), false = fuente (C7b)
+ */
+function _posstockBadgeCruce(array $f, string $cls, string $score, string $nivel, bool $esDest): string
+{
+    $con = $f['posible_cruce_con'] ?? '';
+    $tipo = $f['cruce_tipo'] ?? '';
+    $fuenteB = $f['cruce_fuente_b'] ?? '';
+    $ratioK  = $f['cruce_ratio_k']  ?? '';
+
+    if ($tipo === 'trio' && $fuenteB) {
+        if ($esDest) {
+            $tip   = $score . $nivel . ': art. ' . $con . ' y art. ' . $fuenteB . ' escaneados como este producto';
+            $label = 'Trío art. ' . $con . '+' . $fuenteB;
+        } else {
+            $tip   = $score . $nivel . ': este art. y art. ' . $fuenteB . ' escaneados como art. ' . $con;
+            $label = 'Trío →art. ' . $con;
+        }
+    } elseif ($tipo === 'multiplo' && $ratioK) {
+        $tip   = $score . $nivel . ' con art. ' . $con . ' (ratio ×' . $ratioK . '; pérdida fantasma por múltiplo)';
+        $label = '×' . $ratioK . ' art. ' . $con;
+    } else {
+        $tip   = $score . $nivel . ' con art. ' . $con . ' — posible error';
+        $label = ($esDest ? 'Balanza: art. ' : 'Art. ') . $con;
+    }
+
+    return ' <span class="label ' . $cls . '" title="' . htmlspecialchars($tip) . '">' . htmlspecialchars($label) . '</span>';
+}

@@ -1,6 +1,11 @@
 <?php
-// Devuelve la lista de proveedores activos (idProveedor, nombrecomercial)
-// para el filtro de proveedor de POSStock.
+// Devuelve la lista de proveedores activos y el HTML del modal de filtro.
+//
+// POST opcional:
+//   proveedores_incluir_json    string  JSON [{id, nombre}] ya seleccionados
+//   proveedor_todos_productos   string  '1' | '0'
+
+include_once $URLCom . '/modulos/mod_informes/tareas/vistas/vistaModalProveedores.php';
 
 $smt = $BDTpv->query("
     SELECT idProveedor, nombrecomercial
@@ -22,4 +27,8 @@ while ($row = $smt->fetch_assoc()) {
     ];
 }
 
+$incluir       = json_decode($_POST['proveedores_incluir_json']  ?? '[]', true) ?: [];
+$todosProductos = (($_POST['proveedor_todos_productos'] ?? '0') === '1');
+
 $respuesta['proveedores'] = $proveedores;
+$respuesta['html']        = renderModalProveedores($proveedores, $incluir, $todosProductos);

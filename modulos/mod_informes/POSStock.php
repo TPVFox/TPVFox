@@ -2,6 +2,7 @@
 include_once './../../inicial.php';
 include_once $URLCom . '/controllers/parametros.php';
 include_once $URLCom . '/modulos/mod_informes/funciones.php';
+include_once $URLCom . '/modulos/mod_informes/tareas/vistas/vistaOpcionesPeriodo.php';
 
 // ── Sesión y permisos ─────────────────────────────────────────────────
 // $thisTpv, $ClasePermisos y $Usuario están disponibles desde inicial.php.
@@ -12,12 +13,27 @@ if ($ClasePermisos->getAccion('ejecutar') == 0) {
 }
 
 // ── Parámetros POSStock ───────────────────────────────────────────────
-$ClaseParametros = new ClaseParametros('parametros.xml');
-$posstock_cfg    = $ClaseParametros->getNode('configuracion/posstock');
-$ventana_dias          = (int)(string)$posstock_cfg->ventana_dias;
-$c3b_dias_post         = (int)(string)$posstock_cfg->c3b_dias_post_periodo ?: 14;
-$c3a_multiplicador     = max(2.0, min(6.0, (float)(string)($posstock_cfg->c3a_multiplicador_cadencia ?: '3.0')));
-$c6b_dias_historico    = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_historico ?: '90')));
+$ClaseParametros      = new ClaseParametros('parametros.xml');
+$posstock_cfg         = $ClaseParametros->getNode('configuracion/posstock');
+$ventana_dias         = (int)(string)$posstock_cfg->ventana_dias;
+$c3b_dias_post        = (int)(string)$posstock_cfg->c3b_dias_post_periodo ?: 14;
+$c3a_multiplicador    = max(2.0, min(6.0, (float)(string)($posstock_cfg->c3a_multiplicador_cadencia ?: '3.0')));
+$c6b_dias_historico   = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_historico ?: '90')));
+$incluir_stock_inactivo = ((string)$posstock_cfg->incluir_stock_inactivo === '1');
+
+// ── Checkboxes de casos (se renderizan en PHP) ────────────────────────
+$defChecked    = ['caso1' => true, 'caso6a' => true];
+$checksHtml    = '';
+$tiposParaChks = array_filter(posstockTiposActivos($incluir_stock_inactivo), fn($ti) => !$ti['soloAnual']);
+foreach ($tiposParaChks as $ti) {
+    $checked     = !empty($defChecked[$ti['v']]) ? ' checked' : '';
+    $checksHtml .= '<label class="checkbox-inline" style="margin-left:8px; font-weight:normal;">'
+        . '<input type="checkbox" id="posstockChk_' . $ti['v'] . '" value="' . $ti['v'] . '"' . $checked
+        . ' onchange="posstockRecargarPorCasos()"> '
+        . '<span class="label label-default">' . htmlspecialchars($ti['short']) . '</span> '
+        . htmlspecialchars($ti['t'])
+        . '</label>';
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -144,7 +160,7 @@ $c6b_dias_historico    = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_
             <span class="text-muted small">
                 <i class="glyphicon glyphicon-filter"></i> Tipos visibles:
             </span>
-            <span id="posstockChecksCasos"></span>
+            <?php echo $checksHtml; ?>
         </div>
     </div>
 
@@ -199,15 +215,14 @@ $c6b_dias_historico    = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_
 <?php include $URLCom . '/plugins/modal/ventanaModal.php'; ?>
 
 <script>
-    // Ventana de consolidación leída desde PHP para usarla en JS
-    var POSSTOCK_VENTANA_DIAS        = <?php echo $ventana_dias; ?>;
-    var POSSTOCK_C3B_DIAS_POST       = <?php echo $c3b_dias_post; ?>;
-    var POSSTOCK_C3A_MULTIPLICADOR   = <?php echo $c3a_multiplicador; ?>;
-    var POSSTOCK_C6B_DIAS_HISTORICO  = <?php echo $c6b_dias_historico; ?>;
-    // Caso 4 habilitado (stock inactivo en periodo)
-    var POSSTOCK_INCLUIR_STOCK_INACTIVO = <?php echo ((string)$posstock_cfg->incluir_stock_inactivo === '1') ? 'true' : 'false'; ?>;
+    // Configuración POSStock leída desde PHP
+    var POSSTOCK_VENTANA_DIAS       = <?php echo (int)$ventana_dias; ?>;
+    var POSSTOCK_C3B_DIAS_POST      = <?php echo (int)$c3b_dias_post; ?>;
+    var POSSTOCK_C3A_MULTIPLICADOR  = <?php echo $c3a_multiplicador; ?>;
+    var POSSTOCK_C6B_DIAS_HISTORICO = <?php echo (int)$c6b_dias_historico; ?>;
+    var POSSTOCK_INCLUIR_STOCK_INACTIVO = <?php echo $incluir_stock_inactivo ? 'true' : 'false'; ?>;
 
-    // Periodo activo (se rellena al generar o pulsar botón de barra)
+    // Estado del selector de periodo activo
     var posstockPeriodoActivo = null;
 </script>
 

@@ -1,6 +1,11 @@
 <?php
-// Devuelve todas las familias de la vista vw_jerarquias_familias
-// ordenadas por ruta, para el filtro de POSStock.
+// Devuelve todas las familias y el HTML del modal de filtro.
+//
+// POST opcional:
+//   familias_incluir_json  string  JSON [{id, nombre}] ya seleccionados para incluir
+//   familias_excluir_json  string  JSON [{id, nombre}] ya seleccionados para excluir
+
+include_once $URLCom . '/modulos/mod_informes/tareas/vistas/vistaModalFamilias.php';
 
 $smt = $BDTpv->query("
     SELECT idFamilia, familiaNombre, ruta, nivel
@@ -23,4 +28,8 @@ while ($row = $smt->fetch_assoc()) {
     ];
 }
 
+$incluir = json_decode($_POST['familias_incluir_json'] ?? '[]', true) ?: [];
+$excluir = json_decode($_POST['familias_excluir_json'] ?? '[]', true) ?: [];
+
 $respuesta['familias'] = $familias;
+$respuesta['html']     = renderModalFamilias($familias, $incluir, $excluir);

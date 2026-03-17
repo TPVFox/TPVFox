@@ -55,6 +55,15 @@ switch ($pulsado) {
     case 'getProveedoresList':
         include_once $URLCom . '/modulos/mod_informes/tareas/getProveedoresList.php';
         break;
+    case 'renderizarTablaPosstock':
+        include_once $URLCom . '/modulos/mod_informes/tareas/renderizarTablaPosstock.php';
+        break;
+    case 'getOpcionesPeriodo':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getOpcionesPeriodo.php';
+        break;
+    case 'getVistaBarraPeriodos':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getVistaBarraPeriodos.php';
+        break;
     default:
         error_log('Tarea mod_informes case no encontrado: ' . $pulsado);
 }
