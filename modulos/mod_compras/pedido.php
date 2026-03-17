@@ -328,7 +328,7 @@ if ($idDocumentoTemporal === 0) {
         // En configuracion podemos definir SI / NO
         <?php echo 'var configuracion=' . json_encode($configuracionArchivo) . ';'; ?>
         var cabecera = []; // Donde guardamos idCliente, idUsuario,idTienda,FechaInicio,FechaFinal.
-        cabecera['idUsuario'] = <?php echo $creado_por['id']; ?>; // Tuve que adelantar la carga, sino funcionaria js.
+        cabecera['idUsuario'] = <?php echo isset($creado_por['id']) ? $creado_por['id'] : 0; ?>; // Tuve que adelantar la carga, sino funcionaria js.
         cabecera['idTienda'] = <?php echo $Tienda['idTienda']; ?>;
         cabecera['estado'] = '<?php echo $estado; ?>'; // Si no hay datos GET es 'Nuevo'
         cabecera['idTemporal'] = '<?php echo $idDocumentoTemporal; ?>';
@@ -370,7 +370,7 @@ if ($idDocumentoTemporal === 0) {
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-49"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-50"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <?php
     include_once $URLCom . '/modulos/mod_menu/menu.php';

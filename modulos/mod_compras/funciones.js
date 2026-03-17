@@ -3,8 +3,10 @@ function onSubmitForm(form) {
     prepararAjustesParaGuardar();
     var btnGuardar = document.getElementById("bGuardar");
     if (btnGuardar) {
-        btnGuardar.disabled = true;
-        btnGuardar.value = "Guardando...";
+        setTimeout(function () {
+            btnGuardar.disabled = true;
+            btnGuardar.value = "Guardando...";
+        }, 50);
     }
     return true;
 }
@@ -658,7 +660,8 @@ function AntesAgregarFilaProducto(
     //  - Si el coste se cambio con fecha posterior a la fecha del albaran.
     // Luego agregamos linea  o no.
     var opcion = true;
-    if (datos.ultimoCoste == 0 || datos.ultimoCoste == null) {
+    var _coste_num = parseFloat(sanitizarDecimal(typeof datos.ultimoCoste !== 'undefined' ? datos.ultimoCoste : (typeof datos.coste !== 'undefined' ? datos.coste : '0'))) || 0;
+    if (_coste_num == 0) {
         datos.getCoste(coste_tabla_articulo);
         // Si contesta NO, no lo añade al dedonde
         var nlen = dedonde.length - 1; // le quito la ultima letra, para que no ponga (s)
@@ -1471,7 +1474,14 @@ function ObjProducto(datos) {
     } else {
         this.nfila = datos.nfila;
     }
-    this.ultimoCoste = sanitizarDecimal(datos.coste);
+    // Normalizar y garantizar que `ultimoCoste` exista.
+    var _rawCoste = '0';
+    if (typeof datos.ultimoCoste !== 'undefined' && datos.ultimoCoste !== null && datos.ultimoCoste !== '') {
+        _rawCoste = datos.ultimoCoste;
+    } else if (typeof datos.coste !== 'undefined' && datos.coste !== null && datos.coste !== '') {
+        _rawCoste = datos.coste;
+    }
+    this.ultimoCoste = sanitizarDecimal(_rawCoste) || '0';
     // Lógica para CosteAnt:
     // Si el producto es nuevo y no tiene coste anterior, CosteAnt = ultimoCoste
     // Si tiene historial, CosteAnt = datos.CosteAnt (último coste registrado)
@@ -1485,9 +1495,10 @@ function ObjProducto(datos) {
     this.importe = importe.toFixed(2);
     this.getCoste = function (nuevoCoste) {
         // Metodo para cambiar Coste y ademas importe del producto.
-        this.ultimoCoste = sanitizarDecimal(datos.ultimoCoste);
-        // Si cambia el coste, actualizamos CosteAnt solo si no existe
-        if (typeof this.CosteAnt === "undefined" || this.CosteAnt === null) {
+        var fuente = typeof nuevoCoste !== 'undefined' && nuevoCoste !== null && nuevoCoste !== '' ? nuevoCoste : (typeof datos.ultimoCoste !== 'undefined' && datos.ultimoCoste !== null && datos.ultimoCoste !== '' ? datos.ultimoCoste : (typeof datos.coste !== 'undefined' ? datos.coste : '0'));
+        this.ultimoCoste = sanitizarDecimal(fuente) || '0';
+        // Si no existía CosteAnt, lo inicializamos con el anterior
+        if (typeof this.CosteAnt === 'undefined' || this.CosteAnt === null) {
             this.CosteAnt = this.ultimoCoste;
         }
         importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);

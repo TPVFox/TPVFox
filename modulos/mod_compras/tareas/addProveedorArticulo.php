@@ -7,7 +7,8 @@ $datos = array(
 	'idArticulo' => $_POST['idArticulo'],
 	'refProveedor' => $_POST['refProveedor'],
 	'idProveedor' => $_POST['idProveedor'],
-	'coste' => $_POST['coste'],
+	// Normalizar coste con función centralizada, fallback 0
+	'coste' => (isset($_POST['coste']) && $_POST['coste'] !== '') ? floatval(sanitizar_decimal_php($_POST['coste'])) : 0,
 	'fecha' => $fechaActualizacion,
 	'estado' => $estado
 );

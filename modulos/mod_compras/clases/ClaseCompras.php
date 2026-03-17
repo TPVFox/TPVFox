@@ -180,8 +180,13 @@ class ClaseCompras
                     if (isset($producto['CosteAnt'])) {
                         // Cuando existe precios coste anterior, se modifica coste en articulosproveedor
                         // pero solo si la fechaActualizacion es menor a fecha (parametro)
+                        // Normalizar coste; si falta, usar 0 y marcar advertencia si el producto está activo
+                        $coste_val = 0;
+                        if (isset($producto['ultimoCoste']) && $producto['ultimoCoste'] !== null && $producto['ultimoCoste'] !== '') {
+                            $coste_val = floatval(sanitizar_decimal_php($producto['ultimoCoste']));
+                        }
                         $datosNuevos = array(
-                            'coste' => $producto['ultimoCoste'],
+                            'coste' => $coste_val,
                             'idArticulo' => $producto['idArticulo'],
                             'idProveedor' => $idProveedor,
                             'fecha' => $fecha,
@@ -214,11 +219,22 @@ class ClaseCompras
                         }
                         if (count($errores) === 0) {
                             // Solo añado al historico si no hay errores.
-                            $datos['idArticulo'] = $producto['idArticulo'];
-                            $datos['antes'] = $producto['CosteAnt'];
-                            $datos['nuevo'] = $producto['ultimoCoste'];
+                            // Normalizar valores antes de llamar a addHistorico (hacerlo aquí en mod_compras)
+                            $datos['idArticulo'] = isset($producto['idArticulo']) ? intval($producto['idArticulo']) : 0;
+                            $antes_val = 0;
+                            if (isset($producto['CosteAnt']) && $producto['CosteAnt'] !== null && $producto['CosteAnt'] !== '') {
+                                $antes_val = floatval(sanitizar_decimal_php($producto['CosteAnt']));
+                            }
+                            $nuevo_val = 0;
+                            if (isset($producto['ultimoCoste']) && $producto['ultimoCoste'] !== null && $producto['ultimoCoste'] !== '') {
+                                $nuevo_val = floatval(sanitizar_decimal_php($producto['ultimoCoste']));
+                            }
+                            $datos['antes'] = $antes_val;
+                            $datos['nuevo'] = $nuevo_val;
                             $datos['estado'] = "Pendiente";
-                            $datos['idUsuario'] = $idUsuario;
+                            $datos['idUsuario'] = intval($idUsuario);
+                            // Asegurar numDoc es entero
+                            $datos['numDoc'] = isset($datos['numDoc']) ? intval($datos['numDoc']) : 0;
                             $nuevoHistorico = $CArt->addHistorico($datos);
                             if (isset($nuevoHistorico['error'])) {
                                 array_push(
@@ -237,8 +253,13 @@ class ClaseCompras
                         // [PENDIENTE]
                         // Pienso que debemos añadir al historico tambien ese precio, para revisarlo.
                         if (!isset($buscar['idArticulo'])) {
+                            // Normalizar coste antes de insertar nuevo proveedor/articulo
+                            $coste_val = 0;
+                            if (isset($producto['ultimoCoste']) && $producto['ultimoCoste'] !== null && $producto['ultimoCoste'] !== '') {
+                                $coste_val = floatval(sanitizar_decimal_php($producto['ultimoCoste']));
+                            }
                             $datosNuevos = array(
-                                'coste' => $producto['ultimoCoste'],
+                                'coste' => $coste_val,
                                 'idArticulo' => $producto['idArticulo'],
                                 'idProveedor' => $idProveedor,
                                 'fecha' => $fecha,

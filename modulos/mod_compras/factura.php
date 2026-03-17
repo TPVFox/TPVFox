@@ -420,7 +420,7 @@ if ($idDocumentoTemporal === 0) {
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-49"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-50"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <?php
     if (isset($htmlScript)) {

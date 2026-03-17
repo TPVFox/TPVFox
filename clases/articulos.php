@@ -97,15 +97,6 @@ class Articulos
 	public function addHistorico($datos)
 	{
 		$db = $this->db;
-		// Validar que 'antes' esté definido y no sea null
-		if (!isset($datos['antes']) || $datos['antes'] === null) {
-			// Si es producto nuevo, igualar 'antes' al coste actual
-			if (isset($datos['nuevo'])) {
-				$datos['antes'] = $datos['nuevo'];
-			} else {
-				$datos['antes'] = 0;
-			}
-		}
 		$antes = $datos['antes'];
 		$sql = 'INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc,
 		Dedonde, Tipo, estado, idUsuario) VALUES (' . $datos['idArticulo'] . ' , ' . $datos['antes'] . ' , ' . $datos['nuevo']
