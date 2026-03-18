@@ -98,21 +98,7 @@ if (isset($productos) && count($errores) === 0) {
     $CalculoTotales = $CPed->recalculoTotales($productos);
     $respuesta['total'] = round($CalculoTotales['total'], 2);
     $respuesta['totales'] = $CalculoTotales;
-
-    // Procesar ajustes de céntimos si se enviaron
-    $ajustes = null;
-    $ajustesJSON = null;
-    if (isset($_POST['ajustesCentimos']) && $_POST['ajustesCentimos'] !== '') {
-        $ajustes = json_decode($_POST['ajustesCentimos'], true);
-        if ($ajustes !== null) {
-            $ajustesJSON = $_POST['ajustesCentimos'];
-            $respuesta['ajustesCentimos'] = $ajustes;
-        }
-    }
-
-    // Guardar total_ivas: si hay ajustes, guardar JSON; si no, guardar subivas
-    $totalIvasParaGuardar = ($ajustesJSON !== null) ? $ajustesJSON : $CalculoTotales['subivas'];
-    $modTotal = $CPed->modTotales($idPedidoTemporal, $respuesta['total'], $totalIvasParaGuardar);
+    $modTotal = $CPed->modTotales($idPedidoTemporal, $respuesta['total'], $CalculoTotales['subivas']);
     if (isset($modTotal['error'])) {
         array_push(
             $errores,
@@ -124,7 +110,7 @@ if (isset($productos) && count($errores) === 0) {
         );
     }
     $respuesta['sqlmodtotal'] = $modTotal['sql'];
-    $htmlTotales = htmlTotales($CalculoTotales, $ajustes);
+    $htmlTotales = htmlTotales($CalculoTotales);
     $respuesta['htmlTabla'] = $htmlTotales['html'];
 }
 if (count($errores) > 0) {

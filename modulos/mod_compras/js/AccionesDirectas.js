@@ -23,7 +23,7 @@ function controladorAcciones(caja, accion, tecla) {
       if (caja.tipo_event !== "blur") {
         var costeAnt = productos[nfila].ultimoCoste;
         var idArticulo = productos[nfila].idArticulo;
-        if (parseFloat(sanitizarDecimal(String(costeAnt))) === parseFloat(sanitizarDecimal(caja.darValor()))) {
+        if (parseFloat(costeAnt) === parseFloat(caja.darValor())) {
           if (parseInt(caja.fila) == productos.length) {
             ponerFocus(ObtenerFocusDefectoEntradaLinea());
           }
@@ -70,11 +70,11 @@ function controladorAcciones(caja, accion, tecla) {
       if (comprobarDecimalNumber(caja.darValor())) {
         // recuerda que lo productos empizan 0 y las filas 1
         var nfila = parseInt(caja.fila) - 1;
-        var valor_anterior = parseFloat(sanitizarDecimal(String(productos[nfila].nunidades))) || 0;
-        var nuevoValor = parseFloat(sanitizarDecimal(caja.darValor())) || 0;
-        productos[nfila].nunidades = nuevoValor;
-        productos[nfila].ncant = nuevoValor;
-        if (valor_anterior !== nuevoValor) {
+        var valor_anterior = productos[nfila].nunidades;
+        productos[nfila].nunidades = caja.darValor();
+
+        productos[nfila].ncant = caja.darValor();
+        if (valor_anterior !== productos[nfila].nunidades) {
           // Comprobamos si cambio valor , sino no hacemos nada.
           recalculoImporte(
             productos[nfila].nunidades,

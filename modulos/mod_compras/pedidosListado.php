@@ -76,7 +76,7 @@ if (count($pedidosDef) == 0) {
 
 <head>
     <?php include_once $URLCom . '/head.php'; ?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=0431-50"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>

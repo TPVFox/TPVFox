@@ -101,8 +101,7 @@ class AlbaranesCompras extends ClaseCompras
     {
         //@ Objetivo:
         // Modificar los totales del albarán temporal
-        $escapedIvas = $this->db->real_escape_string($totalivas);
-        $sql = 'UPDATE albproltemporales set total=' . $total . ' , total_ivas="' . $escapedIvas . '" where id=' . $res;
+        $sql = 'UPDATE albproltemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {
             return $smt;
@@ -288,7 +287,7 @@ class AlbaranesCompras extends ClaseCompras
                     //~ $ultimoCoste = '0';
                     //~ }
                     $values[] = '(' . $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
-                        . $codBarras . '", "' . $prod['cdetalle'] . '", "' . floatval($prod['ncant']) . '" , "' . floatval($prod['nunidades']) . '", "'
+                        . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
                         . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
                         . $refProveedor . "'" . ', ' . $idPed . ')';
 
@@ -311,17 +310,11 @@ class AlbaranesCompras extends ClaseCompras
             }
             if (!isset($respuesta['error'])) {
                 if (isset($datos['DatosTotales']['desglose'])) {
-                    // (debug log removed)
                     foreach ($datos['DatosTotales']['desglose'] as $iva => $basesYivas) {
-                        // Forzar tipos numéricos y formato punto decimal
-                        $iva_sql = floatval($iva);
-                        $importeIva = number_format(floatval($basesYivas['iva']), 2, '.', '');
-                        $totalBase = number_format(floatval($basesYivas['base']), 2, '.', '');
                         $sql = 'INSERT INTO albproIva'
                             . ' (idalbpro  ,  Numalbpro  , iva , importeIva, totalbase) VALUES ('
-                            . $id . ', ' . $numAlbaran . ' , ' . $iva_sql . ', '
-                            . $importeIva . ' , ' . $totalBase . ')';
-                        // (debug log removed)
+                            . $id . ', ' . $numAlbaran . ' , ' . $iva . ', '
+                            . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
                         $smt = parent::consulta($sql);
                         if (gettype($smt) === 'array') {
                             $respuesta = $smt;
@@ -503,7 +496,6 @@ class AlbaranesCompras extends ClaseCompras
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos'] = $productos;
             $datos['Pedidos'] = $pedidos;
-            $datos['IvasGuardados'] = $ivas;
         } else {
             // Si hubo errores los devolvemos.
             $datos['error'] = $this->errores;
@@ -625,11 +617,6 @@ class AlbaranesCompras extends ClaseCompras
         // $idProveedor
         // $numAlbaran -> Puedo venir 0 , por lo que buscamos todos de ese proveedor y ese estado
         // $estado -> Lo pedidos queremos buscar segun su estado.
-        // Validar idProveedor para evitar SQL malformado
-        $idProveedor = intval($idProveedor);
-        if ($idProveedor <= 0) {
-            return array('error' => 'idProveedor inválido', 'consulta' => 'Falta idProveedor');
-        }
         $sql = 'SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total, a.id , a.FechaVencimiento ,
               a.formaPago , sum(b.totalbase) as totalSiva FROM albprot as a
               INNER JOIN albproIva as b on a.id=b.idalbpro where a.idProveedor=' . $idProveedor . '
@@ -779,58 +766,6 @@ class AlbaranesCompras extends ClaseCompras
                     )
                 );
             }
-            // ======  Aplicar ajustes de céntimos si existen  ======= //
-            // Prioridad: POST del formulario (estado actual JS) > total_ivas en BD (puede ser stale)
-            $ajustesRawString = '';
-            if (isset($_POST['ajustesCentimos']) && $_POST['ajustesCentimos'] !== '') {
-                $ajustesRawString = $_POST['ajustesCentimos'];
-            } elseif (isset($datosAlbaran['total_ivas']) && !empty($datosAlbaran['total_ivas'])) {
-                $ajustesRawString = $datosAlbaran['total_ivas'];
-            }
-            if ($ajustesRawString !== '') {
-                $ajustesGuardados = json_decode($ajustesRawString, true);
-                // Log para depuración: ajustes recibidos
-                error_log('guardarAlbaran - ajustesRawString: ' . substr($ajustesRawString, 0, 200));
-                error_log('guardarAlbaran - ajustesGuardados decodificado: ' . json_encode($ajustesGuardados));
-
-                // Solo validar si hay diferencias reales en los ajustes
-                $hayDiferencias = false;
-                if ($ajustesGuardados !== null && (isset($ajustesGuardados['desglose']) || isset($ajustesGuardados['total']))) {
-                    // Comprobar si hay diferencias en desglose
-                    if (isset($ajustesGuardados['desglose']) && is_array($ajustesGuardados['desglose'])) {
-                        foreach ($ajustesGuardados['desglose'] as $tipo => $valores) {
-                            foreach ($valores as $campo => $valor) {
-                                if (abs(floatval($valor)) > 0.001) {
-                                    $hayDiferencias = true;
-                                    break 2;
-                                }
-                            }
-                        }
-                    }
-                    // Comprobar si hay diferencia en total
-                    if (isset($ajustesGuardados['total']) && abs(floatval($ajustesGuardados['total'])) > 0.001) {
-                        $hayDiferencias = true;
-                    }
-                    if ($hayDiferencias) {
-                        // Leer max_ajuste desde parametros.xml
-                        global $URLCom;
-                        include_once $URLCom . '/controllers/parametros.php';
-                        $CParamAjuste = new ClaseParametros('parametros.xml');
-                        $confAjuste = $CParamAjuste->ArrayElementos('configuracion');
-                        $maxAjuste = isset($confAjuste['max_ajuste_centimos']) ? intval($confAjuste['max_ajuste_centimos']) : 1;
-                        // Validar ajustes (la función valida tanto desglose como total)
-                        $validacion = validarAjustesCentimos($CalculoTotales, $ajustesGuardados, $maxAjuste);
-                        if ($validacion['valido']) {
-                            $CalculoTotales = aplicarAjustesATotales($CalculoTotales, $ajustesGuardados);
-                            $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
-                        } else {
-                            foreach ($validacion['errores'] as $msgErr) {
-                                array_push($errores, $this->montarAdvertencia('warning', $msgErr));
-                            }
-                        }
-                    }
-                }
-            }
             // ======               Montamos array para insertar        ======= //
             $datos = array(
                 'Numtemp_albpro' => $idAlbaranTemporal,
@@ -867,7 +802,6 @@ class AlbaranesCompras extends ClaseCompras
                     );
                 }
             }
-            // (debug log removed)
             $addNuevo = $this->AddAlbaranGuardado($datos, $idAlbaran);
             if (isset($addNuevo['error'])) {
                 // Hubo un error a la hora eliminar tablas principales.
@@ -993,9 +927,8 @@ class AlbaranesCompras extends ClaseCompras
         }
         return $respuesta;
     }
-
-    public function getEstadosAlbaranes()
-    {
+    
+    public function getEstadosAlbaranes(){
         //@Objetivo:
         //Obtenemos los estados posibles de los albaranes de compras
         $respuesta = array();

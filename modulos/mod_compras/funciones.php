@@ -259,14 +259,12 @@ function recalculoTotales($productos, $campo_estado = 'estado')
     return $respuesta;
 }
 
-function htmlLineaProducto($producto, $dedonde, $solo_lectura = '', $decCantidad = 3, $decCoste = 4)
+function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
 {
     //@ Objetivo:
     // Objetivo montar el html de la linea de los productos tanto para pedido, albaran y factura
     //@ Parametros
     // $solo_lectura = No es obligatorio, y si vienes es readonly
-    // $decCantidad = decimales para la columna Unid (por defecto 3)
-    // $decCoste    = decimales para la columna Coste (por defecto 4)
     $respuesta = array('html' => '');
     if (!is_array($producto)) {
         // Comprobamos si product es objeto lo convertimos en array.
@@ -275,16 +273,16 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '', $decCantidad
     // Valores por defecto o calculo.
     $producto['ultimoCoste'] = floatval($producto['ultimoCoste']);
     $codBarra = "";
-    $cant = number_format($producto['nunidades'], $decCantidad, '.', '');
+    $cant = number_format($producto['nunidades'], 3);
     $importe = $producto['ultimoCoste'] * $producto['nunidades'];
-    $importe = number_format($importe, 2, '.', '');
-    $importeIva = number_format(($importe) + ($importe * ($producto['iva'] / 100)), 2, '.', '');
+    $importe = number_format($importe, 2);
+    $importeIva = number_format(($importe) + ($importe * ($producto['iva'] / 100)), 2);
     $classtr = '';
     $estadoInput = '';
     $funcOnclick = ' eliminarFila(' . $producto['nfila'] . ' , ' . "'" . $dedonde . "'" . ');';
     $iconE_R = '<span class="glyphicon glyphicon-trash"></span>';
     $html_numeroDoc = ''; // Valor por defecto.
-    $coste = number_format($producto['ultimoCoste'], $decCoste, '.', '');
+    $coste = number_format($producto['ultimoCoste'], 4);
     $html_coste = $coste;
     $html_descripcion = '<td class="detalle">' . $producto['cdetalle'] . '</td>';
     // Si hay valor de ccodbar lo ponemos en variable.
@@ -686,179 +684,38 @@ function comprobarAlbaran($idProveedor, $BDTpv)
 }
 
 
-function htmlTotales($Datostotales, $ajustes = null)
+function htmlTotales($Datostotales)
 {
-    // @Objetivo: generar HTML de la tabla de totales/desglose IVA.
-    // @Param $ajustes (array|null): ajustes de céntimos {desglose:{tipo:{base,iva}}, total:float}
-    // Modo desglose: inputs en base/IVA, total computado.
-    // Modo solo total: input en total, bases/IVAs solo lectura.
     $htmlIvas['html'] = '';
     $totalBase = 0;
     $totaliva = 0;
     if (isset($Datostotales['desglose'])) {
         foreach ($Datostotales['desglose'] as  $key => $basesYivas) {
             $key = intval($key);
-            $baseOriginal = number_format($basesYivas['base'], 2, '.', '');
-            $ivaOriginal = number_format($basesYivas['iva'], 2, '.', '');
-            $baseMostrar = $baseOriginal;
-            $ivaMostrar = $ivaOriginal;
-            if ($ajustes !== null && isset($ajustes['desglose'][$key])) {
-                if (isset($ajustes['desglose'][$key]['base'])) {
-                    $baseMostrar = number_format($ajustes['desglose'][$key]['base'], 2, '.', '');
-                }
-                if (isset($ajustes['desglose'][$key]['iva'])) {
-                    $ivaMostrar = number_format($ajustes['desglose'][$key]['iva'], 2, '.', '');
-                }
-            }
             $htmlIvas['html'] .= '<tr id="line' . $key . '">'
                 . '<td id="tipo' . $key . '"> ' . $key . '%</td>'
-                . '<td id="base' . $key . '" data-original="' . $baseOriginal . '">'
-                . ' <span class="valor-base">' . $baseMostrar . '</span>'
-                . ' <input type="number" step="0.01" class="input-ajuste input-ajuste-base form-control input-sm" '
-                . 'data-tipo="' . $key . '" data-campo="base" value="' . $baseMostrar . '" style="display:none;width:90px;">'
-                . '</td>'
-                . '<td id="iva' . $key . '" data-original="' . $ivaOriginal . '">'
-                . ' <span class="valor-iva">' . $ivaMostrar . '</span>'
-                . ' <input type="number" step="0.01" class="input-ajuste input-ajuste-iva form-control input-sm" '
-                . 'data-tipo="' . $key . '" data-campo="iva" value="' . $ivaMostrar . '" style="display:none;width:90px;">'
-                . '</td>'
+                . '<td id="base' . $key . '"> ' . number_format($basesYivas['base'], 2) . '</td>'
+                . '<td id="iva' . $key . '">' . number_format($basesYivas['iva'], 2) . '</td>'
                 . '</tr>';
-            $totalBase = $totalBase + floatval($baseMostrar);
-            $totaliva = $totaliva + floatval($ivaMostrar);
+            $totalBase = $totalBase + $basesYivas['base'];
+            $totaliva = $totaliva + $basesYivas['iva'];
         }
-        $totalOriginal = isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : '0.00';
-        // Si hay ajuste directo de total (modo sin desglose), usarlo
-        $totalFinal = number_format($totalBase + $totaliva, 2, '.', '');
-        // Override del total: aplica tanto en modo solo-total como en desglose+total manual
-        if ($ajustes !== null && isset($ajustes['total'])) {
-            $totalFinal = number_format($ajustes['total'], 2, '.', '');
-        }
-
         $htmlIvas['html'] .= '<tr>'
             . '<td> Totales </td>'
-            . '<td id="totalBases">' . number_format($totalBase, 2) . '</td>'
-            . '<td id="totalIvas">' . number_format($totaliva, 2) . '</td>'
+            . '<td>' . number_format($totalBase, 2) . '</td>'
+            . '<td>' . number_format($totaliva, 2) . '</td>'
             . '</tr>'
+
             . '<tr>'
-            . '<td><h3>TOTAL</h3></td>'
-            . '<td colspan="2">'
-            . '<div class="totalImporte" data-original="' . $totalOriginal . '" style="font-size: 3em;">'
-            . '<span class="valor-total">' . $totalFinal . '</span>'
-            . ' <input type="number" step="0.01" class="input-ajuste input-ajuste-total form-control" '
-            . 'value="' . $totalFinal . '" style="display:none;width:140px;font-size:0.4em;">'
+            . '<td>            <h3>TOTAL</h3></td>
+                       <td colspan="2">
+                    <div class="totalImporte" style="font-size: 3em;">'
+            . (isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : '')
             . '</div>'
             . '</td>'
             . '</tr>';
     }
     return $htmlIvas;
-}
-
-function validarAjustesCentimos($calculado, $ajustes, $maxAjuste)
-{
-    // @Objetivo: Validar ajustes de céntimos.
-    // Presupuesto acumulativo: sum(|campo - original|) en céntimos ≤ $maxAjuste.
-    // Cada campo individual: máximo ±($maxAjuste/100)€ según configuración.
-    // Modo total directo: si desglose vacío y total presente, solo validar total.
-    $errores = array();
-    $maxDiffCampo = $maxAjuste / 100; // máximo por campo en euros según max_ajuste_centimos
-    $centimosUsados = 0;
-
-    // Validar campos del desglose (si existen)
-    if (isset($ajustes['desglose']) && !empty($ajustes['desglose']) && isset($calculado['desglose'])) {
-        foreach ($ajustes['desglose'] as $tipo => $valores) {
-            if (isset($calculado['desglose'][$tipo])) {
-                if (isset($valores['base'])) {
-                    $diffBase = abs(floatval($calculado['desglose'][$tipo]['base']) - floatval($valores['base']));
-                    $centimosUsados += round($diffBase * 100);
-                    if ($diffBase > $maxDiffCampo + 0.001) {
-                        $errores[] = 'Base IVA ' . $tipo . '%: máximo ±' . number_format($maxDiffCampo, 2) . '€.';
-                    }
-                }
-                if (isset($valores['iva'])) {
-                    $diffIva = abs(floatval($calculado['desglose'][$tipo]['iva']) - floatval($valores['iva']));
-                    $centimosUsados += round($diffIva * 100);
-                    if ($diffIva > $maxDiffCampo + 0.001) {
-                        $errores[] = 'IVA ' . $tipo . '%: máximo ±' . number_format($maxDiffCampo, 2) . '€.';
-                    }
-                }
-            }
-        }
-        // Presupuesto acumulativo del desglose
-        if ($centimosUsados > $maxAjuste) {
-            $errores[] = 'Presupuesto de ajuste: ' . $centimosUsados . ' céntimo(s) usados, máximo ' . $maxAjuste . '.';
-        }
-    }
-
-    // Validar total (modo total-only sin desglose, o override manual del total con desglose)
-    if (isset($ajustes['total'])) {
-        $diffTotal = abs(floatval($calculado['total']) - floatval($ajustes['total']));
-        $centimosTotal = round($diffTotal * 100);
-        if ($centimosTotal > $maxAjuste) {
-            $errores[] = 'Total: ' . $centimosTotal . ' céntimo(s) excede máximo de ' . $maxAjuste . '.';
-        }
-    }
-
-    return array(
-        'valido' => count($errores) === 0,
-        'errores' => $errores
-    );
-}
-
-function aplicarAjustesATotales($calculado, $ajustes)
-{
-    // @Objetivo: Aplicar ajustes de céntimos a los totales calculados.
-    // Modo desglose: recalcula total desde desglose.
-    // Modo total: aplica total directo sin tocar desglose.
-    $resultado = $calculado;
-
-    if (isset($ajustes['desglose']) && !empty($ajustes['desglose'])) {
-        // Para evitar problemas con claves formateadas ("10.00" vs 10), buscamos
-        // la clave existente en $resultado['desglose'] comparando numéricamente.
-        foreach ($ajustes['desglose'] as $tipo => $valores) {
-            $matchKey = null;
-            if (isset($resultado['desglose'][$tipo])) {
-                $matchKey = $tipo;
-            } else {
-                // Intentamos emparejar por valor numérico de la clave
-                foreach ($resultado['desglose'] as $k => $_v) {
-                    if (floatval($k) === floatval($tipo)) {
-                        $matchKey = $k;
-                        break;
-                    }
-                }
-            }
-            if ($matchKey !== null) {
-                if (isset($valores['base'])) {
-                    $resultado['desglose'][$matchKey]['base'] = number_format(floatval($valores['base']), 2, '.', '');
-                }
-                if (isset($valores['iva'])) {
-                    $resultado['desglose'][$matchKey]['iva'] = number_format(floatval($valores['iva']), 2, '.', '');
-                }
-                $resultado['desglose'][$matchKey]['BaseYiva'] = number_format(
-                    floatval($resultado['desglose'][$matchKey]['base']) + floatval($resultado['desglose'][$matchKey]['iva']),
-                    2,
-                    '.',
-                    ''
-                );
-            }
-        }
-        // Recalcular totales sumando desgloses ajustados
-        $subivas = 0;
-        $subtotal = 0;
-        foreach ($resultado['desglose'] as $tipoIva => $des) {
-            $subivas += floatval($des['iva']);
-            $subtotal += floatval($des['BaseYiva']);
-        }
-        $resultado['subivas'] = number_format($subivas, 2, '.', '');
-        $resultado['total'] = number_format($subtotal, 2, '.', '');
-    }
-
-    // Override manual del total (funciona tanto con desglose como sin él)
-    if (isset($ajustes['total'])) {
-        $resultado['total'] = number_format(floatval($ajustes['total']), 2, '.', '');
-    }
-
-    return $resultado;
 }
 
 function cancelarFactura($idFacturaTemporal, $BDTpv)
@@ -1155,84 +1012,4 @@ function modalIncidenciasAdjuntas($datos)
 EOD;
     }
     return $html;
-}
-
-function guardarDatosConfiguracion($datos, $xml, $ClaseParametros)
-{
-    $respuesta = array();
-    // Convertir array serializeArray [{name,value},...] a mapa clave=>valor
-    $mapa = array();
-    foreach ($datos as $campo) {
-        $mapa[$campo['name']] = $campo['value'];
-    }
-    // Validar
-    $validacion = validarDatosConfiguracion($mapa);
-    if (!$validacion['valido']) {
-        $respuesta['error'] = implode(' | ', $validacion['errores']);
-        return $respuesta;
-    }
-    // Guardar valores simples: si cambiaron, actualizar xml
-    if ((string)$xml->decimales_cantidad !== $mapa['inputDecimalesCantidad']) {
-        $xml->decimales_cantidad = $mapa['inputDecimalesCantidad'];
-    }
-    if ((string)$xml->decimales_coste !== $mapa['inputDecimalesCoste']) {
-        $xml->decimales_coste = $mapa['inputDecimalesCoste'];
-    }
-    // Checkboxes: si no vienen en el POST, están desmarcados
-    $ajusteCentimos = isset($mapa['inputAjusteCentimos']) ? 'Si' : 'No';
-    if ((string)$xml->ajuste_centimos !== $ajusteCentimos) {
-        $xml->ajuste_centimos = $ajusteCentimos;
-    }
-    $ajusteDesglose = isset($mapa['inputAjusteCentimosDesglose']) ? 'Si' : 'No';
-    if ((string)$xml->ajuste_centimos_desglose !== $ajusteDesglose) {
-        $xml->ajuste_centimos_desglose = $ajusteDesglose;
-    }
-    $maxAjuste = isset($mapa['inputMaxAjusteCentimos']) ? intval($mapa['inputMaxAjusteCentimos']) : 1;
-    if ((string)$xml->max_ajuste_centimos !== (string)$maxAjuste) {
-        $xml->max_ajuste_centimos = $maxAjuste;
-    }
-    // Email: asunto y cuerpo
-    if (isset($mapa['inputAsuntoEmail']) && (string)$xml->email[0] !== $mapa['inputAsuntoEmail']) {
-        $xml->email[0] = $mapa['inputAsuntoEmail'];
-    }
-    if (isset($mapa['inputCuerpoEmail']) && (string)$xml->email[1] !== $mapa['inputCuerpoEmail']) {
-        $xml->email[1] = $mapa['inputCuerpoEmail'];
-    }
-    // Guardar fichero
-    $guardado = $ClaseParametros->save();
-    if ($guardado) {
-        $respuesta['mensaje'] = 'Configuración guardada correctamente.';
-    } else {
-        $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
-    }
-    return $respuesta;
-}
-
-function validarDatosConfiguracion($mapa)
-{
-    $respuesta = array(
-        'valido' => true,
-        'errores' => array()
-    );
-    // Decimales cantidad: obligatorio, numérico 0-6
-    if (!isset($mapa['inputDecimalesCantidad']) || $mapa['inputDecimalesCantidad'] === '') {
-        $respuesta['errores'][] = 'Decimales cantidad es obligatorio.';
-    } elseif (!is_numeric($mapa['inputDecimalesCantidad']) || intval($mapa['inputDecimalesCantidad']) < 0 || intval($mapa['inputDecimalesCantidad']) > 6) {
-        $respuesta['errores'][] = 'Decimales cantidad debe ser un número entre 0 y 6.';
-    }
-    // Decimales coste: obligatorio, numérico 0-6
-    if (!isset($mapa['inputDecimalesCoste']) || $mapa['inputDecimalesCoste'] === '') {
-        $respuesta['errores'][] = 'Decimales coste es obligatorio.';
-    } elseif (!is_numeric($mapa['inputDecimalesCoste']) || intval($mapa['inputDecimalesCoste']) < 0 || intval($mapa['inputDecimalesCoste']) > 6) {
-        $respuesta['errores'][] = 'Decimales coste debe ser un número entre 0 y 6.';
-    }
-    // Max ajuste: si viene, 0-2
-    if (isset($mapa['inputMaxAjusteCentimos'])) {
-        $v = intval($mapa['inputMaxAjusteCentimos']);
-        if ($v < 0 || $v > 2) {
-            $respuesta['errores'][] = 'Máximo ajuste debe ser 0, 1 o 2.';
-        }
-    }
-    $respuesta['valido'] = count($respuesta['errores']) === 0;
-    return $respuesta;
 }

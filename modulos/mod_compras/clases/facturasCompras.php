@@ -261,9 +261,8 @@ class FacturasCompras extends ClaseCompras
         //@Objetivo:
         //Modificar el total de una factura temporal, lo hacemos cada vez que añadimos un producto nuevo
         $db = $this->db;
-        $escapedIvas = $db->real_escape_string($totalivas);
         $sql = 'UPDATE facproltemporales set total="' . $total . '" , total_ivas="'
-            . $escapedIvas . '" where id=' . $res;
+            . $totalivas . '" where id=' . $res;
         $smt = $this->consulta($sql);
         $respuesta['sql'] = $sql;
         if (gettype($smt) === 'array') {
@@ -365,8 +364,8 @@ class FacturasCompras extends ClaseCompras
                     $idAlb = (isset($prod['idalbpro'])) ? $prod['idalbpro'] : 0;
                     $refProveedor = (isset($prod['ref_prov'])) ?  $prod['ref_prov'] : " ";
                     $values[] = '(' . $id . ', ' . $numFactura . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref']
-                        . "'" . ', "' . $codBarras . '", "' . $prod['cdetalle'] . '", "' . floatval($prod['ncant']) . '" , "'
-                        . floatval($prod['nunidades']) . '", "' . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', '
+                        . "'" . ', "' . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "'
+                        . $prod['nunidades'] . '", "' . $prod['ultimoCoste'] . '" , ' . $prod['iva'] . ', '
                         . $i . ', "' . $prod['estado'] . '" , ' . "'" . $refProveedor . "'" . ', ' . $idAlb . ')';
 
                     $i++;
@@ -382,14 +381,10 @@ class FacturasCompras extends ClaseCompras
                 error_log('Error a la hora insertar productos en factura ' . $idFactura . ' el error:' . json_encode($smt));
             }
             if (!isset($respuesta['error'])) {
-                // (debug log removed)
                 foreach ($datos['DatosTotales']['desglose'] as  $iva => $basesYivas) {
-                    $iva_sql = floatval($iva);
-                    $importeIva = number_format(floatval($basesYivas['iva']), 2, '.', '');
-                    $totalBase = number_format(floatval($basesYivas['base']), 2, '.', '');
-                    $sql = 'INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva , importeIva, totalbase) VALUES (' . $id . ', ' . $id
-                        . ' , ' . $iva_sql . ', ' . $importeIva . ' , ' . $totalBase . ')';
-                    // (debug log removed)
+                    $sql = 'INSERT INTO facproIva (idfacpro  ,  Numfacpro  , iva ,
+                    importeIva, totalbase) VALUES (' . $id . ', ' . $id
+                        . ' , ' . $iva . ', ' . $basesYivas['iva'] . ' , ' . $basesYivas['base'] . ')';
                     $smt = parent::consulta($sql);
                     if (gettype($smt) === 'array') {
                         $respuesta = $smt;
@@ -608,7 +603,6 @@ class FacturasCompras extends ClaseCompras
             // Si no hubo errores añadimos datos y formateamos datos fecha.
             $datos['Productos'] = $productos;
             $datos['Albaranes'] = $albaranes;
-            $datos['IvasGuardados'] = $ivas;
         } else {
             // Si hubo errores los devolvemos.
             $datos['error'] = $this->errores;
@@ -694,33 +688,6 @@ class FacturasCompras extends ClaseCompras
                         'Error no tienes productos !'
                     )
                 );
-            }
-            // ======  Aplicar ajustes de céntimos si existen  ======= //
-            // Prioridad: POST del formulario (estado actual JS) > total_ivas en BD (puede ser stale)
-            $ajustesRawString = '';
-            if (isset($_POST['ajustesCentimos']) && $_POST['ajustesCentimos'] !== '') {
-                $ajustesRawString = $_POST['ajustesCentimos'];
-            } elseif (isset($datosFactura['total_ivas']) && !empty($datosFactura['total_ivas'])) {
-                $ajustesRawString = $datosFactura['total_ivas'];
-            }
-            if ($ajustesRawString !== '') {
-                $ajustesGuardados = json_decode($ajustesRawString, true);
-                if ($ajustesGuardados !== null && isset($ajustesGuardados['desglose'])) {
-                    global $URLCom;
-                    include_once $URLCom . '/controllers/parametros.php';
-                    $CParamAjuste = new ClaseParametros('parametros.xml');
-                    $confAjuste = $CParamAjuste->ArrayElementos('configuracion');
-                    $maxAjuste = isset($confAjuste['max_ajuste_centimos']) ? intval($confAjuste['max_ajuste_centimos']) : 1;
-                    $validacion = validarAjustesCentimos($CalculoTotales, $ajustesGuardados, $maxAjuste);
-                    if ($validacion['valido']) {
-                        $CalculoTotales = aplicarAjustesATotales($CalculoTotales, $ajustesGuardados);
-                        $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
-                    } else {
-                        foreach ($validacion['errores'] as $msgErr) {
-                            array_push($errores, $this->montarAdvertencia('warning', $msgErr));
-                        }
-                    }
-                }
             }
             // ======               Montamos array para insertar        ======= //
             $datos = array(
