@@ -211,6 +211,23 @@ try {
             $respuesta['total'] = 0;
             break;
 
+        case 'establecerSeleccion':
+            $CSeleccion->limpiar();
+            foreach ((array) ($_POST['ids'] ?? []) as $id) {
+                $CSeleccion->agregar((int) $id);
+            }
+            $respuesta['ok']    = true;
+            $respuesta['total'] = $CSeleccion->contar();
+            break;
+
+        case 'agregarASeleccion':
+            foreach ((array) ($_POST['ids'] ?? []) as $id) {
+                $CSeleccion->agregar((int) $id);
+            }
+            $respuesta['ok']    = true;
+            $respuesta['total'] = $CSeleccion->contar();
+            break;
+
         case 'obtener':
             $respuesta['ok']   = true;
             $respuesta['ids']  = $CSeleccion->getIds();

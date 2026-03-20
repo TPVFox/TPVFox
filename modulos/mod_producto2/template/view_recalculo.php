@@ -36,14 +36,23 @@
                             <span class="glyphicon glyphicon-floppy-disk"></span> Guardar
                         </button>
                         <?php if (!empty($cacheExists)): ?>
-                        <button type="button" class="btn btn-default btn-sm"
+                        <button type="button" class="btn btn-default btn-sm" style="margin-bottom:6px;"
                                 onclick="imprimirRecalculo(<?= $id ?>)">
                             <span class="glyphicon glyphicon-print"></span> Imprimir
                         </button>
-                        <button type="button" class="btn btn-warning btn-sm" disabled
-                                title="Próximamente: imprimir etiquetas de los productos seleccionados">
-                            <span class="glyphicon glyphicon-tag"></span> Etiquetas
-                        </button>
+                        <div class="btn-group" style="width:100%; margin-bottom:6px;">
+                            <button type="button" id="btnSeleccionados" class="btn btn-warning btn-sm dropdown-toggle"
+                                    data-toggle="dropdown" disabled
+                                    title="Selecciona productos para habilitar">
+                                <span class="glyphicon glyphicon-tag"></span> Seleccionados <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" style="width:100%;">
+                                <li><a href="#" onclick="procesarSeleccion('etiquetas'); return false;">
+                                    <span class="glyphicon glyphicon-barcode"></span> Imprimir etiquetas</a></li>
+                                <li><a href="#" onclick="procesarSeleccion('mayor'); return false;">
+                                    <span class="glyphicon glyphicon-list-alt"></span> Imprimir mayor</a></li>
+                            </ul>
+                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -200,6 +209,30 @@
         </form>
     </div>
 
+    <!-- Modal conflicto selección -->
+    <div class="modal fade" id="modalSelConflicto" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Selección existente</h4>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning btn-sm" onclick="ejecutarSeleccion('agregar')">
+                        <span class="glyphicon glyphicon-plus"></span> Agregar a existente
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="ejecutarSeleccion('reemplazar')">
+                        <span class="glyphicon glyphicon-refresh"></span> Reemplazar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>'; ?>
     <?php include $URLCom . '/plugins/modal/ventanaModal.php'; ?>
 
@@ -252,7 +285,50 @@
 
         $('#selTodos').on('change', function () {
             $('.chk-articulo').prop('checked', this.checked);
+            actualizarBtnSeleccionados();
         });
+
+        $(document).on('change', '.chk-articulo', function () {
+            var total = $('.chk-articulo').length;
+            var marcados = $('.chk-articulo:checked').length;
+            $('#selTodos').prop('indeterminate', marcados > 0 && marcados < total);
+            $('#selTodos').prop('checked', marcados === total);
+            actualizarBtnSeleccionados();
+        });
+
+        function actualizarBtnSeleccionados() {
+            var haySeleccion = $('.chk-articulo:checked').length > 0;
+            $('#btnSeleccionados').prop('disabled', !haySeleccion);
+        }
+
+        var _destino, _ids;
+
+        function procesarSeleccion(destino) {
+            _ids = [];
+            $('.chk-articulo:checked').each(function () { _ids.push($(this).val()); });
+            if (!_ids.length) return;
+            _destino = destino;
+
+            $.post(urlTareasRecalculo, { accion: 'obtener' }, function (resp) {
+                var resultado = (typeof resp === 'string') ? $.parseJSON(resp) : resp;
+                if (resultado.total > 0) {
+                    $('#modalSelConflicto .modal-body p').text(
+                        'Tienes ' + resultado.total + ' producto(s) seleccionado(s) anteriormente. ¿Qué deseas hacer con los ' + _ids.length + ' producto(s) nuevos?'
+                    );
+                    $('#modalSelConflicto').modal('show');
+                } else {
+                    ejecutarSeleccion('agregar');
+                }
+            });
+        }
+
+        function ejecutarSeleccion(modo) {
+            $('#modalSelConflicto').modal('hide');
+            var accion = (modo === 'reemplazar') ? 'establecerSeleccion' : 'agregarASeleccion';
+            $.post(urlTareasRecalculo, { accion: accion, ids: _ids }, function () {
+                window.location.href = '<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?desde=' + _destino;
+            });
+        }
     </script>
 </body>
 </html>
