@@ -681,6 +681,81 @@ class ClasePosstock
     }
 
     /**
+     * C1 — Proveedor habitual y último proveedor para una lista de artículos.
+     *
+     * Busca en el rango anual (fi_stock → ff) para tener datos suficientes incluso
+     * en períodos de análisis cortos (semanal, quincenal…).
+     *
+     * Devuelve por artículo:
+     *   prov_habitual_nombre  — nombre del proveedor con más albaranes distintos
+     *   prov_habitual_n       — número de albaranes de ese proveedor
+     *   prov_ultimo_nombre    — nombre del proveedor del último albarán recibido
+     *   prov_ultima_fecha     — fecha del último albarán (YYYY-MM-DD)
+     *   prov_es_mismo         — true si habitual == último (mismo idProveedor)
+     *
+     * @param string $ids_str   IDs de artículo separados por coma (ya validados)
+     * @param string $fi_stock  Inicio del rango anual (escapado)
+     * @param string $ff        Fin del período de análisis (escapado)
+     * @return array  [idArticulo => [...]] o vacío si no hay datos
+     */
+    private function _queryProveedorC1(string $ids_str, string $fi_stock, string $ff): array
+    {
+        if (empty($ids_str)) return [];
+
+        // Frecuencia: proveedor con más albaranes distintos que incluyen el artículo
+        $smt = $this->db->query("
+            SELECT
+                l.idArticulo,
+                c.idProveedor,
+                p.nombrecomercial           AS nombre,
+                COUNT(DISTINCT c.id)        AS n_albaranes,
+                MAX(DATE(c.Fecha))          AS ultima_fecha
+            FROM albprolinea l
+            INNER JOIN albprot     c ON c.id          = l.idalbpro
+            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
+            WHERE l.idArticulo IN ($ids_str)
+              AND DATE(c.Fecha) BETWEEN '$fi_stock' AND '$ff'
+              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea = 'Activo'
+            GROUP BY l.idArticulo, c.idProveedor
+            ORDER BY l.idArticulo, n_albaranes DESC, ultima_fecha DESC
+        ");
+        if (!$smt) return [];
+
+        // Por artículo: el primer resultado es el habitual (más albaranes); buscar también el último
+        $por_art = [];
+        while ($r = $smt->fetch_assoc()) {
+            $id = (int)$r['idArticulo'];
+            if (!isset($por_art[$id])) {
+                // Primer resultado = proveedor habitual
+                $por_art[$id] = [
+                    'prov_habitual_id'     => (int)$r['idProveedor'],
+                    'prov_habitual_nombre' => $r['nombre'],
+                    'prov_habitual_n'      => (int)$r['n_albaranes'],
+                    'prov_ultimo_id'       => (int)$r['idProveedor'],
+                    'prov_ultimo_nombre'   => $r['nombre'],
+                    'prov_ultima_fecha'    => $r['ultima_fecha'],
+                ];
+            } else {
+                // Comprobar si este proveedor tiene una fecha más reciente
+                if ($r['ultima_fecha'] > $por_art[$id]['prov_ultima_fecha']) {
+                    $por_art[$id]['prov_ultimo_id']     = (int)$r['idProveedor'];
+                    $por_art[$id]['prov_ultimo_nombre'] = $r['nombre'];
+                    $por_art[$id]['prov_ultima_fecha']  = $r['ultima_fecha'];
+                }
+            }
+        }
+
+        // Marcar si habitual == último
+        foreach ($por_art as &$d) {
+            $d['prov_es_mismo'] = ($d['prov_habitual_id'] === $d['prov_ultimo_id']);
+        }
+        unset($d);
+
+        return $por_art;
+    }
+
+    /**
      * C1 — Delta total y mínimo de la suma acumulada por artículo mediante window function.
      * Una fila por artículo con delta_total (saldo del periodo) y min_running (mínimo acumulado).
      * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
@@ -695,48 +770,54 @@ class ClasePosstock
     ): array {
         $sql = "
             SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running,
-                   MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo
+                   MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo,
+                   SUM(CASE WHEN cum_sum = min_per_art THEN 1 ELSE 0 END) AS dias_en_minimo,
+                   SUM(CASE WHEN cum_sum < 0 THEN 1 ELSE 0 END) AS dias_en_negativo
             FROM (
-                SELECT idArticulo, fecha, day_delta, cum_sum,
+                SELECT idArticulo, fecha, day_delta, cum_sum, min_per_art,
                        ROW_NUMBER() OVER (PARTITION BY idArticulo
                                           ORDER BY cum_sum ASC, fecha ASC) AS rn_min
                 FROM (
-                    SELECT idArticulo, fecha, day_delta,
-                           SUM(day_delta) OVER (PARTITION BY idArticulo ORDER BY fecha
-                                                ROWS UNBOUNDED PRECEDING) AS cum_sum
+                    SELECT idArticulo, fecha, day_delta, cum_sum,
+                           MIN(cum_sum) OVER (PARTITION BY idArticulo) AS min_per_art
                     FROM (
-                        SELECT idArticulo, fecha, SUM(delta) AS day_delta
+                        SELECT idArticulo, fecha, day_delta,
+                               SUM(day_delta) OVER (PARTITION BY idArticulo ORDER BY fecha
+                                                    ROWS UNBOUNDED PRECEDING) AS cum_sum
                         FROM (
-                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
-                            FROM albprolinea l
-                            INNER JOIN albprot    c ON c.id        = l.idalbpro
-                            INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                              AND c.estado      IN ('Guardado','Facturado')
-                              AND l.estadoLinea = 'Activo'
-                              $wf $wi
-                            UNION ALL
-                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
-                            FROM ticketslinea l
-                            INNER JOIN ticketst  c ON c.id        = l.idticketst
-                            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                              AND c.estado      = 'Cerrado'
-                              AND l.estadoLinea = 'Activo'
-                              $wf $wi
-                            UNION ALL
-                            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
-                            FROM albclilinea l
-                            INNER JOIN albclit   c ON c.id        = l.idalbcli
-                            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                              AND c.estado      IN ('Guardado','Procesado')
-                              AND l.estadoLinea = 'Activo'
-                              $wf $wi
-                        ) AS all_movs
-                        GROUP BY idArticulo, fecha
-                    ) AS daily
-                ) AS windowed_inner
+                            SELECT idArticulo, fecha, SUM(delta) AS day_delta
+                            FROM (
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                                FROM albprolinea l
+                                INNER JOIN albprot    c ON c.id        = l.idalbpro
+                                INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
+                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                  AND c.estado      IN ('Guardado','Facturado')
+                                  AND l.estadoLinea = 'Activo'
+                                  $wf $wi
+                                UNION ALL
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                                FROM ticketslinea l
+                                INNER JOIN ticketst  c ON c.id        = l.idticketst
+                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                  AND c.estado      = 'Cerrado'
+                                  AND l.estadoLinea = 'Activo'
+                                  $wf $wi
+                                UNION ALL
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                                FROM albclilinea l
+                                INNER JOIN albclit   c ON c.id        = l.idalbcli
+                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
+                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                  AND c.estado      IN ('Guardado','Procesado')
+                                  AND l.estadoLinea = 'Activo'
+                                  $wf $wi
+                            ) AS all_movs
+                            GROUP BY idArticulo, fecha
+                        ) AS daily
+                    ) AS windowed_inner
+                ) AS with_min
             ) AS windowed
             GROUP BY idArticulo
             HAVING MIN(cum_sum) < 0 OR SUM(day_delta) < 0
@@ -1541,6 +1622,14 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c1);
         }
 
+        // IDs con C1a activo — usados para marcar stock_no_fiable en C5/C6
+        $ids_con_c1a = [];
+        foreach ($incidencias as $inc) {
+            if ($inc['tipo'] === 'Inventario en negativo') {
+                $ids_con_c1a[$inc['idArticulo']] = true;
+            }
+        }
+
         // ── C2 ───────────────────────────────────────────────────────────────
         if (isset($casos_set['caso2'])) {
             $c2 = $this->getIncidenciasC2(
@@ -1749,6 +1838,17 @@ class ClasePosstock
             }
         }
 
+        // ── Marcar stock_no_fiable en C5/C6 cuando el artículo tiene C1a activo ──
+        if (!empty($ids_con_c1a)) {
+            foreach ($incidencias as &$inc) {
+                if (isset($ids_con_c1a[$inc['idArticulo']]) &&
+                    in_array($inc['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)) {
+                    $inc['stock_no_fiable'] = true;
+                }
+            }
+            unset($inc);
+        }
+
         // ── Ordenar: CRITICA → ALTA → MEDIA (C2→C5→C3a) → BAJA (C3b sin-rot→C3b nunca→C4) ─
         $orden_sev = ['CRITICA' => 0, 'ALTA' => 1, 'MEDIA' => 2, 'BAJA' => 3];
 
@@ -1834,6 +1934,15 @@ class ClasePosstock
                     $sub = '2'; // Stock Inactivo en Periodo (C4)
                 }
                 $inc['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $inc['idArticulo']);
+            } elseif ($inc['tipo'] === 'Inventario en negativo') {
+                // C1a: stock_actual desc (más negativo primero), desempate por días en negativo desc
+                $inv_stock = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['stock_actual'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
+                $inv_dias  = str_pad(max(0, 9999 - (int)($inc['dias_en_negativo'] ?? 0)), 4, '0', STR_PAD_LEFT);
+                $inc['orden_clave'] = $sev_idx . '0' . $inv_stock . $inv_dias;
+            } elseif ($inc['tipo'] === 'Desajuste Puntual de Stock') {
+                // C1b: abs(min_balance) desc — el mínimo más profundo primero
+                $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
+                $inc['orden_clave'] = $sev_idx . '0' . $inv_min;
             } else {
                 $inc['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $inc['idArticulo']);
             }
@@ -3210,10 +3319,11 @@ class ClasePosstock
         array  $ids_filter = [],
         array  $stock_base_cache = []   // pre-calculado por el caller para evitar doble consulta
     ): array {
-        $fi    = $this->db->real_escape_string($fi_mov);
-        $ff    = $this->db->real_escape_string($ff_mov);
-        $wf    = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi    = $this->_idsWhere($ids_filter);
+        $fi     = $this->db->real_escape_string($fi_mov);
+        $ff     = $this->db->real_escape_string($ff_mov);
+        $fi_stk = $this->db->real_escape_string($fi_stock);
+        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->_idsWhere($ids_filter);
 
         $rows = $this->_queryDeltasC1($fi, $ff, $wf, $wi);
         if (isset($rows['error'])) return $rows;
@@ -3223,9 +3333,11 @@ class ClasePosstock
         $ids       = [];
         foreach ($rows as $r) {
             $delta_map[(int)$r['idArticulo']] = [
-                'delta_total'  => (float)$r['delta_total'],
-                'min_running'  => (float)$r['min_running'],
-                'fecha_minimo' => $r['fecha_minimo'],
+                'delta_total'    => (float)$r['delta_total'],
+                'min_running'    => (float)$r['min_running'],
+                'fecha_minimo'   => $r['fecha_minimo'],
+                'dias_en_minimo' => (int)$r['dias_en_minimo'],
+                'dias_en_negativo' => (int)$r['dias_en_negativo'],
             ];
             $ids[] = (int)$r['idArticulo'];
         }
@@ -3246,43 +3358,58 @@ class ClasePosstock
 
             if ($stock_actual < 0) {
                 // Señales derivables sin query extra
-                $ya_negativo_inicio = $saldo_base < 0;
-                $frac               = abs($stock_actual - round($stock_actual));
-                $es_fraccionado     = $frac > 0.05;
+                $ya_negativo_inicio  = $saldo_base < 0;
+                $frac                = abs($stock_actual - round($stock_actual));
+                $es_fraccionado      = $frac > 0.05;
+                // Badge "Stock decimal" solo cuando el negativo es pequeño (< 0.5): drift de redondeo plausible
+                $fraccionado_es_causa = $es_fraccionado && abs($stock_actual) < 0.5 && abs($min_balance) < 0.5;
 
                 $incidencias[] = [
-                    'idArticulo'         => $id,
-                    'tipo'               => 'Inventario en negativo',
-                    'severidad'          => 'CRITICA',
-                    'stock_actual'       => $stock_actual,
-                    'min_balance'        => $min_balance,
-                    'ya_negativo_inicio' => $ya_negativo_inicio,
-                    'es_fraccionado'     => $es_fraccionado,
-                    'posible_causa'      => '',   // se sobreescribe en el bloque de enriquecimiento
+                    'idArticulo'          => $id,
+                    'tipo'                => 'Inventario en negativo',
+                    'severidad'           => ($fraccionado_es_causa || $ya_negativo_inicio) ? 'ALTA' : 'CRITICA',
+                    'stock_actual'        => $stock_actual,
+                    'min_balance'         => $min_balance,
+                    'ya_negativo_inicio'  => $ya_negativo_inicio,
+                    'fraccionado_es_causa' => $fraccionado_es_causa,
+                    'saldo_base'          => $ya_negativo_inicio ? $saldo_base : null,
+                    'dias_en_negativo'    => $data['dias_en_negativo'],
+                    'posible_causa'       => '',   // se sobreescribe en el bloque de enriquecimiento
                 ];
                 $ids_c1a[] = $id;
             } elseif ($min_balance < 0) {
-                $frac_c1b       = abs($min_balance - round($min_balance));
-                $es_fraccionado = $frac_c1b > 0.05;
+                $frac_c1b             = abs($min_balance - round($min_balance));
+                $es_fraccionado       = $frac_c1b > 0.05;
+                // Badge "Stock decimal" solo cuando el mínimo negativo es pequeño (< 0.5)
+                $fraccionado_es_causa = $es_fraccionado && abs($min_balance) < 0.5;
 
                 $incidencias[] = [
-                    'idArticulo'     => $id,
-                    'tipo'           => 'Desajuste Puntual de Stock',
-                    'severidad'      => 'ALTA',
-                    'stock_actual'   => $stock_actual,
-                    'min_balance'    => $min_balance,
-                    'es_fraccionado' => $es_fraccionado,
-                    'fecha_minimo'   => $data['fecha_minimo'],
-                    'posible_causa'  => 'Negativo puntual, recuperado al cierre',
+                    'idArticulo'           => $id,
+                    'tipo'                 => 'Desajuste Puntual de Stock',
+                    'severidad'            => 'ALTA',
+                    'stock_actual'         => $stock_actual,
+                    'min_balance'          => $min_balance,
+                    'fraccionado_es_causa' => $fraccionado_es_causa,
+                    'fecha_minimo'         => $data['fecha_minimo'],
+                    'dias_en_minimo'       => $data['dias_en_minimo'],
+                    'posible_causa'        => 'Negativo puntual, recuperado al cierre',
                 ];
                 $ids_c1b[] = $id;
             }
         }
 
-        // Enriquecer C1a con actividad del periodo (recepciones y ventas)
+        // Enriquecer C1a y C1b con actividad del periodo (una sola consulta compartida)
+        $ids_todos = array_merge($ids_c1a, $ids_c1b);
+        $detalle   = !empty($ids_todos)
+            ? $this->_queryDetalleC1(implode(',', $ids_todos), $fi, $ff)
+            : [];
+
+        // Proveedor habitual y último para C1a (rango anual para tener datos suficientes)
+        $prov_map = !empty($ids_c1a)
+            ? $this->_queryProveedorC1(implode(',', $ids_c1a), $fi_stk, $ff)
+            : [];
+
         if (!empty($ids_c1a)) {
-            $ids_str = implode(',', $ids_c1a);
-            $detalle = $this->_queryDetalleC1($ids_str, $fi, $ff);
             foreach ($incidencias as &$inc) {
                 if ($inc['tipo'] !== 'Inventario en negativo') continue;
                 $d     = $detalle[$inc['idArticulo']] ?? null;
@@ -3291,26 +3418,42 @@ class ClasePosstock
                 $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
                 $inc['n_ventas']       = $d['n_ventas']       ?? 0;
 
+                // Proveedor habitual y último (rango anual)
+                $prov = $prov_map[$inc['idArticulo']] ?? null;
+                $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
+                $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
+                $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
+                $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
+                $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+
+                // Refinar fraccionado_es_causa con n_ventas: umbral 0.010 ud × ventas
+                if ($inc['fraccionado_es_causa']) {
+                    $umbral_frac = 0.010 * max(1, $inc['n_ventas']);
+                    if (abs($inc['stock_actual']) > $umbral_frac || abs($inc['min_balance']) > $umbral_frac) {
+                        $inc['fraccionado_es_causa'] = false;
+                        $inc['severidad']            = $inc['ya_negativo_inicio'] ? 'ALTA' : 'CRITICA';
+                    }
+                }
+
                 if ($inc['ya_negativo_inicio']) {
                     $inc['posible_causa'] = 'Stock ya negativo al inicio del periodo: el problema viene de antes, revisar inventario anterior';
+                } elseif (!empty($inc['fraccionado_es_causa'])) {
+                    // Causa: imprecisión de pesaje. Badge "Sin recepciones" puede seguir visible (es un hecho).
+                    $inc['posible_causa'] = 'Stock decimal dentro del margen de pesaje: probable venta de últimos restos en balanza o imprecisión acumulada';
+                    $inc['severidad']     = 'MEDIA';
                 } elseif ($n_ent === 0 && $inc['n_ventas'] > 0) {
                     $inc['posible_causa'] = 'Ventas registradas sin ninguna recepción en el periodo: comprobar si falta dar entrada de mercancía';
                 } elseif ($n_ent > 0) {
                     $inc['posible_causa'] = 'Entradas registradas pero el stock sigue negativo: revisar si falta alguna recepción o si hay ventas duplicadas';
-                } elseif ($inc['es_fraccionado']) {
-                    $inc['posible_causa'] = 'Stock con decimales: posible acumulación de imprecisiones en ventas por peso o fraccionado';
                 } else {
-                    $inc['posible_causa'] = 'Sin movimientos que justifiquen el negativo: verificar si hay ajustes o movimientos no registrados';
+                    $inc['posible_causa'] = 'Stock negativo sin movimientos en el periodo: revisar el saldo inicial del artículo o si hay ajustes no registrados';
                 }
             }
             unset($inc);
         }
 
-        // Enriquecer C1b con actividad del periodo (recepciones y ventas) + causa dinámica
+        // Enriquecer C1b con causa dinámica + timing
         if (!empty($ids_c1b)) {
-            $ids_str = implode(',', $ids_c1b);
-            $detalle = $this->_queryDetalleC1($ids_str, $fi, $ff);
-
             // Confirmar timing: entrada dentro de 3 días tras la fecha del mínimo
             $id_fecha_map = [];
             foreach ($incidencias as $inc) {
@@ -3327,16 +3470,29 @@ class ClasePosstock
                 $inc['n_entradas']     = $n_ent;
                 $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
                 $inc['n_ventas']       = $d['n_ventas']       ?? 0;
-                $inc['timing_proximo'] = isset($timing_set[$inc['idArticulo']]);
+                // Refinar fraccionado_es_causa con n_ventas: umbral 0.010 ud × ventas
+                if ($inc['fraccionado_es_causa']) {
+                    $umbral_frac = 0.010 * max(1, $inc['n_ventas']);
+                    if (abs($inc['min_balance']) > $umbral_frac) {
+                        $inc['fraccionado_es_causa'] = false;
+                    }
+                }
 
-                if ($inc['timing_proximo']) {
-                    $inc['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
-                } elseif ($n_ent > 0) {
-                    $inc['posible_causa'] = 'Entradas en el periodo pero no coinciden con el momento del negativo: revisar si hay un desajuste de inventario puntual';
-                } elseif ($inc['es_fraccionado']) {
-                    $inc['posible_causa'] = 'Stock con decimales: posible acumulación de imprecisiones en ventas por peso o fraccionado';
+                // fraccionado_es_causa tiene prioridad sobre timing:
+                // la balanza vendió los últimos restos — el timing es consecuencia, no el error.
+                if (!empty($inc['fraccionado_es_causa'])) {
+                    $inc['timing_proximo'] = false; // suprimir badge timing — no aplica
+                    $inc['severidad']      = 'MEDIA';
+                    $inc['posible_causa']  = 'Mínimo negativo dentro del margen de pesaje: probable venta de últimos restos en balanza';
                 } else {
-                    $inc['posible_causa'] = 'Sin recepciones en el periodo: revisar movimientos duplicados o ajustes manuales';
+                    $inc['timing_proximo'] = isset($timing_set[$inc['idArticulo']]);
+                    if ($inc['timing_proximo']) {
+                        $inc['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
+                    } elseif ($n_ent > 0) {
+                        $inc['posible_causa'] = 'Entradas en el periodo pero no coinciden con el momento del negativo: revisar si hay un desajuste de inventario puntual';
+                    } else {
+                        $inc['posible_causa'] = 'Sin recepciones en el periodo: revisar movimientos duplicados o ajustes manuales';
+                    }
                 }
             }
             unset($inc);
