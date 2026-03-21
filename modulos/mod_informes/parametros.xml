@@ -51,6 +51,16 @@
 			<c1_umbral_por_venta>0.010</c1_umbral_por_venta>
 			<!-- C1b — Ventana de timing: días máximos tras el mínimo para considerar que una recepción explica el negativo puntual. -->
 			<c1_timing_ventana_dias>1</c1_timing_ventana_dias>
+			<!-- C7b — Mínimo de recepciones históricas (período base) para que el test IC95 sea válido. Rango: 3–10 -->
+			<c7b_min_recepciones>3</c7b_min_recepciones>
+			<!-- C7b — Umbral máximo de CV (coeficiente de variación) para considerar el patrón estable. Rango: 0.3–0.9 -->
+			<c7b_umbral_cv>0.5</c7b_umbral_cv>
+			<!-- C7b — Umbral de ruido de pesaje: déficit medio (kg) por debajo del cual se emite C7b_ruido_peso en vez de C7b. Solo afecta a artículos de tipo peso. Rango: 0.1–2.0 -->
+			<c7b_umbral_ruido_peso>0.5</c7b_umbral_ruido_peso>
+			<!-- C7b — Déficit medio mínimo (ud.) para severidad ALTA en artículos de tipo unidad. Rango: 2–20 -->
+			<c7b_umbral_severidad_unidad>5</c7b_umbral_severidad_unidad>
+			<!-- C7b — Déficit medio mínimo (kg) para severidad ALTA en artículos de tipo peso. Rango: 0.5–10.0 -->
+			<c7b_umbral_severidad_peso>2.5</c7b_umbral_severidad_peso>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

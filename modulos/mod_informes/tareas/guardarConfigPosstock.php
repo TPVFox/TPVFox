@@ -121,6 +121,41 @@ if (!isset($mapa['inputC1TimingVentanaDias'])
 ) {
     $mapa['inputC1TimingVentanaDias'] = '1';
 }
+if (!isset($mapa['inputC7bMinRecepciones'])
+    || !ctype_digit($mapa['inputC7bMinRecepciones'])
+    || intval($mapa['inputC7bMinRecepciones']) < 3
+    || intval($mapa['inputC7bMinRecepciones']) > 10
+) {
+    $mapa['inputC7bMinRecepciones'] = '3';
+}
+if (!isset($mapa['inputC7bUmbralCV'])
+    || !is_numeric($mapa['inputC7bUmbralCV'])
+    || floatval($mapa['inputC7bUmbralCV']) < 0.3
+    || floatval($mapa['inputC7bUmbralCV']) > 0.9
+) {
+    $mapa['inputC7bUmbralCV'] = '0.5';
+}
+if (!isset($mapa['inputC7bUmbralRuidoPeso'])
+    || !is_numeric($mapa['inputC7bUmbralRuidoPeso'])
+    || floatval($mapa['inputC7bUmbralRuidoPeso']) < 0.1
+    || floatval($mapa['inputC7bUmbralRuidoPeso']) > 2.0
+) {
+    $mapa['inputC7bUmbralRuidoPeso'] = '0.5';
+}
+if (!isset($mapa['inputC7bUmbralSevUnidad'])
+    || !ctype_digit($mapa['inputC7bUmbralSevUnidad'])
+    || intval($mapa['inputC7bUmbralSevUnidad']) < 2
+    || intval($mapa['inputC7bUmbralSevUnidad']) > 20
+) {
+    $mapa['inputC7bUmbralSevUnidad'] = '5';
+}
+if (!isset($mapa['inputC7bUmbralSevPeso'])
+    || !is_numeric($mapa['inputC7bUmbralSevPeso'])
+    || floatval($mapa['inputC7bUmbralSevPeso']) < 0.5
+    || floatval($mapa['inputC7bUmbralSevPeso']) > 10.0
+) {
+    $mapa['inputC7bUmbralSevPeso'] = '2.5';
+}
 
 if (!empty($errores)) {
     $respuesta['error'] = implode(' | ', $errores);
@@ -150,6 +185,11 @@ if (!empty($errores)) {
     $posstock->c1_umbral_magnitud                = floatval($mapa['inputC1UmbralMagnitud']);
     $posstock->c1_umbral_por_venta               = floatval($mapa['inputC1UmbralPorVenta']);
     $posstock->c1_timing_ventana_dias            = intval($mapa['inputC1TimingVentanaDias']);
+    $posstock->c7b_min_recepciones               = intval($mapa['inputC7bMinRecepciones']);
+    $posstock->c7b_umbral_cv                     = floatval($mapa['inputC7bUmbralCV']);
+    $posstock->c7b_umbral_ruido_peso             = floatval($mapa['inputC7bUmbralRuidoPeso']);
+    $posstock->c7b_umbral_severidad_unidad       = intval($mapa['inputC7bUmbralSevUnidad']);
+    $posstock->c7b_umbral_severidad_peso         = floatval($mapa['inputC7bUmbralSevPeso']);
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';

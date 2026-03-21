@@ -298,6 +298,67 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
+    // --- BLOQUE 4c: CASO 7b — RECEPCIÓN NO REGISTRADA ---
+    $c7b_min_rec_actual     = (string)($posstock->c7b_min_recepciones         ?: '3');
+    $c7b_cv_actual          = (string)($posstock->c7b_umbral_cv               ?: '0.5');
+    $c7b_ruido_actual       = (string)($posstock->c7b_umbral_ruido_peso       ?: '0.5');
+    $c7b_sev_unidad_actual  = (string)($posstock->c7b_umbral_severidad_unidad ?: '5');
+    $c7b_sev_peso_actual    = (string)($posstock->c7b_umbral_severidad_peso   ?: '2.5');
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-inbox"></i> Recepción no registrada — detección de patrón (C7b)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Mínimo de recepciones históricas (período base anterior al período analizado) para que el test estadístico IC95 sea válido. Con menos recepciones el test no se aplica. Rango: 3–10.">Mín. recepciones base<br><small class="text-muted">(para test IC95)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="3" max="10" class="form-control text-right" name="inputC7bMinRecepciones" value="' . htmlspecialchars($c7b_min_rec_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">rec.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Coeficiente de variación máximo para considerar el patrón estable. Un valor alto tolera más irregularidad en el déficit entre recepciones. Rango: 0.3–0.9.">Umbral CV (estabilidad)<br><small class="text-muted">(CV máximo aceptable)</small></label>';
+    $html .= '        <input type="number" step="0.05" min="0.3" max="0.9" class="form-control input-sm text-right" name="inputC7bUmbralCV" value="' . htmlspecialchars($c7b_cv_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Déficit medio (kg) por debajo del cual el sistema lo clasifica como posible error de calibración de balanza en vez de albarán no registrado. Solo afecta a artículos de tipo peso. Rango: 0.1–2.0.">Umbral ruido pesaje<br><small class="text-muted">(kg, solo artículos peso)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.1" min="0.1" max="2.0" class="form-control text-right" name="inputC7bUmbralRuidoPeso" value="' . htmlspecialchars($c7b_ruido_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3"></div>';
+
+    $html .= '    </div>';
+    $html .= '    <div class="row" style="margin-top:8px;">';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Déficit medio mínimo (unidades) para clasificar la incidencia como ALTA en artículos de tipo unidad. Por debajo de este valor se clasifica como MEDIA. Rango: 2–20.">Umbral severidad ALTA — artículos por unidad<br><small class="text-muted">(déficit medio mínimo)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="2" max="20" class="form-control text-right" name="inputC7bUmbralSevUnidad" value="' . htmlspecialchars($c7b_sev_unidad_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Déficit medio mínimo (kg) para clasificar la incidencia como ALTA en artículos de tipo peso. Por debajo de este valor se clasifica como MEDIA. Rango: 0.5–10.0.">Umbral severidad ALTA — artículos por peso<br><small class="text-muted">(déficit medio mínimo)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="0.5" max="10.0" class="form-control text-right" name="inputC7bUmbralSevPeso" value="' . htmlspecialchars($c7b_sev_peso_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
+    $html .= '      C7b detecta el patrón sobre el historial anterior al período analizado (período base). Si hay pocas recepciones históricas, usa el propio período. Subir el umbral CV tolera más variabilidad; bajarlo exige patrones más regulares.';
+    $html .= '    </p>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
     // --- BLOQUE 5: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
