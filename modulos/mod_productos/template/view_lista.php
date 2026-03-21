@@ -8,7 +8,7 @@
     <script>var configuracion = <?= json_encode($configuracion) ?>;</script>
     <script src="<?= $HostNombre ?>/jquery/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="<?= $HostNombre ?>/jquery/jquery-ui.min.css">
-    <link rel="stylesheet" href="<?= $HostNombre ?>/modulos/mod_producto2/css/mod_producto2.css">
+    <link rel="stylesheet" href="<?= $HostNombre ?>/modulos/mod_productos/css/mod_productos.css">
     <script src="<?= $HostNombre ?>/lib/js/autocomplete.js"></script>
     <script src="<?= $HostNombre ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?= $HostNombre ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>
@@ -70,14 +70,14 @@
                     <ul class="list-group" style="margin-bottom:0;">
                         <?php if ($ClasePermisos->getAccion('imprimirEtiquetas') == 1): ?>
                             <li class="list-group-item">
-                                <a href="<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?modo=etiquetas">
+                                <a href="<?= $HostNombre ?>/modulos/mod_productos/ListaSeleccion.php?modo=etiquetas">
                                     <span class="glyphicon glyphicon-tag"></span> Imprimir Etiquetas
                                 </a>
                             </li>
                         <?php endif; ?>
                         <?php if ($ClasePermisos->getAccion('imprimirMayor') == 1): ?>
                             <li class="list-group-item">
-                                <a href="<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?modo=mayor">
+                                <a href="<?= $HostNombre ?>/modulos/mod_productos/ListaSeleccion.php?modo=mayor">
                                     <span class="glyphicon glyphicon-list-alt"></span> Imprimir Mayor
                                 </a>
                             </li>
@@ -89,7 +89,7 @@
                             <li class="list-group-item"><a onclick="modalEstadoProductos();">Cambiar estado</a></li>
                         <?php endif; ?>
                         <?php if ($ClasePermisos->getAccion('exportarCsv') == 1): ?>
-                            <li class="list-group-item"><a href="<?= $HostNombre ?>/modulos/mod_producto2/ExportarCsvProductos.php" target="_blank">
+                            <li class="list-group-item"><a href="<?= $HostNombre ?>/modulos/mod_productos/ExportarCsvProductos.php" target="_blank">
                                 <span class="glyphicon glyphicon-download-alt"></span> Exportar a CSV
                             </a></li>
                         <?php endif; ?>
@@ -331,7 +331,7 @@
     <div class="loader"></div>
 
     <script>
-        var urlTareas = '<?= $HostNombre ?>/modulos/mod_producto2/tareas.php';
+        var urlTareas = '<?= $HostNombre ?>/modulos/mod_productos/tareas.php';
         var idsSeleccionados = <?= json_encode($prod_seleccion['Items']) ?>;
 
         function seleccionProductos() {

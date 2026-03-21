@@ -4,7 +4,7 @@
     <?php include_once $URLCom . '/head.php'; ?>
     <script src="<?= $HostNombre ?>/jquery/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="<?= $HostNombre ?>/jquery/jquery-ui.min.css">
-    <link rel="stylesheet" href="<?= $HostNombre ?>/modulos/mod_producto2/css/mod_producto2.css">
+    <link rel="stylesheet" href="<?= $HostNombre ?>/modulos/mod_productos/css/mod_productos.css">
     <script src="<?= $HostNombre ?>/lib/js/autocomplete.js"></script>
     <script src="<?= $HostNombre ?>/modulos/mod_producto/funciones.js"></script>
     <script src="<?= $HostNombre ?>/modulos/mod_producto/js/AccionesDirectas.js"></script>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modulo nombre="mod_producto2" descripcion="Producto v2" permiso="1">
+<modulo nombre="mod_productos" descripcion="Producto v2" permiso="1">
     <vista nombre="ListaProductos.php" descripcion="Listado productos" permiso="1">
         <accion nombre="crear" descripcion="Crear Producto" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Producto" permiso="1"></accion>

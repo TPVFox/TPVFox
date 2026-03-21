@@ -179,7 +179,7 @@
     <?php include $URLCom . '/plugins/modal/ventanaModal.php'; ?>
 
     <script>
-        var urlTareas      = '<?= $HostNombre ?>/modulos/mod_producto2/tareas.php';
+        var urlTareas      = '<?= $HostNombre ?>/modulos/mod_productos/tareas.php';
         var urlModProducto = '<?= $HostNombre ?>/modulos/mod_producto';
 
         // Quitar producto de la seleccion y eliminar la fila
@@ -237,7 +237,7 @@
             });
         }
 
-        // Override: imprimirEtiquetas apunta a mod_producto2/tareas.php
+        // Override: imprimirEtiquetas apunta a mod_productos/tareas.php
         function imprimirEtiquetas(dedonde) {
             var idProductos        = TfObtenerCheck('checkSelect');
             var tamano             = $('#tamanhos option:selected').val();

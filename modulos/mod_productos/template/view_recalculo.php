@@ -40,21 +40,49 @@
                                 onclick="imprimirRecalculo(<?= $id ?>)">
                             <span class="glyphicon glyphicon-print"></span> Imprimir
                         </button>
-                        <div class="btn-group" style="width:100%; margin-bottom:6px;">
-                            <button type="button" id="btnSeleccionados" class="btn btn-warning btn-sm dropdown-toggle"
-                                    data-toggle="dropdown" disabled
-                                    title="Selecciona productos para habilitar">
-                                <span class="glyphicon glyphicon-tag"></span> Seleccionados <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" style="width:100%;">
-                                <li><a href="#" onclick="procesarSeleccion('etiquetas'); return false;">
-                                    <span class="glyphicon glyphicon-barcode"></span> Imprimir etiquetas</a></li>
-                                <li><a href="#" onclick="procesarSeleccion('mayor'); return false;">
-                                    <span class="glyphicon glyphicon-list-alt"></span> Imprimir mayor</a></li>
-                            </ul>
-                        </div>
+                        <button type="button" id="btnSeleccionados" class="btn btn-warning btn-sm"
+                                style="margin-bottom:6px;" disabled
+                                title="Selecciona productos para habilitar"
+                                onclick="procesarSeleccion()">
+                            <span class="glyphicon glyphicon-tag"></span> Seleccionados
+                        </button>
                         <?php endif; ?>
                     </div>
+
+                    <!-- Panel acciones a seleccionados (aparece tras confirmar selección) -->
+                    <div id="panelAccionesSeleccion" style="display:none; margin-top:10px;">
+                        <div class="panel panel-warning" style="margin-bottom:0;">
+                            <div class="panel-heading" style="padding:6px 10px;">
+                                <h4 style="margin:0 0 6px 0;">
+                                    Acciones a Seleccionados
+                                    <span class="label label-default" id="cntSeleccion">0</span>
+                                </h4>
+                                <div class="text-right">
+                                    <button class="btn btn-xs btn-default" onclick="limpiarSeleccionRecalculo()" title="Borrar selección">
+                                        <span class="glyphicon glyphicon-trash"></span> Eliminar la selección
+                                    </button>
+                                </div>
+                            </div>
+                            <ul class="list-group" style="margin-bottom:0;">
+                                <li class="list-group-item" style="padding:6px 10px;">
+                                    <a href="<?= $HostNombre ?>/modulos/mod_productos/ListaSeleccion.php?modo=etiquetas">
+                                        <span class="glyphicon glyphicon-barcode"></span> Imprimir Etiquetas
+                                    </a>
+                                </li>
+                                <li class="list-group-item" style="padding:6px 10px;">
+                                    <a href="<?= $HostNombre ?>/modulos/mod_productos/ListaSeleccion.php?modo=mayor">
+                                        <span class="glyphicon glyphicon-list-alt"></span> Imprimir Mayor
+                                    </a>
+                                </li>
+                                <li class="list-group-item" style="padding:6px 10px;">
+                                    <a href="<?= $HostNombre ?>/modulos/mod_productos/ExportarCsvProductos.php" target="_blank">
+                                        <span class="glyphicon glyphicon-download-alt"></span> Exportar a CSV
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Columna de datos -->
@@ -233,11 +261,22 @@
         </div>
     </div>
 
+
     <?php echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>'; ?>
     <?php include $URLCom . '/plugins/modal/ventanaModal.php'; ?>
 
     <script>
-        var urlTareasRecalculo = '<?= $HostNombre ?>/modulos/mod_producto2/tareas.php';
+        var urlTareasRecalculo = '<?= $HostNombre ?>/modulos/mod_productos/tareas.php';
+
+        $(document).ready(function () {
+            $.post(urlTareasRecalculo, { accion: 'obtener' }, function (resp) {
+                var resultado = (typeof resp === 'string') ? $.parseJSON(resp) : resp;
+                if (resultado.total > 0) {
+                    $('#cntSeleccion').text(resultado.total);
+                    $('#panelAccionesSeleccion').show();
+                }
+            });
+        });
 
         // Override: evita que 'accion' colisione con el enrutador de tareas.php
         function cambiarEstadoRecalculo(idArticulo, dedonde, id, tipo, fila, accion) {
@@ -301,19 +340,18 @@
             $('#btnSeleccionados').prop('disabled', !haySeleccion);
         }
 
-        var _destino, _ids;
+        var _ids;
 
-        function procesarSeleccion(destino) {
+        function procesarSeleccion() {
             _ids = [];
             $('.chk-articulo:checked').each(function () { _ids.push($(this).val()); });
             if (!_ids.length) return;
-            _destino = destino;
 
             $.post(urlTareasRecalculo, { accion: 'obtener' }, function (resp) {
                 var resultado = (typeof resp === 'string') ? $.parseJSON(resp) : resp;
                 if (resultado.total > 0) {
                     $('#modalSelConflicto .modal-body p').text(
-                        'Tienes ' + resultado.total + ' producto(s) seleccionado(s) anteriormente. ¿Qué deseas hacer con los ' + _ids.length + ' producto(s) nuevos?'
+                        'Tienes ' + resultado.total + ' producto(s) en la selección actual. ¿Qué deseas hacer con los ' + _ids.length + ' producto(s) nuevos?'
                     );
                     $('#modalSelConflicto').modal('show');
                 } else {
@@ -325,8 +363,19 @@
         function ejecutarSeleccion(modo) {
             $('#modalSelConflicto').modal('hide');
             var accion = (modo === 'reemplazar') ? 'establecerSeleccion' : 'agregarASeleccion';
-            $.post(urlTareasRecalculo, { accion: accion, ids: _ids }, function () {
-                window.location.href = '<?= $HostNombre ?>/modulos/mod_producto2/ListaSeleccion.php?desde=' + _destino;
+            $.post(urlTareasRecalculo, { accion: accion, ids: _ids }, function (resp) {
+                var resultado = (typeof resp === 'string') ? $.parseJSON(resp) : resp;
+                $('#cntSeleccion').text(resultado.total);
+                $('#panelAccionesSeleccion').show();
+            });
+        }
+
+        function limpiarSeleccionRecalculo() {
+            $.post(urlTareasRecalculo, { accion: 'limpiar' }, function () {
+                $('#panelAccionesSeleccion').hide();
+                $('#btnSeleccionados').prop('disabled', true);
+                $('.chk-articulo').prop('checked', false);
+                $('#selTodos').prop('checked', false).prop('indeterminate', false);
             });
         }
     </script>

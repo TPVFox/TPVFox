@@ -1,6 +1,6 @@
 <?php
 include_once './../../inicial.php';
-include_once $URLCom . '/modulos/mod_producto2/clases/ClaseSeleccionProductos.php';
+include_once $URLCom . '/modulos/mod_productos/clases/ClaseSeleccionProductos.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
 
 $CSeleccion = new ClaseSeleccionProductos((int) $Usuario['id'], __DIR__ . '/cache');
