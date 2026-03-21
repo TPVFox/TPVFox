@@ -79,6 +79,14 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ' title="El inventario ya estaba en negativo al inicio del periodo.'
                     . ' El problema viene de un rango anterior.">Arrastrado</span>';
             }
+            if (!empty($f['c7b_activo'])) {
+                $c7bOff  = $f['c7b_offset_estimado'] ?? null;
+                $c7bUnit = ($f['c7b_tipo_articulo'] ?? 'unidad') === 'peso' ? 'kg' : 'ud.';
+                $c7bTip  = 'El patrón de stock negativo es sistemático entre recepciones'
+                    . ($c7bOff !== null ? ' (~' . abs((float)$c7bOff) . ' ' . $c7bUnit . ' de déficit medio)' : '')
+                    . '. Causa probable: recepción no registrada. Ver detalle en C7b.';
+                $badges .= ' <span class="label label-danger" title="' . htmlspecialchars($c7bTip) . '">Recepción no registrada</span>';
+            }
 
             // Línea 1: badges
             $detalle = $badges;
@@ -379,11 +387,12 @@ function renderTablaPosstock(array $filas, array $cfg): string
         } elseif ($tipo === 'Stock Inactivo en Periodo') {
             $detalle = 'Stock: ' . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, '.', '') : '—');
 
-        // ── C7b ───────────────────────────────────────────────────────────────
+        // ── C7b / C7b_posible ─────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada no registrada') {
-            $offsetB = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
-            $dispB   = isset($f['dispersion'])       ? (float)$f['dispersion']      : null;
-            $nRecB   = (int)($f['n_recepciones'] ?? 0);
+            $offsetB    = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
+            $dispB      = isset($f['dispersion'])       ? (float)$f['dispersion']      : null;
+            $nRecB      = (int)($f['n_recepciones'] ?? 0);
+            $subcasoB   = $f['c7_subcaso'] ?? 'C7b';
 
             $badgeCruceB  = '';
             $cruceCls     = _posstockCruceCls($f['cruce_nivel'] ?? '');
@@ -395,12 +404,87 @@ function renderTablaPosstock(array $filas, array $cfg): string
             }
 
             $deficitB = $offsetB !== null ? abs($offsetB) : null;
-            $detalle = '<span class="label label-danger" title="El stock cae a valores negativos estables: el sistema registra más stock del que existe físicamente entre recepciones.">Déficit estable</span>'
-                . $badgeCruceB
-                . ' Déficit: <strong>~' . ($deficitB !== null ? number_format($deficitB, 1, '.', '') : '—') . ' ud.</strong>'
-                . ($dispB !== null ? ' (±' . number_format($dispB, 1, '.', '') . ')' : '')
+            $tipoArtB = $f['tipo_articulo'] ?? 'unidad';
+            $unidadB  = $tipoArtB === 'peso' ? 'kg' : 'ud.';
+            $pctNegB  = isset($f['pct_intervalos_negativos']) ? (int)$f['pct_intervalos_negativos'] : null;
+
+            // Badge principal
+            if ($subcasoB === 'C7b_posible') {
+                $badgePrincipalB = '<span class="label label-warning" title="Solo 2 recepciones en el periodo: déficit consistente en ambas, pero sin muestra suficiente para confirmarlo estadísticamente. Verificar manualmente.">Déficit posible</span>';
+            } else {
+                $badgePrincipalB = '<span class="label label-danger" title="El stock cae a valores negativos de forma repetida entre cada recepción.">Déficit estable</span>';
+            }
+
+            // Badge sistemático: todas las recepciones con floor negativo
+            $badgeSistematico = ($pctNegB === 100)
+                ? ' <span class="label label-danger" title="El stock cae a negativo en el 100% de los intervalos entre recepciones.">Sistemático</span>'
+                : '';
+
+            // Línea 1: badges
+            $detalle = $badgePrincipalB . $badgeSistematico . $badgeCruceB;
+
+            // Línea 2: info principal
+            $diasMedB = isset($f['dias_intervalo_medio']) ? (int)$f['dias_intervalo_medio'] : null;
+            $detalle .= '<br>'
+                . 'Déficit: <strong>~' . ($deficitB !== null ? number_format($deficitB, 1, '.', '') : '—') . ' ' . $unidadB . '</strong>'
+                . ($dispB !== null ? ' <span class="text-muted">(±' . number_format($dispB, 1, '.', '') . ')</span>' : '')
                 . ' | ' . $nRecB . ' rec.'
                 . ' | ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+
+            // Línea 3: info complementaria
+            $costeB     = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            $lineaCompB = '';
+            if ($pctNegB !== null) {
+                $lineaCompB .= $pctNegB . '% intervalos negativos';
+            }
+            if ($diasMedB !== null) {
+                $lineaCompB .= ($lineaCompB ? ' · ' : '') . 'Intervalo medio: ' . $diasMedB . ' días';
+            }
+            if ($costeB !== null) {
+                $lineaCompB .= ($lineaCompB ? ' · ' : '')
+                    . '<span title="Valor estimado del déficit: déficit medio × precio medio de compra">Valor est.: <strong>~'
+                    . number_format($costeB, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                if (!empty($f['prov_es_mismo'])) {
+                    $lineaCompB .= ($lineaCompB ? ' · ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                } else {
+                    $lineaCompB .= ($lineaCompB ? ' · ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov. habitual: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                    if (!empty($f['prov_ultimo_nombre'])) {
+                        $lineaCompB .= ' | <span title="Proveedor del último albarán recibido ('
+                            . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                            . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                    }
+                }
+            }
+            if ($lineaCompB) {
+                $detalle .= '<br><small class="text-muted">' . $lineaCompB . '</small>';
+            }
+
+        // ── C7b_ruido_peso ────────────────────────────────────────────────────
+        } elseif ($tipo === 'Posible error de pesaje') {
+            $offsetP  = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
+            $nRecP    = (int)($f['n_recepciones'] ?? 0);
+            $diasMedP = isset($f['dias_intervalo_medio']) ? (int)$f['dias_intervalo_medio'] : null;
+            $deficitP = $offsetP !== null ? abs($offsetP) : null;
+
+            // Línea 1: badge
+            $detalle = '<span class="label label-default" title="El stock aparece en negativo, pero el valor es tan pequeño que probablemente es acumulación de errores de pesaje, no una recepción faltante.">Error de pesaje</span>';
+
+            // Línea 2: info principal
+            $detalle .= '<br>'
+                . 'Stock: <strong>~' . ($deficitP !== null ? number_format($deficitP, 2, ',', '') : '—') . ' kg</strong> en negativo'
+                . ' | ' . $nRecP . ' rec.'
+                . ' | ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+
+            // Línea 3: complementaria
+            if ($diasMedP !== null) {
+                $detalle .= '<br><small class="text-muted">Intervalo medio: ' . $diasMedP . ' días</small>';
+            }
 
         // ── C7a ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Merma acumulada') {
@@ -572,7 +656,10 @@ function renderTablaPosstock(array $filas, array $cfg): string
         preg_match_all('/<span\s[^>]*class="label[^"]*"[^>]*>([^<]+)<\/span>/u', $detalle, $_bm);
         $dataBadges = implode('|', array_unique(array_map('trim', $_bm[1] ?? [])));
 
-        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '">'
+        $ordenClave  = htmlspecialchars($f['orden_clave'] ?? '');
+        $provNombre  = htmlspecialchars($f['prov_habitual_nombre'] ?? '');
+        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
+            . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
             . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . $badgeNombrePrincipal . '</td>'
             . '<td>' . htmlspecialchars($tipoLabel) . '</td>'
