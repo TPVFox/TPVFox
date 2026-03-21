@@ -69,10 +69,10 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ' title="No se registró ninguna recepción de proveedor en el periodo.'
                     . ' Probable recepción sin registrar.">Sin recepciones</span>';
             }
-            if (!empty($f['es_fraccionado'])) {
+            if (!empty($f['fraccionado_es_causa'])) {
                 $badges .= ' <span class="label label-info"'
-                    . ' title="El stock tiene valor decimal. Posible artículo de peso o fraccionado'
-                    . ' con la unidad mal configurada.">Stock decimal</span>';
+                    . ' title="El stock negativo se explica por acumulación de imprecisiones en ventas por peso o fraccionado.">'
+                    . 'Stock decimal</span>';
             }
             if (!empty($f['ya_negativo_inicio'])) {
                 $badges .= ' <span class="label label-warning"'
@@ -80,15 +80,50 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ' El problema viene de un rango anterior.">Arrastrado</span>';
             }
 
-            $detalle = $badges
-                . ' Stock: <strong>' . $fmtN($f['stock_actual'] ?? null) . '</strong>'
-                . (isset($f['min_balance']) ? ' | Mínimo: ' . $fmtN($f['min_balance']) : '');
+            // Línea 1: badges
+            $detalle = $badges;
 
+            // Línea 2: trayectoria del stock (información principal)
+            $linea2 = '';
+            if (isset($f['saldo_base'])) {
+                $linea2 .= '<span title="Stock al inicio del periodo">Inicio: ' . $fmtN($f['saldo_base']) . '</span> →';
+            }
+            $linea2 .= ' Stock: <strong>' . $fmtN($f['stock_actual'] ?? null) . '</strong>';
+            if (isset($f['dias_en_negativo']) && $f['dias_en_negativo'] > 0) {
+                $linea2 .= ' | <span title="Días del periodo en que el stock acumulado fue negativo">'
+                    . $f['dias_en_negativo'] . ' d en negativo</span>';
+            }
+            if (isset($f['min_balance'])) {
+                $linea2 .= ' | Mín. período: ' . $fmtN($f['min_balance']);
+            }
+            $detalle .= '<br>' . $linea2;
+
+            // Línea 3: contexto complementario
+            $linea3 = '';
             if (isset($f['n_ventas']) && $f['n_ventas'] !== null) {
-                $detalle .= ' | Ventas: ' . (int)$f['n_ventas'];
+                $linea3 .= 'Ventas: ' . (int)$f['n_ventas'];
             }
             if ($nEnt !== null && $nEnt > 0) {
-                $detalle .= ' | Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+                $linea3 .= ($linea3 ? ' | ' : '') . 'Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                if (!empty($f['prov_es_mismo'])) {
+                    $linea3 .= ($linea3 ? ' | ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                } else {
+                    $linea3 .= ($linea3 ? ' | ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov. habitual: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                    if (!empty($f['prov_ultimo_nombre'])) {
+                        $linea3 .= ' | <span title="Proveedor del último albarán recibido ('
+                            . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                            . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                    }
+                }
+            }
+            if ($linea3) {
+                $detalle .= '<br><small class="text-muted">' . $linea3 . '</small>';
             }
 
         // ── C1b ───────────────────────────────────────────────────────────────
@@ -99,22 +134,34 @@ function renderTablaPosstock(array $filas, array $cfg): string
             if (!empty($f['timing_proximo'])) {
                 $badges1b .= ' <span class="label label-info" title="Entrada de proveedor registrada en los 3 días siguientes al momento del negativo: probable venta registrada antes que la recepción.">Timing recepción</span>';
             }
-            if (!empty($f['es_fraccionado'])) {
-                $badges1b .= ' <span class="label label-info" title="El mínimo tiene decimales: probable artículo de peso o fraccionado.">Stock decimal</span>';
+            if (!empty($f['fraccionado_es_causa'])) {
+                $badges1b .= ' <span class="label label-info" title="El mínimo negativo se explica por acumulación de imprecisiones en ventas por peso o fraccionado.">Stock decimal</span>';
             }
-            if ($nEnt1b !== null && $nEnt1b === 0) {
+            if ($nEnt1b !== null && $nEnt1b === 0 && empty($f['fraccionado_es_causa'])) {
                 $badges1b .= ' <span class="label label-warning" title="Sin recepciones que justifiquen la recuperación. Revisar posibles movimientos duplicados, devoluciones o ajustes manuales.">Sin entradas</span>';
             }
 
-            $detalle = $badges1b
-                . ' Mín.: <strong>' . $fmtN($f['min_balance'] ?? null) . '</strong>'
-                . ' | Cierre: ' . $fmtN($f['stock_actual'] ?? null);
+            // Línea 1: badges
+            $detalle = $badges1b;
 
+            // Línea 2: trayectoria del mínimo (información principal)
+            $linea2b = 'Mín.: <strong>' . $fmtN($f['min_balance'] ?? null) . '</strong>'
+                . (!empty($f['fecha_minimo']) ? ' (' . date('d/m', strtotime($f['fecha_minimo']))
+                    . (isset($f['dias_en_minimo']) && $f['dias_en_minimo'] > 1 ? ', ' . $f['dias_en_minimo'] . ' d' : '')
+                    . ')' : '')
+                . ' → Cierre: <strong>' . $fmtN($f['stock_actual'] ?? null) . '</strong>';
+            $detalle .= '<br>' . $linea2b;
+
+            // Línea 3: contexto complementario
+            $linea3b = '';
             if (isset($f['n_ventas']) && $f['n_ventas'] !== null) {
-                $detalle .= ' | Ventas: ' . (int)$f['n_ventas'];
+                $linea3b .= 'Ventas: ' . (int)$f['n_ventas'];
             }
             if ($nEnt1b !== null && $nEnt1b > 0) {
-                $detalle .= ' | Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+                $linea3b .= ($linea3b ? ' | ' : '') . 'Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
+            }
+            if ($linea3b) {
+                $detalle .= '<br><small class="text-muted">' . $linea3b . '</small>';
             }
 
         // ── C2 ────────────────────────────────────────────────────────────────
@@ -241,6 +288,9 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         // ── C5 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Venta Cero (Posible Rotura Física)') {
+            $badgeStockNoFiable = !empty($f['stock_no_fiable'])
+                ? ' <span class="label label-warning" title="Este artículo tiene stock negativo activo (C1a). Los datos de stock usados en este análisis pueden no ser fiables.">Stock no fiable</span>'
+                : '';
             $badgeKO = !empty($f['ko'])
                 ? ' <span class="label label-danger" title="Stock negativo durante la rotura en curso: inventario en descubierto">KO</span>'
                 : '';
@@ -273,7 +323,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $badgeMod = ' <span class="label ' . $c5m['cls'] . '" title="' . htmlspecialchars($c5m['tip']) . '">' . $c5m['lbl'] . '</span>';
             $sdStr    = (isset($f['sd_dias']) && $f['sd_dias'] !== null) ? ' σ=' . $f['sd_dias'] . ' d' : '';
 
-            $detalle = $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado . ' ' . $diasRoturaStr
+            $detalle = $badgeStockNoFiable . $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado . ' ' . $diasRoturaStr
                 . ' | Desde: ' . $fmtF($f['fecha_inicio_rotura'] ?? null)
                 . ' | Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null)
                 . ' | Cadencia: ' . (isset($f['avg_dias_entre_ventas']) ? $f['avg_dias_entre_ventas'] . ' d' : '—')
@@ -377,6 +427,9 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         // ── C6a / C6b ─────────────────────────────────────────────────────────
         } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
+            $badgeStockNoFiable = !empty($f['stock_no_fiable'])
+                ? ' <span class="label label-warning" title="Este artículo tiene stock negativo activo (C1a). Los datos de stock usados en este análisis pueden no ser fiables.">Stock no fiable</span>'
+                : '';
             $stockC6     = (float)($f['stock_actual'] ?? 0);
             $recNegativo = !empty($f['stock_reconstituido']) && $stockC6 < 0;
             $ropC6       = (float)($f['rop'] ?? 0);
@@ -435,7 +488,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
                 : ' | Stock: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>';
 
-            $detalle = $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT . $badgeC6Rec . $badgeC6Q
+            $detalle = $badgeStockNoFiable . $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT . $badgeC6Rec . $badgeC6Q
                 . ' <small class="text-muted">· ' . htmlspecialchars($c6m['comp']) . '</small>'
                 . $stockLabel
                 . ' | Autonomía: <strong>' . (isset($f['dias_autonomia']) ? $f['dias_autonomia'] . ' d' : '—') . '</strong>'
