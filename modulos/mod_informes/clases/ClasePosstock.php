@@ -698,7 +698,7 @@ class ClasePosstock
      * @param string $ff        Fin del período de análisis (escapado)
      * @return array  [idArticulo => [...]] o vacío si no hay datos
      */
-    private function _queryProveedorC1(string $ids_str, string $fi_stock, string $ff): array
+    private function _queryProveedorArticulos(string $ids_str, string $fi_stock, string $ff): array
     {
         if (empty($ids_str)) return [];
 
@@ -753,6 +753,39 @@ class ClasePosstock
         unset($d);
 
         return $por_art;
+    }
+
+    /**
+     * C7b-011: precio medio ponderado de compra por artículo en la ventana dada.
+     * Fórmula: SUM(costeSiva × ncant) / SUM(ncant) sobre albaranes confirmados.
+     * Devuelve [idArticulo => precio_medio_compra].
+     */
+    private function _queryPrecioMedioCompra(string $ids_str, string $fi, string $ff): array
+    {
+        if (empty($ids_str)) return [];
+
+        $smt = $this->db->query("
+            SELECT
+                l.idArticulo,
+                SUM(l.costeSiva * l.ncant) / NULLIF(SUM(l.ncant), 0) AS precio_medio
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE l.idArticulo IN ($ids_str)
+              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea = 'Activo'
+              AND l.ncant       > 0
+            GROUP BY l.idArticulo
+        ");
+        if (!$smt) return [];
+
+        $result = [];
+        while ($r = $smt->fetch_assoc()) {
+            if ($r['precio_medio'] !== null) {
+                $result[(int)$r['idArticulo']] = (float)$r['precio_medio'];
+            }
+        }
+        return $result;
     }
 
     /**
@@ -1827,8 +1860,6 @@ class ClasePosstock
                 $c7_subcasos
             );
             if (isset($c7['error'])) return $c7;
-            $this->getIncidenciasC7e($c7);   // k-múltiplos (k≥2); requiere _floors_raw
-            $this->getIncidenciasC7d($c7);   // tríos A+B→C; también borra _floors_raw
             $incidencias = array_merge($incidencias, $c7);
         }
 
@@ -1879,14 +1910,19 @@ class ClasePosstock
         };
 
         usort($incidencias, static function ($a, $b) use ($orden_sev, $orden_tipo_media, $subtipo_baja) {
-            $cmp = $orden_sev[$a['severidad']] <=> $orden_sev[$b['severidad']];
+            $cmp = ($orden_sev[$a['severidad']] ?? 99) <=> ($orden_sev[$b['severidad']] ?? 99);
             if ($cmp !== 0) return $cmp;
+
+            // Dentro del mismo nivel de severidad, ordenación específica por tipo
             if ($a['severidad'] === 'MEDIA') {
-                return ($orden_tipo_media[$a['tipo']] ?? 99) <=> ($orden_tipo_media[$b['tipo']] ?? 99);
+                $cmp = ($orden_tipo_media[$a['tipo']] ?? 99) <=> ($orden_tipo_media[$b['tipo']] ?? 99);
+                if ($cmp !== 0) return $cmp;
             }
             if ($a['severidad'] === 'BAJA') {
-                return $subtipo_baja($a) <=> $subtipo_baja($b);
+                $cmp = $subtipo_baja($a) <=> $subtipo_baja($b);
+                if ($cmp !== 0) return $cmp;
             }
+
             return 0;
         });
 
@@ -1951,6 +1987,14 @@ class ClasePosstock
                 // C1b: abs(min_balance) desc — el mínimo más profundo primero
                 $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
                 $inc['orden_clave'] = $sev_idx . '0' . $inv_min;
+            } elseif (in_array($inc['c7_subcaso'] ?? '', ['C7b', 'C7b_posible', 'C7b_ruido_peso'], true)) {
+                // C7b: coste_estimado desc → n_recepciones desc → déficit abs desc
+                $coste_inv = str_pad(max(0, 9999999 - (int)(abs((float)($inc['coste_estimado'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $rec_inv   = str_pad(max(0, 9999 - (int)($inc['n_recepciones'] ?? 0)), 4, '0', STR_PAD_LEFT);
+                $def_inv   = str_pad(max(0, 99999 - (int)(abs((float)($inc['offset_estimado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
+                // Nulls de coste al final
+                $coste_null = ($inc['coste_estimado'] ?? null) === null ? '1' : '0';
+                $inc['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $rec_inv . $def_inv;
             } else {
                 $inc['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $inc['idArticulo']);
             }
@@ -3418,7 +3462,7 @@ class ClasePosstock
 
         // Proveedor habitual y último para C1a (rango anual para tener datos suficientes)
         $prov_map = !empty($ids_c1a)
-            ? $this->_queryProveedorC1(implode(',', $ids_c1a), $fi_stk, $ff)
+            ? $this->_queryProveedorArticulos(implode(',', $ids_c1a), $fi_stk, $ff)
             : [];
 
         if (!empty($ids_c1a)) {
@@ -4387,16 +4431,19 @@ class ClasePosstock
         array  $stock_base_cache = [],
         array  $subcasos = ['C7a', 'C7b']  // subconjunto a emitir; permite activar solo uno
     ): array {
-        $subcasos_set = array_flip($subcasos);
-        $min_recepciones = 3;
+        $subcasos_set    = array_flip($subcasos);
+        $min_recepciones = 2;   // ventana base+análisis: con 2 recepciones ya aplica C7b_posible
 
-        $fi = $this->db->real_escape_string($fi_mov);
-        $ff = $this->db->real_escape_string($ff_mov);
-        $wf = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi = $this->_idsWhere($ids_filter);
+        $fi     = $this->db->real_escape_string($fi_mov);
+        $ff     = $this->db->real_escape_string($ff_mov);
+        $fi_stk = $this->db->real_escape_string($fi_stock);  // inicio ventana extendida (1-Ene)
+        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->_idsWhere($ids_filter);
 
-        // ── Paso 1: obtener fechas de recepción por artículo ─────────────────
-        $rows_rec = $this->_queryRecepcionesFechasC7($fi, $ff, $wf, $wi);
+        // ── Paso 1: recepciones en ventana extendida fi_stock→ff_mov ─────────
+        // Se amplía el rango al periodo base (fi_stock→fi_mov-1) para disponer de
+        // más floors históricos y poder confirmar el patrón antes del análisis.
+        $rows_rec = $this->_queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
         if (isset($rows_rec['error'])) return $rows_rec;
         if (empty($rows_rec)) return [];
 
@@ -4422,7 +4469,24 @@ class ClasePosstock
 
         // ── Paso 2: timeline de movimientos para los candidatos ──────────────
         $ids_str       = implode(',', array_map('intval', $candidatos_ids));
-        $rows_timeline = $this->_queryTimelineMovimientosC7($fi, $ff, $ids_str);
+
+        // Tipo de artículo por ID (unidad | peso) — necesario para C7b-001
+        // Umbrales de severidad diferenciados: peso tiene mayor tolerancia al ruido
+        $tipos_map = [];
+        $smt_tipo = $this->db->query(
+            "SELECT idArticulo, tipo FROM articulos WHERE idArticulo IN ($ids_str)"
+        );
+        if ($smt_tipo) {
+            while ($r = $smt_tipo->fetch_assoc()) {
+                $tipos_map[(int)$r['idArticulo']] = (string)$r['tipo'];
+            }
+        }
+        // ── Paso 2: timeline fi_stock→ff_mov (ventana extendida) ────────────
+        // El sistema es anual (fi_stock = 1-Ene): stock(d) = Σ deltas(fi_stock→d).
+        // Matemáticamente equivale al enfoque anterior (saldo_base + Σ deltas(fi_mov→d))
+        // pero permite calcular floors también en el periodo base previo a fi_mov.
+        // $stock_base_cache se conserva en la firma por compatibilidad pero no se usa.
+        $rows_timeline = $this->_queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
         if (isset($rows_timeline['error'])) return $rows_timeline;
 
         // Indexar delta diario por [idArticulo][fecha]
@@ -4431,30 +4495,23 @@ class ClasePosstock
             $daily_map[(int)$r['idArticulo']][$r['fecha']] = (float)$r['day_delta'];
         }
 
-        // ── Paso 3: stock base para los candidatos ───────────────────────────
-        $stock_base = empty($stock_base_cache)
-            ? $this->getStockBase($candidatos_ids, $fi_stock, $ff_stock)
-            : $stock_base_cache;
-        if (isset($stock_base['error'])) return $stock_base;
-
-        // ── Paso 4: calcular suelos inter-recepción y detectar patrón ────────
+        // ── Paso 3: calcular suelos inter-recepción y detectar patrón ────────
         $incidencias = [];
 
         foreach ($candidatos_ids as $id) {
-            $saldo_base = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
             $fechas_rec = $recepciones_map[$id];
             $daily      = $daily_map[$id] ?? [];
             $n_rec      = count($fechas_rec);
 
-            // Construir stock acumulado por fecha dentro del periodo
-            // stock(d) = saldo_base + Σ day_delta desde fi hasta d inclusive
+            // Construir stock acumulado por fecha en la ventana extendida fi_stock→ff_mov.
+            // stock(d) = Σ day_delta desde fi_stock hasta d (parte de 0 al inicio del año).
             $cum_delta     = 0.0;
             $stock_by_date = [];
             $all_dates     = array_keys($daily);
             sort($all_dates);
             foreach ($all_dates as $d) {
-                $cum_delta    += $daily[$d];
-                $stock_by_date[$d] = $saldo_base + $cum_delta;
+                $cum_delta         += $daily[$d];
+                $stock_by_date[$d]  = $cum_delta;
             }
 
             if (empty($stock_by_date)) continue;   // sin movimientos registrados
@@ -4464,10 +4521,21 @@ class ClasePosstock
             //   · incluye el día de la recepción i (post-recepción)
             //   · excluye el día de la recepción i+1 (se calcula en el intervalo i+1)
             // El último intervalo va hasta ff_mov (fin del periodo).
-            $floors = [];
+            //
+            // C7b-002: se registra también la duración (días) de cada intervalo para
+            // normalizar los floors antes del análisis estadístico.  Intervalos más
+            // largos producen floors más negativos por simple acumulación de demanda;
+            // sin normalización la media se sesga hacia los períodos de entregas espaciadas.
+            $floors          = [];
+            $dias_intervalos = [];
+            $fechas_floors   = [];   // fecha de recepción correspondiente a cada floor
             for ($i = 0; $i < $n_rec; $i++) {
-                $fecha_ini  = $fechas_rec[$i];
-                $fecha_fin  = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null; // null = hasta ff
+                $fecha_ini      = $fechas_rec[$i];
+                $fecha_fin      = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null; // null = hasta ff
+                $fecha_fin_real = $fecha_fin ?? $ff_mov;
+                $dias_intervalo = max(1, (int)(
+                    (strtotime($fecha_fin_real) - strtotime($fecha_ini)) / 86400
+                ));
 
                 $min_floor = null;
                 foreach ($stock_by_date as $d => $stock) {
@@ -4479,106 +4547,258 @@ class ClasePosstock
                 }
 
                 if ($min_floor !== null) {
-                    $floors[] = $min_floor;
+                    $floors[]          = $min_floor;
+                    $dias_intervalos[] = $dias_intervalo;
+                    $fechas_floors[]   = $fecha_ini;
                 }
             }
 
             $n_floors = count($floors);
-            if ($n_floors < $min_recepciones) continue;   // suelos insuficientes para el análisis
+
+            if ($n_floors < $min_recepciones) continue;   // suelos insuficientes
 
             // Mapa fecha_recepción → suelo (para la validación con periodo común en C7c)
             $floors_map = [];
             for ($i = 0; $i < $n_floors; $i++) {
-                $floors_map[$fechas_rec[$i]] = $floors[$i];
+                $floors_map[$fechas_floors[$i]] = $floors[$i];
             }
 
-            // ── Estadísticos ─────────────────────────────────────────────────
-            $n    = $n_floors;
-            $mean = array_sum($floors) / $n;
-
-            $variance = 0.0;
-            foreach ($floors as $floor) {
-                $variance += ($floor - $mean) ** 2;
+            // ── Split base / análisis ─────────────────────────────────────────
+            // Periodo base:     [fi_stock, fi_mov)  — histórico anual previo al análisis.
+            // Periodo análisis: [fi_mov,   ff_mov]  — ventana de análisis solicitada.
+            // Prioridad del test IC95: base (más largo, libre del evento analizado);
+            // si base < 3 floors se usa el periodo de análisis.
+            $floors_base     = []; $dias_base     = [];
+            $floors_analysis = []; $dias_analysis = [];
+            foreach ($fechas_floors as $idx => $fd) {
+                if ($fd < $fi_mov) {
+                    $floors_base[]    = $floors[$idx];
+                    $dias_base[]      = $dias_intervalos[$idx];
+                } else {
+                    $floors_analysis[] = $floors[$idx];
+                    $dias_analysis[]   = $dias_intervalos[$idx];
+                }
             }
-            // Desviación típica muestral (n-1)
-            $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
-            $cv      = $mean != 0.0 ? $std_dev / abs($mean) : PHP_FLOAT_MAX;
+            $n_base     = count($floors_base);
+            $n_analysis = count($floors_analysis);
 
-            // Regresión lineal sobre los suelos (slope, R², p-valor bilateral)
+            $tipo_art     = $tipos_map[$id] ?? 'unidad';
+            $mean_raw     = array_sum($floors) / $n_floors;
+            $abs_mean_raw = abs($mean_raw);
+
+            // Regresión lineal sobre todos los floors (usada por C7a)
             $reg   = $this->_regressionStats($floors);
             $slope = $reg['slope'];
 
-            // ── IC 95 % superior de la media (para filtro C7b) ───────────────
-            // t_{n-1, 0.975}: si el IC superior es < 0, el offset negativo es
-            // estadísticamente significativo al 95 %.
+            // ── Tabla t_{df, 0.975} ──────────────────────────────────────────
             static $t_975_tab = [
-                1 => 12.706,
-                2 => 4.303,
-                3 => 3.182,
-                4 => 2.776,
-                5 => 2.571,
-                6 => 2.447,
-                7 => 2.365,
-                8 => 2.306,
-                9 => 2.262,
-                10 => 2.228,
-                15 => 2.131,
-                20 => 2.086,
-                30 => 2.042,
-                60 => 2.000,
-                120 => 1.980,
+                1 => 12.706, 2 => 4.303, 3 => 3.182, 4 => 2.776, 5 => 2.571,
+                6 => 2.447,  7 => 2.365, 8 => 2.306, 9 => 2.262, 10 => 2.228,
+                15 => 2.131, 20 => 2.086, 30 => 2.042, 60 => 2.000, 120 => 1.980,
             ];
-            $df_ic = $n - 1;
-            if ($df_ic > 120) {
-                $t_975 = 1.960;
-            } elseif (isset($t_975_tab[$df_ic])) {
-                $t_975 = $t_975_tab[$df_ic];
+
+            // ── Selección del conjunto de floors para el test IC95 ───────────
+            if ($n_base >= 3) {
+                $test_floors = $floors_base;
+                $test_dias   = $dias_base;
+                $test_period = 'base';
+            } elseif ($n_analysis >= 3) {
+                $test_floors = $floors_analysis;
+                $test_dias   = $dias_analysis;
+                $test_period = 'analysis';
             } else {
-                $keys_ic = array_keys($t_975_tab);
-                $lo_ic = $hi_ic = null;
-                foreach ($keys_ic as $k) {
-                    if ($k <= $df_ic) $lo_ic = $k;
-                    if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
-                }
-                $t_975 = ($lo_ic !== null && $hi_ic !== null && $lo_ic !== $hi_ic)
-                    ? $t_975_tab[$lo_ic] + ($df_ic - $lo_ic) / ($hi_ic - $lo_ic) * ($t_975_tab[$hi_ic] - $t_975_tab[$lo_ic])
-                    : ($lo_ic !== null ? $t_975_tab[$lo_ic] : 1.960);
+                $test_floors = null;
+                $test_period = null;
             }
-            $ic95_upper = $mean + $t_975 * ($std_dev / sqrt($n));
 
-            // IQR de los suelos (Q3 − Q1) para el filtro de estabilidad de C7b
-            $sf = $floors;
-            sort($sf);
-            $q1_idx = (int)floor(($n - 1) * 0.25);
-            $q3_idx = (int)ceil(($n - 1) * 0.75);
-            $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
+            if ($test_floors !== null && isset($subcasos_set['C7b'])) {
+                // ── Estadísticos sobre el conjunto de test ───────────────────
+                $n = count($test_floors);
 
-            // ── Clasificación ────────────────────────────────────────────────
+                // C7b-002: normalizar floors por duración del intervalo (déficit/día).
+                $floors_norm = [];
+                for ($i = 0; $i < $n; $i++) {
+                    $floors_norm[] = $test_floors[$i] / $test_dias[$i];
+                }
+                $mean = array_sum($floors_norm) / $n;
 
-            // C7b — offset negativo sistemático
-            // · IC 95 % superior de la media < 0 (offset negativo estadísticamente significativo)
-            // · CV < 0.5: patrón estable
-            // · IQR < 1.5 × |media|: sin outliers que dominen la dispersión
-            if (isset($subcasos_set['C7b']) && $ic95_upper < 0 && $cv < 0.5 && $iqr < 1.5 * abs($mean)) {
-                $abs_mean = abs($mean);
-                $severidad = $abs_mean >= 5.0 ? 'ALTA' : 'MEDIA';
-                $incidencias[] = [
-                    'idArticulo'      => $id,
-                    'tipo'            => 'Entrada no registrada',
-                    'severidad'       => $severidad,
-                    'c7_subcaso'      => 'C7b',
-                    'n_recepciones'   => $n_rec,
-                    'offset_estimado' => round($mean, 1),
-                    'dispersion'      => round($std_dev, 1),
-                    'fecha_primera'   => $fechas_rec[0],
-                    'fecha_ultima'    => $fechas_rec[$n_rec - 1],
-                    '_floors_raw'     => $floors_map,   // temporal; se elimina al final
-                    'posible_causa'   => sprintf(
-                        'Déficit estable de ~%d ud. en el periodo: posible recepción no registrada, devolución a proveedor no descontada o ajuste de inventario inicial incorrecto',
-                        (int)round($abs_mean)
-                    ),
-                ];
-                continue;
+                $variance = 0.0;
+                foreach ($floors_norm as $fnv) { $variance += ($fnv - $mean) ** 2; }
+                $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
+                $cv      = $mean != 0.0 ? $std_dev / abs($mean) : PHP_FLOAT_MAX;
+
+                $dias_intervalo_medio = (int)round(array_sum($test_dias) / $n);
+
+                // IC 95 % superior (t_{n-1, 0.975})
+                $df_ic = $n - 1;
+                if ($df_ic > 120) { $t_975 = 1.960; }
+                elseif (isset($t_975_tab[$df_ic])) { $t_975 = $t_975_tab[$df_ic]; }
+                else {
+                    $keys_ic = array_keys($t_975_tab); $lo_ic = $hi_ic = null;
+                    foreach ($keys_ic as $k) {
+                        if ($k <= $df_ic) $lo_ic = $k;
+                        if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
+                    }
+                    $t_975 = ($lo_ic !== null && $hi_ic !== null && $lo_ic !== $hi_ic)
+                        ? $t_975_tab[$lo_ic] + ($df_ic - $lo_ic) / ($hi_ic - $lo_ic) * ($t_975_tab[$hi_ic] - $t_975_tab[$lo_ic])
+                        : ($lo_ic !== null ? $t_975_tab[$lo_ic] : 1.960);
+                }
+                $se_base    = $std_dev / sqrt($n);
+                $ic95_upper = $mean + $t_975 * $se_base;
+
+                // IQR (C7b-009: factor 0.7 empírico para n=3)
+                $sf = $floors_norm; sort($sf);
+                $q1_idx = (int)floor(($n - 1) * 0.25);
+                $q3_idx = (int)ceil(($n - 1) * 0.75);
+                $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
+                if ($n === 3) { $iqr *= 0.7; }
+
+                // C7b-004: autocorrelación lag-1 Newey-West (solo n ≥ 4)
+                $r1 = 0.0;
+                if ($n >= 4 && $std_dev > 0.0) {
+                    $cov_lag1 = 0.0;
+                    for ($i = 1; $i < $n; $i++) {
+                        $cov_lag1 += ($floors_norm[$i] - $mean) * ($floors_norm[$i - 1] - $mean);
+                    }
+                    $cov_lag1 /= ($n - 1);
+                    $r1 = max(-1.0, min(1.0, $cov_lag1 / ($std_dev ** 2)));
+                }
+                if ($r1 > 0.0) {
+                    $ic95_upper = $mean + $t_975 * $se_base * sqrt(1.0 + 2.0 * $r1);
+                }
+                $confianza_c7b = ($r1 > 0.5 && $n < 6) ? 'posible' : 'probable';
+
+                // ── C7b: IC95 < 0 en el conjunto de test ─────────────────────
+                if ($ic95_upper < 0 && $cv < 0.5 && $iqr < 1.5 * abs($mean)) {
+
+                    // C7b-005: filtro ruido pesaje (< 0.5 kg → error de calibración)
+                    $umbral_ruido_peso = 0.5;
+                    if ($tipo_art === 'peso' && $abs_mean_raw < $umbral_ruido_peso) {
+                        $incidencias[] = [
+                            'idArticulo'           => $id,
+                            'tipo'                 => 'Posible error de pesaje',
+                            'severidad'            => 'BAJA',
+                            'c7_subcaso'           => 'C7b_ruido_peso',
+                            'tipo_articulo'        => $tipo_art,
+                            'n_recepciones'        => $n_rec,
+                            'offset_estimado'      => round($mean_raw, 2),
+                            'dias_intervalo_medio' => $dias_intervalo_medio,
+                            'fecha_primera'        => $fechas_rec[0],
+                            'fecha_ultima'         => $fechas_rec[$n_rec - 1],
+                            '_floors_raw'          => $floors_map,
+                            'posible_causa'        => sprintf(
+                                'El stock aparece %.2f kg en negativo, pero es demasiado pequeño para ser un error real — probablemente es acumulación de decimales de balanza.',
+                                $abs_mean_raw
+                            ),
+                        ];
+                        continue;
+                    }
+
+                    // C7b-006: cobertura del déficit en todos los floors del periodo
+                    $n_neg   = count(array_filter($floors, fn($f) => $f < 0.0));
+                    $pct_neg = (int)round($n_neg / $n_floors * 100);
+
+                    // ── Severidad según qué periodo confirma el patrón ───────
+                    // Tabla:
+                    //   base+análisis consistente → CRITICA/ALTA (thresholds C7b-001)
+                    //   base solo (análisis <2 o inconsistente) → ALTA/MEDIA
+                    //   análisis solo (sin base suficiente) → ALTA/MEDIA
+                    if ($test_period === 'base') {
+                        // ¿Los floors del periodo de análisis son todos negativos?
+                        $n_analysis_neg     = count(array_filter($floors_analysis, fn($f) => $f < 0.0));
+                        $analysis_consistent = $n_analysis >= 2 && $n_analysis_neg === $n_analysis;
+
+                        if ($analysis_consistent) {
+                            // Base confirma + análisis consistente → CRITICA/ALTA
+                            $severidad = ($tipo_art === 'peso')
+                                ? ($abs_mean_raw >= 2.5 ? 'CRITICA' : 'ALTA')
+                                : ($abs_mean_raw >= 5.0 ? 'CRITICA' : 'ALTA');
+                        } else {
+                            // Base confirma pero análisis tiene floors insuficientes/inconsistentes
+                            $severidad = ($tipo_art === 'peso')
+                                ? ($abs_mean_raw >= 2.5 ? 'ALTA' : 'MEDIA')
+                                : ($abs_mean_raw >= 5.0 ? 'ALTA' : 'MEDIA');
+                        }
+                    } else {
+                        // Solo periodo de análisis confirmado (sin base suficiente) → ALTA/MEDIA
+                        $analysis_consistent = false;
+                        $severidad = ($tipo_art === 'peso')
+                            ? ($abs_mean_raw >= 2.5 ? 'ALTA' : 'MEDIA')
+                            : ($abs_mean_raw >= 5.0 ? 'ALTA' : 'MEDIA');
+                    }
+
+                    // C7b-006: si el déficit es parcial (< 50% de intervalos), rebajar un nivel
+                    if ($pct_neg < 50) { $severidad = 'MEDIA'; }
+
+                    $incidencias[] = [
+                        'idArticulo'               => $id,
+                        'tipo'                     => 'Entrada no registrada',
+                        'severidad'                => $severidad,
+                        'c7_subcaso'               => 'C7b',
+                        'confianza'                => $confianza_c7b,
+                        'test_period'              => $test_period,
+                        'analysis_consistent'      => $analysis_consistent ?? false,
+                        'tipo_articulo'            => $tipo_art,
+                        'n_recepciones'            => $n_rec,
+                        'offset_estimado'          => round($mean_raw, 1),
+                        'offset_norm'              => round($mean, 3),
+                        'dispersion'               => round($std_dev, 3),
+                        'autocorr_lag1'            => round($r1, 2),
+                        'ic95_upper'               => round($ic95_upper, 4),
+                        'n_intervalos_negativos'   => $n_neg,
+                        'pct_intervalos_negativos' => $pct_neg,
+                        'dias_intervalo_medio'     => $dias_intervalo_medio,
+                        'fecha_primera'            => $fechas_rec[0],
+                        'fecha_ultima'             => $fechas_rec[$n_rec - 1],
+                        '_floors_raw'              => $floors_map,
+                        'posible_causa'            => sprintf(
+                            'El stock cae ~%d %s en negativo de forma repetida entre cada recepción. Revisar si hay albaranes pendientes de confirmar o si el stock inicial del artículo está bien introducido.',
+                            (int)round($abs_mean_raw),
+                            $tipo_art === 'peso' ? 'kg' : 'ud.'
+                        ),
+                    ];
+                    continue;
+                }
+            } elseif ($n_analysis === 2 && isset($subcasos_set['C7b'])) {
+                // C7b-010: C7b_posible — solo 2 floors en el periodo de análisis,
+                // sin base suficiente para test estadístico.
+                // Condición: ambos negativos y CV < 0.15 (muy baja dispersión relativa).
+                $f0 = $floors_analysis[0];
+                $f1 = $floors_analysis[1];
+                $mean_2 = ($f0 + $f1) / 2.0;
+                $cv_2   = $mean_2 != 0.0 ? abs($f0 - $f1) / (2.0 * abs($mean_2)) : PHP_FLOAT_MAX;
+                if ($f0 < 0 && $f1 < 0 && $cv_2 < 0.15) {
+                    $abs_med_2 = abs($mean_2);
+                    if (!($tipo_art === 'peso' && $abs_med_2 < 0.5)) {
+                        $dias_med_2  = (int)round(array_sum($dias_analysis) / 2);
+                        $date_keys_2 = array_slice(array_keys($floors_map), -2);
+                        $incidencias[] = [
+                            'idArticulo'               => $id,
+                            'tipo'                     => 'Entrada no registrada',
+                            'severidad'                => 'BAJA',
+                            'c7_subcaso'               => 'C7b_posible',   // NO alimenta C7c/C7d/C7e
+                            'confianza'                => 'posible',
+                            'tipo_articulo'            => $tipo_art,
+                            'n_recepciones'            => $n_rec,
+                            'offset_estimado'          => round($mean_2, 1),
+                            'offset_norm'              => round($mean_2 / max(1, $dias_med_2), 3),
+                            'dispersion'               => round(abs($f0 - $f1) / 2.0, 3),
+                            'autocorr_lag1'            => 0.0,
+                            'ic95_upper'               => null,
+                            'n_intervalos_negativos'   => 2,
+                            'pct_intervalos_negativos' => 100,
+                            'dias_intervalo_medio'     => $dias_med_2,
+                            'fecha_primera'            => $date_keys_2[0] ?? $fechas_rec[0],
+                            'fecha_ultima'             => $date_keys_2[1] ?? $fechas_rec[$n_rec - 1],
+                            '_floors_raw'              => $floors_map,
+                            'posible_causa'            => sprintf(
+                                'El stock cae ~%d %s en negativo en las 2 recepciones del periodo. Podría faltar un albarán, aunque con solo 2 datos no es posible confirmarlo — conviene revisar manualmente.',
+                                (int)round($abs_med_2),
+                                $tipo_art === 'peso' ? 'kg' : 'ud.'
+                            ),
+                        ];
+                    }
+                }
             }
 
             // C7a — merma sistemática no registrada (suelos positivos en alza)
@@ -4586,15 +4806,20 @@ class ClasePosstock
             // · Pendiente ≥ 0.5 ud/recepción, estadísticamente significativa (p < 0.10)
             // · R² ≥ 0.40: la tendencia lineal explica la mayor parte de la varianza
             // · Variación total significativa (suelo final − suelo inicial ≥ 2 ud.)
-            $delta_total = $floors[$n - 1] - $floors[0];
+            $delta_total = $floors[$n_floors - 1] - $floors[0];
             if (
                 isset($subcasos_set['C7a'])
-                && $mean >= 0
+                && $mean_raw >= 0   // C7a requiere suelo medio positivo (bruto, no normalizado)
                 && $slope >= 0.5
                 && $reg['p_value'] < 0.10
                 && $reg['r2']     >= 0.40
                 && $delta_total >= 2.0
             ) {
+                // C7a: dispersión sobre floors brutos (la tendencia lineal es más informativa que σ norm)
+                $variance_raw = 0.0;
+                foreach ($floors as $f) { $variance_raw += ($f - $mean_raw) ** 2; }
+                $std_dev_raw = $n_floors > 1 ? sqrt($variance_raw / ($n_floors - 1)) : 0.0;
+
                 $severidad = ($delta_total >= 10 || $slope >= 2.0) ? 'ALTA' : 'MEDIA';
                 $incidencias[] = [
                     'idArticulo'       => $id,
@@ -4602,8 +4827,8 @@ class ClasePosstock
                     'severidad'        => $severidad,
                     'c7_subcaso'       => 'C7a',
                     'n_recepciones'    => $n_rec,
-                    'offset_estimado'  => round($mean, 1),
-                    'dispersion'       => round($std_dev, 1),
+                    'offset_estimado'  => round($mean_raw, 1),
+                    'dispersion'       => round($std_dev_raw, 1),
                     'tendencia'        => round($slope, 1),
                     'delta_acumulado'  => round($delta_total, 1),
                     'fecha_primera'    => $fechas_rec[0],
@@ -4615,6 +4840,38 @@ class ClasePosstock
                         $slope
                     ),
                 ];
+            }
+        }
+
+        // ── C7b-007 + C7b-011: enriquecer C7b con proveedor y coste estimado ──
+        if (isset($subcasos_set['C7b'])) {
+            $ids_c7b = array_column(
+                array_filter($incidencias, fn($inc) => ($inc['c7_subcaso'] ?? '') === 'C7b'),
+                'idArticulo'
+            );
+            if (!empty($ids_c7b)) {
+                $fi_stock_esc = $this->db->real_escape_string($fi_stock);
+                $ids_c7b_str  = implode(',', array_map('intval', $ids_c7b));
+
+                $prov_map_c7b   = $this->_queryProveedorArticulos($ids_c7b_str, $fi_stock_esc, $ff);
+                $precio_map_c7b = $this->_queryPrecioMedioCompra($ids_c7b_str, $fi_stock_esc, $ff);
+
+                foreach ($incidencias as &$inc) {
+                    if (($inc['c7_subcaso'] ?? '') !== 'C7b') continue;
+                    $prov = $prov_map_c7b[$inc['idArticulo']] ?? null;
+                    $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
+                    $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
+                    $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
+                    $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
+                    $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+                    // C7b-011: valor económico estimado del déficit
+                    $precio = $precio_map_c7b[$inc['idArticulo']] ?? null;
+                    $inc['precio_medio_compra'] = $precio;
+                    $inc['coste_estimado']      = ($precio !== null)
+                        ? round(abs((float)$inc['offset_estimado']) * $precio, 2)
+                        : null;
+                }
+                unset($inc);
             }
         }
 
@@ -4793,8 +5050,21 @@ class ClasePosstock
             }
         }
 
-        // Nota: _floors_raw NO se elimina aquí; lo hace getIncidenciasC7d
-        // para que pueda acceder a los suelos en la detección de tríos.
+        // ── C7e / C7d — solo cuando ambos subcasos están activos ────────────
+        // C7b-008: C7e y C7d se invocan aquí, con el mismo guard que C7c, para que
+        // el ciclo de vida de _floors_raw quede completamente dentro de este método.
+        if (isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
+            $this->getIncidenciasC7e($incidencias);
+            $this->getIncidenciasC7d($incidencias);
+        }
+
+        // Limpiar _floors_raw siempre, independientemente de qué subcasos corrieron.
+        // Este es el único punto donde se elimina el campo interno.
+        foreach ($incidencias as &$inc) {
+            unset($inc['_floors_raw']);
+        }
+        unset($inc);
+
         return $incidencias;
     }
 
@@ -4813,8 +5083,6 @@ class ClasePosstock
      *
      * Solo sustituye el match de C7c-par si el score del trío es estrictamente mayor.
      * Complejidad: O(N_c7a × N_c7b² × N_floors) — aceptable para N_c7b ≲ 100.
-     *
-     * Borra _floors_raw de todas las incidencias al finalizar.
      *
      * @param array &$incidencias  Incidencias C7 (con _floors_raw presentes).
      */
@@ -4973,11 +5241,6 @@ class ClasePosstock
             }
         }
 
-        // Eliminar campo interno _floors_raw antes de devolver
-        foreach ($incidencias as &$inc) {
-            unset($inc['_floors_raw']);
-        }
-        unset($inc);
     }
 
     /**

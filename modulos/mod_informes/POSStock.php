@@ -154,6 +154,12 @@ foreach ($tiposParaChks as $ti) {
                 Filtrar proveedor:
                 <span id="posstockFiltroProveedorLabel" class="label label-default">Todos</span>
             </button>
+            <button type="button" class="btn btn-default btn-xs" id="posstockBtnAgruparProv"
+                    onclick="posstockToggleAgruparProveedor()" title="Agrupa las filas por proveedor habitual manteniendo el orden interno de cada grupo">
+                <i class="glyphicon glyphicon-th-list"></i>
+                Agrupar por proveedor:
+                <span id="posstockAgruparProvLabel" class="label label-default">No</span>
+            </button>
         </div>
     </div>
 

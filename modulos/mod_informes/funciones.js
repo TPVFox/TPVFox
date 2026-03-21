@@ -374,6 +374,73 @@ window.posstockEliminarProveedor        = posstockEliminarProveedor;
 window.posstockAplicarFiltroProveedores = posstockAplicarFiltroProveedores;
 
 // =====================================================================
+//       POSSTOCK — Agrupación por proveedor
+// =====================================================================
+
+var _posstockAgrupadoPorProv = false;
+
+function posstockToggleAgruparProveedor() {
+    _posstockAgrupadoPorProv = !_posstockAgrupadoPorProv;
+    var label = document.getElementById("posstockAgruparProvLabel");
+    if (label) {
+        label.className   = _posstockAgrupadoPorProv ? "label label-success" : "label label-default";
+        label.textContent = _posstockAgrupadoPorProv ? "Sí" : "No";
+    }
+    _posstockReordenarTabla();
+}
+
+/**
+ * Reordena las filas del tbody de posstockTabla.
+ * - Modo normal:    orden por data-orden (lexicográfico, igual que el backend)
+ * - Modo proveedor: agrupa por data-prov (alfabético), dentro de cada grupo
+ *                   mantiene el orden por data-orden
+ */
+function _posstockReordenarTabla() {
+    var tbody = document.querySelector("#posstockTabla tbody");
+    if (!tbody) return;
+
+    var filas = Array.from(tbody.querySelectorAll("tr"));
+
+    if (_posstockAgrupadoPorProv) {
+        // Ordenar: primero por proveedor (asc, vacíos al final), luego por orden_clave (asc)
+        filas.sort(function (a, b) {
+            var pa = a.dataset.prov || "";
+            var pb = b.dataset.prov || "";
+            // Filas sin proveedor (otros tipos de incidencia) van al final
+            if (pa === "" && pb !== "") return 1;
+            if (pa !== "" && pb === "") return -1;
+            if (pa !== pb) return pa.localeCompare(pb, "es");
+            // Dentro del mismo proveedor: mantener orden original (data-orden)
+            var oa = a.dataset.orden || "";
+            var ob = b.dataset.orden || "";
+            return oa < ob ? -1 : oa > ob ? 1 : 0;
+        });
+    } else {
+        // Restaurar orden original por data-orden
+        filas.sort(function (a, b) {
+            var oa = a.dataset.orden || "";
+            var ob = b.dataset.orden || "";
+            return oa < ob ? -1 : oa > ob ? 1 : 0;
+        });
+    }
+
+    // Reinsertar filas en el nuevo orden
+    filas.forEach(function (fila) { tbody.appendChild(fila); });
+}
+
+// Resetear el estado de agrupación cuando se recarga la tabla
+function _posstockResetAgruparProv() {
+    _posstockAgrupadoPorProv = false;
+    var label = document.getElementById("posstockAgruparProvLabel");
+    if (label) {
+        label.className   = "label label-default";
+        label.textContent = "No";
+    }
+}
+
+window.posstockToggleAgruparProveedor = posstockToggleAgruparProveedor;
+
+// =====================================================================
 //       POSSTOCK — Carga de datos (AJAX batch)
 // =====================================================================
 
@@ -434,8 +501,9 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 $("#posstockProgreso").text("Analizando artículos: " + actual + " procesados…");
                 _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
-                // Último lote: enviar a PHP para renderizar la tabla
+                // Último lote: enriquecer C1a con c7b_activo antes de renderizar
                 acum.sort(_posstockSortComparator);
+                _posstockEnriquecerC1aConC7b(acum);
                 $("#posstockProgreso").text("Generando tabla…");
                 _posstockRenderizarTabla(acum, periodo);
 
@@ -449,6 +517,44 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
             _posstockMostrarError("Error de comunicación con el servidor.");
         },
     });
+}
+
+/**
+ * C7b-003: decora las filas C1a con c7b_activo/c7b_offset_estimado/c7b_tipo_articulo
+ * cuando existe una fila C7b del mismo artículo en el lote acumulado.
+ */
+function _posstockEnriquecerC1aConC7b(filas) {
+    var c7bPorArticulo = {};
+    filas.forEach(function (f) {
+        if (f.c7_subcaso === "C7b") {
+            c7bPorArticulo[f.idArticulo] = {
+                offset_estimado: f.offset_estimado,
+                tipo_articulo:   f.tipo_articulo || "unidad",
+            };
+        }
+    });
+    if (Object.keys(c7bPorArticulo).length === 0) return;
+    filas.forEach(function (f) {
+        if (f.tipo === "Inventario en negativo" && c7bPorArticulo[f.idArticulo]) {
+            f.c7b_activo          = true;
+            f.c7b_offset_estimado = c7bPorArticulo[f.idArticulo].offset_estimado;
+            f.c7b_tipo_articulo   = c7bPorArticulo[f.idArticulo].tipo_articulo;
+        }
+    });
+    // Si caso7b no estaba marcado por el usuario, eliminar sus filas del array
+    // (fueron añadidas solo para poder enriquecer C1a con el badge)
+    var caso7bMarcado = (function () {
+        var chk = document.getElementById("posstockChk_caso7b");
+        return chk ? chk.checked : true; // si no hay checkbox (modo anual) dejar todas
+    })();
+    if (!caso7bMarcado) {
+        var i = filas.length;
+        while (i--) {
+            if (filas[i].c7_subcaso === "C7b" || filas[i].c7_subcaso === "C7b_posible" || filas[i].c7_subcaso === "C7b_ruido_peso") {
+                filas.splice(i, 1);
+            }
+        }
+    }
 }
 
 /** Llama a PHP para renderizar la tabla HTML y la inyecta en #posstockTablaWrap. */
@@ -473,6 +579,7 @@ function _posstockRenderizarTabla(filas, periodo) {
                 return;
             }
             $("#posstockTablaWrap").html(resultado.html).show();
+            _posstockResetAgruparProv();
             if (filas.length > 0) {
                 $("#posstockBtnExportar, #posstockBtnImprimir").show();
                 _posstockIniciarFiltroBadges();
@@ -738,7 +845,15 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
         if (chk.checked) seleccionados.push(chk.value);
     });
     // Si no hay checkboxes visibles (modo anual) devolver cadena vacía = todos
-    return seleccionados.length > 0 ? seleccionados.join(",") : "";
+    if (seleccionados.length === 0) return "";
+    // C7b-003: si caso1 está seleccionado, incluir siempre caso7b para poder
+    // enriquecer las filas C1a con el badge "Recepción no registrada", aunque
+    // el usuario no haya marcado caso7b. Las filas C7b sobrantes se filtran en
+    // _posstockEnriquecerC1aConC7b antes de renderizar.
+    if (seleccionados.indexOf("caso1") !== -1 && seleccionados.indexOf("caso7b") === -1) {
+        seleccionados.push("caso7b");
+    }
+    return seleccionados.join(",");
 }
 
 /** Relanza la consulta con los casos actualmente seleccionados. */
