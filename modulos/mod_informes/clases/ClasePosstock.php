@@ -1598,6 +1598,11 @@ class ClasePosstock
         $c1_umbral_magnitud         = (float)  ($params['c1_umbral_magnitud']            ?? 0.5);
         $c1_umbral_por_venta        = (float)  ($params['c1_umbral_por_venta']           ?? 0.010);
         $c1_timing_ventana_dias     = (int)    ($params['c1_timing_ventana_dias']        ?? 1);
+        $c7b_min_recepciones        = (int)    ($params['c7b_min_recepciones']           ?? 3);
+        $c7b_umbral_cv              = (float)  ($params['c7b_umbral_cv']                 ?? 0.5);
+        $c7b_umbral_ruido_peso      = (float)  ($params['c7b_umbral_ruido_peso']         ?? 0.5);
+        $c7b_umbral_severidad_unidad = (int)   ($params['c7b_umbral_severidad_unidad']   ?? 5);
+        $c7b_umbral_severidad_peso  = (float)  ($params['c7b_umbral_severidad_peso']     ?? 2.5);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -1857,7 +1862,12 @@ class ClasePosstock
                 $familias_excluir,
                 $ids_filter,
                 $sb_shared,
-                $c7_subcasos
+                $c7_subcasos,
+                $c7b_min_recepciones,
+                $c7b_umbral_cv,
+                $c7b_umbral_ruido_peso,
+                $c7b_umbral_severidad_unidad,
+                $c7b_umbral_severidad_peso
             );
             if (isset($c7['error'])) return $c7;
             $incidencias = array_merge($incidencias, $c7);
@@ -4427,12 +4437,17 @@ class ClasePosstock
         string $ff_stock,
         array  $familias_incluir,
         array  $familias_excluir,
-        array  $ids_filter = [],
-        array  $stock_base_cache = [],
-        array  $subcasos = ['C7a', 'C7b']  // subconjunto a emitir; permite activar solo uno
+        array  $ids_filter            = [],
+        array  $stock_base_cache      = [],
+        array  $subcasos              = ['C7a', 'C7b'],
+        int    $c7b_min_recepciones   = 3,
+        float  $c7b_umbral_cv         = 0.5,
+        float  $c7b_umbral_ruido_peso = 0.5,
+        int    $c7b_umbral_sev_unidad = 5,
+        float  $c7b_umbral_sev_peso   = 2.5
     ): array {
         $subcasos_set    = array_flip($subcasos);
-        $min_recepciones = 2;   // ventana base+análisis: con 2 recepciones ya aplica C7b_posible
+        $min_recepciones = 2;   // mínimo global para C7b_posible (2 floors análisis); el test IC95 requiere $c7b_min_recepciones
 
         $fi     = $this->db->real_escape_string($fi_mov);
         $ff     = $this->db->real_escape_string($ff_mov);
@@ -4598,11 +4613,11 @@ class ClasePosstock
             ];
 
             // ── Selección del conjunto de floors para el test IC95 ───────────
-            if ($n_base >= 3) {
+            if ($n_base >= $c7b_min_recepciones) {
                 $test_floors = $floors_base;
                 $test_dias   = $dias_base;
                 $test_period = 'base';
-            } elseif ($n_analysis >= 3) {
+            } elseif ($n_analysis >= $c7b_min_recepciones) {
                 $test_floors = $floors_analysis;
                 $test_dias   = $dias_analysis;
                 $test_period = 'analysis';
@@ -4669,11 +4684,10 @@ class ClasePosstock
                 $confianza_c7b = ($r1 > 0.5 && $n < 6) ? 'posible' : 'probable';
 
                 // ── C7b: IC95 < 0 en el conjunto de test ─────────────────────
-                if ($ic95_upper < 0 && $cv < 0.5 && $iqr < 1.5 * abs($mean)) {
+                if ($ic95_upper < 0 && $cv < $c7b_umbral_cv && $iqr < 1.5 * abs($mean)) {
 
-                    // C7b-005: filtro ruido pesaje (< 0.5 kg → error de calibración)
-                    $umbral_ruido_peso = 0.5;
-                    if ($tipo_art === 'peso' && $abs_mean_raw < $umbral_ruido_peso) {
+                    // C7b-005: filtro ruido pesaje (configurable → c7b_umbral_ruido_peso)
+                    if ($tipo_art === 'peso' && $abs_mean_raw < $c7b_umbral_ruido_peso) {
                         $incidencias[] = [
                             'idArticulo'           => $id,
                             'tipo'                 => 'Posible error de pesaje',
@@ -4711,20 +4725,20 @@ class ClasePosstock
                         if ($analysis_consistent) {
                             // Base confirma + análisis consistente → CRITICA/ALTA
                             $severidad = ($tipo_art === 'peso')
-                                ? ($abs_mean_raw >= 2.5 ? 'CRITICA' : 'ALTA')
-                                : ($abs_mean_raw >= 5.0 ? 'CRITICA' : 'ALTA');
+                                ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'CRITICA' : 'ALTA')
+                                : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'CRITICA' : 'ALTA');
                         } else {
                             // Base confirma pero análisis tiene floors insuficientes/inconsistentes
                             $severidad = ($tipo_art === 'peso')
-                                ? ($abs_mean_raw >= 2.5 ? 'ALTA' : 'MEDIA')
-                                : ($abs_mean_raw >= 5.0 ? 'ALTA' : 'MEDIA');
+                                ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'ALTA' : 'MEDIA')
+                                : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'ALTA' : 'MEDIA');
                         }
                     } else {
                         // Solo periodo de análisis confirmado (sin base suficiente) → ALTA/MEDIA
                         $analysis_consistent = false;
                         $severidad = ($tipo_art === 'peso')
-                            ? ($abs_mean_raw >= 2.5 ? 'ALTA' : 'MEDIA')
-                            : ($abs_mean_raw >= 5.0 ? 'ALTA' : 'MEDIA');
+                            ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'ALTA' : 'MEDIA')
+                            : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'ALTA' : 'MEDIA');
                     }
 
                     // C7b-006: si el déficit es parcial (< 50% de intervalos), rebajar un nivel
