@@ -257,6 +257,47 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
+    // --- BLOQUE 4b: CASO 1 — STOCK NEGATIVO ---
+    $c1_umbral_frac_actual    = (string)($posstock->c1_umbral_fraccionado  ?: '0.05');
+    $c1_umbral_mag_actual     = (string)($posstock->c1_umbral_magnitud     ?: '0.5');
+    $c1_umbral_venta_actual   = (string)($posstock->c1_umbral_por_venta    ?: '0.010');
+    $c1_timing_actual         = (string)($posstock->c1_timing_ventana_dias ?: '1');
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-warning-sign"></i> Stock negativo — detección de drift de pesaje (C1)</div>';
+    $html .= '  <div class="panel-body">';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Parte fraccionaria mínima del stock para considerarlo con decimales sospechosos. 0.05 = 50g en una balanza de kg. Rango: 0.01–0.49.">Umbral decimal<br><small class="text-muted">(parte fraccionaria, kg/ud)</small></label>';
+    $html .= '        <input type="number" step="0.01" min="0.01" max="0.49" class="form-control input-sm text-right" name="inputC1UmbralFraccionado" value="' . htmlspecialchars($c1_umbral_frac_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Máximo negativo (cierre y mínimo) para que sea candidato a drift de balanza. Si el negativo supera este valor, no puede ser solo un error de pesaje. Rango: 0.1–5.0.">Máximo negativo aceptable<br><small class="text-muted">(magnitud límite, kg/ud)</small></label>';
+    $html .= '        <input type="number" step="0.1" min="0.1" max="5.0" class="form-control input-sm text-right" name="inputC1UmbralMagnitud" value="' . htmlspecialchars($c1_umbral_mag_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Error de pesaje máximo por operación. Se multiplica por el número de ventas para calcular el margen tolerable total. Ej: 0.010 kg/venta × 100 ventas = 1.0 kg tolerable. Rango: 0.001–0.1.">Error por venta<br><small class="text-muted">(kg/ud por operación)</small></label>';
+    $html .= '        <input type="number" step="0.001" min="0.001" max="0.1" class="form-control input-sm text-right" name="inputC1UmbralPorVenta" value="' . htmlspecialchars($c1_umbral_venta_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Días máximos tras el mínimo para que una recepción justifique el negativo puntual (C1b). Con 1 día detecta albaranes introducidos el día siguiente. Ampliar si los albaranes suelen registrarse con más retraso. Rango: 1–7.">Ventana timing C1b<br><small class="text-muted">(días tras el mínimo)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="1" max="7" class="form-control text-right" name="inputC1TimingVentanaDias" value="' . htmlspecialchars($c1_timing_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
+    $html .= '      El sistema confirma drift de pesaje en dos pasos: primero el negativo debe ser menor que el <em>máximo negativo</em>; luego se verifica que no supere <em>error por venta × número de ventas</em>. Negocios con charcutería o productos a granel pueden necesitar valores más altos.';
+    $html .= '    </p>';
+    $html .= '  </div>';
+    $html .= '</div>';
+
     // --- BLOQUE 5: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';

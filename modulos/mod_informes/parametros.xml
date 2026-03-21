@@ -39,10 +39,18 @@
 			     Ejemplo: artículo que vende cada 3 días → alerta con 3×3=9 días sin venta.
 			     Rango recomendado: 2.0–6.0 -->
 			<c3a_multiplicador_cadencia>3.0</c3a_multiplicador_cadencia>
-			<!-- Umbral de reconstrucción de stock: si stock > N�ROP se recalcula desde la última entrada de compra menos ventas. Mínimo: 3.0 -->
+			<!-- Umbral de reconstrucción de stock: si stock > N�ROP se recalcula desde la última entrada de compra menos ventas. Mínimo: 3.0 -->
 			<umbral_reconstituir_rop>10</umbral_reconstituir_rop>
 			<!-- Umbral de stock negativo para reconstrucción: si stock < -N se recalcula desde la última entrada. Valor positivo (ej: 2 = reconstruir si stock < -2). -->
 			<umbral_stock_negativo>2</umbral_stock_negativo>
+			<!-- C1 — Umbral decimal básico: parte fraccionaria mínima para considerar un stock con decimales sospechosos (0.05 = 50g en balanza). -->
+			<c1_umbral_fraccionado>0.05</c1_umbral_fraccionado>
+			<!-- C1 — Umbral de magnitud: cierre/mínimo máximo (kg/ud) para considerar que el negativo puede ser drift de balanza. -->
+			<c1_umbral_magnitud>0.5</c1_umbral_magnitud>
+			<!-- C1 — Umbral por venta: margen de error por operación de pesaje (kg/ud). Se multiplica por n_ventas para el umbral dinámico. -->
+			<c1_umbral_por_venta>0.010</c1_umbral_por_venta>
+			<!-- C1b — Ventana de timing: días máximos tras el mínimo para considerar que una recepción explica el negativo puntual. -->
+			<c1_timing_ventana_dias>1</c1_timing_ventana_dias>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

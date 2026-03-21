@@ -166,5 +166,10 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'umbral_reconstituir_rop'     => max(3.0, (float)(string)($posstock_node->umbral_reconstituir_rop ?: '10')),
         // Umbral negativo: si stock < -N se reconstruye (almacenado como positivo, aplicado como -N)
         'umbral_stock_negativo'       => max(0.0, (float)(string)($posstock_node->umbral_stock_negativo ?: '2')),
+        // C1 — Umbrales de fraccionado
+        'c1_umbral_fraccionado'       => max(0.01, min(0.49, (float)(string)($posstock_node->c1_umbral_fraccionado ?: '0.05'))),
+        'c1_umbral_magnitud'          => max(0.1,  min(5.0,  (float)(string)($posstock_node->c1_umbral_magnitud    ?: '0.5'))),
+        'c1_umbral_por_venta'         => max(0.001, min(0.1, (float)(string)($posstock_node->c1_umbral_por_venta   ?: '0.010'))),
+        'c1_timing_ventana_dias'      => max(1, min(7,        (int)(string)  ($posstock_node->c1_timing_ventana_dias ?: '1'))),
     ];
 }
