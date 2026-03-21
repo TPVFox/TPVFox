@@ -475,6 +475,7 @@ function _posstockRenderizarTabla(filas, periodo) {
             $("#posstockTablaWrap").html(resultado.html).show();
             if (filas.length > 0) {
                 $("#posstockBtnExportar, #posstockBtnImprimir").show();
+                _posstockIniciarFiltroBadges();
             } else {
                 $("#posstockBtnExportar, #posstockBtnImprimir").hide();
             }
@@ -486,6 +487,156 @@ function _posstockRenderizarTabla(filas, periodo) {
 }
 
 window.cargarDatosPosstock = cargarDatosPosstock;
+
+// =====================================================================
+//       POSSTOCK — Filtro por badges
+// =====================================================================
+
+/**
+ * Lee los data-badges de todas las filas, construye la barra de filtro
+ * encima de la tabla y gestiona show/hide por badge.
+ *
+ * Cada fila tiene data-badges="Badge A|Badge B" (separados por |).
+ * Las filas sin ningún badge tienen data-badges="".
+ * El filtro muestra botones toggle por cada badge único detectado,
+ * más un botón "Sin badge" para filas sin ninguno.
+ * Un botón "Todos" resetea el filtro.
+ */
+function _posstockIniciarFiltroBadges() {
+    var filas = document.querySelectorAll("#posstockTablaWrap tbody tr[data-badges]");
+    if (!filas.length) return;
+
+    // Recopilar todos los badges únicos presentes
+    var badgesSet = {};
+    var haySinBadge = false;
+    filas.forEach(function (tr) {
+        var val = tr.getAttribute("data-badges") || "";
+        if (val === "") {
+            haySinBadge = true;
+        } else {
+            val.split("|").forEach(function (b) {
+                b = b.trim();
+                if (b) badgesSet[b] = true;
+            });
+        }
+    });
+
+    var badges = Object.keys(badgesSet).sort();
+    // Solo mostrar la barra si hay al menos un badge en la tabla
+    if (!badges.length && !haySinBadge) return;
+
+    // Estado: Set de badges VISIBLES. Inicialmente todos activos (visibles).
+    var visiblesBadges = new Set(badges);
+    var sinBadgeVisible = haySinBadge;
+
+    // ── Construir barra ──────────────────────────────────────────────
+    var barra = document.createElement("div");
+    barra.id = "posstockFiltroBadges";
+    barra.style.cssText = "margin-bottom:8px; display:flex; flex-wrap:wrap; gap:4px; align-items:center;";
+
+    var lblFiltro = document.createElement("span");
+    lblFiltro.className = "text-muted small";
+    lblFiltro.style.marginRight = "4px";
+    lblFiltro.textContent = "Filtrar por badge:";
+    barra.appendChild(lblFiltro);
+
+    // Botón "Todos" — toggle: si todo activo → desactiva todos; si algo desactivado → activa todos
+    var btnTodos = document.createElement("button");
+    btnTodos.type = "button";
+    btnTodos.className = "btn btn-xs btn-primary active";
+    btnTodos.setAttribute("data-badge-filtro", "__todos__");
+    btnTodos.textContent = "Todos";
+    btnTodos.onclick = function () {
+        var todoActivo = badges.every(function (b) { return visiblesBadges.has(b); })
+            && (!haySinBadge || sinBadgeVisible);
+        if (todoActivo) {
+            visiblesBadges.clear();
+            sinBadgeVisible = false;
+        } else {
+            badges.forEach(function (b) { visiblesBadges.add(b); });
+            sinBadgeVisible = haySinBadge;
+        }
+        _aplicarFiltroBadges(filas, visiblesBadges, sinBadgeVisible);
+        _actualizarEstadoBotones(barra, visiblesBadges, sinBadgeVisible, haySinBadge, badges);
+    };
+    barra.appendChild(btnTodos);
+
+    // Botón por cada badge — empieza activo (visible), pulsar desactiva (oculta)
+    badges.forEach(function (badge) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-xs btn-primary active";
+        btn.setAttribute("data-badge-filtro", badge);
+        btn.textContent = badge;
+        btn.onclick = function () {
+            if (visiblesBadges.has(badge)) {
+                visiblesBadges.delete(badge);
+            } else {
+                visiblesBadges.add(badge);
+            }
+            _aplicarFiltroBadges(filas, visiblesBadges, sinBadgeVisible);
+            _actualizarEstadoBotones(barra, visiblesBadges, sinBadgeVisible, haySinBadge, badges);
+        };
+        barra.appendChild(btn);
+    });
+
+    // Botón "Sin badge" — solo si existen filas sin badge, empieza activo
+    if (haySinBadge) {
+        var btnSin = document.createElement("button");
+        btnSin.type = "button";
+        btnSin.className = "btn btn-xs btn-primary active";
+        btnSin.setAttribute("data-badge-filtro", "__sinbadge__");
+        btnSin.textContent = "Sin badge";
+        btnSin.onclick = function () {
+            sinBadgeVisible = !sinBadgeVisible;
+            _aplicarFiltroBadges(filas, visiblesBadges, sinBadgeVisible);
+            _actualizarEstadoBotones(barra, visiblesBadges, sinBadgeVisible, haySinBadge, badges);
+        };
+        barra.appendChild(btnSin);
+    }
+
+    // Insertar la barra antes de la tabla
+    var wrap = document.getElementById("posstockTablaWrap");
+    var tabla = wrap ? wrap.querySelector("table") : null;
+    if (tabla) {
+        wrap.insertBefore(barra, tabla);
+    }
+}
+
+/** Aplica show/hide a las filas según el estado del filtro. */
+function _aplicarFiltroBadges(filas, visiblesBadges, sinBadgeVisible) {
+    filas.forEach(function (tr) {
+        var val = tr.getAttribute("data-badges") || "";
+        var badgesFila = val === "" ? [] : val.split("|").map(function (b) { return b.trim(); });
+
+        var mostrar;
+        if (val === "") {
+            mostrar = sinBadgeVisible;
+        } else {
+            // Mostrar si AL MENOS UNO de los badges de la fila está activo
+            mostrar = badgesFila.some(function (b) { return visiblesBadges.has(b); });
+        }
+
+        tr.style.display = mostrar ? "" : "none";
+    });
+}
+
+/** Actualiza el estado visual de los botones de la barra. */
+function _actualizarEstadoBotones(barra, visiblesBadges, sinBadgeVisible, haySinBadge, badges) {
+    var todoActivo = badges.every(function (b) { return visiblesBadges.has(b); })
+        && (!haySinBadge || sinBadgeVisible);
+
+    barra.querySelectorAll("[data-badge-filtro]").forEach(function (btn) {
+        var b = btn.getAttribute("data-badge-filtro");
+        if (b === "__todos__") {
+            btn.className = "btn btn-xs " + (todoActivo ? "btn-primary active" : "btn-default");
+        } else if (b === "__sinbadge__") {
+            btn.className = "btn btn-xs " + (sinBadgeVisible ? "btn-primary active" : "btn-default");
+        } else {
+            btn.className = "btn btn-xs " + (visiblesBadges.has(b) ? "btn-primary active" : "btn-default");
+        }
+    });
+}
 
 // =====================================================================
 //       POSSTOCK — Exportar / Imprimir

@@ -568,7 +568,11 @@ function renderTablaPosstock(array $filas, array $cfg): string
             ? ' <span class="label label-success" title="Este proveedor es el proveedor principal (Activo) de este artículo">principal</span>'
             : '';
 
-        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '">'
+        // Extraer textos de badges del detalle para el atributo data-badges (filtro JS)
+        preg_match_all('/<span\s[^>]*class="label[^"]*"[^>]*>([^<]+)<\/span>/u', $detalle, $_bm);
+        $dataBadges = implode('|', array_unique(array_map('trim', $_bm[1] ?? [])));
+
+        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
             . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . $badgeNombrePrincipal . '</td>'
             . '<td>' . htmlspecialchars($tipoLabel) . '</td>'

@@ -1561,6 +1561,10 @@ class ClasePosstock
         $umbral_confianza_c5        = (float)  ($params['umbral_confianza_poisson']      ?? 0.05);
         $c5_incluir_stock_negativo  = (bool)   ($params['c5_incluir_stock_negativo']     ?? false);
         $binomial_sigma_mult        = (float)  ($params['binomial_sigma_mult']           ?? 3.0);
+        $c1_umbral_fraccionado      = (float)  ($params['c1_umbral_fraccionado']         ?? 0.05);
+        $c1_umbral_magnitud         = (float)  ($params['c1_umbral_magnitud']            ?? 0.5);
+        $c1_umbral_por_venta        = (float)  ($params['c1_umbral_por_venta']           ?? 0.010);
+        $c1_timing_ventana_dias     = (int)    ($params['c1_timing_ventana_dias']        ?? 1);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -1616,7 +1620,11 @@ class ClasePosstock
                 $familias_incluir,
                 $familias_excluir,
                 $ids_filter,
-                $sb_shared
+                $sb_shared,
+                $c1_umbral_fraccionado,
+                $c1_umbral_magnitud,
+                $c1_umbral_por_venta,
+                $c1_timing_ventana_dias
             );
             if (isset($c1['error'])) return $c1;
             $incidencias = array_merge($incidencias, $c1);
@@ -3315,9 +3323,13 @@ class ClasePosstock
         string $fi_stock,
         string $ff_stock,
         array  $familias_incluir,
-        array $familias_excluir,
-        array  $ids_filter = [],
-        array  $stock_base_cache = []   // pre-calculado por el caller para evitar doble consulta
+        array  $familias_excluir,
+        array  $ids_filter          = [],
+        array  $stock_base_cache    = [],
+        float  $umbral_fraccionado  = 0.05,
+        float  $umbral_magnitud     = 0.5,
+        float  $umbral_por_venta    = 0.010,
+        int    $timing_ventana_dias = 1
     ): array {
         $fi     = $this->db->real_escape_string($fi_mov);
         $ff     = $this->db->real_escape_string($ff_mov);
@@ -3360,9 +3372,9 @@ class ClasePosstock
                 // Señales derivables sin query extra
                 $ya_negativo_inicio  = $saldo_base < 0;
                 $frac                = abs($stock_actual - round($stock_actual));
-                $es_fraccionado      = $frac > 0.05;
-                // Badge "Stock decimal" solo cuando el negativo es pequeño (< 0.5): drift de redondeo plausible
-                $fraccionado_es_causa = $es_fraccionado && abs($stock_actual) < 0.5 && abs($min_balance) < 0.5;
+                $es_fraccionado      = $frac > $umbral_fraccionado;
+                // Badge "Stock decimal" solo cuando el negativo es pequeño (< umbral_magnitud): drift de redondeo plausible
+                $fraccionado_es_causa = $es_fraccionado && abs($stock_actual) < $umbral_magnitud && abs($min_balance) < $umbral_magnitud;
 
                 $incidencias[] = [
                     'idArticulo'          => $id,
@@ -3379,9 +3391,9 @@ class ClasePosstock
                 $ids_c1a[] = $id;
             } elseif ($min_balance < 0) {
                 $frac_c1b             = abs($min_balance - round($min_balance));
-                $es_fraccionado       = $frac_c1b > 0.05;
-                // Badge "Stock decimal" solo cuando el mínimo negativo es pequeño (< 0.5)
-                $fraccionado_es_causa = $es_fraccionado && abs($min_balance) < 0.5;
+                $es_fraccionado       = $frac_c1b > $umbral_fraccionado;
+                // Badge "Stock decimal" solo cuando el mínimo negativo es pequeño (< umbral_magnitud)
+                $fraccionado_es_causa = $es_fraccionado && abs($min_balance) < $umbral_magnitud;
 
                 $incidencias[] = [
                     'idArticulo'           => $id,
@@ -3426,9 +3438,9 @@ class ClasePosstock
                 $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
                 $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
 
-                // Refinar fraccionado_es_causa con n_ventas: umbral 0.010 ud × ventas
+                // Refinar fraccionado_es_causa con n_ventas: umbral dinámico por operación de pesaje
                 if ($inc['fraccionado_es_causa']) {
-                    $umbral_frac = 0.010 * max(1, $inc['n_ventas']);
+                    $umbral_frac = $umbral_por_venta * max(1, $inc['n_ventas']);
                     if (abs($inc['stock_actual']) > $umbral_frac || abs($inc['min_balance']) > $umbral_frac) {
                         $inc['fraccionado_es_causa'] = false;
                         $inc['severidad']            = $inc['ya_negativo_inicio'] ? 'ALTA' : 'CRITICA';
@@ -3461,7 +3473,7 @@ class ClasePosstock
                     $id_fecha_map[$inc['idArticulo']] = $inc['fecha_minimo'];
                 }
             }
-            $timing_set = $this->_queryTimingC1b($id_fecha_map);
+            $timing_set = $this->_queryTimingC1b($id_fecha_map, $timing_ventana_dias);
 
             foreach ($incidencias as &$inc) {
                 if ($inc['tipo'] !== 'Desajuste Puntual de Stock') continue;
@@ -3470,9 +3482,9 @@ class ClasePosstock
                 $inc['n_entradas']     = $n_ent;
                 $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
                 $inc['n_ventas']       = $d['n_ventas']       ?? 0;
-                // Refinar fraccionado_es_causa con n_ventas: umbral 0.010 ud × ventas
+                // Refinar fraccionado_es_causa con n_ventas: umbral dinámico por operación de pesaje
                 if ($inc['fraccionado_es_causa']) {
-                    $umbral_frac = 0.010 * max(1, $inc['n_ventas']);
+                    $umbral_frac = $umbral_por_venta * max(1, $inc['n_ventas']);
                     if (abs($inc['min_balance']) > $umbral_frac) {
                         $inc['fraccionado_es_causa'] = false;
                     }

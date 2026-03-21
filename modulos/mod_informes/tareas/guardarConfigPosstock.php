@@ -93,6 +93,34 @@ if (!isset($mapa['inputC3bDiasPost'])
 if (!isset($mapa['inputC3aMultiplicadorCadencia']) || !in_array($mapa['inputC3aMultiplicadorCadencia'], $mult_c3a_validos, true)) {
     $mapa['inputC3aMultiplicadorCadencia'] = '3.0';
 }
+if (!isset($mapa['inputC1UmbralFraccionado'])
+    || !is_numeric($mapa['inputC1UmbralFraccionado'])
+    || floatval($mapa['inputC1UmbralFraccionado']) < 0.01
+    || floatval($mapa['inputC1UmbralFraccionado']) > 0.49
+) {
+    $mapa['inputC1UmbralFraccionado'] = '0.05';
+}
+if (!isset($mapa['inputC1UmbralMagnitud'])
+    || !is_numeric($mapa['inputC1UmbralMagnitud'])
+    || floatval($mapa['inputC1UmbralMagnitud']) < 0.1
+    || floatval($mapa['inputC1UmbralMagnitud']) > 5.0
+) {
+    $mapa['inputC1UmbralMagnitud'] = '0.5';
+}
+if (!isset($mapa['inputC1UmbralPorVenta'])
+    || !is_numeric($mapa['inputC1UmbralPorVenta'])
+    || floatval($mapa['inputC1UmbralPorVenta']) < 0.001
+    || floatval($mapa['inputC1UmbralPorVenta']) > 0.1
+) {
+    $mapa['inputC1UmbralPorVenta'] = '0.010';
+}
+if (!isset($mapa['inputC1TimingVentanaDias'])
+    || !ctype_digit($mapa['inputC1TimingVentanaDias'])
+    || intval($mapa['inputC1TimingVentanaDias']) < 1
+    || intval($mapa['inputC1TimingVentanaDias']) > 7
+) {
+    $mapa['inputC1TimingVentanaDias'] = '1';
+}
 
 if (!empty($errores)) {
     $respuesta['error'] = implode(' | ', $errores);
@@ -118,6 +146,10 @@ if (!empty($errores)) {
     $posstock->umbral_stock_negativo             = floatval($mapa['inputUmbralStockNegativo']);
     $posstock->c3b_dias_post_periodo             = intval($mapa['inputC3bDiasPost']);
     $posstock->c3a_multiplicador_cadencia        = $mapa['inputC3aMultiplicadorCadencia'];
+    $posstock->c1_umbral_fraccionado             = floatval($mapa['inputC1UmbralFraccionado']);
+    $posstock->c1_umbral_magnitud                = floatval($mapa['inputC1UmbralMagnitud']);
+    $posstock->c1_umbral_por_venta               = floatval($mapa['inputC1UmbralPorVenta']);
+    $posstock->c1_timing_ventana_dias            = intval($mapa['inputC1TimingVentanaDias']);
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';
