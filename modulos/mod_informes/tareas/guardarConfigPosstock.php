@@ -170,6 +170,63 @@ if (!isset($mapa['inputC7bUmbralSevPeso'])
 ) {
     $mapa['inputC7bUmbralSevPeso'] = '2.5';
 }
+if (!isset($mapa['inputC7aUmbralDeltaUnidad'])
+    || !is_numeric($mapa['inputC7aUmbralDeltaUnidad'])
+    || floatval($mapa['inputC7aUmbralDeltaUnidad']) < 0.5
+    || floatval($mapa['inputC7aUmbralDeltaUnidad']) > 20.0
+) {
+    $mapa['inputC7aUmbralDeltaUnidad'] = '2.0';
+}
+if (!isset($mapa['inputC7aUmbralDeltaPeso'])
+    || !is_numeric($mapa['inputC7aUmbralDeltaPeso'])
+    || floatval($mapa['inputC7aUmbralDeltaPeso']) < 0.1
+    || floatval($mapa['inputC7aUmbralDeltaPeso']) > 10.0
+) {
+    $mapa['inputC7aUmbralDeltaPeso'] = '1.0';
+}
+if (!isset($mapa['inputC7aPvalueAlta'])
+    || !is_numeric($mapa['inputC7aPvalueAlta'])
+    || floatval($mapa['inputC7aPvalueAlta']) < 0.01
+    || floatval($mapa['inputC7aPvalueAlta']) > 0.10
+) {
+    $mapa['inputC7aPvalueAlta'] = '0.05';
+}
+if (!isset($mapa['inputC7aPvalue'])
+    || !is_numeric($mapa['inputC7aPvalue'])
+    || floatval($mapa['inputC7aPvalue']) < 0.05
+    || floatval($mapa['inputC7aPvalue']) > 0.30
+    || floatval($mapa['inputC7aPvalue']) <= floatval($mapa['inputC7aPvalueAlta'])
+) {
+    $mapa['inputC7aPvalue'] = '0.10';
+}
+if (!isset($mapa['inputC7aUmbralAltaDeltaUnidad'])
+    || !is_numeric($mapa['inputC7aUmbralAltaDeltaUnidad'])
+    || floatval($mapa['inputC7aUmbralAltaDeltaUnidad']) < 2.0
+    || floatval($mapa['inputC7aUmbralAltaDeltaUnidad']) > 50.0
+) {
+    $mapa['inputC7aUmbralAltaDeltaUnidad'] = '10.0';
+}
+if (!isset($mapa['inputC7aUmbralAltaDeltaPeso'])
+    || !is_numeric($mapa['inputC7aUmbralAltaDeltaPeso'])
+    || floatval($mapa['inputC7aUmbralAltaDeltaPeso']) < 1.0
+    || floatval($mapa['inputC7aUmbralAltaDeltaPeso']) > 20.0
+) {
+    $mapa['inputC7aUmbralAltaDeltaPeso'] = '5.0';
+}
+if (!isset($mapa['inputC7aUmbralAltaSlopeUnidad'])
+    || !is_numeric($mapa['inputC7aUmbralAltaSlopeUnidad'])
+    || floatval($mapa['inputC7aUmbralAltaSlopeUnidad']) < 0.5
+    || floatval($mapa['inputC7aUmbralAltaSlopeUnidad']) > 10.0
+) {
+    $mapa['inputC7aUmbralAltaSlopeUnidad'] = '2.0';
+}
+if (!isset($mapa['inputC7aUmbralAltaSlopePeso'])
+    || !is_numeric($mapa['inputC7aUmbralAltaSlopePeso'])
+    || floatval($mapa['inputC7aUmbralAltaSlopePeso']) < 0.1
+    || floatval($mapa['inputC7aUmbralAltaSlopePeso']) > 5.0
+) {
+    $mapa['inputC7aUmbralAltaSlopePeso'] = '1.0';
+}
 
 if (!empty($errores)) {
     $respuesta['error'] = implode(' | ', $errores);
@@ -207,6 +264,15 @@ if (!empty($errores)) {
     $posstock->c7b_umbral_severidad_unidad       = intval($mapa['inputC7bUmbralSevUnidad']);
     $posstock->c7b_umbral_severidad_peso         = floatval($mapa['inputC7bUmbralSevPeso']);
     $posstock->c7b_cascada_exhaustiva            = (isset($mapa['inputC7bCascadaExhaustiva']) && $mapa['inputC7bCascadaExhaustiva'] === '1') ? 'true' : 'false';
+    $posstock->c7a_umbral_delta_unidad           = floatval($mapa['inputC7aUmbralDeltaUnidad']);
+    $posstock->c7a_umbral_delta_peso             = floatval($mapa['inputC7aUmbralDeltaPeso']);
+    $posstock->c7a_umbral_pvalue_alta            = floatval($mapa['inputC7aPvalueAlta']);
+    $posstock->c7a_umbral_pvalue                 = floatval($mapa['inputC7aPvalue']);
+    $posstock->c7a_umbral_alta_delta_unidad      = floatval($mapa['inputC7aUmbralAltaDeltaUnidad']);
+    $posstock->c7a_umbral_alta_delta_peso        = floatval($mapa['inputC7aUmbralAltaDeltaPeso']);
+    $posstock->c7a_umbral_alta_slope_unidad      = floatval($mapa['inputC7aUmbralAltaSlopeUnidad']);
+    $posstock->c7a_umbral_alta_slope_peso        = floatval($mapa['inputC7aUmbralAltaSlopePeso']);
+    $posstock->c7a_cascada_exhaustiva            = (isset($mapa['inputC7aCascadaExhaustiva']) && $mapa['inputC7aCascadaExhaustiva'] === '1') ? 'true' : 'false';
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';

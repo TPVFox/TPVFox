@@ -180,5 +180,15 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c7b_umbral_severidad_unidad' => max(2, min(20,    (int)(string)  ($posstock_node->c7b_umbral_severidad_unidad ?: '5'))),
         'c7b_umbral_severidad_peso'   => max(0.5, min(10.0,(float)(string)($posstock_node->c7b_umbral_severidad_peso  ?: '2.5'))),
         'c7b_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7b_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
+        // C7a — Umbrales de detección de tendencia (merma sistemática)
+        'c7a_umbral_delta_unidad'     => max(0.5, min(20.0, (float)(string)($posstock_node->c7a_umbral_delta_unidad     ?: '2.0'))),
+        'c7a_umbral_delta_peso'       => max(0.1, min(10.0, (float)(string)($posstock_node->c7a_umbral_delta_peso       ?: '1.0'))),
+        'c7a_umbral_pvalue'           => max(0.05, min(0.30, (float)(string)($posstock_node->c7a_umbral_pvalue          ?: '0.10'))),
+        'c7a_umbral_pvalue_alta'      => max(0.01, min(0.10, (float)(string)($posstock_node->c7a_umbral_pvalue_alta     ?: '0.05'))),
+        'c7a_umbral_alta_delta_unidad'=> max(2.0, min(50.0, (float)(string)($posstock_node->c7a_umbral_alta_delta_unidad ?: '10.0'))),
+        'c7a_umbral_alta_delta_peso'  => max(1.0, min(20.0, (float)(string)($posstock_node->c7a_umbral_alta_delta_peso  ?: '5.0'))),
+        'c7a_umbral_alta_slope_unidad'=> max(0.5, min(10.0, (float)(string)($posstock_node->c7a_umbral_alta_slope_unidad ?: '2.0'))),
+        'c7a_umbral_alta_slope_peso'  => max(0.1, min(5.0,  (float)(string)($posstock_node->c7a_umbral_alta_slope_peso  ?: '1.0'))),
+        'c7a_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7a_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
     ];
 }

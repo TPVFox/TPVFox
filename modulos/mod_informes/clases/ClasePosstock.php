@@ -1616,6 +1616,15 @@ class ClasePosstock
         $c7b_umbral_severidad_unidad = (int)   ($params['c7b_umbral_severidad_unidad']   ?? 5);
         $c7b_umbral_severidad_peso  = (float)  ($params['c7b_umbral_severidad_peso']     ?? 2.5);
         $c7b_cascada_exhaustiva     = (bool)   ($params['c7b_cascada_exhaustiva']        ?? false);
+        $c7a_umbral_delta_unidad    = (float)  ($params['c7a_umbral_delta_unidad']       ?? 2.0);
+        $c7a_umbral_delta_peso      = (float)  ($params['c7a_umbral_delta_peso']         ?? 1.0);
+        $c7a_umbral_pvalue          = (float)  ($params['c7a_umbral_pvalue']             ?? 0.10);
+        $c7a_umbral_pvalue_alta     = (float)  ($params['c7a_umbral_pvalue_alta']        ?? 0.05);
+        $c7a_umbral_alta_delta_unidad = (float)($params['c7a_umbral_alta_delta_unidad']  ?? 10.0);
+        $c7a_umbral_alta_delta_peso = (float)  ($params['c7a_umbral_alta_delta_peso']    ?? 5.0);
+        $c7a_umbral_alta_slope_unidad = (float)($params['c7a_umbral_alta_slope_unidad']  ?? 2.0);
+        $c7a_umbral_alta_slope_peso = (float)  ($params['c7a_umbral_alta_slope_peso']    ?? 1.0);
+        $c7a_cascada_exhaustiva     = (bool)   ($params['c7a_cascada_exhaustiva']        ?? false);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -1884,7 +1893,16 @@ class ClasePosstock
                 $c7b_umbral_severidad_unidad,
                 $c7b_umbral_severidad_peso,
                 $c7b_cascada_exhaustiva,
-                (bool)($params['skip_c7_cde'] ?? false)
+                (bool)($params['skip_c7_cde'] ?? false),
+                $c7a_umbral_delta_unidad,
+                $c7a_umbral_delta_peso,
+                $c7a_umbral_pvalue,
+                $c7a_umbral_pvalue_alta,
+                $c7a_umbral_alta_delta_unidad,
+                $c7a_umbral_alta_delta_peso,
+                $c7a_umbral_alta_slope_unidad,
+                $c7a_umbral_alta_slope_peso,
+                $c7a_cascada_exhaustiva
             );
             if (isset($c7['error'])) return $c7;
             $incidencias = array_merge($incidencias, $c7);
@@ -4469,7 +4487,16 @@ class ClasePosstock
         int    $c7b_umbral_sev_unidad  = 5,
         float  $c7b_umbral_sev_peso    = 2.5,
         bool   $c7b_cascada_exhaustiva = false,
-        bool   $skip_cde              = false   // true en lotes parciales; C7c/d/e requiere el conjunto completo
+        bool   $skip_cde              = false,   // true en lotes parciales; C7c/d/e requiere el conjunto completo
+        float  $c7a_umbral_delta_unidad     = 2.0,
+        float  $c7a_umbral_delta_peso       = 1.0,
+        float  $c7a_umbral_pvalue           = 0.10,
+        float  $c7a_umbral_pvalue_alta      = 0.05,
+        float  $c7a_umbral_alta_delta_unidad = 10.0,
+        float  $c7a_umbral_alta_delta_peso  = 5.0,
+        float  $c7a_umbral_alta_slope_unidad = 2.0,
+        float  $c7a_umbral_alta_slope_peso  = 1.0,
+        bool   $c7a_cascada_exhaustiva      = false
     ): array {
         $subcasos_set    = array_flip($subcasos);
         $min_recepciones = 2;   // mínimo global para C7b_posible (2 floors análisis); el test IC95 requiere $c7b_min_recepciones
@@ -4700,7 +4727,7 @@ class ClasePosstock
             //
             // Pre-filtros globales:
             //   · mean_raw ≥ 0: suelos positivos en media (negativos → C7b)
-            //   · delta_total ≥ 2.0: variación acumulada mínima observable
+            //   · delta_total ≥ umbral: variación acumulada mínima observable (configurable por tipo)
             //
             // NOTA: este bloque se ejecuta ANTES del bloque C7b para evitar que los
             // continue() internos de C7b (que descartan artículos no-C7b) salten
@@ -4709,7 +4736,8 @@ class ClasePosstock
             // Nivel 5 (n_floors == 2): eliminado (C7a-020).
             // Niveles 1–4: requieren n_floors ≥ 3 y β_TS > 0.
             $delta_total = $floors[$n_floors - 1] - $floors[0];
-            if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= 2.0) {
+            $c7a_umbral_delta = ($tipo_art === 'peso') ? $c7a_umbral_delta_peso : $c7a_umbral_delta_unidad;
+            if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= $c7a_umbral_delta) {
 
                 // ── Theil-Sen slope sobre floors_norm_all (C7a-012) ──────────
                 // Estimador de magnitud robusto; sustituye a β_OLS como 'tendencia'.
@@ -4743,10 +4771,11 @@ class ClasePosstock
                 if ($n_floors >= 3 && $beta_ts > 0.0) {
                     // Pre-filtro de dirección: β_TS > 0 (señal de alza)
 
-                    $c7a_confianza     = null;
-                    $c7a_cascade_nivel = 0;
-                    $p_mk_c7a          = null;
-                    $cascade_nivel_act = 1;
+                    $c7a_confianza        = null;
+                    $c7a_cascade_nivel    = 0;
+                    $p_mk_c7a             = null;
+                    $c7a_fallback_reason  = '';
+                    $cascade_nivel_act    = 1;
 
                     while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
 
@@ -4755,6 +4784,12 @@ class ClasePosstock
                         // No paramétrico; corrige autocorrelación lag-1.
                         // ═══════════════════════════════════════════════════════
                         if ($cascade_nivel_act === 1) {
+                            // MK exacto necesita n ≥ 4 para poder alcanzar p < 0.10 (n=3: p_min=0.333).
+                            // Con n < 4 se omite el nivel 1 y se pasa directamente al bootstrap.
+                            if ($n_floors < 4) {
+                                $c7a_fallback_reason = 'n<4_skip_mk';
+                                $cascade_nivel_act = 2;
+                            } else {
                             $S_mk = 0;
                             for ($i = 0; $i < $n_floors; $i++) {
                                 for ($j = $i + 1; $j < $n_floors; $j++) {
@@ -4784,14 +4819,21 @@ class ClasePosstock
                                 $p_mk_c7a = 1.0;
                             }
 
-                            if      ($p_mk_c7a < 0.05) {
+                            if      ($p_mk_c7a < $c7a_umbral_pvalue_alta) {
                                 $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
                                 $cascade_nivel_act = 0;
-                            } elseif ($p_mk_c7a >= 0.10) {
-                                $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                            } elseif ($p_mk_c7a >= $c7a_umbral_pvalue) {
+                                if ($c7a_cascada_exhaustiva) {
+                                    $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                        . 'mk_ns(p=' . round($p_mk_c7a, 3) . ')';
+                                    $cascade_nivel_act = 2;
+                                } else {
+                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                }
                             } else {
-                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [0.05, 0.10)
+                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [pvalue_alta, pvalue)
                             }
+                            } // end else n >= 4
 
                         // ═══════════════════════════════════════════════════════
                         // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
@@ -4843,7 +4885,13 @@ class ClasePosstock
                                     $c7a_confianza = 'media'; $c7a_cascade_nivel = 2;
                                     $cascade_nivel_act = 0;
                                 } else {
-                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    if ($c7a_cascada_exhaustiva) {
+                                        $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                            . 'bootstrap_ic99_ns(ic99_low=' . round($ic99_low, 3) . ')';
+                                        $cascade_nivel_act = 3;
+                                    } else {
+                                        $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    }
                                 }
                             } else {
                                 $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
@@ -4923,10 +4971,12 @@ class ClasePosstock
                         // c7_subcaso: C7a_posible para niveles ≥ 3 (no alimenta C7c/C7d/C7e)
                         $subcaso_c7a = ($c7a_confianza === 'posible') ? 'C7a_posible' : 'C7a';
 
+                        $c7a_umbral_alta_delta = ($tipo_art === 'peso') ? $c7a_umbral_alta_delta_peso : $c7a_umbral_alta_delta_unidad;
+                        $c7a_umbral_alta_slope = ($tipo_art === 'peso') ? $c7a_umbral_alta_slope_peso : $c7a_umbral_alta_slope_unidad;
                         if ($c7a_confianza === 'alta') {
-                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                            $severidad = ($delta_total >= $c7a_umbral_alta_delta || $tendencia_visible >= $c7a_umbral_alta_slope) ? 'ALTA' : 'MEDIA';
                         } elseif ($c7a_confianza === 'media') {
-                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                            $severidad = ($delta_total >= $c7a_umbral_alta_delta || $tendencia_visible >= $c7a_umbral_alta_slope) ? 'ALTA' : 'MEDIA';
                         } else {
                             $severidad = 'BAJA';
                         }
@@ -4945,6 +4995,7 @@ class ClasePosstock
                             'tendencia_norm'   => round($beta_ts, 4),
                             'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
                             'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
+                            'cascade_fallback_reason' => $c7a_fallback_reason ?: null,
                             'delta_acumulado'  => round($delta_total, 1),
                             'fecha_primera'    => $fechas_rec[0],
                             'fecha_ultima'     => $fechas_rec[$n_rec - 1],
