@@ -67,6 +67,23 @@
 			<c7b_umbral_severidad_peso>2.5</c7b_umbral_severidad_peso>
 			<!-- C7b — Cascada exhaustiva: si true, continúa la cascada estadística aunque un test sea válido pero no significativo (diagnóstico). Por defecto: false -->
 			<c7b_cascada_exhaustiva>false</c7b_cascada_exhaustiva>
+			<!-- C7a — Variación acumulada mínima (delta_total = floor_último - floor_primero) para que el artículo entre en el análisis de tendencia. Artículos de unidad vs peso. -->
+			<c7a_umbral_delta_unidad>2.0</c7a_umbral_delta_unidad>
+			<c7a_umbral_delta_peso>1.0</c7a_umbral_delta_peso>
+			<!-- C7a — Umbral p-value Mann-Kendall para resultado negativo (p ≥ umbral → NO C7a). Rango recomendado: 0.05–0.20 -->
+			<c7a_umbral_pvalue>0.10</c7a_umbral_pvalue>
+			<!-- C7a — Umbral p-value Mann-Kendall para confianza 'alta' (p < umbral_alta → C7a confirmado nivel 1). Debe ser menor que c7a_umbral_pvalue. -->
+			<c7a_umbral_pvalue_alta>0.05</c7a_umbral_pvalue_alta>
+			<!-- C7a — delta_total mínimo para severidad ALTA (artículos de unidad / de peso). -->
+			<c7a_umbral_alta_delta_unidad>10.0</c7a_umbral_alta_delta_unidad>
+			<c7a_umbral_alta_delta_peso>5.0</c7a_umbral_alta_delta_peso>
+			<!-- C7a — Theil-Sen slope mínimo (ud./recepción o kg/recepción) para severidad ALTA. -->
+			<c7a_umbral_alta_slope_unidad>2.0</c7a_umbral_alta_slope_unidad>
+			<c7a_umbral_alta_slope_peso>1.0</c7a_umbral_alta_slope_peso>
+			<!-- C7a — Cascada exhaustiva: si true, continúa la cascada aunque un nivel dé negativo (diagnóstico).
+			     Con n=3 floors, el nivel 1 (Mann-Kendall) siempre se omite por falta de potencia estadística
+			     y la cascada empieza en el nivel 2 (bootstrap), independientemente de este parámetro. -->
+			<c7a_cascada_exhaustiva>false</c7a_cascada_exhaustiva>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

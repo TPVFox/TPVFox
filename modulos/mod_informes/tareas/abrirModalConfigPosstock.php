@@ -386,6 +386,113 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
+    // --- BLOQUE 4d: CASO 7a — MERMA ACUMULADA ---
+    $c7a_delta_unidad_actual    = (string)($posstock->c7a_umbral_delta_unidad      ?: '2.0');
+    $c7a_delta_peso_actual      = (string)($posstock->c7a_umbral_delta_peso        ?: '1.0');
+    $c7a_pvalue_actual          = (string)($posstock->c7a_umbral_pvalue            ?: '0.10');
+    $c7a_pvalue_alta_actual     = (string)($posstock->c7a_umbral_pvalue_alta       ?: '0.05');
+    $c7a_alta_delta_ud_actual   = (string)($posstock->c7a_umbral_alta_delta_unidad ?: '10.0');
+    $c7a_alta_delta_kg_actual   = (string)($posstock->c7a_umbral_alta_delta_peso   ?: '5.0');
+    $c7a_alta_slope_ud_actual   = (string)($posstock->c7a_umbral_alta_slope_unidad ?: '2.0');
+    $c7a_alta_slope_kg_actual   = (string)($posstock->c7a_umbral_alta_slope_peso   ?: '1.0');
+    $c7a_cascada_exh_actual     = ((string)($posstock->c7a_cascada_exhaustiva      ?: 'false') === 'true');
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-warning-sign"></i> Merma acumulada — tendencia ascendente de suelos (C7a)</div>';
+    $html .= '  <div class="panel-body">';
+
+    // ── Fila 1: Pre-filtro — variación mínima observable ──
+    $html .= '    <p class="small text-muted" style="margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Pre-filtro</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Variación mínima acumulada (floor_último − floor_primero) en unidades para que el artículo entre en el análisis de tendencia. Valores demasiado bajos incluyen ruido habitual de inventario. Rango: 0.5–20.">Variación mín. acumulada — unidad<br><small class="text-muted">(floor último − floor primero)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="0.5" max="20" class="form-control text-right" name="inputC7aUmbralDeltaUnidad" value="' . htmlspecialchars($c7a_delta_unidad_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Variación mínima acumulada en kg para artículos de peso. Menor que el de unidad porque balanzas y cortes acumulan drift intrínseco. Rango: 0.1–10.">Variación mín. acumulada — peso<br><small class="text-muted">(fruta, carnicería, etc.)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.1" min="0.1" max="10" class="form-control text-right" name="inputC7aUmbralDeltaPeso" value="' . htmlspecialchars($c7a_delta_peso_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 2: Test estadístico Mann-Kendall ──
+    $html .= '    <p class="small text-muted" style="margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Test estadístico (Mann-Kendall — Nivel 1)</p>';
+    $html .= '    <p class="small text-muted" style="margin:0 0 6px;">Con n&lt;4 recepciones, el nivel 1 se omite automáticamente (p mínimo alcanzable = 0.33 con n=3) y la cascada empieza en el bootstrap (nivel 2).</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Umbral de p-value para confianza ALTA en Mann-Kendall (p &lt; umbral_alta → C7a confirmado, nivel 1, confianza alta). Debe ser menor que el umbral de descarte. Estándar estadístico: 0.05. Rango: 0.01–0.10.">P-value confianza alta<br><small class="text-muted">(p &lt; umbral → confianza alta, para n ≥ 5)</small></label>';
+    $html .= '        <input type="number" step="0.01" min="0.01" max="0.10" class="form-control input-sm text-right" name="inputC7aPvalueAlta" value="' . htmlspecialchars($c7a_pvalue_alta_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-6">';
+    $html .= '        <label class="control-label small" title="Umbral de p-value para resultado negativo en Mann-Kendall (p ≥ umbral → NO C7a, la cascada se detiene). Por debajo de este umbral y por encima del umbral alta, la cascada continúa al bootstrap. Rango: 0.05–0.30.">P-value umbral negativo<br><small class="text-muted">(p ≥ umbral → NO C7a en nivel 1)</small></label>';
+    $html .= '        <input type="number" step="0.01" min="0.05" max="0.30" class="form-control input-sm text-right" name="inputC7aPvalue" value="' . htmlspecialchars($c7a_pvalue_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 3: Severidad ALTA ──
+    $html .= '    <p class="small text-muted" style="margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Severidad ALTA</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Delta acumulado mínimo (ud.) para elevar la severidad a ALTA. Por debajo: MEDIA. Rango: 2–50.">Delta ALTA — unidad<br><small class="text-muted">(pérdida total mínima)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="1" min="2" max="50" class="form-control text-right" name="inputC7aUmbralAltaDeltaUnidad" value="' . htmlspecialchars($c7a_alta_delta_ud_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Delta acumulado mínimo (kg) para severidad ALTA en artículos de peso. Rango: 1–20.">Delta ALTA — peso<br><small class="text-muted">(pérdida total mínima)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="1" max="20" class="form-control text-right" name="inputC7aUmbralAltaDeltaPeso" value="' . htmlspecialchars($c7a_alta_delta_kg_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Pendiente Theil-Sen mínima (ud./recepción) para severidad ALTA. Representa el ritmo de crecimiento del suelo. Rango: 0.5–10.">Pendiente ALTA — unidad<br><small class="text-muted">(ud./recepción)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="0.5" max="10" class="form-control text-right" name="inputC7aUmbralAltaSlopeUnidad" value="' . htmlspecialchars($c7a_alta_slope_ud_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud./rec.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Pendiente Theil-Sen mínima (kg/recepción) para severidad ALTA en artículos de peso. Rango: 0.1–5.">Pendiente ALTA — peso<br><small class="text-muted">(kg/recepción)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.1" min="0.1" max="5" class="form-control text-right" name="inputC7aUmbralAltaSlopePeso" value="' . htmlspecialchars($c7a_alta_slope_kg_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg/rec.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 4: Diagnóstico ──
+    $html .= '    <div class="panel panel-warning" style="margin:12px 0 0;border-radius:3px;">';
+    $html .= '      <div class="panel-body" style="padding:8px 12px;">';
+    $html .= '        <div class="checkbox" style="margin:0;">';
+    $html .= '          <label class="small" title="Modo diagnóstico: la cascada continúa aunque el nivel 1 (Mann-Kendall) o el nivel 2 (bootstrap) den un resultado negativo válido. El motivo de cada fallback queda registrado en cascade_fallback_reason. Desactivar en producción.">';
+    $html .= '            <input type="checkbox" name="inputC7aCascadaExhaustiva" value="1"' . ($c7a_cascada_exh_actual ? ' checked' : '') . '>';
+    $html .= '            <strong>Cascada exhaustiva</strong> <small class="text-muted">— continúa aunque un nivel no sea significativo (diagnóstico y auditoría, no recomendado en producción)</small>';
+    $html .= '          </label>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+    $html .= '    </div>';
+
+    $html .= '  </div>';
+    $html .= '</div>';
+
     // --- BLOQUE 5: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
