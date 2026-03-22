@@ -4283,8 +4283,12 @@ class ClasePosstock
 
         // t-estadístico: β̂₁ / se(β̂₁), df = n-2
         $sxx = (float)$sum_xx - (float)($sum_x * $sum_x) / $n;
-        if ($ss_res <= 0.0 || $sxx <= 0.0) {
-            return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($slope == 0.0 ? 1.0 : 0.0)];
+        // C7a-014: guard near-zero SSE (floors perfectamente colineales o casi).
+        // <= 0.0 solo captura cero exacto; < 1e-9 cubre ruido float que produce t → ∞.
+        // Se devuelve se=0.0 para que el Nivel 4 de la cascada C7a no ejecute (guard $se_corr_c7a > 0).
+        // p_value=0.01 (no 0.0) evita la "certeza perfecta" artificial: Mann-Kendall tomará la decisión.
+        if ($ss_res < 1e-9 || $sxx <= 0.0) {
+            return ['slope' => $slope, 'r2' => 1.0, 'p_value' => ($slope > 0.0 ? 0.01 : 1.0), 'se' => 0.0];
         }
         $se = sqrt(($ss_res / ($n - 2)) / $sxx);
         $t  = abs($slope / $se);
@@ -4333,7 +4337,7 @@ class ClasePosstock
                 ? $t_tab[$lo] + ($df - $lo) / ($hi - $lo) * ($t_tab[$hi] - $t_tab[$lo])
                 : ($lo !== null ? $t_tab[$lo] : 1.645);
         }
-        return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($t >= $t_crit ? 0.05 : 0.15)];
+        return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($t >= $t_crit ? 0.05 : 0.15), 'se' => $se];
     }
 
     /**
@@ -4613,6 +4617,42 @@ class ClasePosstock
             $abs_mean_raw = abs($mean_raw);
 
             // Regresión lineal sobre todos los floors (usada por C7a)
+            // C7a-001: normalizar por duración del intervalo (igual que C7b-002) para que
+            // la pendiente no mezcle señal real con efecto de escala del intervalo.
+            $dias_intervalo_medio_all = array_sum($dias_intervalos) / $n_floors;
+            $floors_norm_all = [];
+            for ($i = 0; $i < $n_floors; $i++) {
+                $floors_norm_all[] = $floors[$i] / $dias_intervalos[$i];
+            }
+            $reg_norm        = $this->_regressionStats($floors_norm_all);
+            $slope_norm      = $reg_norm['slope'];
+            // tendencia_visible se calcula más abajo usando Theil-Sen (C7a-019/C7a-012)
+
+            // C7a-011 + C7a-019: preparar r₁ y se_corr para la cascada estadística.
+            // r₁ se usa en Nivel 1 (corrección Hamed & Rao de Mann-Kendall)
+            // y en Nivel 4 (IC95 Newey-West como último recurso).
+            $autocorr_lag1_c7a = 0.0;
+            $se_corr_c7a       = $reg_norm['se'];   // se sin corregir; se actualiza si r₁ > 0
+            if ($n_floors >= 4 && $reg_norm['se'] > 0.0) {
+                $mean_norm_all = array_sum($floors_norm_all) / $n_floors;
+                $cov_lag1_c7a  = 0.0;
+                $var_norm_all  = 0.0;
+                for ($i = 1; $i < $n_floors; $i++) {
+                    $cov_lag1_c7a += ($floors_norm_all[$i] - $mean_norm_all) * ($floors_norm_all[$i - 1] - $mean_norm_all);
+                }
+                foreach ($floors_norm_all as $fnv) { $var_norm_all += ($fnv - $mean_norm_all) ** 2; }
+                $cov_lag1_c7a /= ($n_floors - 1);
+                $var_norm_all /= ($n_floors - 1);
+                if ($var_norm_all > 1e-12) {
+                    $r1_c7a = max(-1.0, min(1.0, $cov_lag1_c7a / $var_norm_all));
+                    if ($r1_c7a > 0.0) {
+                        $autocorr_lag1_c7a = $r1_c7a;
+                        $se_corr_c7a       = $reg_norm['se'] * sqrt(1.0 + 2.0 * $r1_c7a);
+                    }
+                }
+            }
+
+            // mantener reg/slope brutos por si otras partes los usan
             $reg   = $this->_regressionStats($floors);
             $slope = $reg['slope'];
 
@@ -5073,45 +5113,285 @@ class ClasePosstock
             }
 
             // C7a — merma sistemática no registrada (suelos positivos en alza)
-            // · Suelo medio ≥ 0 (no hay negativos sistemáticos: el caso C7b ya los cubre)
-            // · Pendiente ≥ 0.5 ud/recepción, estadísticamente significativa (p < 0.10)
-            // · R² ≥ 0.40: la tendencia lineal explica la mayor parte de la varianza
-            // · Variación total significativa (suelo final − suelo inicial ≥ 2 ud.)
+            // C7a-019: cascada de 5 niveles sobre floors normalizados.
+            //
+            // Pre-filtros globales:
+            //   · mean_raw ≥ 0: suelos positivos en media (negativos → C7b)
+            //   · delta_total ≥ 2.0: variación acumulada mínima observable
+            //
+            // Nivel 5 (n_floors == 2): determinista, bypass de la cascada estadística.
+            // Niveles 1–4: requieren n_floors ≥ 3 y β_TS > 0.
             $delta_total = $floors[$n_floors - 1] - $floors[0];
-            if (
-                isset($subcasos_set['C7a'])
-                && $mean_raw >= 0   // C7a requiere suelo medio positivo (bruto, no normalizado)
-                && $slope >= 0.5
-                && $reg['p_value'] < 0.10
-                && $reg['r2']     >= 0.40
-                && $delta_total >= 2.0
-            ) {
-                // C7a: dispersión sobre floors brutos (la tendencia lineal es más informativa que σ norm)
-                $variance_raw = 0.0;
-                foreach ($floors as $f) { $variance_raw += ($f - $mean_raw) ** 2; }
-                $std_dev_raw = $n_floors > 1 ? sqrt($variance_raw / ($n_floors - 1)) : 0.0;
+            if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= 2.0) {
 
-                $severidad = ($delta_total >= 10 || $slope >= 2.0) ? 'ALTA' : 'MEDIA';
-                $incidencias[] = [
-                    'idArticulo'       => $id,
-                    'tipo'             => 'Merma acumulada',
-                    'severidad'        => $severidad,
-                    'c7_subcaso'       => 'C7a',
-                    'n_recepciones'    => $n_rec,
-                    'offset_estimado'  => round($mean_raw, 1),
-                    'dispersion'       => round($std_dev_raw, 1),
-                    'tendencia'        => round($slope, 1),
-                    'delta_acumulado'  => round($delta_total, 1),
-                    'fecha_primera'    => $fechas_rec[0],
-                    'fecha_ultima'     => $fechas_rec[$n_rec - 1],
-                    '_floors_raw'      => $floors_map,   // temporal; se elimina al final
-                    'posible_causa'    => sprintf(
-                        'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción): posible merma no registrada, caducidad sistemática o salida sin documentar',
-                        $delta_total,
-                        $slope
-                    ),
-                ];
-            }
+                // ── Theil-Sen slope sobre floors_norm_all (C7a-012) ──────────
+                // Estimador de magnitud robusto; sustituye a β_OLS como 'tendencia'.
+                // O(n²) — negligible para n típico 3-15.
+                $ts_pairs = [];
+                for ($i = 0; $i < $n_floors; $i++) {
+                    for ($j = $i + 1; $j < $n_floors; $j++) {
+                        $ts_pairs[] = ($floors_norm_all[$j] - $floors_norm_all[$i]) / ($j - $i);
+                    }
+                }
+                sort($ts_pairs);
+                $n_ts    = count($ts_pairs);
+                $beta_ts = $n_ts > 0
+                    ? ($n_ts % 2 === 1
+                        ? $ts_pairs[intdiv($n_ts, 2)]
+                        : ($ts_pairs[$n_ts / 2 - 1] + $ts_pairs[$n_ts / 2]) / 2.0)
+                    : 0.0;
+                // tendencia en escala ud/recepción (comprensible para el usuario)
+                $tendencia_visible = $beta_ts * $dias_intervalo_medio_all;
+
+                // dispersión bruta para el campo 'dispersion' del array de salida
+                $variance_raw_c7a = 0.0;
+                foreach ($floors as $f) { $variance_raw_c7a += ($f - $mean_raw) ** 2; }
+                $std_dev_raw_c7a = $n_floors > 1 ? sqrt($variance_raw_c7a / ($n_floors - 1)) : 0.0;
+
+                // ── NIVEL 5: determinista n=2 — bypass de la cascada ─────────
+                if ($n_floors === 2) {
+                    if ($floors[1] > $floors[0]) {
+                        $incidencias[] = [
+                            'idArticulo'       => $id,
+                            'tipo'             => 'Merma acumulada',
+                            'severidad'        => 'BAJA',
+                            'c7_subcaso'       => 'C7a_posible',
+                            'confianza'        => 'posible',
+                            'cascade_nivel'    => 5,
+                            'n_recepciones'    => $n_rec,
+                            'offset_estimado'  => round($mean_raw, 1),
+                            'dispersion'       => round($std_dev_raw_c7a, 1),
+                            'tendencia'        => round($tendencia_visible, 1),
+                            'tendencia_norm'   => round($beta_ts, 4),
+                            'autocorr_lag1'    => 0.0,
+                            'p_mk'             => null,
+                            'delta_acumulado'  => round($delta_total, 1),
+                            'fecha_primera'    => $fechas_rec[0],
+                            'fecha_ultima'     => $fechas_rec[$n_rec - 1],
+                            '_floors_raw'      => $floors_map,
+                            'posible_causa'    => sprintf(
+                                'Suelo positivo en alza en las 2 únicas recepciones del periodo (+%.1f ud.): posible inicio de merma, aunque con solo 2 datos no es posible confirmarlo — conviene revisar manualmente.',
+                                $delta_total
+                            ),
+                        ];
+                    }
+
+                } elseif ($n_floors >= 3 && $beta_ts > 0.0) {
+                    // Pre-filtro de dirección: β_TS > 0 (señal de alza)
+
+                    $c7a_confianza     = null;
+                    $c7a_cascade_nivel = 0;
+                    $p_mk_c7a          = null;
+                    $cascade_nivel_act = 1;
+
+                    while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 1 · MANN-KENDALL con Hamed & Rao (C7a-019a)
+                        // No paramétrico; corrige autocorrelación lag-1.
+                        // ═══════════════════════════════════════════════════════
+                        if ($cascade_nivel_act === 1) {
+                            $S_mk = 0;
+                            for ($i = 0; $i < $n_floors; $i++) {
+                                for ($j = $i + 1; $j < $n_floors; $j++) {
+                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
+                                    if      ($d > 0.0) $S_mk++;
+                                    elseif  ($d < 0.0) $S_mk--;
+                                }
+                            }
+                            // Var_MK estándar (sin empates)
+                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
+                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
+                            if ($autocorr_lag1_c7a > 0.0) {
+                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
+                            }
+                            if ($var_mk > 0.0) {
+                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
+                                $z_mk  = $S_adj / sqrt($var_mk);
+                                // Φ(z) — Abramowitz & Stegun 26.2.17
+                                $az     = abs($z_mk);
+                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
+                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
+                                        * $t_phi * (0.3193815 + $t_phi * (-0.3565638
+                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
+                                        + $t_phi * 1.3302744))));
+                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
+                            } else {
+                                $p_mk_c7a = 1.0;
+                            }
+
+                            if      ($p_mk_c7a < 0.05) {
+                                $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
+                                $cascade_nivel_act = 0;
+                            } elseif ($p_mk_c7a >= 0.10) {
+                                $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                            } else {
+                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [0.05, 0.10)
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
+                        // Alcanzable solo desde Nivel 1 (Tipo B).
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 2) {
+                            $B_boot     = 999;
+                            $boot_betas = [];
+                            for ($b = 0; $b < $B_boot; $b++) {
+                                $idx_b = [];
+                                for ($k = 0; $k < $n_floors; $k++) {
+                                    $idx_b[] = mt_rand(0, $n_floors - 1);
+                                }
+                                sort($idx_b);
+                                $f_b = [];
+                                foreach ($idx_b as $ki) { $f_b[] = $floors_norm_all[$ki]; }
+                                $bp = [];
+                                $nb = count($f_b);
+                                for ($i = 0; $i < $nb; $i++) {
+                                    for ($j = $i + 1; $j < $nb; $j++) {
+                                        $bp[] = ($f_b[$j] - $f_b[$i]) / ($j - $i);
+                                    }
+                                }
+                                if (!empty($bp)) {
+                                    sort($bp);
+                                    $np = count($bp);
+                                    $boot_betas[] = $np % 2 === 1
+                                        ? $bp[intdiv($np, 2)]
+                                        : ($bp[$np / 2 - 1] + $bp[$np / 2]) / 2.0;
+                                }
+                            }
+                            if (!empty($boot_betas)) {
+                                sort($boot_betas);
+                                $nb_s     = count($boot_betas);
+                                $ic99_low = $boot_betas[(int)round(0.005 * ($nb_s - 1))];
+                                // detectar colapso de varianza (Tipo B)
+                                $mean_boot = array_sum($boot_betas) / $nb_s;
+                                $var_boot  = 0.0;
+                                foreach ($boot_betas as $bs) { $var_boot += ($bs - $mean_boot) ** 2; }
+                                $var_boot /= $nb_s;
+
+                                if ($var_boot < 1e-12) {
+                                    $cascade_nivel_act = 3;   // Tipo B: varianza bootstrap colapsa
+                                } elseif ($ic99_low > 0.0) {
+                                    $c7a_confianza = 'media'; $c7a_cascade_nivel = 2;
+                                    $cascade_nivel_act = 0;
+                                } else {
+                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                }
+                            } else {
+                                $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7a-019c)
+                        // Alcanzable desde Nivel 2 (Tipo B). Requiere n ≥ 4.
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 3) {
+                            if ($n_floors < 4) {
+                                $cascade_nivel_act = 4;   // Tipo A: sin potencia mínima
+                            } else {
+                                $k_pos   = 0;
+                                $n_diffs = $n_floors - 1;
+                                for ($i = 0; $i < $n_diffs; $i++) {
+                                    if ($floors_norm_all[$i + 1] > $floors_norm_all[$i]) $k_pos++;
+                                }
+                                // P(Bin(n_diffs, 0.5) ≥ k_pos) exacto
+                                $p_signo  = 0.0;
+                                $bcoef    = 1.0;
+                                $pow_half = pow(0.5, $n_diffs);
+                                for ($k = 0; $k <= $n_diffs; $k++) {
+                                    if ($k > 0) $bcoef *= ($n_diffs - $k + 1) / $k;
+                                    if ($k >= $k_pos) $p_signo += $bcoef * $pow_half;
+                                }
+                                $p_signo = min(1.0, $p_signo);
+
+                                if ($p_signo < 0.05) {
+                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
+                                }
+                                $cascade_nivel_act = 0;   // nivel 3 siempre es definitivo (no hay Tipo B)
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 4 · OLS + NEWEY-WEST IC95 (C7a-019d)
+                        // Último recurso paramétrico. Solo alcanzable cuando n < 4.
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 4) {
+                            $cascade_nivel_act = 0;
+                            if ($se_corr_c7a > 0.0) {
+                                static $t_tab_nw = [
+                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
+                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
+                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
+                                ];
+                                $df_nw = max(1, $n_floors - 2);
+                                if ($df_nw > 120) {
+                                    $t_crit_nw = 1.645;
+                                } elseif (isset($t_tab_nw[$df_nw])) {
+                                    $t_crit_nw = $t_tab_nw[$df_nw];
+                                } else {
+                                    $keys_nw = array_keys($t_tab_nw);
+                                    $lo_nw = $hi_nw = null;
+                                    foreach ($keys_nw as $k) {
+                                        if ($k <= $df_nw) $lo_nw = $k;
+                                        if ($k >= $df_nw && $hi_nw === null) $hi_nw = $k;
+                                    }
+                                    $t_crit_nw = ($lo_nw !== null && $hi_nw !== null && $lo_nw !== $hi_nw)
+                                        ? $t_tab_nw[$lo_nw] + ($df_nw - $lo_nw) / ($hi_nw - $lo_nw) * ($t_tab_nw[$hi_nw] - $t_tab_nw[$lo_nw])
+                                        : ($lo_nw !== null ? $t_tab_nw[$lo_nw] : 6.314);
+                                }
+                                $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
+                                if ($ic95_low_nw > 0.0) {
+                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 4;
+                                }
+                                // ic95_low_nw ≤ 0 → resultado válido negativo: NO C7a
+                            }
+
+                        } else {
+                            $cascade_nivel_act = 0;
+                        }
+                    } // while cascade
+
+                    // ── Emitir incidencia si la cascada confirmó C7a ──────────
+                    if ($c7a_confianza !== null) {
+                        // c7_subcaso: C7a_posible para niveles ≥ 3 (no alimenta C7c/C7d/C7e)
+                        $subcaso_c7a = ($c7a_confianza === 'posible') ? 'C7a_posible' : 'C7a';
+
+                        if ($c7a_confianza === 'alta') {
+                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                        } elseif ($c7a_confianza === 'media') {
+                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                        } else {
+                            $severidad = 'BAJA';
+                        }
+
+                        $incidencias[] = [
+                            'idArticulo'       => $id,
+                            'tipo'             => 'Merma acumulada',
+                            'severidad'        => $severidad,
+                            'c7_subcaso'       => $subcaso_c7a,
+                            'confianza'        => $c7a_confianza,
+                            'cascade_nivel'    => $c7a_cascade_nivel,
+                            'n_recepciones'    => $n_rec,
+                            'offset_estimado'  => round($mean_raw, 1),
+                            'dispersion'       => round($std_dev_raw_c7a, 1),
+                            'tendencia'        => round($tendencia_visible, 1),
+                            'tendencia_norm'   => round($beta_ts, 4),
+                            'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
+                            'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
+                            'delta_acumulado'  => round($delta_total, 1),
+                            'fecha_primera'    => $fechas_rec[0],
+                            'fecha_ultima'     => $fechas_rec[$n_rec - 1],
+                            '_floors_raw'      => $floors_map,
+                            'posible_causa'    => sprintf(
+                                'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción, cascada nivel %d, confianza %s): posible merma no registrada, caducidad sistemática o salida sin documentar',
+                                $delta_total,
+                                $tendencia_visible,
+                                $c7a_cascade_nivel,
+                                $c7a_confianza
+                            ),
+                        ];
+                    }
+                } // n_floors >= 3 && beta_ts > 0
+            } // isset C7a && mean_raw >= 0 && delta_total >= 2
         }
 
         // ── C7b-007 + C7b-011: enriquecer C7b con proveedor y coste estimado ──
