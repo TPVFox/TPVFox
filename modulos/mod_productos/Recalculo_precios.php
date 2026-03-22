@@ -103,7 +103,7 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
                 $CArticulo->addHistorico($datosHistorico);
                 $CArticulo->modArticulosPrecio($pvpRecomendadoCiva, $nuevoSiva, $idArticulo);
 
-                if ($hayPeso && ($productosPeso[$idArticulo] ?? '') === 'peso') {
+                if ($hayPeso && ($productosPeso[$idArticulo] ?? '') === 'peso' && !empty($datosArticulo['crefTienda'])) {
                     $balanzasProducto = $CBalanza->obtenerBalanzaPorIdArticulo($idArticulo);
                     // Unificar balanzas relacionadas
                     foreach ($balanzasProducto as $bp) {
