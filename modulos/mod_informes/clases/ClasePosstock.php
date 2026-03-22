@@ -702,13 +702,15 @@ class ClasePosstock
     {
         if (empty($ids_str)) return [];
 
-        // Frecuencia: proveedor con más albaranes distintos que incluyen el artículo
+        // Frecuencia: proveedor con más albaranes distintos que incluyen el artículo.
+        // Desempate: mayor volumen total comprado (SUM ncant); segundo desempate: albarán más reciente.
         $smt = $this->db->query("
             SELECT
                 l.idArticulo,
                 c.idProveedor,
                 p.nombrecomercial           AS nombre,
                 COUNT(DISTINCT c.id)        AS n_albaranes,
+                SUM(ABS(l.ncant))           AS cantidad_total,
                 MAX(DATE(c.Fecha))          AS ultima_fecha
             FROM albprolinea l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
@@ -718,7 +720,7 @@ class ClasePosstock
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo, c.idProveedor
-            ORDER BY l.idArticulo, n_albaranes DESC, ultima_fecha DESC
+            ORDER BY l.idArticulo, n_albaranes DESC, cantidad_total DESC, ultima_fecha DESC
         ");
         if (!$smt) return [];
 
@@ -1600,9 +1602,12 @@ class ClasePosstock
         $c1_timing_ventana_dias     = (int)    ($params['c1_timing_ventana_dias']        ?? 1);
         $c7b_min_recepciones        = (int)    ($params['c7b_min_recepciones']           ?? 3);
         $c7b_umbral_cv              = (float)  ($params['c7b_umbral_cv']                 ?? 0.5);
+        $c7b_umbral_cv_peso         = (float)  ($params['c7b_umbral_cv_peso']            ?? 0.75);
+        $c7b_umbral_iqr_peso        = (float)  ($params['c7b_umbral_iqr_peso']           ?? 2.0);
         $c7b_umbral_ruido_peso      = (float)  ($params['c7b_umbral_ruido_peso']         ?? 0.5);
         $c7b_umbral_severidad_unidad = (int)   ($params['c7b_umbral_severidad_unidad']   ?? 5);
         $c7b_umbral_severidad_peso  = (float)  ($params['c7b_umbral_severidad_peso']     ?? 2.5);
+        $c7b_cascada_exhaustiva     = (bool)   ($params['c7b_cascada_exhaustiva']        ?? false);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
@@ -1865,9 +1870,12 @@ class ClasePosstock
                 $c7_subcasos,
                 $c7b_min_recepciones,
                 $c7b_umbral_cv,
+                $c7b_umbral_cv_peso,
+                $c7b_umbral_iqr_peso,
                 $c7b_umbral_ruido_peso,
                 $c7b_umbral_severidad_unidad,
-                $c7b_umbral_severidad_peso
+                $c7b_umbral_severidad_peso,
+                $c7b_cascada_exhaustiva
             );
             if (isset($c7['error'])) return $c7;
             $incidencias = array_merge($incidencias, $c7);
@@ -4440,11 +4448,14 @@ class ClasePosstock
         array  $ids_filter            = [],
         array  $stock_base_cache      = [],
         array  $subcasos              = ['C7a', 'C7b'],
-        int    $c7b_min_recepciones   = 3,
-        float  $c7b_umbral_cv         = 0.5,
-        float  $c7b_umbral_ruido_peso = 0.5,
-        int    $c7b_umbral_sev_unidad = 5,
-        float  $c7b_umbral_sev_peso   = 2.5
+        int    $c7b_min_recepciones    = 3,
+        float  $c7b_umbral_cv          = 0.5,
+        float  $c7b_umbral_cv_peso     = 0.75,
+        float  $c7b_umbral_iqr_peso    = 2.0,
+        float  $c7b_umbral_ruido_peso  = 0.5,
+        int    $c7b_umbral_sev_unidad  = 5,
+        float  $c7b_umbral_sev_peso    = 2.5,
+        bool   $c7b_cascada_exhaustiva = false
     ): array {
         $subcasos_set    = array_flip($subcasos);
         $min_recepciones = 2;   // mínimo global para C7b_posible (2 floors análisis); el test IC95 requiere $c7b_min_recepciones
@@ -4644,135 +4655,381 @@ class ClasePosstock
 
                 $dias_intervalo_medio = (int)round(array_sum($test_dias) / $n);
 
-                // IC 95 % superior (t_{n-1, 0.975})
-                $df_ic = $n - 1;
-                if ($df_ic > 120) { $t_975 = 1.960; }
-                elseif (isset($t_975_tab[$df_ic])) { $t_975 = $t_975_tab[$df_ic]; }
-                else {
-                    $keys_ic = array_keys($t_975_tab); $lo_ic = $hi_ic = null;
-                    foreach ($keys_ic as $k) {
-                        if ($k <= $df_ic) $lo_ic = $k;
-                        if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
-                    }
-                    $t_975 = ($lo_ic !== null && $hi_ic !== null && $lo_ic !== $hi_ic)
-                        ? $t_975_tab[$lo_ic] + ($df_ic - $lo_ic) / ($hi_ic - $lo_ic) * ($t_975_tab[$hi_ic] - $t_975_tab[$lo_ic])
-                        : ($lo_ic !== null ? $t_975_tab[$lo_ic] : 1.960);
-                }
-                $se_base    = $std_dev / sqrt($n);
-                $ic95_upper = $mean + $t_975 * $se_base;
+                // C7b-025: heterogeneidad de duraciones
+                $mean_dias  = array_sum($test_dias) / $n;
+                $var_dias   = 0.0;
+                foreach ($test_dias as $d) { $var_dias += ($d - $mean_dias) ** 2; }
+                $std_dias   = $n > 1 ? sqrt($var_dias / ($n - 1)) : 0.0;
+                $cv_dias    = $mean_dias > 0.0 ? $std_dias / $mean_dias : 0.0;
 
-                // IQR (C7b-009: factor 0.7 empírico para n=3)
+                // C7b-024: guard varianza nula — IC95 colapsa con "certeza perfecta" falsa.
+                // Nivel 5 de la cascada (C7b-026): determinista constante.
+                // Umbral 1e-9 en lugar de == 0.0 para capturar near-zero por ruido float
+                // (floors casi idénticos que muestran ±0.0 pero no son exactamente iguales).
+                if ($std_dev < 1e-9) {
+                    if ($mean < 0.0) {
+                        $incidencias[] = [
+                            'idArticulo'               => $id,
+                            'tipo'                     => 'Entrada no registrada',
+                            'severidad'                => 'BAJA',
+                            'c7_subcaso'               => 'C7b',
+                            'confianza'                => 'posible',
+                            'test_period'              => $test_period,
+                            'analysis_consistent'      => false,
+                            'tipo_articulo'            => $tipo_art,
+                            'n_recepciones'            => $n_rec,
+                            'offset_estimado'          => round($mean_raw, 1),
+                            'offset_norm'              => round($mean, 3),
+                            'dispersion'               => 0.0,
+                            'autocorr_lag1'            => 0.0,
+                            'ic95_upper'               => round($mean, 4),
+                            'n_intervalos_negativos'   => $n,
+                            'pct_intervalos_negativos' => 100,
+                            'dias_intervalo_medio'     => $dias_intervalo_medio,
+                            'fecha_primera'            => $fechas_rec[0],
+                            'fecha_ultima'             => $fechas_rec[$n_rec - 1],
+                            '_floors_raw'              => $floors_map,
+                            'test_type'                => 'determinista_constante',
+                            'posible_causa'            => sprintf(
+                                'El stock cae siempre exactamente %d %s entre recepciones (varianza cero). Patrón constante, pero con pocos datos para test estadístico.',
+                                (int)round($abs_mean_raw),
+                                $tipo_art === 'peso' ? 'kg' : 'ud.'
+                            ),
+                        ];
+                    }
+                    continue;
+                }
+
+                // ── Filtros de estabilidad — condición previa a todos los niveles (C7b-009) ──
+                // Artículos de peso usan umbrales más tolerantes: la variabilidad de pesaje
+                // y la irregularidad en cantidad por entrega elevan CV e IQR de forma legítima.
+                $umbral_cv_efectivo  = ($tipo_art === 'peso') ? $c7b_umbral_cv_peso : $c7b_umbral_cv;
+                $umbral_iqr_mult     = ($tipo_art === 'peso') ? $c7b_umbral_iqr_peso : 1.5;
                 $sf = $floors_norm; sort($sf);
                 $q1_idx = (int)floor(($n - 1) * 0.25);
                 $q3_idx = (int)ceil(($n - 1) * 0.75);
                 $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
                 if ($n === 3) { $iqr *= 0.7; }
+                if (!($cv < $umbral_cv_efectivo && $iqr < $umbral_iqr_mult * abs($mean))) { continue; }
 
-                // C7b-004: autocorrelación lag-1 Newey-West (solo n ≥ 4)
-                $r1 = 0.0;
-                if ($n >= 4 && $std_dev > 0.0) {
-                    $cov_lag1 = 0.0;
-                    for ($i = 1; $i < $n; $i++) {
-                        $cov_lag1 += ($floors_norm[$i] - $mean) * ($floors_norm[$i - 1] - $mean);
+                // ── Estado de la cascada ─────────────────────────────────────
+                $test_type            = null;
+                $test_pvalue          = null;
+                $test_fallback_reason = null;
+                $c7b_confirmed        = false;
+                $confianza_c7b        = 'posible';
+                $ic95_upper           = null;
+                $r1                   = 0.0;
+
+                // ═══════════════════════════════════════════════════════════
+                // NIVEL 1 · WILCOXON SIGNED-RANK (C7b-020)
+                // Más potente para distribuciones asimétricas (Gumbel).
+                // confianza si confirma: 'alta'
+                // ═══════════════════════════════════════════════════════════
+                $ratio_distinct  = count(array_unique($floors_norm)) / $n;
+                $wilcoxon_tipo_a = ($n < 4 || $ratio_distinct < 0.75);
+                if (!$wilcoxon_tipo_a) {
+                    // Valores no-cero con sus signos
+                    $nz_vals = []; $nz_signs = [];
+                    foreach ($floors_norm as $fv) {
+                        if ($fv != 0.0) { $nz_vals[] = abs($fv); $nz_signs[] = ($fv < 0 ? -1 : 1); }
                     }
-                    $cov_lag1 /= ($n - 1);
-                    $r1 = max(-1.0, min(1.0, $cov_lag1 / ($std_dev ** 2)));
-                }
-                if ($r1 > 0.0) {
-                    $ic95_upper = $mean + $t_975 * $se_base * sqrt(1.0 + 2.0 * $r1);
-                }
-                $confianza_c7b = ($r1 > 0.5 && $n < 6) ? 'posible' : 'probable';
-
-                // ── C7b: IC95 < 0 en el conjunto de test ─────────────────────
-                if ($ic95_upper < 0 && $cv < $c7b_umbral_cv && $iqr < 1.5 * abs($mean)) {
-
-                    // C7b-005: filtro ruido pesaje (configurable → c7b_umbral_ruido_peso)
-                    if ($tipo_art === 'peso' && $abs_mean_raw < $c7b_umbral_ruido_peso) {
-                        $incidencias[] = [
-                            'idArticulo'           => $id,
-                            'tipo'                 => 'Posible error de pesaje',
-                            'severidad'            => 'BAJA',
-                            'c7_subcaso'           => 'C7b_ruido_peso',
-                            'tipo_articulo'        => $tipo_art,
-                            'n_recepciones'        => $n_rec,
-                            'offset_estimado'      => round($mean_raw, 2),
-                            'dias_intervalo_medio' => $dias_intervalo_medio,
-                            'fecha_primera'        => $fechas_rec[0],
-                            'fecha_ultima'         => $fechas_rec[$n_rec - 1],
-                            '_floors_raw'          => $floors_map,
-                            'posible_causa'        => sprintf(
-                                'El stock aparece %.2f kg en negativo, pero es demasiado pequeño para ser un error real — probablemente es acumulación de decimales de balanza.',
-                                $abs_mean_raw
-                            ),
-                        ];
-                        continue;
-                    }
-
-                    // C7b-006: cobertura del déficit en todos los floors del periodo
-                    $n_neg   = count(array_filter($floors, fn($f) => $f < 0.0));
-                    $pct_neg = (int)round($n_neg / $n_floors * 100);
-
-                    // ── Severidad según qué periodo confirma el patrón ───────
-                    // Tabla:
-                    //   base+análisis consistente → CRITICA/ALTA (thresholds C7b-001)
-                    //   base solo (análisis <2 o inconsistente) → ALTA/MEDIA
-                    //   análisis solo (sin base suficiente) → ALTA/MEDIA
-                    if ($test_period === 'base') {
-                        // ¿Los floors del periodo de análisis son todos negativos?
-                        $n_analysis_neg     = count(array_filter($floors_analysis, fn($f) => $f < 0.0));
-                        $analysis_consistent = $n_analysis >= 2 && $n_analysis_neg === $n_analysis;
-
-                        if ($analysis_consistent) {
-                            // Base confirma + análisis consistente → CRITICA/ALTA
-                            $severidad = ($tipo_art === 'peso')
-                                ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'CRITICA' : 'ALTA')
-                                : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'CRITICA' : 'ALTA');
+                    $n_w = count($nz_vals);
+                    if ($n_w >= 4) {
+                        // Rangos con corrección de empates (rango promedio)
+                        $order = range(0, $n_w - 1);
+                        usort($order, fn($a, $b) => $nz_vals[$a] <=> $nz_vals[$b]);
+                        $rnks = array_fill(0, $n_w, 0.0);
+                        $i = 0;
+                        while ($i < $n_w) {
+                            $j = $i;
+                            while ($j + 1 < $n_w && $nz_vals[$order[$j + 1]] == $nz_vals[$order[$i]]) { $j++; }
+                            $avg_rank = ($i + $j + 2) / 2.0;
+                            for ($k2 = $i; $k2 <= $j; $k2++) { $rnks[$order[$k2]] = $avg_rank; }
+                            $i = $j + 1;
+                        }
+                        $n_ties_ranks = $n_w - count(array_unique($rnks));
+                        if ($n_ties_ranks / $n_w > 0.5) {
+                            // Tipo B: demasiados empates en rangos — resultado degradado
+                            $test_fallback_reason = 'wilcoxon_tipo_b_empates';
                         } else {
-                            // Base confirma pero análisis tiene floors insuficientes/inconsistentes
-                            $severidad = ($tipo_art === 'peso')
-                                ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'ALTA' : 'MEDIA')
-                                : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'ALTA' : 'MEDIA');
+                            // T+ = suma de rangos de valores positivos (H1: mediana < 0 → T+ pequeño)
+                            $t_plus = 0.0;
+                            for ($i = 0; $i < $n_w; $i++) { if ($nz_signs[$i] > 0) { $t_plus += $rnks[$i]; } }
+                            // Aproximación normal con corrección de continuidad (Abramowitz & Stegun 7.1.26)
+                            $mu_w  = $n_w * ($n_w + 1) / 4.0;
+                            $var_w = $n_w * ($n_w + 1) * (2 * $n_w + 1) / 24.0;
+                            $z_w   = ($t_plus + 0.5 - $mu_w) / sqrt($var_w);
+                            $az    = abs($z_w);
+                            $t_as  = 1.0 / (1.0 + 0.2316419 * $az);
+                            $poly  = $t_as * (0.319381530 + $t_as * (-0.356563782 + $t_as * (1.781477937 + $t_as * (-1.821255978 + $t_as * 1.330274429))));
+                            $ncdf  = 1.0 - exp(-$az * $az / 2.0) / sqrt(2.0 * M_PI) * $poly;
+                            $p_wilcoxon  = $z_w < 0 ? 1.0 - $ncdf : $ncdf;
+                            $test_type   = 'wilcoxon_signed_rank';
+                            $test_pvalue = round($p_wilcoxon, 4);
+                            if ($p_wilcoxon < 0.05) {
+                                $c7b_confirmed = true; $confianza_c7b = 'alta';
+                            } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                            } else {
+                                $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
+                                    . 'wilcoxon_p=' . round($p_wilcoxon, 3) . '_ns';
+                                $test_type = null; $test_pvalue = null;
+                            }
                         }
                     } else {
-                        // Solo periodo de análisis confirmado (sin base suficiente) → ALTA/MEDIA
-                        $analysis_consistent = false;
-                        $severidad = ($tipo_art === 'peso')
-                            ? ($abs_mean_raw >= $c7b_umbral_sev_peso   ? 'ALTA' : 'MEDIA')
-                            : ($abs_mean_raw >= $c7b_umbral_sev_unidad ? 'ALTA' : 'MEDIA');
+                        $wilcoxon_tipo_a = true; // n_w < 4 tras excluir ceros
                     }
+                }
+                if ($wilcoxon_tipo_a && $test_fallback_reason === null) {
+                    $rs = [];
+                    if ($n < 4)                 $rs[] = 'n<4';
+                    if ($ratio_distinct < 0.75) $rs[] = 'ratio_distinct<0.75';
+                    $test_fallback_reason = 'wilcoxon_tipo_a:' . implode(',', $rs);
+                }
 
-                    // C7b-006: si el déficit es parcial (< 50% de intervalos), rebajar un nivel
-                    if ($pct_neg < 50) { $severidad = 'MEDIA'; }
+                // ═══════════════════════════════════════════════════════════
+                // NIVEL 2 · BOOTSTRAP PERCENTILE (C7b-023)
+                // Sin supuesto distribucional; especialmente útil para n=3.
+                // confianza si confirma: 'media'
+                // ═══════════════════════════════════════════════════════════
+                if (!$c7b_confirmed) {
+                    $n_distinct_boot = count(array_unique($floors_norm));
+                    if ($std_dev > 0.0 && $n_distinct_boot > 1) {
+                        $mu_boot = [];
+                        for ($b = 0; $b < 999; $b++) {
+                            $s = 0.0;
+                            for ($j = 0; $j < $n; $j++) { $s += $floors_norm[random_int(0, $n - 1)]; }
+                            $mu_boot[] = $s / $n;
+                        }
+                        sort($mu_boot);
+                        $ic95_sup_boot = $mu_boot[(int)(999 * 0.975)]; // índice 974 → percentil 97.5
+                        $test_type = 'bootstrap';
+                        if ($ic95_sup_boot < 0.0) {
+                            $c7b_confirmed = true; $confianza_c7b = 'media';
+                        } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                        } else {
+                            $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
+                                . 'bootstrap_ic95_sup=' . round($ic95_sup_boot, 3) . '_ns';
+                            $test_type = null;
+                        }
+                    } else {
+                        $reason_boot = ($n_distinct_boot == 1) ? 'bootstrap_tipo_b_n_distinct_1' : 'bootstrap_tipo_a_std0';
+                        $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '') . $reason_boot;
+                    }
+                }
 
+                // ═══════════════════════════════════════════════════════════
+                // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7b-021)
+                // Válido para cualquier distribución, continua o discreta.
+                // confianza si confirma: 'media' — test exacto sin supuestos distribucionales;
+                // menor potencia que Wilcoxon pero p<0.05 tiene las mismas garantías cuando alcanza significancia.
+                // ═══════════════════════════════════════════════════════════
+                if (!$c7b_confirmed) {
+                    $floors_eff = array_values(array_filter($floors_norm, fn($f) => $f != 0.0));
+                    $n_eff      = count($floors_eff);
+                    if ($n_eff >= 3) {
+                        $b_minus = count(array_filter($floors_eff, fn($f) => $f < 0.0));
+                        // p = P(Binom(n_eff, 0.5) >= b_minus) — cola superior exacta
+                        $p_sign = 0.0; $coeff = 1.0;
+                        for ($k = 0; $k <= $n_eff; $k++) {
+                            if ($k >= $b_minus) { $p_sign += $coeff; }
+                            if ($k < $n_eff) { $coeff *= ($n_eff - $k) / ($k + 1.0); }
+                        }
+                        $p_sign /= pow(2.0, $n_eff);
+                        $test_type   = 'sign_binomial';
+                        $test_pvalue = round($p_sign, 4);
+                        if ($p_sign < 0.05) {
+                            $c7b_confirmed = true; $confianza_c7b = 'media';
+                        } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                        } else {
+                            $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
+                                . 'sign_p=' . round($p_sign, 3) . '_ns';
+                            $test_type = null; $test_pvalue = null;
+                        }
+                    } else {
+                        $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '') . 'sign_tipo_a_n_efectivo<3';
+                    }
+                }
+
+                // ═══════════════════════════════════════════════════════════
+                // NIVEL 4 · T-TEST + NEWEY-WEST (C7b-004, implementación original)
+                // Último recurso paramétrico; asume normalidad (violada — Gumbel).
+                // confianza si confirma: 'posible'
+                // ═══════════════════════════════════════════════════════════
+                if (!$c7b_confirmed) {
+                    // std_dev > 0 garantizado (guard C7b-024 ya salió antes de este bloque)
+                    $df_ic = $n - 1;
+                    if ($df_ic > 120) { $t_975 = 1.960; }
+                    elseif (isset($t_975_tab[$df_ic])) { $t_975 = $t_975_tab[$df_ic]; }
+                    else {
+                        $keys_ic = array_keys($t_975_tab); $lo_ic = $hi_ic = null;
+                        foreach ($keys_ic as $k) {
+                            if ($k <= $df_ic) $lo_ic = $k;
+                            if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
+                        }
+                        $t_975 = ($lo_ic !== null && $hi_ic !== null && $lo_ic !== $hi_ic)
+                            ? $t_975_tab[$lo_ic] + ($df_ic - $lo_ic) / ($hi_ic - $lo_ic) * ($t_975_tab[$hi_ic] - $t_975_tab[$lo_ic])
+                            : ($lo_ic !== null ? $t_975_tab[$lo_ic] : 1.960);
+                    }
+                    $se_base    = $std_dev / sqrt($n);
+                    $ic95_upper = $mean + $t_975 * $se_base;
+                    // C7b-004: corrección Newey-West para autocorrelación lag-1
+                    if ($n >= 4) {
+                        $cov_lag1 = 0.0;
+                        for ($i = 1; $i < $n; $i++) {
+                            $cov_lag1 += ($floors_norm[$i] - $mean) * ($floors_norm[$i - 1] - $mean);
+                        }
+                        $cov_lag1 /= ($n - 1);
+                        $r1 = max(-1.0, min(1.0, $cov_lag1 / ($std_dev ** 2)));
+                        if ($r1 > 0.0) {
+                            $ic95_upper = $mean + $t_975 * $se_base * sqrt(1.0 + 2.0 * $r1);
+                        }
+                    }
+                    $test_type = 't_student';
+                    if ($ic95_upper < 0.0) {
+                        $c7b_confirmed = true; $confianza_c7b = 'posible';
+                    } else { continue; } // resultado válido: no C7b
+                }
+
+                if (!$c7b_confirmed) { continue; }
+
+                // ── C7b-025: duraciones irregulares degradan confianza un nivel ──
+                if ($cv_dias > 1.0) {
+                    $confianza_c7b = ($confianza_c7b === 'alta') ? 'media' : 'posible';
+                }
+
+                // ── C7b-005: filtro ruido pesaje ──────────────────────────────
+                if ($tipo_art === 'peso' && $abs_mean_raw < $c7b_umbral_ruido_peso) {
                     $incidencias[] = [
-                        'idArticulo'               => $id,
-                        'tipo'                     => 'Entrada no registrada',
-                        'severidad'                => $severidad,
-                        'c7_subcaso'               => 'C7b',
-                        'confianza'                => $confianza_c7b,
-                        'test_period'              => $test_period,
-                        'analysis_consistent'      => $analysis_consistent ?? false,
-                        'tipo_articulo'            => $tipo_art,
-                        'n_recepciones'            => $n_rec,
-                        'offset_estimado'          => round($mean_raw, 1),
-                        'offset_norm'              => round($mean, 3),
-                        'dispersion'               => round($std_dev, 3),
-                        'autocorr_lag1'            => round($r1, 2),
-                        'ic95_upper'               => round($ic95_upper, 4),
-                        'n_intervalos_negativos'   => $n_neg,
-                        'pct_intervalos_negativos' => $pct_neg,
-                        'dias_intervalo_medio'     => $dias_intervalo_medio,
-                        'fecha_primera'            => $fechas_rec[0],
-                        'fecha_ultima'             => $fechas_rec[$n_rec - 1],
-                        '_floors_raw'              => $floors_map,
-                        'posible_causa'            => sprintf(
-                            'El stock cae ~%d %s en negativo de forma repetida entre cada recepción. Revisar si hay albaranes pendientes de confirmar o si el stock inicial del artículo está bien introducido.',
-                            (int)round($abs_mean_raw),
-                            $tipo_art === 'peso' ? 'kg' : 'ud.'
+                        'idArticulo'           => $id,
+                        'tipo'                 => 'Posible error de pesaje',
+                        'severidad'            => 'BAJA',
+                        'c7_subcaso'           => 'C7b_ruido_peso',
+                        'tipo_articulo'        => $tipo_art,
+                        'n_recepciones'        => $n_rec,
+                        'offset_estimado'      => round($mean_raw, 2),
+                        'dias_intervalo_medio' => $dias_intervalo_medio,
+                        'fecha_primera'        => $fechas_rec[0],
+                        'fecha_ultima'         => $fechas_rec[$n_rec - 1],
+                        '_floors_raw'          => $floors_map,
+                        'posible_causa'        => sprintf(
+                            'El stock aparece %.2f kg en negativo, pero es demasiado pequeño para ser un error real — probablemente es acumulación de decimales de balanza.',
+                            $abs_mean_raw
                         ),
                     ];
                     continue;
                 }
+
+                // ── C7b-006: cobertura del déficit en todos los floors del periodo ─
+                $n_neg   = count(array_filter($floors, fn($f) => $f < 0.0));
+                $pct_neg = (int)round($n_neg / $n_floors * 100);
+
+                // ── Cobertura temporal + tendencia reciente (C7b-022) ────────
+                if ($test_period === 'base') {
+                    $n_analysis_neg      = count(array_filter($floors_analysis, fn($f) => $f < 0.0));
+                    $analysis_consistent = $n_analysis >= 2 && $n_analysis_neg === $n_analysis;
+                    $cobertura           = $analysis_consistent ? 'A' : 'B';
+
+                    // C7b-022: distinguir déficit activo vs resuelto cuando el test corre sobre la base
+                    if ($analysis_consistent) {
+                        $tendencia_reciente = 'activo';     // análisis confirma
+                    } elseif ($n_analysis === 0) {
+                        $tendencia_reciente = 'sin_datos';  // sin recepciones en el período de análisis
+                    } else {
+                        $mean_analysis = array_sum($floors_analysis) / $n_analysis;
+                        if ($mean_analysis > 0.0) {
+                            $tendencia_reciente = 'resuelto';   // floors de análisis en positivo
+                        } else {
+                            $tendencia_reciente = 'mejorando';  // negativos pero no confirman
+                        }
+                    }
+                } else {
+                    $analysis_consistent = false;
+                    $cobertura           = 'C';
+                    $tendencia_reciente  = 'activo'; // el test corre sobre análisis → activo por definición
+                }
+
+                // ── Severidad: tabla 2D (confianza × cobertura) + moduladores ─
+                // Tabla base:
+                //   confianza \ cobertura |  A (base+análisis) | B (base solo) | C (análisis solo)
+                //   'alta'  (Wilcoxon)    |  CRITICA           | ALTA          | ALTA
+                //   'media' (Bootstrap)   |  ALTA              | ALTA          | MEDIA
+                //   'posible' (sign/t/det)|  ALTA              | MEDIA         | MEDIA
+                static $sev_tab = [
+                    'alta'    => ['A' => 'CRITICA', 'B' => 'ALTA',  'C' => 'ALTA'],
+                    'media'   => ['A' => 'ALTA',    'B' => 'ALTA',  'C' => 'MEDIA'],
+                    'posible' => ['A' => 'ALTA',    'B' => 'MEDIA', 'C' => 'MEDIA'],
+                ];
+                static $sev_num = ['CRITICA' => 3, 'ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
+                static $sev_name = [3 => 'CRITICA', 2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
+
+                $sev_base = $sev_tab[$confianza_c7b][$cobertura];
+                $mag_small = ($tipo_art === 'peso')
+                    ? ($abs_mean_raw < $c7b_umbral_sev_peso)
+                    : ($abs_mean_raw < $c7b_umbral_sev_unidad);
+
+                $sev_nivel = $sev_num[$sev_base];
+                if ($mag_small)      { $sev_nivel--; } // magnitud pequeña
+                if ($pct_neg < 50)   { $sev_nivel--; } // déficit parcial
+                $severidad = $sev_name[max(0, $sev_nivel)];
+
+                // ── C7b-022: posible_causa accionable según tendencia ────────
+                $unidad_causa = $tipo_art === 'peso' ? 'kg' : 'ud.';
+                switch ($tendencia_reciente) {
+                    case 'resuelto':
+                        $causa_texto = sprintf(
+                            'El stock caía ~%d %s en negativo de forma repetida, pero el período reciente no muestra el patrón. Verificar que el albarán pendiente fue registrado o que el error se corrigió.',
+                            (int)round($abs_mean_raw), $unidad_causa
+                        );
+                        break;
+                    case 'mejorando':
+                        $causa_texto = sprintf(
+                            'El stock caía ~%d %s en negativo de forma repetida. El período reciente tiene floors negativos pero sin confirmación estadística — el problema puede estar reduciéndose. Monitorizar en próximo informe.',
+                            (int)round($abs_mean_raw), $unidad_causa
+                        );
+                        break;
+                    case 'sin_datos':
+                        $causa_texto = sprintf(
+                            'El stock caía ~%d %s en negativo de forma repetida. Sin recepciones en el período reciente — no es posible confirmar si el problema sigue activo. Revisar albaranes pendientes.',
+                            (int)round($abs_mean_raw), $unidad_causa
+                        );
+                        break;
+                    default: // 'activo'
+                        $causa_texto = sprintf(
+                            'El stock cae ~%d %s en negativo de forma repetida entre cada recepción. Revisar si hay albaranes pendientes de confirmar o si el stock inicial del artículo está bien introducido.',
+                            (int)round($abs_mean_raw), $unidad_causa
+                        );
+                }
+
+                $incidencias[] = [
+                    'idArticulo'               => $id,
+                    'tipo'                     => 'Entrada no registrada',
+                    'severidad'                => $severidad,
+                    'c7_subcaso'               => 'C7b',
+                    'confianza'                => $confianza_c7b,
+                    'test_period'              => $test_period,
+                    'analysis_consistent'      => $analysis_consistent ?? false,
+                    'tendencia_reciente'       => $tendencia_reciente,
+                    'tipo_articulo'            => $tipo_art,
+                    'n_recepciones'            => $n_rec,
+                    'offset_estimado'          => round($mean_raw, 1),
+                    'offset_norm'              => round($mean, 3),
+                    'dispersion'               => round($std_dev, 3),
+                    'autocorr_lag1'            => round($r1, 2),
+                    'ic95_upper'               => $ic95_upper !== null ? round($ic95_upper, 4) : null,
+                    'cv_duraciones'            => round($cv_dias, 3),
+                    'test_type'                => $test_type,
+                    'test_pvalue'              => $test_pvalue,
+                    'test_fallback_reason'     => $test_fallback_reason,
+                    'n_intervalos_negativos'   => $n_neg,
+                    'pct_intervalos_negativos' => $pct_neg,
+                    'dias_intervalo_medio'     => $dias_intervalo_medio,
+                    'fecha_primera'            => $fechas_rec[0],
+                    'fecha_ultima'             => $fechas_rec[$n_rec - 1],
+                    '_floors_raw'              => $floors_map,
+                    'posible_causa'            => $causa_texto,
+                ];
+                continue;
             } elseif ($n_analysis === 2 && isset($subcasos_set['C7b'])) {
                 // C7b-010: C7b_posible — solo 2 floors en el periodo de análisis,
                 // sin base suficiente para test estadístico.
@@ -4858,9 +5115,10 @@ class ClasePosstock
         }
 
         // ── C7b-007 + C7b-011: enriquecer C7b con proveedor y coste estimado ──
+        // Aplica a todos los subcasos C7b (C7b, C7b_posible, C7b_ruido_peso).
         if (isset($subcasos_set['C7b'])) {
             $ids_c7b = array_column(
-                array_filter($incidencias, fn($inc) => ($inc['c7_subcaso'] ?? '') === 'C7b'),
+                array_filter($incidencias, fn($inc) => str_starts_with($inc['c7_subcaso'] ?? '', 'C7b')),
                 'idArticulo'
             );
             if (!empty($ids_c7b)) {
@@ -4871,7 +5129,7 @@ class ClasePosstock
                 $precio_map_c7b = $this->_queryPrecioMedioCompra($ids_c7b_str, $fi_stock_esc, $ff);
 
                 foreach ($incidencias as &$inc) {
-                    if (($inc['c7_subcaso'] ?? '') !== 'C7b') continue;
+                    if (!str_starts_with($inc['c7_subcaso'] ?? '', 'C7b')) continue;
                     $prov = $prov_map_c7b[$inc['idArticulo']] ?? null;
                     $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
                     $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;

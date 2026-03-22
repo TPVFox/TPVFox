@@ -53,14 +53,20 @@
 			<c1_timing_ventana_dias>1</c1_timing_ventana_dias>
 			<!-- C7b — Mínimo de recepciones históricas (período base) para que el test IC95 sea válido. Rango: 3–10 -->
 			<c7b_min_recepciones>3</c7b_min_recepciones>
-			<!-- C7b — Umbral máximo de CV (coeficiente de variación) para considerar el patrón estable. Rango: 0.3–0.9 -->
+			<!-- C7b — Umbral máximo de CV (coeficiente de variación) para considerar el patrón estable. Artículos por unidad. Rango: 0.3–0.9 -->
 			<c7b_umbral_cv>0.5</c7b_umbral_cv>
+			<!-- C7b — Umbral máximo de CV para artículos de peso. Mayor porque la variabilidad de pesaje y cantidad por entrega es intrínseca. Rango: 0.5–1.2 -->
+			<c7b_umbral_cv_peso>0.75</c7b_umbral_cv_peso>
+			<!-- C7b — Multiplicador IQR para artículos de peso (IQR < N × |media|). Mayor que el 1.5 de unidad. Rango: 1.5–3.0 -->
+			<c7b_umbral_iqr_peso>2.0</c7b_umbral_iqr_peso>
 			<!-- C7b — Umbral de ruido de pesaje: déficit medio (kg) por debajo del cual se emite C7b_ruido_peso en vez de C7b. Solo afecta a artículos de tipo peso. Rango: 0.1–2.0 -->
 			<c7b_umbral_ruido_peso>0.5</c7b_umbral_ruido_peso>
 			<!-- C7b — Déficit medio mínimo (ud.) para severidad ALTA en artículos de tipo unidad. Rango: 2–20 -->
 			<c7b_umbral_severidad_unidad>5</c7b_umbral_severidad_unidad>
 			<!-- C7b — Déficit medio mínimo (kg) para severidad ALTA en artículos de tipo peso. Rango: 0.5–10.0 -->
 			<c7b_umbral_severidad_peso>2.5</c7b_umbral_severidad_peso>
+			<!-- C7b — Cascada exhaustiva: si true, continúa la cascada estadística aunque un test sea válido pero no significativo (diagnóstico). Por defecto: false -->
+			<c7b_cascada_exhaustiva>false</c7b_cascada_exhaustiva>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

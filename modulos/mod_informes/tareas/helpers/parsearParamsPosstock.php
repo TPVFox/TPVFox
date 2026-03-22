@@ -173,9 +173,12 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c1_timing_ventana_dias'      => max(1, min(7,        (int)(string)  ($posstock_node->c1_timing_ventana_dias ?: '1'))),
         // C7b — Umbrales de detección
         'c7b_min_recepciones'         => max(3, min(10,   (int)(string)  ($posstock_node->c7b_min_recepciones         ?: '3'))),
-        'c7b_umbral_cv'               => max(0.3, min(0.9, (float)(string)($posstock_node->c7b_umbral_cv              ?: '0.5'))),
+        'c7b_umbral_cv'               => max(0.3, min(0.9,  (float)(string)($posstock_node->c7b_umbral_cv              ?: '0.5'))),
+        'c7b_umbral_cv_peso'          => max(0.5, min(1.2,  (float)(string)($posstock_node->c7b_umbral_cv_peso         ?: '0.75'))),
+        'c7b_umbral_iqr_peso'         => max(1.5, min(3.0,  (float)(string)($posstock_node->c7b_umbral_iqr_peso        ?: '2.0'))),
         'c7b_umbral_ruido_peso'       => max(0.1, min(2.0, (float)(string)($posstock_node->c7b_umbral_ruido_peso      ?: '0.5'))),
         'c7b_umbral_severidad_unidad' => max(2, min(20,    (int)(string)  ($posstock_node->c7b_umbral_severidad_unidad ?: '5'))),
         'c7b_umbral_severidad_peso'   => max(0.5, min(10.0,(float)(string)($posstock_node->c7b_umbral_severidad_peso  ?: '2.5'))),
+        'c7b_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7b_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
     ];
 }

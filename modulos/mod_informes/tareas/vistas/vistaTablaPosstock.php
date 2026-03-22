@@ -409,19 +409,36 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $pctNegB  = isset($f['pct_intervalos_negativos']) ? (int)$f['pct_intervalos_negativos'] : null;
 
             // Badge principal
+            // 'Déficit posible' cuando la evidencia estadística es débil (confianza='posible')
+            // o la muestra es insuficiente para test (C7b_posible, n=2).
+            $confianzaB = $f['confianza'] ?? 'posible';
             if ($subcasoB === 'C7b_posible') {
                 $badgePrincipalB = '<span class="label label-warning" title="Solo 2 recepciones en el periodo: déficit consistente en ambas, pero sin muestra suficiente para confirmarlo estadísticamente. Verificar manualmente.">Déficit posible</span>';
+            } elseif ($confianzaB === 'posible') {
+                $badgePrincipalB = '<span class="label label-warning" title="El patrón de déficit existe pero la evidencia estadística no es concluyente (t-test sobre distribución no gaussiana o floors con varianza nula). Puede ser real — revisar manualmente.">Déficit posible</span>';
             } else {
-                $badgePrincipalB = '<span class="label label-danger" title="El stock cae a valores negativos de forma repetida entre cada recepción.">Déficit estable</span>';
+                $badgePrincipalB = '<span class="label label-danger" title="El stock cae a valores negativos de forma repetida entre cada recepción. Confirmado estadísticamente.">Déficit estable</span>';
             }
 
-            // Badge sistemático: todas las recepciones con floor negativo
-            $badgeSistematico = ($pctNegB === 100)
-                ? ' <span class="label label-danger" title="El stock cae a negativo en el 100% de los intervalos entre recepciones.">Sistemático</span>'
+            // Badge nueva aparición: el patrón solo existe en el período de análisis, no en la base anual
+            $testPeriodB      = $f['test_period'] ?? null;
+            $tendenciaB       = $f['tendencia_reciente'] ?? 'activo';
+            $badgeNuevo  = ($testPeriodB === 'analysis')
+                ? ' <span class="label label-info" title="Este déficit solo aparece en el período analizado, no en el historial anual base. Incidencia reciente — puede ser un problema nuevo o una primera detección.">Nuevo</span>'
                 : '';
 
+            // Badge tendencia histórica (C7b-022): déficit en base pero período reciente no confirma
+            $badgeTendencia = '';
+            if ($tendenciaB === 'resuelto') {
+                $badgeTendencia = ' <span class="label label-default" title="El período reciente no muestra el patrón de déficit — puede haberse resuelto. Verificar que el albarán pendiente fue registrado.">Déficit histórico</span>';
+            } elseif ($tendenciaB === 'mejorando') {
+                $badgeTendencia = ' <span class="label label-warning" title="El período reciente tiene floors negativos pero sin confirmación estadística — el déficit puede estar reduciéndose. Monitorizar en el próximo informe.">Mejorando</span>';
+            } elseif ($tendenciaB === 'sin_datos') {
+                $badgeTendencia = ' <span class="label label-default" title="Sin recepciones en el período reciente — no es posible confirmar si el problema sigue activo.">Sin datos recientes</span>';
+            }
+
             // Línea 1: badges
-            $detalle = $badgePrincipalB . $badgeSistematico . $badgeCruceB;
+            $detalle = $badgePrincipalB . $badgeNuevo . $badgeTendencia . $badgeCruceB;
 
             // Línea 2: info principal
             $diasMedB = isset($f['dias_intervalo_medio']) ? (int)$f['dias_intervalo_medio'] : null;
@@ -446,19 +463,14 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . number_format($costeB, 0, ',', '.') . ' €</strong></span>';
             }
             if (!empty($f['prov_habitual_nombre'])) {
-                if (!empty($f['prov_es_mismo'])) {
-                    $lineaCompB .= ($lineaCompB ? ' · ' : '')
-                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov: '
-                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
-                } else {
-                    $lineaCompB .= ($lineaCompB ? ' · ' : '')
-                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov. habitual: '
-                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
-                    if (!empty($f['prov_ultimo_nombre'])) {
-                        $lineaCompB .= ' | <span title="Proveedor del último albarán recibido ('
-                            . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
-                            . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
-                    }
+                $lineaCompB .= ($lineaCompB ? ' · ' : '')
+                    . '<span title="Proveedor principal: el que más albaranes tiene del artículo en el año en curso">Prov. principal: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre'])) {
+                    $ultimoLabel = !empty($f['prov_es_mismo']) ? '(mismo)' : htmlspecialchars($f['prov_ultimo_nombre']);
+                    $lineaCompB .= ' | <span title="Último proveedor que sirvió el artículo ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . $ultimoLabel . '</span>';
                 }
             }
             if ($lineaCompB) {
@@ -658,8 +670,9 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         $ordenClave  = htmlspecialchars($f['orden_clave'] ?? '');
         $provNombre  = htmlspecialchars($f['prov_habitual_nombre'] ?? '');
+        $costeData   = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : 0;
         $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
-            . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '">'
+            . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '" data-coste="' . $costeData . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
             . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . $badgeNombrePrincipal . '</td>'
             . '<td>' . htmlspecialchars($tipoLabel) . '</td>'
