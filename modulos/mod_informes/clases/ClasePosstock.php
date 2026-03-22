@@ -1359,6 +1359,14 @@ class ClasePosstock
     private function _anadirNombres(array $incidencias): array
     {
         if (empty($incidencias)) return $incidencias;
+        // La conexión puede haberse perdido durante el cálculo estadístico pesado de C7.
+        // En PHP 8.1+ con MYSQLI_REPORT_STRICT, ping() puede lanzar mysqli_sql_exception
+        // si la conexión está completamente cerrada; se captura para no bloquear al usuario.
+        try {
+            if (!$this->db->ping()) return $incidencias;
+        } catch (\mysqli_sql_exception $e) {
+            return $incidencias; // devolver filas sin nombre; no bloquear
+        }
         $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
         $smt = $this->db->query(
             "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
@@ -1875,7 +1883,8 @@ class ClasePosstock
                 $c7b_umbral_ruido_peso,
                 $c7b_umbral_severidad_unidad,
                 $c7b_umbral_severidad_peso,
-                $c7b_cascada_exhaustiva
+                $c7b_cascada_exhaustiva,
+                (bool)($params['skip_c7_cde'] ?? false)
             );
             if (isset($c7['error'])) return $c7;
             $incidencias = array_merge($incidencias, $c7);
@@ -4253,7 +4262,7 @@ class ClasePosstock
     private function _regressionStats(array $y): array
     {
         $n = count($y);
-        if ($n < 3) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0];
+        if ($n < 3) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0, 'se' => 0.0];
 
         $sum_x  = 0;
         $sum_y  = 0.0;
@@ -4266,7 +4275,7 @@ class ClasePosstock
             $sum_xx += $i * $i;
         }
         $denom = $n * $sum_xx - $sum_x * $sum_x;
-        if ($denom == 0.0) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0];
+        if ($denom == 0.0) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0, 'se' => 0.0];
 
         $slope     = ($n * $sum_xy - $sum_x * $sum_y) / $denom;
         $intercept = ($sum_y - $slope * $sum_x) / $n;
@@ -4459,7 +4468,8 @@ class ClasePosstock
         float  $c7b_umbral_ruido_peso  = 0.5,
         int    $c7b_umbral_sev_unidad  = 5,
         float  $c7b_umbral_sev_peso    = 2.5,
-        bool   $c7b_cascada_exhaustiva = false
+        bool   $c7b_cascada_exhaustiva = false,
+        bool   $skip_cde              = false   // true en lotes parciales; C7c/d/e requiere el conjunto completo
     ): array {
         $subcasos_set    = array_flip($subcasos);
         $min_recepciones = 2;   // mínimo global para C7b_posible (2 floors análisis); el test IC95 requiere $c7b_min_recepciones
@@ -4526,9 +4536,17 @@ class ClasePosstock
         }
 
         // ── Paso 3: calcular suelos inter-recepción y detectar patrón ────────
-        $incidencias = [];
+        $incidencias     = [];
+        $ping_cada_n     = 20;   // hacer ping a MySQL cada N artículos para evitar wait_timeout
+        $ping_contador   = 0;
 
         foreach ($candidatos_ids as $id) {
+            // Keepalive: evitar que MySQL cierre la conexión durante el cálculo estadístico.
+            // El bootstrap O(n²) puede tardar segundos por artículo; con muchos artículos
+            // el tiempo total supera el wait_timeout del servidor.
+            if (++$ping_contador % $ping_cada_n === 0) {
+                try { $this->db->ping(); } catch (\mysqli_sql_exception $e) { /* ignorar */ }
+            }
             $fechas_rec = $recepciones_map[$id];
             $daily      = $daily_map[$id] ?? [];
             $n_rec      = count($fechas_rec);
@@ -4676,6 +4694,272 @@ class ClasePosstock
                 $test_floors = null;
                 $test_period = null;
             }
+
+            // C7a — merma sistemática no registrada (suelos positivos en alza)
+            // C7a-019: cascada de 5 niveles sobre floors normalizados.
+            //
+            // Pre-filtros globales:
+            //   · mean_raw ≥ 0: suelos positivos en media (negativos → C7b)
+            //   · delta_total ≥ 2.0: variación acumulada mínima observable
+            //
+            // NOTA: este bloque se ejecuta ANTES del bloque C7b para evitar que los
+            // continue() internos de C7b (que descartan artículos no-C7b) salten
+            // también C7a. C7a y C7b son mutuamente excluyentes por diseño:
+            // C7a requiere mean_raw ≥ 0, C7b trabaja con floors negativos.
+            // Nivel 5 (n_floors == 2): eliminado (C7a-020).
+            // Niveles 1–4: requieren n_floors ≥ 3 y β_TS > 0.
+            $delta_total = $floors[$n_floors - 1] - $floors[0];
+            if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= 2.0) {
+
+                // ── Theil-Sen slope sobre floors_norm_all (C7a-012) ──────────
+                // Estimador de magnitud robusto; sustituye a β_OLS como 'tendencia'.
+                // O(n²) — negligible para n típico 3-15.
+                $ts_pairs = [];
+                for ($i = 0; $i < $n_floors; $i++) {
+                    for ($j = $i + 1; $j < $n_floors; $j++) {
+                        $ts_pairs[] = ($floors_norm_all[$j] - $floors_norm_all[$i]) / ($j - $i);
+                    }
+                }
+                sort($ts_pairs);
+                $n_ts    = count($ts_pairs);
+                $beta_ts = $n_ts > 0
+                    ? ($n_ts % 2 === 1
+                        ? $ts_pairs[intdiv($n_ts, 2)]
+                        : ($ts_pairs[$n_ts / 2 - 1] + $ts_pairs[$n_ts / 2]) / 2.0)
+                    : 0.0;
+                // tendencia en escala ud/recepción (comprensible para el usuario)
+                $tendencia_visible = $beta_ts * $dias_intervalo_medio_all;
+
+                // dispersión bruta para el campo 'dispersion' del array de salida
+                $variance_raw_c7a = 0.0;
+                foreach ($floors as $f) { $variance_raw_c7a += ($f - $mean_raw) ** 2; }
+                $std_dev_raw_c7a = $n_floors > 1 ? sqrt($variance_raw_c7a / ($n_floors - 1)) : 0.0;
+
+                // Nivel 5 eliminado (C7a-020): con n=2 floors positivos no hay test estadístico
+                // válido porque el sobrestock es el estado normal del inventario. Dos floors
+                // positivos en alza son compatibles con la variabilidad habitual del negocio.
+                // La asimetría con C7b (donde n=2 negativos SÍ es evidencia) es intencional:
+                // un floor negativo viola la hipótesis nula por definición; uno positivo no.
+                if ($n_floors >= 3 && $beta_ts > 0.0) {
+                    // Pre-filtro de dirección: β_TS > 0 (señal de alza)
+
+                    $c7a_confianza     = null;
+                    $c7a_cascade_nivel = 0;
+                    $p_mk_c7a          = null;
+                    $cascade_nivel_act = 1;
+
+                    while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 1 · MANN-KENDALL con Hamed & Rao (C7a-019a)
+                        // No paramétrico; corrige autocorrelación lag-1.
+                        // ═══════════════════════════════════════════════════════
+                        if ($cascade_nivel_act === 1) {
+                            $S_mk = 0;
+                            for ($i = 0; $i < $n_floors; $i++) {
+                                for ($j = $i + 1; $j < $n_floors; $j++) {
+                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
+                                    if      ($d > 0.0) $S_mk++;
+                                    elseif  ($d < 0.0) $S_mk--;
+                                }
+                            }
+                            // Var_MK estándar (sin empates)
+                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
+                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
+                            if ($autocorr_lag1_c7a > 0.0) {
+                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
+                            }
+                            if ($var_mk > 0.0) {
+                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
+                                $z_mk  = $S_adj / sqrt($var_mk);
+                                // Φ(z) — Abramowitz & Stegun 26.2.17
+                                $az     = abs($z_mk);
+                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
+                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
+                                        * $t_phi * (0.3193815 + $t_phi * (-0.3565638
+                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
+                                        + $t_phi * 1.3302744))));
+                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
+                            } else {
+                                $p_mk_c7a = 1.0;
+                            }
+
+                            if      ($p_mk_c7a < 0.05) {
+                                $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
+                                $cascade_nivel_act = 0;
+                            } elseif ($p_mk_c7a >= 0.10) {
+                                $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                            } else {
+                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [0.05, 0.10)
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
+                        // Alcanzable solo desde Nivel 1 (Tipo B).
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 2) {
+                            // Iteraciones adaptativas: con n grande el error estándar del
+                            // bootstrap decrece como 1/√B y el test Mann-Kendall ya habrá
+                            // filtrado la mayoría de artículos; reducir B ahorra tiempo sin
+                            // perder precisión relevante.
+                            $B_boot     = $n_floors >= 30 ? 299 : ($n_floors >= 20 ? 499 : 999);
+                            $boot_betas = [];
+                            for ($b = 0; $b < $B_boot; $b++) {
+                                $idx_b = [];
+                                for ($k = 0; $k < $n_floors; $k++) {
+                                    $idx_b[] = mt_rand(0, $n_floors - 1);
+                                }
+                                sort($idx_b);
+                                $f_b = [];
+                                foreach ($idx_b as $ki) { $f_b[] = $floors_norm_all[$ki]; }
+                                $bp = [];
+                                $nb = count($f_b);
+                                for ($i = 0; $i < $nb; $i++) {
+                                    for ($j = $i + 1; $j < $nb; $j++) {
+                                        $bp[] = ($f_b[$j] - $f_b[$i]) / ($j - $i);
+                                    }
+                                }
+                                if (!empty($bp)) {
+                                    sort($bp);
+                                    $np = count($bp);
+                                    $boot_betas[] = $np % 2 === 1
+                                        ? $bp[intdiv($np, 2)]
+                                        : ($bp[$np / 2 - 1] + $bp[$np / 2]) / 2.0;
+                                }
+                            }
+                            if (!empty($boot_betas)) {
+                                sort($boot_betas);
+                                $nb_s     = count($boot_betas);
+                                $ic99_low = $boot_betas[(int)round(0.005 * ($nb_s - 1))];
+                                // detectar colapso de varianza (Tipo B)
+                                $mean_boot = array_sum($boot_betas) / $nb_s;
+                                $var_boot  = 0.0;
+                                foreach ($boot_betas as $bs) { $var_boot += ($bs - $mean_boot) ** 2; }
+                                $var_boot /= $nb_s;
+
+                                if ($var_boot < 1e-12) {
+                                    $cascade_nivel_act = 3;   // Tipo B: varianza bootstrap colapsa
+                                } elseif ($ic99_low > 0.0) {
+                                    $c7a_confianza = 'media'; $c7a_cascade_nivel = 2;
+                                    $cascade_nivel_act = 0;
+                                } else {
+                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                }
+                            } else {
+                                $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7a-019c)
+                        // Alcanzable desde Nivel 2 (Tipo B). Requiere n ≥ 4.
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 3) {
+                            if ($n_floors < 4) {
+                                $cascade_nivel_act = 4;   // Tipo A: sin potencia mínima
+                            } else {
+                                $k_pos   = 0;
+                                $n_diffs = $n_floors - 1;
+                                for ($i = 0; $i < $n_diffs; $i++) {
+                                    if ($floors_norm_all[$i + 1] > $floors_norm_all[$i]) $k_pos++;
+                                }
+                                // P(Bin(n_diffs, 0.5) ≥ k_pos) exacto
+                                $p_signo  = 0.0;
+                                $bcoef    = 1.0;
+                                $pow_half = pow(0.5, $n_diffs);
+                                for ($k = 0; $k <= $n_diffs; $k++) {
+                                    if ($k > 0) $bcoef *= ($n_diffs - $k + 1) / $k;
+                                    if ($k >= $k_pos) $p_signo += $bcoef * $pow_half;
+                                }
+                                $p_signo = min(1.0, $p_signo);
+
+                                if ($p_signo < 0.05) {
+                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
+                                }
+                                $cascade_nivel_act = 0;   // nivel 3 siempre es definitivo (no hay Tipo B)
+                            }
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 4 · OLS + NEWEY-WEST IC95 (C7a-019d)
+                        // Último recurso paramétrico. Solo alcanzable cuando n < 4.
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 4) {
+                            $cascade_nivel_act = 0;
+                            if ($se_corr_c7a > 0.0) {
+                                static $t_tab_nw = [
+                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
+                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
+                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
+                                ];
+                                $df_nw = max(1, $n_floors - 2);
+                                if ($df_nw > 120) {
+                                    $t_crit_nw = 1.645;
+                                } elseif (isset($t_tab_nw[$df_nw])) {
+                                    $t_crit_nw = $t_tab_nw[$df_nw];
+                                } else {
+                                    $keys_nw = array_keys($t_tab_nw);
+                                    $lo_nw = $hi_nw = null;
+                                    foreach ($keys_nw as $k) {
+                                        if ($k <= $df_nw) $lo_nw = $k;
+                                        if ($k >= $df_nw && $hi_nw === null) $hi_nw = $k;
+                                    }
+                                    $t_crit_nw = ($lo_nw !== null && $hi_nw !== null && $lo_nw !== $hi_nw)
+                                        ? $t_tab_nw[$lo_nw] + ($df_nw - $lo_nw) / ($hi_nw - $lo_nw) * ($t_tab_nw[$hi_nw] - $t_tab_nw[$lo_nw])
+                                        : ($lo_nw !== null ? $t_tab_nw[$lo_nw] : 6.314);
+                                }
+                                $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
+                                if ($ic95_low_nw > 0.0) {
+                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 4;
+                                }
+                                // ic95_low_nw ≤ 0 → resultado válido negativo: NO C7a
+                            }
+
+                        } else {
+                            $cascade_nivel_act = 0;
+                        }
+                    } // while cascade
+
+                    // ── Emitir incidencia si la cascada confirmó C7a ──────────
+                    if ($c7a_confianza !== null) {
+                        // c7_subcaso: C7a_posible para niveles ≥ 3 (no alimenta C7c/C7d/C7e)
+                        $subcaso_c7a = ($c7a_confianza === 'posible') ? 'C7a_posible' : 'C7a';
+
+                        if ($c7a_confianza === 'alta') {
+                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                        } elseif ($c7a_confianza === 'media') {
+                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
+                        } else {
+                            $severidad = 'BAJA';
+                        }
+
+                        $incidencias[] = [
+                            'idArticulo'       => $id,
+                            'tipo'             => 'Merma acumulada',
+                            'severidad'        => $severidad,
+                            'c7_subcaso'       => $subcaso_c7a,
+                            'confianza'        => $c7a_confianza,
+                            'cascade_nivel'    => $c7a_cascade_nivel,
+                            'n_recepciones'    => $n_rec,
+                            'offset_estimado'  => round($mean_raw, 1),
+                            'dispersion'       => round($std_dev_raw_c7a, 1),
+                            'tendencia'        => round($tendencia_visible, 1),
+                            'tendencia_norm'   => round($beta_ts, 4),
+                            'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
+                            'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
+                            'delta_acumulado'  => round($delta_total, 1),
+                            'fecha_primera'    => $fechas_rec[0],
+                            'fecha_ultima'     => $fechas_rec[$n_rec - 1],
+                            '_floors_raw'      => $floors_map,
+                            'posible_causa'    => sprintf(
+                                'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción, cascada nivel %d, confianza %s): posible merma no registrada, caducidad sistemática o salida sin documentar',
+                                $delta_total,
+                                $tendencia_visible,
+                                $c7a_cascade_nivel,
+                                $c7a_confianza
+                            ),
+                        ];
+                    }
+                } // n_floors >= 3 && beta_ts > 0
+            } // isset C7a && mean_raw >= 0 && delta_total >= 2
 
             if ($test_floors !== null && isset($subcasos_set['C7b'])) {
                 // ── Estadísticos sobre el conjunto de test ───────────────────
@@ -5112,286 +5396,6 @@ class ClasePosstock
                 }
             }
 
-            // C7a — merma sistemática no registrada (suelos positivos en alza)
-            // C7a-019: cascada de 5 niveles sobre floors normalizados.
-            //
-            // Pre-filtros globales:
-            //   · mean_raw ≥ 0: suelos positivos en media (negativos → C7b)
-            //   · delta_total ≥ 2.0: variación acumulada mínima observable
-            //
-            // Nivel 5 (n_floors == 2): determinista, bypass de la cascada estadística.
-            // Niveles 1–4: requieren n_floors ≥ 3 y β_TS > 0.
-            $delta_total = $floors[$n_floors - 1] - $floors[0];
-            if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= 2.0) {
-
-                // ── Theil-Sen slope sobre floors_norm_all (C7a-012) ──────────
-                // Estimador de magnitud robusto; sustituye a β_OLS como 'tendencia'.
-                // O(n²) — negligible para n típico 3-15.
-                $ts_pairs = [];
-                for ($i = 0; $i < $n_floors; $i++) {
-                    for ($j = $i + 1; $j < $n_floors; $j++) {
-                        $ts_pairs[] = ($floors_norm_all[$j] - $floors_norm_all[$i]) / ($j - $i);
-                    }
-                }
-                sort($ts_pairs);
-                $n_ts    = count($ts_pairs);
-                $beta_ts = $n_ts > 0
-                    ? ($n_ts % 2 === 1
-                        ? $ts_pairs[intdiv($n_ts, 2)]
-                        : ($ts_pairs[$n_ts / 2 - 1] + $ts_pairs[$n_ts / 2]) / 2.0)
-                    : 0.0;
-                // tendencia en escala ud/recepción (comprensible para el usuario)
-                $tendencia_visible = $beta_ts * $dias_intervalo_medio_all;
-
-                // dispersión bruta para el campo 'dispersion' del array de salida
-                $variance_raw_c7a = 0.0;
-                foreach ($floors as $f) { $variance_raw_c7a += ($f - $mean_raw) ** 2; }
-                $std_dev_raw_c7a = $n_floors > 1 ? sqrt($variance_raw_c7a / ($n_floors - 1)) : 0.0;
-
-                // ── NIVEL 5: determinista n=2 — bypass de la cascada ─────────
-                if ($n_floors === 2) {
-                    if ($floors[1] > $floors[0]) {
-                        $incidencias[] = [
-                            'idArticulo'       => $id,
-                            'tipo'             => 'Merma acumulada',
-                            'severidad'        => 'BAJA',
-                            'c7_subcaso'       => 'C7a_posible',
-                            'confianza'        => 'posible',
-                            'cascade_nivel'    => 5,
-                            'n_recepciones'    => $n_rec,
-                            'offset_estimado'  => round($mean_raw, 1),
-                            'dispersion'       => round($std_dev_raw_c7a, 1),
-                            'tendencia'        => round($tendencia_visible, 1),
-                            'tendencia_norm'   => round($beta_ts, 4),
-                            'autocorr_lag1'    => 0.0,
-                            'p_mk'             => null,
-                            'delta_acumulado'  => round($delta_total, 1),
-                            'fecha_primera'    => $fechas_rec[0],
-                            'fecha_ultima'     => $fechas_rec[$n_rec - 1],
-                            '_floors_raw'      => $floors_map,
-                            'posible_causa'    => sprintf(
-                                'Suelo positivo en alza en las 2 únicas recepciones del periodo (+%.1f ud.): posible inicio de merma, aunque con solo 2 datos no es posible confirmarlo — conviene revisar manualmente.',
-                                $delta_total
-                            ),
-                        ];
-                    }
-
-                } elseif ($n_floors >= 3 && $beta_ts > 0.0) {
-                    // Pre-filtro de dirección: β_TS > 0 (señal de alza)
-
-                    $c7a_confianza     = null;
-                    $c7a_cascade_nivel = 0;
-                    $p_mk_c7a          = null;
-                    $cascade_nivel_act = 1;
-
-                    while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
-
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 1 · MANN-KENDALL con Hamed & Rao (C7a-019a)
-                        // No paramétrico; corrige autocorrelación lag-1.
-                        // ═══════════════════════════════════════════════════════
-                        if ($cascade_nivel_act === 1) {
-                            $S_mk = 0;
-                            for ($i = 0; $i < $n_floors; $i++) {
-                                for ($j = $i + 1; $j < $n_floors; $j++) {
-                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
-                                    if      ($d > 0.0) $S_mk++;
-                                    elseif  ($d < 0.0) $S_mk--;
-                                }
-                            }
-                            // Var_MK estándar (sin empates)
-                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
-                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
-                            if ($autocorr_lag1_c7a > 0.0) {
-                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
-                            }
-                            if ($var_mk > 0.0) {
-                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
-                                $z_mk  = $S_adj / sqrt($var_mk);
-                                // Φ(z) — Abramowitz & Stegun 26.2.17
-                                $az     = abs($z_mk);
-                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
-                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
-                                        * $t_phi * (0.3193815 + $t_phi * (-0.3565638
-                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
-                                        + $t_phi * 1.3302744))));
-                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
-                            } else {
-                                $p_mk_c7a = 1.0;
-                            }
-
-                            if      ($p_mk_c7a < 0.05) {
-                                $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
-                                $cascade_nivel_act = 0;
-                            } elseif ($p_mk_c7a >= 0.10) {
-                                $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
-                            } else {
-                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [0.05, 0.10)
-                            }
-
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
-                        // Alcanzable solo desde Nivel 1 (Tipo B).
-                        // ═══════════════════════════════════════════════════════
-                        } elseif ($cascade_nivel_act === 2) {
-                            $B_boot     = 999;
-                            $boot_betas = [];
-                            for ($b = 0; $b < $B_boot; $b++) {
-                                $idx_b = [];
-                                for ($k = 0; $k < $n_floors; $k++) {
-                                    $idx_b[] = mt_rand(0, $n_floors - 1);
-                                }
-                                sort($idx_b);
-                                $f_b = [];
-                                foreach ($idx_b as $ki) { $f_b[] = $floors_norm_all[$ki]; }
-                                $bp = [];
-                                $nb = count($f_b);
-                                for ($i = 0; $i < $nb; $i++) {
-                                    for ($j = $i + 1; $j < $nb; $j++) {
-                                        $bp[] = ($f_b[$j] - $f_b[$i]) / ($j - $i);
-                                    }
-                                }
-                                if (!empty($bp)) {
-                                    sort($bp);
-                                    $np = count($bp);
-                                    $boot_betas[] = $np % 2 === 1
-                                        ? $bp[intdiv($np, 2)]
-                                        : ($bp[$np / 2 - 1] + $bp[$np / 2]) / 2.0;
-                                }
-                            }
-                            if (!empty($boot_betas)) {
-                                sort($boot_betas);
-                                $nb_s     = count($boot_betas);
-                                $ic99_low = $boot_betas[(int)round(0.005 * ($nb_s - 1))];
-                                // detectar colapso de varianza (Tipo B)
-                                $mean_boot = array_sum($boot_betas) / $nb_s;
-                                $var_boot  = 0.0;
-                                foreach ($boot_betas as $bs) { $var_boot += ($bs - $mean_boot) ** 2; }
-                                $var_boot /= $nb_s;
-
-                                if ($var_boot < 1e-12) {
-                                    $cascade_nivel_act = 3;   // Tipo B: varianza bootstrap colapsa
-                                } elseif ($ic99_low > 0.0) {
-                                    $c7a_confianza = 'media'; $c7a_cascade_nivel = 2;
-                                    $cascade_nivel_act = 0;
-                                } else {
-                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
-                                }
-                            } else {
-                                $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
-                            }
-
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7a-019c)
-                        // Alcanzable desde Nivel 2 (Tipo B). Requiere n ≥ 4.
-                        // ═══════════════════════════════════════════════════════
-                        } elseif ($cascade_nivel_act === 3) {
-                            if ($n_floors < 4) {
-                                $cascade_nivel_act = 4;   // Tipo A: sin potencia mínima
-                            } else {
-                                $k_pos   = 0;
-                                $n_diffs = $n_floors - 1;
-                                for ($i = 0; $i < $n_diffs; $i++) {
-                                    if ($floors_norm_all[$i + 1] > $floors_norm_all[$i]) $k_pos++;
-                                }
-                                // P(Bin(n_diffs, 0.5) ≥ k_pos) exacto
-                                $p_signo  = 0.0;
-                                $bcoef    = 1.0;
-                                $pow_half = pow(0.5, $n_diffs);
-                                for ($k = 0; $k <= $n_diffs; $k++) {
-                                    if ($k > 0) $bcoef *= ($n_diffs - $k + 1) / $k;
-                                    if ($k >= $k_pos) $p_signo += $bcoef * $pow_half;
-                                }
-                                $p_signo = min(1.0, $p_signo);
-
-                                if ($p_signo < 0.05) {
-                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
-                                }
-                                $cascade_nivel_act = 0;   // nivel 3 siempre es definitivo (no hay Tipo B)
-                            }
-
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 4 · OLS + NEWEY-WEST IC95 (C7a-019d)
-                        // Último recurso paramétrico. Solo alcanzable cuando n < 4.
-                        // ═══════════════════════════════════════════════════════
-                        } elseif ($cascade_nivel_act === 4) {
-                            $cascade_nivel_act = 0;
-                            if ($se_corr_c7a > 0.0) {
-                                static $t_tab_nw = [
-                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
-                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
-                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
-                                ];
-                                $df_nw = max(1, $n_floors - 2);
-                                if ($df_nw > 120) {
-                                    $t_crit_nw = 1.645;
-                                } elseif (isset($t_tab_nw[$df_nw])) {
-                                    $t_crit_nw = $t_tab_nw[$df_nw];
-                                } else {
-                                    $keys_nw = array_keys($t_tab_nw);
-                                    $lo_nw = $hi_nw = null;
-                                    foreach ($keys_nw as $k) {
-                                        if ($k <= $df_nw) $lo_nw = $k;
-                                        if ($k >= $df_nw && $hi_nw === null) $hi_nw = $k;
-                                    }
-                                    $t_crit_nw = ($lo_nw !== null && $hi_nw !== null && $lo_nw !== $hi_nw)
-                                        ? $t_tab_nw[$lo_nw] + ($df_nw - $lo_nw) / ($hi_nw - $lo_nw) * ($t_tab_nw[$hi_nw] - $t_tab_nw[$lo_nw])
-                                        : ($lo_nw !== null ? $t_tab_nw[$lo_nw] : 6.314);
-                                }
-                                $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
-                                if ($ic95_low_nw > 0.0) {
-                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 4;
-                                }
-                                // ic95_low_nw ≤ 0 → resultado válido negativo: NO C7a
-                            }
-
-                        } else {
-                            $cascade_nivel_act = 0;
-                        }
-                    } // while cascade
-
-                    // ── Emitir incidencia si la cascada confirmó C7a ──────────
-                    if ($c7a_confianza !== null) {
-                        // c7_subcaso: C7a_posible para niveles ≥ 3 (no alimenta C7c/C7d/C7e)
-                        $subcaso_c7a = ($c7a_confianza === 'posible') ? 'C7a_posible' : 'C7a';
-
-                        if ($c7a_confianza === 'alta') {
-                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
-                        } elseif ($c7a_confianza === 'media') {
-                            $severidad = ($delta_total >= 10.0 || $tendencia_visible >= 2.0) ? 'ALTA' : 'MEDIA';
-                        } else {
-                            $severidad = 'BAJA';
-                        }
-
-                        $incidencias[] = [
-                            'idArticulo'       => $id,
-                            'tipo'             => 'Merma acumulada',
-                            'severidad'        => $severidad,
-                            'c7_subcaso'       => $subcaso_c7a,
-                            'confianza'        => $c7a_confianza,
-                            'cascade_nivel'    => $c7a_cascade_nivel,
-                            'n_recepciones'    => $n_rec,
-                            'offset_estimado'  => round($mean_raw, 1),
-                            'dispersion'       => round($std_dev_raw_c7a, 1),
-                            'tendencia'        => round($tendencia_visible, 1),
-                            'tendencia_norm'   => round($beta_ts, 4),
-                            'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
-                            'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
-                            'delta_acumulado'  => round($delta_total, 1),
-                            'fecha_primera'    => $fechas_rec[0],
-                            'fecha_ultima'     => $fechas_rec[$n_rec - 1],
-                            '_floors_raw'      => $floors_map,
-                            'posible_causa'    => sprintf(
-                                'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción, cascada nivel %d, confianza %s): posible merma no registrada, caducidad sistemática o salida sin documentar',
-                                $delta_total,
-                                $tendencia_visible,
-                                $c7a_cascade_nivel,
-                                $c7a_confianza
-                            ),
-                        ];
-                    }
-                } // n_floors >= 3 && beta_ts > 0
-            } // isset C7a && mean_raw >= 0 && delta_total >= 2
         }
 
         // ── C7b-007 + C7b-011: enriquecer C7b con proveedor y coste estimado ──
@@ -5428,7 +5432,11 @@ class ClasePosstock
         }
 
         // ── C7c: detección de cruces entre artículos (C7a + C7b activos) ─────
-        // Se ejecuta solo cuando ambos subcasos están activos (sin checkbox propio).
+        // Se ejecuta solo cuando ambos subcasos están activos (sin checkbox propio)
+        // Y cuando $skip_cde = false (fase final; con todos los artículos disponibles).
+        // En lotes parciales se salta: los cruces solo tienen sentido sobre el conjunto
+        // completo de artículos C7a+C7b; detectar dentro de un lote de 40 produce falsos
+        // negativos (el artículo cruzado puede estar en otro lote).
         //
         // Hipótesis: un cajero confunde artículo A (C7a, merma aparente) con
         // artículo B (C7b, déficit sistemático) al pesar en la balanza. Los offsets
@@ -5447,7 +5455,7 @@ class ClasePosstock
         //   · s_nombre: Jaccard sobre nombres
         //
         // Niveles: confirmado ≥ 0.80 | probable ≥ 0.65 | posible ≥ 0.50
-        if (isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
+        if (!$skip_cde && isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
 
             // Indexar C7b con sus floors por fecha
             $c7b_data = [];
@@ -5605,7 +5613,7 @@ class ClasePosstock
         // ── C7e / C7d — solo cuando ambos subcasos están activos ────────────
         // C7b-008: C7e y C7d se invocan aquí, con el mismo guard que C7c, para que
         // el ciclo de vida de _floors_raw quede completamente dentro de este método.
-        if (isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
+        if (!$skip_cde && isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
             $this->getIncidenciasC7e($incidencias);
             $this->getIncidenciasC7d($incidencias);
         }
@@ -5654,62 +5662,85 @@ class ClasePosstock
             $c7b_data = [];
             foreach ($incidencias as $inc) {
                 if ($inc['c7_subcaso'] !== 'C7b') continue;
-                $c7b_data[$inc['idArticulo']] = ['floors_raw' => $inc['_floors_raw']];
+                $c7b_data[$inc['idArticulo']] = [
+                    'floors_raw' => $inc['_floors_raw'],
+                    'ts_floors'  => $inc['_ts_floors']
+                        ?? array_combine(
+                            $keys = array_keys($inc['_floors_raw']),
+                            array_map('strtotime', $keys)
+                        ),
+                ];
             }
 
             $c7b_ids = array_keys($c7b_data);
             $n_c7b   = count($c7b_ids);
             $trios   = [];   // id_c7a => ['id_a', 'id_b', 'score', 'nivel']
 
+            // ── Pre-calcular emparejamientos (C7a, C7b) una sola vez ─────────
+            // pair_match[id_c7a][id_c7b] = [floor_date_c7a => mejor_v_c7b]
+            // Coste: O(N_a × N_b × F_c × F_b).  El triple loop interior pasa de
+            // O(N_a × N_b² × F² ) a O(N_a × N_b² × F) con array_intersect_key.
+            $ventana    = 7 * 86400;
+            $pair_match = [];
+            foreach ($incidencias as $inc_pm) {
+                if ($inc_pm['c7_subcaso'] !== 'C7a') continue;
+                $id_c     = $inc_pm['idArticulo'];
+                $ts_c_map = $inc_pm['_ts_floors'] ?? null;
+                $row      = [];
+                foreach ($c7b_data as $id_b => $cb) {
+                    $ts_b_map       = $cb['ts_floors'];
+                    $best_per_floor = [];
+                    foreach ($inc_pm['_floors_raw'] as $dc => $vc) {
+                        $ts_c      = $ts_c_map ? $ts_c_map[$dc] : strtotime($dc);
+                        $best_diff = $ventana + 1;
+                        $best_v    = null;
+                        foreach ($cb['floors_raw'] as $db => $vb) {
+                            $diff = abs($ts_c - $ts_b_map[$db]);
+                            if ($diff <= $ventana && $diff < $best_diff) {
+                                $best_diff = $diff;
+                                $best_v    = $vb;
+                            }
+                        }
+                        if ($best_v !== null) $best_per_floor[$dc] = $best_v;
+                    }
+                    $row[$id_b] = $best_per_floor;
+                }
+                $pair_match[$id_c] = $row;
+            }
+
             foreach ($incidencias as &$inc) {
                 if ($inc['c7_subcaso'] !== 'C7a') continue;
 
+                $matches_c   = $pair_match[$inc['idArticulo']] ?? [];
                 // Superar el score del par (si C7c ya encontró algo)
                 $mejor_score = isset($inc['cruce_score']) ? (float)$inc['cruce_score'] : 0.0;
                 $mejor_trio  = null;
 
                 for ($i = 0; $i < $n_c7b - 1; $i++) {
-                    $id_a = $c7b_ids[$i];
-                    $ca   = $c7b_data[$id_a];
+                    $id_a    = $c7b_ids[$i];
+                    $match_a = $matches_c[$id_a] ?? [];
+                    if (empty($match_a)) continue;
 
                     for ($j = $i + 1; $j < $n_c7b; $j++) {
-                        $id_b = $c7b_ids[$j];
-                        $cb   = $c7b_data[$id_b];
+                        $id_b    = $c7b_ids[$j];
+                        $match_b = $matches_c[$id_b] ?? [];
 
-                        // Construir triples (ancla en cada intervalo de C, ±7 días)
+                        // Solo fechas con match en ambos C7b
+                        $common = array_intersect_key($match_a, $match_b);
+                        if (count($common) < 6) continue;
+
                         $triples_c  = [];
                         $triples_a  = [];
                         $triples_b  = [];
                         $triples_ab = [];
-                        $ventana     = 7 * 86400;
-
-                        foreach ($inc['_floors_raw'] as $dc => $vc) {
-                            $ts_c = strtotime($dc);
-
-                            $best_va = null;
-                            $best_diff_a = $ventana + 1;
-                            foreach ($ca['floors_raw'] as $da => $va) {
-                                $diff = abs($ts_c - strtotime($da));
-                                if ($diff <= $ventana && $diff < $best_diff_a) {
-                                    $best_diff_a = $diff;
-                                    $best_va = $va;
-                                }
-                            }
-                            $best_vb = null;
-                            $best_diff_b = $ventana + 1;
-                            foreach ($cb['floors_raw'] as $db => $vb) {
-                                $diff = abs($ts_c - strtotime($db));
-                                if ($diff <= $ventana && $diff < $best_diff_b) {
-                                    $best_diff_b = $diff;
-                                    $best_vb = $vb;
-                                }
-                            }
-                            if ($best_va !== null && $best_vb !== null) {
-                                $triples_c[]  = $vc;
-                                $triples_a[]  = abs($best_va);
-                                $triples_b[]  = abs($best_vb);
-                                $triples_ab[] = abs($best_va) + abs($best_vb);
-                            }
+                        foreach ($common as $dc => $_) {
+                            $vc           = $inc['_floors_raw'][$dc];
+                            $va           = abs($match_a[$dc]);
+                            $vb           = abs($match_b[$dc]);
+                            $triples_c[]  = $vc;
+                            $triples_a[]  = $va;
+                            $triples_b[]  = $vb;
+                            $triples_ab[] = $va + $vb;
                         }
 
                         if (count($triples_c) < 6) continue;
@@ -5837,7 +5868,14 @@ class ClasePosstock
         $c7b_data = [];
         foreach ($incidencias as $inc) {
             if ($inc['c7_subcaso'] !== 'C7b') continue;
-            $c7b_data[$inc['idArticulo']] = ['floors_raw' => $inc['_floors_raw']];
+            $c7b_data[$inc['idArticulo']] = [
+                'floors_raw' => $inc['_floors_raw'],
+                'ts_floors'  => $inc['_ts_floors']
+                    ?? array_combine(
+                        $keys = array_keys($inc['_floors_raw']),
+                        array_map('strtotime', $keys)
+                    ),
+            ];
         }
 
         $ids_c7 = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
@@ -5864,15 +5902,17 @@ class ClasePosstock
                 if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
 
                 // ── Emparejamiento temporal ±7 días ───────────────────────────
-                $pairs_a = [];
-                $pairs_b = [];
+                $pairs_a  = [];
+                $pairs_b  = [];
                 $ventana  = 7 * 86400;
+                $ts_a_map = $inc['_ts_floors'] ?? null;
+                $ts_b_map = $cb['ts_floors'];
                 foreach ($inc['_floors_raw'] as $da => $va) {
-                    $ts_a = strtotime($da);
+                    $ts_a      = $ts_a_map ? $ts_a_map[$da] : strtotime($da);
                     $best_diff = $ventana + 1;
-                    $best_vb = null;
+                    $best_vb   = null;
                     foreach ($cb['floors_raw'] as $db => $vb) {
-                        $diff = abs($ts_a - strtotime($db));
+                        $diff = abs($ts_a - $ts_b_map[$db]);
                         if ($diff <= $ventana && $diff < $best_diff) {
                             $best_diff = $diff;
                             $best_vb   = $vb;
@@ -6146,13 +6186,32 @@ class ClasePosstock
         if (empty($casos_sin_paginables)) {
             $filas = $this->getIncidencias($params);
             if (isset($filas['error'])) return $filas;
-            return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0]; // elementos=0 → fin
+            return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0, 'pagina_efectiva' => 0]; // elementos=0 → fin
+        }
+
+        // C7a y C7b requieren cálculo estadístico intensivo por artículo (bootstrap 999
+        // iteraciones, Mann-Kendall O(n²), Theil-Sen O(n²)). Con lotes grandes el proceso
+        // puede tardar varios minutos y provocar que MySQL cierre la conexión por wait_timeout.
+        // Se reduce el tamaño del lote para que cada request tarde <30 s.
+        // C7c/d/e se salta en estos lotes parciales: requiere el conjunto COMPLETO de
+        // artículos C7a+C7b para detectar cruces; ver resolverPOSStockC7cde.php (fase 2).
+        $casos_c7_activos = array_intersect($casos_incluir, ['caso7a', 'caso7b']);
+        if (!empty($casos_c7_activos)) {
+            // C7 usa bootstrap O(n²) por artículo — lotes más grandes que otros casos pero
+            // razonables. C7cde ya corre aparte (fase 2), así que el riesgo de timeout
+            // por lote es menor. 80 artículos ≈ 10–20 s de procesado estadístico.
+            $pagina = min($pagina, 80);
         }
 
         // En batches mixtos, excluir C4 y C6b de la paginación;
         // C6b se añade al primer lote (inicial === 0) para que aparezca una sola vez.
         $params_batch = $params;
         $params_batch['casos_incluir'] = $casos_sin_paginables;
+        // C7c/d/e necesita todos los artículos C7a+C7b: se salta en lotes parciales
+        // y corre en una llamada final independiente (resolverPOSStockC7cde).
+        if (!empty($casos_c7_activos)) {
+            $params_batch['skip_c7_cde'] = true;
+        }
 
         // ── Obtener IDs del lote según modo de proveedor ─────────────────────
         if ($proveedor_todos && $ids_str_prov !== '') {
@@ -6206,9 +6265,295 @@ class ClasePosstock
         }
 
         return [
-            'filas'     => $filas,
-            'actual'    => $actual,
-            'elementos' => $elementos,
+            'filas'          => $filas,
+            'actual'         => $actual,
+            'elementos'      => $elementos,
+            'pagina_efectiva' => $pagina,   // el JS usa este valor para saber si hay más lotes
         ];
+    }
+
+    /**
+     * Fase 2 de C7: resuelve los cruces C7c/d/e sobre el conjunto COMPLETO de artículos
+     * C7a+C7b ya detectados en los lotes de la fase 1.
+     *
+     * OPTIMIZACIÓN: NO re-ejecuta la cascada estadística (Mann-Kendall, bootstrap,
+     * Theil-Sen, Wilcoxon…). Solo necesita _floors_raw + offset + dispersión, que se
+     * obtienen con 2 SQL + un bucle de cálculo de suelos. Para 5–50 artículos es
+     * prácticamente instantáneo incluso en periodos trimestrales/anuales.
+     *
+     * @param  array  $params   Fechas + familias (fi_mov, ff_mov, fi_stock, familias_*).
+     * @param  int[]  $ids_c7a  idArticulo de artículos detectados como C7a en fase 1.
+     * @param  int[]  $ids_c7b  idArticulo de artículos detectados como C7b en fase 1.
+     * @return array  ['cruces' => [idArticulo => [cruce fields]]] o ['error' => ...]
+     */
+    public function resolverC7cde(array $params, array $ids_c7a, array $ids_c7b): array
+    {
+        $ids_c7a = array_values(array_unique(array_map('intval', $ids_c7a)));
+        $ids_c7b = array_values(array_unique(array_map('intval', $ids_c7b)));
+        $ids_all = array_values(array_unique(array_merge($ids_c7a, $ids_c7b)));
+        if (empty($ids_all)) return ['cruces' => []];
+
+        $fi_mov  = $params['fecha_inicio_movimientos'];
+        $ff_mov  = $params['fecha_fin_movimientos'];
+        $fi_stock = $params['fecha_inicio_stock'];
+        $familias_incluir = (array)($params['familias_incluir'] ?? []);
+        $familias_excluir = (array)($params['familias_excluir'] ?? []);
+
+        $fi_stk = $this->db->real_escape_string($fi_stock);
+        $ff     = $this->db->real_escape_string($ff_mov);
+        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->_idsWhere($ids_all);
+
+        // ── SQL 1: recepciones en la ventana fi_stock→ff_mov ─────────────────
+        $rows_rec = $this->_queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
+        if (isset($rows_rec['error'])) return $rows_rec;
+        if (empty($rows_rec)) return ['cruces' => []];
+
+        $recepciones_map = [];
+        foreach ($rows_rec as $r) {
+            $recepciones_map[(int)$r['idArticulo']][] = $r['fecha'];
+        }
+        foreach ($recepciones_map as $id => $fechas) {
+            $u = array_values(array_unique($fechas));
+            sort($u);
+            $recepciones_map[$id] = $u;
+        }
+
+        // ── SQL 2: timeline de movimientos ───────────────────────────────────
+        $ids_str = implode(',', $ids_all);
+        $rows_tl = $this->_queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
+        if (isset($rows_tl['error'])) return $rows_tl;
+
+        $daily_map = [];
+        foreach ($rows_tl as $r) {
+            $daily_map[(int)$r['idArticulo']][$r['fecha']] = (float)$r['day_delta'];
+        }
+
+        // ── Construir incidencias mínimas para C7c/d/e ───────────────────────
+        // Solo se necesita: idArticulo, c7_subcaso, _floors_raw, offset_estimado, dispersion.
+        // No se ejecuta ninguna cascada estadística.
+        $ids_c7a_set = array_flip($ids_c7a);
+        $ids_c7b_set = array_flip($ids_c7b);
+        $incidencias_cde = [];
+
+        foreach ($ids_all as $id) {
+            if (!isset($recepciones_map[$id])) continue;
+            $fechas_rec = $recepciones_map[$id];
+            $n_rec      = count($fechas_rec);
+            $daily      = $daily_map[$id] ?? [];
+
+            // Stock acumulado por fecha (mismo cálculo que getIncidenciasC7)
+            $cum_delta     = 0.0;
+            $stock_by_date = [];
+            $all_dates     = array_keys($daily);
+            sort($all_dates);
+            foreach ($all_dates as $d) {
+                $cum_delta        += $daily[$d];
+                $stock_by_date[$d] = $cum_delta;
+            }
+            if (empty($stock_by_date)) continue;
+
+            // Suelos inter-recepción
+            $floors        = [];
+            $fechas_floors = [];
+            for ($i = 0; $i < $n_rec; $i++) {
+                $fecha_ini = $fechas_rec[$i];
+                $fecha_fin = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null;
+                $min_floor = null;
+                foreach ($stock_by_date as $d => $stock) {
+                    if ($d < $fecha_ini) continue;
+                    if ($fecha_fin !== null && $d >= $fecha_fin) continue;
+                    if ($min_floor === null || $stock < $min_floor) $min_floor = $stock;
+                }
+                if ($min_floor !== null) {
+                    $floors[]        = $min_floor;
+                    $fechas_floors[] = $fecha_ini;
+                }
+            }
+            $n_floors = count($floors);
+            if ($n_floors < 2) continue;
+
+            $floors_map = [];
+            $ts_map     = [];
+            for ($i = 0; $i < $n_floors; $i++) {
+                $fecha = $fechas_floors[$i];
+                $floors_map[$fecha] = $floors[$i];
+                $ts_map[$fecha]     = strtotime($fecha);
+            }
+
+            $mean_raw = array_sum($floors) / $n_floors;
+            $var_raw  = 0.0;
+            foreach ($floors as $f) { $var_raw += ($f - $mean_raw) ** 2; }
+            $std_raw  = $n_floors > 1 ? sqrt($var_raw / ($n_floors - 1)) : 0.0;
+
+            // Determinar subcaso desde las listas de la fase 1
+            if (isset($ids_c7a_set[$id])) {
+                $subcaso = 'C7a';
+            } elseif (isset($ids_c7b_set[$id])) {
+                $subcaso = 'C7b';
+            } else {
+                continue; // no debería ocurrir
+            }
+
+            $incidencias_cde[] = [
+                'idArticulo'      => $id,
+                'c7_subcaso'      => $subcaso,
+                '_floors_raw'     => $floors_map,
+                '_ts_floors'      => $ts_map,
+                'offset_estimado' => round($mean_raw, 1),
+                'dispersion'      => round($std_raw,  1),
+                'posible_causa'   => '',
+            ];
+        }
+
+        if (empty($incidencias_cde)) return ['cruces' => []];
+
+        // ── Ejecutar C7c / C7e / C7d sobre el conjunto completo ──────────────
+        // C7c: cruces de pares C7a ↔ C7b
+        $c7b_data   = [];
+        foreach ($incidencias_cde as $inc) {
+            if ($inc['c7_subcaso'] !== 'C7b') continue;
+            $c7b_data[$inc['idArticulo']] = [
+                'floors_raw' => $inc['_floors_raw'],
+                'ts_floors'  => $inc['_ts_floors'],
+            ];
+        }
+        $ids_str_cde = implode(',', array_unique(array_column($incidencias_cde, 'idArticulo')));
+        $meta_c7c    = $this->_queryMetaC7c($ids_str_cde);
+        $cruces_map  = [];
+
+        // ── C7c inline (replicado del bloque en getIncidenciasC7) ────────────
+        foreach ($incidencias_cde as &$inc) {
+            if ($inc['c7_subcaso'] !== 'C7a') continue;
+            $mejor_score = 0.0;
+            $mejor_id    = null;
+            $mejor_nivel = '';
+            $n1_a = $meta_c7c[$inc['idArticulo']]['familias_n1'] ?? [];
+
+            foreach ($c7b_data as $id_b => $cb) {
+                $n1_b = $meta_c7c[$id_b]['familias_n1'] ?? [];
+                if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
+
+                // Emparejar suelos por fecha próxima (±7 días)
+                $pairs_a  = []; $pairs_b = [];
+                $ventana  = 7 * 86400;
+                $ts_a_map = $inc['_ts_floors'];
+                $ts_b_map = $cb['ts_floors'];
+                foreach ($inc['_floors_raw'] as $da => $va) {
+                    $ts_a    = $ts_a_map[$da];
+                    $best_vb = null; $best_diff = $ventana + 1;
+                    foreach ($cb['floors_raw'] as $db => $vb) {
+                        $diff = abs($ts_a - $ts_b_map[$db]);
+                        if ($diff <= $ventana && $diff < $best_diff) {
+                            $best_diff = $diff; $best_vb = $vb;
+                        }
+                    }
+                    if ($best_vb !== null) { $pairs_a[] = $va; $pairs_b[] = $best_vb; }
+                }
+                $n_pairs = count($pairs_a);
+                if ($n_pairs < 4) continue;
+
+                // Media y CV de cada lado
+                $mu_a = array_sum($pairs_a) / $n_pairs;
+                $mu_b = array_sum($pairs_b) / $n_pairs;
+                $max_abs = max(abs($mu_a), abs($mu_b));
+                if ($max_abs < 1e-9) continue;
+                if (abs($mu_a + $mu_b) / $max_abs > 0.45) continue;
+
+                $std_a = 0.0; foreach ($pairs_a as $v) { $std_a += ($v - $mu_a) ** 2; }
+                $std_a = $n_pairs > 1 ? sqrt($std_a / ($n_pairs - 1)) : 0.0;
+                $std_b = 0.0; foreach ($pairs_b as $v) { $std_b += ($v - $mu_b) ** 2; }
+                $std_b = $n_pairs > 1 ? sqrt($std_b / ($n_pairs - 1)) : 0.0;
+                $cv_a  = $mu_a != 0.0 ? $std_a / abs($mu_a) : PHP_FLOAT_MAX;
+                $cv_b  = $mu_b != 0.0 ? $std_b / abs($mu_b) : PHP_FLOAT_MAX;
+                if ($cv_a >= 0.70 || $cv_b >= 0.70) continue;
+
+                // Pearson sobre valores absolutos
+                $pearson = 0.0;
+                if ($n_pairs >= 4 && $std_a > 0.0 && $std_b > 0.0) {
+                    $cov = 0.0;
+                    for ($k = 0; $k < $n_pairs; $k++) {
+                        $cov += (abs($pairs_a[$k]) - abs($mu_a)) * (abs($pairs_b[$k]) - abs($mu_b));
+                    }
+                    $pearson = $cov / ($n_pairs * $std_a * $std_b);
+                }
+                if ($pearson < 0.50) continue;
+
+                // Score
+                $s_mag   = 1.0 - abs($mu_a + $mu_b) / $max_abs;
+                $s_disp  = ($std_a > 0.0 && $std_b > 0.0)
+                    ? max(0.0, 1.0 - abs(log($std_a / $std_b)) / 2.0) : 0.0;
+                $nom_a   = $meta_c7c[$inc['idArticulo']]['nombre'] ?? '';
+                $nom_b   = $meta_c7c[$id_b]['nombre'] ?? '';
+                $tok_a   = array_flip(preg_split('/\W+/u', mb_strtolower($nom_a), -1, PREG_SPLIT_NO_EMPTY));
+                $tok_b   = array_flip(preg_split('/\W+/u', mb_strtolower($nom_b), -1, PREG_SPLIT_NO_EMPTY));
+                $inter   = count(array_intersect_key($tok_a, $tok_b));
+                $union   = count(array_merge($tok_a, $tok_b));
+                $s_nom   = $union > 0 ? $inter / $union : 0.0;
+                $score   = 0.50 * $s_mag + 0.25 * $pearson + 0.15 * $s_disp + 0.10 * $s_nom;
+
+                $nivel = $score >= 0.80 ? 'confirmado' : ($score >= 0.65 ? 'probable' : ($score >= 0.50 ? 'posible' : ''));
+                if ($nivel === '' || $score <= $mejor_score) continue;
+                $mejor_score = $score; $mejor_id = $id_b; $mejor_nivel = $nivel;
+            }
+
+            if ($mejor_id !== null) {
+                $inc['posible_cruce_con'] = $mejor_id;
+                $inc['cruce_score']       = round($mejor_score, 2);
+                $inc['cruce_nivel']       = $mejor_nivel;
+                $cruces_map[$inc['idArticulo']] = ['id_b' => $mejor_id, 'score' => round($mejor_score, 2), 'nivel' => $mejor_nivel];
+                $inc['posible_causa'] = sprintf(
+                    'Merma con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza de autopesaje entre ambos artículos',
+                    $mejor_id, $mejor_nivel, $mejor_score
+                );
+            }
+        }
+        unset($inc);
+
+        // C7e y C7d sobre el conjunto completo (después de C7c)
+        $this->getIncidenciasC7e($incidencias_cde);
+        $this->getIncidenciasC7d($incidencias_cde);
+
+        // Propagar cruce al lado C7b
+        if (!empty($cruces_map)) {
+            $c7b_cruce = [];
+            foreach ($cruces_map as $id_a => $data) {
+                $id_b = $data['id_b'];
+                if (!isset($c7b_cruce[$id_b]) || $data['score'] > $c7b_cruce[$id_b]['score']) {
+                    $c7b_cruce[$id_b] = ['id_a' => $id_a, 'score' => $data['score'], 'nivel' => $data['nivel']];
+                }
+            }
+            foreach ($incidencias_cde as &$inc) {
+                if ($inc['c7_subcaso'] !== 'C7b') continue;
+                if (!isset($c7b_cruce[$inc['idArticulo']])) continue;
+                $d = $c7b_cruce[$inc['idArticulo']];
+                $inc['posible_cruce_con'] = $d['id_a'];
+                $inc['cruce_score']       = $d['score'];
+                $inc['cruce_nivel']       = $d['nivel'];
+                $inc['posible_causa'] = sprintf(
+                    'Déficit de ~%.0f ud. con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza o recepción no registrada',
+                    abs((float)($inc['offset_estimado'] ?? 0)), $d['id_a'], $d['nivel'], $d['score']
+                );
+            }
+            unset($inc);
+        }
+
+        // C7e y C7d ya corrieron arriba; eliminar _floors_raw antes de devolver
+        foreach ($incidencias_cde as &$inc) { unset($inc['_floors_raw']); }
+        unset($inc);
+
+        // Extraer solo las anotaciones de cruce
+        $cruces = [];
+        foreach ($incidencias_cde as $f) {
+            if (!isset($f['posible_cruce_con'])) continue;
+            $cruces[(int)$f['idArticulo']] = [
+                'posible_cruce_con' => (int)$f['posible_cruce_con'],
+                'cruce_score'       => $f['cruce_score']  ?? null,
+                'cruce_nivel'       => $f['cruce_nivel']  ?? null,
+                'posible_causa'     => $f['posible_causa'] ?? null,
+            ];
+        }
+
+        return ['cruces' => $cruces];
     }
 }

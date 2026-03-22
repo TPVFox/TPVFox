@@ -38,6 +38,9 @@ switch ($pulsado) {
     case 'getPOSStockBatch':
         include_once $URLCom . '/modulos/mod_informes/tareas/getPOSStockBatch.php';
         break;
+    case 'resolverPOSStockC7cde':
+        include_once $URLCom . '/modulos/mod_informes/tareas/resolverPOSStockC7cde.php';
+        break;
     case 'getFamiliasPosstock':
         include_once $URLCom . '/modulos/mod_informes/tareas/getFamiliasPosstock.php';
         break;

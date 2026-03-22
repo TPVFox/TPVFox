@@ -20,6 +20,7 @@ if (isset($resultado['error'])) {
     return;
 }
 
-$respuesta['filas']     = $resultado['filas'];
-$respuesta['actual']    = $resultado['actual'];
-$respuesta['elementos'] = $resultado['elementos'];
+$respuesta['filas']           = $resultado['filas'];
+$respuesta['actual']          = $resultado['actual'];
+$respuesta['elementos']       = $resultado['elementos'];
+$respuesta['pagina_efectiva'] = $resultado['pagina_efectiva'] ?? $pagina;
