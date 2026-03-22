@@ -301,17 +301,23 @@ function abrirModalConfigPosstock($posstock)
     // --- BLOQUE 4c: CASO 7b — RECEPCIÓN NO REGISTRADA ---
     $c7b_min_rec_actual     = (string)($posstock->c7b_min_recepciones         ?: '3');
     $c7b_cv_actual          = (string)($posstock->c7b_umbral_cv               ?: '0.5');
+    $c7b_cv_peso_actual     = (string)($posstock->c7b_umbral_cv_peso          ?: '0.75');
+    $c7b_iqr_peso_actual    = (string)($posstock->c7b_umbral_iqr_peso         ?: '2.0');
     $c7b_ruido_actual       = (string)($posstock->c7b_umbral_ruido_peso       ?: '0.5');
     $c7b_sev_unidad_actual  = (string)($posstock->c7b_umbral_severidad_unidad ?: '5');
     $c7b_sev_peso_actual    = (string)($posstock->c7b_umbral_severidad_peso   ?: '2.5');
+    $c7b_cascada_exh_actual = ((string)($posstock->c7b_cascada_exhaustiva     ?: 'false') === 'true');
 
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-inbox"></i> Recepción no registrada — detección de patrón (C7b)</div>';
     $html .= '  <div class="panel-body">';
+
+    // ── Fila 1: Detección — condiciones de aplicabilidad del test estadístico ──
+    $html .= '    <p class="small text-muted" style="margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Condiciones de detección</p>';
     $html .= '    <div class="row">';
 
     $html .= '      <div class="col-xs-12 col-sm-3">';
-    $html .= '        <label class="control-label small" title="Mínimo de recepciones históricas (período base anterior al período analizado) para que el test estadístico IC95 sea válido. Con menos recepciones el test no se aplica. Rango: 3–10.">Mín. recepciones base<br><small class="text-muted">(para test IC95)</small></label>';
+    $html .= '        <label class="control-label small" title="Número mínimo de recepciones históricas (período base) para aplicar la cascada estadística. Con menos recepciones el test no se ejecuta. Rango: 3–10.">Mín. recepciones base<br><small class="text-muted">(para cascada estadística)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="1" min="3" max="10" class="form-control text-right" name="inputC7bMinRecepciones" value="' . htmlspecialchars($c7b_min_rec_actual) . '" required>';
     $html .= '          <span class="input-group-addon">rec.</span>';
@@ -319,43 +325,64 @@ function abrirModalConfigPosstock($posstock)
     $html .= '      </div>';
 
     $html .= '      <div class="col-xs-12 col-sm-3">';
-    $html .= '        <label class="control-label small" title="Coeficiente de variación máximo para considerar el patrón estable. Un valor alto tolera más irregularidad en el déficit entre recepciones. Rango: 0.3–0.9.">Umbral CV (estabilidad)<br><small class="text-muted">(CV máximo aceptable)</small></label>';
+    $html .= '        <label class="control-label small" title="CV máximo del déficit normalizado para considerar el patrón lo suficientemente estable. Aplica a artículos por unidad. Subir tolera más irregularidad. Rango: 0.3–0.9.">Variabilidad máx. — unidad<br><small class="text-muted">(CV del déficit normalizado)</small></label>';
     $html .= '        <input type="number" step="0.05" min="0.3" max="0.9" class="form-control input-sm text-right" name="inputC7bUmbralCV" value="' . htmlspecialchars($c7b_cv_actual) . '" required>';
     $html .= '      </div>';
 
     $html .= '      <div class="col-xs-12 col-sm-3">';
-    $html .= '        <label class="control-label small" title="Déficit medio (kg) por debajo del cual el sistema lo clasifica como posible error de calibración de balanza en vez de albarán no registrado. Solo afecta a artículos de tipo peso. Rango: 0.1–2.0.">Umbral ruido pesaje<br><small class="text-muted">(kg, solo artículos peso)</small></label>';
+    $html .= '        <label class="control-label small" title="CV máximo para artículos de peso (fruta, carnicería). Mayor que el de unidad porque la cantidad por entrega varía intrínsecamente. Rango: 0.5–1.2.">Variabilidad máx. — peso<br><small class="text-muted">(fruta, carnicería, etc.)</small></label>';
+    $html .= '        <input type="number" step="0.05" min="0.5" max="1.2" class="form-control input-sm text-right" name="inputC7bUmbralCVPeso" value="' . htmlspecialchars($c7b_cv_peso_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Dispersión máxima entre entregas para artículos de peso, expresada como múltiplo del déficit medio (IQR &lt; N×|media|). Un valor mayor tolera entregas con cantidades muy distintas. Rango: 1.5–3.0.">Dispersión máx. — peso<br><small class="text-muted">(tolerancia entre entregas)</small></label>';
+    $html .= '        <input type="number" step="0.1" min="1.5" max="3.0" class="form-control input-sm text-right" name="inputC7bUmbralIQRPeso" value="' . htmlspecialchars($c7b_iqr_peso_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 2: Severidad — magnitud del déficit y filtro de ruido de pesaje ──
+    $html .= '    <p class="small text-muted" style="margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Severidad</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Déficit medio (kg) por debajo del cual el sistema lo clasifica como posible error de calibración de balanza en vez de albarán no registrado. Solo afecta a artículos de peso. Rango: 0.1–2.0.">Umbral ruido de pesaje<br><small class="text-muted">(kg — solo artículos de peso)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="0.1" min="0.1" max="2.0" class="form-control text-right" name="inputC7bUmbralRuidoPeso" value="' . htmlspecialchars($c7b_ruido_actual) . '" required>';
     $html .= '          <span class="input-group-addon">kg</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 
-    $html .= '      <div class="col-xs-12 col-sm-3"></div>';
-
-    $html .= '    </div>';
-    $html .= '    <div class="row" style="margin-top:8px;">';
-
-    $html .= '      <div class="col-xs-12 col-sm-6">';
-    $html .= '        <label class="control-label small" title="Déficit medio mínimo (unidades) para clasificar la incidencia como ALTA en artículos de tipo unidad. Por debajo de este valor se clasifica como MEDIA. Rango: 2–20.">Umbral severidad ALTA — artículos por unidad<br><small class="text-muted">(déficit medio mínimo)</small></label>';
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Déficit medio mínimo (unidades/día) para que la magnitud no rebaje la severidad. Por debajo de este valor la severidad base se reduce un nivel. Rango: 2–20.">Magnitud mínima — unidad<br><small class="text-muted">(déficit ud./día para no rebajar)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="1" min="2" max="20" class="form-control text-right" name="inputC7bUmbralSevUnidad" value="' . htmlspecialchars($c7b_sev_unidad_actual) . '" required>';
-    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '          <span class="input-group-addon">ud./d</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 
-    $html .= '      <div class="col-xs-12 col-sm-6">';
-    $html .= '        <label class="control-label small" title="Déficit medio mínimo (kg) para clasificar la incidencia como ALTA en artículos de tipo peso. Por debajo de este valor se clasifica como MEDIA. Rango: 0.5–10.0.">Umbral severidad ALTA — artículos por peso<br><small class="text-muted">(déficit medio mínimo)</small></label>';
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Déficit medio mínimo (kg/día) para que la magnitud no rebaje la severidad. Por debajo de este valor la severidad base se reduce un nivel. Rango: 0.5–10.0.">Magnitud mínima — peso<br><small class="text-muted">(déficit kg/día para no rebajar)</small></label>';
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="0.5" min="0.5" max="10.0" class="form-control text-right" name="inputC7bUmbralSevPeso" value="' . htmlspecialchars($c7b_sev_peso_actual) . '" required>';
-    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '          <span class="input-group-addon">kg/d</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 
     $html .= '    </div>';
-    $html .= '    <p class="text-muted small" style="margin:8px 0 0;">';
-    $html .= '      C7b detecta el patrón sobre el historial anterior al período analizado (período base). Si hay pocas recepciones históricas, usa el propio período. Subir el umbral CV tolera más variabilidad; bajarlo exige patrones más regulares.';
-    $html .= '    </p>';
+
+    // ── Fila 3: Diagnóstico ──
+    $html .= '    <div class="panel panel-warning" style="margin:12px 0 0;border-radius:3px;">';
+    $html .= '      <div class="panel-body" style="padding:8px 12px;">';
+    $html .= '        <div class="checkbox" style="margin:0;">';
+    $html .= '          <label class="small" title="Modo diagnóstico: la cascada estadística continúa aunque un test válido no alcance significancia (p≥0.05). El nivel que confirme determinará la confianza y severidad. El motivo de cada fallback queda registrado en test_fallback_reason. Desactivar en producción.">';
+    $html .= '            <input type="checkbox" name="inputC7bCascadaExhaustiva" value="1"' . ($c7b_cascada_exh_actual ? ' checked' : '') . '>';
+    $html .= '            <strong>Cascada exhaustiva</strong> <small class="text-muted">— continúa la cascada aunque un test no sea significativo (diagnóstico y auditoría, no recomendado en producción)</small>';
+    $html .= '          </label>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+    $html .= '    </div>';
+
     $html .= '  </div>';
     $html .= '</div>';
 

@@ -399,6 +399,9 @@ function _posstockReordenarTabla() {
     var tbody = document.querySelector("#posstockTabla tbody");
     if (!tbody) return;
 
+    // Eliminar cabeceras de grupo previas
+    Array.from(tbody.querySelectorAll("tr[data-prov-header]")).forEach(function (tr) { tr.remove(); });
+
     var filas = Array.from(tbody.querySelectorAll("tr"));
 
     if (_posstockAgrupadoPorProv) {
@@ -406,14 +409,52 @@ function _posstockReordenarTabla() {
         filas.sort(function (a, b) {
             var pa = a.dataset.prov || "";
             var pb = b.dataset.prov || "";
-            // Filas sin proveedor (otros tipos de incidencia) van al final
             if (pa === "" && pb !== "") return 1;
             if (pa !== "" && pb === "") return -1;
             if (pa !== pb) return pa.localeCompare(pb, "es");
-            // Dentro del mismo proveedor: mantener orden original (data-orden)
             var oa = a.dataset.orden || "";
             var ob = b.dataset.orden || "";
             return oa < ob ? -1 : oa > ob ? 1 : 0;
+        });
+
+        // Reinsertar filas e inyectar cabecera al inicio de cada grupo
+        var provActual = null;
+        var sinProvHeader = false;
+
+        function _crearCabeceraGrupo(provKey, label, icono) {
+            var nGrupo = 0, costeGrupo = 0;
+            filas.forEach(function (f) {
+                if ((f.dataset.prov || "") === provKey && f.style.display !== "none") {
+                    nGrupo++;
+                    costeGrupo += parseFloat(f.dataset.coste || "0");
+                }
+            });
+            var costeTexto = costeGrupo > 0
+                ? ' &nbsp;·&nbsp; Valor est.: <strong>~' + costeGrupo.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + ' €</strong>'
+                : '';
+            var tr = document.createElement("tr");
+            tr.setAttribute("data-prov-header", provKey || "__sinprov__");
+            tr.style.cssText = "background:#f0f4fa;border-top:2px solid #c8d4e8;"
+                + (nGrupo === 0 ? "display:none;" : "");
+            tr.innerHTML = '<td colspan="7" style="font-weight:600;padding:4px 8px;font-size:12px;">'
+                + '<i class="glyphicon glyphicon-' + icono + '" style="margin-right:5px;color:#5a7ab5;"></i>'
+                + label
+                + ' &nbsp;<span class="label label-default">' + nGrupo + ' artículo' + (nGrupo !== 1 ? 's' : '') + '</span>'
+                + costeTexto
+                + '</td>';
+            return tr;
+        }
+
+        filas.forEach(function (fila) {
+            var prov = fila.dataset.prov || "";
+            if (prov !== "" && prov !== provActual) {
+                provActual = prov;
+                tbody.appendChild(_crearCabeceraGrupo(prov, prov, "truck"));
+            } else if (prov === "" && !sinProvHeader) {
+                sinProvHeader = true;
+                tbody.appendChild(_crearCabeceraGrupo("", "Proveedor no identificado", "question-sign"));
+            }
+            tbody.appendChild(fila);
         });
     } else {
         // Restaurar orden original por data-orden
@@ -422,10 +463,8 @@ function _posstockReordenarTabla() {
             var ob = b.dataset.orden || "";
             return oa < ob ? -1 : oa > ob ? 1 : 0;
         });
+        filas.forEach(function (fila) { tbody.appendChild(fila); });
     }
-
-    // Reinsertar filas en el nuevo orden
-    filas.forEach(function (fila) { tbody.appendChild(fila); });
 }
 
 // Resetear el estado de agrupación cuando se recarga la tabla
@@ -544,8 +583,10 @@ function _posstockEnriquecerC1aConC7b(filas) {
     // Si caso7b no estaba marcado por el usuario, eliminar sus filas del array
     // (fueron añadidas solo para poder enriquecer C1a con el badge)
     var caso7bMarcado = (function () {
+        // En modo anual el usuario eligió el tipo explícitamente: conservar todas las filas.
+        if (window.posstockTipoActivo === "anual") return true;
         var chk = document.getElementById("posstockChk_caso7b");
-        return chk ? chk.checked : true; // si no hay checkbox (modo anual) dejar todas
+        return chk ? chk.checked : true; // si no hay checkbox dejar todas
     })();
     if (!caso7bMarcado) {
         var i = filas.length;
@@ -713,6 +754,9 @@ function _posstockIniciarFiltroBadges() {
 /** Aplica show/hide a las filas según el estado del filtro. */
 function _aplicarFiltroBadges(filas, visiblesBadges, sinBadgeVisible) {
     filas.forEach(function (tr) {
+        // Las cabeceras de grupo de proveedor siempre visibles — se gestionan por _posstockReordenarTabla
+        if (tr.hasAttribute("data-prov-header")) return;
+
         var val = tr.getAttribute("data-badges") || "";
         var badgesFila = val === "" ? [] : val.split("|").map(function (b) { return b.trim(); });
 
