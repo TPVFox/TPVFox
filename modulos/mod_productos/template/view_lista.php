@@ -287,7 +287,7 @@
                             <td><?= $producto['estado'] ?></td>
 
                             <td>
-                                <a href="<?= $HostNombre ?>/modulos/mod_producto/DetalleMayor.php?idArticulo=<?= $producto['idArticulo'] ?>"
+                                <a href="<?= $HostNombre ?>/modulos/mod_productos/DetalleMayor.php?idArticulo=<?= $producto['idArticulo'] ?>"
                                    title="Ver mayor de <?= htmlspecialchars($producto['articulo_name']) ?>"
                                    class="btn btn-xs btn-default">
                                     <span class="glyphicon glyphicon-list-alt"></span>

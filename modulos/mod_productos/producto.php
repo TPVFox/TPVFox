@@ -10,7 +10,7 @@ $CTArticulos = new ClaseProductos($BDTpv);
 $Controler   = new ControladorComun();
 $Controler->loadDbtpv($BDTpv);
 
-$ClasesParametros = new ClaseParametros($URLCom . '/modulos/mod_producto/parametros.xml');
+$ClasesParametros = new ClaseParametros($URLCom . '/modulos/mod_productos/parametros.xml');
 $parametros       = $ClasesParametros->getRoot();
 $conf_defecto     = $ClasesParametros->ArrayElementos('configuracion');
 

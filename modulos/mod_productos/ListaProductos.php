@@ -17,7 +17,7 @@ $Controler   = new ControladorComun();
 $Controler->loadDbtpv($BDTpv);
 
 // --- Parametros y configuracion de usuario ---
-$ClasesParametros = new ClaseParametros($URLCom . '/modulos/mod_producto/parametros.xml');
+$ClasesParametros = new ClaseParametros($URLCom . '/modulos/mod_productos/parametros.xml');
 $parametros       = $ClasesParametros->getRoot();
 $conf_defecto     = $ClasesParametros->ArrayElementos('configuracion');
 $conf_defecto['filtro']->valor = 'No';

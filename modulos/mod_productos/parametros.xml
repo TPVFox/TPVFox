@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+NOTA:
+En parametros configuracion , si cambiar alguno por defecto o añades alguno , es conveniente que elimines de
+de la tabla modulos_configuracion los registros de este modulo
+
+-->
+
+<parametros>
+	<configuracion>
+		<!-- Campos a mostrar en lista de producto -->
+		<mostrar_lista nombre="articulo_name" buscar_default="Si" descripcion="Nombre del producto" >Si</mostrar_lista>
+		<mostrar_lista nombre="t.crefTienda" descripcion="Referencia propia">Si</mostrar_lista>
+		<mostrar_lista nombre="codBarras" descripcion="Codigo Barras">Si</mostrar_lista>
+   		<mostrar_lista nombre="a.idArticulo" descripcion="Id de producto">Si</mostrar_lista>
+        <mostrar_lista nombre="t.idVirtuemart" descripcion="Id de la web">No</mostrar_lista>
+        <iva_predeterminado>21.00</iva_predeterminado>
+        <filtro nombre="seleccion_productos">No</filtro>
+	</configuracion>
+
+
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="referencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13">controlReferencia</action>
+				<action tecla="40">controlReferencia</action>
+			</teclas>
+
+		</caja_input>
+
+		<caja_input>
+			<nombre id_input="nombre">cajaNombre</nombre>
+			<teclas>
+				<action tecla="13">revisar_contenido</action>
+				<action tecla="40">revisar_contenido</action>
+			</teclas>
+		</caja_input>
+
+		<caja_input>
+			<!-- Esta caja solo se existe al pulsar icono label input Coste Ultimo -->
+			<nombre id_input="coste">cajaCoste</nombre>
+			<teclas>
+				<action tecla="13">salto_recalcular</action>
+			</teclas>
+		</caja_input>
+
+		<caja_input>
+			<nombre id_input="beneficio">cajaBeneficio</nombre>
+			<teclas>
+				<action tecla="13">salto_recalcular</action>
+			</teclas>
+		</caja_input>
+
+		<caja_input>
+			<nombre id_input="pvpSiva">cajaPvpSiva</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvp</action>
+			</teclas>
+		</caja_input>
+
+		<caja_input>
+			<nombre id_input="pvpCiva">cajaPvpCiva</nombre>
+			<teclas>
+				<action tecla="13">recalcularPvp</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="prov_coste_">cajaCosteProv</nombre>
+			<teclas>
+				<action tecla="13">controlCosteProv</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="codBarras_">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">controlCodBarras</action>
+			</teclas>
+		</caja_input>
+
+		<caja_input>
+			<nombre id_input="cajaBusquedaproveedor">cajaBusquedaproveedor</nombre>
+			<teclas>
+				<action tecla="13">buscarProveedor</action>
+				<action tecla="40">mover_down</action>
+
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+			</parametros>
+
+		</caja_input>
+		<caja_input>
+			<nombre id_input="N_">idN</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="dedonde">popup</parametro>
+				<parametro nombre="campo"></parametro>
+				<parametro nombre="prefijo">N_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="pvpRecomendado">pvpRecomendado</nombre>
+			<teclas>
+				<action tecla="40">mover_down</action>
+				<action tecla="38">mover_up</action>
+			</teclas>
+			<parametros>
+				<parametro nombre="prefijo">pvpRecomendado_</parametro>
+			</parametros>
+			<after>
+				<estado>Si</estado>
+			</after>
+			<before>
+				<estado>Si</estado>
+			</before>
+		</caja_input>
+
+		<!---    						Vista DetalleMayor                          -->
+		<caja_input>
+			<nombre id_input="id_producto">cajaIdDetalleMayor</nombre>
+			<teclas>
+				<action tecla="13">AccionExisteIdProductoDetalleMayor</action>
+			</teclas>
+		</caja_input>
+
+	</cajas_input>
+
+</parametros>

@@ -174,7 +174,7 @@
                     <?php endforeach; ?>
                 </div>
                 <a class="glyphicon glyphicon-list"
-                   href="<?= $HostNombre ?>/modulos/mod_producto/DetalleMayor.php?idArticulo=<?= $Producto['idArticulo'] ?>">
+                   href="<?= $HostNombre ?>/modulos/mod_productos/DetalleMayor.php?idArticulo=<?= $Producto['idArticulo'] ?>">
                    Listado mayor todo el año
                 </a>
             </div><!-- /col-md-6 derecha -->
