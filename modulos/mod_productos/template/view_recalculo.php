@@ -205,7 +205,7 @@
                                            value="<?= number_format($pvpRecomendado, 2) ?>">
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td class="eliminar">
                                 <?php if ($producto['estado'] === 'Sin revisar'): ?>
                                     <!-- sin accion -->
                                 <?php elseif ($producto['estado'] === 'Pendiente'): ?>
