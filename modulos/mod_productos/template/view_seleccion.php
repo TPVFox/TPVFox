@@ -180,7 +180,7 @@
 
     <script>
         var urlTareas      = '<?= $HostNombre ?>/modulos/mod_productos/tareas.php';
-        var urlModProducto = '<?= $HostNombre ?>/modulos/mod_producto';
+        var urlModProducto = '<?= $HostNombre ?>/modulos/mod_productos';
 
         // Quitar producto de la seleccion y eliminar la fila
         function eliminarDeSeleccion(idArticulo, btn) {

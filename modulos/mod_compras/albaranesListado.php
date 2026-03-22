@@ -215,7 +215,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 $historico = $CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
                                 foreach ($historico as $his) {
                                     if ($his['estado'] == "Pendiente") {
-                                        $iconoCostes = ' <a title="Recalcular precios" class="glyphicon glyphicon-th-list" style="color:red" href="../mod_producto/Recalculo_precios.php?id=' . $albaran['id'] . '"></a>';
+                                        $iconoCostes = ' <a title="Recalcular precios" class="glyphicon glyphicon-th-list" style="color:red" href="../mod_productos/Recalculo_precios.php?id=' . $albaran['id'] . '"></a>';
                                     }
                                 }
                             }
