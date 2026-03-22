@@ -174,7 +174,15 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         // ── C2 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada con stock alto') {
-            $badgeC2  = '';
+            // C7a-007: badge merma acumulada si el artículo tiene C7a activo
+            $badgeC7aMerma = '';
+            if (!empty($f['c7a_activo'])) {
+                $c7aDelta = isset($f['c7a_delta_acumulado']) ? number_format((float)$f['c7a_delta_acumulado'], 0, '.', '') : '?';
+                $c7aTipo  = ($f['c7a_tipo_articulo'] ?? '') === 'peso' ? 'kg' : 'ud.';
+                $badgeC7aMerma = '<span class="label label-danger" title="Este artículo tiene merma acumulada activa (~' . $c7aDelta . ' ' . $c7aTipo . ' de pérdida detectada). Posible salida sin documentar.">'
+                    . 'Merma acumulada</span> ';
+            }
+            $badgeC2  = $badgeC7aMerma;
             $ncant    = (float)($f['ncant'] ?? 0);
             $ncantA   = isset($f['ncant_anterior']) && $f['ncant_anterior'] !== null ? (float)$f['ncant_anterior'] : null;
             $dias     = isset($f['dias_desde_anterior']) && $f['dias_desde_anterior'] !== null ? (int)$f['dias_desde_anterior'] : null;
@@ -500,26 +508,85 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         // ── C7a ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Merma acumulada') {
-            $deltaA  = isset($f['delta_acumulado']) && $f['delta_acumulado'] !== null ? (float)$f['delta_acumulado'] : null;
-            $dispA   = isset($f['dispersion'])       ? (float)$f['dispersion']        : null;
-            $slopeA  = isset($f['tendencia'])         ? (float)$f['tendencia']         : null;
-            $nRecA   = (int)($f['n_recepciones'] ?? 0);
+            $deltaA    = isset($f['delta_acumulado']) ? (float)$f['delta_acumulado'] : null;
+            $slopeA    = isset($f['tendencia'])        ? (float)$f['tendencia']       : null;
+            $dispA     = isset($f['dispersion'])       ? (float)$f['dispersion']      : null;
+            $nRecA     = (int)($f['n_recepciones'] ?? 0);
+            $unidadA   = ($f['tipo_articulo'] ?? 'unidad') === 'peso' ? 'kg' : 'ud.';
+            $subcasoA  = $f['c7_subcaso'] ?? 'C7a';
+            $confianzaA = $f['confianza'] ?? null;
+            $cascadeNA  = (int)($f['cascade_nivel'] ?? 0);
+            $costeA    = isset($f['coste_estimado_merma']) && $f['coste_estimado_merma'] !== null ? (float)$f['coste_estimado_merma'] : null;
 
-            $cruceCls  = _posstockCruceCls($f['cruce_nivel'] ?? '');
+            // Línea 1: badges
+            $testPeriodA      = $f['test_period'] ?? null;
+            $tendenciaRecA    = $f['tendencia_reciente'] ?? 'activo';
+            $sevA             = $f['severidad'] ?? 'MEDIA';
+
+            // Badge 1: confianza estadística — 'Merma posible' (evidencia débil) vs 'Merma acumulada' (confirmada)
+            if ($subcasoA === 'C7a_posible' || $confianzaA === 'posible') {
+                $badgeTipA = ($subcasoA === 'C7a_posible')
+                    ? 'Evidencia estadística débil (test de signo o Newey-West). Requiere revisión manual.'
+                    : 'Evidencia estadística no concluyente. Puede ser real — revisar manualmente.';
+                $badgePrincipalA = '<span class="label label-warning" title="' . $badgeTipA . '">Merma posible</span>';
+            } else {
+                $confianzaTexto = ['alta' => 'Mann-Kendall', 'media' => 'Bootstrap TS'][$confianzaA] ?? 'desconocido';
+                $badgePrincipalA = '<span class="label label-danger" title="Tendencia ascendente de suelos confirmada estadísticamente. Test: ' . $confianzaTexto . ' · nivel ' . $cascadeNA . '">Merma acumulada</span>';
+            }
+
+            // Badge 2: cobertura temporal y estado actual
+            // 'Merma estable' solo cuando la tendencia se confirma en AMBOS periodos (truly stable)
+            $badgeEstadoA = '';
+            if ($testPeriodA === 'both' && $tendenciaRecA === 'activo') {
+                $badgeEstadoA = ' <span class="label label-danger" title="La tendencia ascendente existe tanto en el histórico base como en el período de análisis reciente: merma activa y persistente.">Merma estable</span>';
+            } elseif ($testPeriodA === 'analysis') {
+                $badgeEstadoA = ' <span class="label label-info" title="La tendencia aparece solo en el período de análisis: posible merma reciente sin historial previo.">Merma nueva</span>';
+            } elseif ($tendenciaRecA === 'resuelto') {
+                $badgeEstadoA = ' <span class="label label-default" title="La tendencia histórica no se confirma en el período reciente — la merma puede haberse corregido. Verificar si se realizó ajuste de inventario.">Merma resuelta</span>';
+            } elseif ($tendenciaRecA === 'mejorando') {
+                $badgeEstadoA = ' <span class="label label-warning" title="La tendencia histórica existe pero el período reciente no la confirma estadísticamente — puede estar reduciéndose. Monitorizar en próximo informe.">Mejorando</span>';
+            } elseif ($tendenciaRecA === 'sin_datos') {
+                $badgeEstadoA = ' <span class="label label-default" title="Sin recepciones en el período de análisis — no es posible confirmar si la merma sigue activa.">Sin datos recientes</span>';
+            }
+            // 'activo' + test_period='base'/null → sin badge 2: el badge de periodo/cruce ya lo comunica
+
+            $cruceCls   = _posstockCruceCls($f['cruce_nivel'] ?? '');
             $cruceScore = isset($f['cruce_score']) ? 'score=' . number_format((float)$f['cruce_score'], 2, '.', '') . ' — ' : '';
             $cruceNivel = _posstockCruceNivel($f['cruce_nivel'] ?? '');
             $badgeCruceA = '';
             if (!empty($f['posible_cruce_con'])) {
                 $badgeCruceA = _posstockBadgeCruce($f, $cruceCls, $cruceScore, $cruceNivel, true);
             }
+            $detalle = $badgePrincipalA . $badgeEstadoA . $badgeCruceA;
 
-            $detalle = '<span class="label label-warning" title="El suelo mínimo de stock sube recepción a recepción: el artículo pierde unidades de forma sistemática sin quedar registrado.">Merma progresiva</span>'
-                . $badgeCruceA
-                . ' Pérdida total: <strong>~' . ($deltaA !== null ? number_format($deltaA, 0, '.', '') : '—') . ' ud.</strong>'
-                . ($slopeA !== null ? ' | <strong>+' . number_format($slopeA, 1, '.', '') . ' ud./rec.</strong>' : '')
-                . ($dispA !== null ? ' (±' . number_format($dispA, 1, '.', '') . ')' : '')
-                . ' | ' . $nRecA . ' rec.'
-                . ' | ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+            // Línea 2: info principal
+            $detalle .= '<br>'
+                . 'Pérdida acum.: <strong>~' . ($deltaA !== null ? number_format($deltaA, 1, ',', '.') : '—') . ' ' . $unidadA . '</strong>'
+                . ($slopeA !== null ? ' · <strong>+' . number_format($slopeA, 1, ',', '.') . ' ' . $unidadA . '/rec.</strong>' : '')
+                . ($dispA !== null ? ' <span class="text-muted">(±' . number_format($dispA, 1, ',', '.') . ')</span>' : '')
+                . ' · ' . $nRecA . ' rec.'
+                . ' · ' . $fmtF($f['fecha_primera'] ?? null) . '–' . $fmtF($f['fecha_ultima'] ?? null);
+
+            // Línea 3: info complementaria
+            $lineaCompA = '';
+            if ($costeA !== null) {
+                $lineaCompA .= '<span title="Valor estimado de la merma acumulada: pérdida total × precio medio de compra en el periodo">Valor merma est.: <strong>~'
+                    . number_format($costeA, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $lineaCompA .= ($lineaCompA ? ' · ' : '')
+                    . '<span title="Proveedor principal: el que más albaranes tiene del artículo en el año en curso">Prov. principal: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre'])) {
+                    $ultimoLabelA = !empty($f['prov_es_mismo']) ? '(mismo)' : htmlspecialchars($f['prov_ultimo_nombre']);
+                    $lineaCompA .= ' | <span title="Último proveedor que sirvió el artículo ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . $ultimoLabelA . '</span>';
+                }
+            }
+            if ($lineaCompA) {
+                $detalle .= '<br><small class="text-muted">' . $lineaCompA . '</small>';
+            }
 
         // ── C6a / C6b ─────────────────────────────────────────────────────────
         } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
@@ -670,7 +737,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
         $ordenClave  = htmlspecialchars($f['orden_clave'] ?? '');
         $provNombre  = htmlspecialchars($f['prov_habitual_nombre'] ?? '');
-        $costeData   = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : 0;
+        $coste_any   = $f['coste_estimado'] ?? $f['coste_estimado_merma'] ?? null;
+        $costeData   = $coste_any !== null ? (float)$coste_any : 0;
         $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
             . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '" data-coste="' . $costeData . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
