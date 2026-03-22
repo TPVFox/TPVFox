@@ -287,24 +287,26 @@
                             <td><?= $producto['estado'] ?></td>
 
                             <td>
-                                <?php if (($producto['tipo'] ?? '') === 'peso'): ?>
-                                    <span class="glyphicon glyphicon-peso" title="Producto vendido por peso"></span>
-                                <?php endif; ?>
                                 <a href="<?= $HostNombre ?>/modulos/mod_producto/DetalleMayor.php?idArticulo=<?= $producto['idArticulo'] ?>"
                                    title="Ver mayor de <?= htmlspecialchars($producto['articulo_name']) ?>"
                                    class="btn btn-xs btn-default">
                                     <span class="glyphicon glyphicon-list-alt"></span>
                                 </a>
+                                <?php if (($producto['tipo'] ?? '') === 'peso'): ?>
+                                    <span class="glyphicon glyphicon-peso" title="Producto vendido por peso"></span>
+                                <?php endif; ?>
                                 <?php if ($tiendaWeb && MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 't.idVirtuemart') === 'Si'): ?>
                                     <?php
                                     if ($CTArticulos->GetReferenciasTiendas()) {
                                         foreach ($CTArticulos->GetReferenciasTiendas() as $ref) {
                                             if ($ref['idVirtuemart'] > 0) {
                                                 $class_web = $ref['estado'] === 'Sin Publicar' ? 'icono_web despublicado' : '';
-                                                echo '<a id="idProducto_estadoWeb_' . $producto['idArticulo'] . '"'
-                                                    . ' target="_blank" class="glyphicon glyphicon-globe ' . $class_web . '"'
+                                                echo '<span class="' . $class_web . '">'
+                                                    . '<a id="idProducto_estadoWeb_' . $producto['idArticulo'] . '"'
+                                                    . ' target="_blank" class="glyphicon glyphicon-globe"'
                                                     . ' href="' . $ObjVirtuemart->ruta_producto . $ref['idVirtuemart'] . '"'
-                                                    . ' title="Ver en web"></a>';
+                                                    . ' title="Ver en web"></a>'
+                                                    . '</span>';
                                             }
                                         }
                                     }
