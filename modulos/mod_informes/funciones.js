@@ -782,6 +782,29 @@ function _posstockEnriquecerC1aConC7b(filas) {
             };
         }
     });
+    // C7a-007: enriquecer filas C2 ("Entrada con stock alto") con datos de merma acumulada
+    var c7aPorArticulo = {};
+    filas.forEach(function (f) {
+        if (f.c7_subcaso === "C7a" || f.c7_subcaso === "C7a_posible") {
+            c7aPorArticulo[f.idArticulo] = {
+                delta_acumulado: f.delta_acumulado,
+                tipo_articulo: f.tipo_articulo || "unidad",
+            };
+        }
+    });
+    if (Object.keys(c7aPorArticulo).length > 0) {
+        filas.forEach(function (f) {
+            if (
+                f.tipo === "Entrada con stock alto" &&
+                c7aPorArticulo[f.idArticulo]
+            ) {
+                f.c7a_activo = true;
+                f.c7a_delta_acumulado = c7aPorArticulo[f.idArticulo].delta_acumulado;
+                f.c7a_tipo_articulo   = c7aPorArticulo[f.idArticulo].tipo_articulo;
+            }
+        });
+    }
+
     if (Object.keys(c7bPorArticulo).length === 0) return;
     filas.forEach(function (f) {
         if (

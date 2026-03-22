@@ -2032,6 +2032,13 @@ class ClasePosstock
                 // C1b: abs(min_balance) desc — el mínimo más profundo primero
                 $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
                 $inc['orden_clave'] = $sev_idx . '0' . $inv_min;
+            } elseif (in_array($inc['c7_subcaso'] ?? '', ['C7a', 'C7a_posible'], true)) {
+                // C7a: coste_estimado_merma desc → delta_acumulado desc → tendencia desc
+                $coste_inv  = str_pad(max(0, 9999999 - (int)(abs((float)($inc['coste_estimado_merma'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $delta_inv  = str_pad(max(0, 99999 - (int)(abs((float)($inc['delta_acumulado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
+                $slope_inv  = str_pad(max(0, 9999 - (int)(abs((float)($inc['tendencia'] ?? 0)) * 10)), 4, '0', STR_PAD_LEFT);
+                $coste_null = ($inc['coste_estimado_merma'] ?? null) === null ? '1' : '0';
+                $inc['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $delta_inv . $slope_inv;
             } elseif (in_array($inc['c7_subcaso'] ?? '', ['C7b', 'C7b_posible', 'C7b_ruido_peso'], true)) {
                 // C7b: coste_estimado desc → n_recepciones desc → déficit abs desc
                 $coste_inv = str_pad(max(0, 9999999 - (int)(abs((float)($inc['coste_estimado'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
@@ -4971,14 +4978,145 @@ class ClasePosstock
                         // c7_subcaso: C7a_posible para niveles ≥ 3 (no alimenta C7c/C7d/C7e)
                         $subcaso_c7a = ($c7a_confianza === 'posible') ? 'C7a_posible' : 'C7a';
 
+                        // ── C7a-015: cobertura temporal (base vs análisis) ────
+                        // Theil-Sen sobre cada subperiodo para determinar si la tendencia
+                        // es histórica (solo en base), nueva (solo en análisis) o persistente.
+                        $beta_ts_base     = null;
+                        $beta_ts_analysis = null;
+                        $test_period      = null;
+
+                        $fn_ts_median = function (array $vals): ?float {
+                            if (empty($vals)) return null;
+                            sort($vals);
+                            $n = count($vals);
+                            return $n % 2 === 1
+                                ? $vals[intdiv($n, 2)]
+                                : ($vals[$n / 2 - 1] + $vals[$n / 2]) / 2.0;
+                        };
+
+                        if ($n_base >= 2) {
+                            $fn_base = [];
+                            for ($i = 0; $i < $n_base; $i++) {
+                                $fn_base[] = $floors_base[$i] / max(1.0, $dias_base[$i]);
+                            }
+                            $tsp_b = [];
+                            for ($i = 0; $i < $n_base; $i++) {
+                                for ($j = $i + 1; $j < $n_base; $j++) {
+                                    $tsp_b[] = ($fn_base[$j] - $fn_base[$i]) / ($j - $i);
+                                }
+                            }
+                            $beta_ts_base = $fn_ts_median($tsp_b);
+                        }
+
+                        if ($n_analysis >= 2) {
+                            $fn_ana = [];
+                            for ($i = 0; $i < $n_analysis; $i++) {
+                                $fn_ana[] = $floors_analysis[$i] / max(1.0, $dias_analysis[$i]);
+                            }
+                            $tsp_a = [];
+                            for ($i = 0; $i < $n_analysis; $i++) {
+                                for ($j = $i + 1; $j < $n_analysis; $j++) {
+                                    $tsp_a[] = ($fn_ana[$j] - $fn_ana[$i]) / ($j - $i);
+                                }
+                            }
+                            $beta_ts_analysis = $fn_ts_median($tsp_a);
+                        }
+
+                        $base_up     = $beta_ts_base     !== null ? $beta_ts_base     > 0.0 : null;
+                        $analysis_up = $beta_ts_analysis !== null ? $beta_ts_analysis > 0.0 : null;
+                        if ($base_up !== null && $analysis_up !== null) {
+                            if      ($base_up  && $analysis_up)  $test_period = 'both';
+                            elseif  ($base_up  && !$analysis_up) $test_period = 'base';
+                            elseif  (!$base_up && $analysis_up)  $test_period = 'analysis';
+                            // ninguno positivo → null (tendencia global sin subperiodo confirmado)
+                        } elseif ($base_up !== null) {
+                            $test_period = $base_up ? 'base' : null;
+                        } elseif ($analysis_up !== null) {
+                            $test_period = $analysis_up ? 'analysis' : null;
+                        }
+
+                        // ── C7a-021: analysis_consistent — contrasta la tendencia con el periodo base ──
+                        $analysis_consistent_c7a = ($beta_ts_base !== null) ? ($beta_ts_base > 0.0) : null;
+
+                        // ── Severidad: tabla 2D confianza × test_period + modulador magnitud ──
+                        // Columna null/desconocida → 'analysis' (conservador: sin historial confirmado).
+                        //
+                        // confianza    | both  | analysis | base  | null(→analysis)
+                        // 'alta'       | ALTA  | ALTA     | MEDIA | ALTA
+                        // 'media'      | ALTA  | MEDIA    | MEDIA | MEDIA
+                        // 'posible'    | MEDIA | MEDIA    | BAJA  | MEDIA
+                        // C7a_posible  | BAJA  | BAJA     | BAJA  | BAJA  (siempre)
+                        static $sev_tab_c7a = [
+                            'alta'    => ['both' => 'ALTA',  'analysis' => 'ALTA',  'base' => 'MEDIA'],
+                            'media'   => ['both' => 'ALTA',  'analysis' => 'MEDIA', 'base' => 'MEDIA'],
+                            'posible' => ['both' => 'MEDIA', 'analysis' => 'MEDIA', 'base' => 'BAJA'],
+                        ];
+                        static $sev_num_c7a  = ['ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
+                        static $sev_name_c7a = [2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
+
                         $c7a_umbral_alta_delta = ($tipo_art === 'peso') ? $c7a_umbral_alta_delta_peso : $c7a_umbral_alta_delta_unidad;
                         $c7a_umbral_alta_slope = ($tipo_art === 'peso') ? $c7a_umbral_alta_slope_peso : $c7a_umbral_alta_slope_unidad;
-                        if ($c7a_confianza === 'alta') {
-                            $severidad = ($delta_total >= $c7a_umbral_alta_delta || $tendencia_visible >= $c7a_umbral_alta_slope) ? 'ALTA' : 'MEDIA';
-                        } elseif ($c7a_confianza === 'media') {
-                            $severidad = ($delta_total >= $c7a_umbral_alta_delta || $tendencia_visible >= $c7a_umbral_alta_slope) ? 'ALTA' : 'MEDIA';
-                        } else {
+
+                        if ($subcaso_c7a === 'C7a_posible') {
                             $severidad = 'BAJA';
+                        } else {
+                            $col = $test_period ?? 'analysis'; // null → 'analysis' (sin historial confirmado)
+                            $sev_base_c7a  = $sev_tab_c7a[$c7a_confianza][$col];
+                            $sev_nivel_c7a = $sev_num_c7a[$sev_base_c7a];
+                            // Modulador magnitud: si delta y slope están ambos bajo el umbral ALTA, bajar un nivel
+                            if ($delta_total < $c7a_umbral_alta_delta && $tendencia_visible < $c7a_umbral_alta_slope) {
+                                $sev_nivel_c7a--;
+                            }
+                            $severidad = $sev_name_c7a[max(0, $sev_nivel_c7a)];
+                        }
+
+                        // Cobertura: etiqueta legible para la vista
+                        $cobertura_c7a = $test_period ?? 'analysis';
+
+                        // ── C7a-010: tendencia_reciente — estado actual de la merma ────
+                        // Análogo a C7b: 'activo', 'resuelto', 'mejorando', 'sin_datos'
+                        if ($test_period === 'base') {
+                            // La tendencia existe en el histórico; ¿continúa en el análisis?
+                            if ($analysis_consistent_c7a === true) {
+                                $tendencia_reciente_c7a = 'activo';    // pendiente positiva también en análisis
+                            } elseif ($n_analysis === 0) {
+                                $tendencia_reciente_c7a = 'sin_datos'; // sin recepciones en el análisis
+                            } elseif ($beta_ts_analysis !== null && $beta_ts_analysis < 0.0) {
+                                $tendencia_reciente_c7a = 'resuelto';  // pendiente negativa en análisis
+                            } else {
+                                $tendencia_reciente_c7a = 'mejorando'; // positiva pero no confirma C7a-015
+                            }
+                        } else {
+                            // 'analysis' o 'both' o null → la merma está activa en el período reciente
+                            $tendencia_reciente_c7a = 'activo';
+                        }
+
+                        // ── C7a-010: posible_causa accionable según estado ───────────
+                        $unidad_causa_c7a = ($tipo_art === 'peso') ? 'kg' : 'ud.';
+                        switch ($tendencia_reciente_c7a) {
+                            case 'resuelto':
+                                $posible_causa_c7a = sprintf(
+                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática, pero el período reciente no confirma la tendencia. Verificar si se realizó un ajuste de inventario o corrección de merma.',
+                                    $delta_total, $unidad_causa_c7a
+                                );
+                                break;
+                            case 'mejorando':
+                                $posible_causa_c7a = sprintf(
+                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática. El período reciente muestra pendiente positiva sin confirmación estadística — la merma puede estar reduciéndose. Monitorizar en el próximo informe.',
+                                    $delta_total, $unidad_causa_c7a
+                                );
+                                break;
+                            case 'sin_datos':
+                                $posible_causa_c7a = sprintf(
+                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática. Sin recepciones en el período de análisis — no es posible confirmar si la merma sigue activa. Revisar entradas pendientes.',
+                                    $delta_total, $unidad_causa_c7a
+                                );
+                                break;
+                            default: // 'activo'
+                                $posible_causa_c7a = sprintf(
+                                    'El suelo mínimo de stock sube ~%.1f %s por recepción (+%.0f %s acumulados). Posible merma no registrada, caducidad sistemática o salida sin documentar.',
+                                    $tendencia_visible, $unidad_causa_c7a, $delta_total, $unidad_causa_c7a
+                                );
                         }
 
                         $incidencias[] = [
@@ -4996,17 +5134,19 @@ class ClasePosstock
                             'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
                             'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
                             'cascade_fallback_reason' => $c7a_fallback_reason ?: null,
+                            'test_period'         => $test_period,
+                            'tendencia_reciente'  => $tendencia_reciente_c7a,
+                            'analysis_consistent' => $analysis_consistent_c7a,
+                            'cobertura'           => $cobertura_c7a,
+                            'n_base'              => $n_base,
+                            'n_analysis'          => $n_analysis,
+                            'slope_base'       => $beta_ts_base     !== null ? round($beta_ts_base     * $dias_intervalo_medio_all, 1) : null,
+                            'slope_analysis'   => $beta_ts_analysis !== null ? round($beta_ts_analysis * $dias_intervalo_medio_all, 1) : null,
                             'delta_acumulado'  => round($delta_total, 1),
                             'fecha_primera'    => $fechas_rec[0],
                             'fecha_ultima'     => $fechas_rec[$n_rec - 1],
                             '_floors_raw'      => $floors_map,
-                            'posible_causa'    => sprintf(
-                                'Pérdida acumulada de ~%.0f ud. en el periodo (+%.1f ud./recepción, cascada nivel %d, confianza %s): posible merma no registrada, caducidad sistemática o salida sin documentar',
-                                $delta_total,
-                                $tendencia_visible,
-                                $c7a_cascade_nivel,
-                                $c7a_confianza
-                            ),
+                            'posible_causa'    => $posible_causa_c7a,
                         ];
                     }
                 } // n_floors >= 3 && beta_ts > 0
@@ -5447,6 +5587,39 @@ class ClasePosstock
                 }
             }
 
+        }
+
+        // ── C7a-004 + C7a-005: enriquecer C7a con coste estimado de merma y proveedor ──
+        if (isset($subcasos_set['C7a'])) {
+            $ids_c7a_enr = array_column(
+                array_filter($incidencias, fn($inc) => ($inc['c7_subcaso'] ?? '') === 'C7a' || ($inc['c7_subcaso'] ?? '') === 'C7a_posible'),
+                'idArticulo'
+            );
+            if (!empty($ids_c7a_enr)) {
+                $fi_stock_esc_c7a = $this->db->real_escape_string($fi_stock);
+                $ids_c7a_str      = implode(',', array_map('intval', $ids_c7a_enr));
+
+                $prov_map_c7a   = $this->_queryProveedorArticulos($ids_c7a_str, $fi_stock_esc_c7a, $ff);
+                $precio_map_c7a = $this->_queryPrecioMedioCompra($ids_c7a_str, $fi_stock_esc_c7a, $ff);
+
+                foreach ($incidencias as &$inc) {
+                    $sub = $inc['c7_subcaso'] ?? '';
+                    if ($sub !== 'C7a' && $sub !== 'C7a_posible') continue;
+                    $prov = $prov_map_c7a[$inc['idArticulo']] ?? null;
+                    $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
+                    $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
+                    $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
+                    $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
+                    $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+                    // C7a-004: valor económico estimado de la merma acumulada
+                    $precio = $precio_map_c7a[$inc['idArticulo']] ?? null;
+                    $inc['precio_medio_compra']  = $precio;
+                    $inc['coste_estimado_merma'] = ($precio !== null)
+                        ? round((float)$inc['delta_acumulado'] * $precio, 2)
+                        : null;
+                }
+                unset($inc);
+            }
         }
 
         // ── C7b-007 + C7b-011: enriquecer C7b con proveedor y coste estimado ──
