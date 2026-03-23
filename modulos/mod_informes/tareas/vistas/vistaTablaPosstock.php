@@ -523,32 +523,35 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $tendenciaRecA    = $f['tendencia_reciente'] ?? 'activo';
             $sevA             = $f['severidad'] ?? 'MEDIA';
 
-            // Badge 1: confianza estadística — 'Merma posible' (evidencia débil) vs 'Merma acumulada' (confirmada)
+            // Badge 1 (principal): confianza estadística — igual que C7b "Déficit posible" / "Déficit estable"
             if ($subcasoA === 'C7a_posible' || $confianzaA === 'posible') {
                 $badgeTipA = ($subcasoA === 'C7a_posible')
                     ? 'Evidencia estadística débil (test de signo o Newey-West). Requiere revisión manual.'
-                    : 'Evidencia estadística no concluyente. Puede ser real — revisar manualmente.';
+                    : 'El patrón de merma existe pero la evidencia estadística no es concluyente. Puede ser real — revisar manualmente.';
                 $badgePrincipalA = '<span class="label label-warning" title="' . $badgeTipA . '">Merma posible</span>';
             } else {
                 $confianzaTexto = ['alta' => 'Mann-Kendall', 'media' => 'Bootstrap TS'][$confianzaA] ?? 'desconocido';
-                $badgePrincipalA = '<span class="label label-danger" title="Tendencia ascendente de suelos confirmada estadísticamente. Test: ' . $confianzaTexto . ' · nivel ' . $cascadeNA . '">Merma acumulada</span>';
+                $badgePrincipalA = '<span class="label label-danger" title="El suelo mínimo de stock sube recepción a recepción de forma confirmada estadísticamente. Test: ' . $confianzaTexto . ' · nivel ' . $cascadeNA . '">Merma estable</span>';
             }
 
-            // Badge 2: cobertura temporal y estado actual
-            // 'Merma estable' solo cuando la tendencia se confirma en AMBOS periodos (truly stable)
+            // Badge 2: estado temporal — igual que C7b "Nuevo" / "Déficit histórico" / "Mejorando" / "Sin datos recientes"
             $badgeEstadoA = '';
-            if ($testPeriodA === 'both' && $tendenciaRecA === 'activo') {
-                $badgeEstadoA = ' <span class="label label-danger" title="La tendencia ascendente existe tanto en el histórico base como en el período de análisis reciente: merma activa y persistente.">Merma estable</span>';
-            } elseif ($testPeriodA === 'analysis') {
-                $badgeEstadoA = ' <span class="label label-info" title="La tendencia aparece solo en el período de análisis: posible merma reciente sin historial previo.">Merma nueva</span>';
+            if ($testPeriodA === 'analysis') {
+                $badgeEstadoA = ' <span class="label label-info" title="Esta tendencia solo aparece en el período analizado, no en el historial anual base. Incidencia reciente — puede ser un problema nuevo o una primera detección.">Nuevo</span>';
             } elseif ($tendenciaRecA === 'resuelto') {
-                $badgeEstadoA = ' <span class="label label-default" title="La tendencia histórica no se confirma en el período reciente — la merma puede haberse corregido. Verificar si se realizó ajuste de inventario.">Merma resuelta</span>';
+                $badgeEstadoA = ' <span class="label label-default" title="La tendencia histórica no se confirma en el período reciente — la merma puede haberse corregido. Verificar si se realizó ajuste de inventario.">Merma histórica</span>';
             } elseif ($tendenciaRecA === 'mejorando') {
                 $badgeEstadoA = ' <span class="label label-warning" title="La tendencia histórica existe pero el período reciente no la confirma estadísticamente — puede estar reduciéndose. Monitorizar en próximo informe.">Mejorando</span>';
             } elseif ($tendenciaRecA === 'sin_datos') {
                 $badgeEstadoA = ' <span class="label label-default" title="Sin recepciones en el período de análisis — no es posible confirmar si la merma sigue activa.">Sin datos recientes</span>';
             }
-            // 'activo' + test_period='base'/null → sin badge 2: el badge de periodo/cruce ya lo comunica
+
+            // Badge advertencia SNR bajo: el ruido supera a la señal — puede ser devoluciones u otros artefactos
+            $snrA = isset($f['snr']) ? (float)$f['snr'] : null;
+            $badgeSnrA = '';
+            if ($snrA !== null && $snrA < 0.15) {
+                $badgeSnrA = ' <span class="label label-default" title="La dispersión de los suelos es ' . number_format(1.0 / max($snrA, 0.001), 0) . '× mayor que la pendiente detectada (SNR=' . number_format($snrA, 2) . '). La merma detectada puede ser igualmente real — la alta varianza suele deberse a devoluciones a proveedor intercaladas entre recepciones, múltiples proveedores activos o alta variabilidad intrínseca del producto. Verificar el listado mayor para contextualizar.">Alta varianza</span>';
+            }
 
             $cruceCls   = _posstockCruceCls($f['cruce_nivel'] ?? '');
             $cruceScore = isset($f['cruce_score']) ? 'score=' . number_format((float)$f['cruce_score'], 2, '.', '') . ' — ' : '';
@@ -557,7 +560,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             if (!empty($f['posible_cruce_con'])) {
                 $badgeCruceA = _posstockBadgeCruce($f, $cruceCls, $cruceScore, $cruceNivel, true);
             }
-            $detalle = $badgePrincipalA . $badgeEstadoA . $badgeCruceA;
+            $detalle = $badgePrincipalA . $badgeEstadoA . $badgeSnrA . $badgeCruceA;
 
             // Línea 2: info principal
             $detalle .= '<br>'
