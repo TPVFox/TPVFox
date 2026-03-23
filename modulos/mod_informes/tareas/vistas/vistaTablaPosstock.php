@@ -524,14 +524,15 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $sevA             = $f['severidad'] ?? 'MEDIA';
 
             // Badge 1 (principal): confianza estadística — igual que C7b "Déficit posible" / "Déficit estable"
+            // Cascade: 1=OLS+NW (alta), 2=Bootstrap TS (media), 3=Mann-Kendall (posible), 4=Sign test (posible)
+            $testNombreA = [1 => 'OLS + Newey-West', 2 => 'Bootstrap Theil-Sen', 3 => 'Mann-Kendall', 4 => 'Test de signo'][$cascadeNA] ?? 'desconocido';
             if ($subcasoA === 'C7a_posible' || $confianzaA === 'posible') {
                 $badgeTipA = ($subcasoA === 'C7a_posible')
-                    ? 'Evidencia estadística débil (test de signo o Newey-West). Requiere revisión manual.'
-                    : 'El patrón de merma existe pero la evidencia estadística no es concluyente. Puede ser real — revisar manualmente.';
+                    ? 'Evidencia estadística débil (' . $testNombreA . ' · nivel ' . $cascadeNA . '). Requiere revisión manual.'
+                    : 'El patrón de merma existe pero la evidencia estadística no es concluyente (' . $testNombreA . ' · nivel ' . $cascadeNA . '). Puede ser real — revisar manualmente.';
                 $badgePrincipalA = '<span class="label label-warning" title="' . $badgeTipA . '">Merma posible</span>';
             } else {
-                $confianzaTexto = ['alta' => 'Mann-Kendall', 'media' => 'Bootstrap TS'][$confianzaA] ?? 'desconocido';
-                $badgePrincipalA = '<span class="label label-danger" title="El suelo mínimo de stock sube recepción a recepción de forma confirmada estadísticamente. Test: ' . $confianzaTexto . ' · nivel ' . $cascadeNA . '">Merma estable</span>';
+                $badgePrincipalA = '<span class="label label-danger" title="El suelo mínimo de stock sube recepción a recepción de forma confirmada estadísticamente. Test: ' . $testNombreA . ' · nivel ' . $cascadeNA . '">Merma estable</span>';
             }
 
             // Badge 2: estado temporal — igual que C7b "Nuevo" / "Déficit histórico" / "Mejorando" / "Sin datos recientes"
@@ -586,6 +587,26 @@ function renderTablaPosstock(array $filas, array $cfg): string
                         . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
                         . $ultimoLabelA . '</span>';
                 }
+            }
+            // Indicadores compra con stock (C7a-024)
+            $rSpearA    = isset($f['r_spearman'])   && $f['r_spearman']   !== null ? (float)$f['r_spearman']   : null;
+            $ratioMedA  = isset($f['ratio_mediano']) && $f['ratio_mediano'] !== null ? (float)$f['ratio_mediano'] : null;
+            $tieneAlbcliA = !empty($f['tiene_albcli']);
+            if ($rSpearA !== null) {
+                $rSpearLbl = $rSpearA < -0.3
+                    ? '<span class="text-success" title="Correlación Spearman entre stock previo y cantidad recibida: ' . number_format($rSpearA, 2, ',', '') . '. El comprador reduce los pedidos cuando hay más stock — comportamiento de reposición adaptativo.">r=' . number_format($rSpearA, 2, ',', '') . ' ↓ ajusta</span>'
+                    : '<span class="text-muted" title="Correlación Spearman entre stock previo y cantidad recibida: ' . number_format($rSpearA, 2, ',', '') . '. Sin ajuste claro del pedido al nivel de stock.">r=' . number_format($rSpearA, 2, ',', '') . '</span>';
+                $lineaCompA .= ($lineaCompA ? ' · ' : '') . $rSpearLbl;
+            }
+            if ($ratioMedA !== null) {
+                $ratioLbl = $ratioMedA > 0.3
+                    ? '<span class="text-warning" title="Ratio mediano stock-previo/cantidad-recibida: ' . number_format($ratioMedA, 2, ',', '') . '. El stock antes de cada recepción es alto en relación al pedido — posible compra anticipada.">ratio=' . number_format($ratioMedA, 2, ',', '') . ' ⚠</span>'
+                    : '<span class="text-muted" title="Ratio mediano stock-previo/cantidad-recibida: ' . number_format($ratioMedA, 2, ',', '') . '.">ratio=' . number_format($ratioMedA, 2, ',', '') . '</span>';
+                $lineaCompA .= ($lineaCompA ? ' · ' : '') . $ratioLbl;
+            }
+            if ($tieneAlbcliA) {
+                $lineaCompA .= ($lineaCompA ? ' · ' : '')
+                    . '<span class="text-info" title="El artículo tiene albaranes de cliente en el período. Verificar consumo interno o albaranes pendientes de marcar.">Albcli activo</span>';
             }
             if ($lineaCompA) {
                 $detalle .= '<br><small class="text-muted">' . $lineaCompA . '</small>';
