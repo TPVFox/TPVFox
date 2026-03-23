@@ -4794,70 +4794,69 @@ class ClasePosstock
                     while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
 
                         // ═══════════════════════════════════════════════════════
-                        // NIVEL 1 · MANN-KENDALL con Hamed & Rao (C7a-019a)
-                        // No paramétrico; corrige autocorrelación lag-1.
+                        // NIVEL 1 · OLS + NEWEY-WEST IC95 (C7a-019a)
+                        // Mayor potencia para floors aproximadamente normales con
+                        // tendencia lineal (merma acumulada = δ constante/recepción).
+                        // Gauss-Markov: BLUE bajo normalidad. NW corrige autocorr.
+                        // y heterocedasticidad. CLT aplica para n ≥ 10.
                         // ═══════════════════════════════════════════════════════
                         if ($cascade_nivel_act === 1) {
-                            // MK exacto necesita n ≥ 4 para poder alcanzar p < 0.10 (n=3: p_min=0.333).
-                            // Con n < 4 se omite el nivel 1 y se pasa directamente al bootstrap.
-                            if ($n_floors < 4) {
-                                $c7a_fallback_reason = 'n<4_skip_mk';
+                            if ($n_floors < 10 || $se_corr_c7a <= 0.0) {
+                                // n < 10: pocos gl para NW; CLT no garantiza normalidad asintótica.
+                                // se_corr = 0: OLS degenerado (datos colineales o constantes).
+                                $c7a_fallback_reason = $n_floors < 10 ? 'n<10_skip_ols' : 'se_invalido_skip_ols';
                                 $cascade_nivel_act = 2;
                             } else {
-                            $S_mk = 0;
-                            for ($i = 0; $i < $n_floors; $i++) {
-                                for ($j = $i + 1; $j < $n_floors; $j++) {
-                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
-                                    if      ($d > 0.0) $S_mk++;
-                                    elseif  ($d < 0.0) $S_mk--;
-                                }
-                            }
-                            // Var_MK estándar (sin empates)
-                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
-                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
-                            if ($autocorr_lag1_c7a > 0.0) {
-                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
-                            }
-                            if ($var_mk > 0.0) {
-                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
-                                $z_mk  = $S_adj / sqrt($var_mk);
-                                // Φ(z) — Abramowitz & Stegun 26.2.17
-                                $az     = abs($z_mk);
-                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
-                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
-                                        * $t_phi * (0.3193815 + $t_phi * (-0.3565638
-                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
-                                        + $t_phi * 1.3302744))));
-                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
-                            } else {
-                                $p_mk_c7a = 1.0;
-                            }
-
-                            if      ($p_mk_c7a < $c7a_umbral_pvalue_alta) {
-                                $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
-                                $cascade_nivel_act = 0;
-                            } elseif ($p_mk_c7a >= $c7a_umbral_pvalue) {
-                                if ($c7a_cascada_exhaustiva) {
-                                    $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
-                                        . 'mk_ns(p=' . round($p_mk_c7a, 3) . ')';
-                                    $cascade_nivel_act = 2;
+                                static $t_tab_nw = [
+                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
+                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
+                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
+                                ];
+                                $df_nw = max(1, $n_floors - 2);
+                                if ($df_nw > 120) {
+                                    $t_crit_nw = 1.645;
+                                } elseif (isset($t_tab_nw[$df_nw])) {
+                                    $t_crit_nw = $t_tab_nw[$df_nw];
                                 } else {
-                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    $keys_nw = array_keys($t_tab_nw);
+                                    $lo_nw = $hi_nw = null;
+                                    foreach ($keys_nw as $k) {
+                                        if ($k <= $df_nw) $lo_nw = $k;
+                                        if ($k >= $df_nw && $hi_nw === null) $hi_nw = $k;
+                                    }
+                                    $t_crit_nw = ($lo_nw !== null && $hi_nw !== null && $lo_nw !== $hi_nw)
+                                        ? $t_tab_nw[$lo_nw] + ($df_nw - $lo_nw) / ($hi_nw - $lo_nw) * ($t_tab_nw[$hi_nw] - $t_tab_nw[$lo_nw])
+                                        : ($lo_nw !== null ? $t_tab_nw[$lo_nw] : 6.314);
                                 }
-                            } else {
-                                $cascade_nivel_act = 2;   // Tipo B: p ∈ [pvalue_alta, pvalue)
+                                $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
+                                if ($ic95_low_nw > 0.0) {
+                                    $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
+                                    $cascade_nivel_act = 0;
+                                } else {
+                                    // IC95 incluye 0 → Bootstrap (robusto a posible no-normalidad)
+                                    if ($c7a_cascada_exhaustiva) {
+                                        $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                            . 'ols_nw_ns(ic95_low=' . round($ic95_low_nw, 3) . ')';
+                                        $cascade_nivel_act = 2;
+                                    } else {
+                                        $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    }
+                                }
                             }
-                            } // end else n >= 4
 
                         // ═══════════════════════════════════════════════════════
                         // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
-                        // Alcanzable solo desde Nivel 1 (Tipo B).
+                        // No paramétrico; no asume distribución ni linealidad.
+                        // Robusto a outliers. Requiere n ≥ 8 para IC estable.
                         // ═══════════════════════════════════════════════════════
                         } elseif ($cascade_nivel_act === 2) {
-                            // Iteraciones adaptativas: con n grande el error estándar del
-                            // bootstrap decrece como 1/√B y el test Mann-Kendall ya habrá
-                            // filtrado la mayoría de artículos; reducir B ahorra tiempo sin
-                            // perder precisión relevante.
+                            if ($n_floors < 8) {
+                                $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                    . 'n<8_skip_bootstrap';
+                                $cascade_nivel_act = 3;
+                            } else {
+                            // Iteraciones adaptativas: reducir B para n grande ahorra tiempo
+                            // sin perder precisión relevante (SE_boot ∝ 1/√B).
                             $B_boot     = $n_floors >= 30 ? 299 : ($n_floors >= 20 ? 499 : 999);
                             $boot_betas = [];
                             for ($b = 0; $b < $B_boot; $b++) {
@@ -4910,17 +4909,73 @@ class ClasePosstock
                             } else {
                                 $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
                             }
+                            } // end else n >= 8
 
                         // ═══════════════════════════════════════════════════════
-                        // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7a-019c)
-                        // Alcanzable desde Nivel 2 (Tipo B). Requiere n ≥ 4.
+                        // NIVEL 3 · MANN-KENDALL con Hamed & Rao (C7a-019c)
+                        // No paramétrico; corrige autocorrelación lag-1.
+                        // Válido para n ∈ [4, 20]: fuera de ese rango MK pierde
+                        // discriminación (n<4: p_mín=0.333; n>20: z_mk inflado O(n^1.5)).
                         // ═══════════════════════════════════════════════════════
                         } elseif ($cascade_nivel_act === 3) {
-                            if ($n_floors < 4) {
-                                $cascade_nivel_act = 4;   // Tipo A: sin potencia mínima
+                            if ($n_floors < 4 || $n_floors > 20) {
+                                $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                    . ($n_floors < 4 ? 'n<4_skip_mk' : 'n>20_mk_overpowered');
+                                $cascade_nivel_act = 4;
                             } else {
-                                $k_pos   = 0;
-                                $n_diffs = $n_floors - 1;
+                            $S_mk = 0;
+                            for ($i = 0; $i < $n_floors; $i++) {
+                                for ($j = $i + 1; $j < $n_floors; $j++) {
+                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
+                                    if      ($d > 0.0) $S_mk++;
+                                    elseif  ($d < 0.0) $S_mk--;
+                                }
+                            }
+                            // Var_MK estándar (sin empates)
+                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
+                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
+                            if ($autocorr_lag1_c7a > 0.0) {
+                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
+                            }
+                            if ($var_mk > 0.0) {
+                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
+                                $z_mk  = $S_adj / sqrt($var_mk);
+                                // Φ(z) — Abramowitz & Stegun 26.2.17
+                                $az     = abs($z_mk);
+                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
+                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
+                                        * $t_phi * (0.3193815 + $t_phi * (-0.3565638
+                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
+                                        + $t_phi * 1.3302744))));
+                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
+                            } else {
+                                $p_mk_c7a = 1.0;
+                            }
+                            if ($p_mk_c7a < $c7a_umbral_pvalue_alta) {
+                                $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
+                                $cascade_nivel_act = 0;
+                            } elseif ($p_mk_c7a >= $c7a_umbral_pvalue) {
+                                if ($c7a_cascada_exhaustiva) {
+                                    $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                        . 'mk_ns(p=' . round($p_mk_c7a, 3) . ')';
+                                    $cascade_nivel_act = 4;
+                                } else {
+                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                }
+                            } else {
+                                $cascade_nivel_act = 4;   // Tipo B: p ∈ [pvalue_alta, pvalue)
+                            }
+                            } // end else n ∈ [4, 20]
+
+                        // ═══════════════════════════════════════════════════════
+                        // NIVEL 4 · TEST DE SIGNO BINOMIAL (C7a-019d)
+                        // No paramétrico; prácticamente sin suposiciones distribucionales.
+                        // Fallback final: baja potencia estadística → confianza='posible'.
+                        // ═══════════════════════════════════════════════════════
+                        } elseif ($cascade_nivel_act === 4) {
+                            $n_diffs = $n_floors - 1;
+                            if ($n_diffs > 0) {
+                                $k_pos = 0;
                                 for ($i = 0; $i < $n_diffs; $i++) {
                                     if ($floors_norm_all[$i + 1] > $floors_norm_all[$i]) $k_pos++;
                                 }
@@ -4933,47 +4988,11 @@ class ClasePosstock
                                     if ($k >= $k_pos) $p_signo += $bcoef * $pow_half;
                                 }
                                 $p_signo = min(1.0, $p_signo);
-
                                 if ($p_signo < 0.05) {
-                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
-                                }
-                                $cascade_nivel_act = 0;   // nivel 3 siempre es definitivo (no hay Tipo B)
-                            }
-
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 4 · OLS + NEWEY-WEST IC95 (C7a-019d)
-                        // Último recurso paramétrico. Solo alcanzable cuando n < 4.
-                        // ═══════════════════════════════════════════════════════
-                        } elseif ($cascade_nivel_act === 4) {
-                            $cascade_nivel_act = 0;
-                            if ($se_corr_c7a > 0.0) {
-                                static $t_tab_nw = [
-                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
-                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
-                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
-                                ];
-                                $df_nw = max(1, $n_floors - 2);
-                                if ($df_nw > 120) {
-                                    $t_crit_nw = 1.645;
-                                } elseif (isset($t_tab_nw[$df_nw])) {
-                                    $t_crit_nw = $t_tab_nw[$df_nw];
-                                } else {
-                                    $keys_nw = array_keys($t_tab_nw);
-                                    $lo_nw = $hi_nw = null;
-                                    foreach ($keys_nw as $k) {
-                                        if ($k <= $df_nw) $lo_nw = $k;
-                                        if ($k >= $df_nw && $hi_nw === null) $hi_nw = $k;
-                                    }
-                                    $t_crit_nw = ($lo_nw !== null && $hi_nw !== null && $lo_nw !== $hi_nw)
-                                        ? $t_tab_nw[$lo_nw] + ($df_nw - $lo_nw) / ($hi_nw - $lo_nw) * ($t_tab_nw[$hi_nw] - $t_tab_nw[$lo_nw])
-                                        : ($lo_nw !== null ? $t_tab_nw[$lo_nw] : 6.314);
-                                }
-                                $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
-                                if ($ic95_low_nw > 0.0) {
                                     $c7a_confianza = 'posible'; $c7a_cascade_nivel = 4;
                                 }
-                                // ic95_low_nw ≤ 0 → resultado válido negativo: NO C7a
                             }
+                            $cascade_nivel_act = 0;   // nivel 4 siempre es terminal
 
                         } else {
                             $cascade_nivel_act = 0;
@@ -5140,6 +5159,7 @@ class ClasePosstock
                             'tendencia_norm'   => round($beta_ts, 4),
                             'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
                             'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
+                            'tau_mk'           => isset($tau_mk) ? round($tau_mk, 3) : null,
                             'snr'                  => round($snr_c7a, 3),
                             'cascade_fallback_reason' => $c7a_fallback_reason ?: null,
                             'test_period'         => $test_period,
