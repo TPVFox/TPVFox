@@ -1050,7 +1050,7 @@ class ClasePosstock
         string $wi
     ): array {
         $sql = "
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS cantidad
             FROM albprolinea l
             INNER JOIN albprot c  ON c.id = l.idalbpro
             INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -1077,6 +1077,32 @@ class ClasePosstock
      * @param  string $ids_str  IN-clause de idArticulo ya preparado
      * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error' => ...]
      */
+    /**
+     * Artículos con al menos un albarán de cliente en la ventana fi–ff.
+     * Usado en C7a para enriquecer posible_causa cuando hay transferencias
+     * inter-tienda registradas (un albaran no marcado inflaría el floor).
+     *
+     * @return array  Set de idArticulo (int) con actividad albcli, o ['error'=>...]
+     */
+    private function _queryHasAlbcliC7(string $fi, string $ff, string $ids_str): array
+    {
+        if (empty($ids_str)) return [];
+        $sql = "
+            SELECT DISTINCT l.idArticulo
+            FROM albclilinea l
+            INNER JOIN albclit a ON a.id = l.idalbcli
+            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+              AND a.estado IN ('Guardado','Procesado')
+              AND l.idArticulo IN ($ids_str)
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C7 albcli check: ' . $this->db->error];
+        $ids = [];
+        while ($row = $res->fetch_assoc()) $ids[(int)$row['idArticulo']] = true;
+        $res->free();
+        return $ids;
+    }
+
     private function _queryTimelineMovimientosC7(
         string $fi,
         string $ff,
@@ -4526,8 +4552,11 @@ class ClasePosstock
 
         // Agrupar por artículo; filtrar los que tienen ≥ $min_recepciones fechas distintas
         $recepciones_map = [];
+        $cantidades_map  = [];   // [idArticulo][fecha] = cantidad recibida ese día
         foreach ($rows_rec as $r) {
-            $recepciones_map[(int)$r['idArticulo']][] = $r['fecha'];
+            $aid = (int)$r['idArticulo'];
+            $recepciones_map[$aid][]             = $r['fecha'];
+            $cantidades_map[$aid][$r['fecha']]   = (float)$r['cantidad'];
         }
 
         $candidatos_ids = [];
@@ -4571,6 +4600,12 @@ class ClasePosstock
         foreach ($rows_timeline as $r) {
             $daily_map[(int)$r['idArticulo']][$r['fecha']] = (float)$r['day_delta'];
         }
+
+        // ── Artículos con actividad albcli en el período (C7a-025) ───────────
+        // Set idArticulo → true para los que tienen al menos un albarán de cliente.
+        // Una salida inter-tienda no registrada inflaría el floor artificialmente.
+        $has_albcli_ids = $this->_queryHasAlbcliC7($fi_stk, $ff, $ids_str);
+        if (isset($has_albcli_ids['error'])) $has_albcli_ids = []; // no bloquear si falla
 
         // ── Paso 3: calcular suelos inter-recepción y detectar patrón ────────
         $incidencias     = [];
@@ -4750,7 +4785,9 @@ class ClasePosstock
             if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= $c7a_umbral_delta) {
 
                 // ── Theil-Sen slope sobre floors_norm_all (C7a-012) ──────────
-                // Estimador de magnitud robusto; sustituye a β_OLS como 'tendencia'.
+                // Estimador usado por la cascada estadística (test OLS, Bootstrap, MK).
+                // Opera sobre floors normalizados (ud/día) para que la pendiente no se vea
+                // afectada por la duración variable de los intervalos entre recepciones.
                 // O(n²) — negligible para n típico 3-15.
                 $ts_pairs = [];
                 for ($i = 0; $i < $n_floors; $i++) {
@@ -4765,8 +4802,25 @@ class ClasePosstock
                         ? $ts_pairs[intdiv($n_ts, 2)]
                         : ($ts_pairs[$n_ts / 2 - 1] + $ts_pairs[$n_ts / 2]) / 2.0)
                     : 0.0;
-                // tendencia en escala ud/recepción (comprensible para el usuario)
-                $tendencia_visible = $beta_ts * $dias_intervalo_medio_all;
+
+                // ── Theil-Sen sobre floors BRUTOS para el campo de visualización ──
+                // Mide directamente la variación de suelo entre recepciones consecutivas
+                // en las unidades originales (ud. o kg por paso de recepción).
+                // NO se usa en la cascada estadística — solo para mostrar al usuario.
+                $ts_pairs_raw = [];
+                for ($i = 0; $i < $n_floors; $i++) {
+                    for ($j = $i + 1; $j < $n_floors; $j++) {
+                        $ts_pairs_raw[] = ($floors[$j] - $floors[$i]) / ($j - $i);
+                    }
+                }
+                sort($ts_pairs_raw);
+                $n_ts_raw         = count($ts_pairs_raw);
+                $beta_ts_raw      = $n_ts_raw > 0
+                    ? ($n_ts_raw % 2 === 1
+                        ? $ts_pairs_raw[intdiv($n_ts_raw, 2)]
+                        : ($ts_pairs_raw[$n_ts_raw / 2 - 1] + $ts_pairs_raw[$n_ts_raw / 2]) / 2.0)
+                    : 0.0;
+                $tendencia_visible = $beta_ts_raw;   // ud. o kg por recepción, sin conversión
 
                 // dispersión bruta para el campo 'dispersion' del array de salida
                 $variance_raw_c7a = 0.0;
@@ -5117,32 +5171,120 @@ class ClasePosstock
                             $tendencia_reciente_c7a = 'activo';
                         }
 
+                        // ── C7a-024/025: discriminar merma vs. compra con stock ──────────
+                        // ratio_i = floor[i-1] / cantidad_recepción[i]: alto sistemáticamente → compra con stock
+                        // Spearman(floor[i-1], cantidad[i]): negativo → comprador ajusta pedidos al stock
+                        $tiene_albcli_c7a  = isset($has_albcli_ids[$id]);
+                        $compra_con_stock  = false;
+                        $comprador_ajusta  = false;
+                        $r_spearman_c7a    = null;
+                        $ratio_mediano_c7a = null;
+
+                        // Cantidades por fecha de recepción (de $cantidades_map construido junto con $recepciones_map)
+                        $cantidades_rec = [];
+                        foreach ($fechas_floors as $fd) {
+                            $cantidades_rec[] = $cantidades_map[$id][$fd] ?? 0.0;
+                        }
+
+                        if ($n_floors >= 3) {
+                            $x_floors_prev = [];   // floor[i-1]
+                            $y_quant       = [];   // cantidad[i]
+                            $ratios_cob    = [];   // floor[i-1] / cantidad[i]
+                            for ($i = 1; $i < $n_floors; $i++) {
+                                $qty = $cantidades_rec[$i];
+                                if ($qty > 0.0 && $floors[$i - 1] >= 0.0) {
+                                    $x_floors_prev[] = $floors[$i - 1];
+                                    $y_quant[]       = $qty;
+                                    $ratios_cob[]    = $floors[$i - 1] / $qty;
+                                }
+                            }
+                            $n_pares = count($ratios_cob);
+
+                            if ($n_pares >= 2) {
+                                // Mediana de ratios
+                                $ratios_sorted     = $ratios_cob;
+                                sort($ratios_sorted);
+                                $ratio_mediano_c7a = $n_pares % 2 === 1
+                                    ? $ratios_sorted[intdiv($n_pares, 2)]
+                                    : ($ratios_sorted[$n_pares / 2 - 1] + $ratios_sorted[$n_pares / 2]) / 2.0;
+
+                                // Test binomial one-sided: ¿mayoría de ratios > 0.3?
+                                $umbral_ratio = 0.3;
+                                $k_alto       = 0;
+                                foreach ($ratios_cob as $rv) { if ($rv > $umbral_ratio) $k_alto++; }
+                                $p_ratio  = 0.0;
+                                $bcoef    = 1.0;
+                                $phalf    = pow(0.5, $n_pares);
+                                for ($k = 0; $k <= $n_pares; $k++) {
+                                    if ($k > 0) $bcoef *= ($n_pares - $k + 1) / $k;
+                                    if ($k >= $k_alto) $p_ratio += $bcoef * $phalf;
+                                }
+                                $compra_con_stock = (min(1.0, $p_ratio) < 0.10);
+
+                                // Spearman: ¿comprador reduce pedidos cuando el stock es alto?
+                                if ($n_pares >= 3) {
+                                    $fn_rank_c7a = static function (array $arr): array {
+                                        $n   = count($arr);
+                                        $idx = range(0, $n - 1);
+                                        usort($idx, static fn($a, $b) => $arr[$a] <=> $arr[$b]);
+                                        $ranks = array_fill(0, $n, 0.0);
+                                        for ($i = 0; $i < $n; ) {
+                                            $j = $i;
+                                            while ($j < $n && $arr[$idx[$j]] === $arr[$idx[$i]]) $j++;
+                                            $avg = ($i + $j - 1) / 2.0 + 1.0;
+                                            for ($k = $i; $k < $j; $k++) $ranks[$idx[$k]] = $avg;
+                                            $i = $j;
+                                        }
+                                        return $ranks;
+                                    };
+                                    $rx       = $fn_rank_c7a($x_floors_prev);
+                                    $ry       = $fn_rank_c7a($y_quant);
+                                    $n_sp     = $n_pares;
+                                    $mean_rx  = array_sum($rx) / $n_sp;
+                                    $mean_ry  = array_sum($ry) / $n_sp;
+                                    $cov_sp   = $var_rx_sp = $var_ry_sp = 0.0;
+                                    for ($i = 0; $i < $n_sp; $i++) {
+                                        $cov_sp    += ($rx[$i] - $mean_rx) * ($ry[$i] - $mean_ry);
+                                        $var_rx_sp += ($rx[$i] - $mean_rx) ** 2;
+                                        $var_ry_sp += ($ry[$i] - $mean_ry) ** 2;
+                                    }
+                                    $denom_sp       = sqrt($var_rx_sp * $var_ry_sp);
+                                    $r_spearman_c7a = $denom_sp > 0.0 ? $cov_sp / $denom_sp : 0.0;
+                                    $comprador_ajusta = ($r_spearman_c7a < -0.3);
+                                }
+                            }
+                        }
+
                         // ── C7a-010: posible_causa accionable según estado ───────────
-                        $unidad_causa_c7a = ($tipo_art === 'peso') ? 'kg' : 'ud.';
+                        $unidad_c7a    = ($tipo_art === 'peso') ? 'kg' : 'ud.';
+                        $slope_fmt_c7a = number_format(abs($tendencia_visible), 1, '.', '');
+                        $delta_fmt_c7a = number_format(abs($delta_total),       1, '.', '');
+                        $prefijo_c7a   = sprintf(
+                            'El suelo mínimo sube ~%s %s por recepción (%s %s acumulados). ',
+                            $slope_fmt_c7a, $unidad_c7a, $delta_fmt_c7a, $unidad_c7a
+                        );
                         switch ($tendencia_reciente_c7a) {
                             case 'resuelto':
-                                $posible_causa_c7a = sprintf(
-                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática, pero el período reciente no confirma la tendencia. Verificar si se realizó un ajuste de inventario o corrección de merma.',
-                                    $delta_total, $unidad_causa_c7a
-                                );
+                                $posible_causa_c7a = $prefijo_c7a . 'Tendencia histórica no confirmada en el período reciente. Verificar si se realizó un ajuste de inventario o corrección de merma.';
                                 break;
                             case 'mejorando':
-                                $posible_causa_c7a = sprintf(
-                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática. El período reciente muestra pendiente positiva sin confirmación estadística — la merma puede estar reduciéndose. Monitorizar en el próximo informe.',
-                                    $delta_total, $unidad_causa_c7a
-                                );
+                                $posible_causa_c7a = $prefijo_c7a . 'La tendencia puede estar reduciéndose — pendiente reciente sin confirmación estadística. Monitorizar en el próximo informe.';
                                 break;
                             case 'sin_datos':
-                                $posible_causa_c7a = sprintf(
-                                    'El suelo de stock subía ~%.0f %s entre recepciones de forma sistemática. Sin recepciones en el período de análisis — no es posible confirmar si la merma sigue activa. Revisar entradas pendientes.',
-                                    $delta_total, $unidad_causa_c7a
-                                );
+                                $posible_causa_c7a = $prefijo_c7a . 'Sin recepciones en el período de análisis — no es posible confirmar si la merma sigue activa. Revisar entradas pendientes.';
                                 break;
                             default: // 'activo'
-                                $posible_causa_c7a = sprintf(
-                                    'El suelo mínimo de stock sube ~%.1f %s por recepción (+%.0f %s acumulados). Posible merma no registrada, caducidad sistemática o salida sin documentar.',
-                                    $tendencia_visible, $unidad_causa_c7a, $delta_total, $unidad_causa_c7a
-                                );
+                                if ($comprador_ajusta) {
+                                    $posible_causa_c7a = $prefijo_c7a . 'El comprador reduce los pedidos cuando el stock es alto — menos probable merma sistemática. Posible política de buffer o entrega en calendario fijo.';
+                                } elseif ($compra_con_stock) {
+                                    $posible_causa_c7a = $prefijo_c7a . 'Stock sistemáticamente alto antes de cada recepción — posible compra anticipada o entrega en calendario fijo. Verificar si existe merma real no registrada.';
+                                } else {
+                                    $posible_causa_c7a = $prefijo_c7a . 'Posible merma, caducidad no registrada o salida sin documentar.';
+                                }
+                        }
+                        // ── C7a-025: aviso condicional si hay albaranes de cliente ──────
+                        if ($tiene_albcli_c7a) {
+                            $posible_causa_c7a .= ' · Hay albaranes de cliente en el período: verificar consumo interno o albaranes pendientes.';
                         }
 
                         $incidencias[] = [
@@ -5175,6 +5317,9 @@ class ClasePosstock
                             'fecha_ultima'     => $fechas_rec[$n_rec - 1],
                             '_floors_raw'      => $floors_map,
                             'posible_causa'    => $posible_causa_c7a,
+                            'tiene_albcli'     => $tiene_albcli_c7a,
+                            'r_spearman'       => $r_spearman_c7a !== null ? round($r_spearman_c7a, 3) : null,
+                            'ratio_mediano'    => $ratio_mediano_c7a !== null ? round($ratio_mediano_c7a, 3) : null,
                         ];
                     }
                 } // n_floors >= 3 && beta_ts > 0
