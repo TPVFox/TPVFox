@@ -1249,15 +1249,10 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
     ) {
         seleccionados.push("caso7b");
     }
-    // Inyección asimétrica: si C7b está activo, C7a debe correr también para
-    // que los cruces C7c/d/e tengan artículos de ambos lados.
-    // No se inyecta C7b cuando solo está C7a: el usuario controla si quiere cruces.
-    if (
-        seleccionados.indexOf("caso7b") !== -1 &&
-        seleccionados.indexOf("caso7a") === -1
-    ) {
-        seleccionados.push("caso7a");
-    }
+    // C7c/d/e solo se resuelven cuando el usuario selecciona explícitamente
+    // AMBOS subcasos (C7a + C7b). No se inyecta C7a automáticamente:
+    // ejecutar la cascada estadística de C7a solo para habilitar cruces es
+    // un coste desproporcionado cuando el usuario solo quiere ver C7b.
     return seleccionados.join(",");
 }
 

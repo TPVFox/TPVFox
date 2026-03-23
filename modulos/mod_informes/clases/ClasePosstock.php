@@ -1125,6 +1125,7 @@ class ClasePosstock
                 INNER JOIN ticketst t ON t.id = l.idticketst
                 WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
                   AND t.estado = 'Cerrado'
+                  AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
                 UNION ALL
                 SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.ncant AS delta
@@ -1132,6 +1133,7 @@ class ClasePosstock
                 INNER JOIN albclit a ON a.id = l.idalbcli
                 WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
                   AND a.estado IN ('Guardado','Procesado')
+                  AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
             ) AS all_movs
             GROUP BY idArticulo, fecha
