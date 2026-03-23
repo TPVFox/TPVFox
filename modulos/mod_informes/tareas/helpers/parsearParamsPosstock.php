@@ -189,6 +189,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c7a_umbral_alta_delta_peso'  => max(1.0, min(20.0, (float)(string)($posstock_node->c7a_umbral_alta_delta_peso  ?: '5.0'))),
         'c7a_umbral_alta_slope_unidad'=> max(0.5, min(10.0, (float)(string)($posstock_node->c7a_umbral_alta_slope_unidad ?: '2.0'))),
         'c7a_umbral_alta_slope_peso'  => max(0.1, min(5.0,  (float)(string)($posstock_node->c7a_umbral_alta_slope_peso  ?: '1.0'))),
+        'c7a_umbral_snr'              => max(0.05, min(1.0, (float)(string)($posstock_node->c7a_umbral_snr               ?: '0.15'))),
         'c7a_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7a_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
     ];
 }

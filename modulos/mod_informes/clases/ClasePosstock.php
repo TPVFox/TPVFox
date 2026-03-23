@@ -1624,6 +1624,7 @@ class ClasePosstock
         $c7a_umbral_alta_delta_peso = (float)  ($params['c7a_umbral_alta_delta_peso']    ?? 5.0);
         $c7a_umbral_alta_slope_unidad = (float)($params['c7a_umbral_alta_slope_unidad']  ?? 2.0);
         $c7a_umbral_alta_slope_peso = (float)  ($params['c7a_umbral_alta_slope_peso']    ?? 1.0);
+        $c7a_umbral_snr             = (float)  ($params['c7a_umbral_snr']                ?? 0.15);
         $c7a_cascada_exhaustiva     = (bool)   ($params['c7a_cascada_exhaustiva']        ?? false);
         $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
@@ -1902,6 +1903,7 @@ class ClasePosstock
                 $c7a_umbral_alta_delta_peso,
                 $c7a_umbral_alta_slope_unidad,
                 $c7a_umbral_alta_slope_peso,
+                $c7a_umbral_snr,
                 $c7a_cascada_exhaustiva
             );
             if (isset($c7['error'])) return $c7;
@@ -4503,6 +4505,7 @@ class ClasePosstock
         float  $c7a_umbral_alta_delta_peso  = 5.0,
         float  $c7a_umbral_alta_slope_unidad = 2.0,
         float  $c7a_umbral_alta_slope_peso  = 1.0,
+        float  $c7a_umbral_snr              = 0.15,
         bool   $c7a_cascada_exhaustiva      = false
     ): array {
         $subcasos_set    = array_flip($subcasos);
@@ -4769,6 +4772,10 @@ class ClasePosstock
                 $variance_raw_c7a = 0.0;
                 foreach ($floors as $f) { $variance_raw_c7a += ($f - $mean_raw) ** 2; }
                 $std_dev_raw_c7a = $n_floors > 1 ? sqrt($variance_raw_c7a / ($n_floors - 1)) : 0.0;
+
+                $snr_c7a = ($std_dev_raw_c7a > 0.0)
+                    ? abs($tendencia_visible) / $std_dev_raw_c7a
+                    : PHP_FLOAT_MAX;
 
                 // Nivel 5 eliminado (C7a-020): con n=2 floors positivos no hay test estadístico
                 // válido porque el sobrestock es el estado normal del inventario. Dos floors
@@ -5133,6 +5140,7 @@ class ClasePosstock
                             'tendencia_norm'   => round($beta_ts, 4),
                             'autocorr_lag1'    => round($autocorr_lag1_c7a, 2),
                             'p_mk'             => $p_mk_c7a !== null ? round($p_mk_c7a, 4) : null,
+                            'snr'                  => round($snr_c7a, 3),
                             'cascade_fallback_reason' => $c7a_fallback_reason ?: null,
                             'test_period'         => $test_period,
                             'tendencia_reciente'  => $tendencia_reciente_c7a,

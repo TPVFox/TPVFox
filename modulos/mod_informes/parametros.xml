@@ -80,6 +80,12 @@
 			<!-- C7a — Theil-Sen slope mínimo (ud./recepción o kg/recepción) para severidad ALTA. -->
 			<c7a_umbral_alta_slope_unidad>2.0</c7a_umbral_alta_slope_unidad>
 			<c7a_umbral_alta_slope_peso>1.0</c7a_umbral_alta_slope_peso>
+			<!-- C7a — SNR mínimo (señal/ruido): cociente entre la pendiente Theil-Sen (ud/rec) y la
+			     dispersión de los floors (std dev). Un artículo con slope=2.3 y dispersión=65.9
+			     tiene SNR=0.035 — el ruido domina a la señal. Con n grande, Mann-Kendall siempre
+			     detecta tendencia aunque el SNR sea ínfimo (sesgo de selección). Default 0.15 = la
+			     pendiente debe ser al menos el 15% de la dispersión de los suelos. -->
+			<c7a_umbral_snr>0.15</c7a_umbral_snr>
 			<!-- C7a — Cascada exhaustiva: si true, continúa la cascada aunque un nivel dé negativo (diagnóstico).
 			     Con n=3 floors, el nivel 1 (Mann-Kendall) siempre se omite por falta de potencia estadística
 			     y la cascada empieza en el nivel 2 (bootstrap), independientemente de este parámetro. -->
