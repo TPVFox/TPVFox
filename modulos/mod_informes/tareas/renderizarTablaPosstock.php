@@ -31,6 +31,7 @@ $cfg = [
     'anio'                  => (int)($_POST['anio']               ?? date('Y')),
     'c3b_dias_post'         => (int)($_POST['c3b_dias_post']       ?? 14),
     'c6b_dias_historico'    => (int)($_POST['c6b_dias_historico']  ?? 90),
+    'mostrar_tecnico'       => !empty($_POST['mostrar_tecnico']),
 ];
 
 $respuesta['html'] = renderTablaPosstock($filas, $cfg);

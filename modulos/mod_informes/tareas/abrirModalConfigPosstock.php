@@ -584,6 +584,13 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
     $html .= '  <div class="panel-body">';
     $html .= '    <div class="checkbox" style="margin:0;">';
+    $html .= '      <label class="small" title="Muestra valores técnicos del modelo en el detalle de cada incidencia: β, k, λ, n_lotes, n_déficit, conservación de masa (C9), contadores de cascade (C7a), etc. Desactivado = vista de operario (solo información accionable).">';
+    $html .= '        <input type="checkbox" name="inputMostrarTecnico" value="1"'
+        . ((string)$posstock->posstock_mostrar_tecnico === '1' ? ' checked' : '') . '>';
+    $html .= '        Vista técnica <small class="text-muted">(β, n_lotes, conservación de masa, parámetros del modelo… — desactivado para operarios)</small>';
+    $html .= '      </label>';
+    $html .= '    </div>';
+    $html .= '    <div class="checkbox" style="margin:4px 0 0;">';
     $html .= '      <label class="small" title="Incluye artículos físicos con stock positivo al cierre del periodo pero sin ningún movimiento en el rango analizado.">';
     $html .= '        <input type="checkbox" name="inputIncluirStockInactivo" value="1"'
         . ((string)$posstock->incluir_stock_inactivo === '1' ? ' checked' : '') . '>';

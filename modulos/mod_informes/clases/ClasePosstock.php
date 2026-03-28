@@ -1346,8 +1346,10 @@ class ClasePosstock
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
+        // Devuelve líneas individuales con idAlbaran para poder detectar cruces
+        // intra-albarán (signos mixtos por artículo) igual que el lado proveedor.
         $sql = "
-            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, SUM(l.ncant) AS cantidad
+            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.ncant, a.id AS idAlbaran
             FROM albclilinea l
             INNER JOIN albclit  a  ON a.id         = l.idalbcli
             INNER JOIN clientes cl ON cl.idClientes = a.idCliente
@@ -1356,7 +1358,7 @@ class ClasePosstock
               AND l.estadoLinea  = 'Activo'
               AND cl.estado      = 'Especial'
               AND l.idArticulo  IN ($ids_str)
-            GROUP BY l.idArticulo, DATE(a.Fecha)
+            ORDER BY a.id, l.idArticulo
         ";
         $res = $this->db->query($sql);
         if ($res === false) return ['error' => 'C9 cli especiales: ' . $this->db->error];
@@ -2320,6 +2322,11 @@ class ClasePosstock
                 // Nulls de coste al final
                 $coste_null = ($inc['coste_estimado'] ?? null) === null ? '1' : '0';
                 $inc['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $rec_inv . $def_inv;
+            } elseif ($inc['tipo'] === 'Merma backstaging') {
+                // C9: pct_merma desc → merma_total_kg desc
+                $pct_inv   = str_pad(max(0, 99999 - (int)(abs((float)($inc['pct_merma']     ?? 0)) * 100)), 5, '0', STR_PAD_LEFT);
+                $merma_inv = str_pad(max(0, 9999999 - (int)(abs((float)($inc['merma_total_kg'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $inc['orden_clave'] = $sev_idx . '0' . $pct_inv . $merma_inv;
             } else {
                 $inc['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $inc['idArticulo']);
             }
@@ -7053,30 +7060,42 @@ class ClasePosstock
         string $tipo_fisico,
         float  $epsilon
     ): array {
-        $merma_total = 0.0;
-        $total_E     = 0.0;
-        $n_merma     = 0;
-        $detalle     = [];
+        $merma_total     = 0.0;
+        $merma_carryover = 0.0;  // S_t positivo de lotes inciertos al final (horquilla superior)
+        $total_E         = 0.0;
+        $n_merma         = 0;
+        $n_inciertos     = 0;
+        $detalle         = [];
 
         foreach ($lotes as $lote) {
-            $es_ultimo_abierto = $lote['es_ultimo_abierto'] ?? false;
-            $merma_t           = max($lote['S_t'], 0.0);
-            // Último abierto: carryover al siguiente periodo — sobrante no es merma.
+            // es_lote_incierto: marcado por getIncidenciasC9 según umbral de continuidad vivo.
+            // Incluye siempre es_ultimo_abierto. Fallback a es_ultimo_abierto para compatibilidad
+            // con tests unitarios que no pasan por getIncidenciasC9.
+            $es_incierto = ($lote['es_lote_incierto'] ?? false)
+                        || ($lote['es_ultimo_abierto'] ?? false);
+            $merma_t     = max($lote['S_t'], 0.0);
+            // Lotes inciertos: carryover al siguiente periodo — sobrante no es merma confirmada.
             // Los déficits (S_t < 0) sí participan en backstaging hacia lotes anteriores.
-            if (!$es_ultimo_abierto) {
+            if (!$es_incierto) {
                 $merma_total += $merma_t;
                 $total_E     += $lote['E_t'];
                 if ($merma_t > 0.0) $n_merma++;
+            } else {
+                $n_inciertos++;
+                // S_t positivo es carryover (podría venderse en el periodo siguiente).
+                // Lo acumulamos separado para dar la horquilla superior informativa.
+                $merma_carryover += $merma_t;
             }
             $detalle[] = [
-                'idx'         => $lote['idx'],
-                'fecha_ini'   => $lote['fecha_ini'],
-                'fecha_fin'   => $lote['fecha_fin'],
-                'E_t'         => round($lote['E_t'], 3),
-                'V_t'         => round($lote['V_t'], 3),
-                'S_t'         => round($lote['S_t'], 3),
-                'merma_t'     => round($merma_t, 3),
-                'v_t_parcial' => $lote['v_t_parcial'] ?? false,
+                'idx'              => $lote['idx'],
+                'fecha_ini'        => $lote['fecha_ini'],
+                'fecha_fin'        => $lote['fecha_fin'],
+                'E_t'              => round($lote['E_t'], 3),
+                'V_t'              => round($lote['V_t'], 3),
+                'S_t'              => round($lote['S_t'], 3),
+                'merma_t'          => round($merma_t, 3),
+                'v_t_parcial'      => $lote['v_t_parcial'] ?? false,
+                'es_lote_incierto' => $es_incierto,
             ];
         }
 
@@ -7114,6 +7133,8 @@ class ClasePosstock
 
         return [
             'merma_total'        => round($merma_total, 3),
+            'merma_carryover'    => round($merma_carryover, 3),  // carryover lotes inciertos (horquilla superior)
+            'n_lotes_inciertos'  => $n_inciertos,
             'pct_merma'          => round($pct, 2),
             'n_merma'            => $n_merma,
             'detalle_lotes'      => $detalle,
@@ -7232,23 +7253,57 @@ class ClasePosstock
         if (isset($rows_cli_esp['error'])) return $rows_cli_esp;
 
         // Clasificar albaranes proveedor especial: cruce intra-albarán vs merma declarada
-        // Paso A: separar intra-albarán cruces (signos mixtos) de candidatos negativos
+        // Paso A: separar intra-albarán cruces (signos mixtos POR ARTÍCULO) de candidatos negativos.
+        // Se evalúa por artículo, no por albarán global: un albarán puede tener líneas positivas
+        // para otros artículos (p.e. regularizaciones de múltiples artículos) sin que eso invalide
+        // las líneas negativas del artículo analizado.
         $alb_prov = [];
         foreach ($rows_prov_esp as $r) $alb_prov[(int)$r['idAlbaran']][] = $r;
         $candidatos_decl = []; // [aid][fecha] => monto absoluto
         foreach ($alb_prov as $lineas) {
-            $tiene_pos = false;
-            $tiene_neg = false;
+            // Detectar signos mixtos por artículo dentro del albarán
+            $signos_art = [];
             foreach ($lineas as $l) {
-                if ((float)$l['ncant'] > 0) $tiene_pos = true;
-                if ((float)$l['ncant'] < 0) $tiene_neg = true;
+                $aid = (int)$l['idArticulo'];
+                $ncant = (float)$l['ncant'];
+                if ($ncant > 0) $signos_art[$aid]['pos'] = true;
+                if ($ncant < 0) $signos_art[$aid]['neg'] = true;
             }
-            if ($tiene_pos && $tiene_neg) continue; // cruce intra-albarán: ignorar
             foreach ($lineas as $l) {
                 $aid   = (int)$l['idArticulo'];
+                $ncant = (float)$l['ncant'];
+                // Cruce intra-albarán: este artículo tiene signos mixtos en el mismo albarán → ignorar
+                if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
                 $fecha = $l['fecha'];
-                $candidatos_decl[$aid][$fecha] = ($candidatos_decl[$aid][$fecha] ?? 0.0)
-                                               + abs((float)$l['ncant']);
+                if ($ncant > 0) {
+                    // Proveedor especial positivo = entrada normal: añadir a recepciones_map
+                    // como si fuera un proveedor ordinario.
+                    $ya_existe = false;
+                    if (isset($recepciones_map[$aid])) {
+                        foreach ($recepciones_map[$aid] as &$_rec) {
+                            if ($_rec['fecha'] === $fecha) {
+                                $_rec['cantidad'] += $ncant;
+                                $ya_existe = true;
+                                break;
+                            }
+                        }
+                        unset($_rec);
+                    }
+                    if (!$ya_existe) {
+                        $recepciones_map[$aid][] = [
+                            'fecha'           => $fecha,
+                            'cantidad'        => $ncant,
+                            'es_post_periodo' => false,
+                        ];
+                        // Re-ordenar por fecha para mantener coherencia
+                        usort($recepciones_map[$aid], fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+                    }
+
+                } else {
+                    // Proveedor especial negativo = merma declarada o cruce (Paso B)
+                    $candidatos_decl[$aid][$fecha] = ($candidatos_decl[$aid][$fecha] ?? 0.0)
+                                                   + abs($ncant);
+                }
             }
         }
 
@@ -7278,10 +7333,76 @@ class ClasePosstock
                 }
             }
         }
-        $merma_cli_decl = [];
-        foreach ($rows_cli_esp as $r) {
-            $aid = (int)$r['idArticulo'];
-            $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + (float)$r['cantidad'];
+        // Clasificar albaranes cliente especial: misma lógica Paso A/B que proveedor.
+        // En albaranes cliente: ncant > 0 = salida de stock (merma/venta especial),
+        //                       ncant < 0 = entrada de stock (devolución/regularización).
+        $alb_cli = [];
+        foreach ($rows_cli_esp as $r) $alb_cli[(int)$r['idAlbaran']][] = $r;
+        $merma_cli_decl  = [];
+        $entradas_cli_esp = []; // [aid][fecha] => monto absoluto (ncant < 0 sin cruce)
+        foreach ($alb_cli as $lineas) {
+            // Paso A: detectar signos mixtos por artículo dentro del albarán
+            $signos_art = [];
+            foreach ($lineas as $l) {
+                $aid   = (int)$l['idArticulo'];
+                $ncant = (float)$l['ncant'];
+                if ($ncant > 0) $signos_art[$aid]['pos'] = true;
+                if ($ncant < 0) $signos_art[$aid]['neg'] = true;
+            }
+            foreach ($lineas as $l) {
+                $aid   = (int)$l['idArticulo'];
+                $ncant = (float)$l['ncant'];
+                if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
+                $fecha = $l['fecha'];
+                if ($ncant > 0) {
+                    // Salida especial → merma declarada
+                    $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $ncant;
+                } else {
+                    // Entrada especial → candidato a neta V_t o entrada directa
+                    $entradas_cli_esp[$aid][$fecha] = ($entradas_cli_esp[$aid][$fecha] ?? 0.0)
+                                                    + abs($ncant);
+                }
+            }
+        }
+        // Paso B cliente: si hay ventas regulares el mismo día en timeline, neta V_t;
+        // si no, añadir como entrada a recepciones_map.
+        foreach ($entradas_cli_esp as $aid => $fechas) {
+            foreach ($fechas as $fecha => $monto) {
+                $tl_aid = $timeline_map[$aid] ?? [];
+                $tl_idx = null;
+                foreach ($tl_aid as $idx => $tl) {
+                    if ($tl['fecha'] === $fecha) { $tl_idx = $idx; break; }
+                }
+                if ($tl_idx !== null) {
+                    // Cross-albarán: neta V_t del timeline
+                    $timeline_map[$aid][$tl_idx]['day_delta'] -= $monto;
+                    if ($timeline_map[$aid][$tl_idx]['day_delta'] <= 0.0) {
+                        unset($timeline_map[$aid][$tl_idx]);
+                        $timeline_map[$aid] = array_values($timeline_map[$aid]);
+                    }
+                } else {
+                    // Sin ventas regulares ese día → entrada de stock
+                    $ya_existe = false;
+                    if (isset($recepciones_map[$aid])) {
+                        foreach ($recepciones_map[$aid] as &$_rec) {
+                            if ($_rec['fecha'] === $fecha) {
+                                $_rec['cantidad'] += $monto;
+                                $ya_existe = true;
+                                break;
+                            }
+                        }
+                        unset($_rec);
+                    }
+                    if (!$ya_existe && isset($recepciones_map[$aid])) {
+                        $recepciones_map[$aid][] = [
+                            'fecha'           => $fecha,
+                            'cantidad'        => $monto,
+                            'es_post_periodo' => false,
+                        ];
+                        usort($recepciones_map[$aid], fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+                    }
+                }
+            }
         }
 
         // ── Paso 5: stock base (compartido con C7 en batch) ────────────────
@@ -7342,13 +7463,69 @@ class ClasePosstock
                 }
             }
 
+            // ── Marcar lotes inciertos al final del periodo ──────────────────
+            // Un lote es incierto si su ciclo puede no haber cerrado todavía.
+            // Se aplica el umbral de continuidad local (mu + lambda * sigma) en DOS casos:
+            //
+            //   A) Corte de DB / fin de periodo sin datos posteriores:
+            //      existe al menos un lote con es_ultimo_abierto=true.
+            //      Justificación: si la DB termina en ff_mov, los lotes cuya fecha_ini
+            //      cae dentro del umbral de continuidad ANTES de ff_mov tuvieron su ciclo
+            //      natural cortado por el límite del periodo, no por una recepción real.
+            //      Se aplica siempre, incluso para análisis históricos.
+            //
+            //   B) Análisis "en vivo" (hoy dentro de la ventana dias_post):
+            //      la primera recepción que cerraría los últimos lotes aún no ha llegado.
+            //      Se aplica aunque todos los lotes parezcan cerrados.
+            $hoy_str  = date('Y-m-d');
+            $ff_post_continuidad = date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"));
+            $es_vivo         = ($hoy_str <= $ff_post_continuidad);
+            $hay_abierto     = !empty(array_filter($lotes, fn($l) => !empty($l['es_ultimo_abierto'])));
+            $aplicar_umbral  = $es_vivo || $hay_abierto;
+
+            if ($aplicar_umbral && count($lotes) >= 2) {
+                $n_lots = count($lotes);
+                // Intervalos inter-lote (días entre fechas_ini consecutivas)
+                $intervals = [];
+                for ($i = 1; $i < $n_lots; $i++) {
+                    $intervals[] = (int)round(
+                        (strtotime($lotes[$i]['fecha_ini']) - strtotime($lotes[$i - 1]['fecha_ini'])) / 86400
+                    );
+                }
+                // Ventana local: últimos min(k+1, n-1) intervalos
+                $ventana = array_slice($intervals, -min($c9_k + 1, count($intervals)));
+                $n_v     = count($ventana);
+                $mu_v    = $n_v > 0 ? array_sum($ventana) / $n_v : 0.0;
+                $var_v   = 0.0;
+                foreach ($ventana as $d) $var_v += ($d - $mu_v) ** 2;
+                $sigma_v         = $n_v > 1 ? sqrt($var_v / ($n_v - 1)) : 0.0;
+                $umbral_cont     = max(1.0, $mu_v + $c9_lambda * $sigma_v);
+                $ff_ts           = strtotime($ff_mov);
+                // Recorrer desde el último lote hacia atrás
+                for ($i = $n_lots - 1; $i >= 0; $i--) {
+                    $gap = ($ff_ts - strtotime($lotes[$i]['fecha_ini'])) / 86400;
+                    if ($gap <= $umbral_cont) {
+                        $lotes[$i]['es_lote_incierto'] = true;
+                    } else {
+                        break; // ya fuera del umbral de continuidad
+                    }
+                }
+            }
+            // Propagar: es_lote_incierto incluye siempre es_ultimo_abierto
+            foreach ($lotes as &$_lot) {
+                if (!isset($_lot['es_lote_incierto'])) {
+                    $_lot['es_lote_incierto'] = !empty($_lot['es_ultimo_abierto']);
+                }
+            }
+            unset($_lot);
+
             $resultado = $this->_backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda);
 
             $umbral = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
             $clasif = $this->_clasificarMermaC9(
                 $resultado['lotes'], $stock_final, $stock_at_first_rec, $tipo_fisico, $c9_epsilon
             );
-            if ($clasif['merma_total'] < $umbral) continue;
+            if (($clasif['merma_total'] + $clasif['merma_carryover']) < $umbral) continue;
 
             $merma_decl  = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
             $n_en_periodo = count(array_filter($recs_art, fn($r) => !$r['es_post_periodo']));
@@ -7358,6 +7535,8 @@ class ClasePosstock
                 'tipo'                => 'Merma backstaging',
                 'idArticulo'          => $idArticulo,
                 'merma_total_kg'      => $clasif['merma_total'],
+                'merma_carryover_kg'  => $clasif['merma_carryover'],   // lotes inciertos: horquilla superior
+                'n_lotes_inciertos'   => $clasif['n_lotes_inciertos'],
                 'merma_declarada_kg'  => round($merma_decl, 3),
                 'pct_merma'           => $clasif['pct_merma'],
                 'n_lotes'             => count($resultado['lotes']),

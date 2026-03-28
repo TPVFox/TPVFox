@@ -359,6 +359,7 @@ if (!empty($errores)) {
     $posstock->c9_umbral_merma_unidad            = floatval($mapa['inputC9UmbralMermaUnidad']);
     $posstock->c9_umbral_merma_peso              = floatval($mapa['inputC9UmbralMermaPeso']);
     $posstock->c9_dias_post                      = intval($mapa['inputC9DiasPost']);
+    $posstock->posstock_mostrar_tecnico          = (isset($mapa['inputMostrarTecnico']) && $mapa['inputMostrarTecnico'] === '1') ? '1' : '0';
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';
@@ -368,6 +369,7 @@ if (!empty($errores)) {
         $respuesta['c3b_dias_post']           = (int)$mapa['inputC3bDiasPost'];
         $respuesta['c3a_multiplicador']       = (float)$mapa['inputC3aMultiplicadorCadencia'];
         $respuesta['c6b_dias_historico']      = (int)$mapa['inputC6bDiasHistorico'];
+        $respuesta['mostrar_tecnico']         = (isset($mapa['inputMostrarTecnico']) && $mapa['inputMostrarTecnico'] === '1');
     } else {
         $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';
     }

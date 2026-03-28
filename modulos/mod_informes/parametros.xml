@@ -108,7 +108,9 @@
 			<c9_umbral_merma_peso>1.0</c9_umbral_merma_peso>
 			<!-- C9 — Días a ampliar tras ff_mov para buscar la primera recepción post-periodo (cierre del último ciclo). Rango: 30–120 -->
 			<c9_dias_post>60</c9_dias_post>
-			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
+			<!-- Vista tabla: 1 = mostrar valores técnicos del modelo (β, n_lotes, conservación, parámetros C9…) en el detalle de cada incidencia. 0 = vista operario (solo información accionable). -->
+		<posstock_mostrar_tecnico>0</posstock_mostrar_tecnico>
+		<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>
 			<anio_periodo></anio_periodo>

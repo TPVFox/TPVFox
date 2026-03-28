@@ -144,6 +144,8 @@ function guardarConfigPosstock() {
             if (resultado.c6b_dias_historico !== undefined)
                 window.POSSTOCK_C6B_DIAS_HISTORICO =
                     resultado.c6b_dias_historico;
+            if (resultado.mostrar_tecnico !== undefined)
+                window.POSSTOCK_MOSTRAR_TECNICO = resultado.mostrar_tecnico;
             if (resultado.ventana_dias !== undefined)
                 window.POSSTOCK_VENTANA_DIAS = resultado.ventana_dias;
 
@@ -759,6 +761,8 @@ function _posstockResolverC7cde(idsC7a, idsC7b, acum, parametrosLote, periodo) {
 function _posstockFinalizarTabla(acum, periodo) {
     acum.sort(_posstockSortComparator);
     _posstockEnriquecerC1aConC7b(acum);
+    window._posstockUltimasFilas  = acum;
+    window._posstockUltimoPeriodo = periodo;
     $("#posstockProgreso").text("Generando tabla…");
     _posstockRenderizarTabla(acum, periodo);
 
@@ -868,6 +872,7 @@ function _posstockRenderizarTabla(filas, periodo) {
             anio: window.posstockAnioActivo || new Date().getFullYear(),
             c3b_dias_post: window.POSSTOCK_C3B_DIAS_POST || 14,
             c6b_dias_historico: window.POSSTOCK_C6B_DIAS_HISTORICO || 90,
+            mostrar_tecnico: window.POSSTOCK_MOSTRAR_TECNICO ? 1 : 0,
         },
         url: "tareas.php",
         type: "post",
