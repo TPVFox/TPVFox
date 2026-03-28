@@ -191,6 +191,11 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c7a_umbral_alta_slope_peso'  => max(0.1, min(5.0,  (float)(string)($posstock_node->c7a_umbral_alta_slope_peso  ?: '1.0'))),
         'c7a_umbral_snr'              => max(0.05, min(1.0, (float)(string)($posstock_node->c7a_umbral_snr               ?: '0.15'))),
         'c7a_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7a_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
+        // Filtro de artículos por IDs (viene del filtro de badges del frontend; vacío = sin restricción)
+        'articulos_filtrados'         => array_values(array_filter(
+            array_map('intval', explode(',', $_POST['articulos_filtrados'] ?? '')),
+            fn($id) => $id > 0
+        )),
         // C9 — Merma por backstaging LIFO inverso
         'c9_profundidad_k'            => max(2, min(10,   (int)(string)  ($posstock_node->c9_profundidad_k        ?: '4'))),
         'c9_beta'                     => max(0.05, min(1.0, (float)(string)($posstock_node->c9_beta               ?: '0.15'))),

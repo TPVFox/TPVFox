@@ -975,7 +975,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
         $coste_any   = $f['coste_estimado'] ?? $f['coste_estimado_merma'] ?? null;
         $costeData   = $coste_any !== null ? (float)$coste_any : 0;
         $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
-            . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '" data-coste="' . $costeData . '">'
+            . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '" data-coste="' . $costeData . '"'
+            . ' data-idarticulo="' . (int)($f['idArticulo'] ?? 0) . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'
             . '<td>' . htmlspecialchars($f['nombre'] ?? '—') . $badgeNombrePrincipal . '</td>'
             . '<td>' . htmlspecialchars($tipoLabel) . '</td>'

@@ -22,6 +22,11 @@ if (isset($filas['error'])) {
     return;
 }
 
+if (!empty($params['articulos_filtrados'])) {
+    $ids_set = array_flip($params['articulos_filtrados']);
+    $filas   = array_values(array_filter($filas, fn($f) => isset($ids_set[(int)$f['idArticulo']])));
+}
+
 // ── Cabecera del PDF (impresa en cada página por Header()) ────────────────────
 $html_cabecera = '
 <table border="0" cellpadding="2" cellspacing="0" width="100%">

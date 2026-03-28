@@ -26,6 +26,12 @@ if (isset($filas['error'])) {
     exit;
 }
 
+// Filtrar por artículos visibles si el frontend envió una lista filtrada
+if (!empty($params['articulos_filtrados'])) {
+    $ids_set = array_flip($params['articulos_filtrados']);
+    $filas   = array_values(array_filter($filas, fn($f) => isset($ids_set[(int)$f['idArticulo']])));
+}
+
 // ── Cabeceras HTTP ────────────────────────────────────────────────────────────
 $nombre_fichero = 'posstock_' . date('Ymd') . '.csv';
 header('Content-Type: text/csv; charset=utf-8');
