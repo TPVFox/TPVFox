@@ -90,6 +90,24 @@
 			     Con n=3 floors, el nivel 1 (Mann-Kendall) siempre se omite por falta de potencia estadística
 			     y la cascada empieza en el nivel 2 (bootstrap), independientemente de este parámetro. -->
 			<c7a_cascada_exhaustiva>false</c7a_cascada_exhaustiva>
+			<!-- C9 — Merma por backstaging LIFO inverso con ponderación exponencial.
+			     Detecta merma intra-periodo a partir del sobrante/déficit de cada ciclo inter-recepción. -->
+			<!-- C9 — Profundidad de backstaging: nº máximo de lotes anteriores que pueden absorber el déficit de un lote. Rango: 2–10 -->
+			<c9_profundidad_k>5</c9_profundidad_k>
+			<!-- C9 — Tasa de decaimiento exponencial del peso por distancia temporal (días). Rango: 0.05–1.0 -->
+			<c9_beta>0.05</c9_beta>
+			<!-- C9 — Multiplicador σ para el umbral de continuidad temporal (threshold_local = mu + lambda*sigma). Rango: 1.0–3.0 -->
+			<c9_lambda>4</c9_lambda>
+			<!-- C9 — Tolerancia de conservación de masa (kg/ud): |sum(S_t) - stock_final| ≤ epsilon → conservation_ok. Rango: 0.1–5.0 -->
+			<c9_epsilon>5.0</c9_epsilon>
+			<!-- C9 — Número mínimo de recepciones en el periodo para analizar el artículo. Rango: 2–10 -->
+			<c9_min_recepciones>3</c9_min_recepciones>
+			<!-- C9 — Merma mínima (ud.) para reportar el artículo. Filtra ruido en artículos por unidad. Rango: 0.5–10.0 -->
+			<c9_umbral_merma_unidad>2.0</c9_umbral_merma_unidad>
+			<!-- C9 — Merma mínima (kg) para reportar el artículo. Artículos de peso. Rango: 0.2–5.0 -->
+			<c9_umbral_merma_peso>1.0</c9_umbral_merma_peso>
+			<!-- C9 — Días a ampliar tras ff_mov para buscar la primera recepción post-periodo (cierre del último ciclo). Rango: 30–120 -->
+			<c9_dias_post>60</c9_dias_post>
 			<!-- Último rango consultado: preselecciona los selectores al abrir el informe -->
 			<tipo_periodo></tipo_periodo>
 			<numero_periodo></numero_periodo>

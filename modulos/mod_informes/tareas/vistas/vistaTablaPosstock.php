@@ -612,6 +612,82 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $lineaCompA . '</small>';
             }
 
+        // ── C9 ────────────────────────────────────────────────────────────────
+        } elseif ($tipo === 'Merma backstaging') {
+            $mermaKg    = isset($f['merma_total_kg'])    ? (float)$f['merma_total_kg']    : null;
+            $mermaDeclKg= isset($f['merma_declarada_kg'])? (float)$f['merma_declarada_kg']: null;
+            $pctMerma   = isset($f['pct_merma'])         ? (float)$f['pct_merma']         : null;
+            $nLotes     = (int)($f['n_lotes']         ?? 0);
+            $nDeficit   = (int)($f['n_lotes_deficit'] ?? 0);
+            $nMerma     = (int)($f['n_lotes_merma']   ?? 0);
+            $nRec       = (int)($f['n_recepciones']   ?? 0);
+            $confianza9 = $f['confianza']    ?? 'posible';
+            $consOk9    = !empty($f['conservation_ok']);
+            $tipoArt9   = $f['tipo_articulo'] ?? 'peso';
+            $unidad9    = $tipoArt9 === 'peso' ? 'kg' : 'ud.';
+            $modo9      = $f['modo'] ?? 'continuo';
+
+            // Badge principal: calidad del modelo
+            if ($confianza9 === 'alta' && $consOk9) {
+                $badgePrincipal9 = '<span class="label label-danger" title="Merma estimada con alta confianza. Conservación de masa OK: el modelo explica el stock final contable.">Merma confirmada</span>';
+            } elseif ($confianza9 === 'media' || $consOk9) {
+                $badgePrincipal9 = '<span class="label label-warning" title="Merma estimada con confianza media. Revisar detalle de lotes para confirmar.">Merma probable</span>';
+            } else {
+                $badgePrincipal9 = '<span class="label label-default" title="Merma estimada con baja confianza. Pocas recepciones o stock contable no coincide con el modelo.">Merma posible</span>';
+            }
+
+            // Badge conservación de masa
+            $badgeCons9 = $consOk9
+                ? ' <span class="label label-success" title="Conservación OK: la suma de sobrantes/déficits coincide con el stock contable al cierre del periodo.">Conservación OK</span>'
+                : ' <span class="label label-default" title="El modelo no conserva masa exactamente — el stock contable acumulado puede tener desajustes previos al periodo analizado.">Stock histórico desajustado</span>';
+
+            // Badge merma declarada
+            $badgeDecl9 = '';
+            if ($mermaDeclKg !== null && $mermaDeclKg > 0.0) {
+                $badgeDecl9 = ' <span class="label label-info" title="Merma registrada explícitamente (albaranes a proveedores especiales o REGULARIZACION): '
+                    . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '">Declarada: '
+                    . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '</span>';
+            }
+
+            // Línea 1: badges
+            $detalle = $badgePrincipal9 . $badgeCons9 . $badgeDecl9;
+
+            // Línea 2: métricas principales
+            $detalle .= '<br>'
+                . 'Merma est.: <strong>' . ($mermaKg !== null ? number_format($mermaKg, 3, ',', '.') . ' ' . $unidad9 : '—') . '</strong>'
+                . ($pctMerma !== null ? ' <span class="text-muted">(' . number_format($pctMerma, 1, ',', '.') . '% s/entradas)</span>' : '')
+                . ' | ' . $nRec . ' rec. · ' . $nLotes . ' lotes'
+                . ' | ' . $nDeficit . ' c/déficit · ' . $nMerma . ' c/merma';
+
+            // Línea 3: complementaria
+            $betaUsado   = isset($f['beta_usado'])   ? (float)$f['beta_usado']   : null;
+            $lineaComp9  = 'Modo: ' . $modo9;
+            if ($betaUsado !== null) {
+                $lineaComp9 .= ' · β=' . number_format($betaUsado, 2, '.', '');
+            }
+            $detalle .= '<br><small class="text-muted">' . $lineaComp9 . '</small>';
+
+            // Posible causa: merma agrupada por mes para facilitar albaranes de ajuste
+            $_mc9 = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            $_mmAgg = [];
+            foreach (($f['merma_por_lote'] ?? []) as $_lot) {
+                $_mt = (float)($_lot['merma_t'] ?? 0.0);
+                if ($_mt > 0.001) {
+                    $_mes = (int)substr($_lot['fecha_ini'] ?? '', 5, 2);
+                    if ($_mes >= 1 && $_mes <= 12) {
+                        $_mmAgg[$_mes] = ($_mmAgg[$_mes] ?? 0.0) + $_mt;
+                    }
+                }
+            }
+            ksort($_mmAgg);
+            if (!empty($_mmAgg)) {
+                $_causaParts = [];
+                foreach ($_mmAgg as $_mes => $_merma_m) {
+                    $_causaParts[] = $_mc9[$_mes] . ': ~' . number_format($_merma_m, 2, ',', '.') . ' ' . $unidad9;
+                }
+                $f['posible_causa'] = implode(' · ', $_causaParts);
+            }
+
         // ── C6a / C6b ─────────────────────────────────────────────────────────
         } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
             $badgeStockNoFiable = !empty($f['stock_no_fiable'])

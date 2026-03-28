@@ -17,6 +17,7 @@ const POSSTOCK_TIPOS_INCIDENCIA = [
     ['v' => 'caso6b', 't' => 'Punto de Pedido (ROP histórico fijo)',    'short' => 'C6b', 'soloAnual' => true],
     ['v' => 'caso7a', 't' => 'Merma no registrada',                     'short' => 'C7a', 'soloAnual' => false],
     ['v' => 'caso7b', 't' => 'Recepción no registrada',                 'short' => 'C7b', 'soloAnual' => false],
+    ['v' => 'caso9',  't' => 'Merma por backstaging',                   'short' => 'C9',  'soloAnual' => false],
 ];
 
 /**

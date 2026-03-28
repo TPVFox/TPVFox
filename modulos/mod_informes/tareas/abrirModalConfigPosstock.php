@@ -104,12 +104,14 @@ function abrirModalConfigPosstock($posstock)
     $html .= '      <div class="col-xs-12 col-sm-5">';
     $html .= '        <label class="control-label small">Modo de detección</label>';
     $html .= '        <select class="form-control input-sm" name="inputModeloEstadistico" id="modalModeloEstadistico" onchange="modalToggleModeloEstadistico()">';
-    foreach ([
-        'automatico' => 'Automático',
-        'binomial'   => 'Binomial',
-        'poisson_bn' => 'Poisson / Binomial Negativa',
-        'gamma'      => 'Gamma',
-    ] as $val => $label) {
+    foreach (
+        [
+            'automatico' => 'Automático',
+            'binomial'   => 'Binomial',
+            'poisson_bn' => 'Poisson / Binomial Negativa',
+            'gamma'      => 'Gamma',
+        ] as $val => $label
+    ) {
         $sel = $modelo_actual === $val ? ' selected' : '';
         $html .= "          <option value=\"{$val}\"{$sel}>{$label}</option>";
     }
@@ -493,7 +495,91 @@ function abrirModalConfigPosstock($posstock)
     $html .= '  </div>';
     $html .= '</div>';
 
-    // --- BLOQUE 5: OPCIONES ADICIONALES ---
+    // --- BLOQUE 5: CASO 9 — MERMA POR BACKSTAGING (LIFO INVERSO) ---
+    $c9_k_actual              = (string)($posstock->c9_profundidad_k        ?: '4');
+    $c9_beta_actual           = (string)($posstock->c9_beta                  ?: '0.15');
+    $c9_lambda_actual         = (string)($posstock->c9_lambda                ?: '1.5');
+    $c9_epsilon_actual        = (string)($posstock->c9_epsilon               ?: '1.0');
+    $c9_min_rec_actual        = (string)($posstock->c9_min_recepciones       ?: '3');
+    $c9_umbral_ud_actual      = (string)($posstock->c9_umbral_merma_unidad   ?: '2.0');
+    $c9_umbral_kg_actual      = (string)($posstock->c9_umbral_merma_peso     ?: '1.0');
+    $c9_dias_post_actual      = (string)($posstock->c9_dias_post             ?: '60');
+
+    $html .= '<div class="panel panel-default">';
+    $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-fire"></i> Merma por backstaging — LIFO inverso (C9)</div>';
+    $html .= '  <div class="panel-body">';
+
+    // ── Fila 1: Pre-filtro ──
+    $html .= '    <p class="small text-muted" style="margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Pre-filtro</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Número mínimo de recepciones en el periodo para analizar el artículo con C9. Con pocas recepciones el modelo LIFO no es fiable. Rango: 2–10.">Recepciones mínimas<br><small class="text-muted">(lotes necesarios para el modelo)</small></label>';
+    $html .= '        <input type="number" step="1" min="2" max="10" class="form-control input-sm text-right" name="inputC9MinRecepciones" value="' . htmlspecialchars($c9_min_rec_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Umbral de merma estimada (unidades) por debajo del cual el artículo no se reporta como C9. Evita ruido en artículos de bajo volumen. Rango: 0.5–10.">Umbral merma mínima — unidad<br><small class="text-muted">(merma_total mín. para reportar)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="0.5" max="10" class="form-control text-right" name="inputC9UmbralMermaUnidad" value="' . htmlspecialchars($c9_umbral_ud_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">ud.</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Umbral de merma estimada (kg) para artículos de peso. Rango: 0.2–5.">Umbral merma mínima — peso<br><small class="text-muted">(merma_total mín. para reportar)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.1" min="0.2" max="5" class="form-control text-right" name="inputC9UmbralMermaPeso" value="' . htmlspecialchars($c9_umbral_kg_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">kg</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 2: Modelo de redistribución ──
+    $html .= '    <p class="small text-muted" style="margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Modelo de redistribución LIFO inverso</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Profundidad de la ventana de retroceso (número de lotes anteriores al déficit que pueden absorber merma). Valores altos capturan redistribuciones más lejanas pero aumentan el ruido. Rango: 2–10.">Profundidad k<br><small class="text-muted">(lotes previos al déficit)</small></label>';
+    $html .= '        <input type="number" step="1" min="2" max="10" class="form-control input-sm text-right" name="inputC9ProfundidadK" value="' . htmlspecialchars($c9_k_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Tasa de decaimiento exponencial β de los pesos de redistribución: w_i = exp(−β·dist). β alto concentra la merma en los lotes más recientes; β bajo la distribuye más uniformemente. Rango: 0.05–1.0.">Beta β (decaimiento)<br><small class="text-muted">(w_i = exp(−β·dist))</small></label>';
+    $html .= '        <input type="number" step="0.05" min="0.025" max="1.0" class="form-control input-sm text-right" name="inputC9Beta" value="' . htmlspecialchars($c9_beta_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Multiplicador λ del umbral estadístico local: threshold_t = μ_ventana + λ·σ_ventana. Los lotes cuya merma_t no supere el threshold se ignoran. Rango: 1.0–3.0.">Lambda λ (umbral estadístico)<br><small class="text-muted">(μ + λ·σ de la ventana local)</small></label>';
+    $html .= '        <input type="number" step="0.1" min="1.0" max="4.0" class="form-control input-sm text-right" name="inputC9Lambda" value="' . htmlspecialchars($c9_lambda_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '      <div class="col-xs-12 col-sm-3">';
+    $html .= '        <label class="control-label small" title="Epsilon ε: diferencia mínima absoluta entre S_t y el threshold para considerar el déficit significativo. Filtra oscilaciones numéricas muy pequeñas. Rango: 0.1–5.0.">Epsilon ε (diferencia mín.)<br><small class="text-muted">(S_t − threshold &gt; ε)</small></label>';
+    $html .= '        <input type="number" step="0.1" min="0.1" max="5.0" class="form-control input-sm text-right" name="inputC9Epsilon" value="' . htmlspecialchars($c9_epsilon_actual) . '" required>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    // ── Fila 3: Ventana de devoluciones ──
+    $html .= '    <p class="small text-muted" style="margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Devoluciones post-periodo</p>';
+    $html .= '    <div class="row">';
+
+    $html .= '      <div class="col-xs-12 col-sm-4">';
+    $html .= '        <label class="control-label small" title="Días adicionales tras el fin del periodo (ff_mov) que se rastrean para capturar devoluciones a proveedor que netan recepciones del periodo. Las devoluciones post-periodo reducen E_t del lote correspondiente. Rango: 30–120.">Días post-periodo para devoluciones<br><small class="text-muted">(ventana de neteo de recepciones)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="5" min="30" max="120" class="form-control text-right" name="inputC9DiasPost" value="' . htmlspecialchars($c9_dias_post_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+
+    $html .= '  </div>';
+    $html .= '</div>';
+
+    // --- BLOQUE 6: OPCIONES ADICIONALES ---
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-tasks"></i> Casos adicionales</div>';
     $html .= '  <div class="panel-body">';

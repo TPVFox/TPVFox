@@ -35,7 +35,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
     $posstock_node   = $ClaseParametros->getNode('configuracion/posstock');
 
     // Filtro de casos: lista de IDs separados por coma
-    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b'];
+    $casos_validos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso4', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b', 'caso9'];
     $casos_incluir = [];
     foreach (explode(',', $_POST['casos_incluir'] ?? '') as $c) {
         $c = trim($c);
@@ -191,5 +191,14 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'c7a_umbral_alta_slope_peso'  => max(0.1, min(5.0,  (float)(string)($posstock_node->c7a_umbral_alta_slope_peso  ?: '1.0'))),
         'c7a_umbral_snr'              => max(0.05, min(1.0, (float)(string)($posstock_node->c7a_umbral_snr               ?: '0.15'))),
         'c7a_cascada_exhaustiva'      => filter_var((string)($posstock_node->c7a_cascada_exhaustiva ?: 'false'), FILTER_VALIDATE_BOOLEAN),
+        // C9 — Merma por backstaging LIFO inverso
+        'c9_profundidad_k'            => max(2, min(10,   (int)(string)  ($posstock_node->c9_profundidad_k        ?: '4'))),
+        'c9_beta'                     => max(0.05, min(1.0, (float)(string)($posstock_node->c9_beta               ?: '0.15'))),
+        'c9_lambda'                   => max(1.0, min(3.0, (float)(string)($posstock_node->c9_lambda              ?: '1.5'))),
+        'c9_epsilon'                  => max(0.1, min(5.0, (float)(string)($posstock_node->c9_epsilon             ?: '1.0'))),
+        'c9_min_recepciones'          => max(2, min(10,   (int)(string)  ($posstock_node->c9_min_recepciones      ?: '3'))),
+        'c9_umbral_merma_unidad'      => max(0.5, min(10.0,(float)(string)($posstock_node->c9_umbral_merma_unidad ?: '2.0'))),
+        'c9_umbral_merma_peso'        => max(0.2, min(5.0, (float)(string)($posstock_node->c9_umbral_merma_peso   ?: '1.0'))),
+        'c9_dias_post'                => max(30, min(120,  (int)(string)  ($posstock_node->c9_dias_post            ?: '60'))),
     ];
 }

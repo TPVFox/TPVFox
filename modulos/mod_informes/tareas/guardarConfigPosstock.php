@@ -16,26 +16,30 @@ $errores = [];
 if (!isset($mapa['inputVentanaDias']) || !in_array($mapa['inputVentanaDias'], ['0', '7', '14'])) {
     $errores[] = 'Ventana de días debe ser 0 (sin restricción), 7 o 14.';
 }
-if (!isset($mapa['inputUmbralSobrestock'])
+if (
+    !isset($mapa['inputUmbralSobrestock'])
     || !is_numeric($mapa['inputUmbralSobrestock'])
     || $mapa['inputUmbralSobrestock'] < 0
     || $mapa['inputUmbralSobrestock'] > 100
 ) {
     $errores[] = 'Umbral sobrestock debe ser un número entre 0 y 100 (porcentaje).';
 }
-if (!isset($mapa['inputC2UmbralCobertura'])
+if (
+    !isset($mapa['inputC2UmbralCobertura'])
     || !ctype_digit($mapa['inputC2UmbralCobertura'])
     || intval($mapa['inputC2UmbralCobertura']) < 7
 ) {
     $errores[] = 'Cobertura mínima C2 debe ser un número entero de al menos 7 días.';
 }
-if (!isset($mapa['inputUmbralCaducidadSemanas'])
+if (
+    !isset($mapa['inputUmbralCaducidadSemanas'])
     || !ctype_digit($mapa['inputUmbralCaducidadSemanas'])
     || intval($mapa['inputUmbralCaducidadSemanas']) < 1
 ) {
     $errores[] = 'Semanas sin venta debe ser un número entero positivo.';
 }
-if (!isset($mapa['inputUmbralSinRotacionSemanas'])
+if (
+    !isset($mapa['inputUmbralSinRotacionSemanas'])
     || !ctype_digit($mapa['inputUmbralSinRotacionSemanas'])
     || intval($mapa['inputUmbralSinRotacionSemanas']) < 1
 ) {
@@ -56,34 +60,39 @@ if (!isset($mapa['inputModeloSignificancia']) || !in_array($mapa['inputModeloSig
 if (!isset($mapa['inputBinomialSigmaMult']) || !in_array($mapa['inputBinomialSigmaMult'], $sigma_validos, true)) {
     $mapa['inputBinomialSigmaMult'] = '3.0';
 }
-if (!isset($mapa['inputC6LeadTimeDefecto'])
+if (
+    !isset($mapa['inputC6LeadTimeDefecto'])
     || !ctype_digit($mapa['inputC6LeadTimeDefecto'])
     || intval($mapa['inputC6LeadTimeDefecto']) < 1
 ) {
     $mapa['inputC6LeadTimeDefecto'] = '14';
 }
-if (!isset($mapa['inputC6bDiasHistorico'])
+if (
+    !isset($mapa['inputC6bDiasHistorico'])
     || !ctype_digit($mapa['inputC6bDiasHistorico'])
     || intval($mapa['inputC6bDiasHistorico']) < 30
     || intval($mapa['inputC6bDiasHistorico']) > 365
 ) {
     $mapa['inputC6bDiasHistorico'] = '90';
 }
-if (!isset($mapa['inputUmbralReconstituirRop'])
+if (
+    !isset($mapa['inputUmbralReconstituirRop'])
     || !is_numeric($mapa['inputUmbralReconstituirRop'])
     || floatval($mapa['inputUmbralReconstituirRop']) < 3.0
     || floatval($mapa['inputUmbralReconstituirRop']) > 50.0
 ) {
     $mapa['inputUmbralReconstituirRop'] = '10';
 }
-if (!isset($mapa['inputUmbralStockNegativo'])
+if (
+    !isset($mapa['inputUmbralStockNegativo'])
     || !is_numeric($mapa['inputUmbralStockNegativo'])
     || floatval($mapa['inputUmbralStockNegativo']) < 0.0
     || floatval($mapa['inputUmbralStockNegativo']) > 100.0
 ) {
     $mapa['inputUmbralStockNegativo'] = '2';
 }
-if (!isset($mapa['inputC3bDiasPost'])
+if (
+    !isset($mapa['inputC3bDiasPost'])
     || !ctype_digit($mapa['inputC3bDiasPost'])
     || intval($mapa['inputC3bDiasPost']) < 7
     || intval($mapa['inputC3bDiasPost']) > 30
@@ -93,105 +102,120 @@ if (!isset($mapa['inputC3bDiasPost'])
 if (!isset($mapa['inputC3aMultiplicadorCadencia']) || !in_array($mapa['inputC3aMultiplicadorCadencia'], $mult_c3a_validos, true)) {
     $mapa['inputC3aMultiplicadorCadencia'] = '3.0';
 }
-if (!isset($mapa['inputC1UmbralFraccionado'])
+if (
+    !isset($mapa['inputC1UmbralFraccionado'])
     || !is_numeric($mapa['inputC1UmbralFraccionado'])
     || floatval($mapa['inputC1UmbralFraccionado']) < 0.01
     || floatval($mapa['inputC1UmbralFraccionado']) > 0.49
 ) {
     $mapa['inputC1UmbralFraccionado'] = '0.05';
 }
-if (!isset($mapa['inputC1UmbralMagnitud'])
+if (
+    !isset($mapa['inputC1UmbralMagnitud'])
     || !is_numeric($mapa['inputC1UmbralMagnitud'])
     || floatval($mapa['inputC1UmbralMagnitud']) < 0.1
     || floatval($mapa['inputC1UmbralMagnitud']) > 5.0
 ) {
     $mapa['inputC1UmbralMagnitud'] = '0.5';
 }
-if (!isset($mapa['inputC1UmbralPorVenta'])
+if (
+    !isset($mapa['inputC1UmbralPorVenta'])
     || !is_numeric($mapa['inputC1UmbralPorVenta'])
     || floatval($mapa['inputC1UmbralPorVenta']) < 0.001
     || floatval($mapa['inputC1UmbralPorVenta']) > 0.1
 ) {
     $mapa['inputC1UmbralPorVenta'] = '0.010';
 }
-if (!isset($mapa['inputC1TimingVentanaDias'])
+if (
+    !isset($mapa['inputC1TimingVentanaDias'])
     || !ctype_digit($mapa['inputC1TimingVentanaDias'])
     || intval($mapa['inputC1TimingVentanaDias']) < 1
     || intval($mapa['inputC1TimingVentanaDias']) > 7
 ) {
     $mapa['inputC1TimingVentanaDias'] = '1';
 }
-if (!isset($mapa['inputC7bMinRecepciones'])
+if (
+    !isset($mapa['inputC7bMinRecepciones'])
     || !ctype_digit($mapa['inputC7bMinRecepciones'])
     || intval($mapa['inputC7bMinRecepciones']) < 3
     || intval($mapa['inputC7bMinRecepciones']) > 10
 ) {
     $mapa['inputC7bMinRecepciones'] = '3';
 }
-if (!isset($mapa['inputC7bUmbralCV'])
+if (
+    !isset($mapa['inputC7bUmbralCV'])
     || !is_numeric($mapa['inputC7bUmbralCV'])
     || floatval($mapa['inputC7bUmbralCV']) < 0.3
     || floatval($mapa['inputC7bUmbralCV']) > 0.9
 ) {
     $mapa['inputC7bUmbralCV'] = '0.5';
 }
-if (!isset($mapa['inputC7bUmbralCVPeso'])
+if (
+    !isset($mapa['inputC7bUmbralCVPeso'])
     || !is_numeric($mapa['inputC7bUmbralCVPeso'])
     || floatval($mapa['inputC7bUmbralCVPeso']) < 0.5
     || floatval($mapa['inputC7bUmbralCVPeso']) > 1.2
 ) {
     $mapa['inputC7bUmbralCVPeso'] = '0.75';
 }
-if (!isset($mapa['inputC7bUmbralIQRPeso'])
+if (
+    !isset($mapa['inputC7bUmbralIQRPeso'])
     || !is_numeric($mapa['inputC7bUmbralIQRPeso'])
     || floatval($mapa['inputC7bUmbralIQRPeso']) < 1.5
     || floatval($mapa['inputC7bUmbralIQRPeso']) > 3.0
 ) {
     $mapa['inputC7bUmbralIQRPeso'] = '2.0';
 }
-if (!isset($mapa['inputC7bUmbralRuidoPeso'])
+if (
+    !isset($mapa['inputC7bUmbralRuidoPeso'])
     || !is_numeric($mapa['inputC7bUmbralRuidoPeso'])
     || floatval($mapa['inputC7bUmbralRuidoPeso']) < 0.1
     || floatval($mapa['inputC7bUmbralRuidoPeso']) > 2.0
 ) {
     $mapa['inputC7bUmbralRuidoPeso'] = '0.5';
 }
-if (!isset($mapa['inputC7bUmbralSevUnidad'])
+if (
+    !isset($mapa['inputC7bUmbralSevUnidad'])
     || !ctype_digit($mapa['inputC7bUmbralSevUnidad'])
     || intval($mapa['inputC7bUmbralSevUnidad']) < 2
     || intval($mapa['inputC7bUmbralSevUnidad']) > 20
 ) {
     $mapa['inputC7bUmbralSevUnidad'] = '5';
 }
-if (!isset($mapa['inputC7bUmbralSevPeso'])
+if (
+    !isset($mapa['inputC7bUmbralSevPeso'])
     || !is_numeric($mapa['inputC7bUmbralSevPeso'])
     || floatval($mapa['inputC7bUmbralSevPeso']) < 0.5
     || floatval($mapa['inputC7bUmbralSevPeso']) > 10.0
 ) {
     $mapa['inputC7bUmbralSevPeso'] = '2.5';
 }
-if (!isset($mapa['inputC7aUmbralDeltaUnidad'])
+if (
+    !isset($mapa['inputC7aUmbralDeltaUnidad'])
     || !is_numeric($mapa['inputC7aUmbralDeltaUnidad'])
     || floatval($mapa['inputC7aUmbralDeltaUnidad']) < 0.5
     || floatval($mapa['inputC7aUmbralDeltaUnidad']) > 20.0
 ) {
     $mapa['inputC7aUmbralDeltaUnidad'] = '2.0';
 }
-if (!isset($mapa['inputC7aUmbralDeltaPeso'])
+if (
+    !isset($mapa['inputC7aUmbralDeltaPeso'])
     || !is_numeric($mapa['inputC7aUmbralDeltaPeso'])
     || floatval($mapa['inputC7aUmbralDeltaPeso']) < 0.1
     || floatval($mapa['inputC7aUmbralDeltaPeso']) > 10.0
 ) {
     $mapa['inputC7aUmbralDeltaPeso'] = '1.0';
 }
-if (!isset($mapa['inputC7aPvalueAlta'])
+if (
+    !isset($mapa['inputC7aPvalueAlta'])
     || !is_numeric($mapa['inputC7aPvalueAlta'])
     || floatval($mapa['inputC7aPvalueAlta']) < 0.01
     || floatval($mapa['inputC7aPvalueAlta']) > 0.10
 ) {
     $mapa['inputC7aPvalueAlta'] = '0.05';
 }
-if (!isset($mapa['inputC7aPvalue'])
+if (
+    !isset($mapa['inputC7aPvalue'])
     || !is_numeric($mapa['inputC7aPvalue'])
     || floatval($mapa['inputC7aPvalue']) < 0.05
     || floatval($mapa['inputC7aPvalue']) > 0.30
@@ -199,33 +223,87 @@ if (!isset($mapa['inputC7aPvalue'])
 ) {
     $mapa['inputC7aPvalue'] = '0.10';
 }
-if (!isset($mapa['inputC7aUmbralAltaDeltaUnidad'])
+if (
+    !isset($mapa['inputC7aUmbralAltaDeltaUnidad'])
     || !is_numeric($mapa['inputC7aUmbralAltaDeltaUnidad'])
     || floatval($mapa['inputC7aUmbralAltaDeltaUnidad']) < 2.0
     || floatval($mapa['inputC7aUmbralAltaDeltaUnidad']) > 50.0
 ) {
     $mapa['inputC7aUmbralAltaDeltaUnidad'] = '10.0';
 }
-if (!isset($mapa['inputC7aUmbralAltaDeltaPeso'])
+if (
+    !isset($mapa['inputC7aUmbralAltaDeltaPeso'])
     || !is_numeric($mapa['inputC7aUmbralAltaDeltaPeso'])
     || floatval($mapa['inputC7aUmbralAltaDeltaPeso']) < 1.0
     || floatval($mapa['inputC7aUmbralAltaDeltaPeso']) > 20.0
 ) {
     $mapa['inputC7aUmbralAltaDeltaPeso'] = '5.0';
 }
-if (!isset($mapa['inputC7aUmbralAltaSlopeUnidad'])
+if (
+    !isset($mapa['inputC7aUmbralAltaSlopeUnidad'])
     || !is_numeric($mapa['inputC7aUmbralAltaSlopeUnidad'])
     || floatval($mapa['inputC7aUmbralAltaSlopeUnidad']) < 0.5
     || floatval($mapa['inputC7aUmbralAltaSlopeUnidad']) > 10.0
 ) {
     $mapa['inputC7aUmbralAltaSlopeUnidad'] = '2.0';
 }
-if (!isset($mapa['inputC7aUmbralAltaSlopePeso'])
+if (
+    !isset($mapa['inputC7aUmbralAltaSlopePeso'])
     || !is_numeric($mapa['inputC7aUmbralAltaSlopePeso'])
     || floatval($mapa['inputC7aUmbralAltaSlopePeso']) < 0.1
     || floatval($mapa['inputC7aUmbralAltaSlopePeso']) > 5.0
 ) {
     $mapa['inputC7aUmbralAltaSlopePeso'] = '1.0';
+}
+
+// ── C9 validaciones ──
+if (
+    !isset($mapa['inputC9ProfundidadK']) || !ctype_digit($mapa['inputC9ProfundidadK'])
+    || intval($mapa['inputC9ProfundidadK']) < 2 || intval($mapa['inputC9ProfundidadK']) > 10
+) {
+    $mapa['inputC9ProfundidadK'] = '4';
+}
+if (
+    !isset($mapa['inputC9Beta']) || !is_numeric($mapa['inputC9Beta'])
+    || floatval($mapa['inputC9Beta']) < 0.05 || floatval($mapa['inputC9Beta']) > 1.0
+) {
+    $mapa['inputC9Beta'] = '0.15';
+}
+if (
+    !isset($mapa['inputC9Lambda']) || !is_numeric($mapa['inputC9Lambda'])
+    || floatval($mapa['inputC9Lambda']) < 1.0 || floatval($mapa['inputC9Lambda']) > 4.0
+) {
+    $mapa['inputC9Lambda'] = '1.5';
+}
+if (
+    !isset($mapa['inputC9Epsilon']) || !is_numeric($mapa['inputC9Epsilon'])
+    || floatval($mapa['inputC9Epsilon']) < 0.1 || floatval($mapa['inputC9Epsilon']) > 5.0
+) {
+    $mapa['inputC9Epsilon'] = '1.0';
+}
+if (
+    !isset($mapa['inputC9MinRecepciones']) || !ctype_digit($mapa['inputC9MinRecepciones'])
+    || intval($mapa['inputC9MinRecepciones']) < 2 || intval($mapa['inputC9MinRecepciones']) > 10
+) {
+    $mapa['inputC9MinRecepciones'] = '3';
+}
+if (
+    !isset($mapa['inputC9UmbralMermaUnidad']) || !is_numeric($mapa['inputC9UmbralMermaUnidad'])
+    || floatval($mapa['inputC9UmbralMermaUnidad']) < 0.5 || floatval($mapa['inputC9UmbralMermaUnidad']) > 10.0
+) {
+    $mapa['inputC9UmbralMermaUnidad'] = '2.0';
+}
+if (
+    !isset($mapa['inputC9UmbralMermaPeso']) || !is_numeric($mapa['inputC9UmbralMermaPeso'])
+    || floatval($mapa['inputC9UmbralMermaPeso']) < 0.2 || floatval($mapa['inputC9UmbralMermaPeso']) > 5.0
+) {
+    $mapa['inputC9UmbralMermaPeso'] = '1.0';
+}
+if (
+    !isset($mapa['inputC9DiasPost']) || !ctype_digit($mapa['inputC9DiasPost'])
+    || intval($mapa['inputC9DiasPost']) < 30 || intval($mapa['inputC9DiasPost']) > 120
+) {
+    $mapa['inputC9DiasPost'] = '60';
 }
 
 if (!empty($errores)) {
@@ -273,6 +351,14 @@ if (!empty($errores)) {
     $posstock->c7a_umbral_alta_slope_unidad      = floatval($mapa['inputC7aUmbralAltaSlopeUnidad']);
     $posstock->c7a_umbral_alta_slope_peso        = floatval($mapa['inputC7aUmbralAltaSlopePeso']);
     $posstock->c7a_cascada_exhaustiva            = (isset($mapa['inputC7aCascadaExhaustiva']) && $mapa['inputC7aCascadaExhaustiva'] === '1') ? 'true' : 'false';
+    $posstock->c9_profundidad_k                  = intval($mapa['inputC9ProfundidadK']);
+    $posstock->c9_beta                           = floatval($mapa['inputC9Beta']);
+    $posstock->c9_lambda                         = floatval($mapa['inputC9Lambda']);
+    $posstock->c9_epsilon                        = floatval($mapa['inputC9Epsilon']);
+    $posstock->c9_min_recepciones                = intval($mapa['inputC9MinRecepciones']);
+    $posstock->c9_umbral_merma_unidad            = floatval($mapa['inputC9UmbralMermaUnidad']);
+    $posstock->c9_umbral_merma_peso              = floatval($mapa['inputC9UmbralMermaPeso']);
+    $posstock->c9_dias_post                      = intval($mapa['inputC9DiasPost']);
 
     if ($ClaseParametros->save()) {
         $respuesta['mensaje']              = 'Configuración POSStock guardada correctamente.';

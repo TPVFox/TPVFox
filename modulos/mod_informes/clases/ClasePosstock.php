@@ -1147,6 +1147,225 @@ class ClasePosstock
         return $rows;
     }
 
+    // ══════════════════════════════════════════════════════════════════════
+    //  C9 — Merma por backstaging (queries)
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * C9 paso 1 — Recepciones reales (proveedor no especial, ncant>0) por artículo.
+     * Variante de _queryRecepcionesFechasC7 que excluye proveedores especiales y amplía
+     * el rango hasta ff_post para capturar la primera recepción post-periodo (cierre del
+     * último ciclo analizable).
+     *
+     * @param  string $fi          Inicio del periodo analizado (fi_mov)
+     * @param  string $ff_mov      Último día del periodo analizado
+     * @param  string $wf          WHERE de familia
+     * @param  string $wi          WHERE de idArticulo
+     * @param  int    $dias_post   Días a ampliar tras ff_mov (default 60)
+     * @return array  Filas [{idArticulo, fecha, cantidad, es_post_periodo}] o ['error'=>...]
+     */
+    private function _queryRecepcionesC9(
+        string $fi,
+        string $ff_mov,
+        string $wf,
+        string $wi,
+        int    $dias_post = 60
+    ): array {
+        $ff_post = $this->db->real_escape_string(
+            date('Y-m-d', strtotime("$ff_mov +$dias_post days"))
+        );
+        $ff_esc = $this->db->real_escape_string($ff_mov);
+        $sql = "
+            SELECT
+                l.idArticulo,
+                DATE(c.Fecha)            AS fecha,
+                SUM(l.ncant)             AS cantidad,
+                DATE(c.Fecha) > '$ff_esc' AS es_post_periodo
+            FROM albprolinea  l
+            INNER JOIN albprot     c ON c.id          = l.idalbpro
+            INNER JOIN articulos   a ON a.idArticulo  = l.idArticulo
+            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
+            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
+              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea  = 'Activo'
+              AND l.ncant        > 0
+              AND p.estado      != 'Especial'
+              $wf $wi
+            GROUP BY l.idArticulo, DATE(c.Fecha)
+            ORDER BY l.idArticulo, DATE(c.Fecha)
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C9 recepciones: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
+    /**
+     * C9 paso 1b — Devoluciones ordinarias a proveedor (ncant < 0, proveedor no especial).
+     * Devuelve la cantidad devuelta (valor absoluto) por artículo y fecha.
+     * Se usa en _calcularLotesC9 para netear E_t de cada lote.
+     *
+     * @param  string $fi        Inicio del periodo analizado (fi_mov)
+     * @param  string $ff_post   Fin extendido (ff_mov + dias_post)
+     * @param  string $ids_str   Lista de IDs artículo para WHERE IN
+     * @return array  Filas [{idArticulo, fecha, devolucion}] o ['error'=>...]
+     */
+    private function _queryDevolucionesProvC9(
+        string $fi,
+        string $ff_post,
+        string $ids_str
+    ): array {
+        if (empty($ids_str)) return [];
+        $sql = "
+            SELECT
+                l.idArticulo,
+                DATE(c.Fecha)          AS fecha,
+                SUM(ABS(l.ncant))      AS devolucion
+            FROM albprolinea  l
+            INNER JOIN albprot     c ON c.id          = l.idalbpro
+            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
+            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
+              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea  = 'Activo'
+              AND l.ncant        < 0
+              AND p.estado      != 'Especial'
+              AND l.idArticulo   IN ($ids_str)
+            GROUP BY l.idArticulo, DATE(c.Fecha)
+            ORDER BY l.idArticulo, DATE(c.Fecha)
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C9 devoluciones: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
+    /**
+     * C9 paso 2 — Timeline de SALIDAS diarias (solo ventas/albaranes cliente).
+     * NO incluye recepciones de proveedor: E_t viene de _queryRecepcionesC9.
+     * Excluye clientes con estado='Especial' (merma declarada, gestionada en Q5b).
+     *
+     * @return array  Filas [{idArticulo, fecha, day_delta}] (day_delta siempre >= 0) o ['error'=>...]
+     */
+    private function _queryTimelineC9(
+        string $fi,
+        string $ff,
+        string $ids_str
+    ): array {
+        if (empty($ids_str)) return [];
+        $sql = "
+            SELECT idArticulo, fecha, SUM(delta) AS day_delta
+            FROM (
+                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.ncant AS delta
+                FROM ticketslinea l
+                INNER JOIN ticketst t ON t.id = l.idticketst
+                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND t.estado       = 'Cerrado'
+                  AND l.estadoLinea  = 'Activo'
+                  AND l.idArticulo  IN ($ids_str)
+                UNION ALL
+                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.ncant AS delta
+                FROM albclilinea l
+                INNER JOIN albclit  a  ON a.id         = l.idalbcli
+                INNER JOIN clientes cl ON cl.idClientes = a.idCliente
+                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND a.estado       IN ('Guardado','Procesado')
+                  AND l.estadoLinea  = 'Activo'
+                  AND cl.estado     != 'Especial'
+                  AND l.idArticulo  IN ($ids_str)
+            ) AS all_salidas
+            GROUP BY idArticulo, fecha
+            ORDER BY idArticulo, fecha
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C9 timeline: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
+    /**
+     * C9 paso Q5a — Líneas de albaranes de proveedores con estado='Especial'.
+     * Cada fila lleva idAlbaran para que en PHP se clasifique:
+     *   - Mezcla de signos en el mismo albarán → cruce (excluir del flujo).
+     *   - Todas las líneas negativas → merma declarada (acumular aparte).
+     *
+     * @return array  Filas [{idArticulo, fecha, ncant, idAlbaran}] o ['error'=>...]
+     */
+    private function _queryAlbaranesProvEspecialesC9(
+        string $fi,
+        string $ff,
+        string $ids_str
+    ): array {
+        if (empty($ids_str)) return [];
+        // Devuelve TODAS las líneas de los albaranes donde algún artículo del lote aparece,
+        // no solo las líneas de ids_str. Esto permite detectar cruces (signos mixtos en el
+        // mismo albarán para distintos artículos) incluso cuando el lote analizado es pequeño.
+        $sql = "
+            SELECT
+                l.idArticulo,
+                DATE(c.Fecha) AS fecha,
+                l.ncant,
+                c.id          AS idAlbaran
+            FROM albprolinea  l
+            INNER JOIN albprot     c ON c.id          = l.idalbpro
+            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
+            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND l.estadoLinea  = 'Activo'
+              AND p.estado       = 'Especial'
+              AND c.id IN (
+                  SELECT DISTINCT l2.idalbpro
+                  FROM albprolinea l2
+                  WHERE l2.idArticulo IN ($ids_str)
+                    AND l2.estadoLinea = 'Activo'
+              )
+            ORDER BY c.id, l.idArticulo
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C9 prov especiales: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
+    /**
+     * C9 paso Q5b — Albaranes de clientes con estado='Especial' (todos son merma declarada).
+     * Se excluyen de V_t y se acumulan aparte como merma_declarada.
+     *
+     * @return array  Filas [{idArticulo, fecha, cantidad}] o ['error'=>...]
+     */
+    private function _queryAlbaranesCliEspecialesC9(
+        string $fi,
+        string $ff,
+        string $ids_str
+    ): array {
+        if (empty($ids_str)) return [];
+        $sql = "
+            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, SUM(l.ncant) AS cantidad
+            FROM albclilinea l
+            INNER JOIN albclit  a  ON a.id         = l.idalbcli
+            INNER JOIN clientes cl ON cl.idClientes = a.idCliente
+            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+              AND a.estado      IN ('Guardado','Procesado')
+              AND l.estadoLinea  = 'Activo'
+              AND cl.estado      = 'Especial'
+              AND l.idArticulo  IN ($ids_str)
+            GROUP BY l.idArticulo, DATE(a.Fecha)
+        ";
+        $res = $this->db->query($sql);
+        if ($res === false) return ['error' => 'C9 cli especiales: ' . $this->db->error];
+        $rows = [];
+        while ($row = $res->fetch_assoc()) $rows[] = $row;
+        $res->free();
+        return $rows;
+    }
+
     /**
      * Proveedor — idArticulo vinculados a los proveedores indicados (estado Activo).
      *
@@ -1682,7 +1901,7 @@ class ClasePosstock
         }
 
         // casos_incluir [] = todos los casos activos excepto C4
-        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b'];
+        $validos_todos = ['caso1', 'caso2', 'caso3a', 'caso3b', 'caso5', 'caso6a', 'caso6b', 'caso7a', 'caso7b', 'caso9'];
         $casos_raw     = (array)($params['casos_incluir'] ?? []);
         $casos_set     = array_flip(
             empty($casos_raw)
@@ -1692,9 +1911,9 @@ class ClasePosstock
 
         $incidencias = [];
 
-        // ── Precalcular stock_base compartido para C1, C2 y C7 ──────────────
+        // ── Precalcular stock_base compartido para C1, C2, C7 y C9 ──────────
         $sb_shared = [];
-        if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']) || isset($casos_set['caso7a']) || isset($casos_set['caso7b']))) {
+        if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']) || isset($casos_set['caso7a']) || isset($casos_set['caso7b']) || isset($casos_set['caso9']))) {
             $sb_shared = $this->getStockBase($ids_filter, $fi_stock, $ff_stock);
             if (isset($sb_shared['error'])) return $sb_shared;
         }
@@ -1938,6 +2157,29 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c7);
         }
 
+        // ── C9 — Merma por backstaging LIFO inverso ──────────────────────────
+        if (isset($casos_set['caso9'])) {
+            $c9 = $this->getIncidenciasC9(
+                $fi_mov,
+                $ff_mov,
+                $fi_stock,
+                $familias_incluir,
+                $familias_excluir,
+                $ids_filter,
+                $sb_shared,
+                (int)  ($params['c9_profundidad_k']     ?? 4),
+                (float)($params['c9_beta']              ?? 0.15),
+                (float)($params['c9_lambda']            ?? 1.5),
+                (float)($params['c9_epsilon']           ?? 1.0),
+                (int)  ($params['c9_min_recepciones']   ?? 3),
+                (float)($params['c9_umbral_merma_unidad'] ?? 2.0),
+                (float)($params['c9_umbral_merma_peso']   ?? 1.0),
+                (int)  ($params['c9_dias_post']         ?? 60)
+            );
+            if (isset($c9['error'])) return $c9;
+            $incidencias = array_merge($incidencias, $c9);
+        }
+
         // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
         if (isset($casos_set['caso4'])) {
             $articulos_sin_mov = $this->getArticulosSinMovimiento(
@@ -1974,6 +2216,7 @@ class ClasePosstock
             'Riesgo de caducidad teórica'        => 3,  // C3a
             'Entrada no registrada'              => 4,  // C7b
             'Merma acumulada'                    => 4,  // C7a
+            'Merma backstaging'                  => 4,  // C9
         ];
 
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
@@ -6542,6 +6785,605 @@ class ClasePosstock
      * @return array  { filas: array, actual: int, elementos: int }
      *                — o array con clave 'error'
      */
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  C9 — Merma por backstaging (cálculo)
+    // ══════════════════════════════════════════════════════════════════════
+
+    /**
+     * C9 — Construye los lotes (intervalos inter-recepción) para un artículo.
+     *
+     * Lote 0: desde fi_mov hasta la primera recepción -1 día; E_0 = stock_base.
+     * Lotes 1..n-1: intervalos completos entre recepciones consecutivas del periodo.
+     * Último lote (n-1 en periodo): incluido solo si hay primera recepción post-periodo
+     *   que actúe como cierre; su V_t se limita a ff_mov.
+     *
+     * @param  array  $recs_art      [{fecha, cantidad, es_post_periodo}] para el artículo
+     * @param  array  $timeline_art  [{fecha, day_delta}] para el artículo (timeline limpio)
+     * @param  float  $stock_base    Saldo acumulado fi_stock..fi_mov-1
+     * @param  string $fi_mov        Inicio del periodo analizado
+     * @param  string $ff_mov        Fin del periodo analizado
+     * @return array  [{idx, fecha_ini, fecha_fin, E_t, V_t, S_t, dias, es_lote0, v_t_parcial}]
+     */
+    private function _calcularLotesC9(
+        array  $recs_art,
+        array  $timeline_art,
+        string $fi_mov,
+        string $ff_mov,
+        array  $devs_art = []   // devoluciones ordinarias [{fecha, devolucion}]
+    ): array {
+        // Separar recepciones en-periodo vs post-periodo
+        $rec_periodo  = [];
+        $primera_post = null;
+        foreach ($recs_art as $r) {
+            if ($r['es_post_periodo']) {
+                if ($primera_post === null) $primera_post = $r;
+            } else {
+                $rec_periodo[] = $r;
+            }
+        }
+        if (empty($rec_periodo)) return [];
+
+        // Indexar timeline por fecha para acceso O(1)
+        $delta_by_fecha = [];
+        foreach ($timeline_art as $t) {
+            $delta_by_fecha[$t['fecha']] = (float)$t['day_delta'];
+        }
+        ksort($delta_by_fecha);
+
+        // Indexar devoluciones ordinarias por fecha
+        $dev_by_fecha = [];
+        foreach ($devs_art as $d) {
+            $dev_by_fecha[$d['fecha']] = ($dev_by_fecha[$d['fecha']] ?? 0.0) + (float)$d['devolucion'];
+        }
+
+        // Suma de salidas entre dos fechas inclusive (day_delta siempre positivo)
+        $sum_salidas = static function (array $deltas, string $fi, string $ff): float {
+            $total = 0.0;
+            foreach ($deltas as $fecha => $delta) {
+                if ($fecha >= $fi && $fecha <= $ff) {
+                    $total += $delta;
+                }
+            }
+            return $total;
+        };
+
+        // Suma de devoluciones (ABS) en intervalo inclusive
+        $sum_devs = static function (array $devs, string $fi, string $ff): float {
+            $total = 0.0;
+            foreach ($devs as $fecha => $dev) {
+                if ($fecha >= $fi && $fecha <= $ff) {
+                    $total += $dev;
+                }
+            }
+            return $total;
+        };
+
+        // El análisis empieza en la primera recepción del periodo.
+        // Las ventas anteriores a esa fecha son consumo del stock heredado y no
+        // pertenecen a ningún lote analizable — se excluyen del modelo.
+        // El stock inicial (rebobinado) no entra en los cálculos de merma:
+        // cualquier merma de ese stock ya ocurrió en periodos anteriores.
+
+        $lotes = [];
+        $n     = count($rec_periodo);
+
+        // ── Lotes 0..n-1 del periodo: intervalos entre recepciones ─────────
+        for ($i = 0; $i < $n - 1; $i++) {
+            $fi_lot   = $rec_periodo[$i]['fecha'];
+            $ff_lot   = date('Y-m-d', strtotime($rec_periodo[$i + 1]['fecha'] . ' -1 day'));
+            $e_t_bruto = (float)$rec_periodo[$i]['cantidad'];
+            $dev_t    = $sum_devs($dev_by_fecha, $fi_lot, $ff_lot);
+            $e_t      = max(0.0, $e_t_bruto - $dev_t);
+            $v_t      = $sum_salidas($delta_by_fecha, $fi_lot, $ff_lot);
+            // Cruce de ciclo: devolución cubre ≥90% de la recepción y sin ventas significativas
+            $cruce_ciclo = ($e_t_bruto > 0.0 && $dev_t / $e_t_bruto >= 0.9 && $v_t < 0.001);
+            $lotes[] = [
+                'idx'         => $i,
+                'fecha_ini'   => $fi_lot,
+                'fecha_fin'   => $ff_lot,
+                'E_t'         => $e_t,
+                'E_t_bruto'   => $e_t_bruto,
+                'dev_t'       => round($dev_t, 4),
+                'V_t'         => $v_t,
+                'S_t'         => $e_t - $v_t,
+                'dias'        => (int)(strtotime($ff_lot) - strtotime($fi_lot)) / 86400 + 1,
+                'cruce_ciclo' => $cruce_ciclo,
+                'v_t_parcial' => false,
+            ];
+        }
+
+        // ── Último lote del periodo: siempre incluir ────────────────────────
+        // Con primera_post: V_t hasta primera_post-1 (ciclo cerrado, v_t_parcial=false).
+        // Sin primera_post: V_t hasta ff_mov (ciclo abierto, v_t_parcial=true).
+        //   El sobrante positivo del ciclo abierto es carryover al siguiente periodo,
+        //   no merma; se excluye de merma_total. Los déficits (S_t<0) sí participan
+        //   en backstaging hacia lotes anteriores del mismo periodo.
+        {
+            $i         = $n - 1;
+            $fi_lot    = $rec_periodo[$i]['fecha'];
+            $e_t_bruto = (float)$rec_periodo[$i]['cantidad'];
+
+            if ($primera_post !== null) {
+                $ff_ciclo         = date('Y-m-d', strtotime($primera_post['fecha'] . ' -1 day'));
+                $dev_t            = $sum_devs($dev_by_fecha, $fi_lot, $ff_ciclo);
+                $v_t              = $sum_salidas($delta_by_fecha, $fi_lot, $ff_ciclo);
+                $v_t_parcial      = false;
+                $es_ultimo_abierto = false;
+            } else {
+                $dev_t            = $sum_devs($dev_by_fecha, $fi_lot, $ff_mov);
+                $v_t              = $sum_salidas($delta_by_fecha, $fi_lot, $ff_mov);
+                $v_t_parcial      = true;
+                $es_ultimo_abierto = true;
+            }
+            $e_t         = max(0.0, $e_t_bruto - $dev_t);
+            $cruce_ciclo = ($e_t_bruto > 0.0 && $dev_t / $e_t_bruto >= 0.9 && $v_t < 0.001);
+            $lotes[] = [
+                'idx'              => $i,
+                'fecha_ini'        => $fi_lot,
+                'fecha_fin'        => $ff_mov,
+                'E_t'              => $e_t,
+                'E_t_bruto'        => $e_t_bruto,
+                'dev_t'            => round($dev_t, 4),
+                'V_t'              => $v_t,
+                'S_t'              => $e_t - $v_t,
+                'dias'             => (int)(strtotime($ff_mov) - strtotime($fi_lot)) / 86400 + 1,
+                'es_ultimo_abierto'=> $es_ultimo_abierto,
+                'cruce_ciclo'      => $cruce_ciclo,
+                'v_t_parcial'      => $v_t_parcial,
+            ];
+        }
+
+        return $lotes;
+    }
+
+    /**
+     * C9 — LIFO inverso con backstaging exponencial ponderado por distancia temporal.
+     *
+     * Para cada lote con S_t < 0 (sobreventa), redistribuye el déficit hacia los k
+     * lotes anteriores con pesos exponenciales w_i = exp(-beta * delta_t_i), bloqueando
+     * lotes cuyo intervalo supera mu + lambda*sigma de los intervalos del periodo.
+     *
+     * @param  array  $lotes   Salida de _calcularLotesC9 (S_t mutable)
+     * @param  int    $k       Profundidad de backstaging (nº de lotes previos)
+     * @param  float  $beta    Tasa de decaimiento exponencial
+     * @param  float  $lambda  Multiplicador para umbral de continuidad temporal
+     * @return array  ['lotes' => array, 'trace' => array, 'n_deficit' => int]
+     */
+    private function _backstagingExponencial(
+        array $lotes,
+        int   $k,
+        float $beta,
+        float $lambda
+    ): array {
+        $n = count($lotes);
+        if ($n === 0) return ['lotes' => [], 'trace' => [], 'n_deficit' => 0];
+
+        // Intervalos entre inicios de lotes consecutivos (días)
+        $deltas = [];
+        for ($i = 1; $i < $n; $i++) {
+            $deltas[$i] = (int)((strtotime($lotes[$i]['fecha_ini']) - strtotime($lotes[$i - 1]['fecha_ini'])) / 86400);
+        }
+
+        $trace     = [];
+        $n_deficit = 0;
+
+        // Pre-computar qué lotes tienen déficit inicial (antes de cualquier redistribución)
+        $lotes_deficit = [];
+        for ($i = $n - 1; $i >= 0; $i--) {
+            if ($lotes[$i]['S_t'] < 0.0) $lotes_deficit[] = $i;
+        }
+
+        // Helper: estadísticas de una ventana de intervalos (mu, sigma)
+        $stats_ventana = static function (array $deltas, int $t, int $k): array {
+            $win_ini = max(1, $t - $k - 1);
+            $win_fin = $t; // deltas[$t] = intervalo entre lote t-1 y t
+            $window  = [];
+            for ($i = $win_ini; $i <= $win_fin; $i++) {
+                if (isset($deltas[$i])) $window[] = $deltas[$i];
+            }
+            if (empty($window)) return ['mu' => PHP_INT_MAX, 'sigma' => 0.0];
+            $mu  = array_sum($window) / count($window);
+            $sq  = array_map(fn($d) => ($d - $mu) ** 2, $window);
+            $sig = count($window) > 1 ? sqrt(array_sum($sq) / count($window)) : 0.0;
+            return ['mu' => $mu, 'sigma' => $sig];
+        };
+
+        // LIFO inverso: solo procesar lotes con déficit original (no cascadas)
+        foreach ($lotes_deficit as $t) {
+            if ($lotes[$t]['S_t'] >= 0.0) continue; // ya neutralizado por redistribución anterior
+
+            $deficit = abs($lotes[$t]['S_t']);
+            $n_deficit++;
+
+            // Threshold local: mu/sigma de la ventana de k+1 intervalos antes del lote t
+            $st = $stats_ventana($deltas, $t, $k);
+            $threshold_local = $st['mu'] + $lambda * $st['sigma'];
+
+            // Calcular pesos para los k lotes anteriores
+            $pesos    = [];
+            $sum_w    = 0.0;
+            for ($j = 1; $j <= $k; $j++) {
+                $prev = $t - $j;
+                if ($prev < 0) break;
+                // Restricción temporal: bloquear si la distancia total al lote candidato
+                // supera el umbral estadístico local de continuidad
+                $dist         = (int)((strtotime($lotes[$t]['fecha_ini']) - strtotime($lotes[$prev]['fecha_ini'])) / 86400);
+                if ($dist > $threshold_local) continue; // bloqueado
+                $w            = exp(-$beta * $dist);
+                $pesos[$prev] = $w;
+                $sum_w       += $w;
+            }
+
+            if ($sum_w <= 0.0) {
+                // Déficit no redistribuible: queda como merma local del lote
+                $lotes[$t]['S_t'] = 0.0;
+                $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit, 4), 'bloqueado' => true, 'lotes_destino' => []];
+                continue;
+            }
+
+            // Redistribuir déficit con pesos normalizados
+            $destinos = [];
+            foreach ($pesos as $prev => $w) {
+                $alpha              = $w / $sum_w;
+                $redistrib          = $alpha * $deficit;
+                $lotes[$prev]['S_t'] -= $redistrib;
+                $destinos[]         = ['idx' => $prev, 'alpha' => round($alpha, 4), 'cantidad' => round($redistrib, 4)];
+            }
+            $lotes[$t]['S_t'] = 0.0;
+            $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit, 4), 'bloqueado' => false, 'lotes_destino' => $destinos];
+        }
+
+        return ['lotes' => $lotes, 'trace' => $trace, 'n_deficit' => $n_deficit];
+    }
+
+    /**
+     * C9 — Clasifica merma por lote, calcula severidad/confianza y valida conservación.
+     *
+     * @param  array  $lotes        Lotes post-backstaging
+     * @param  float  $stock_final  Stock contable al ff_mov (_queryStockRebobinado)
+     * @param  string $tipo_fisico  'peso' o 'unidad'
+     * @param  float  $epsilon      Tolerancia conservación de masa (kg)
+     * @return array  Métricas de merma + detalle por lote
+     */
+    private function _clasificarMermaC9(
+        array  $lotes,
+        float  $stock_final,
+        float  $stock_at_first_rec,
+        string $tipo_fisico,
+        float  $epsilon
+    ): array {
+        $merma_total = 0.0;
+        $total_E     = 0.0;
+        $n_merma     = 0;
+        $detalle     = [];
+
+        foreach ($lotes as $lote) {
+            $es_ultimo_abierto = $lote['es_ultimo_abierto'] ?? false;
+            $merma_t           = max($lote['S_t'], 0.0);
+            // Último abierto: carryover al siguiente periodo — sobrante no es merma.
+            // Los déficits (S_t < 0) sí participan en backstaging hacia lotes anteriores.
+            if (!$es_ultimo_abierto) {
+                $merma_total += $merma_t;
+                $total_E     += $lote['E_t'];
+                if ($merma_t > 0.0) $n_merma++;
+            }
+            $detalle[] = [
+                'idx'         => $lote['idx'],
+                'fecha_ini'   => $lote['fecha_ini'],
+                'fecha_fin'   => $lote['fecha_fin'],
+                'E_t'         => round($lote['E_t'], 3),
+                'V_t'         => round($lote['V_t'], 3),
+                'S_t'         => round($lote['S_t'], 3),
+                'merma_t'     => round($merma_t, 3),
+                'v_t_parcial' => $lote['v_t_parcial'] ?? false,
+            ];
+        }
+
+        // Conservación de masa: sum(S_t) ≈ stock_final − stock_at_first_rec
+        // El modelo solo cubre los lotes del periodo (desde la primera recepción).
+        // Las ventas pre-primera-recepción son consumo del stock heredado y no
+        // están en ningún S_t, de ahí que el ancla sea stock_at_first_rec, no 0.
+        $sum_s              = array_sum(array_column($lotes, 'S_t'));
+        $conservation_delta = abs($sum_s - ($stock_final - $stock_at_first_rec));
+        $conservation_ok    = $conservation_delta <= $epsilon;
+
+        $pct = ($total_E > 0.0) ? ($merma_total / $total_E * 100.0) : 0.0;
+        $n   = count($lotes);
+
+        // Severidad
+        if ($tipo_fisico === 'peso') {
+            if      ($merma_total >= 15.0 && $pct >= 15.0) $sev = 5;
+            elseif  ($merma_total >=  8.0 && $pct >= 10.0) $sev = 4;
+            elseif  ($merma_total >=  3.0 && $pct >=  5.0) $sev = 3;
+            elseif  ($merma_total >=  1.0 && $pct >=  2.0) $sev = 2;
+            else                                             $sev = 1;
+        } else {
+            if      ($merma_total >= 20.0 && $pct >= 15.0) $sev = 5;
+            elseif  ($merma_total >= 10.0 && $pct >= 10.0) $sev = 4;
+            elseif  ($merma_total >=  5.0 && $pct >=  5.0) $sev = 3;
+            elseif  ($merma_total >=  2.0 && $pct >=  2.0) $sev = 2;
+            else                                             $sev = 1;
+        }
+        $sev_labels = [1 => 'BAJA', 2 => 'BAJA', 3 => 'MEDIA', 4 => 'ALTA', 5 => 'CRITICA'];
+
+        // Confianza
+        if ($conservation_ok && $n >= 5)              $confianza = 'alta';
+        elseif ($conservation_ok || $n >= 3)           $confianza = 'media';
+        else                                            $confianza = 'posible';
+
+        return [
+            'merma_total'        => round($merma_total, 3),
+            'pct_merma'          => round($pct, 2),
+            'n_merma'            => $n_merma,
+            'detalle_lotes'      => $detalle,
+            'conservation_ok'    => $conservation_ok,
+            'conservation_delta' => round($conservation_delta, 4),
+            'severidad'          => $sev,
+            'severidad_label'    => $sev_labels[$sev],
+            'confianza'          => $confianza,
+            'total_E'            => round($total_E, 3),
+        ];
+    }
+
+    /**
+     * C9 — Merma por backstaging LIFO inverso con ponderación exponencial temporal.
+     *
+     * Orquesta: Q1 (recepciones sin proveedores especiales) → Q2 (timeline limpio) →
+     * Q5a (prov especiales: cruce vs merma declarada) → Q5b (cli especiales: merma
+     * declarada) → lotes → backstaging → clasificación.
+     *
+     * Solo aplica a artículos con tipo_fisico IN ('unidad','peso').
+     *
+     * @return array  Incidencias C9 o ['error' => ...]
+     */
+    private function getIncidenciasC9(
+        string $fi_mov,
+        string $ff_mov,
+        string $fi_stock,
+        array  $familias_incluir,
+        array  $familias_excluir,
+        array  $ids_filter        = [],
+        array  $stock_base_cache  = [],
+        int    $c9_k              = 4,
+        float  $c9_beta           = 0.15,
+        float  $c9_lambda         = 1.5,
+        float  $c9_epsilon        = 1.0,
+        int    $c9_min_rec        = 3,
+        float  $c9_umbral_unidad  = 2.0,
+        float  $c9_umbral_peso    = 1.0,
+        int    $c9_dias_post      = 60
+    ): array {
+        $fi   = $this->db->real_escape_string($fi_mov);
+        $ff   = $this->db->real_escape_string($ff_mov);
+        $wf   = $this->_familiaWhere($familias_incluir, $familias_excluir);
+        $wi   = $this->_idsWhere($ids_filter);
+        $tipos = self::TIPOS_FISICOS;
+
+        // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
+        $rows_rec = $this->_queryRecepcionesC9($fi, $ff_mov, $wf, $wi, $c9_dias_post);
+        if (isset($rows_rec['error'])) return $rows_rec;
+        if (empty($rows_rec)) return [];
+
+        // Agrupar por artículo; filtrar por n_recepciones mínimo en-periodo
+        $recepciones_map = [];
+        foreach ($rows_rec as $r) {
+            $aid = (int)$r['idArticulo'];
+            $recepciones_map[$aid][] = [
+                'fecha'           => $r['fecha'],
+                'cantidad'        => (float)$r['cantidad'],
+                'es_post_periodo' => (bool)$r['es_post_periodo'],
+            ];
+        }
+        $ids_candidatos = [];
+        foreach ($recepciones_map as $aid => $recs) {
+            $n_periodo = count(array_filter($recs, fn($r) => !$r['es_post_periodo']));
+            if ($n_periodo >= $c9_min_rec) $ids_candidatos[] = $aid;
+        }
+        if (empty($ids_candidatos)) return [];
+
+        $ids_str = implode(',', array_map('intval', $ids_candidatos));
+
+        // ── Paso 2: filtrar solo artículos físicos ──────────────────────────
+        $res_art = $this->db->query(
+            "SELECT idArticulo, tipo FROM articulos
+              WHERE idArticulo IN ($ids_str) AND tipo IN ($tipos)"
+        );
+        if (!$res_art) return ['error' => 'C9 tipos: ' . $this->db->error];
+        $tipos_map = [];
+        while ($row = $res_art->fetch_assoc()) $tipos_map[(int)$row['idArticulo']] = $row['tipo'];
+        $res_art->free();
+        $ids_candidatos = array_values(array_filter($ids_candidatos, fn($id) => isset($tipos_map[$id])));
+        if (empty($ids_candidatos)) return [];
+        $ids_str = implode(',', array_map('intval', $ids_candidatos));
+
+        // ── Paso 1b: devoluciones ordinarias (ncant < 0, proveedor no especial) ──
+        $ff_post_dev = $this->db->real_escape_string(
+            date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
+        );
+        $rows_dev = $this->_queryDevolucionesProvC9($fi, $ff_post_dev, $ids_str);
+        if (isset($rows_dev['error'])) return $rows_dev;
+        $devs_map = [];
+        foreach ($rows_dev as $r) {
+            $devs_map[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'devolucion' => (float)$r['devolucion']];
+        }
+
+        // ── Paso 3: timeline limpio (Q2) — extendido hasta ff_post para capturar
+        //    ventas post-periodo del último lote (hasta primera_post - 1) ────────
+        $ff_post_tl = $this->db->real_escape_string(
+            date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
+        );
+        $rows_tl = $this->_queryTimelineC9($fi, $ff_post_tl, $ids_str);
+        if (isset($rows_tl['error'])) return $rows_tl;
+        $timeline_map = [];
+        foreach ($rows_tl as $r) {
+            $timeline_map[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'day_delta' => (float)$r['day_delta']];
+        }
+
+        // ── Paso 4: albaranes especiales (Q5a + Q5b) ───────────────────────
+        $ff_post = $this->db->real_escape_string(
+            date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
+        );
+        // Los albaranes especiales (merma declarada) se acotan al periodo fi_mov..ff_mov,
+        // no a ff_post: las regularizaciones post-periodo pertenecen al siguiente análisis.
+        $rows_prov_esp = $this->_queryAlbaranesProvEspecialesC9($fi, $ff, $ids_str);
+        if (isset($rows_prov_esp['error'])) return $rows_prov_esp;
+        $rows_cli_esp  = $this->_queryAlbaranesCliEspecialesC9($fi, $ff, $ids_str);
+        if (isset($rows_cli_esp['error'])) return $rows_cli_esp;
+
+        // Clasificar albaranes proveedor especial: cruce intra-albarán vs merma declarada
+        // Paso A: separar intra-albarán cruces (signos mixtos) de candidatos negativos
+        $alb_prov = [];
+        foreach ($rows_prov_esp as $r) $alb_prov[(int)$r['idAlbaran']][] = $r;
+        $candidatos_decl = []; // [aid][fecha] => monto absoluto
+        foreach ($alb_prov as $lineas) {
+            $tiene_pos = false;
+            $tiene_neg = false;
+            foreach ($lineas as $l) {
+                if ((float)$l['ncant'] > 0) $tiene_pos = true;
+                if ((float)$l['ncant'] < 0) $tiene_neg = true;
+            }
+            if ($tiene_pos && $tiene_neg) continue; // cruce intra-albarán: ignorar
+            foreach ($lineas as $l) {
+                $aid   = (int)$l['idArticulo'];
+                $fecha = $l['fecha'];
+                $candidatos_decl[$aid][$fecha] = ($candidatos_decl[$aid][$fecha] ?? 0.0)
+                                               + abs((float)$l['ncant']);
+            }
+        }
+
+        // Paso B: detectar cruces cross-albarán.
+        // Si en la misma fecha hay una recepción regular para el mismo artículo,
+        // el negativo especial es una devolución del ciclo anterior al proveedor
+        // que trae stock nuevo: netear E_t de la recepción, NO merma_declarada.
+        $merma_prov_decl = [];
+        foreach ($candidatos_decl as $aid => $fechas) {
+            foreach ($fechas as $fecha => $monto) {
+                $recs_aid = $recepciones_map[$aid] ?? [];
+                $rec_idx  = null;
+                foreach ($recs_aid as $idx => $rec) {
+                    if ($rec['fecha'] === $fecha) { $rec_idx = $idx; break; }
+                }
+                if ($rec_idx !== null) {
+                    // Cross-albarán cruce: reducir E_t neto de la recepción
+                    $recepciones_map[$aid][$rec_idx]['cantidad']   -= $monto;
+                    $recepciones_map[$aid][$rec_idx]['cruce_cross'] = true;
+                    if ($recepciones_map[$aid][$rec_idx]['cantidad'] <= 0.0) {
+                        unset($recepciones_map[$aid][$rec_idx]);
+                        $recepciones_map[$aid] = array_values($recepciones_map[$aid]);
+                    }
+                } else {
+                    // Sin recepción regular ese día → merma declarada normal
+                    $merma_prov_decl[$aid] = ($merma_prov_decl[$aid] ?? 0.0) + $monto;
+                }
+            }
+        }
+        $merma_cli_decl = [];
+        foreach ($rows_cli_esp as $r) {
+            $aid = (int)$r['idArticulo'];
+            $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + (float)$r['cantidad'];
+        }
+
+        // ── Paso 5: stock base (compartido con C7 en batch) ────────────────
+        $sb = empty($stock_base_cache)
+            ? $this->getStockBase($ids_candidatos, $fi_stock, $fi_mov)
+            : $stock_base_cache;
+        if (isset($sb['error'])) return $sb;
+
+        // ── Paso 5b: stock real al inicio del periodo (rebobinado) ──────────
+        // Se usa como E_lote0 en lugar del saldo acumulado desde fi_stock.
+        // _queryStockRebobinado incluye TODO el histórico (no solo desde fi_stock),
+        // capturando inventario de años anteriores no reflejado en getStockBase.
+        $fi_reb = $this->db->real_escape_string(
+            date('Y-m-d', strtotime("$fi_mov -1 day"))
+        );
+        $rows_si = $this->_queryStockRebobinado($ids_str, $fi_reb);
+        if (isset($rows_si['error'])) return $rows_si;
+        $stock_inicial_map = [];
+        foreach ($rows_si as $r) {
+            $stock_inicial_map[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        }
+
+        // ── Paso 6: stock rebobinado al ff_mov (ancla conservación) ────────
+        $rows_sf = $this->_queryStockRebobinado($ids_str, $ff);
+        if (isset($rows_sf['error'])) return $rows_sf;
+        $stock_final_map = [];
+        foreach ($rows_sf as $r) $stock_final_map[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+
+        // ── Paso 7: loop por artículo ───────────────────────────────────────
+        $incidencias = [];
+
+        foreach ($ids_candidatos as $idArticulo) {
+            $tipo_fisico  = $tipos_map[$idArticulo];
+            // E_lote0: stock real al inicio del periodo (rebobinado historial completo).
+            // Fallback al saldo acumulado desde fi_stock si el rebobinado no devuelve fila.
+            $stock_base   = $stock_inicial_map[$idArticulo]
+                          ?? (float)($sb[$idArticulo]['saldo_acumulado'] ?? 0.0);
+            $stock_final  = $stock_final_map[$idArticulo] ?? 0.0;
+            $timeline_art = $timeline_map[$idArticulo] ?? [];
+            $recs_art     = $recepciones_map[$idArticulo] ?? [];
+
+            $devs_art = $devs_map[$idArticulo] ?? [];
+            $lotes = $this->_calcularLotesC9($recs_art, $timeline_art, $fi_mov, $ff_mov, $devs_art);
+            if (empty($lotes)) continue;
+
+            // Stock en el momento de la primera recepción del periodo.
+            // Las ventas entre fi_mov y esa fecha son consumo del stock heredado
+            // y no forman parte de ningún lote — se descuentan del ancla inicial
+            // para que la conservación de masa sea coherente con el modelo sin lote 0.
+            $first_rec_date    = $lotes[0]['fecha_ini'];
+            $stock_at_first_rec = $stock_base;
+            if ($first_rec_date > $fi_mov) {
+                $pre_end = date('Y-m-d', strtotime($first_rec_date . ' -1 day'));
+                foreach ($timeline_art as $_tl) {
+                    if ($_tl['fecha'] >= $fi_mov && $_tl['fecha'] <= $pre_end) {
+                        $stock_at_first_rec -= (float)$_tl['day_delta'];
+                    }
+                }
+            }
+
+            $resultado = $this->_backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda);
+
+            $umbral = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
+            $clasif = $this->_clasificarMermaC9(
+                $resultado['lotes'], $stock_final, $stock_at_first_rec, $tipo_fisico, $c9_epsilon
+            );
+            if ($clasif['merma_total'] < $umbral) continue;
+
+            $merma_decl  = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
+            $n_en_periodo = count(array_filter($recs_art, fn($r) => !$r['es_post_periodo']));
+
+            $incidencias[] = [
+                'caso'                => 'C9',
+                'tipo'                => 'Merma backstaging',
+                'idArticulo'          => $idArticulo,
+                'merma_total_kg'      => $clasif['merma_total'],
+                'merma_declarada_kg'  => round($merma_decl, 3),
+                'pct_merma'           => $clasif['pct_merma'],
+                'n_lotes'             => count($resultado['lotes']),
+                'n_recepciones'       => $n_en_periodo,
+                'n_lotes_deficit'     => $resultado['n_deficit'],
+                'n_lotes_merma'       => $clasif['n_merma'],
+                'stock_final'         => round($stock_final, 3),
+                'ancla_tipo'          => 'contable',
+                'conservation_ok'     => $clasif['conservation_ok'],
+                'conservation_delta'  => $clasif['conservation_delta'],
+                'confianza'           => $clasif['confianza'],
+                'severidad'           => $clasif['severidad_label'],
+                'severidad_num'       => $clasif['severidad'],
+                'merma_por_lote'      => $clasif['detalle_lotes'],
+                'backstaging_trace'   => $resultado['trace'],
+                'beta_usado'          => $c9_beta,
+                'k_usado'             => $c9_k,
+                'lambda_usado'        => $c9_lambda,
+                'modo'                => ($tipo_fisico === 'peso') ? 'continuo' : 'discreto',
+                'total_E'             => $clasif['total_E'],
+            ];
+        }
+
+        return $incidencias;
+    }
+
     public function getIncidenciasBatch(array $params, int $inicial, int $pagina): array
     {
         $fi_mov           = $params['fecha_inicio_movimientos'];
@@ -6600,6 +7442,13 @@ class ClasePosstock
             // razonables. C7cde ya corre aparte (fase 2), así que el riesgo de timeout
             // por lote es menor. 80 artículos ≈ 10–20 s de procesado estadístico.
             $pagina = min($pagina, 80);
+        }
+
+        // C9 es O(n) por artículo (backstaging lineal) pero ejecuta 5 queries extra
+        // (recepciones, timeline, prov/cli especiales, stock rebobinado). Lotes de 150
+        // son seguros; si se combina con C7 la reducción ya aplica.
+        if (in_array('caso9', $casos_incluir, true) && !in_array('caso7a', $casos_incluir, true) && !in_array('caso7b', $casos_incluir, true)) {
+            $pagina = min($pagina, 150);
         }
 
         // En batches mixtos, excluir C4 y C6b de la paginación;
