@@ -20,11 +20,28 @@ class ClaseInformes extends TFModelo
                 '2' => 'Familias y subfamilias',
                 '3' => 'Familias, subfamilias y productos',
             )
+        ),
+        '4' => array(
+            'Titulo' => 'Suma de ventas por familia',
+            'opciones' => array(
+                '1' => 'Solo familias',
+                '2' => 'Familias y subfamilias',
+                '3' => 'Familias, subfamilias y productos',
+            )
+        ),
+        '6' => array(
+            'Titulo' => 'Beneficio por familia',
+            'opciones' => array(
+                '1' => 'Solo familias',
+                '2' => 'Familias y subfamilias',
+                '3' => 'Familias, subfamilias y productos',
+            )
         )
     );
     public function ObtenerdatosInforme()
     {
         $parametros = $_GET;
+        $parametros['familias'] = $parametros['familias'] ?? '';
         $id = $parametros['id'];
 
         if ($id == 1) {
@@ -32,6 +49,10 @@ class ClaseInformes extends TFModelo
             $datos = $this->ResumenProveedores($parametros);
         } elseif ($id == 2) {
             $datos = $this->ResumenFamilias($parametros);
+        } elseif ($id == 4) {
+            $datos = $this->ResumenVentasFamilias($parametros);
+        } elseif ($id == 6) {
+            $datos = $this->BeneficioFamilias($parametros);
         } else {
             $datos = [];
         }
@@ -259,6 +280,14 @@ class ClaseInformes extends TFModelo
         $fechaInicio = $parametros['Finicio'];
         $fechaFinal  = $parametros['Ffinal'];
 
+        $filtroN1 = '';
+        if ((int)$parametros['opcion'] === 4) {
+            $ids = array_filter(array_map('intval', explode(',', $parametros['familias'] ?? '')));
+            if (!empty($ids)) {
+                $filtroN1 = 'AND vj.idN1 IN (' . implode(',', $ids) . ')';
+            }
+        }
+
         $sql = "
             SELECT
                 vj.idN1,
@@ -277,6 +306,7 @@ class ClaseInformes extends TFModelo
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
             WHERE a.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
               AND l.estadoLinea <> 'Eliminado'
+              $filtroN1
             GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.costeSiva
             ORDER BY nombreN1, nombreN2, l.idArticulo
         ";
@@ -375,6 +405,376 @@ class ClaseInformes extends TFModelo
                 'idN1'            => $familia['idN1'],
                 'nombreN1'        => $familia['nombreN1'],
                 'total_linea'     => $totalN1,
+                'num_referencias' => count($refsN1),
+                'subfamilias'     => $sfs
+            ];
+        }
+
+        return $resultado;
+    }
+
+    public function ResumenVentasFamilias($parametros = array())
+    {
+        // @ Objetivo
+        // Suma las líneas de ventas (albaranes + tickets) agrupadas por jerarquía de familias.
+        // Misma estructura de respuesta que ResumenFamilias pero sobre ventas.
+        // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
+
+        $BDTpv       = $this->conexionBDTPV();
+        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
+
+        $filtroN1 = '';
+        if ((int)($parametros['opcion'] ?? 0) === 4) {
+            $ids = array_filter(array_map('intval', explode(',', $parametros['familias'] ?? '')));
+            if (!empty($ids)) {
+                $filtroN1 = 'AND vj.idN1 IN (' . implode(',', $ids) . ')';
+            }
+        }
+
+        $sql = "
+            SELECT
+                vj.idN1,
+                MAX(n1.familiaNombre)                             AS nombreN1,
+                vj.idN2,
+                MAX(n2.familiaNombre)                             AS nombreN2,
+                l.idArticulo,
+                MAX(ar.articulo_name)                             AS articulo_name,
+                MAX(ar.tipo)                                      AS tipo,
+                l.precioCiva / (1 + l.iva / 100)                 AS pvpSiva,
+                SUM(l.nunidades)                                  AS totalUnidades,
+                COUNT(DISTINCT l.idalbcli)                        AS num_documentos
+            FROM albclilinea l
+            JOIN albclit h ON h.id = l.idalbcli
+            JOIN articulos ar ON ar.idArticulo = l.idArticulo
+            LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
+            LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
+            LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
+            LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
+            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+              AND h.estado IN ('Guardado', 'Procesado')
+              AND l.estadoLinea = 'Activo'
+              AND (h.idCliente = 0 OR cl.estado != 'Especial')
+              $filtroN1
+            GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.precioCiva, l.iva
+
+            UNION ALL
+
+            SELECT
+                vj.idN1,
+                MAX(n1.familiaNombre)                             AS nombreN1,
+                vj.idN2,
+                MAX(n2.familiaNombre)                             AS nombreN2,
+                l.idArticulo,
+                MAX(ar.articulo_name)                             AS articulo_name,
+                MAX(ar.tipo)                                      AS tipo,
+                l.precioCiva / (1 + l.iva / 100)                 AS pvpSiva,
+                SUM(l.nunidades)                                  AS totalUnidades,
+                COUNT(DISTINCT l.idticketst)                      AS num_documentos
+            FROM ticketslinea l
+            JOIN ticketst h ON h.id = l.idticketst
+            JOIN articulos ar ON ar.idArticulo = l.idArticulo
+            LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
+            LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
+            LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
+            LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
+            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+              AND h.estado IN ('Cobrado', 'Cerrado')
+              AND l.estadoLinea = 'Activo'
+              AND (h.idCliente = 0 OR cl.estado != 'Especial')
+              $filtroN1
+            GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.precioCiva, l.iva
+            ORDER BY nombreN1, nombreN2, idArticulo
+        ";
+
+        $smt    = $BDTpv->query($sql);
+        $lineas = [];
+        while ($row = $smt->fetch_assoc()) {
+            $lineas[] = $row;
+        }
+
+        $familias = [];
+
+        foreach ($lineas as $fila) {
+            $idN1     = $fila['idN1'] !== null ? (int)$fila['idN1'] : '__sin_familia__';
+            $nombreN1 = $fila['nombreN1'] !== null ? $fila['nombreN1'] : 'Sin familia';
+            $idN2     = $fila['idN2'] !== null ? (int)$fila['idN2'] : null;
+            $keyN2    = $idN2 !== null ? $idN2 : '__sin_n2__';
+            $labelN2  = $idN2 !== null ? ($fila['nombreN2'] ?? 'Sin subfamilia') : '(Sin subfamilia)';
+            $idArt    = (int)$fila['idArticulo'];
+            $pvp      = (float)$fila['pvpSiva'];
+            $unidades = (float)$fila['totalUnidades'];
+
+            if (!isset($familias[$idN1])) {
+                $familias[$idN1] = [
+                    'idN1'        => $idN1,
+                    'nombreN1'    => $nombreN1,
+                    'subfamilias' => []
+                ];
+            }
+
+            if (!isset($familias[$idN1]['subfamilias'][$keyN2])) {
+                $familias[$idN1]['subfamilias'][$keyN2] = [
+                    'idN2'      => $idN2,
+                    'nombreN2'  => $labelN2,
+                    'articulos' => []
+                ];
+            }
+
+            $art = &$familias[$idN1]['subfamilias'][$keyN2]['articulos'][$idArt];
+
+            if (!isset($art['idArticulo'])) {
+                $art = [
+                    'idArticulo'    => $idArt,
+                    'articulo_name' => $fila['articulo_name'],
+                    'tipo'          => $fila['tipo'],
+                    'totalUnidades' => $unidades,
+                    'pvpSiva'       => $pvp,
+                    'precio_medio'  => 'KO',
+                    'num_ventas'    => (int)$fila['num_documentos'],
+                    'total_linea'   => $unidades * $pvp
+                ];
+            } else {
+                if ($art['pvpSiva'] != $pvp) {
+                    $art['precio_medio'] = 'OK';
+                    $suma_unidades       = $art['totalUnidades'] + $unidades;
+                    if ($suma_unidades > 0) {
+                        $art['pvpSiva'] = (
+                            ($art['totalUnidades'] * $art['pvpSiva']) + ($unidades * $pvp)
+                        ) / $suma_unidades;
+                    }
+                }
+                $art['totalUnidades'] += $unidades;
+                $art['num_ventas']    += (int)$fila['num_documentos'];
+                $art['total_linea']    = $art['totalUnidades'] * $art['pvpSiva'];
+            }
+
+            unset($art);
+        }
+
+        $resultado = [];
+        foreach ($familias as $familia) {
+            $totalN1 = 0;
+            $refsN1  = [];
+            $sfs     = [];
+
+            foreach ($familia['subfamilias'] as $sf) {
+                $arts    = array_values($sf['articulos']);
+                $totalN2 = 0;
+                foreach ($arts as $art) {
+                    $totalN2 += $art['total_linea'];
+                    $refsN1[$art['idArticulo']] = true;
+                }
+                $totalN1 += $totalN2;
+
+                $sfs[] = [
+                    'idN2'            => $sf['idN2'],
+                    'nombreN2'        => $sf['nombreN2'],
+                    'total_linea'     => $totalN2,
+                    'num_referencias' => count($arts),
+                    'articulos'       => $arts
+                ];
+            }
+
+            $resultado[] = [
+                'idN1'            => $familia['idN1'],
+                'nombreN1'        => $familia['nombreN1'],
+                'total_linea'     => $totalN1,
+                'num_referencias' => count($refsN1),
+                'subfamilias'     => $sfs
+            ];
+        }
+
+        return $resultado;
+    }
+
+    public function BeneficioFamilias($parametros = array())
+    {
+        // @ Objetivo
+        // Suma ventas y costes (ultimoCoste) por jerarquía de familias para calcular
+        // beneficio bruto y margen porcentual en el período.
+        // AVISO: el coste es ultimoCoste en el momento de ejecutar el informe, no histórico.
+        // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
+
+        $BDTpv       = $this->conexionBDTPV();
+        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
+
+        $filtroN1 = '';
+        if ((int)($parametros['opcion'] ?? 0) === 4) {
+            $ids = array_filter(array_map('intval', explode(',', $parametros['familias'] ?? '')));
+            if (!empty($ids)) {
+                $filtroN1 = 'AND vj.idN1 IN (' . implode(',', $ids) . ')';
+            }
+        }
+
+        $sql = "
+            SELECT
+                vj.idN1,
+                MAX(n1.familiaNombre)                                        AS nombreN1,
+                vj.idN2,
+                MAX(n2.familiaNombre)                                        AS nombreN2,
+                l.idArticulo,
+                MAX(ar.articulo_name)                                        AS articulo_name,
+                MAX(ar.tipo)                                                 AS tipo,
+                l.precioCiva / (1 + l.iva / 100)                            AS pvpSiva,
+                MAX(ar.ultimoCoste)                                          AS ultimoCoste,
+                SUM(l.nunidades)                                             AS totalUnidades,
+                SUM(l.precioCiva / (1 + l.iva / 100) * l.nunidades)         AS totalVenta,
+                SUM(ar.ultimoCoste * l.nunidades)                            AS totalCoste,
+                COUNT(DISTINCT l.idalbcli)                                   AS num_documentos
+            FROM albclilinea l
+            JOIN albclit h ON h.id = l.idalbcli
+            JOIN articulos ar ON ar.idArticulo = l.idArticulo
+            LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
+            LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
+            LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
+            LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
+            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+              AND h.estado IN ('Guardado', 'Procesado')
+              AND l.estadoLinea = 'Activo'
+              AND (h.idCliente = 0 OR cl.estado != 'Especial')
+              $filtroN1
+            GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.precioCiva, l.iva
+
+            UNION ALL
+
+            SELECT
+                vj.idN1,
+                MAX(n1.familiaNombre)                                        AS nombreN1,
+                vj.idN2,
+                MAX(n2.familiaNombre)                                        AS nombreN2,
+                l.idArticulo,
+                MAX(ar.articulo_name)                                        AS articulo_name,
+                MAX(ar.tipo)                                                 AS tipo,
+                l.precioCiva / (1 + l.iva / 100)                            AS pvpSiva,
+                MAX(ar.ultimoCoste)                                          AS ultimoCoste,
+                SUM(l.nunidades)                                             AS totalUnidades,
+                SUM(l.precioCiva / (1 + l.iva / 100) * l.nunidades)         AS totalVenta,
+                SUM(ar.ultimoCoste * l.nunidades)                            AS totalCoste,
+                COUNT(DISTINCT l.idticketst)                                 AS num_documentos
+            FROM ticketslinea l
+            JOIN ticketst h ON h.id = l.idticketst
+            JOIN articulos ar ON ar.idArticulo = l.idArticulo
+            LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
+            LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
+            LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
+            LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
+            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+              AND h.estado IN ('Cobrado', 'Cerrado')
+              AND l.estadoLinea = 'Activo'
+              AND (h.idCliente = 0 OR cl.estado != 'Especial')
+              $filtroN1
+            GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.precioCiva, l.iva
+            ORDER BY nombreN1, nombreN2, idArticulo
+        ";
+
+        $smt    = $BDTpv->query($sql);
+        $lineas = [];
+        while ($row = $smt->fetch_assoc()) {
+            $lineas[] = $row;
+        }
+
+        $familias = [];
+
+        foreach ($lineas as $fila) {
+            $idN1     = $fila['idN1'] !== null ? (int)$fila['idN1'] : '__sin_familia__';
+            $nombreN1 = $fila['nombreN1'] !== null ? $fila['nombreN1'] : 'Sin familia';
+            $idN2     = $fila['idN2'] !== null ? (int)$fila['idN2'] : null;
+            $keyN2    = $idN2 !== null ? $idN2 : '__sin_n2__';
+            $labelN2  = $idN2 !== null ? ($fila['nombreN2'] ?? 'Sin subfamilia') : '(Sin subfamilia)';
+            $idArt    = (int)$fila['idArticulo'];
+            $tv       = (float)$fila['totalVenta'];
+            $tc       = (float)$fila['totalCoste'];
+
+            if (!isset($familias[$idN1])) {
+                $familias[$idN1] = [
+                    'idN1'        => $idN1,
+                    'nombreN1'    => $nombreN1,
+                    'subfamilias' => []
+                ];
+            }
+
+            if (!isset($familias[$idN1]['subfamilias'][$keyN2])) {
+                $familias[$idN1]['subfamilias'][$keyN2] = [
+                    'idN2'      => $idN2,
+                    'nombreN2'  => $labelN2,
+                    'articulos' => []
+                ];
+            }
+
+            $art = &$familias[$idN1]['subfamilias'][$keyN2]['articulos'][$idArt];
+
+            if (!isset($art['idArticulo'])) {
+                $art = [
+                    'idArticulo'    => $idArt,
+                    'articulo_name' => $fila['articulo_name'],
+                    'tipo'          => $fila['tipo'],
+                    'totalUnidades' => (float)$fila['totalUnidades'],
+                    'pvpSiva'       => (float)$fila['pvpSiva'],
+                    'ultimoCoste'   => (float)$fila['ultimoCoste'],
+                    'totalVenta'    => $tv,
+                    'totalCoste'    => $tc,
+                    'num_ventas'    => (int)$fila['num_documentos']
+                ];
+            } else {
+                $art['totalUnidades'] += (float)$fila['totalUnidades'];
+                $art['totalVenta']    += $tv;
+                $art['totalCoste']    += $tc;
+                $art['num_ventas']    += (int)$fila['num_documentos'];
+            }
+            $art['beneficio']  = $art['totalVenta'] - $art['totalCoste'];
+            $art['margen_pct'] = $art['totalVenta'] > 0
+                ? round($art['beneficio'] / $art['totalVenta'] * 100, 2)
+                : 0;
+
+            unset($art);
+        }
+
+        $resultado = [];
+        foreach ($familias as $familia) {
+            $tvN1    = 0;
+            $tcN1    = 0;
+            $refsN1  = [];
+            $sfs     = [];
+
+            foreach ($familia['subfamilias'] as $sf) {
+                $arts  = array_values($sf['articulos']);
+                $tvN2  = 0;
+                $tcN2  = 0;
+                foreach ($arts as $art) {
+                    $tvN2 += $art['totalVenta'];
+                    $tcN2 += $art['totalCoste'];
+                    $refsN1[$art['idArticulo']] = true;
+                }
+                $tvN1 += $tvN2;
+                $tcN1 += $tcN2;
+
+                $benN2  = $tvN2 - $tcN2;
+                $sfs[] = [
+                    'idN2'            => $sf['idN2'],
+                    'nombreN2'        => $sf['nombreN2'],
+                    'totalVenta'      => $tvN2,
+                    'totalCoste'      => $tcN2,
+                    'beneficio'       => $benN2,
+                    'margen_pct'      => $tvN2 > 0 ? round($benN2 / $tvN2 * 100, 2) : 0,
+                    'num_referencias' => count($arts),
+                    'articulos'       => $arts
+                ];
+            }
+
+            $benN1 = $tvN1 - $tcN1;
+            $resultado[] = [
+                'idN1'            => $familia['idN1'],
+                'nombreN1'        => $familia['nombreN1'],
+                'totalVenta'      => $tvN1,
+                'totalCoste'      => $tcN1,
+                'beneficio'       => $benN1,
+                'margen_pct'      => $tvN1 > 0 ? round($benN1 / $tvN1 * 100, 2) : 0,
                 'num_referencias' => count($refsN1),
                 'subfamilias'     => $sfs
             ];

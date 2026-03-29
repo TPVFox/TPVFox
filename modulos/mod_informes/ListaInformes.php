@@ -79,11 +79,67 @@ $CInformes = new ClaseInformes();
                                 <td><strong>Suma compras por familias</strong></td>
                                 <td>Suma los albaranes de proveedor agrupando por familia, subfamilia y/o producto</td>
                                 <td>
-                                    <select id="opcion2">
+                                    <select id="opcion2" onchange="_onOpcionChange(2)">
                                         <option value="1" selected>Solo familias</option>
                                         <option value="2">Familias y subfamilias</option>
                                         <option value="3">Familias, subfamilias y productos</option>
+                                        <option value="4">Selección de familias</option>
                                     </select>
+                                    <div id="panelFamilias2" style="display:none; margin-top:6px;">
+                                        <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamilias()">
+                                            <span class="glyphicon glyphicon-list"></span> Elegir familias
+                                        </button>
+                                        <div id="tagsFamilias2" style="margin-top:4px;">
+                                            <span class="text-muted">Ninguna familia seleccionada</span>
+                                        </div>
+                                        <input type="hidden" id="familiasSel2" value="">
+                                    </div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><input class="rowCheck" type="checkbox" name="informe" value="4"></td>
+                                <td><strong>Suma de ventas por familia</strong></td>
+                                <td>Suma albaranes de cliente y tickets cerrados agrupados por familia, subfamilia y/o producto</td>
+                                <td>
+                                    <select id="opcion4" onchange="_onOpcionChange(4)">
+                                        <option value="1" selected>Solo familias</option>
+                                        <option value="2">Familias y subfamilias</option>
+                                        <option value="3">Familias, subfamilias y productos</option>
+                                        <option value="4">Selección de familias</option>
+                                    </select>
+                                    <div id="panelFamilias4" style="display:none; margin-top:6px;">
+                                        <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamilias()">
+                                            <span class="glyphicon glyphicon-list"></span> Elegir familias
+                                        </button>
+                                        <div id="tagsFamilias4" style="margin-top:4px;">
+                                            <span class="text-muted">Ninguna familia seleccionada</span>
+                                        </div>
+                                        <input type="hidden" id="familiasSel4" value="">
+                                    </div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><input class="rowCheck" type="checkbox" name="informe" value="6"></td>
+                                <td><strong>Beneficio por familia</strong></td>
+                                <td>Margen bruto (venta &minus; coste actual) agrupado por familia, subfamilia y/o producto</td>
+                                <td>
+                                    <select id="opcion6" onchange="_onOpcionChange(6)">
+                                        <option value="1" selected>Solo familias</option>
+                                        <option value="2">Familias y subfamilias</option>
+                                        <option value="3">Familias, subfamilias y productos</option>
+                                        <option value="4">Selección de familias</option>
+                                    </select>
+                                    <div id="panelFamilias6" style="display:none; margin-top:6px;">
+                                        <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamilias()">
+                                            <span class="glyphicon glyphicon-list"></span> Elegir familias
+                                        </button>
+                                        <div id="tagsFamilias6" style="margin-top:4px;">
+                                            <span class="text-muted">Ninguna familia seleccionada</span>
+                                        </div>
+                                        <input type="hidden" id="familiasSel6" value="">
+                                    </div>
                                 </td>
                                 <td></td>
                             </tr>
