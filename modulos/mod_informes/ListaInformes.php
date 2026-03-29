@@ -31,7 +31,7 @@ $CInformes = new ClaseInformes();
                         <?php
                         if ($ClasePermisos->getAccion("ejecutar") == 1) {
                         ?>
-                            <li><a href="#section1" onclick="metodoClick('Ejecutar');" ;>Ejecutar</a></li>
+                            <li><a href="#section1" onclick="metodoClick('Ejecutar');">Ejecutar</a></li>
                         <?php
                         }
                         ?>
@@ -44,7 +44,7 @@ $CInformes = new ClaseInformes();
                     <label>Fecha Inicio</label>
                     <input type="date" id="idFechaInicio" name="fechaInicio">
                 </div>
-                <div class="col-md- 4 form-group">
+                <div class="col-md-4 form-group">
                     <label>Fecha Final</label>
                     <input type="date" id="idFechaFinal" name="fechaFinal">
                 </div>
@@ -59,32 +59,36 @@ $CInformes = new ClaseInformes();
                                 <th>Guardado</th>
                             </tr>
                         </thead>
-
-                        <tr>
-                            <td><input class="rowCheck" type="checkbox" name="informe" value="1">
-                            <td><strong>Suma compras por proveedores</strong></td>
-                            <td>Sumamos albaranes por proveedores y como opción los facturados ,Guardados o ambos</td>
-                            <td>
-                                <select id="opcion2">
-                                    <option value="1" selected>Todos</option>
-                                    <option value="2">Facturados</option>
-                                    <option value="2">Sin facturar</option>
-                                </select>
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><input class="rowCheck" type="checkbox" name="informe" value="2">
-                            <td><strong>Suma compras por familias</strong></td>
-                            <td>Sumamos compras por familias desglosando hijos y como opción desglosando productos o no, segun la opcion escogida</td>
-                            <td>
-                                <select id="opcion1">
-                                    <option value="1" selected>Solo familias</option>
-                                    <option value="2">Familias y productos</option>
-                                </select>
-                            </td>
-                            <td></td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td><input class="rowCheck" type="checkbox" name="informe" value="1"></td>
+                                <td><strong>Suma compras por proveedores</strong></td>
+                                <td>Suma los albaranes de proveedor en el rango de fechas, agrupados por artículo</td>
+                                <td>
+                                    <select id="opcion1">
+                                        <option value="1" selected>Todos</option>
+                                        <option value="2">Facturados</option>
+                                        <option value="3">Sin facturar</option>
+                                        <option value="4">Proveedores activos</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><input class="rowCheck" type="checkbox" name="informe" value="2"></td>
+                                <td><strong>Suma compras por familias</strong></td>
+                                <td>Suma los albaranes de proveedor agrupando por familia, subfamilia y/o producto</td>
+                                <td>
+                                    <select id="opcion2">
+                                        <option value="1" selected>Solo familias</option>
+                                        <option value="2">Familias y subfamilias</option>
+                                        <option value="3">Familias, subfamilias y productos</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

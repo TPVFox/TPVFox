@@ -16,39 +16,38 @@ class ClaseInformes extends TFModelo
         '2' => array(
             'Titulo' => 'Suma compras por familias',
             'opciones' => array(
-                '1' => 'Solo Familias',
-                '2' => 'Familias y Productos',
+                '1' => 'Solo familias',
+                '2' => 'Familias y subfamilias',
+                '3' => 'Familias, subfamilias y productos',
             )
         )
     );
     public function ObtenerdatosInforme()
     {
         $parametros = $_GET;
-        // Deberíamos obtener:
-        //      id -> indica el informe que vamos tratar
-        //      Finicio y Ffinal -> Rango de fechas para calcular informe.
-        //      opcion-> la opcion seleccionada por el usuario para hacer el informe.
         $id = $parametros['id'];
+
         if ($id == 1) {
-            // Añadimos parametros que pueden varias segun desde donde venga la peticion
-            $parametros['filtroProveedores'] = 'todos'; // Los valores podemos enviar son 'todos','Activos','solo_ids'
-            // extra ultima tenemos añadir un parametros mas idsProveedor:array()
+            $parametros['filtroProveedores'] = 'todos';
             $datos = $this->ResumenProveedores($parametros);
-            $cabecera = array(
-                'id'                =>  $id,
-                'titulo_informe'    =>  $this->informes[$id]['Titulo'],
-                'Fecha_Inicio'      =>  $parametros['Finicio'],
-                'Fecha_Final'       =>  $parametros['Ffinal'],
-                'opcion'            =>  $parametros['opcion']
-            );
+        } elseif ($id == 2) {
+            $datos = $this->ResumenFamilias($parametros);
+        } else {
+            $datos = [];
         }
-        $respuesta = array(
-            'datos' => $datos,
-            'cabecera' => $cabecera
+
+        $cabecera = array(
+            'id'             => $id,
+            'titulo_informe' => $this->informes[$id]['Titulo'],
+            'Fecha_Inicio'   => $parametros['Finicio'],
+            'Fecha_Final'    => $parametros['Ffinal'],
+            'opcion'         => $parametros['opcion']
         );
 
-
-        return $respuesta;
+        return array(
+            'datos'    => $datos,
+            'cabecera' => $cabecera
+        );
     }
 
     public function ResumenProveedores($parametros = array())
@@ -242,18 +241,145 @@ class ClaseInformes extends TFModelo
         return $valores;
     }
 
-    public function OpcionesInformes($id, $opcion)
+    public function ResumenFamilias($parametros = array())
     {
-        // @ Objetivo:
-        // Obtener datos necesarios para realizar los filtros necesarios, segun el informe y opcion recibidad.
-        // @ Parametros:
-        //  $id = int()
-        //  $opcion = int()
-        // @ Devolvemos
-        // Devolvemos un array con los datos necesarios para poder realizar el filtro.
+        // @ Objetivo
+        // Suma las líneas de albaranes de proveedor agrupadas por la jerarquía de familias
+        // (N1 = familia raíz, N2 = subfamilia) usando la vista vw_jerarquias_familias.
+        // @ Parámetros
+        //   Finicio  (Y-m-d)
+        //   Ffinal   (Y-m-d)
+        // @ Devuelve  array indexado de familias N1:
+        //   [ idN1, nombreN1, total_linea, num_referencias,
+        //     subfamilias => [ idN2, nombreN2, total_linea, num_referencias,
+        //                      articulos => [ idArticulo, totalUnidades, costeSiva,
+        //                                     coste_medio, num_compras, total_linea ] ] ]
 
-        // Creamos array con todos los informes y opciones posibles,
+        $BDTpv       = $this->conexionBDTPV();
+        $fechaInicio = $parametros['Finicio'];
+        $fechaFinal  = $parametros['Ffinal'];
 
-        return $respuesta;
+        $sql = "
+            SELECT
+                vj.idN1,
+                MAX(n1.familiaNombre)      AS nombreN1,
+                vj.idN2,
+                MAX(n2.familiaNombre)      AS nombreN2,
+                l.idArticulo,
+                l.costeSiva,
+                SUM(l.nunidades)           AS totalUnidades,
+                COUNT(DISTINCT l.idalbpro) AS num_albaranes
+            FROM albprolinea l
+            JOIN albprot a ON a.id = l.idalbpro
+            LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
+            LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
+            LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
+            LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
+            WHERE a.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+              AND l.estadoLinea <> 'Eliminado'
+            GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.costeSiva
+            ORDER BY nombreN1, nombreN2, l.idArticulo
+        ";
+
+        $smt    = $BDTpv->query($sql);
+        $lineas = [];
+        while ($row = $smt->fetch_assoc()) {
+            $lineas[] = $row;
+        }
+
+        // ── Construir estructura jerárquica ──────────────────────────────────
+        $familias = [];
+
+        foreach ($lineas as $fila) {
+            $idN1     = $fila['idN1'] !== null ? (int)$fila['idN1'] : '__sin_familia__';
+            $nombreN1 = $fila['nombreN1'] !== null ? $fila['nombreN1'] : 'Sin familia';
+            $idN2     = $fila['idN2'] !== null ? (int)$fila['idN2'] : null;
+            $keyN2    = $idN2 !== null ? $idN2 : '__sin_n2__';
+            $labelN2  = $idN2 !== null ? ($fila['nombreN2'] ?? 'Sin subfamilia') : '(Sin subfamilia)';
+            $idArt    = (int)$fila['idArticulo'];
+            $coste    = (float)$fila['costeSiva'];
+            $unidades = (float)$fila['totalUnidades'];
+
+            if (!isset($familias[$idN1])) {
+                $familias[$idN1] = [
+                    'idN1'        => $idN1,
+                    'nombreN1'    => $nombreN1,
+                    'subfamilias' => []
+                ];
+            }
+
+            if (!isset($familias[$idN1]['subfamilias'][$keyN2])) {
+                $familias[$idN1]['subfamilias'][$keyN2] = [
+                    'idN2'      => $idN2,
+                    'nombreN2'  => $labelN2,
+                    'articulos' => []
+                ];
+            }
+
+            $art = &$familias[$idN1]['subfamilias'][$keyN2]['articulos'][$idArt];
+
+            if (!isset($art['idArticulo'])) {
+                $art = [
+                    'idArticulo'    => $idArt,
+                    'totalUnidades' => $unidades,
+                    'costeSiva'     => $coste,
+                    'coste_medio'   => 'KO',
+                    'num_compras'   => (int)$fila['num_albaranes'],
+                    'total_linea'   => $unidades * $coste
+                ];
+            } else {
+                // Coste medio ponderado si el precio varió entre albaranes
+                if ($art['costeSiva'] != $coste) {
+                    $art['coste_medio'] = 'OK';
+                    $suma_unidades      = $art['totalUnidades'] + $unidades;
+                    if ($suma_unidades > 0) {
+                        $art['costeSiva'] = (
+                            ($art['totalUnidades'] * $art['costeSiva']) + ($unidades * $coste)
+                        ) / $suma_unidades;
+                    }
+                }
+                $art['totalUnidades'] += $unidades;
+                $art['num_compras']   += (int)$fila['num_albaranes'];
+                $art['total_linea']    = $art['totalUnidades'] * $art['costeSiva'];
+            }
+
+            unset($art);
+        }
+
+        // ── Calcular subtotales y reindexar ──────────────────────────────────
+        $resultado = [];
+        foreach ($familias as $familia) {
+            $totalN1 = 0;
+            $refsN1  = [];
+            $sfs     = [];
+
+            foreach ($familia['subfamilias'] as $sf) {
+                $arts    = array_values($sf['articulos']);
+                $totalN2 = 0;
+                foreach ($arts as $art) {
+                    $totalN2 += $art['total_linea'];
+                    $refsN1[$art['idArticulo']] = true;
+                }
+                $totalN1 += $totalN2;
+
+                $sfs[] = [
+                    'idN2'            => $sf['idN2'],
+                    'nombreN2'        => $sf['nombreN2'],
+                    'total_linea'     => $totalN2,
+                    'num_referencias' => count($arts),
+                    'articulos'       => $arts
+                ];
+            }
+
+            $resultado[] = [
+                'idN1'            => $familia['idN1'],
+                'nombreN1'        => $familia['nombreN1'],
+                'total_linea'     => $totalN1,
+                'num_referencias' => count($refsN1),
+                'subfamilias'     => $sfs
+            ];
+        }
+
+        return $resultado;
     }
 }
