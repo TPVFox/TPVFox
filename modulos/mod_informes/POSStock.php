@@ -241,7 +241,7 @@ foreach ($tiposParaChks as $ti) {
         var posstockPeriodoActivo = null;
     </script>
 
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js?v=0431-79" type="module"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js?v=0431-80" type="module"></script>
     <?php
     echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
     ?>

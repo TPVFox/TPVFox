@@ -154,12 +154,12 @@ class ClasePosstock
         string $where_ids
     ): array {
         $sql = "
-            SELECT tipo_movimiento, idArticulo, SUM(ncant) AS ncant, fecha, NULL AS idDocumento
+            SELECT tipo_movimiento, idArticulo, SUM(nunidades) AS nunidades, fecha, NULL AS idDocumento
             FROM (
                 SELECT
                     'entrada_proveedor'    AS tipo_movimiento,
                     l.idArticulo,
-                    l.ncant,
+                    l.nunidades,
                     DATE(c.Fecha)          AS fecha
                 FROM albprolinea l
                 INNER JOIN albprot      c ON c.id         = l.idalbpro
@@ -175,7 +175,7 @@ class ClasePosstock
                 SELECT
                     'salida_ticket'        AS tipo_movimiento,
                     l.idArticulo,
-                    l.ncant,
+                    l.nunidades,
                     DATE(c.Fecha)          AS fecha
                 FROM ticketslinea l
                 INNER JOIN ticketst     c ON c.id         = l.idticketst
@@ -191,7 +191,7 @@ class ClasePosstock
                 SELECT
                     'salida_albcli'        AS tipo_movimiento,
                     l.idArticulo,
-                    l.ncant,
+                    l.nunidades,
                     DATE(c.Fecha)          AS fecha
                 FROM albclilinea l
                 INNER JOIN albclit      c ON c.id         = l.idalbcli
@@ -216,14 +216,14 @@ class ClasePosstock
      * T4.2 — UNION ALL de movimientos en el rango de stock base.
      * Filtra solo los idArticulo indicados.
      *
-     * @return array  Filas raw (idArticulo, ncant_signo, tipo_mov, fecha) o ['error' => ...]
+     * @return array  Filas raw (idArticulo, nunidades_signo, tipo_mov, fecha) o ['error' => ...]
      */
     private function _queryStockBase(string $fi, string $ff, string $ids_str): array
     {
         $sql = "
             SELECT
                 idArticulo,
-                SUM(ncant_signo)                        AS saldo_acumulado,
+                SUM(nunidades_signo)                        AS saldo_acumulado,
                 MAX(CASE WHEN tipo_mov = 'entrada'
                          THEN fecha END)                AS ultima_compra,
                 MAX(CASE WHEN tipo_mov = 'salida'
@@ -233,7 +233,7 @@ class ClasePosstock
                 -- Entradas proveedor (positivo)
                 SELECT
                     l.idArticulo,
-                     l.ncant                            AS ncant_signo,
+                     l.nunidades                            AS nunidades_signo,
                     'entrada'                           AS tipo_mov,
                     DATE(c.Fecha)                       AS fecha
                 FROM albprolinea l
@@ -248,7 +248,7 @@ class ClasePosstock
                 -- Salidas tickets (negativo)
                 SELECT
                     l.idArticulo,
-                    -l.ncant                            AS ncant_signo,
+                    -l.nunidades                            AS nunidades_signo,
                     'salida'                            AS tipo_mov,
                     DATE(c.Fecha)                       AS fecha
                 FROM ticketslinea l
@@ -263,7 +263,7 @@ class ClasePosstock
                 -- Salidas albaranes cliente (negativo)
                 SELECT
                     l.idArticulo,
-                    -l.ncant                            AS ncant_signo,
+                    -l.nunidades                            AS nunidades_signo,
                     'salida'                            AS tipo_mov,
                     DATE(c.Fecha)                       AS fecha
                 FROM albclilinea l
@@ -364,23 +364,23 @@ class ClasePosstock
                 GROUP BY idArticulo
             ) AS base
             LEFT JOIN (
-                SELECT idArticulo, SUM(ncant_signo) AS net_posterior
+                SELECT idArticulo, SUM(nunidades_signo) AS net_posterior
                 FROM (
-                    SELECT l.idArticulo,  l.ncant AS ncant_signo
+                    SELECT l.idArticulo,  l.nunidades AS nunidades_signo
                     FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
                     WHERE DATE(c.Fecha) > '$ff_esc'
                       AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
                     UNION ALL
-                    SELECT l.idArticulo, -l.ncant AS ncant_signo
+                    SELECT l.idArticulo, -l.nunidades AS nunidades_signo
                     FROM ticketslinea l INNER JOIN ticketst c ON c.id = l.idticketst
                     WHERE DATE(c.Fecha) > '$ff_esc'
                       AND c.estado = 'Cerrado'
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
                     UNION ALL
-                    SELECT l.idArticulo, -l.ncant AS ncant_signo
+                    SELECT l.idArticulo, -l.nunidades AS nunidades_signo
                     FROM albclilinea l INNER JOIN albclit c ON c.id = l.idalbcli
                     WHERE DATE(c.Fecha) > '$ff_esc'
                       AND c.estado IN ('Guardado','Procesado')
@@ -503,7 +503,7 @@ class ClasePosstock
      * se suman también los albaranes de cliente (útil si representan ventas
      * reales recurrentes y no regularizaciones de stock).
      *
-     * @return array  Filas raw (idArticulo, fecha, ncant_dia) o ['error' => ...]
+     * @return array  Filas raw (idArticulo, fecha, nunidades_dia) o ['error' => ...]
      */
     private function _queryVentasCantidadesC6(
         string $fi,
@@ -515,9 +515,9 @@ class ClasePosstock
     ): array {
         if ($incluir_albcli) {
             $smt = $this->db->query("
-                SELECT idArticulo, fecha, SUM(ncant) AS ncant_dia
+                SELECT idArticulo, fecha, SUM(nunidades) AS nunidades_dia
                 FROM (
-                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant
+                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades
                     FROM ticketslinea l
                     INNER JOIN ticketst  c ON c.id = l.idticketst
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -527,7 +527,7 @@ class ClasePosstock
                                             $where_fam
                                             $where_ids
                     UNION ALL
-                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant
+                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades
                     FROM albclilinea l
                     INNER JOIN albclit   c ON c.id = l.idalbcli
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -542,7 +542,7 @@ class ClasePosstock
             ");
         } else {
             $smt = $this->db->query("
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS ncant_dia
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades_dia
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id = l.idticketst
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -703,14 +703,14 @@ class ClasePosstock
         if (empty($ids_str)) return [];
 
         // Frecuencia: proveedor con más albaranes distintos que incluyen el artículo.
-        // Desempate: mayor volumen total comprado (SUM ncant); segundo desempate: albarán más reciente.
+        // Desempate: mayor volumen total comprado (SUM nunidades); segundo desempate: albarán más reciente.
         $smt = $this->db->query("
             SELECT
                 l.idArticulo,
                 c.idProveedor,
                 p.nombrecomercial           AS nombre,
                 COUNT(DISTINCT c.id)        AS n_albaranes,
-                SUM(ABS(l.ncant))           AS cantidad_total,
+                SUM(ABS(l.nunidades))           AS cantidad_total,
                 MAX(DATE(c.Fecha))          AS ultima_fecha
             FROM albprolinea l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
@@ -759,7 +759,7 @@ class ClasePosstock
 
     /**
      * C7b-011: precio medio ponderado de compra por artículo en la ventana dada.
-     * Fórmula: SUM(costeSiva × ncant) / SUM(ncant) sobre albaranes confirmados.
+     * Fórmula: SUM(costeSiva × nunidades) / SUM(nunidades) sobre albaranes confirmados.
      * Devuelve [idArticulo => precio_medio_compra].
      */
     private function _queryPrecioMedioCompra(string $ids_str, string $fi, string $ff): array
@@ -769,14 +769,14 @@ class ClasePosstock
         $smt = $this->db->query("
             SELECT
                 l.idArticulo,
-                SUM(l.costeSiva * l.ncant) / NULLIF(SUM(l.ncant), 0) AS precio_medio
+                SUM(l.costeSiva * l.nunidades) / NULLIF(SUM(l.nunidades), 0) AS precio_medio
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
-              AND l.ncant       > 0
+              AND l.nunidades       > 0
             GROUP BY l.idArticulo
         ");
         if (!$smt) return [];
@@ -822,7 +822,7 @@ class ClasePosstock
                         FROM (
                             SELECT idArticulo, fecha, SUM(delta) AS day_delta
                             FROM (
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
                                 FROM albprolinea l
                                 INNER JOIN albprot    c ON c.id        = l.idalbpro
                                 INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
@@ -831,7 +831,7 @@ class ClasePosstock
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
                                 UNION ALL
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id        = l.idticketst
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -840,7 +840,7 @@ class ClasePosstock
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
                                 UNION ALL
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
                                 FROM albclilinea l
                                 INNER JOIN albclit   c ON c.id        = l.idalbcli
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -868,7 +868,7 @@ class ClasePosstock
      * C2 — Entradas de proveedor con su suma acumulada de movimientos anteriores
      * calculada mediante window function (SUM OVER ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING).
      *
-     * @return array  Filas raw (idArticulo, fecha, ncant, cum_before) o ['error' => ...]
+     * @return array  Filas raw (idArticulo, fecha, nunidades, cum_before) o ['error' => ...]
      */
     private function _queryEntradasC2(
         string $fi,
@@ -877,18 +877,18 @@ class ClasePosstock
         string $wi
     ): array {
         $sql = "
-            SELECT e.idArticulo, e.fecha, e.ncant,
+            SELECT e.idArticulo, e.fecha, e.nunidades,
                    COALESCE(r.cum_before, 0) AS cum_before
             FROM (
                 -- Entradas positivas de proveedor agrupadas por artículo y fecha
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS ncant
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
-                  AND l.ncant       > 0
+                  AND l.nunidades       > 0
                   $wf $wi
                 GROUP BY l.idArticulo, DATE(c.Fecha)
             ) AS e
@@ -902,7 +902,7 @@ class ClasePosstock
                 FROM (
                     SELECT idArticulo, fecha, SUM(delta) AS day_delta
                     FROM (
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
                         FROM albprolinea l
                         INNER JOIN albprot    c ON c.id        = l.idalbpro
                         INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
@@ -911,7 +911,7 @@ class ClasePosstock
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
                         UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
                         FROM ticketslinea l
                         INNER JOIN ticketst  c ON c.id        = l.idticketst
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -920,7 +920,7 @@ class ClasePosstock
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
                         UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.ncant AS delta
+                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
                         FROM albclilinea l
                         INNER JOIN albclit   c ON c.id        = l.idalbcli
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -971,11 +971,11 @@ class ClasePosstock
                    ent.cantidad_devuelta
             FROM (
                 SELECT l.idArticulo,
-                       COUNT(DISTINCT CASE WHEN l.ncant > 0 THEN c.id END)        AS n_entradas,
-                       SUM(CASE WHEN l.ncant > 0 THEN l.ncant ELSE 0 END)         AS cantidad_recibida,
-                       MIN(CASE WHEN l.ncant > 0 THEN DATE(c.Fecha) END)          AS fecha_primera_entrada,
-                       COUNT(DISTINCT CASE WHEN l.ncant < 0 THEN c.id END)        AS n_devoluciones,
-                       SUM(CASE WHEN l.ncant < 0 THEN ABS(l.ncant) ELSE 0 END)   AS cantidad_devuelta
+                       COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END)        AS n_entradas,
+                       SUM(CASE WHEN l.nunidades > 0 THEN l.nunidades ELSE 0 END)         AS cantidad_recibida,
+                       MIN(CASE WHEN l.nunidades > 0 THEN DATE(c.Fecha) END)          AS fecha_primera_entrada,
+                       COUNT(DISTINCT CASE WHEN l.nunidades < 0 THEN c.id END)        AS n_devoluciones,
+                       SUM(CASE WHEN l.nunidades < 0 THEN ABS(l.nunidades) ELSE 0 END)   AS cantidad_devuelta
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
@@ -985,7 +985,7 @@ class ClasePosstock
                   AND a.tipo        IN ($tipos)
                   $wf $wi
                 GROUP BY l.idArticulo
-                HAVING COUNT(DISTINCT CASE WHEN l.ncant > 0 THEN c.id END) > 0
+                HAVING COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END) > 0
             ) AS ent
             LEFT JOIN (
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
@@ -1050,14 +1050,14 @@ class ClasePosstock
         string $wi
     ): array {
         $sql = "
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS cantidad
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS cantidad
             FROM albprolinea l
             INNER JOIN albprot c  ON c.id = l.idalbpro
             INNER JOIN articulos a ON a.idArticulo = l.idArticulo
             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
               AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
-              AND l.ncant > 0
+              AND l.nunidades > 0
               $wf $wi
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
@@ -1112,7 +1112,7 @@ class ClasePosstock
         $sql = "
             SELECT idArticulo, fecha, SUM(delta) AS day_delta
             FROM (
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.ncant AS delta
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
                 FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
@@ -1120,7 +1120,7 @@ class ClasePosstock
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
                 UNION ALL
-                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, -l.ncant AS delta
+                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, -l.nunidades AS delta
                 FROM ticketslinea l
                 INNER JOIN ticketst t ON t.id = l.idticketst
                 WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
@@ -1128,7 +1128,7 @@ class ClasePosstock
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
                 UNION ALL
-                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.ncant AS delta
+                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.nunidades AS delta
                 FROM albclilinea l
                 INNER JOIN albclit a ON a.id = l.idalbcli
                 WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
@@ -1152,7 +1152,7 @@ class ClasePosstock
     // ══════════════════════════════════════════════════════════════════════
 
     /**
-     * C9 paso 1 — Recepciones reales (proveedor no especial, ncant>0) por artículo.
+     * C9 paso 1 — Recepciones reales (proveedor no especial, nunidades>0) por artículo.
      * Variante de _queryRecepcionesFechasC7 que excluye proveedores especiales y amplía
      * el rango hasta ff_post para capturar la primera recepción post-periodo (cierre del
      * último ciclo analizable).
@@ -1179,7 +1179,7 @@ class ClasePosstock
             SELECT
                 l.idArticulo,
                 DATE(c.Fecha)            AS fecha,
-                SUM(l.ncant)             AS cantidad,
+                SUM(l.nunidades)         AS cantidad,
                 DATE(c.Fecha) > '$ff_esc' AS es_post_periodo
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
@@ -1188,7 +1188,7 @@ class ClasePosstock
             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
-              AND l.ncant        > 0
+              AND l.nunidades    > 0
               AND p.estado      != 'Especial'
               $wf $wi
             GROUP BY l.idArticulo, DATE(c.Fecha)
@@ -1203,7 +1203,7 @@ class ClasePosstock
     }
 
     /**
-     * C9 paso 1b — Devoluciones ordinarias a proveedor (ncant < 0, proveedor no especial).
+     * C9 paso 1b — Devoluciones ordinarias a proveedor (nunidades < 0, proveedor no especial).
      * Devuelve la cantidad devuelta (valor absoluto) por artículo y fecha.
      * Se usa en _calcularLotesC9 para netear E_t de cada lote.
      *
@@ -1222,14 +1222,14 @@ class ClasePosstock
             SELECT
                 l.idArticulo,
                 DATE(c.Fecha)          AS fecha,
-                SUM(ABS(l.ncant))      AS devolucion
+                SUM(ABS(l.nunidades))  AS devolucion
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
-              AND l.ncant        < 0
+              AND l.nunidades    < 0
               AND p.estado      != 'Especial'
               AND l.idArticulo   IN ($ids_str)
             GROUP BY l.idArticulo, DATE(c.Fecha)
@@ -1259,7 +1259,7 @@ class ClasePosstock
         $sql = "
             SELECT idArticulo, fecha, SUM(delta) AS day_delta
             FROM (
-                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.ncant AS delta
+                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.nunidades AS delta
                 FROM ticketslinea l
                 INNER JOIN ticketst t ON t.id = l.idticketst
                 WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
@@ -1267,7 +1267,7 @@ class ClasePosstock
                   AND l.estadoLinea  = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
                 UNION ALL
-                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.ncant AS delta
+                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.nunidades AS delta
                 FROM albclilinea l
                 INNER JOIN albclit  a  ON a.id         = l.idalbcli
                 INNER JOIN clientes cl ON cl.idClientes = a.idCliente
@@ -1294,7 +1294,7 @@ class ClasePosstock
      *   - Mezcla de signos en el mismo albarán → cruce (excluir del flujo).
      *   - Todas las líneas negativas → merma declarada (acumular aparte).
      *
-     * @return array  Filas [{idArticulo, fecha, ncant, idAlbaran}] o ['error'=>...]
+     * @return array  Filas [{idArticulo, fecha, nunidades, idAlbaran}] o ['error'=>...]
      */
     private function _queryAlbaranesProvEspecialesC9(
         string $fi,
@@ -1309,7 +1309,7 @@ class ClasePosstock
             SELECT
                 l.idArticulo,
                 DATE(c.Fecha) AS fecha,
-                l.ncant,
+                l.nunidades    AS nunidades,
                 c.id          AS idAlbaran
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
@@ -1349,7 +1349,7 @@ class ClasePosstock
         // Devuelve líneas individuales con idAlbaran para poder detectar cruces
         // intra-albarán (signos mixtos por artículo) igual que el lado proveedor.
         $sql = "
-            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.ncant, a.id AS idAlbaran
+            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.nunidades AS nunidades, a.id AS idAlbaran
             FROM albclilinea l
             INNER JOIN albclit  a  ON a.id         = l.idalbcli
             INNER JOIN clientes cl ON cl.idClientes = a.idCliente
@@ -1459,7 +1459,7 @@ class ClasePosstock
      *
      * Cuando el stock rebobinado está muy por debajo de -2 (errores de inventario,
      * pesajes mal registrados, etc.) este método ofrece una estimación más fiable:
-     *   stock_reconstituido = ncant_última_entrada − ventas_desde_esa_entrada_hasta_ff_esc
+     *   stock_reconstituido = nunidades_última_entrada − ventas_desde_esa_entrada_hasta_ff_esc
      *
      * Solo se aplica a los artículos cuyo stock rebobinado < STOCK_NEGATIVO_UMBRAL.
      *
@@ -1471,12 +1471,12 @@ class ClasePosstock
     {
         $smt = $this->db->query("
             SELECT e.idArticulo,
-                   e.ncant_entrada - COALESCE(SUM(v.ncant), 0) AS stock_reconstituido
+                   e.nunidades_entrada - COALESCE(SUM(v.nunidades), 0) AS stock_reconstituido
             FROM (
                 -- Última línea de albarán de proveedor (ROW_NUMBER garantiza exactamente una por artículo)
-                SELECT ult.idArticulo, ult.ncant AS ncant_entrada, DATE(cab.Fecha) AS fecha_entrada
+                SELECT ult.idArticulo, ult.nunidades AS nunidades_entrada, DATE(cab.Fecha) AS fecha_entrada
                 FROM (
-                    SELECT l.idArticulo, l.ncant, l.idalbpro,
+                    SELECT l.idArticulo, l.nunidades, l.idalbpro,
                            ROW_NUMBER() OVER (PARTITION BY l.idArticulo ORDER BY h.Fecha DESC, l.id DESC) AS rn
                     FROM albprolinea l
                     INNER JOIN albprot h ON h.id = l.idalbpro
@@ -1489,7 +1489,7 @@ class ClasePosstock
             ) e
             LEFT JOIN (
                 -- Ventas por ticket hasta ff_esc (sin albcli: solo salidas reales de caja)
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha_venta, l.ncant
+                SELECT l.idArticulo, DATE(c.Fecha) AS fecha_venta, l.nunidades
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids_str)
@@ -1498,7 +1498,7 @@ class ClasePosstock
                   AND DATE(c.Fecha) <= '$ff_esc'
             ) v ON v.idArticulo = e.idArticulo
                 AND v.fecha_venta >= e.fecha_entrada
-            GROUP BY e.idArticulo, e.ncant_entrada
+            GROUP BY e.idArticulo, e.nunidades_entrada
         ");
         if (!$smt) return ['error' => $this->db->error];
         $result = [];
@@ -1660,7 +1660,7 @@ class ClasePosstock
      *
      * @return array  Filas con:
      *   tipo_movimiento ('entrada_proveedor' | 'salida_ticket' | 'salida_albcli'),
-     *   idArticulo, ncant, fecha (DATE), idDocumento
+     *   idArticulo, nunidades, fecha (DATE), idDocumento
      *   — o array con clave 'error' si falla la consulta.
      */
     public function getMovimientosPeriodo($fecha_inicio, $fecha_fin, array $familias_incluir = [], array $familias_excluir = [], array $ids_filter = [])
@@ -1743,7 +1743,7 @@ class ClasePosstock
      * @param array $stock_base   Resultado de getStockBase(), indexado por idArticulo
      *
      * @return array  Una entrada por cada fila entrada_proveedor con:
-     *   idArticulo, idDocumento, fecha, ncant,
+     *   idArticulo, idDocumento, fecha, nunidades,
      *   stock_previo, stock_tras_ultimo_albaran
      */
     public function calcularStockPrevio(array $movimientos, array $stock_base): array
@@ -1772,7 +1772,7 @@ class ClasePosstock
             foreach ($movs as $m) {
                 $signo = ($m['tipo_movimiento'] === 'entrada_proveedor') ? 1.0 : -1.0;
                 $delta_por_fecha[$m['fecha']] = ($delta_por_fecha[$m['fecha']] ?? 0.0)
-                    + $signo * (float)$m['ncant'];
+                    + $signo * (float)$m['nunidades'];
             }
             ksort($delta_por_fecha); // orden cronológico
 
@@ -1799,7 +1799,7 @@ class ClasePosstock
                     'idArticulo'               => $idArticulo,
                     'idDocumento'              => $entrada['idDocumento'],
                     'fecha'                    => $entrada['fecha'],
-                    'ncant'                    => (float)$entrada['ncant'],
+                    'nunidades'                    => (float)$entrada['nunidades'],
                     'stock_previo'             => $saldo_inicio_dia[$entrada['fecha']] ?? $saldo_base_art,
                     'stock_tras_ultimo_albaran' => $saldo_tras_ultima,
                 ];
@@ -2199,8 +2199,10 @@ class ClasePosstock
         // ── Marcar stock_no_fiable en C5/C6 cuando el artículo tiene C1a activo ──
         if (!empty($ids_con_c1a)) {
             foreach ($incidencias as &$inc) {
-                if (isset($ids_con_c1a[$inc['idArticulo']]) &&
-                    in_array($inc['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)) {
+                if (
+                    isset($ids_con_c1a[$inc['idArticulo']]) &&
+                    in_array($inc['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)
+                ) {
                     $inc['stock_no_fiable'] = true;
                 }
             }
@@ -3341,10 +3343,10 @@ class ClasePosstock
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
-        // $ventas_cant[idArticulo][fecha] = ncant_dia  (float)
+        // $ventas_cant[idArticulo][fecha] = nunidades_dia  (float)
         $ventas_cant = [];
         foreach ($rows_ventas as $r) {
-            $ventas_cant[(int)$r['idArticulo']][$r['fecha']] = (float)$r['ncant_dia'];
+            $ventas_cant[(int)$r['idArticulo']][$r['fecha']] = (float)$r['nunidades_dia'];
         }
 
         // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
@@ -3895,7 +3897,7 @@ class ClasePosstock
      * Usa window function SQL (SUM OVER ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
      * para calcular el stock antes de cada fecha de entrada, sin calcularStockPrevio en PHP.
      *
-     * C2 MEDIA — stock_previo >= ncant * umbral_sobrestock
+     * C2 MEDIA — stock_previo >= nunidades * umbral_sobrestock
      */
     /**
      * Ventas por ticket en el periodo para los artículos candidatos de C2.
@@ -3905,7 +3907,7 @@ class ClasePosstock
     {
         if (empty($ids)) return [];
         $smt = $this->db->query("
-            SELECT l.idArticulo, SUM(l.ncant) AS ventas_total
+            SELECT l.idArticulo, SUM(l.nunidades) AS ventas_total
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
             WHERE l.idArticulo IN ($ids)
@@ -3925,7 +3927,7 @@ class ClasePosstock
     /**
      * Enriquece cada incidencia C2 con datos de la recepción anterior al evento:
      *   - dias_desde_anterior  : días entre la recepción anterior y la actual (null si no hay)
-     *   - ncant_anterior       : cantidad de la recepción anterior (null si no hay)
+     *   - nunidades_anterior       : cantidad de la recepción anterior (null si no hay)
      *   - ventas_entre_recepciones : unidades vendidas por ticket entre ambas recepciones (null si no hay anterior)
      * Busca recepciones hasta 90 días antes de fi para cubrir el primer pedido del periodo.
      */
@@ -3939,27 +3941,27 @@ class ClasePosstock
 
         // ── Todas las recepciones del periodo extendido ───────────────────────
         $smt = $this->db->query("
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS ncant
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
-              AND l.ncant       > 0
+              AND l.nunidades       > 0
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
         ");
         $rec_por_art = [];
         if ($smt) {
             while ($r = $smt->fetch_assoc()) {
-                $rec_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'ncant' => (float)$r['ncant']];
+                $rec_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'nunidades' => (float)$r['nunidades']];
             }
         }
 
         // ── Ventas por ticket, por día, del periodo extendido ─────────────────
         $smt2 = $this->db->query("
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.ncant) AS qty
+            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS qty
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
             WHERE l.idArticulo IN ($ids_str)
@@ -3990,7 +3992,7 @@ class ClasePosstock
             if ($anterior !== null) {
                 $dias = (int)((strtotime($fecha_actual) - strtotime($anterior['fecha'])) / 86400);
                 $inc['dias_desde_anterior'] = $dias;
-                $inc['ncant_anterior']      = $anterior['ncant'];
+                $inc['nunidades_anterior']      = $anterior['nunidades'];
 
                 $ventas_entre = 0.0;
                 foreach ($vtas_por_art[$id] ?? [] as $v) {
@@ -4001,7 +4003,7 @@ class ClasePosstock
                 $inc['ventas_entre_recepciones'] = $ventas_entre;
             } else {
                 $inc['dias_desde_anterior']      = null;
-                $inc['ncant_anterior']            = null;
+                $inc['nunidades_anterior']            = null;
                 $inc['ventas_entre_recepciones']  = null;
             }
         }
@@ -4046,10 +4048,10 @@ class ClasePosstock
             $id           = (int)$e['idArticulo'];
             $saldo_base   = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
             $stock_previo = $saldo_base + (float)$e['cum_before'];
-            $ncant        = (float)$e['ncant'];
-            if ($ncant <= 0 || $stock_previo < $ncant * $umbral_sobrestock) continue;
+            $nunidades        = (float)$e['nunidades'];
+            if ($nunidades <= 0 || $stock_previo < $nunidades * $umbral_sobrestock) continue;
 
-            $ratio = $stock_previo / $ncant;
+            $ratio = $stock_previo / $nunidades;
             if ($ratio <= $umbral_duplicado) {
                 $categoria     = 'duplicado';
                 $posible_causa = 'Stock disponible similar a la entrada recibida: el pedido podría no estar justificado';
@@ -4065,7 +4067,7 @@ class ClasePosstock
                 'idArticulo'    => $id,
                 'tipo'          => 'Entrada con stock alto',
                 'severidad'     => 'MEDIA',
-                'ncant'         => $ncant,
+                'nunidades'         => $nunidades,
                 'stock_previo'  => $stock_previo,
                 'ratio'         => round($ratio, 2),
                 'c2_categoria'  => $categoria,
@@ -4100,17 +4102,17 @@ class ClasePosstock
         // ── Paso 4: reasignar severidad y posible_causa con todas las señales ─
         foreach ($incidencias as &$inc) {
             $dias    = $inc['dias_desde_anterior'];
-            $ncant_a = $inc['ncant_anterior'];
+            $nunidades_a = $inc['nunidades_anterior'];
             $vtr     = $inc['ventas_entre_recepciones'];
             $cob     = $inc['cobertura_dias'];
 
             // Duplicado probable: mismo día o día anterior + cantidad similar (diferencia < 15%)
-            $es_duplicado_probable = $dias !== null && $dias <= 1 && $ncant_a !== null
-                && (abs($inc['ncant'] - $ncant_a) / max($inc['ncant'], $ncant_a)) < 0.15;
+            $es_duplicado_probable = $dias !== null && $dias <= 1 && $nunidades_a !== null
+                && (abs($inc['nunidades'] - $nunidades_a) / max($inc['nunidades'], $nunidades_a)) < 0.15;
 
             // Posible duplicado: hasta 3 días + cantidad similar (señal más débil)
-            $es_duplicado_posible = !$es_duplicado_probable && $dias !== null && $dias <= 3 && $ncant_a !== null
-                && (abs($inc['ncant'] - $ncant_a) / max($inc['ncant'], $ncant_a)) < 0.15;
+            $es_duplicado_posible = !$es_duplicado_probable && $dias !== null && $dias <= 3 && $nunidades_a !== null
+                && (abs($inc['nunidades'] - $nunidades_a) / max($inc['nunidades'], $nunidades_a)) < 0.15;
 
             // Severidad
             if ($cob === null || $es_duplicado_probable) {
@@ -4187,7 +4189,7 @@ class ClasePosstock
                         'idArticulo'               => $idArt,
                         'tipo'                     => 'Entrada con stock alto',
                         'severidad'                => 'ALTA',
-                        'ncant'                    => $ultimo['ncant'],
+                        'nunidades'                    => $ultimo['nunidades'],
                         'stock_previo'             => $stock_max,
                         'ratio'                    => $ultimo['ratio'],
                         'c2_categoria'             => 'acumulacion',
@@ -4197,7 +4199,7 @@ class ClasePosstock
                         'gap_medio'                => $gap_medio,
                         'cobertura_dias'           => $ultimo['cobertura_dias'],
                         'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
-                        'ncant_anterior'           => $ultimo['ncant_anterior'],
+                        'nunidades_anterior'           => $ultimo['nunidades_anterior'],
                         'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
                         'posible_causa'            => $causa,
                     ];
@@ -4251,7 +4253,7 @@ class ClasePosstock
                             'idArticulo'               => $idArt,
                             'tipo'                     => 'Entrada con stock alto',
                             'severidad'                => 'ALTA',
-                            'ncant'                    => $ultimo['ncant'],
+                            'nunidades'                    => $ultimo['nunidades'],
                             'stock_previo'             => $stock_max,
                             'ratio'                    => $ultimo['ratio'],
                             'c2_categoria'             => 'tendencia',
@@ -4261,7 +4263,7 @@ class ClasePosstock
                             'cobertura_inicio'         => $cob_ini,
                             'cobertura_dias'           => $cob_fin,
                             'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
-                            'ncant_anterior'           => $ultimo['ncant_anterior'],
+                            'nunidades_anterior'           => $ultimo['nunidades_anterior'],
                             'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
                             'posible_causa'            => "Sobrestock progresivo: la cobertura creció de {$cob_ini} a {$cob_fin} días en {$n} entregas — el ritmo de pedidos supera sistemáticamente las ventas",
                         ];
@@ -4869,7 +4871,10 @@ class ClasePosstock
             // El bootstrap O(n²) puede tardar segundos por artículo; con muchos artículos
             // el tiempo total supera el wait_timeout del servidor.
             if (++$ping_contador % $ping_cada_n === 0) {
-                try { $this->db->ping(); } catch (\mysqli_sql_exception $e) { /* ignorar */ }
+                try {
+                    $this->db->ping();
+                } catch (\mysqli_sql_exception $e) { /* ignorar */
+                }
             }
             $fechas_rec = $recepciones_map[$id];
             $daily      = $daily_map[$id] ?? [];
@@ -4940,8 +4945,10 @@ class ClasePosstock
             // Periodo análisis: [fi_mov,   ff_mov]  — ventana de análisis solicitada.
             // Prioridad del test IC95: base (más largo, libre del evento analizado);
             // si base < 3 floors se usa el periodo de análisis.
-            $floors_base     = []; $dias_base     = [];
-            $floors_analysis = []; $dias_analysis = [];
+            $floors_base     = [];
+            $dias_base     = [];
+            $floors_analysis = [];
+            $dias_analysis = [];
             foreach ($fechas_floors as $idx => $fd) {
                 if ($fd < $fi_mov) {
                     $floors_base[]    = $floors[$idx];
@@ -4982,7 +4989,9 @@ class ClasePosstock
                 for ($i = 1; $i < $n_floors; $i++) {
                     $cov_lag1_c7a += ($floors_norm_all[$i] - $mean_norm_all) * ($floors_norm_all[$i - 1] - $mean_norm_all);
                 }
-                foreach ($floors_norm_all as $fnv) { $var_norm_all += ($fnv - $mean_norm_all) ** 2; }
+                foreach ($floors_norm_all as $fnv) {
+                    $var_norm_all += ($fnv - $mean_norm_all) ** 2;
+                }
                 $cov_lag1_c7a /= ($n_floors - 1);
                 $var_norm_all /= ($n_floors - 1);
                 if ($var_norm_all > 1e-12) {
@@ -5000,9 +5009,21 @@ class ClasePosstock
 
             // ── Tabla t_{df, 0.975} ──────────────────────────────────────────
             static $t_975_tab = [
-                1 => 12.706, 2 => 4.303, 3 => 3.182, 4 => 2.776, 5 => 2.571,
-                6 => 2.447,  7 => 2.365, 8 => 2.306, 9 => 2.262, 10 => 2.228,
-                15 => 2.131, 20 => 2.086, 30 => 2.042, 60 => 2.000, 120 => 1.980,
+                1 => 12.706,
+                2 => 4.303,
+                3 => 3.182,
+                4 => 2.776,
+                5 => 2.571,
+                6 => 2.447,
+                7 => 2.365,
+                8 => 2.306,
+                9 => 2.262,
+                10 => 2.228,
+                15 => 2.131,
+                20 => 2.086,
+                30 => 2.042,
+                60 => 2.000,
+                120 => 1.980,
             ];
 
             // ── Selección del conjunto de floors para el test IC95 ───────────
@@ -5076,7 +5097,9 @@ class ClasePosstock
 
                 // dispersión bruta para el campo 'dispersion' del array de salida
                 $variance_raw_c7a = 0.0;
-                foreach ($floors as $f) { $variance_raw_c7a += ($f - $mean_raw) ** 2; }
+                foreach ($floors as $f) {
+                    $variance_raw_c7a += ($f - $mean_raw) ** 2;
+                }
                 $std_dev_raw_c7a = $n_floors > 1 ? sqrt($variance_raw_c7a / ($n_floors - 1)) : 0.0;
 
                 $snr_c7a = ($std_dev_raw_c7a > 0.0)
@@ -5114,9 +5137,21 @@ class ClasePosstock
                                 $cascade_nivel_act = 2;
                             } else {
                                 static $t_tab_nw = [
-                                    1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132, 5 => 2.015,
-                                    6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
-                                    15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
+                                    1 => 6.314,
+                                    2 => 2.920,
+                                    3 => 2.353,
+                                    4 => 2.132,
+                                    5 => 2.015,
+                                    6 => 1.943,
+                                    7 => 1.895,
+                                    8 => 1.860,
+                                    9 => 1.833,
+                                    10 => 1.812,
+                                    15 => 1.753,
+                                    20 => 1.725,
+                                    30 => 1.697,
+                                    60 => 1.671,
+                                    120 => 1.658,
                                 ];
                                 $df_nw = max(1, $n_floors - 2);
                                 if ($df_nw > 120) {
@@ -5136,7 +5171,8 @@ class ClasePosstock
                                 }
                                 $ic95_low_nw = $slope_norm - $t_crit_nw * $se_corr_c7a;
                                 if ($ic95_low_nw > 0.0) {
-                                    $c7a_confianza = 'alta'; $c7a_cascade_nivel = 1;
+                                    $c7a_confianza = 'alta';
+                                    $c7a_cascade_nivel = 1;
                                     $cascade_nivel_act = 0;
                                 } else {
                                     // IC95 incluye 0 → Bootstrap (robusto a posible no-normalidad)
@@ -5150,134 +5186,140 @@ class ClasePosstock
                                 }
                             }
 
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
-                        // No paramétrico; no asume distribución ni linealidad.
-                        // Robusto a outliers. Requiere n ≥ 8 para IC estable.
-                        // ═══════════════════════════════════════════════════════
+                            // ═══════════════════════════════════════════════════════
+                            // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99 (C7a-019b)
+                            // No paramétrico; no asume distribución ni linealidad.
+                            // Robusto a outliers. Requiere n ≥ 8 para IC estable.
+                            // ═══════════════════════════════════════════════════════
                         } elseif ($cascade_nivel_act === 2) {
                             if ($n_floors < 8) {
                                 $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
                                     . 'n<8_skip_bootstrap';
                                 $cascade_nivel_act = 3;
                             } else {
-                            // Iteraciones adaptativas: reducir B para n grande ahorra tiempo
-                            // sin perder precisión relevante (SE_boot ∝ 1/√B).
-                            $B_boot     = $n_floors >= 30 ? 299 : ($n_floors >= 20 ? 499 : 999);
-                            $boot_betas = [];
-                            for ($b = 0; $b < $B_boot; $b++) {
-                                $idx_b = [];
-                                for ($k = 0; $k < $n_floors; $k++) {
-                                    $idx_b[] = mt_rand(0, $n_floors - 1);
-                                }
-                                sort($idx_b);
-                                $f_b = [];
-                                foreach ($idx_b as $ki) { $f_b[] = $floors_norm_all[$ki]; }
-                                $bp = [];
-                                $nb = count($f_b);
-                                for ($i = 0; $i < $nb; $i++) {
-                                    for ($j = $i + 1; $j < $nb; $j++) {
-                                        $bp[] = ($f_b[$j] - $f_b[$i]) / ($j - $i);
+                                // Iteraciones adaptativas: reducir B para n grande ahorra tiempo
+                                // sin perder precisión relevante (SE_boot ∝ 1/√B).
+                                $B_boot     = $n_floors >= 30 ? 299 : ($n_floors >= 20 ? 499 : 999);
+                                $boot_betas = [];
+                                for ($b = 0; $b < $B_boot; $b++) {
+                                    $idx_b = [];
+                                    for ($k = 0; $k < $n_floors; $k++) {
+                                        $idx_b[] = mt_rand(0, $n_floors - 1);
+                                    }
+                                    sort($idx_b);
+                                    $f_b = [];
+                                    foreach ($idx_b as $ki) {
+                                        $f_b[] = $floors_norm_all[$ki];
+                                    }
+                                    $bp = [];
+                                    $nb = count($f_b);
+                                    for ($i = 0; $i < $nb; $i++) {
+                                        for ($j = $i + 1; $j < $nb; $j++) {
+                                            $bp[] = ($f_b[$j] - $f_b[$i]) / ($j - $i);
+                                        }
+                                    }
+                                    if (!empty($bp)) {
+                                        sort($bp);
+                                        $np = count($bp);
+                                        $boot_betas[] = $np % 2 === 1
+                                            ? $bp[intdiv($np, 2)]
+                                            : ($bp[$np / 2 - 1] + $bp[$np / 2]) / 2.0;
                                     }
                                 }
-                                if (!empty($bp)) {
-                                    sort($bp);
-                                    $np = count($bp);
-                                    $boot_betas[] = $np % 2 === 1
-                                        ? $bp[intdiv($np, 2)]
-                                        : ($bp[$np / 2 - 1] + $bp[$np / 2]) / 2.0;
-                                }
-                            }
-                            if (!empty($boot_betas)) {
-                                sort($boot_betas);
-                                $nb_s     = count($boot_betas);
-                                $ic99_low = $boot_betas[(int)round(0.005 * ($nb_s - 1))];
-                                // detectar colapso de varianza (Tipo B)
-                                $mean_boot = array_sum($boot_betas) / $nb_s;
-                                $var_boot  = 0.0;
-                                foreach ($boot_betas as $bs) { $var_boot += ($bs - $mean_boot) ** 2; }
-                                $var_boot /= $nb_s;
+                                if (!empty($boot_betas)) {
+                                    sort($boot_betas);
+                                    $nb_s     = count($boot_betas);
+                                    $ic99_low = $boot_betas[(int)round(0.005 * ($nb_s - 1))];
+                                    // detectar colapso de varianza (Tipo B)
+                                    $mean_boot = array_sum($boot_betas) / $nb_s;
+                                    $var_boot  = 0.0;
+                                    foreach ($boot_betas as $bs) {
+                                        $var_boot += ($bs - $mean_boot) ** 2;
+                                    }
+                                    $var_boot /= $nb_s;
 
-                                if ($var_boot < 1e-12) {
-                                    $cascade_nivel_act = 3;   // Tipo B: varianza bootstrap colapsa
-                                } elseif ($ic99_low > 0.0) {
-                                    $c7a_confianza = 'media'; $c7a_cascade_nivel = 2;
-                                    $cascade_nivel_act = 0;
-                                } else {
-                                    if ($c7a_cascada_exhaustiva) {
-                                        $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
-                                            . 'bootstrap_ic99_ns(ic99_low=' . round($ic99_low, 3) . ')';
-                                        $cascade_nivel_act = 3;
+                                    if ($var_boot < 1e-12) {
+                                        $cascade_nivel_act = 3;   // Tipo B: varianza bootstrap colapsa
+                                    } elseif ($ic99_low > 0.0) {
+                                        $c7a_confianza = 'media';
+                                        $c7a_cascade_nivel = 2;
+                                        $cascade_nivel_act = 0;
                                     } else {
-                                        $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                        if ($c7a_cascada_exhaustiva) {
+                                            $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                                . 'bootstrap_ic99_ns(ic99_low=' . round($ic99_low, 3) . ')';
+                                            $cascade_nivel_act = 3;
+                                        } else {
+                                            $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                        }
                                     }
+                                } else {
+                                    $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
                                 }
-                            } else {
-                                $cascade_nivel_act = 3;       // sin slopes bootstrap → Tipo B
-                            }
                             } // end else n >= 8
 
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 3 · MANN-KENDALL con Hamed & Rao (C7a-019c)
-                        // No paramétrico; corrige autocorrelación lag-1.
-                        // Válido para n ∈ [4, 20]: fuera de ese rango MK pierde
-                        // discriminación (n<4: p_mín=0.333; n>20: z_mk inflado O(n^1.5)).
-                        // ═══════════════════════════════════════════════════════
+                            // ═══════════════════════════════════════════════════════
+                            // NIVEL 3 · MANN-KENDALL con Hamed & Rao (C7a-019c)
+                            // No paramétrico; corrige autocorrelación lag-1.
+                            // Válido para n ∈ [4, 20]: fuera de ese rango MK pierde
+                            // discriminación (n<4: p_mín=0.333; n>20: z_mk inflado O(n^1.5)).
+                            // ═══════════════════════════════════════════════════════
                         } elseif ($cascade_nivel_act === 3) {
                             if ($n_floors < 4 || $n_floors > 20) {
                                 $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
                                     . ($n_floors < 4 ? 'n<4_skip_mk' : 'n>20_mk_overpowered');
                                 $cascade_nivel_act = 4;
                             } else {
-                            $S_mk = 0;
-                            for ($i = 0; $i < $n_floors; $i++) {
-                                for ($j = $i + 1; $j < $n_floors; $j++) {
-                                    $d = $floors_norm_all[$j] - $floors_norm_all[$i];
-                                    if      ($d > 0.0) $S_mk++;
-                                    elseif  ($d < 0.0) $S_mk--;
+                                $S_mk = 0;
+                                for ($i = 0; $i < $n_floors; $i++) {
+                                    for ($j = $i + 1; $j < $n_floors; $j++) {
+                                        $d = $floors_norm_all[$j] - $floors_norm_all[$i];
+                                        if ($d > 0.0) $S_mk++;
+                                        elseif ($d < 0.0) $S_mk--;
+                                    }
                                 }
-                            }
-                            // Var_MK estándar (sin empates)
-                            $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
-                            // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
-                            if ($autocorr_lag1_c7a > 0.0) {
-                                $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
-                            }
-                            if ($var_mk > 0.0) {
-                                $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
-                                $z_mk  = $S_adj / sqrt($var_mk);
-                                // Φ(z) — Abramowitz & Stegun 26.2.17
-                                $az     = abs($z_mk);
-                                $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
-                                $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
+                                // Var_MK estándar (sin empates)
+                                $var_mk = (float)$n_floors * ($n_floors - 1) * (2 * $n_floors + 5) / 18.0;
+                                // Corrección Hamed & Rao lag-1: Var_HR = Var_MK × (1 + 2r₁)
+                                if ($autocorr_lag1_c7a > 0.0) {
+                                    $var_mk *= (1.0 + 2.0 * $autocorr_lag1_c7a);
+                                }
+                                if ($var_mk > 0.0) {
+                                    $S_adj = $S_mk > 0 ? $S_mk - 1 : ($S_mk < 0 ? $S_mk + 1 : 0);
+                                    $z_mk  = $S_adj / sqrt($var_mk);
+                                    // Φ(z) — Abramowitz & Stegun 26.2.17
+                                    $az     = abs($z_mk);
+                                    $t_phi  = 1.0 / (1.0 + 0.2316419 * $az);
+                                    $p_tail = 0.3989423 * exp(-$az * $az / 2.0)
                                         * $t_phi * (0.3193815 + $t_phi * (-0.3565638
-                                        + $t_phi * (1.7814779 + $t_phi * (-1.8212560
-                                        + $t_phi * 1.3302744))));
-                                $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
-                            } else {
-                                $p_mk_c7a = 1.0;
-                            }
-                            if ($p_mk_c7a < $c7a_umbral_pvalue_alta) {
-                                $c7a_confianza = 'posible'; $c7a_cascade_nivel = 3;
-                                $cascade_nivel_act = 0;
-                            } elseif ($p_mk_c7a >= $c7a_umbral_pvalue) {
-                                if ($c7a_cascada_exhaustiva) {
-                                    $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
-                                        . 'mk_ns(p=' . round($p_mk_c7a, 3) . ')';
-                                    $cascade_nivel_act = 4;
+                                            + $t_phi * (1.7814779 + $t_phi * (-1.8212560
+                                                + $t_phi * 1.3302744))));
+                                    $p_mk_c7a = min(1.0, max(0.0, 2.0 * $p_tail));
                                 } else {
-                                    $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    $p_mk_c7a = 1.0;
                                 }
-                            } else {
-                                $cascade_nivel_act = 4;   // Tipo B: p ∈ [pvalue_alta, pvalue)
-                            }
+                                if ($p_mk_c7a < $c7a_umbral_pvalue_alta) {
+                                    $c7a_confianza = 'posible';
+                                    $c7a_cascade_nivel = 3;
+                                    $cascade_nivel_act = 0;
+                                } elseif ($p_mk_c7a >= $c7a_umbral_pvalue) {
+                                    if ($c7a_cascada_exhaustiva) {
+                                        $c7a_fallback_reason = ($c7a_fallback_reason ? $c7a_fallback_reason . '; ' : '')
+                                            . 'mk_ns(p=' . round($p_mk_c7a, 3) . ')';
+                                        $cascade_nivel_act = 4;
+                                    } else {
+                                        $cascade_nivel_act = 0;   // resultado válido negativo: NO C7a
+                                    }
+                                } else {
+                                    $cascade_nivel_act = 4;   // Tipo B: p ∈ [pvalue_alta, pvalue)
+                                }
                             } // end else n ∈ [4, 20]
 
-                        // ═══════════════════════════════════════════════════════
-                        // NIVEL 4 · TEST DE SIGNO BINOMIAL (C7a-019d)
-                        // No paramétrico; prácticamente sin suposiciones distribucionales.
-                        // Fallback final: baja potencia estadística → confianza='posible'.
-                        // ═══════════════════════════════════════════════════════
+                            // ═══════════════════════════════════════════════════════
+                            // NIVEL 4 · TEST DE SIGNO BINOMIAL (C7a-019d)
+                            // No paramétrico; prácticamente sin suposiciones distribucionales.
+                            // Fallback final: baja potencia estadística → confianza='posible'.
+                            // ═══════════════════════════════════════════════════════
                         } elseif ($cascade_nivel_act === 4) {
                             $n_diffs = $n_floors - 1;
                             if ($n_diffs > 0) {
@@ -5295,7 +5337,8 @@ class ClasePosstock
                                 }
                                 $p_signo = min(1.0, $p_signo);
                                 if ($p_signo < 0.05) {
-                                    $c7a_confianza = 'posible'; $c7a_cascade_nivel = 4;
+                                    $c7a_confianza = 'posible';
+                                    $c7a_cascade_nivel = 4;
                                 }
                             }
                             $cascade_nivel_act = 0;   // nivel 4 siempre es terminal
@@ -5357,9 +5400,9 @@ class ClasePosstock
                         $base_up     = $beta_ts_base     !== null ? $beta_ts_base     > 0.0 : null;
                         $analysis_up = $beta_ts_analysis !== null ? $beta_ts_analysis > 0.0 : null;
                         if ($base_up !== null && $analysis_up !== null) {
-                            if      ($base_up  && $analysis_up)  $test_period = 'both';
-                            elseif  ($base_up  && !$analysis_up) $test_period = 'base';
-                            elseif  (!$base_up && $analysis_up)  $test_period = 'analysis';
+                            if ($base_up  && $analysis_up)  $test_period = 'both';
+                            elseif ($base_up  && !$analysis_up) $test_period = 'base';
+                            elseif (!$base_up && $analysis_up)  $test_period = 'analysis';
                             // ninguno positivo → null (tendencia global sin subperiodo confirmado)
                         } elseif ($base_up !== null) {
                             $test_period = $base_up ? 'base' : null;
@@ -5463,7 +5506,9 @@ class ClasePosstock
                                 // Test binomial one-sided: ¿mayoría de ratios > 0.3?
                                 $umbral_ratio = 0.3;
                                 $k_alto       = 0;
-                                foreach ($ratios_cob as $rv) { if ($rv > $umbral_ratio) $k_alto++; }
+                                foreach ($ratios_cob as $rv) {
+                                    if ($rv > $umbral_ratio) $k_alto++;
+                                }
                                 $p_ratio  = 0.0;
                                 $bcoef    = 1.0;
                                 $phalf    = pow(0.5, $n_pares);
@@ -5480,7 +5525,7 @@ class ClasePosstock
                                         $idx = range(0, $n - 1);
                                         usort($idx, static fn($a, $b) => $arr[$a] <=> $arr[$b]);
                                         $ranks = array_fill(0, $n, 0.0);
-                                        for ($i = 0; $i < $n; ) {
+                                        for ($i = 0; $i < $n;) {
                                             $j = $i;
                                             while ($j < $n && $arr[$idx[$j]] === $arr[$idx[$i]]) $j++;
                                             $avg = ($i + $j - 1) / 2.0 + 1.0;
@@ -5513,7 +5558,10 @@ class ClasePosstock
                         $delta_fmt_c7a = number_format(abs($delta_total),       1, '.', '');
                         $prefijo_c7a   = sprintf(
                             'El suelo mínimo sube ~%s %s por recepción (%s %s acumulados). ',
-                            $slope_fmt_c7a, $unidad_c7a, $delta_fmt_c7a, $unidad_c7a
+                            $slope_fmt_c7a,
+                            $unidad_c7a,
+                            $delta_fmt_c7a,
+                            $unidad_c7a
                         );
                         switch ($tendencia_reciente_c7a) {
                             case 'resuelto':
@@ -5589,7 +5637,9 @@ class ClasePosstock
                 $mean = array_sum($floors_norm) / $n;
 
                 $variance = 0.0;
-                foreach ($floors_norm as $fnv) { $variance += ($fnv - $mean) ** 2; }
+                foreach ($floors_norm as $fnv) {
+                    $variance += ($fnv - $mean) ** 2;
+                }
                 $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
                 $cv      = $mean != 0.0 ? $std_dev / abs($mean) : PHP_FLOAT_MAX;
 
@@ -5598,7 +5648,9 @@ class ClasePosstock
                 // C7b-025: heterogeneidad de duraciones
                 $mean_dias  = array_sum($test_dias) / $n;
                 $var_dias   = 0.0;
-                foreach ($test_dias as $d) { $var_dias += ($d - $mean_dias) ** 2; }
+                foreach ($test_dias as $d) {
+                    $var_dias += ($d - $mean_dias) ** 2;
+                }
                 $std_dias   = $n > 1 ? sqrt($var_dias / ($n - 1)) : 0.0;
                 $cv_dias    = $mean_dias > 0.0 ? $std_dias / $mean_dias : 0.0;
 
@@ -5645,12 +5697,17 @@ class ClasePosstock
                 // y la irregularidad en cantidad por entrega elevan CV e IQR de forma legítima.
                 $umbral_cv_efectivo  = ($tipo_art === 'peso') ? $c7b_umbral_cv_peso : $c7b_umbral_cv;
                 $umbral_iqr_mult     = ($tipo_art === 'peso') ? $c7b_umbral_iqr_peso : 1.5;
-                $sf = $floors_norm; sort($sf);
+                $sf = $floors_norm;
+                sort($sf);
                 $q1_idx = (int)floor(($n - 1) * 0.25);
                 $q3_idx = (int)ceil(($n - 1) * 0.75);
                 $iqr    = $sf[$q3_idx] - $sf[$q1_idx];
-                if ($n === 3) { $iqr *= 0.7; }
-                if (!($cv < $umbral_cv_efectivo && $iqr < $umbral_iqr_mult * abs($mean))) { continue; }
+                if ($n === 3) {
+                    $iqr *= 0.7;
+                }
+                if (!($cv < $umbral_cv_efectivo && $iqr < $umbral_iqr_mult * abs($mean))) {
+                    continue;
+                }
 
                 // ── Estado de la cascada ─────────────────────────────────────
                 $test_type            = null;
@@ -5670,9 +5727,13 @@ class ClasePosstock
                 $wilcoxon_tipo_a = ($n < 4 || $ratio_distinct < 0.75);
                 if (!$wilcoxon_tipo_a) {
                     // Valores no-cero con sus signos
-                    $nz_vals = []; $nz_signs = [];
+                    $nz_vals = [];
+                    $nz_signs = [];
                     foreach ($floors_norm as $fv) {
-                        if ($fv != 0.0) { $nz_vals[] = abs($fv); $nz_signs[] = ($fv < 0 ? -1 : 1); }
+                        if ($fv != 0.0) {
+                            $nz_vals[] = abs($fv);
+                            $nz_signs[] = ($fv < 0 ? -1 : 1);
+                        }
                     }
                     $n_w = count($nz_vals);
                     if ($n_w >= 4) {
@@ -5683,9 +5744,13 @@ class ClasePosstock
                         $i = 0;
                         while ($i < $n_w) {
                             $j = $i;
-                            while ($j + 1 < $n_w && $nz_vals[$order[$j + 1]] == $nz_vals[$order[$i]]) { $j++; }
+                            while ($j + 1 < $n_w && $nz_vals[$order[$j + 1]] == $nz_vals[$order[$i]]) {
+                                $j++;
+                            }
                             $avg_rank = ($i + $j + 2) / 2.0;
-                            for ($k2 = $i; $k2 <= $j; $k2++) { $rnks[$order[$k2]] = $avg_rank; }
+                            for ($k2 = $i; $k2 <= $j; $k2++) {
+                                $rnks[$order[$k2]] = $avg_rank;
+                            }
                             $i = $j + 1;
                         }
                         $n_ties_ranks = $n_w - count(array_unique($rnks));
@@ -5695,7 +5760,11 @@ class ClasePosstock
                         } else {
                             // T+ = suma de rangos de valores positivos (H1: mediana < 0 → T+ pequeño)
                             $t_plus = 0.0;
-                            for ($i = 0; $i < $n_w; $i++) { if ($nz_signs[$i] > 0) { $t_plus += $rnks[$i]; } }
+                            for ($i = 0; $i < $n_w; $i++) {
+                                if ($nz_signs[$i] > 0) {
+                                    $t_plus += $rnks[$i];
+                                }
+                            }
                             // Aproximación normal con corrección de continuidad (Abramowitz & Stegun 7.1.26)
                             $mu_w  = $n_w * ($n_w + 1) / 4.0;
                             $var_w = $n_w * ($n_w + 1) * (2 * $n_w + 1) / 24.0;
@@ -5708,12 +5777,15 @@ class ClasePosstock
                             $test_type   = 'wilcoxon_signed_rank';
                             $test_pvalue = round($p_wilcoxon, 4);
                             if ($p_wilcoxon < 0.05) {
-                                $c7b_confirmed = true; $confianza_c7b = 'alta';
-                            } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                                $c7b_confirmed = true;
+                                $confianza_c7b = 'alta';
+                            } elseif (!$c7b_cascada_exhaustiva) {
+                                continue; // resultado válido: no C7b
                             } else {
                                 $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
                                     . 'wilcoxon_p=' . round($p_wilcoxon, 3) . '_ns';
-                                $test_type = null; $test_pvalue = null;
+                                $test_type = null;
+                                $test_pvalue = null;
                             }
                         }
                     } else {
@@ -5738,15 +5810,19 @@ class ClasePosstock
                         $mu_boot = [];
                         for ($b = 0; $b < 999; $b++) {
                             $s = 0.0;
-                            for ($j = 0; $j < $n; $j++) { $s += $floors_norm[random_int(0, $n - 1)]; }
+                            for ($j = 0; $j < $n; $j++) {
+                                $s += $floors_norm[random_int(0, $n - 1)];
+                            }
                             $mu_boot[] = $s / $n;
                         }
                         sort($mu_boot);
                         $ic95_sup_boot = $mu_boot[(int)(999 * 0.975)]; // índice 974 → percentil 97.5
                         $test_type = 'bootstrap';
                         if ($ic95_sup_boot < 0.0) {
-                            $c7b_confirmed = true; $confianza_c7b = 'media';
-                        } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                            $c7b_confirmed = true;
+                            $confianza_c7b = 'media';
+                        } elseif (!$c7b_cascada_exhaustiva) {
+                            continue; // resultado válido: no C7b
                         } else {
                             $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
                                 . 'bootstrap_ic95_sup=' . round($ic95_sup_boot, 3) . '_ns';
@@ -5770,21 +5846,29 @@ class ClasePosstock
                     if ($n_eff >= 3) {
                         $b_minus = count(array_filter($floors_eff, fn($f) => $f < 0.0));
                         // p = P(Binom(n_eff, 0.5) >= b_minus) — cola superior exacta
-                        $p_sign = 0.0; $coeff = 1.0;
+                        $p_sign = 0.0;
+                        $coeff = 1.0;
                         for ($k = 0; $k <= $n_eff; $k++) {
-                            if ($k >= $b_minus) { $p_sign += $coeff; }
-                            if ($k < $n_eff) { $coeff *= ($n_eff - $k) / ($k + 1.0); }
+                            if ($k >= $b_minus) {
+                                $p_sign += $coeff;
+                            }
+                            if ($k < $n_eff) {
+                                $coeff *= ($n_eff - $k) / ($k + 1.0);
+                            }
                         }
                         $p_sign /= pow(2.0, $n_eff);
                         $test_type   = 'sign_binomial';
                         $test_pvalue = round($p_sign, 4);
                         if ($p_sign < 0.05) {
-                            $c7b_confirmed = true; $confianza_c7b = 'media';
-                        } elseif (!$c7b_cascada_exhaustiva) { continue; // resultado válido: no C7b
+                            $c7b_confirmed = true;
+                            $confianza_c7b = 'media';
+                        } elseif (!$c7b_cascada_exhaustiva) {
+                            continue; // resultado válido: no C7b
                         } else {
                             $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '')
                                 . 'sign_p=' . round($p_sign, 3) . '_ns';
-                            $test_type = null; $test_pvalue = null;
+                            $test_type = null;
+                            $test_pvalue = null;
                         }
                     } else {
                         $test_fallback_reason = ($test_fallback_reason ? $test_fallback_reason . '; ' : '') . 'sign_tipo_a_n_efectivo<3';
@@ -5799,10 +5883,13 @@ class ClasePosstock
                 if (!$c7b_confirmed) {
                     // std_dev > 0 garantizado (guard C7b-024 ya salió antes de este bloque)
                     $df_ic = $n - 1;
-                    if ($df_ic > 120) { $t_975 = 1.960; }
-                    elseif (isset($t_975_tab[$df_ic])) { $t_975 = $t_975_tab[$df_ic]; }
-                    else {
-                        $keys_ic = array_keys($t_975_tab); $lo_ic = $hi_ic = null;
+                    if ($df_ic > 120) {
+                        $t_975 = 1.960;
+                    } elseif (isset($t_975_tab[$df_ic])) {
+                        $t_975 = $t_975_tab[$df_ic];
+                    } else {
+                        $keys_ic = array_keys($t_975_tab);
+                        $lo_ic = $hi_ic = null;
                         foreach ($keys_ic as $k) {
                             if ($k <= $df_ic) $lo_ic = $k;
                             if ($k >= $df_ic && $hi_ic === null) $hi_ic = $k;
@@ -5827,11 +5914,16 @@ class ClasePosstock
                     }
                     $test_type = 't_student';
                     if ($ic95_upper < 0.0) {
-                        $c7b_confirmed = true; $confianza_c7b = 'posible';
-                    } else { continue; } // resultado válido: no C7b
+                        $c7b_confirmed = true;
+                        $confianza_c7b = 'posible';
+                    } else {
+                        continue;
+                    } // resultado válido: no C7b
                 }
 
-                if (!$c7b_confirmed) { continue; }
+                if (!$c7b_confirmed) {
+                    continue;
+                }
 
                 // ── C7b-025: duraciones irregulares degradan confianza un nivel ──
                 if ($cv_dias > 1.0) {
@@ -5909,8 +6001,12 @@ class ClasePosstock
                     : ($abs_mean_raw < $c7b_umbral_sev_unidad);
 
                 $sev_nivel = $sev_num[$sev_base];
-                if ($mag_small)      { $sev_nivel--; } // magnitud pequeña
-                if ($pct_neg < 50)   { $sev_nivel--; } // déficit parcial
+                if ($mag_small) {
+                    $sev_nivel--;
+                } // magnitud pequeña
+                if ($pct_neg < 50) {
+                    $sev_nivel--;
+                } // déficit parcial
                 $severidad = $sev_name[max(0, $sev_nivel)];
 
                 // ── C7b-022: posible_causa accionable según tendencia ────────
@@ -5919,25 +6015,29 @@ class ClasePosstock
                     case 'resuelto':
                         $causa_texto = sprintf(
                             'El stock caía ~%d %s en negativo de forma repetida, pero el período reciente no muestra el patrón. Verificar que el albarán pendiente fue registrado o que el error se corrigió.',
-                            (int)round($abs_mean_raw), $unidad_causa
+                            (int)round($abs_mean_raw),
+                            $unidad_causa
                         );
                         break;
                     case 'mejorando':
                         $causa_texto = sprintf(
                             'El stock caía ~%d %s en negativo de forma repetida. El período reciente tiene floors negativos pero sin confirmación estadística — el problema puede estar reduciéndose. Monitorizar en próximo informe.',
-                            (int)round($abs_mean_raw), $unidad_causa
+                            (int)round($abs_mean_raw),
+                            $unidad_causa
                         );
                         break;
                     case 'sin_datos':
                         $causa_texto = sprintf(
                             'El stock caía ~%d %s en negativo de forma repetida. Sin recepciones en el período reciente — no es posible confirmar si el problema sigue activo. Revisar albaranes pendientes.',
-                            (int)round($abs_mean_raw), $unidad_causa
+                            (int)round($abs_mean_raw),
+                            $unidad_causa
                         );
                         break;
                     default: // 'activo'
                         $causa_texto = sprintf(
                             'El stock cae ~%d %s en negativo de forma repetida entre cada recepción. Revisar si hay albaranes pendientes de confirmar o si el stock inicial del artículo está bien introducido.',
-                            (int)round($abs_mean_raw), $unidad_causa
+                            (int)round($abs_mean_raw),
+                            $unidad_causa
                         );
                 }
 
@@ -6011,7 +6111,6 @@ class ClasePosstock
                     }
                 }
             }
-
         }
 
         // ── C7a-004 + C7a-005: enriquecer C7a con coste estimado de merma y proveedor ──
@@ -6472,7 +6571,6 @@ class ClasePosstock
                 unset($inc);
             }
         }
-
     }
 
     /**
@@ -6886,17 +6984,18 @@ class ClasePosstock
             // Cruce de ciclo: devolución cubre ≥90% de la recepción y sin ventas significativas
             $cruce_ciclo = ($e_t_bruto > 0.0 && $dev_t / $e_t_bruto >= 0.9 && $v_t < 0.001);
             $lotes[] = [
-                'idx'         => $i,
-                'fecha_ini'   => $fi_lot,
-                'fecha_fin'   => $ff_lot,
-                'E_t'         => $e_t,
-                'E_t_bruto'   => $e_t_bruto,
-                'dev_t'       => round($dev_t, 4),
-                'V_t'         => $v_t,
-                'S_t'         => $e_t - $v_t,
-                'dias'        => (int)(strtotime($ff_lot) - strtotime($fi_lot)) / 86400 + 1,
-                'cruce_ciclo' => $cruce_ciclo,
-                'v_t_parcial' => false,
+                'idx'          => $i,
+                'fecha_ini'    => $fi_lot,
+                'fecha_fin'    => $ff_lot,
+                'E_t'          => $e_t,
+                'E_t_bruto'    => $e_t_bruto,
+                'dev_t'        => round($dev_t, 4),
+                'dev_carryback' => 0.0,
+                'V_t'          => $v_t,
+                'S_t'          => $e_t - $v_t,
+                'dias'         => (int)(strtotime($ff_lot) - strtotime($fi_lot)) / 86400 + 1,
+                'cruce_ciclo'  => $cruce_ciclo,
+                'v_t_parcial'  => false,
             ];
         }
 
@@ -6932,14 +7031,71 @@ class ClasePosstock
                 'E_t'              => $e_t,
                 'E_t_bruto'        => $e_t_bruto,
                 'dev_t'            => round($dev_t, 4),
+                'dev_carryback'    => 0.0,
                 'V_t'              => $v_t,
                 'S_t'              => $e_t - $v_t,
                 'dias'             => (int)(strtotime($ff_mov) - strtotime($fi_lot)) / 86400 + 1,
-                'es_ultimo_abierto'=> $es_ultimo_abierto,
+                'es_ultimo_abierto' => $es_ultimo_abierto,
                 'cruce_ciclo'      => $cruce_ciclo,
                 'v_t_parcial'      => $v_t_parcial,
             ];
         }
+
+        // ── Devolucion carryback: propagar exceso de devolución al lote anterior ─────
+        // Cuando dev_t > E_t_bruto (devolución posterior mayor que la entrada del mismo
+        // lote), el exceso de devolución se traslada al lote inmediatamente anterior para
+        // reajustar su E_t. Esto cubre el escenario de albaranes erróneos que se registran
+        // en un periodo y se devuelven creando un lote nuevo:
+        //   ej: entrada 04-26 (+5.2) + entrada 04-30 (+5.5) + devolución 05-02 (−11.2).
+        //   Sin carryback: lote 04-30 queda E_t=0, exceso 5.7 kg se pierde → lotes 04-25
+        //   y 04-26 mantienen S_t inflados (~9.6 kg) que aparecen como merma falsa.
+        //   Con carryback: exceso 5.7 se traslada a lote 04-26 → exceso 0.5 a lote 04-25
+        //   → E_t_04-25 se reduce 0.5 → S_t_04-25 baja a 3.945, lote 04-26 queda E_t=0.
+        for ($i = count($lotes) - 1; $i > 0; $i--) {
+            $exceso = $lotes[$i]['dev_t'] - $lotes[$i]['E_t_bruto'];
+            if ($exceso <= 0.001) continue;
+            // Acumular carryback en el lote anterior
+            $lotes[$i - 1]['dev_t']       += $exceso;
+            $lotes[$i - 1]['dev_carryback'] = ($lotes[$i - 1]['dev_carryback'] ?? 0.0) + $exceso;
+            // Recalcular E_t y S_t del lote anterior
+            $e_nuevo = max(0.0, $lotes[$i - 1]['E_t_bruto'] - $lotes[$i - 1]['dev_t']);
+            $lotes[$i - 1]['E_t']  = $e_nuevo;
+            $lotes[$i - 1]['S_t']  = $e_nuevo - $lotes[$i - 1]['V_t'];
+            // Recalcular cruce_ciclo del lote anterior
+            $lotes[$i - 1]['cruce_ciclo'] = (
+                $lotes[$i - 1]['E_t_bruto'] > 0.0 &&
+                $lotes[$i - 1]['dev_t'] / $lotes[$i - 1]['E_t_bruto'] >= 0.9 &&
+                $lotes[$i - 1]['V_t'] < 0.001
+            );
+        }
+
+        // ── Merge lotes vacíos: E_t=0 + V_t≈0 → extender lote anterior ─────────────
+        // Tras el carryback, un lote puede quedar con E_t=0 y sin ventas (V_t≈0):
+        // es una recepción errónea completamente anulada por devolución posterior.
+        // Si se deja como lote separado, el backstaging lo trata como "sumidero":
+        // absorbe parte del déficit del siguiente lote, pero su S_t negativo resultante
+        // no se procesa (no estaba en lotes_deficit al inicio) → la merma de lotes
+        // anteriores queda sobreestimada. Eliminarlo como frontera de lote y extender
+        // el anterior corrige el flujo del backstaging.
+        $lotes_merged = [];
+        foreach ($lotes as $lot) {
+            if (!empty($lotes_merged)
+                && $lot['E_t'] < 0.001
+                && $lot['V_t'] < 0.001
+                && !($lot['es_ultimo_abierto'] ?? false)
+            ) {
+                // Extender el lote anterior en fecha y días; E_t/V_t/S_t no cambian
+                $prev = &$lotes_merged[count($lotes_merged) - 1];
+                $prev['fecha_fin'] = $lot['fecha_fin'];
+                $prev['dias']     += $lot['dias'];
+            } else {
+                $lotes_merged[] = $lot;
+            }
+        }
+        unset($prev);
+        foreach ($lotes_merged as $k => &$l) { $l['idx'] = $k; }
+        unset($l);
+        $lotes = $lotes_merged;
 
         return $lotes;
     }
@@ -7023,7 +7179,9 @@ class ClasePosstock
             }
 
             if ($sum_w <= 0.0) {
-                // Déficit no redistribuible: queda como merma local del lote
+                // Déficit no redistribuible: merma local confirmada (no hay inventario previo).
+                // Se registra en merma_bloqueada para que _clasificarMermaC9 la incluya en merma_total.
+                $lotes[$t]['merma_bloqueada'] = round($deficit, 4);
                 $lotes[$t]['S_t'] = 0.0;
                 $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit, 4), 'bloqueado' => true, 'lotes_destino' => []];
                 continue;
@@ -7058,33 +7216,42 @@ class ClasePosstock
         float  $stock_final,
         float  $stock_at_first_rec,
         string $tipo_fisico,
-        float  $epsilon
+        float  $epsilon,
+        float  $merma_declarada = 0.0   // merma_prov_decl + merma_cli_decl: salidas declaradas
+        // que no están en V_t del timeline → ajuste de conservación
     ): array {
-        $merma_total     = 0.0;
-        $merma_carryover = 0.0;  // S_t positivo de lotes inciertos al final (horquilla superior)
-        $total_E         = 0.0;
-        $n_merma         = 0;
-        $n_inciertos     = 0;
-        $detalle         = [];
+        $merma_total       = 0.0;
+        $merma_carryover   = 0.0;  // S_t positivo de lotes inciertos al final (horquilla superior)
+        $deficit_bloqueado = 0.0;  // Déficits no redistribuibles (sobreventa): NOT merma.
+                                   // Indica albarán faltante, stock sin regularizar o cruce pendiente.
+        $total_E           = 0.0;  // E_t solo de lotes cerrados (base del pct_merma)
+        $total_E_all       = 0.0;  // E_t de todos los lotes (para pct de la horquilla)
+        $n_merma           = 0;
+        $n_inciertos       = 0;
+        $detalle           = [];
 
         foreach ($lotes as $lote) {
             // es_lote_incierto: marcado por getIncidenciasC9 según umbral de continuidad vivo.
             // Incluye siempre es_ultimo_abierto. Fallback a es_ultimo_abierto para compatibilidad
             // con tests unitarios que no pasan por getIncidenciasC9.
-            $es_incierto = ($lote['es_lote_incierto'] ?? false)
-                        || ($lote['es_ultimo_abierto'] ?? false);
-            $merma_t     = max($lote['S_t'], 0.0);
+            $es_incierto        = ($lote['es_lote_incierto'] ?? false)
+                || ($lote['es_ultimo_abierto'] ?? false);
+            $merma_t           = max($lote['S_t'], 0.0);
+            // merma_bloqueada: déficit no redistribuible (sobreventa sin lotes previos).
+            // NO es merma física — indica albarán faltante, stock no regularizado del
+            // periodo anterior o cruce pendiente. Se acumula en deficit_bloqueado separado.
+            $merma_bloqueada_t = $lote['merma_bloqueada'] ?? 0.0;
+            $total_E_all      += $lote['E_t'];
+            // Acumular déficit bloqueado independientemente de si el lote es incierto o no
+            $deficit_bloqueado += $merma_bloqueada_t;
             // Lotes inciertos: carryover al siguiente periodo — sobrante no es merma confirmada.
-            // Los déficits (S_t < 0) sí participan en backstaging hacia lotes anteriores.
             if (!$es_incierto) {
-                $merma_total += $merma_t;
+                $merma_total += $merma_t;   // ← sin merma_bloqueada_t: déficit ≠ merma
                 $total_E     += $lote['E_t'];
                 if ($merma_t > 0.0) $n_merma++;
             } else {
                 $n_inciertos++;
-                // S_t positivo es carryover (podría venderse en el periodo siguiente).
-                // Lo acumulamos separado para dar la horquilla superior informativa.
-                $merma_carryover += $merma_t;
+                $merma_carryover += $merma_t;  // ← sin merma_bloqueada_t
             }
             $detalle[] = [
                 'idx'              => $lote['idx'],
@@ -7094,46 +7261,90 @@ class ClasePosstock
                 'V_t'              => round($lote['V_t'], 3),
                 'S_t'              => round($lote['S_t'], 3),
                 'merma_t'          => round($merma_t, 3),
+                'deficit_bloqueado' => round($merma_bloqueada_t, 3),
                 'v_t_parcial'      => $lote['v_t_parcial'] ?? false,
                 'es_lote_incierto' => $es_incierto,
             ];
         }
 
-        // Conservación de masa: sum(S_t) ≈ stock_final − stock_at_first_rec
-        // El modelo solo cubre los lotes del periodo (desde la primera recepción).
-        // Las ventas pre-primera-recepción son consumo del stock heredado y no
-        // están en ningún S_t, de ahí que el ancla sea stock_at_first_rec, no 0.
+        // Conservación de masa ajustada:
+        //   sum(S_t_after) + merma_bloqueada_total − merma_declarada ≈ Sf − Si
+        //
+        // Dos correcciones necesarias respecto al Δcons ingenuo:
+        //
+        // 1. merma_bloqueada: déficits de lote 0 sin lotes previos que los absorban.
+        //    Tras el backstaging su S_t pasa a 0 (se mueve a 'merma_bloqueada'), por lo que
+        //    sum(S_t_after) sube artificialmente en ese importe. Sumarlo restaura la masa.
+        //
+        // 2. merma_declarada (REGULARIZACION, merma especial): salidas físicas de stock
+        //    registradas en albaranes especiales que NO aparecen en el timeline V_t.
+        //    El modelo las detecta como S_t > 0 en el lote correspondiente (la entrada
+        //    no se consumió por ventas regulares, sino por la regularización), por lo que
+        //    sum(S_t_before) = Sf − Si + merma_declarada.  Restándola el Δcons cae a ~0
+        //    cuando la única "anomalía" son regularizaciones documentadas.
+        //
+        // stock_final < 0 NO se clampea: el Δcons resultante será grande y delta_critico=true
+        // lo captura, degradando la confianza a 'posible'.
+        // Corrección 1 — merma_bloqueada:
+        //   Cuando un déficit de lote 0 no tiene lotes previos que lo absorban (BUG-H fix),
+        //   S_t pasa de −D a 0 y se registra en 'merma_bloqueada'. Eso infla sum(S_t_after)
+        //   en D. Restarlo restaura la conservación.
+        // Corrección 2 — merma_declarada:
+        //   Las regularizaciones (REGULARIZACION FRUTERIA, etc.) son salidas físicas de stock
+        //   que NO pasan por el timeline V_t. Aparecen como S_t positivo en el lote correspondiente
+        //   (la entrada no se consumió por ventas regulares, sino por la declaración de merma).
+        //   Esto infla sum(S_t) en merma_declarada. Restándolo el Δcons cae a ~0 cuando la
+        //   única "anomalía" son regularizaciones perfectamente documentadas.
+        $merma_bloqueada_total = array_sum(array_column($lotes, 'merma_bloqueada'));
         $sum_s              = array_sum(array_column($lotes, 'S_t'));
-        $conservation_delta = abs($sum_s - ($stock_final - $stock_at_first_rec));
+        $sum_s_ajustado     = $sum_s - $merma_bloqueada_total - $merma_declarada;
+        $conservation_delta = abs($sum_s_ajustado - ($stock_final - $stock_at_first_rec));
         $conservation_ok    = $conservation_delta <= $epsilon;
 
         $pct = ($total_E > 0.0) ? ($merma_total / $total_E * 100.0) : 0.0;
         $n   = count($lotes);
 
-        // Severidad
-        if ($tipo_fisico === 'peso') {
-            if      ($merma_total >= 15.0 && $pct >= 15.0) $sev = 5;
-            elseif  ($merma_total >=  8.0 && $pct >= 10.0) $sev = 4;
-            elseif  ($merma_total >=  3.0 && $pct >=  5.0) $sev = 3;
-            elseif  ($merma_total >=  1.0 && $pct >=  2.0) $sev = 2;
-            else                                             $sev = 1;
-        } else {
-            if      ($merma_total >= 20.0 && $pct >= 15.0) $sev = 5;
-            elseif  ($merma_total >= 10.0 && $pct >= 10.0) $sev = 4;
-            elseif  ($merma_total >=  5.0 && $pct >=  5.0) $sev = 3;
-            elseif  ($merma_total >=  2.0 && $pct >=  2.0) $sev = 2;
-            else                                             $sev = 1;
-        }
+        // Severidad base: calculada con merma confirmada (lotes cerrados) y su pct.
+        // Severidad horquilla: calculada con merma_total + merma_carryover y pct sobre total_E_all.
+        // Se usa el mayor nivel entre ambas para no subestimar mermas estacionales cuyo
+        // ciclo no cerró todavía (e.g., merma concentrada en los últimos meses del periodo).
+        $merma_max  = $merma_total + $merma_carryover;
+        $pct_max    = ($total_E_all > 0.0) ? ($merma_max / $total_E_all * 100.0) : 0.0;
+
+        $calc_sev = static function (float $m, float $p, string $tipo): int {
+            if ($tipo === 'peso') {
+                if ($m >= 15.0 && $p >= 15.0) return 5;
+                elseif ($m >=  8.0 && $p >= 10.0) return 4;
+                elseif ($m >=  3.0 && $p >=  5.0) return 3;
+                elseif ($m >=  1.0 && $p >=  2.0) return 2;
+                else                                return 1;
+            } else {
+                if ($m >= 20.0 && $p >= 15.0) return 5;
+                elseif ($m >= 10.0 && $p >= 10.0) return 4;
+                elseif ($m >=  5.0 && $p >=  5.0) return 3;
+                elseif ($m >=  2.0 && $p >=  2.0) return 2;
+                else                                return 1;
+            }
+        };
+        $sev     = $calc_sev($merma_total, $pct, $tipo_fisico);
+        $sev_max = $calc_sev($merma_max, $pct_max, $tipo_fisico);
+        $sev     = max($sev, $sev_max);
+
         $sev_labels = [1 => 'BAJA', 2 => 'BAJA', 3 => 'MEDIA', 4 => 'ALTA', 5 => 'CRITICA'];
 
         // Confianza
-        if ($conservation_ok && $n >= 5)              $confianza = 'alta';
-        elseif ($conservation_ok || $n >= 3)           $confianza = 'media';
-        else                                            $confianza = 'posible';
+        // delta_critico: la confianza cae a 'posible' cuando:
+        //   a) Δcons ajustado > 5×epsilon → datos base inconsistentes (rebobinado incorrecto)
+        //   b) stock_final < 0 → físicamente imposible, indica rebobinado erróneo
+        $delta_critico = $conservation_delta > $epsilon * 5.0 || $stock_final < 0.0;
+        if (!$delta_critico && $conservation_ok && $n >= 5) $confianza = 'alta';
+        elseif (!$delta_critico && ($conservation_ok || $n >= 3)) $confianza = 'media';
+        else                                                        $confianza = 'posible';
 
         return [
             'merma_total'        => round($merma_total, 3),
             'merma_carryover'    => round($merma_carryover, 3),  // carryover lotes inciertos (horquilla superior)
+            'deficit_bloqueado'  => round($deficit_bloqueado, 3), // sobreventa no redistribuible: albarán faltante / stock no regularizado
             'n_lotes_inciertos'  => $n_inciertos,
             'pct_merma'          => round($pct, 2),
             'n_merma'            => $n_merma,
@@ -7218,7 +7429,7 @@ class ClasePosstock
         if (empty($ids_candidatos)) return [];
         $ids_str = implode(',', array_map('intval', $ids_candidatos));
 
-        // ── Paso 1b: devoluciones ordinarias (ncant < 0, proveedor no especial) ──
+        // ── Paso 1b: devoluciones ordinarias (nunidades < 0, proveedor no especial) ──
         $ff_post_dev = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
@@ -7265,24 +7476,24 @@ class ClasePosstock
             $signos_art = [];
             foreach ($lineas as $l) {
                 $aid = (int)$l['idArticulo'];
-                $ncant = (float)$l['ncant'];
-                if ($ncant > 0) $signos_art[$aid]['pos'] = true;
-                if ($ncant < 0) $signos_art[$aid]['neg'] = true;
+                $nunidades = (float)$l['nunidades'];
+                if ($nunidades > 0) $signos_art[$aid]['pos'] = true;
+                if ($nunidades < 0) $signos_art[$aid]['neg'] = true;
             }
             foreach ($lineas as $l) {
                 $aid   = (int)$l['idArticulo'];
-                $ncant = (float)$l['ncant'];
+                $nunidades = (float)$l['nunidades'];
                 // Cruce intra-albarán: este artículo tiene signos mixtos en el mismo albarán → ignorar
                 if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
                 $fecha = $l['fecha'];
-                if ($ncant > 0) {
+                if ($nunidades > 0) {
                     // Proveedor especial positivo = entrada normal: añadir a recepciones_map
                     // como si fuera un proveedor ordinario.
                     $ya_existe = false;
                     if (isset($recepciones_map[$aid])) {
                         foreach ($recepciones_map[$aid] as &$_rec) {
                             if ($_rec['fecha'] === $fecha) {
-                                $_rec['cantidad'] += $ncant;
+                                $_rec['cantidad'] += $nunidades;
                                 $ya_existe = true;
                                 break;
                             }
@@ -7292,17 +7503,16 @@ class ClasePosstock
                     if (!$ya_existe) {
                         $recepciones_map[$aid][] = [
                             'fecha'           => $fecha,
-                            'cantidad'        => $ncant,
+                            'cantidad'        => $nunidades,
                             'es_post_periodo' => false,
                         ];
                         // Re-ordenar por fecha para mantener coherencia
                         usort($recepciones_map[$aid], fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
                     }
-
                 } else {
                     // Proveedor especial negativo = merma declarada o cruce (Paso B)
                     $candidatos_decl[$aid][$fecha] = ($candidatos_decl[$aid][$fecha] ?? 0.0)
-                                                   + abs($ncant);
+                        + abs($nunidades);
                 }
             }
         }
@@ -7317,7 +7527,10 @@ class ClasePosstock
                 $recs_aid = $recepciones_map[$aid] ?? [];
                 $rec_idx  = null;
                 foreach ($recs_aid as $idx => $rec) {
-                    if ($rec['fecha'] === $fecha) { $rec_idx = $idx; break; }
+                    if ($rec['fecha'] === $fecha) {
+                        $rec_idx = $idx;
+                        break;
+                    }
                 }
                 if ($rec_idx !== null) {
                     // Cross-albarán cruce: reducir E_t neto de la recepción
@@ -7334,33 +7547,33 @@ class ClasePosstock
             }
         }
         // Clasificar albaranes cliente especial: misma lógica Paso A/B que proveedor.
-        // En albaranes cliente: ncant > 0 = salida de stock (merma/venta especial),
-        //                       ncant < 0 = entrada de stock (devolución/regularización).
+        // En albaranes cliente: nunidades > 0 = salida de stock (merma/venta especial),
+        //                       nunidades < 0 = entrada de stock (devolución/regularización).
         $alb_cli = [];
         foreach ($rows_cli_esp as $r) $alb_cli[(int)$r['idAlbaran']][] = $r;
         $merma_cli_decl  = [];
-        $entradas_cli_esp = []; // [aid][fecha] => monto absoluto (ncant < 0 sin cruce)
+        $entradas_cli_esp = []; // [aid][fecha] => monto absoluto (nunidades < 0 sin cruce)
         foreach ($alb_cli as $lineas) {
             // Paso A: detectar signos mixtos por artículo dentro del albarán
             $signos_art = [];
             foreach ($lineas as $l) {
                 $aid   = (int)$l['idArticulo'];
-                $ncant = (float)$l['ncant'];
-                if ($ncant > 0) $signos_art[$aid]['pos'] = true;
-                if ($ncant < 0) $signos_art[$aid]['neg'] = true;
+                $nunidades = (float)$l['nunidades'];
+                if ($nunidades > 0) $signos_art[$aid]['pos'] = true;
+                if ($nunidades < 0) $signos_art[$aid]['neg'] = true;
             }
             foreach ($lineas as $l) {
                 $aid   = (int)$l['idArticulo'];
-                $ncant = (float)$l['ncant'];
+                $nunidades = (float)$l['nunidades'];
                 if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
                 $fecha = $l['fecha'];
-                if ($ncant > 0) {
+                if ($nunidades > 0) {
                     // Salida especial → merma declarada
-                    $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $ncant;
+                    $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $nunidades;
                 } else {
                     // Entrada especial → candidato a neta V_t o entrada directa
                     $entradas_cli_esp[$aid][$fecha] = ($entradas_cli_esp[$aid][$fecha] ?? 0.0)
-                                                    + abs($ncant);
+                        + abs($nunidades);
                 }
             }
         }
@@ -7371,7 +7584,10 @@ class ClasePosstock
                 $tl_aid = $timeline_map[$aid] ?? [];
                 $tl_idx = null;
                 foreach ($tl_aid as $idx => $tl) {
-                    if ($tl['fecha'] === $fecha) { $tl_idx = $idx; break; }
+                    if ($tl['fecha'] === $fecha) {
+                        $tl_idx = $idx;
+                        break;
+                    }
                 }
                 if ($tl_idx !== null) {
                     // Cross-albarán: neta V_t del timeline
@@ -7381,25 +7597,53 @@ class ClasePosstock
                         $timeline_map[$aid] = array_values($timeline_map[$aid]);
                     }
                 } else {
-                    // Sin ventas regulares ese día → entrada de stock
-                    $ya_existe = false;
+                    // Sin ventas regulares ese día.
+                    //
+                    // Los albaranes especiales negativos de clientes son mayoritariamente
+                    // conciliaciones de un periodo ya pasado (corrección de stock, devolución
+                    // tardía, ajuste de inventario). Si se tratan como nueva recepción crean
+                    // un lote ficticio con E_t=monto y V_t≈0, lo que genera merma artificial.
+                    //
+                    // Estrategia: si ya existe una recepción ese mismo día (normal o especial),
+                    // añadir al E_t de esa recepción. Si no existe, buscar la recepción más
+                    // reciente anterior a $fecha y añadir ahí (conciliación del lote activo).
+                    // Solo si no hay ninguna recepción previa en el periodo se añade como nueva
+                    // entrada (inicio de periodo sin historial).
+                    $ya_existe    = false;
+                    $prev_rec_idx = null;
                     if (isset($recepciones_map[$aid])) {
-                        foreach ($recepciones_map[$aid] as &$_rec) {
-                            if ($_rec['fecha'] === $fecha) {
+                        foreach ($recepciones_map[$aid] as $ridx => &$_rec) {
+                            if ($_rec['fecha'] === $fecha && !($_rec['es_post_periodo'] ?? false)) {
+                                // Recepción en la misma fecha: añadir directamente
                                 $_rec['cantidad'] += $monto;
                                 $ya_existe = true;
                                 break;
                             }
+                            if ($_rec['fecha'] <= $fecha && !($_rec['es_post_periodo'] ?? false)) {
+                                // Candidato a recepción previa (la más reciente gana)
+                                if (
+                                    $prev_rec_idx === null
+                                    || $_rec['fecha'] >= $recepciones_map[$aid][$prev_rec_idx]['fecha']
+                                ) {
+                                    $prev_rec_idx = $ridx;
+                                }
+                            }
                         }
                         unset($_rec);
                     }
-                    if (!$ya_existe && isset($recepciones_map[$aid])) {
-                        $recepciones_map[$aid][] = [
-                            'fecha'           => $fecha,
-                            'cantidad'        => $monto,
-                            'es_post_periodo' => false,
-                        ];
-                        usort($recepciones_map[$aid], fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+                    if (!$ya_existe) {
+                        if ($prev_rec_idx !== null) {
+                            // Conciliación: añadir al E_t del lote activo en $fecha
+                            $recepciones_map[$aid][$prev_rec_idx]['cantidad'] += $monto;
+                        } elseif (isset($recepciones_map[$aid])) {
+                            // Sin recepción previa en el periodo: añadir como nueva entrada
+                            $recepciones_map[$aid][] = [
+                                'fecha'           => $fecha,
+                                'cantidad'        => $monto,
+                                'es_post_periodo' => false,
+                            ];
+                            usort($recepciones_map[$aid], fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+                        }
                     }
                 }
             }
@@ -7439,7 +7683,7 @@ class ClasePosstock
             // E_lote0: stock real al inicio del periodo (rebobinado historial completo).
             // Fallback al saldo acumulado desde fi_stock si el rebobinado no devuelve fila.
             $stock_base   = $stock_inicial_map[$idArticulo]
-                          ?? (float)($sb[$idArticulo]['saldo_acumulado'] ?? 0.0);
+                ?? (float)($sb[$idArticulo]['saldo_acumulado'] ?? 0.0);
             $stock_final  = $stock_final_map[$idArticulo] ?? 0.0;
             $timeline_art = $timeline_map[$idArticulo] ?? [];
             $recs_art     = $recepciones_map[$idArticulo] ?? [];
@@ -7521,13 +7765,17 @@ class ClasePosstock
 
             $resultado = $this->_backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda);
 
-            $umbral = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
+            $umbral     = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
+            $merma_decl = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
             $clasif = $this->_clasificarMermaC9(
-                $resultado['lotes'], $stock_final, $stock_at_first_rec, $tipo_fisico, $c9_epsilon
+                $resultado['lotes'],
+                $stock_final,
+                $stock_at_first_rec,
+                $tipo_fisico,
+                $c9_epsilon,
+                $merma_decl
             );
             if (($clasif['merma_total'] + $clasif['merma_carryover']) < $umbral) continue;
-
-            $merma_decl  = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
             $n_en_periodo = count(array_filter($recs_art, fn($r) => !$r['es_post_periodo']));
 
             $incidencias[] = [
@@ -7536,6 +7784,7 @@ class ClasePosstock
                 'idArticulo'          => $idArticulo,
                 'merma_total_kg'      => $clasif['merma_total'],
                 'merma_carryover_kg'  => $clasif['merma_carryover'],   // lotes inciertos: horquilla superior
+                'deficit_bloqueado_kg' => $clasif['deficit_bloqueado'], // sobreventa no redistribuible
                 'n_lotes_inciertos'   => $clasif['n_lotes_inciertos'],
                 'merma_declarada_kg'  => round($merma_decl, 3),
                 'pct_merma'           => $clasif['pct_merma'],
@@ -7558,6 +7807,33 @@ class ClasePosstock
                 'modo'                => ($tipo_fisico === 'peso') ? 'continuo' : 'discreto',
                 'total_E'             => $clasif['total_E'],
             ];
+        }
+
+        // ── C9: enriquecer con proveedor habitual y coste estimado de la merma ──
+        if (!empty($incidencias)) {
+            $ids_c9     = array_column($incidencias, 'idArticulo');
+            $ids_c9_str = implode(',', array_map('intval', $ids_c9));
+            $fi_esc     = $this->db->real_escape_string($fi);
+            $ff_esc     = $this->db->real_escape_string($ff);
+
+            $prov_map_c9   = $this->_queryProveedorArticulos($ids_c9_str, $fi_esc, $ff_esc);
+            $precio_map_c9 = $this->_queryPrecioMedioCompra($ids_c9_str, $fi_esc, $ff_esc);
+
+            foreach ($incidencias as &$inc) {
+                $prov = $prov_map_c9[$inc['idArticulo']] ?? null;
+                $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
+                $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
+                $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
+                $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
+                $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+                // Coste estimado de la merma: merma_total_kg × precio medio de compra
+                $precio = $precio_map_c9[$inc['idArticulo']] ?? null;
+                $inc['precio_medio_compra']  = $precio;
+                $inc['coste_estimado_merma'] = ($precio !== null && ($inc['merma_total_kg'] ?? 0) > 0)
+                    ? round((float)$inc['merma_total_kg'] * $precio, 2)
+                    : null;
+            }
+            unset($inc);
         }
 
         return $incidencias;
@@ -7810,7 +8086,9 @@ class ClasePosstock
 
             $mean_raw = array_sum($floors) / $n_floors;
             $var_raw  = 0.0;
-            foreach ($floors as $f) { $var_raw += ($f - $mean_raw) ** 2; }
+            foreach ($floors as $f) {
+                $var_raw += ($f - $mean_raw) ** 2;
+            }
             $std_raw  = $n_floors > 1 ? sqrt($var_raw / ($n_floors - 1)) : 0.0;
 
             // Determinar subcaso desde las listas de la fase 1
@@ -7862,20 +8140,26 @@ class ClasePosstock
                 if (!empty($n1_a) && !empty($n1_b) && empty(array_intersect($n1_a, $n1_b))) continue;
 
                 // Emparejar suelos por fecha próxima (±7 días)
-                $pairs_a  = []; $pairs_b = [];
+                $pairs_a  = [];
+                $pairs_b = [];
                 $ventana  = 7 * 86400;
                 $ts_a_map = $inc['_ts_floors'];
                 $ts_b_map = $cb['ts_floors'];
                 foreach ($inc['_floors_raw'] as $da => $va) {
                     $ts_a    = $ts_a_map[$da];
-                    $best_vb = null; $best_diff = $ventana + 1;
+                    $best_vb = null;
+                    $best_diff = $ventana + 1;
                     foreach ($cb['floors_raw'] as $db => $vb) {
                         $diff = abs($ts_a - $ts_b_map[$db]);
                         if ($diff <= $ventana && $diff < $best_diff) {
-                            $best_diff = $diff; $best_vb = $vb;
+                            $best_diff = $diff;
+                            $best_vb = $vb;
                         }
                     }
-                    if ($best_vb !== null) { $pairs_a[] = $va; $pairs_b[] = $best_vb; }
+                    if ($best_vb !== null) {
+                        $pairs_a[] = $va;
+                        $pairs_b[] = $best_vb;
+                    }
                 }
                 $n_pairs = count($pairs_a);
                 if ($n_pairs < 4) continue;
@@ -7887,9 +8171,15 @@ class ClasePosstock
                 if ($max_abs < 1e-9) continue;
                 if (abs($mu_a + $mu_b) / $max_abs > 0.45) continue;
 
-                $std_a = 0.0; foreach ($pairs_a as $v) { $std_a += ($v - $mu_a) ** 2; }
+                $std_a = 0.0;
+                foreach ($pairs_a as $v) {
+                    $std_a += ($v - $mu_a) ** 2;
+                }
                 $std_a = $n_pairs > 1 ? sqrt($std_a / ($n_pairs - 1)) : 0.0;
-                $std_b = 0.0; foreach ($pairs_b as $v) { $std_b += ($v - $mu_b) ** 2; }
+                $std_b = 0.0;
+                foreach ($pairs_b as $v) {
+                    $std_b += ($v - $mu_b) ** 2;
+                }
                 $std_b = $n_pairs > 1 ? sqrt($std_b / ($n_pairs - 1)) : 0.0;
                 $cv_a  = $mu_a != 0.0 ? $std_a / abs($mu_a) : PHP_FLOAT_MAX;
                 $cv_b  = $mu_b != 0.0 ? $std_b / abs($mu_b) : PHP_FLOAT_MAX;
@@ -7921,7 +8211,9 @@ class ClasePosstock
 
                 $nivel = $score >= 0.80 ? 'confirmado' : ($score >= 0.65 ? 'probable' : ($score >= 0.50 ? 'posible' : ''));
                 if ($nivel === '' || $score <= $mejor_score) continue;
-                $mejor_score = $score; $mejor_id = $id_b; $mejor_nivel = $nivel;
+                $mejor_score = $score;
+                $mejor_id = $id_b;
+                $mejor_nivel = $nivel;
             }
 
             if ($mejor_id !== null) {
@@ -7931,7 +8223,9 @@ class ClasePosstock
                 $cruces_map[$inc['idArticulo']] = ['id_b' => $mejor_id, 'score' => round($mejor_score, 2), 'nivel' => $mejor_nivel];
                 $inc['posible_causa'] = sprintf(
                     'Merma con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza de autopesaje entre ambos artículos',
-                    $mejor_id, $mejor_nivel, $mejor_score
+                    $mejor_id,
+                    $mejor_nivel,
+                    $mejor_score
                 );
             }
         }
@@ -7959,14 +8253,19 @@ class ClasePosstock
                 $inc['cruce_nivel']       = $d['nivel'];
                 $inc['posible_causa'] = sprintf(
                     'Déficit de ~%.0f ud. con patrón complementario a art. %d (cruce %s, score=%.2f): probable confusión en la balanza o recepción no registrada',
-                    abs((float)($inc['offset_estimado'] ?? 0)), $d['id_a'], $d['nivel'], $d['score']
+                    abs((float)($inc['offset_estimado'] ?? 0)),
+                    $d['id_a'],
+                    $d['nivel'],
+                    $d['score']
                 );
             }
             unset($inc);
         }
 
         // C7e y C7d ya corrieron arriba; eliminar _floors_raw antes de devolver
-        foreach ($incidencias_cde as &$inc) { unset($inc['_floors_raw']); }
+        foreach ($incidencias_cde as &$inc) {
+            unset($inc['_floors_raw']);
+        }
         unset($inc);
 
         // Extraer solo las anotaciones de cruce

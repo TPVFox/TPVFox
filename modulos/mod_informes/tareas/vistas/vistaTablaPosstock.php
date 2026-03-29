@@ -633,8 +633,29 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $unidad9      = $tipoArt9 === 'peso' ? 'kg' : 'ud.';
             $betaUsado    = isset($f['beta_usado']) ? (float)$f['beta_usado'] : null;
             $modo9        = $f['modo'] ?? 'continuo';
-            $totalE9      = isset($f['total_E'])      ? (float)$f['total_E']      : null;
-            $stockFinal9  = isset($f['stock_final'])  ? (float)$f['stock_final']  : null;
+            $totalE9         = isset($f['total_E'])           ? (float)$f['total_E']           : null;
+            $stockFinal9     = isset($f['stock_final'])       ? (float)$f['stock_final']       : null;
+            $deficitBloq9    = isset($f['deficit_bloqueado_kg']) ? (float)$f['deficit_bloqueado_kg'] : 0.0;
+
+            // ── Pre-calcular agregado mensual (necesario para badge pico) ────
+            $_mc9     = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            $_mmAgg   = [];
+            $_mmCarry = [];
+            foreach (($f['merma_por_lote'] ?? []) as $_lot) {
+                $_mt       = (float)($_lot['merma_t'] ?? 0.0);
+                $_incierto = !empty($_lot['es_lote_incierto']) || !empty($_lot['v_t_parcial']);
+                $_mes      = (int)substr($_lot['fecha_ini'] ?? '', 5, 2);
+                if ($_mes < 1 || $_mes > 12) continue;
+                if ($_incierto && $_mt > 0.001) {
+                    $_mmCarry[$_mes] = ($_mmCarry[$_mes] ?? 0.0) + $_mt;
+                } elseif (!$_incierto && $_mt > 0.001) {
+                    $_mmAgg[$_mes] = ($_mmAgg[$_mes] ?? 0.0) + $_mt;
+                }
+            }
+            ksort($_mmAgg);
+            $_nMesesConMerma9 = count($_mmAgg);
+            $_mesMaxVal9      = !empty($_mmAgg) ? max($_mmAgg) : 0.0;
+            $_mesMaxIdx9      = !empty($_mmAgg) ? array_search($_mesMaxVal9, $_mmAgg) : 0;
 
             // ── Badge confianza ──────────────────────────────────────────────
             if ($confianza9 === 'alta' && $consOk9) {
@@ -657,9 +678,23 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $tooltipInc = $nInciertos9 === 1
                     ? 'El último lote del periodo puede no estar cerrado (sin recepción posterior dentro del umbral de continuidad). Su sobrante se muestra entre paréntesis pero NO se suma a la merma confirmada.'
                     : $nInciertos9 . ' lotes finales no han recibido recepción posterior dentro del umbral de continuidad. Sus sobrantes se muestran como horquilla superior, no como merma confirmada.';
-                $badgeIncierto9 = ' <span class="label label-info" title="' . htmlspecialchars($tooltipInc) . '">'
+                $badgeIncierto9 = ' <span class="label label-info"'
+                    . ($nInciertos9 > 1 ? ' data-nofiltro="1"' : '')
+                    . ' title="' . htmlspecialchars($tooltipInc) . '">'
                     . ($nInciertos9 === 1 ? 'Lote abierto' : $nInciertos9 . ' lotes inciertos')
                     . '</span>';
+            }
+
+            // ── Badge déficit bloqueado (sobreventa: posible albarán faltante) ──
+            $badgeDeficitBloq9 = '';
+            if ($deficitBloq9 > 0.001) {
+                $badgeDeficitBloq9 = ' <span class="label label-warning"'
+                    . ' title="Se detectó sobreventa de '
+                    . number_format($deficitBloq9, 3, ',', '.') . ' ' . $unidad9
+                    . ' que no pudo redistribuirse hacia lotes anteriores.'
+                    . ' Esto indica un posible albarán de compra sin registrar o stock heredado de periodos anteriores sin regularizar.'
+                    . ' Este déficit NO está incluido en la merma estimada.">'
+                    . 'Sobreventa no compensada</span>';
             }
 
             // ── Badge merma declarada (data-nofiltro: valor único por artículo, no filtrable) ──
@@ -671,6 +706,25 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . 'Declarada: ' . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '</span>';
             }
 
+            // ── Badge pico de merma mensual ──────────────────────────────────
+            // Se activa cuando un mes concentra ≥25% del total Y supera ≥2,5× la media
+            // de los demás meses. Indica posible regularización puntual o cruce sin conciliar.
+            $badgePico9 = '';
+            if ($_nMesesConMerma9 >= 3 && $mermaKg !== null && $mermaKg > 0.001 && $_mesMaxVal9 / $mermaKg >= 0.25) {
+                $_avgOtros9 = ($_mesMaxVal9 < $mermaKg)
+                    ? ($mermaKg - $_mesMaxVal9) / ($_nMesesConMerma9 - 1)
+                    : 0.0;
+                if ($_avgOtros9 > 0.001 && $_mesMaxVal9 / $_avgOtros9 >= 2.5) {
+                    $_pctPico9 = number_format($_mesMaxVal9 / $mermaKg * 100, 1, ',', '.');
+                    $_nomPico9 = $_mesMaxIdx9 ? $_mc9[$_mesMaxIdx9] : '?';
+                    $badgePico9 = ' <span class="label label-warning"'
+                        . ' title="Pico en ' . $_nomPico9 . ': concentra el ' . $_pctPico9 . '% de la merma total ('
+                        . number_format($_mesMaxVal9, 2, ',', '.') . '&nbsp;' . $unidad9 . '), superando ' . number_format($_mesMaxVal9 / $_avgOtros9, 1, ',', '.') . '× la media del resto de meses ('
+                        . number_format($_avgOtros9, 2, ',', '.') . '&nbsp;' . $unidad9 . '). Puede indicar una regularización puntual, un cruce sin conciliar o una pérdida excepcional. Revisar albaranes de ese mes.">'
+                        . 'Pico de merma</span>';
+                }
+            }
+
             // ── Badge conservación de masa (solo técnico) ────────────────────
             $badgeCons9 = '';
             if ($mostrarTecnico) {
@@ -680,7 +734,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             }
 
             // ── Línea 1: badges ──────────────────────────────────────────────
-            $detalle = $badgeConf9 . $badgeIncierto9 . $badgeDecl9 . $badgeCons9;
+            $detalle = $badgeConf9 . $badgeIncierto9 . $badgeDeficitBloq9 . $badgePico9 . $badgeDecl9 . $badgeCons9;
 
             // ── Línea 2: información básica — merma + horquilla + % ──────────
             if ($mermaKg !== null) {
@@ -730,29 +784,13 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $detalle .= '<br><small class="text-muted">' . $linea3_9 . '</small>';
 
             // ── Posible causa: patrón + desglose mensual ─────────────────────
-            $_mc9    = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            $_mmAgg  = [];   // merma confirmada por mes
-            $_mmCarry = [];  // carryover por mes
-            foreach (($f['merma_por_lote'] ?? []) as $_lot) {
-                $_mt       = (float)($_lot['merma_t'] ?? 0.0);
-                // Usar es_lote_incierto (coincide con lo que _clasificarMermaC9 envía a merma_carryover).
-                // Fallback a v_t_parcial para compatibilidad con datos sin el campo nuevo.
-                $_incierto = !empty($_lot['es_lote_incierto']) || !empty($_lot['v_t_parcial']);
-                $_mes      = (int)substr($_lot['fecha_ini'] ?? '', 5, 2);
-                if ($_mes < 1 || $_mes > 12) continue;
-                if ($_incierto && $_mt > 0.001) {
-                    $_mmCarry[$_mes] = ($_mmCarry[$_mes] ?? 0.0) + $_mt;
-                } elseif (!$_incierto && $_mt > 0.001) {
-                    $_mmAgg[$_mes] = ($_mmAgg[$_mes] ?? 0.0) + $_mt;
-                }
-            }
-            ksort($_mmAgg);
+            // $_mc9, $_mmAgg, $_mmCarry ya calculados arriba para el badge pico.
 
             if (!empty($_mmAgg) || !empty($_mmCarry)) {
                 // Patrón: concentrada (1-2 meses) vs continuada (≥3 meses)
-                $_nMesesConMerma = count($_mmAgg);
-                $_mesMaxVal  = !empty($_mmAgg) ? max($_mmAgg) : 0.0;
-                $_mesMaxIdx  = !empty($_mmAgg) ? array_search($_mesMaxVal, $_mmAgg) : 0;
+                $_nMesesConMerma = $_nMesesConMerma9;
+                $_mesMaxVal  = $_mesMaxVal9;
+                $_mesMaxIdx  = $_mesMaxIdx9;
                 $_causaIntro = '';
                 if ($_nMesesConMerma === 0) {
                     $_causaIntro = 'Merma pendiente de confirmar (solo lotes inciertos). ';
@@ -810,6 +848,29 @@ function renderTablaPosstock(array $filas, array $cfg): string
                         $posibleCausaHtml .= '<br><small class="text-muted">' . implode(' · ', $_tecLine) . '</small>';
                     }
                 }
+            }
+
+            // ── Línea complementaria C9: coste estimado + proveedor ──────────
+            $coste9    = isset($f['coste_estimado_merma']) && $f['coste_estimado_merma'] !== null
+                ? (float)$f['coste_estimado_merma'] : null;
+            $lineaComp9 = '';
+            if ($coste9 !== null) {
+                $lineaComp9 .= '<span title="Valor estimado de la merma: merma total × precio medio de compra en el periodo">Valor merma est.: <strong>~'
+                    . number_format($coste9, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $lineaComp9 .= ($lineaComp9 ? ' · ' : '')
+                    . '<span title="Proveedor principal: el que más albaranes tiene del artículo en el año en curso">Prov. principal: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre'])) {
+                    $ultimoLabel9 = !empty($f['prov_es_mismo']) ? '(mismo)' : htmlspecialchars($f['prov_ultimo_nombre']);
+                    $lineaComp9 .= ' | <span title="Último proveedor que sirvió el artículo ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . $ultimoLabel9 . '</span>';
+                }
+            }
+            if ($lineaComp9) {
+                $detalle .= '<br><small class="text-muted">' . $lineaComp9 . '</small>';
             }
 
         // ── C6a / C6b ─────────────────────────────────────────────────────────
