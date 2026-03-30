@@ -4,7 +4,7 @@
  *
  * */
 $RutaProyectoCompleta 	= str_replace('plugins', '', __DIR__); // Obtenermos la ruta del proyecto
-include($RutaProyectoCompleta . '/controllers/parametros.php');
+include_once($RutaProyectoCompleta . '/controllers/parametros.php');
 class ClasePlugins
 {
 	public $dedonde;							// (String) ruta desde servidor del fichero que lo llama , no la clase, el fichero.
