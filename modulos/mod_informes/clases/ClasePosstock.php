@@ -46,10 +46,6 @@
  *   albclit  (salidas cliente)    : Guardado, Procesado
  *     · Excluido : Sin guardar (borrador)
  *
- * ─── TIPOS DE ARTÍCULO FÍSICO ────────────────────────────────────────────────
- *
- *   tipo IN ('unidad', 'peso')  — confirmado en BD/Update/install_update_v0.0.40.sql
- *   Si se añaden nuevos tipos físicos, actualizar la constante TIPOS_FISICOS.
  *
  * ─── REGLA "DÍA ANTERIOR" PARA stock_previo ─────────────────────────────────
  *
@@ -73,9 +69,6 @@
 class ClasePosstock
 {
     private $db;
-
-    // Tipos de artículo considerados físicos (confirmar en BD si se añaden nuevos tipos)
-    const TIPOS_FISICOS = "'unidad', 'peso'";
 
     // Umbral de stock negativo a partir del cual C6 reconstruye el stock
     // desde la última entrada de proveedor (más fiable que el stockOn acumulado).
@@ -290,9 +283,8 @@ class ClasePosstock
      */
     private function _queryArticulosFisicos(string $where_familia): array
     {
-        $tipos = self::TIPOS_FISICOS;
         $smt = $this->db->query(
-            "SELECT idArticulo FROM articulos a WHERE a.tipo IN ($tipos) $where_familia"
+            "SELECT idArticulo FROM articulos a $where_familia"
         );
         if (!$smt) return ['error' => $this->db->error];
         $rows = [];
@@ -956,7 +948,6 @@ class ClasePosstock
         int    $dias_post = 14,
         float  $multiplicador_cadencia = 3.0
     ): array {
-        $tipos          = self::TIPOS_FISICOS;
         // Mínimo floor SQL para C3a: al menos ceil(multiplicador) días sin venta
         $c3a_floor_dias = max(3, (int)ceil($multiplicador_cadencia));
         $sql = "
@@ -982,7 +973,6 @@ class ClasePosstock
                 WHERE DATE(c.Fecha) BETWEEN '$fi_m' AND '$ff_m'
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
-                  AND a.tipo        IN ($tipos)
                   $wf $wi
                 GROUP BY l.idArticulo
                 HAVING COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END) > 0
@@ -2188,7 +2178,8 @@ class ClasePosstock
                 $fi_mov,
                 $ff_mov,
                 $familias_incluir,
-                $familias_excluir
+                $familias_excluir,
+                $c5_incluir_stock_negativo
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
             foreach ($this->_formatearCaso4($articulos_sin_mov) as $inc) {
@@ -3007,7 +2998,8 @@ class ClasePosstock
         string $fi_año,
         string $ff_mov,
         array $familias_incluir = [],
-        array $familias_excluir = []
+        array $familias_excluir = [],
+        bool $c5_incluir_stock_negativo = false
     ): array {
         $fi    = $this->db->real_escape_string($fi_año);
         $ff    = $this->db->real_escape_string($ff_mov);
@@ -3043,7 +3035,7 @@ class ClasePosstock
 
         // Paso 3: stock en el momento del análisis (fecha ff_mov) via rebobinado
         $ids_str = implode(',', array_map('intval', $sin_movimiento));
-        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, true);
+        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, $c5_incluir_stock_negativo);
         if (isset($rows_stock['error'])) return $rows_stock;
 
         $resultado = [];
@@ -3416,7 +3408,7 @@ class ClasePosstock
         $pending_reconstruction = []; // artículos con stock > 10×ROP: parámetros estadísticos ya calculados
 
         // En C6b (filtrado por proveedor) no aplicar el umbral mínimo de días con venta
-        $min_ventas_effective = !empty($proveedores_incluir) ? 5 : $min_ventas;
+        $min_ventas_effective = !empty($proveedores_incluir) ? 0 : $min_ventas;
 
         foreach ($ventas_cant as $id => $fechas_map) {
             // $n  = días únicos con venta (base estadística del modelo)
@@ -7079,7 +7071,8 @@ class ClasePosstock
         // el anterior corrige el flujo del backstaging.
         $lotes_merged = [];
         foreach ($lotes as $lot) {
-            if (!empty($lotes_merged)
+            if (
+                !empty($lotes_merged)
                 && $lot['E_t'] < 0.001
                 && $lot['V_t'] < 0.001
                 && !($lot['es_ultimo_abierto'] ?? false)
@@ -7093,7 +7086,9 @@ class ClasePosstock
             }
         }
         unset($prev);
-        foreach ($lotes_merged as $k => &$l) { $l['idx'] = $k; }
+        foreach ($lotes_merged as $k => &$l) {
+            $l['idx'] = $k;
+        }
         unset($l);
         $lotes = $lotes_merged;
 
@@ -7223,7 +7218,7 @@ class ClasePosstock
         $merma_total       = 0.0;
         $merma_carryover   = 0.0;  // S_t positivo de lotes inciertos al final (horquilla superior)
         $deficit_bloqueado = 0.0;  // Déficits no redistribuibles (sobreventa): NOT merma.
-                                   // Indica albarán faltante, stock sin regularizar o cruce pendiente.
+        // Indica albarán faltante, stock sin regularizar o cruce pendiente.
         $total_E           = 0.0;  // E_t solo de lotes cerrados (base del pct_merma)
         $total_E_all       = 0.0;  // E_t de todos los lotes (para pct de la horquilla)
         $n_merma           = 0;
@@ -7390,8 +7385,6 @@ class ClasePosstock
         $ff   = $this->db->real_escape_string($ff_mov);
         $wf   = $this->_familiaWhere($familias_incluir, $familias_excluir);
         $wi   = $this->_idsWhere($ids_filter);
-        $tipos = self::TIPOS_FISICOS;
-
         // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
         $rows_rec = $this->_queryRecepcionesC9($fi, $ff_mov, $wf, $wi, $c9_dias_post);
         if (isset($rows_rec['error'])) return $rows_rec;
@@ -7419,7 +7412,7 @@ class ClasePosstock
         // ── Paso 2: filtrar solo artículos físicos ──────────────────────────
         $res_art = $this->db->query(
             "SELECT idArticulo, tipo FROM articulos
-              WHERE idArticulo IN ($ids_str) AND tipo IN ($tipos)"
+              WHERE idArticulo IN ($ids_str)"
         );
         if (!$res_art) return ['error' => 'C9 tipos: ' . $this->db->error];
         $tipos_map = [];
