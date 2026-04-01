@@ -185,6 +185,20 @@ if (count($errores) == 0) {
             ? date('d-m-Y') : date_format(date_create($datosDocumento['Fecha']), 'd-m-Y');
         $hora = date_format(date_create($datosDocumento['Fecha']), 'H:i');
         $creado_por = $CAlb->obtenerDatosUsuario($datosDocumento['idUsuario']);
+        if (empty($creado_por)) {
+            // SelectUnResult devuelve [] cuando fetch_assoc() no encuentra fila:
+            // el usuario fue eliminado de BD o el documento se guardó con idUsuario=0.
+            // Registramos el problema para que no pase desapercibido, y asignamos
+            // valores por defecto que evitan PHP Warning en líneas 343 y 488.
+            error_log('albaran.php: obtenerDatosUsuario devolvió vacío para idUsuario='
+                . $datosDocumento['idUsuario'] . ' en idDocumento=' . $idDocumento);
+            array_push($errores, $CAlb->montarAdvertencia(
+                'warning',
+                'No se encontró el usuario creador (idUsuario: ' . $datosDocumento['idUsuario']
+                . '). El usuario puede haber sido eliminado o no se guardó correctamente al crear el documento.'
+            ));
+            $creado_por = ['id' => 0, 'nombre' => ''];
+        }
         $formaPago = (isset($datosDocumento['formaPago'])) ? $datosDocumento['formaPago'] : 0;
         $fechaVencimiento = $datosDocumento['FechaVencimiento'];
         if (isset($datosDocumento['Numalbpro'])) {
