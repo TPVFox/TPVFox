@@ -36,12 +36,12 @@ class TareasCron
 
     public function execute(): void
     {
-        error_log('Paso por aqui-ClaseTareasCron-->' . time());
-        var_dump($this->URLCom);
+        // error_log('Paso por aqui-ClaseTareasCron-->' . time()); // TRACE
+        // var_dump($this->URLCom); // DEBUG
         $tareaCron = new MTareasCron();
         DiarioCron::log('Empezamos');
         $tareas = $tareaCron->getTareasActivas();
-        error_log(json_encode($tareas));
+        // error_log(json_encode($tareas)); // TRACE
         if ($tareas) {
             DiarioCron::log('Hay tareas');
             foreach ($tareas as $tarea) {
@@ -62,8 +62,8 @@ class TareasCron
                             $minutos += $intervalo->i;
                             DiarioCron::log('minutos-->' . $minutos);
                             $ejecutar = $minutos >= $minutos_periodo;
-                            error_log($ruta);
-                            error_log($ejecutar ? 'SI ejecutar' : 'NO ejecutar');
+                            // error_log($ruta); // TRACE
+                            // error_log($ejecutar ? 'SI ejecutar' : 'NO ejecutar'); // TRACE
                             if (!$ejecutar) {
                                 DiarioCron::log('No ejecuta tarea ' . $tarea['nombre'] . ':No ha pasado periodo de ' . $minutos_periodo . ' minutos');
                             }
@@ -82,8 +82,8 @@ class TareasCron
                         if (!class_exists($tarea['nombre_clase'], false)) {
                             error_log("No carga la clase: " . $tarea['nombre_clase']);
                         } else {
-                            var_dump('ejecutando---->' . $tarea['nombre_clase'] . PHP_EOL);
-                            var_dump($tarea['id']);
+                            // var_dump('ejecutando---->' . $tarea['nombre_clase'] . PHP_EOL); // DEBUG
+                            // var_dump($tarea['id']); // DEBUG
                             $objeto = new $tarea['nombre_clase']($tarea['id']);
                             $objeto->execute();
                             //$tareaCron->updateEstado(MTareasCron::ESTADO_ACTIVO, $tarea['id']);

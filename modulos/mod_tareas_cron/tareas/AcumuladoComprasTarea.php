@@ -10,9 +10,9 @@
 // var_dump('------------------------------------------------------------------------');
 
 if (!isset($URLCom)) {
-    var_dump('------------------------------------------------------------------------');
+    // var_dump('------------------------------------------------------------------------'); // DEBUG
     $URLCom = realpath(__DIR__ . '/../../../');
-    var_dump('------------------------------------------------------------------------');
+    // var_dump('------------------------------------------------------------------------'); // DEBUG
 }
 
 include_once $URLCom . '/clases/ClaseTFModelo.php';
@@ -35,8 +35,8 @@ class AcumuladoComprasTarea
 
     public function execute()
     {
-        error_log('pasamos por execute() ------AcumuladoComprasTarea--------          ');
-        error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']);
+        // error_log('pasamos por execute() ------AcumuladoComprasTarea--------          '); // TRACE
+        // error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']); // TRACE
         $this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);
         $acumulados = $this->acumulado_compra->leer();
         $datos_acumulados = $acumulados['datos'];

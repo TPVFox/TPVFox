@@ -10,9 +10,9 @@
 // var_dump('------------------------------------------------------------------------');
 
 if (!isset($URLCom)) {
-    var_dump('------------------------------------------------------------------------');
+    // var_dump('------------------------------------------------------------------------'); // DEBUG
     $URLCom = realpath(__DIR__ . '/../../../');
-    var_dump('------------------------------------------------------------------------');
+    // var_dump('------------------------------------------------------------------------'); // DEBUG
 }
 
 include_once $URLCom . '/clases/ClaseTFModelo.php';
@@ -34,8 +34,8 @@ class UltimoPrecioCompraTarea
 
     public function execute()
     {
-        error_log('pasamos por execute() ------UltimoPrecioCompraTarea--------          ');
-        error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']);
+        // error_log('pasamos por execute() ------UltimoPrecioCompraTarea--------          '); // TRACE
+        // error_log('Tarea-> ' . ($this->tarea->getTareaCron())['id']); // TRACE
         //$this->tarea->updateEstado(MTareasCron::ESTADO_EN_PROCESO);
         $articulos_compra = $this->ultimo_precio_compra->leer();
         if ($datos = $articulos_compra['datos']) {
@@ -55,11 +55,11 @@ class UltimoPrecioCompraTarea
         if (count($articulos_compra) > 0) {
             $ultimo_articulo = 0;
             foreach ($articulos_compra as $indice => $articulo_compra) {
-                error_log(json_encode($articulo_compra));
+                // error_log(json_encode($articulo_compra)); // TRACE
                 if ($ultimo_articulo != $articulo_compra['idArticulo']) {
                     $this->ultimo_precio_compra->actualizar_articulo($articulo_compra['idArticulo'], $articulo_compra['costeSIva']);
-                    error_log('Precio articulo: ' . $articulo_compra['idArticulo']);
-                    error_log('---> ' . $articulo_compra['costeSIva']);
+                    // error_log('Precio articulo: ' . $articulo_compra['idArticulo']); // TRACE
+                    // error_log('---> ' . $articulo_compra['costeSIva']); // TRACE
                 }
                 $ultimo_articulo = $articulo_compra['idArticulo'];
             }

@@ -19,9 +19,9 @@ class AlbaranesCompras extends ClaseCompras
             $this->num_rows = $respuesta->fetch_object()->num_reg;
         } else {
             // Es un array porque hubo un fallo
-            echo '<pre>';
-            print_r($respuesta);
-            echo '</pre>';
+            // echo '<pre>';
+            // print_r($respuesta); // DEBUG
+            // echo '</pre>';
         }
         // Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
     }
@@ -432,7 +432,7 @@ class AlbaranesCompras extends ClaseCompras
         $sql = 'SELECT a.id , a.Numalbpro , a.Fecha , b.nombrecomercial, a.total,
         a.estado, a.idProveedor from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  ' . $limite;
-        error_log($sql);
+        // error_log($sql); // DEBUG: comentado para no saturar error log de nginx
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {
             $respuesta = $smt;
@@ -927,8 +927,9 @@ class AlbaranesCompras extends ClaseCompras
         }
         return $respuesta;
     }
-    
-    public function getEstadosAlbaranes(){
+
+    public function getEstadosAlbaranes()
+    {
         //@Objetivo:
         //Obtenemos los estados posibles de los albaranes de compras
         $respuesta = array();

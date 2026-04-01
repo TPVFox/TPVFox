@@ -149,7 +149,7 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
                         $traductorBalanza->setModoComunicacion($modoCom);
                         $traductorBalanza->setH2Data($datosH2);
                         $traductorBalanza->setH3Data($datosH3);
-                        error_log('[' . $Usuario['nombre'] . "] Recalculo balanza ID {$balanza['idBalanza']}: " . json_encode($datosH2) . json_encode($datosH3));
+                        // error_log('[' . $Usuario['nombre'] . "] Recalculo balanza ID {$balanza['idBalanza']}: " . json_encode($datosH2) . json_encode($datosH3)); // TRACE
                         if (!isset($salidaBalanza[$balanza['idBalanza']])) {
                             $salidaBalanza[$balanza['idBalanza']] = '';
                         }

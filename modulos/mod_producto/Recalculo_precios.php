@@ -188,7 +188,7 @@ if (isset($_POST['Guardar'])) {
                         }
                         $traductorBalanza->setH2Data($datosH2);
                         $traductorBalanza->setH3Data($datosH3);
-                        error_log('[' . $_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza (ID {$balanza['idBalanza']}): " . json_encode($datosH2) . json_encode($datosH3));
+                        // error_log('[' . $_SESSION['usuarioTpv']['nombre'] . "] Datos a enviar a balanza (ID {$balanza['idBalanza']}): " . json_encode($datosH2) . json_encode($datosH3)); // TRACE
                         if (!isset($salidaBalanza[$balanza['idBalanza']])) {
                             $salidaBalanza[$balanza['idBalanza']] = '';
                         }
