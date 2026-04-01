@@ -268,15 +268,15 @@ function htmlLineaRefTienda($item, $crefTienda, $link, $permiso_borrar)
     $link = $link . $crefTienda['idFamilia_tienda'];
     $color = '';
     $titulo = 'Publicado';
-    if ($crefTienda['estado'] == '-1') {
+    if (isset($crefTienda['estado']) && $crefTienda['estado'] == '-1') {
         $color = 'style="color:red"';
         $titulo = 'error';
     }
-    if ($crefTienda['estado'] == '0') {
+    if (isset($crefTienda['estado']) && $crefTienda['estado'] == '0') {
         $titulo = 'No publicado';
     }
     $htmlLink = '<span ' . $color . 'title="' . $titulo . '" class="glyphicon glyphicon-globe"></span>';
-    if ($crefTienda['estado'] == '1') {
+    if (isset($crefTienda['estado']) && $crefTienda['estado'] == '1') {
         $htmlLink = '<a href="' . $link . '">' . $htmlLink . '</a>';
     }
     $nuevaFila = '<tr id="ref_tienda_' . $item . '">';

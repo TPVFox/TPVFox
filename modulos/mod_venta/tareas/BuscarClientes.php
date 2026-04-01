@@ -10,7 +10,7 @@
 $buscar = array();
 $respuesta = array('Nitems' => 0);
 
-if ($_POST['idcaja'] === "id_cliente") {
+if (isset($_POST['idcaja']) && $_POST['idcaja'] === "id_cliente") {
     $buscar = $Ccliente->DatosClientePorId($_POST['busqueda']);
     // Buscamos por id, pero el resultado siempre es uno..por lo que
     // sino se cambia el metodo, no podemos nunca buscar por id varios clientes.

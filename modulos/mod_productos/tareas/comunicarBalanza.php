@@ -50,7 +50,7 @@ $datosH3 = [
 ];
 
 // Añadir balanzas relacionadas con el producto
-if (!isset($relacion_balanza['error'])) {
+if (isset($relacion_balanza) && !isset($relacion_balanza['error'])) {
     foreach ($relacion_balanza as $relacion) {
         if ($relacion['idBalanza'] > 0) {
             $balanzaProducto = $CBalanza->datosBalanza($relacion['idBalanza'])['datos'][0];

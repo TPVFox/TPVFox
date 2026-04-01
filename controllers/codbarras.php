@@ -10,6 +10,7 @@ class ClaseCodbarras
 		$cod_array = str_split($codbarras_sinDC); // Creamos array sin digito de control
 		$position = 0;
 		$suma = 0;
+		$digito_control = 0; // Valor por defecto si el barcode está vacío
 		foreach ($cod_array as $valor) {
 			$position = $position + 1; // Recuerda que un array empieza posicion 0 , no puedes utilizar Key
 			if ($position % 2 === 0) {

@@ -39,7 +39,7 @@ $albaran_html_linea_producto = array();
 $JS_datos_albaranes = '';
 $html_adjuntos = '';
 // --- Controlasmos POST de crearDesdeAlbaranes --- //
-if ($_POST['action'] === 'crearDesdeAlbaranes') {
+if (isset($_POST['action']) && $_POST['action'] === 'crearDesdeAlbaranes') {
     $idProveedor = (int)$_POST['idProveedor'];
     $albaranes   = $_POST['albaranes'];
     $crearDesdeAlbaranes = true;
