@@ -12,21 +12,23 @@ const _informesFamilias = [2, 4, 6];
 /** Muestra u oculta el panel de selección según la opción elegida */
 function _onOpcionChange(informeId) {
     const opcion = document.getElementById("opcion" + informeId).value;
-    const panel  = document.getElementById("panelFamilias" + informeId);
-    if (panel) panel.style.display = (opcion == 4) ? "" : "none";
+    const panel = document.getElementById("panelFamilias" + informeId);
+    if (panel) panel.style.display = opcion == 4 ? "" : "none";
 }
 
 /** Abre el modal con el catálogo de familias */
 function abrirCatalogoFamilias() {
     $.ajax({
         data: { pulsado: "getCatalogoFamilias" },
-        url:  "tareas.php",
+        url: "tareas.php",
         type: "post",
         success: function (response) {
             var res = JSON.parse(response);
             abrirModal("Seleccionar familias", res.html);
         },
-        error: function (req) { console.log(req); }
+        error: function (req) {
+            console.log(req);
+        },
     });
 }
 
@@ -50,22 +52,26 @@ function _renderTagsFamilias() {
 
     _informesFamilias.forEach(function (informeId) {
         const contenedor = document.getElementById("tagsFamilias" + informeId);
-        const hidden     = document.getElementById("familiasSel"  + informeId);
+        const hidden = document.getElementById("familiasSel" + informeId);
         if (!contenedor) return;
 
         if (hidden) hidden.value = inputVal;
 
         if (ids.length === 0) {
-            contenedor.innerHTML = '<span class="text-muted">Ninguna familia seleccionada</span>';
+            contenedor.innerHTML =
+                '<span class="text-muted">Ninguna familia seleccionada</span>';
             return;
         }
 
-        let html = '';
+        let html = "";
         ids.forEach(function (id) {
-            html += '<span class="label label-info" style="margin:2px 3px 2px 0; display:inline-block;">'
-                + _familiasSel[id]
-                + ' <a href="#" onclick="event.preventDefault(); _eliminarFamiliaInforme(' + id + ')" style="color:#fff;">'
-                + '&times;</a></span>';
+            html +=
+                '<span class="label label-info" style="margin:2px 3px 2px 0; display:inline-block;">' +
+                _familiasSel[id] +
+                ' <a href="#" onclick="event.preventDefault(); _eliminarFamiliaInforme(' +
+                id +
+                ')" style="color:#fff;">' +
+                "&times;</a></span>";
         });
         contenedor.innerHTML = html;
     });
@@ -73,27 +79,33 @@ function _renderTagsFamilias() {
 
 /** Versión local de colapsarTodo para el modal del catálogo */
 function colapsarTodoCatalogo() {
-    const filas = document.querySelectorAll("#tablaFamiliasJerarquica tr[data-ruta]");
+    const filas = document.querySelectorAll(
+        "#tablaFamiliasJerarquica tr[data-ruta]",
+    );
     filas.forEach(function (f) {
         const ruta = f.getAttribute("data-ruta");
         if (ruta.includes("-")) f.style.display = "none";
         const btn = f.querySelector(".glyphicon");
         if (btn) {
             btn.classList.remove("rotar-90");
-            btn.classList.replace("glyphicon-folder-open", "glyphicon-folder-close");
+            btn.classList.replace(
+                "glyphicon-folder-open",
+                "glyphicon-folder-close",
+            );
         }
     });
 }
 
 /** Toggle de hijos para el catálogo (mismo algoritmo que mod_reorganizacion) */
 function toggleHijosDirectosCat(rutaPadre, elemento) {
-    const filaBase = elemento.tagName === "TR" ? elemento : elemento.closest("tr");
-    const icono    = filaBase.querySelector(".btn-desplegar-icono");
+    const filaBase =
+        elemento.tagName === "TR" ? elemento : elemento.closest("tr");
+    const icono = filaBase.querySelector(".btn-desplegar-icono");
     if (!icono) return;
 
-    const nivelPadre     = rutaPadre.split("-").length;
-    const descendientes  = document.querySelectorAll(
-        '#tablaFamiliasJerarquica tr[data-ruta^="' + rutaPadre + '-"]'
+    const nivelPadre = rutaPadre.split("-").length;
+    const descendientes = document.querySelectorAll(
+        '#tablaFamiliasJerarquica tr[data-ruta^="' + rutaPadre + '-"]',
     );
     const seVaAAbrir = !icono.classList.contains("rotar-90");
 
@@ -106,17 +118,26 @@ function toggleHijosDirectosCat(rutaPadre, elemento) {
             const iconoHijo = f.querySelector(".btn-desplegar-icono");
             if (iconoHijo) {
                 iconoHijo.classList.remove("rotar-90");
-                iconoHijo.classList.replace("glyphicon-folder-open", "glyphicon-folder-close");
+                iconoHijo.classList.replace(
+                    "glyphicon-folder-open",
+                    "glyphicon-folder-close",
+                );
             }
         }
     });
 
     if (seVaAAbrir) {
         icono.classList.add("rotar-90");
-        icono.classList.replace("glyphicon-folder-close", "glyphicon-folder-open");
+        icono.classList.replace(
+            "glyphicon-folder-close",
+            "glyphicon-folder-open",
+        );
     } else {
         icono.classList.remove("rotar-90");
-        icono.classList.replace("glyphicon-folder-open", "glyphicon-folder-close");
+        icono.classList.replace(
+            "glyphicon-folder-open",
+            "glyphicon-folder-close",
+        );
     }
 }
 
@@ -158,7 +179,9 @@ function metodoClick() {
         const hidden = document.getElementById("familiasSel" + checkID[0]);
         familias = hidden ? hidden.value : "";
         if (!familias) {
-            alert("Selecciona al menos una familia antes de ejecutar el informe.");
+            alert(
+                "Selecciona al menos una familia antes de ejecutar el informe.",
+            );
             return;
         }
     }
@@ -176,12 +199,17 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion, familias) {
             var resultado = JSON.parse(response);
             abrirModal("Procesando", resultado.html);
             setTimeout(function () {
-                var url = "./informes.php?id=" +
+                var url =
+                    "./informes.php?id=" +
                     checkID[0] +
-                    "&Finicio=" + fecha_inicial +
-                    "&Ffinal="  + fecha_final +
-                    "&opcion="  + opcion;
-                if (familias) url += "&familias=" + encodeURIComponent(familias);
+                    "&Finicio=" +
+                    fecha_inicial +
+                    "&Ffinal=" +
+                    fecha_final +
+                    "&opcion=" +
+                    opcion;
+                if (familias)
+                    url += "&familias=" + encodeURIComponent(familias);
                 window.open(url, "_blank");
             }, 5000);
         },
@@ -190,13 +218,13 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion, familias) {
         },
     });
 }
-window.metodoClick          = metodoClick;
-window.abrirCatalogoFamilias     = abrirCatalogoFamilias;
-window.agregarFamiliaInforme     = agregarFamiliaInforme;
-window._eliminarFamiliaInforme   = _eliminarFamiliaInforme;
-window.colapsarTodoCatalogo      = colapsarTodoCatalogo;
-window.toggleHijosDirectosCat    = toggleHijosDirectosCat;
-window._onOpcionChange           = _onOpcionChange;
+window.metodoClick = metodoClick;
+window.abrirCatalogoFamilias = abrirCatalogoFamilias;
+window.agregarFamiliaInforme = agregarFamiliaInforme;
+window._eliminarFamiliaInforme = _eliminarFamiliaInforme;
+window.colapsarTodoCatalogo = colapsarTodoCatalogo;
+window.toggleHijosDirectosCat = toggleHijosDirectosCat;
+window._onOpcionChange = _onOpcionChange;
 
 // =====================================================================
 //       POSSTOCK — Helpers internos
@@ -608,14 +636,17 @@ window.posstockAplicarFiltroProveedores = posstockAplicarFiltroProveedores;
 var _posstockAgrupadoPorProv = false;
 
 // ── localStorage — preferencias UI ────────────────────────────────────────
-var _POSSTOCK_LS_KEY = 'posstock_ui_v1';
+var _POSSTOCK_LS_KEY = "posstock_ui_v1";
 
 function _posstockGuardarPrefs() {
     try {
-        localStorage.setItem(_POSSTOCK_LS_KEY, JSON.stringify({
-            agruparProv:  _posstockAgrupadoPorProv,
-            badgeStates:  window._posstockBadgeStates || {}
-        }));
+        localStorage.setItem(
+            _POSSTOCK_LS_KEY,
+            JSON.stringify({
+                agruparProv: _posstockAgrupadoPorProv,
+                badgeStates: window._posstockBadgeStates || {},
+            }),
+        );
     } catch (e) {}
 }
 
@@ -623,7 +654,9 @@ function _posstockCargarPrefs() {
     try {
         var raw = localStorage.getItem(_POSSTOCK_LS_KEY);
         return raw ? JSON.parse(raw) : {};
-    } catch (e) { return {}; }
+    } catch (e) {
+        return {};
+    }
 }
 
 function posstockToggleAgruparProveedor() {
@@ -746,32 +779,53 @@ function _posstockReordenarTabla() {
         });
 
         // Fila de totales al inicio y al final del agrupado
-        var nTotal = 0, costeTotal = 0, nProveedores = 0;
+        var nTotal = 0,
+            costeTotal = 0,
+            nProveedores = 0;
         var provsVistos = {};
         filas.forEach(function (f) {
             if (f.style.display === "none") return;
             nTotal++;
             costeTotal += parseFloat(f.dataset.coste || "0");
             var p = f.dataset.prov || "__sinprov__";
-            if (!provsVistos[p]) { provsVistos[p] = true; nProveedores++; }
+            if (!provsVistos[p]) {
+                provsVistos[p] = true;
+                nProveedores++;
+            }
         });
         if (nTotal > 0) {
-            var costeTotalTexto = costeTotal > 0
-                ? " &nbsp;·&nbsp; Valor est. total: <strong>~" + costeTotal.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + " €</strong>"
-                : "";
-            var totalInnerHTML = '<td colspan="7" style="font-weight:600;padding:4px 8px;font-size:12px;text-align:right;">'
-                + 'Total: <span class="label label-primary">' + nTotal + ' artículo' + (nTotal !== 1 ? 's' : '') + '</span>'
-                + ' &nbsp;en&nbsp; <span class="label label-default">' + nProveedores + ' proveedor' + (nProveedores !== 1 ? 'es' : '') + '</span>'
-                + costeTotalTexto
-                + '</td>';
+            var costeTotalTexto =
+                costeTotal > 0
+                    ? " &nbsp;·&nbsp; Valor est. total: <strong>~" +
+                      costeTotal.toLocaleString("es-ES", {
+                          maximumFractionDigits: 0,
+                      }) +
+                      " €</strong>"
+                    : "";
+            var totalInnerHTML =
+                '<td colspan="7" style="font-weight:600;padding:4px 8px;font-size:12px;text-align:right;">' +
+                'Total: <span class="label label-primary">' +
+                nTotal +
+                " artículo" +
+                (nTotal !== 1 ? "s" : "") +
+                "</span>" +
+                ' &nbsp;en&nbsp; <span class="label label-default">' +
+                nProveedores +
+                " proveedor" +
+                (nProveedores !== 1 ? "es" : "") +
+                "</span>" +
+                costeTotalTexto +
+                "</td>";
             var trTotalTop = document.createElement("tr");
             trTotalTop.setAttribute("data-prov-header", "__total__");
-            trTotalTop.style.cssText = "background:#e8edf5; border-bottom:2px solid #b0bdd6;";
+            trTotalTop.style.cssText =
+                "background:#e8edf5; border-bottom:2px solid #b0bdd6;";
             trTotalTop.innerHTML = totalInnerHTML;
             tbody.insertBefore(trTotalTop, tbody.firstChild);
             var trTotalBottom = document.createElement("tr");
             trTotalBottom.setAttribute("data-prov-header", "__total__");
-            trTotalBottom.style.cssText = "background:#e8edf5; border-top:2px solid #b0bdd6;";
+            trTotalBottom.style.cssText =
+                "background:#e8edf5; border-top:2px solid #b0bdd6;";
             trTotalBottom.innerHTML = totalInnerHTML;
             tbody.appendChild(trTotalBottom);
         }
@@ -870,26 +924,35 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
             // Si hay más artículos, elementos === pagina_efectiva; si es el último lote, < pagina_efectiva.
             var paginaEfectiva = resultado.pagina_efectiva || parametros.pagina;
 
-            acum.sort(_posstockSortComparator);
-
+            // Ordenación diferida: solo en el último lote sobre el array completo.
+            // Ordenar en cada lote intermedio es O(n log n) × nLotes innecesario
+            // (el array ya estará completo solo al final de todos los lotes).
             if (paginaEfectiva > 0 && elementos >= paginaEfectiva) {
                 $("#posstockProgreso").text(
                     "Analizando artículos: " + actual + " procesados…",
                 );
                 _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
+                acum.sort(_posstockSortComparator);
                 // Último lote: fase 2 C7c/d/e si hay artículos C7a+C7b detectados.
                 // C7c/d/e necesita el conjunto COMPLETO de artículos C7a+C7b; hacerlo
                 // por lotes produciría falsos negativos (el artículo cruzado puede estar
                 // en un lote diferente).
-                var idsC7a = [], idsC7b = [];
+                var idsC7a = [],
+                    idsC7b = [];
                 acum.forEach(function (f) {
                     if (f.c7_subcaso === "C7a") idsC7a.push(f.idArticulo);
                     if (f.c7_subcaso === "C7b") idsC7b.push(f.idArticulo);
                 });
                 if (idsC7a.length > 0 && idsC7b.length > 0) {
                     $("#posstockProgreso").text("Analizando cruces C7…");
-                    _posstockResolverC7cde(idsC7a, idsC7b, acum, parametros, periodo);
+                    _posstockResolverC7cde(
+                        idsC7a,
+                        idsC7b,
+                        acum,
+                        parametros,
+                        periodo,
+                    );
                 } else {
                     _posstockFinalizarTabla(acum, periodo);
                 }
@@ -909,17 +972,17 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
 function _posstockResolverC7cde(idsC7a, idsC7b, acum, parametrosLote, periodo) {
     $.ajax({
         data: {
-            pulsado:                  "resolverPOSStockC7cde",
+            pulsado: "resolverPOSStockC7cde",
             fecha_inicio_movimientos: parametrosLote.fecha_inicio_movimientos,
-            fecha_fin_movimientos:    parametrosLote.fecha_fin_movimientos,
-            fecha_inicio_stock:       parametrosLote.fecha_inicio_stock,
-            fecha_fin_stock:          parametrosLote.fecha_fin_stock,
-            tipo_periodo:             parametrosLote.tipo_periodo || "",
-            familias_incluir:         parametrosLote.familias_incluir || "",
-            familias_excluir:         parametrosLote.familias_excluir || "",
-            proveedores_incluir:      parametrosLote.proveedores_incluir || "",
-            ids_c7a:                  idsC7a.join(","),
-            ids_c7b:                  idsC7b.join(","),
+            fecha_fin_movimientos: parametrosLote.fecha_fin_movimientos,
+            fecha_inicio_stock: parametrosLote.fecha_inicio_stock,
+            fecha_fin_stock: parametrosLote.fecha_fin_stock,
+            tipo_periodo: parametrosLote.tipo_periodo || "",
+            familias_incluir: parametrosLote.familias_incluir || "",
+            familias_excluir: parametrosLote.familias_excluir || "",
+            proveedores_incluir: parametrosLote.proveedores_incluir || "",
+            ids_c7a: idsC7a.join(","),
+            ids_c7b: idsC7b.join(","),
         },
         url: "tareas.php",
         type: "post",
@@ -936,8 +999,8 @@ function _posstockResolverC7cde(idsC7a, idsC7b, acum, parametrosLote, periodo) {
                 var c = cruces[f.idArticulo];
                 if (!c) return;
                 f.posible_cruce_con = c.posible_cruce_con;
-                f.cruce_score       = c.cruce_score;
-                f.cruce_nivel       = c.cruce_nivel;
+                f.cruce_score = c.cruce_score;
+                f.cruce_nivel = c.cruce_nivel;
                 if (c.posible_causa) f.posible_causa = c.posible_causa;
             });
             _posstockFinalizarTabla(acum, periodo);
@@ -956,7 +1019,7 @@ function _posstockResolverC7cde(idsC7a, idsC7b, acum, parametrosLote, periodo) {
 function _posstockFinalizarTabla(acum, periodo) {
     acum.sort(_posstockSortComparator);
     _posstockEnriquecerC1aConC7b(acum);
-    window._posstockUltimasFilas  = acum;
+    window._posstockUltimasFilas = acum;
     window._posstockUltimoPeriodo = periodo;
     $("#posstockProgreso").text("Generando tabla…");
     _posstockRenderizarTabla(acum, periodo);
@@ -998,8 +1061,10 @@ function _posstockEnriquecerC1aConC7b(filas) {
                 c7aPorArticulo[f.idArticulo]
             ) {
                 f.c7a_activo = true;
-                f.c7a_delta_acumulado = c7aPorArticulo[f.idArticulo].delta_acumulado;
-                f.c7a_tipo_articulo   = c7aPorArticulo[f.idArticulo].tipo_articulo;
+                f.c7a_delta_acumulado =
+                    c7aPorArticulo[f.idArticulo].delta_acumulado;
+                f.c7a_tipo_articulo =
+                    c7aPorArticulo[f.idArticulo].tipo_articulo;
             }
         });
     }
@@ -1056,12 +1121,30 @@ function _posstockEnriquecerC1aConC7b(filas) {
     }
 }
 
-/** Llama a PHP para renderizar la tabla HTML y la inyecta en #posstockTablaWrap. */
+/** Tamaño de lote para el renderizado de la tabla (filas por petición HTTP). */
+var POSSTOCK_RENDER_BATCH = 150;
+
+/**
+ * Llama a PHP para renderizar la tabla HTML en lotes de ≤150 filas.
+ *
+ * Primer lote (modo=completo) → devuelve la tabla entera con <thead>; se inyecta
+ * en #posstockTablaWrap. Lotes siguientes (modo=filas) → solo <tr>, se añaden al
+ * <tbody> existente. Así ninguna petición supera ~200 KB, evitando el
+ * desbordamiento de buffers FastCGI ("upstream sent too big header" en nginx).
+ */
 function _posstockRenderizarTabla(filas, periodo) {
+    _posstockRenderLote(filas, periodo, 0);
+}
+
+function _posstockRenderLote(filas, periodo, offset) {
+    var batch = filas.slice(offset, offset + POSSTOCK_RENDER_BATCH);
+    var esPrimerLote = offset === 0;
+
     $.ajax({
         data: {
             pulsado: "renderizarTablaPosstock",
-            filas_json: JSON.stringify(filas),
+            filas_json: JSON.stringify(batch),
+            modo: esPrimerLote ? "completo" : "filas",
             fecha_fin_movimientos: periodo.fecha_fin_movimientos || "",
             fecha_inicio_stock: periodo.fecha_inicio_stock || "",
             anio: window.posstockAnioActivo || new Date().getFullYear(),
@@ -1073,18 +1156,36 @@ function _posstockRenderizarTabla(filas, periodo) {
         type: "post",
         success: function (response) {
             var resultado = JSON.parse(response);
-            $("#posstockSpinner").hide();
             if (resultado.error) {
                 _posstockMostrarError(resultado.error);
                 return;
             }
-            $("#posstockTablaWrap").html(resultado.html).show();
-            _posstockResetAgruparProv();
-            if (filas.length > 0) {
-                $("#posstockBtnExportar, #posstockBtnImprimir").show();
-                _posstockIniciarFiltroBadges();
+            if (esPrimerLote) {
+                $("#posstockTablaWrap").html(resultado.html).show();
             } else {
-                $("#posstockBtnExportar, #posstockBtnImprimir").hide();
+                $("#posstockTabla tbody").append(resultado.html);
+            }
+
+            var nextOffset = offset + batch.length;
+            if (nextOffset < filas.length) {
+                $("#posstockProgreso").text(
+                    "Preparando tabla: " +
+                        nextOffset +
+                        " / " +
+                        filas.length +
+                        "…",
+                );
+                _posstockRenderLote(filas, periodo, nextOffset);
+            } else {
+                // Último lote: tabla completa en DOM
+                $("#posstockSpinner").hide();
+                _posstockResetAgruparProv();
+                if (filas.length > 0) {
+                    $("#posstockBtnExportar, #posstockBtnImprimir").show();
+                    _posstockIniciarFiltroBadges();
+                } else {
+                    $("#posstockBtnExportar, #posstockBtnImprimir").hide();
+                }
             }
         },
         error: function () {
@@ -1104,98 +1205,175 @@ window.cargarDatosPosstock = cargarDatosPosstock;
 // Mapeo badge → grupo. Los badges dinámicos se detectan por regex en _posstockBadgeGrupo.
 var _POSSTOCK_BADGE_GRUPOS = {
     // C1 · Stock negativo
-    'Recepción no registrada': 'C1', 'Timing recepción': 'C1',
-    'Sin entradas': 'C1',            'Stock decimal': 'C1',
+    "Recepción no registrada": "C1",
+    "Timing recepción": "C1",
+    "Sin entradas": "C1",
+    "Stock decimal": "C1",
     // C2 · Sobrestock entrada
-    'Duplicado probable': 'C2',      'Posible duplicado': 'C2',
-    'Acumulación crónica': 'C2',     'Tendencia creciente': 'C2',
-    'Sobrestock severo': 'C2',       'Sin ventas': 'C2',
-    'Pedido prematuro': 'C2',
+    "Duplicado probable": "C2",
+    "Posible duplicado": "C2",
+    "Acumulación crónica": "C2",
+    "Tendencia creciente": "C2",
+    "Sobrestock severo": "C2",
+    "Sin ventas": "C2",
+    "Pedido prematuro": "C2",
     // C3 · Rotación (C3a caída + C3b sin rotación previa)
-    'Caída severa': 'C3',            'Rotación caída': 'C3',
-    'Riesgo caducidad': 'C3',
-    'Sin rotación': 'C3',            'Reposición sin rotación': 'C3',
-    'Pedidos repetidos sin venta': 'C3',
+    "Caída severa": "C3",
+    "Rotación caída": "C3",
+    "Riesgo caducidad": "C3",
+    "Sin rotación": "C3",
+    "Reposición sin rotación": "C3",
+    "Pedidos repetidos sin venta": "C3",
     // C5 · Rotura
-    'En curso': 'C5',
-    'KO': 'C5',                      'CR': 'C5',
-    'RK': 'C5',                      'Stock no fiable': 'C5',
-    'Error de pesaje': 'C5',
+    "En curso": "C5",
+    KO: "C5",
+    CR: "C5",
+    RK: "C5",
+    "Stock no fiable": "C5",
+    "Error de pesaje": "C5",
     // C7b · Déficit
-    'Déficit estable': 'C7b',        'Déficit posible': 'C7b',
-    'Déficit histórico': 'C7b',
+    "Déficit estable": "C7b",
+    "Déficit posible": "C7b",
+    "Déficit histórico": "C7b",
     // C7a · Merma tendencial
-    'Merma estable': 'C7a',          'Merma posible': 'C7a',
-    'Merma histórica': 'C7a',        'Alta varianza': 'C7a',
+    "Merma estable": "C7a",
+    "Merma posible": "C7a",
+    "Merma histórica": "C7a",
+    "Alta varianza": "C7a",
     // C7 · Evolución (compartido C7a / C7b)
-    'Nuevo': 'C7ev',                 'Mejorando': 'C7ev',
-    'Sin datos recientes': 'C7ev',
+    Nuevo: "C7ev",
+    Mejorando: "C7ev",
+    "Sin datos recientes": "C7ev",
     // C9 · Backstaging
-    'Merma confirmada': 'C9',        'Merma probable': 'C9',
-    'Lote abierto': 'C9',
-    'Sobreventa no compensada': 'C9','Pico de merma': 'C9',
-    'Conservación OK': 'C9',         'Stock desajustado': 'C9',
+    "Merma confirmada": "C9",
+    "Merma probable": "C9",
+    "Lote abierto": "C9",
+    "Sobreventa no compensada": "C9",
+    "Pico de merma": "C9",
+    "Conservación OK": "C9",
+    "Stock desajustado": "C9",
     // Dist · Distribución estadística (C5 / C6)
-    'Γ': 'Dist',  'N': 'Dist',  'BN': 'Dist',  'Bin': 'Dist',  'Poi': 'Dist',
+    Γ: "Dist",
+    N: "Dist",
+    BN: "Dist",
+    Bin: "Dist",
+    Poi: "Dist",
     // C6 · Punto de pedido
-    'Stock OK': 'C6',                'LT prov.': 'C6',
-    '~stk': 'C6',
+    "Stock OK": "C6",
+    "LT prov.": "C6",
+    "~stk": "C6",
 };
 
 // Etiquetas de grupo para la barra visual
 var _POSSTOCK_GRUPOS_LABEL = {
-    'C1':   'C1 · Neg.',
-    'C2':   'C2 · Sobrestock',
-    'C3':   'C3 · Rotación',
-    'C5':   'C5 · Rotura',
-    'C7b':  'C7b · Déficit',
-    'C7a':  'C7a · Merma',
-    'C7ev': 'C7 · Evolución',
-    'C9':   'C9 · Backstaging',
-    'Dist': 'Distribución',
-    'C6':   'C6 · Pedido',
-    'Otros': 'Otros',
+    C1: "C1 · Neg.",
+    C2: "C2 · Sobrestock",
+    C3: "C3 · Rotación",
+    C5: "C5 · Rotura",
+    C7b: "C7b · Déficit",
+    C7a: "C7a · Merma",
+    C7ev: "C7 · Evolución",
+    C9: "C9 · Backstaging",
+    Dist: "Distribución",
+    C6: "C6 · Pedido",
+    Otros: "Otros",
 };
-var _POSSTOCK_GRUPOS_ORDEN = ['C1','C2','C3','C5','C7b','C7a','C7ev','C9','Dist','C6','Otros'];
+var _POSSTOCK_GRUPOS_ORDEN = [
+    "C1",
+    "C2",
+    "C3",
+    "C5",
+    "C7b",
+    "C7a",
+    "C7ev",
+    "C9",
+    "Dist",
+    "C6",
+    "Otros",
+];
 
 // Orden explícito dentro de cada grupo.
 // '|' = separador visual de subgrupo (estado / severidad / calidad dato / etc.)
 var _POSSTOCK_GRUPO_ORDEN_BADGES = {
-    'C1':   ['Recepción no registrada', 'Timing recepción', '|', 'Sin entradas', 'Stock decimal'],
-    'C2':   ['Duplicado probable', 'Posible duplicado',
-             '|', 'Acumulación crónica', 'Tendencia creciente',
-             '|', 'Sobrestock severo', 'Sin ventas', 'Pedido prematuro'],
-    'C3':   ['Caída severa', 'Rotación caída', 'Riesgo caducidad',
-             '|', 'Sin rotación', 'Reposición sin rotación', 'Pedidos repetidos sin venta'],
-    'C5':   ['En curso',
-             '|', 'KO', 'CR', 'RK',
-             '|', 'Stock no fiable', 'Error de pesaje'],
-    'C7b':  ['Déficit estable', 'Déficit posible', '|', 'Déficit histórico'],
-    'C7a':  ['Merma estable', 'Merma posible', '|', 'Merma histórica', '|', 'Alta varianza'],
-    'C7ev': ['Nuevo', 'Mejorando', 'Sin datos recientes'],
-    'C9':   ['Merma confirmada', 'Merma probable', 'Merma posible',
-             '|', 'Lote abierto', 'Sobreventa no compensada', 'Pico de merma',
-             '|', 'Conservación OK', 'Stock desajustado'],
-    'Dist': ['Γ', 'N', 'BN', 'Bin', 'Poi'],
-    'C6':   ['Stock OK', '|', 'LT prov.', '~stk'],
+    C1: [
+        "Recepción no registrada",
+        "Timing recepción",
+        "|",
+        "Sin entradas",
+        "Stock decimal",
+    ],
+    C2: [
+        "Duplicado probable",
+        "Posible duplicado",
+        "|",
+        "Acumulación crónica",
+        "Tendencia creciente",
+        "|",
+        "Sobrestock severo",
+        "Sin ventas",
+        "Pedido prematuro",
+    ],
+    C3: [
+        "Caída severa",
+        "Rotación caída",
+        "Riesgo caducidad",
+        "|",
+        "Sin rotación",
+        "Reposición sin rotación",
+        "Pedidos repetidos sin venta",
+    ],
+    C5: [
+        "En curso",
+        "|",
+        "KO",
+        "CR",
+        "RK",
+        "|",
+        "Stock no fiable",
+        "Error de pesaje",
+    ],
+    C7b: ["Déficit estable", "Déficit posible", "|", "Déficit histórico"],
+    C7a: [
+        "Merma estable",
+        "Merma posible",
+        "|",
+        "Merma histórica",
+        "|",
+        "Alta varianza",
+    ],
+    C7ev: ["Nuevo", "Mejorando", "Sin datos recientes"],
+    C9: [
+        "Merma confirmada",
+        "Merma probable",
+        "Merma posible",
+        "|",
+        "Lote abierto",
+        "Sobreventa no compensada",
+        "Pico de merma",
+        "|",
+        "Conservación OK",
+        "Stock desajustado",
+    ],
+    Dist: ["Γ", "N", "BN", "Bin", "Poi"],
+    C6: ["Stock OK", "|", "LT prov.", "~stk"],
 };
 
 // Mapeo data-tipo (valor exacto del HTML) → grupo del filtro.
 // Se usa para asignar dinámicamente los badges ambiguos (mismo texto en varios casos).
 var _POSSTOCK_TIPO_A_GRUPO = {
-    'Inventario en negativo':          'C1',
-    'Desajuste Puntual de Stock':      'C1',
-    'Entrada con stock alto':          'C2',
-    'Caída de rotación':               'C3',
-    'Entrada sin rotación previa':     'C3',
-    'Venta Cero (Posible Rotura Física)': 'C5',
-    'Posible error de pesaje':         'C5',
-    'Entrada no registrada':           'C7b',
-    'Merma acumulada':                 'C7a',
-    'Merma backstaging':               'C9',
-    'Agotamiento Estimado':            'C6',
-    'Punto de Pedido':                 'C6',
-    'Stock Inactivo en Periodo':       'C6',
+    "Inventario en negativo": "C1",
+    "Desajuste Puntual de Stock": "C1",
+    "Entrada con stock alto": "C2",
+    "Caída de rotación": "C3",
+    "Entrada sin rotación previa": "C3",
+    "Venta Cero (Posible Rotura Física)": "C5",
+    "Posible error de pesaje": "C5",
+    "Entrada no registrada": "C7b",
+    "Merma acumulada": "C7a",
+    "Merma backstaging": "C9",
+    "Agotamiento Estimado": "C6",
+    "Punto de Pedido": "C6",
+    "Stock Inactivo en Periodo": "C6",
 };
 
 /**
@@ -1206,17 +1384,17 @@ var _POSSTOCK_TIPO_A_GRUPO = {
  */
 function _posstockBadgeGrupo(badge, badgeGruposReales) {
     // 1. Si en la tabla actual el badge solo aparece en filas de un grupo → ese grupo
-    var reales = badgeGruposReales ? (badgeGruposReales[badge] || []) : [];
+    var reales = badgeGruposReales ? badgeGruposReales[badge] || [] : [];
     if (reales.length === 1) return reales[0];
 
     // 2. Mapa estático para badges no ambiguos o cuando aparecen en varios grupos
     if (_POSSTOCK_BADGE_GRUPOS[badge]) return _POSSTOCK_BADGE_GRUPOS[badge];
 
     // 3. Patrones dinámicos
-    if (/^Recuperada\b/i.test(badge))   return 'C5';
-    if (/^Pedir\s*~/i.test(badge))      return 'C6';
-    if (/^\d+d$/.test(badge))           return 'C6';
-    return 'Otros';
+    if (/^Recuperada\b/i.test(badge)) return "C5";
+    if (/^Pedir\s*~/i.test(badge)) return "C6";
+    if (/^\d+d$/.test(badge)) return "C6";
+    return "Otros";
 }
 
 /**
@@ -1233,17 +1411,17 @@ function _posstockBadgeGrupo(badge, badgeGruposReales) {
  */
 function _posstockIniciarFiltroBadges() {
     var filas = document.querySelectorAll(
-        "#posstockTablaWrap tbody tr[data-badges]"
+        "#posstockTablaWrap tbody tr[data-badges]",
     );
     if (!filas.length) return;
 
     // Recopilar badges únicos y, por cada badge, qué grupos (data-tipo → grupo) tiene en la tabla
     var badgesSet = {};
-    var badgeGruposReales = {};  // badge → array de grupos únicos presentes en la tabla
+    var badgeGruposReales = {}; // badge → array de grupos únicos presentes en la tabla
     var haySinBadge = false;
     filas.forEach(function (tr) {
-        var val  = tr.getAttribute("data-badges") || "";
-        var tipo = tr.getAttribute("data-tipo")   || "";
+        var val = tr.getAttribute("data-badges") || "";
+        var tipo = tr.getAttribute("data-tipo") || "";
         var grupoFila = _POSSTOCK_TIPO_A_GRUPO[tipo] || null;
         if (val === "") {
             haySinBadge = true;
@@ -1275,24 +1453,27 @@ function _posstockIniciarFiltroBadges() {
         window._posstockBadgeStates[b] = savedStates[b] || 0;
     });
     if (haySinBadge) {
-        window._posstockBadgeStates['__sinbadge__'] = savedStates['__sinbadge__'] || 0;
+        window._posstockBadgeStates["__sinbadge__"] =
+            savedStates["__sinbadge__"] || 0;
     }
 
     // ── Construir barra ──────────────────────────────────────────────────
     // Override del margen global de .btn que añade el template del proyecto
-    if (!document.getElementById('posstockFiltroBadgesStyle')) {
-        var st = document.createElement('style');
-        st.id = 'posstockFiltroBadgesStyle';
-        st.textContent = '#posstockFiltroBadges .btn { margin: 0 !important; }';
+    if (!document.getElementById("posstockFiltroBadgesStyle")) {
+        var st = document.createElement("style");
+        st.id = "posstockFiltroBadgesStyle";
+        st.textContent = "#posstockFiltroBadges .btn { margin: 0 !important; }";
         document.head.appendChild(st);
     }
     var barra = document.createElement("div");
     barra.id = "posstockFiltroBadges";
-    barra.style.cssText = "margin-bottom:10px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; padding:6px 8px;";
+    barra.style.cssText =
+        "margin-bottom:10px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; padding:6px 8px;";
 
     // Cabecera: etiqueta + botón reset en la misma línea
     var cabecera = document.createElement("div");
-    cabecera.style.cssText = "display:flex; align-items:center; gap:6px; margin-bottom:6px;";
+    cabecera.style.cssText =
+        "display:flex; align-items:center; gap:6px; margin-bottom:6px;";
     var lblFiltro = document.createElement("span");
     lblFiltro.className = "text-muted small";
     lblFiltro.style.fontWeight = "bold";
@@ -1325,27 +1506,32 @@ function _posstockIniciarFiltroBadges() {
 
     // Fila de grupos: cada grupo es un bloque inline-flex con etiqueta + botones
     var filaGrupos = document.createElement("div");
-    filaGrupos.style.cssText = "display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start;";
+    filaGrupos.style.cssText =
+        "display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start;";
 
     _POSSTOCK_GRUPOS_ORDEN.forEach(function (grupo) {
         if (!porGrupo[grupo]) return;
         var bloque = document.createElement("div");
-        bloque.style.cssText = "display:inline-flex; align-items:stretch; background:#fff; border:1px solid #e0e0e0; border-radius:3px; overflow:hidden;";
+        bloque.style.cssText =
+            "display:inline-flex; align-items:stretch; background:#fff; border:1px solid #e0e0e0; border-radius:3px; overflow:hidden;";
         var etq = document.createElement("span");
         etq.className = "text-muted";
-        etq.style.cssText = "display:flex; align-items:center; font-size:10px; font-weight:bold; white-space:nowrap; padding:0 6px 0 7px; border-right:1px solid #e0e0e0; background:#f5f5f5;";
+        etq.style.cssText =
+            "display:flex; align-items:center; font-size:10px; font-weight:bold; white-space:nowrap; padding:0 6px 0 7px; border-right:1px solid #e0e0e0; background:#f5f5f5;";
         etq.textContent = _POSSTOCK_GRUPOS_LABEL[grupo] || grupo;
         var cuerpo = document.createElement("div");
-        cuerpo.style.cssText = "display:flex; align-items:center; flex-wrap:wrap; gap:3px; padding:3px 7px;";
+        cuerpo.style.cssText =
+            "display:flex; align-items:center; flex-wrap:wrap; gap:3px; padding:3px 7px;";
         bloque.appendChild(etq);
 
         // Renderizar badges en el orden explícito, insertando separadores de subgrupo ('|')
         var ordenExplicito = _POSSTOCK_GRUPO_ORDEN_BADGES[grupo] || [];
         var yaRenderizados = {};
         ordenExplicito.forEach(function (b) {
-            if (b === '|') {
+            if (b === "|") {
                 var sep = document.createElement("span");
-                sep.style.cssText = "display:inline-block; width:1px; height:14px; background:#ddd; margin:0 2px; align-self:center; flex-shrink:0;";
+                sep.style.cssText =
+                    "display:inline-block; width:1px; height:14px; background:#ddd; margin:0 2px; align-self:center; flex-shrink:0;";
                 cuerpo.appendChild(sep);
                 return;
             }
@@ -1367,8 +1553,9 @@ function _posstockIniciarFiltroBadges() {
     // Bloque "Sin badge"
     if (haySinBadge) {
         var bloqueSin = document.createElement("div");
-        bloqueSin.style.cssText = "display:inline-flex; align-items:center; gap:3px; background:#fff; border:1px solid #e0e0e0; border-radius:3px; padding:3px 7px;";
-        bloqueSin.appendChild(_crearBtnBadge('__sinbadge__', filas, barra));
+        bloqueSin.style.cssText =
+            "display:inline-flex; align-items:center; gap:3px; background:#fff; border:1px solid #e0e0e0; border-radius:3px; padding:3px 7px;";
+        bloqueSin.appendChild(_crearBtnBadge("__sinbadge__", filas, barra));
         filaGrupos.appendChild(bloqueSin);
     }
 
@@ -1389,7 +1576,7 @@ function _crearBtnBadge(badge, filas, barra) {
     btn.type = "button";
     btn.className = "btn btn-xs btn-default";
     btn.setAttribute("data-badge-filtro", badge);
-    btn.textContent = badge === '__sinbadge__' ? 'Sin badge' : badge;
+    btn.textContent = badge === "__sinbadge__" ? "Sin badge" : badge;
     btn.title = "Clic: neutro → incluir (verde) → excluir (rojo) → neutro";
     btn.onclick = function () {
         var cur = window._posstockBadgeStates[badge] || 0;
@@ -1409,28 +1596,35 @@ function _crearBtnBadge(badge, filas, barra) {
 function _aplicarFiltroBadges(filas) {
     var states = window._posstockBadgeStates || {};
     var incluidosBadges = Object.keys(states).filter(function (b) {
-        return b !== '__sinbadge__' && states[b] === 1;
+        return b !== "__sinbadge__" && states[b] === 1;
     });
     var excluidosBadges = Object.keys(states).filter(function (b) {
-        return b !== '__sinbadge__' && states[b] === 2;
+        return b !== "__sinbadge__" && states[b] === 2;
     });
-    var sinBadgeState = states['__sinbadge__'] || 0;
+    var sinBadgeState = states["__sinbadge__"] || 0;
     var hayInclusiones = incluidosBadges.length > 0 || sinBadgeState === 1;
 
     filas.forEach(function (tr) {
         if (tr.hasAttribute("data-prov-header")) return;
         var val = tr.getAttribute("data-badges") || "";
-        var rowBadges = val === ''
-            ? []
-            : val.split("|").map(function (b) { return b.trim(); });
-        var esSinBadge = val === '';
+        var rowBadges =
+            val === ""
+                ? []
+                : val.split("|").map(function (b) {
+                      return b.trim();
+                  });
+        var esSinBadge = val === "";
         var mostrar = true;
 
         // 1. Exclusiones (prioridad máxima)
         if (esSinBadge) {
             if (sinBadgeState === 2) mostrar = false;
         } else {
-            if (excluidosBadges.some(function (b) { return rowBadges.indexOf(b) !== -1; })) {
+            if (
+                excluidosBadges.some(function (b) {
+                    return rowBadges.indexOf(b) !== -1;
+                })
+            ) {
                 mostrar = false;
             }
         }
@@ -1440,7 +1634,9 @@ function _aplicarFiltroBadges(filas) {
             if (esSinBadge) {
                 mostrar = sinBadgeState === 1;
             } else {
-                mostrar = incluidosBadges.some(function (b) { return rowBadges.indexOf(b) !== -1; });
+                mostrar = incluidosBadges.some(function (b) {
+                    return rowBadges.indexOf(b) !== -1;
+                });
             }
         }
 
@@ -1449,29 +1645,35 @@ function _aplicarFiltroBadges(filas) {
 
     // Actualizar caché de filas visibles para CSV/PDF
     window._posstockFilasVisibles = Array.from(filas).filter(function (tr) {
-        return tr.style.display !== "none" && !tr.hasAttribute("data-prov-header");
+        return (
+            tr.style.display !== "none" && !tr.hasAttribute("data-prov-header")
+        );
     });
 }
 
 /** Actualiza el estado visual de los botones de la barra según _posstockBadgeStates. */
 function _actualizarBotonesEstado(barra) {
     var states = window._posstockBadgeStates || {};
-    var hayFiltro = Object.keys(states).some(function (b) { return states[b] !== 0; });
+    var hayFiltro = Object.keys(states).some(function (b) {
+        return states[b] !== 0;
+    });
     barra.querySelectorAll("[data-badge-filtro]").forEach(function (btn) {
         var b = btn.getAttribute("data-badge-filtro");
         if (b === "__todos__") {
-            btn.className = 'btn btn-xs ' + (hayFiltro ? 'btn-warning' : 'btn-default');
+            btn.className =
+                "btn btn-xs " + (hayFiltro ? "btn-warning" : "btn-default");
             return;
         }
         var estado = states[b] || 0;
-        btn.className = 'btn btn-xs ' + (
-            estado === 1 ? 'btn-success active' :
-            estado === 2 ? 'btn-danger  active' :
-            'btn-default'
-        );
+        btn.className =
+            "btn btn-xs " +
+            (estado === 1
+                ? "btn-success active"
+                : estado === 2
+                  ? "btn-danger  active"
+                  : "btn-default");
     });
 }
-
 
 // =====================================================================
 //       POSSTOCK — Exportar / Imprimir
@@ -1480,15 +1682,20 @@ function _actualizarBotonesEstado(barra) {
 function _posstockGetArticulosFiltrados() {
     // Solo aplicar filtro si hay algún badge en estado no-neutral
     var states = window._posstockBadgeStates || {};
-    var hayFiltro = Object.keys(states).some(function (b) { return states[b] !== 0; });
-    if (!hayFiltro) return '';
+    var hayFiltro = Object.keys(states).some(function (b) {
+        return states[b] !== 0;
+    });
+    if (!hayFiltro) return "";
 
     var filas = window._posstockFilasVisibles;
-    if (!filas || !filas.length) return '';
+    if (!filas || !filas.length) return "";
 
-    var ids = filas.map(function (tr) { return tr.getAttribute('data-idarticulo') || ''; })
-                   .filter(Boolean);
-    return ids.join(',');
+    var ids = filas
+        .map(function (tr) {
+            return tr.getAttribute("data-idarticulo") || "";
+        })
+        .filter(Boolean);
+    return ids.join(",");
 }
 
 function exportarPOSStockCSV() {
@@ -1507,15 +1714,23 @@ function exportarPOSStockCSV() {
         tipo_periodo: window.posstockTipoActivo || "",
         min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
         familias_incluir: (window.posstockFamiliasIncluir || [])
-            .map(function (f) { return f.id; })
+            .map(function (f) {
+                return f.id;
+            })
             .join(","),
         familias_excluir: (window.posstockFamiliasExcluir || [])
-            .map(function (f) { return f.id; })
+            .map(function (f) {
+                return f.id;
+            })
             .join(","),
         proveedores_incluir: (window.posstockProveedoresIncluir || [])
-            .map(function (p) { return p.id; })
+            .map(function (p) {
+                return p.id;
+            })
             .join(","),
-        proveedor_todos_productos: window.posstockProveedorTodosProductos ? "1" : "0",
+        proveedor_todos_productos: window.posstockProveedorTodosProductos
+            ? "1"
+            : "0",
         articulos_filtrados: _posstockGetArticulosFiltrados(),
     };
 

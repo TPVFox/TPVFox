@@ -1068,6 +1068,34 @@ function renderTablaPosstock(array $filas, array $cfg): string
     return $html;
 }
 
+// ── Renderizado en lotes (modo batch) ────────────────────────────────────────
+
+/**
+ * Devuelve únicamente los elementos <tr> para las $filas indicadas,
+ * sin los envoltorios <style>, <table>, <thead> ni <tbody>.
+ *
+ * Diseñado para el renderizado en lotes desde JavaScript:
+ *   Primer lote  → renderTablaPosstock($batch, $cfg)   (tabla completa con cabecera)
+ *   Lotes 2..N   → renderFilasTablaPosstock($batch, $cfg)  (solo <tr> para append)
+ *
+ * Así ninguna respuesta HTTP individual supera los ~200 KB, lo que evita el
+ * desbordamiento de los buffers FastCGI de nginx con datasets grandes.
+ *
+ * @param array $filas  Subconjunto de incidencias del lote.
+ * @param array $cfg    Mismos parámetros de contexto que renderTablaPosstock().
+ * @return string       Concatenación de elementos <tr>…</tr>; vacío si no hay filas.
+ */
+function renderFilasTablaPosstock(array $filas, array $cfg): string
+{
+    if (empty($filas)) return '';
+
+    // Reutilizar renderTablaPosstock() para no duplicar la lógica de renderizado.
+    // Solo se extrae el contenido del <tbody> (los <tr> ya generados).
+    $html = renderTablaPosstock($filas, $cfg);
+    preg_match('/<tbody>(.*?)<\/tbody>/s', $html, $m);
+    return $m[1] ?? '';
+}
+
 // ── Helpers privados de cruce ─────────────────────────────────────────────────
 
 function _posstockCruceCls(string $nivel): string

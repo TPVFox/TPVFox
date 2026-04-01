@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Tarea: renderizarTablaPosstock
  *
@@ -34,4 +35,6 @@ $cfg = [
     'mostrar_tecnico'       => !empty($_POST['mostrar_tecnico']),
 ];
 
-$respuesta['html'] = renderTablaPosstock($filas, $cfg);
+$respuesta['html'] = ($_POST['modo'] ?? 'completo') === 'filas'
+    ? renderFilasTablaPosstock($filas, $cfg)
+    : renderTablaPosstock($filas, $cfg);
