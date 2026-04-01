@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vista: tabla de incidencias POSStock.
  *
@@ -34,7 +35,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
     ];
 
     $html  = '<style>#posstockTabla .label{margin-right:3px;margin-bottom:3px;display:inline-block;}</style>'
-           . '<table class="table table-condensed table-hover table-bordered" id="posstockTabla">';
+        . '<table class="table table-condensed table-hover table-bordered" id="posstockTabla">';
     $html .= '<thead><tr>'
         . '<th>Artículo</th>'
         . '<th>Nombre</th>'
@@ -137,7 +138,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $linea3 . '</small>';
             }
 
-        // ── C1b ───────────────────────────────────────────────────────────────
+            // ── C1b ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Desajuste Puntual de Stock') {
             $badges1b = '';
             $nEnt1b   = isset($f['n_entradas']) && $f['n_entradas'] !== null ? (int)$f['n_entradas'] : null;
@@ -175,7 +176,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $linea3b . '</small>';
             }
 
-        // ── C2 ────────────────────────────────────────────────────────────────
+            // ── C2 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada con stock alto') {
             // C7a-007: badge merma acumulada si el artículo tiene C7a activo
             $badgeC7aMerma = '';
@@ -207,7 +208,6 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ' | Cobertura: ' . $cobIni . ' → <strong>' . $cobFin . '</strong>'
                     . ' | Periodo: ' . $fInicio . ' → ' . $fFin
                     . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '');
-
             } elseif ($c2Cat === 'acumulacion') {
                 $nEvt    = (int)($f['n_eventos'] ?? 1);
                 $cobFin  = $cob !== null ? $cob . ' días' : 'sin ventas';
@@ -221,7 +221,6 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . ' | Periodo: ' . $fInicio . ' → ' . $fFin
                     . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '')
                     . ' | Cobertura final: <strong>' . $cobFin . '</strong>';
-
             } else {
                 $esDupProbable = $dias !== null && $dias <= 1 && $ncantA !== null
                     && (max($ncant, $ncantA) > 0) && (abs($ncant - $ncantA) / max($ncant, $ncantA)) < 0.15;
@@ -267,7 +266,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= ' | Fecha: ' . ($f['fecha'] ?? '—');
             }
 
-        // ── C3a ───────────────────────────────────────────────────────────────
+            // ── C3a ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Caída de rotación') {
             $avgCad      = (float)($f['avg_cadencia_dias'] ?? 0);
             $semVal      = (float)($f['semanas_desde_ultima_venta'] ?? 0);
@@ -305,7 +304,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . ' | Stock: <strong>' . $stkStr . '</strong>'
                 . ' | ' . $refFechaStr;
 
-        // ── C5 ────────────────────────────────────────────────────────────────
+            // ── C5 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Venta Cero (Posible Rotura Física)') {
             $badgeStockNoFiable = !empty($f['stock_no_fiable'])
                 ? ' <span class="label label-warning" title="Este artículo tiene stock negativo activo (C1a). Los datos de stock usados en este análisis pueden no ser fiables.">Stock no fiable</span>'
@@ -332,7 +331,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 'GammaReg' => ['lbl' => 'Γ', 'cls' => 'label-success',  'comp' => 'Alta rotación, patrón muy regular',     'tip' => 'Gamma — alta rotación con intervalos regulares. Umbral = cuantil Gamma ajustado a los gaps.'],
                 'Gamma'    => ['lbl' => 'Γ', 'cls' => 'label-default',  'comp' => 'Rotación moderada, gaps ajustados a Gamma', 'tip' => 'Gamma — ajuste directo a la distribución de gaps histórica. Umbral = cuantil de probabilidad.'],
                 'Normal'   => ['lbl' => 'N', 'cls' => 'label-default',  'comp' => 'Intervalos muy uniformes (aproximación Normal)', 'tip' => 'Normal — gaps prácticamente constantes (varianza ≈ 0). Umbral = media + 3σ.'],
-                'BN'       => ['lbl' => 'BN','cls' => 'label-info',     'comp' => 'Demanda en rachas o lotes',               'tip' => 'Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra.'],
+                'BN'       => ['lbl' => 'BN', 'cls' => 'label-info',     'comp' => 'Demanda en rachas o lotes',               'tip' => 'Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra.'],
                 'Poisson'  => $avgC5 > 0 && $avgC5 < 4
                     ? ['lbl' => 'Poi', 'cls' => 'label-primary', 'comp' => 'Alta rotación, gaps ~ exponencial',   'tip' => 'Poisson — alta rotación con dispersión normal. Umbral: gap > −ln(p)/λ.']
                     : ['lbl' => 'Poi', 'cls' => 'label-default', 'comp' => 'Demanda esporádica, baja frecuencia', 'tip' => 'Poisson — artículo de venta poco frecuente. Umbral conservador para eventos raros.'],
@@ -351,7 +350,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . $badgeMod
                 . ' <small class="text-muted">· ' . htmlspecialchars($c5m['comp']) . '</small>';
 
-        // ── C3b ───────────────────────────────────────────────────────────────
+            // ── C3b ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada sin rotación previa') {
             $stockC3b = isset($f['stock_actual']) && $f['stock_actual'] !== null ? number_format((float)$f['stock_actual'], 2, '.', '') : '—';
             $nEnt3b   = (int)($f['n_entradas'] ?? 1) ?: 1;
@@ -394,11 +393,11 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . ' | ' . $entStr3b
                 . ' | ' . $movStr3b;
 
-        // ── C4 ────────────────────────────────────────────────────────────────
+            // ── C4 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Stock Inactivo en Periodo') {
             $detalle = 'Stock: ' . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, '.', '') : '—');
 
-        // ── C7b / C7b_posible ─────────────────────────────────────────────────
+            // ── C7b / C7b_posible ─────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada no registrada') {
             $offsetB    = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
             $dispB      = isset($f['dispersion'])       ? (float)$f['dispersion']      : null;
@@ -488,7 +487,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $lineaCompB . '</small>';
             }
 
-        // ── C7b_ruido_peso ────────────────────────────────────────────────────
+            // ── C7b_ruido_peso ────────────────────────────────────────────────────
         } elseif ($tipo === 'Posible error de pesaje') {
             $offsetP  = isset($f['offset_estimado']) ? (float)$f['offset_estimado'] : null;
             $nRecP    = (int)($f['n_recepciones'] ?? 0);
@@ -509,7 +508,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">Intervalo medio: ' . $diasMedP . ' días</small>';
             }
 
-        // ── C7a ───────────────────────────────────────────────────────────────
+            // ── C7a ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Merma acumulada') {
             $deltaA    = isset($f['delta_acumulado']) ? (float)$f['delta_acumulado'] : null;
             $slopeA    = isset($f['tendencia'])        ? (float)$f['tendencia']       : null;
@@ -615,12 +614,13 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $lineaCompA . '</small>';
             }
 
-        // ── C9 ────────────────────────────────────────────────────────────────
+            // ── C9 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Merma backstaging') {
             $mermaKg      = isset($f['merma_total_kg'])     ? (float)$f['merma_total_kg']     : null;
             $mermaCarryKg = isset($f['merma_carryover_kg']) ? (float)$f['merma_carryover_kg']  : 0.0;
             $nInciertos9  = (int)($f['n_lotes_inciertos'] ?? ($mermaCarryKg > 0.001 ? 1 : 0));
             $mermaDeclKg  = isset($f['merma_declarada_kg']) ? (float)$f['merma_declarada_kg']  : null;
+            $mermaDeclMes = !empty($f['merma_decl_por_mes']) ? $f['merma_decl_por_mes'] : [];
             $pctMerma     = isset($f['pct_merma'])          ? (float)$f['pct_merma']           : null;
             $nLotes       = (int)($f['n_lotes']         ?? 0);
             $nDeficit     = (int)($f['n_lotes_deficit'] ?? 0);
@@ -700,9 +700,19 @@ function renderTablaPosstock(array $filas, array $cfg): string
             // ── Badge merma declarada (data-nofiltro: valor único por artículo, no filtrable) ──
             $badgeDecl9 = '';
             if ($mermaDeclKg !== null && $mermaDeclKg > 0.0) {
+                $_declTooltip = 'Merma declarada en albaranes de regularizacion o proveedores/clientes especiales: '
+                    . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '.';
+                if (!empty($mermaDeclMes)) {
+                    // $_mc9 ya está definido más arriba en este bloque C9
+                    $_declParts = [];
+                    foreach ($mermaDeclMes as $_dm => $_dv) {
+                        $_declParts[] = $_mc9[$_dm] . ': ' . number_format($_dv, 3, ',', '.') . ' ' . $unidad9;
+                    }
+                    $_declTooltip .= ' Desglose mensual: ' . implode(' | ', $_declParts) . '.';
+                }
+                $_declTooltip .= ' Esta cifra esta separada de la merma estimada por el modelo.';
                 $badgeDecl9 = ' <span class="label label-info" data-nofiltro="1"'
-                    . ' title="Merma declarada explícitamente en albaranes de regularización o proveedores especiales: '
-                    . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '. Esta cifra está separada de la merma estimada por el modelo.">'
+                    . ' title="' . htmlspecialchars($_declTooltip) . '">'
                     . 'Declarada: ' . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '</span>';
             }
 
@@ -873,7 +883,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $detalle .= '<br><small class="text-muted">' . $lineaComp9 . '</small>';
             }
 
-        // ── C6a / C6b ─────────────────────────────────────────────────────────
+            // ── C6a / C6b ─────────────────────────────────────────────────────────
         } elseif ($tipo === 'Agotamiento Estimado' || $tipo === 'Punto de Pedido') {
             $badgeStockNoFiable = !empty($f['stock_no_fiable'])
                 ? ' <span class="label label-warning" title="Este artículo tiene stock negativo activo (C1a). Los datos de stock usados en este análisis pueden no ser fiables.">Stock no fiable</span>'
@@ -933,7 +943,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
             $stockLabel = !empty($f['stock_reconstituido'])
                 ? ' | <span title="' . htmlspecialchars($recTip) . '">Stock ~est: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>'
-                    . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
+                . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
                 : ' | Stock: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>';
 
             $detalle = $badgeStockNoFiable . $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT . $badgeC6Rec . $badgeC6Q
@@ -948,9 +958,11 @@ function renderTablaPosstock(array $filas, array $cfg): string
         // ── tipoLabel ──────────────────────────────────────────────────────────
         switch ($tipo) {
             case 'Inventario en negativo':
-                $tipoLabel = 'Stock negativo'; break;
+                $tipoLabel = 'Stock negativo';
+                break;
             case 'Desajuste Puntual de Stock':
-                $tipoLabel = 'Descuadre temporal'; break;
+                $tipoLabel = 'Descuadre temporal';
+                break;
             case 'Caída de rotación':
                 $avgCadTipo = (float)($f['avg_cadencia_dias'] ?? 0);
                 $tipoLabel = ($avgCadTipo > 0 && $avgCadTipo <= 7 && empty($f['desde_reposicion']))
@@ -972,9 +984,11 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 }
                 break;
             case 'Venta Cero (Posible Rotura Física)':
-                $tipoLabel = 'Rotura de stock'; break;
+                $tipoLabel = 'Rotura de stock';
+                break;
             case 'Entrada sin rotación previa':
-                $tipoLabel = 'Pedido sin rotación'; break;
+                $tipoLabel = 'Pedido sin rotación';
+                break;
             case 'Agotamiento Estimado':
             case 'Punto de Pedido':
                 $_ropTL   = (float)($f['rop'] ?? 0);

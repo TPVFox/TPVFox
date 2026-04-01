@@ -7514,7 +7514,8 @@ class ClasePosstock
         // Si en la misma fecha hay una recepción regular para el mismo artículo,
         // el negativo especial es una devolución del ciclo anterior al proveedor
         // que trae stock nuevo: netear E_t de la recepción, NO merma_declarada.
-        $merma_prov_decl = [];
+        $merma_prov_decl     = [];
+        $merma_prov_decl_mes = []; // [aid][mes(1-12)] => kg acumulado
         foreach ($candidatos_decl as $aid => $fechas) {
             foreach ($fechas as $fecha => $monto) {
                 $recs_aid = $recepciones_map[$aid] ?? [];
@@ -7536,6 +7537,8 @@ class ClasePosstock
                 } else {
                     // Sin recepción regular ese día → merma declarada normal
                     $merma_prov_decl[$aid] = ($merma_prov_decl[$aid] ?? 0.0) + $monto;
+                    $_mes_pd = (int)substr($fecha, 5, 2);
+                    $merma_prov_decl_mes[$aid][$_mes_pd] = ($merma_prov_decl_mes[$aid][$_mes_pd] ?? 0.0) + $monto;
                 }
             }
         }
@@ -7544,7 +7547,8 @@ class ClasePosstock
         //                       nunidades < 0 = entrada de stock (devolución/regularización).
         $alb_cli = [];
         foreach ($rows_cli_esp as $r) $alb_cli[(int)$r['idAlbaran']][] = $r;
-        $merma_cli_decl  = [];
+        $merma_cli_decl      = [];
+        $merma_cli_decl_mes  = []; // [aid][mes(1-12)] => kg acumulado
         $entradas_cli_esp = []; // [aid][fecha] => monto absoluto (nunidades < 0 sin cruce)
         foreach ($alb_cli as $lineas) {
             // Paso A: detectar signos mixtos por artículo dentro del albarán
@@ -7563,6 +7567,8 @@ class ClasePosstock
                 if ($nunidades > 0) {
                     // Salida especial → merma declarada
                     $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $nunidades;
+                    $_mes_cd = (int)substr($fecha, 5, 2);
+                    $merma_cli_decl_mes[$aid][$_mes_cd] = ($merma_cli_decl_mes[$aid][$_mes_cd] ?? 0.0) + $nunidades;
                 } else {
                     // Entrada especial → candidato a neta V_t o entrada directa
                     $entradas_cli_esp[$aid][$fecha] = ($entradas_cli_esp[$aid][$fecha] ?? 0.0)
@@ -7760,6 +7766,15 @@ class ClasePosstock
 
             $umbral     = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
             $merma_decl = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
+            // Construir desglose mensual de la merma declarada (proveedor + cliente especiales)
+            $_merma_decl_mes = [];
+            foreach (($merma_prov_decl_mes[$idArticulo] ?? []) as $_mpm => $_vpd) {
+                $_merma_decl_mes[$_mpm] = ($_merma_decl_mes[$_mpm] ?? 0.0) + $_vpd;
+            }
+            foreach (($merma_cli_decl_mes[$idArticulo] ?? []) as $_mcm => $_vcd) {
+                $_merma_decl_mes[$_mcm] = ($_merma_decl_mes[$_mcm] ?? 0.0) + $_vcd;
+            }
+            ksort($_merma_decl_mes);
             $clasif = $this->_clasificarMermaC9(
                 $resultado['lotes'],
                 $stock_final,
@@ -7780,6 +7795,7 @@ class ClasePosstock
                 'deficit_bloqueado_kg' => $clasif['deficit_bloqueado'], // sobreventa no redistribuible
                 'n_lotes_inciertos'   => $clasif['n_lotes_inciertos'],
                 'merma_declarada_kg'  => round($merma_decl, 3),
+                'merma_decl_por_mes'  => !empty($_merma_decl_mes) ? array_map(fn($v) => round($v, 3), $_merma_decl_mes) : [],
                 'pct_merma'           => $clasif['pct_merma'],
                 'n_lotes'             => count($resultado['lotes']),
                 'n_recepciones'       => $n_en_periodo,
