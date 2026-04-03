@@ -99,8 +99,8 @@ class ClaseInformes extends TFModelo
         // ----     Cargamos los albaranes de todos los proveedores   ------ //
         foreach ($ids as $key => $idProveedor) {
             $errores = array();
-            $fechaInicial = $parametros['Finicio'];
-            $fechaFinal = $parametros['Ffinal'];
+            $fechaInicial = $BDTpv->real_escape_string($parametros['Finicio']);
+            $fechaFinal   = $BDTpv->real_escape_string($parametros['Ffinal']);
             $datosProveedor = $CProveedor->getProveedor($idProveedor);
             if (!isset($datosProveedor['datos'])) {
                 $errores[1] = array(
@@ -280,8 +280,8 @@ class ClaseInformes extends TFModelo
         //                                     coste_medio, num_compras, total_linea ] ] ]
 
         $BDTpv       = $this->conexionBDTPV();
-        $fechaInicio = $parametros['Finicio'];
-        $fechaFinal  = $parametros['Ffinal'];
+        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -1206,7 +1206,7 @@ class ClaseInformes extends TFModelo
         $vispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
 
         // Reconstruye unidades netas acumuladas desde 1ene hasta $hasta (inclusive)
-        $fnStockEn = function(string $hasta) use ($BDTpv, $inicioAno): array {
+        $fnStockEn = function (string $hasta) use ($BDTpv, $inicioAno): array {
             // Si $hasta < $inicioAno (período empieza el 1 ene → víspera = 31 dic año anterior)
             // devolvemos array vacío → stock inicio = 0
             if ($hasta < $inicioAno) return [];
