@@ -1,6 +1,7 @@
 <?php
 include_once $URLCom . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/modulos/mod_proveedor/clases/ClaseProveedor.php';
+include_once __DIR__ . '/InformesFiltros.php';
 class ClaseInformes extends TFModelo
 {
     public $informes = array(
@@ -92,41 +93,104 @@ class ClaseInformes extends TFModelo
         $id_informe = $parametros['id'];
 
         // Cargamos los ids de los proveedores que indicamos.
+        $todosProveedores = [];
+        $ids              = [];
         if ($this->informes[$id_informe]['opciones'][$opcion] == 'Todos') {
             $todosProveedores = $CProveedor->obtenerProveedores();
             $ids = $this->ObtenerIdsArray($todosProveedores, 'idProveedor');
         }
-        // ----     Cargamos los albaranes de todos los proveedores   ------ //
-        foreach ($ids as $key => $idProveedor) {
-            $errores = array();
-            $fechaInicial = $BDTpv->real_escape_string($parametros['Finicio']);
-            $fechaFinal   = $BDTpv->real_escape_string($parametros['Ffinal']);
-            $datosProveedor = $CProveedor->getProveedor($idProveedor);
-            if (!isset($datosProveedor['datos'])) {
-                $errores[1] = array(
-                    'tipo' => 'DANGER!',
-                    'dato' => $datosProveedor['consulta'],
-                    'class' => 'alert alert-danger',
-                    'mensaje' => 'Error al obtener datos proveedor ' . $idProveedor . ',No debe existir proveedor'
-                );
-            } else {
-                $resumenProveedor = $CProveedor->albaranesProveedoresFechas($idProveedor, $fechaInicial, $fechaFinal);
-                if (isset($resumenProveedor['error'])) {
-                    // Puede ser varios error, trae un array(tipo,mensaje)
-                    $errores[2] = $resumenProveedor['error'];
-                }
+
+        if (empty($ids)) {
+            return [
+                'datos'   => $todosProveedores,
+                'informe' => ['productos' => [], 'suma_albaranes' => [], 'suma_desgloseIvas' => []]
+            ];
+        }
+
+        $fechaInicial = $BDTpv->real_escape_string($parametros['Finicio']);
+        $fechaFinal   = $BDTpv->real_escape_string($parametros['Ffinal']);
+        $idsStr       = implode(',', array_map('intval', $ids));
+
+        // ── Bulk Query 1: todos los albaranes de todos los proveedores ──────
+        $rAlb = $BDTpv->query("
+            SELECT id AS idalbpro, idProveedor
+            FROM albprot
+            WHERE idProveedor IN ($idsStr)
+              AND Fecha BETWEEN '$fechaInicial' AND '$fechaFinal'
+        ");
+        $albIdsByProveedor = [];
+        $allAlbIds         = [];
+        while ($row = $rAlb->fetch_assoc()) {
+            $pId = (int)$row['idProveedor'];
+            $aId = (int)$row['idalbpro'];
+            $albIdsByProveedor[$pId][] = $aId;
+            $allAlbIds[]               = $aId;
+        }
+
+        $productosByAlb = [];
+        $resumenByAlb   = [];
+
+        if (!empty($allAlbIds)) {
+            $albStr = implode(',', $allAlbIds);
+
+            // ── Bulk Query 2: líneas para todos los albaranes ───────────────
+            $rLin = $BDTpv->query("
+                SELECT idalbpro, idArticulo, costeSiva,
+                       SUM(nunidades) AS totalUnidades
+                FROM albprolinea
+                WHERE idalbpro IN ($albStr)
+                  AND estadoLinea <> 'Eliminado'
+                GROUP BY idalbpro, idArticulo, costeSiva
+            ");
+            while ($row = $rLin->fetch_assoc()) {
+                $productosByAlb[(int)$row['idalbpro']][] = $row;
             }
-            if (count($errores) > 0) {
-                // error_log('***************************************');
-                // error_log('Error en ResumenProveedores de ClaseInformes:'.json_encode($errores));
-                $todosProveedores[$key]['errores'] = $resumenProveedor;
-            } else {
-                // Creamos la propiedad de albaranes y cant_albaranes
-                $todosProveedores[$key]['cant_albaranes'] = count($resumenProveedor);
-                $todosProveedores[$key]['albaranes'] = $resumenProveedor;
+
+            // ── Bulk Query 3: resumenBases para todos los albaranes ─────────
+            $rRes = $BDTpv->query("
+                SELECT i.iva, i.totalbase, i.importeIva,
+                       t.id AS idalbpro, t.Su_numero, t.idTienda, t.estado,
+                       t.idProveedor, t.idUsuario,
+                       SUM(i.totalbase)  AS sumabase,
+                       SUM(i.importeIva) AS sumarIva,
+                       t.Fecha           AS fecha
+                FROM albproIva i
+                LEFT JOIN albprot t ON t.id = i.idalbpro
+                WHERE i.idalbpro IN ($albStr)
+                GROUP BY i.idalbpro
+                ORDER BY t.idProveedor, t.Fecha
+            ");
+            while ($row = $rRes->fetch_assoc()) {
+                $resumenByAlb[(int)$row['idalbpro']] = $row;
             }
         }
-        // ----     Fin obtener los albaranes de todos los proveedores   ------ //
+
+        // ── Construir $todosProveedores con la misma estructura que antes ──
+        foreach ($todosProveedores as $key => $proveedor) {
+            $pId    = (int)$proveedor['idProveedor'];
+            $albIds = $albIdsByProveedor[$pId] ?? [];
+
+            if (empty($albIds)) {
+                continue; // sin albaranes en el período
+            }
+
+            $productos    = [];
+            $resumenBases = [];
+            foreach ($albIds as $aId) {
+                foreach ($productosByAlb[$aId] ?? [] as $linea) {
+                    $productos[] = $linea;
+                }
+                if (isset($resumenByAlb[$aId])) {
+                    $resumenBases[] = $resumenByAlb[$aId];
+                }
+            }
+
+            $todosProveedores[$key]['cant_albaranes'] = count($albIds);
+            $todosProveedores[$key]['albaranes']      = [
+                'productos'    => $productos,
+                'resumenBases' => $resumenBases,
+            ];
+        }
 
         // Ahora tenemos ordenar y hacer las sumas de lineas albaranes por producto y totales por proveedor.
         $ArrayProductos = [];
@@ -289,7 +353,7 @@ class ClaseInformes extends TFModelo
         if ((int)$parametros['opcion'] === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = $this->_buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -462,7 +526,7 @@ class ClaseInformes extends TFModelo
         if ((int)($parametros['opcion'] ?? 0) === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = $this->_buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -670,7 +734,7 @@ class ClaseInformes extends TFModelo
         if ((int)($parametros['opcion'] ?? 0) === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = $this->_buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -1347,128 +1411,4 @@ class ClaseInformes extends TFModelo
         ];
     }
 
-    /**
-     * Construye el filtro SQL y la jerarquía virtual para opción 4 (filtrado por familia).
-     *
-     * Si todos los IDs seleccionados son nivel=1, devuelve el filtro original con idN1.
-     * Si alguno es nivel≥2, construye una jerarquía virtual donde el ID seleccionado actúa
-     * como N1 y sus hijos directos como N2, filtrando por af.idFamilia IN (descendientes).
-     *
-     * @param mysqli $BDTpv
-     * @param int[]  $ids    IDs de familias seleccionadas (ya validados como int > 0)
-     * @return array ['filtroSQL' => string, 'virtualHierarchy' => array|null, 'needsIdFamilia' => bool]
-     *   virtualHierarchy es null cuando todos son nivel=1 (comportamiento original).
-     *   virtualHierarchy[idFamilia] = ['vN1'=>int, 'vN1Name'=>string, 'vN2'=>int|null, 'vN2Name'=>string|null]
-     */
-    private function _buildFiltroOp4($BDTpv, array $ids): array
-    {
-        if (empty($ids)) {
-            return ['filtroSQL' => '', 'virtualHierarchy' => null, 'needsIdFamilia' => false];
-        }
-
-        $idsStr = implode(',', $ids);
-        $rSel   = $BDTpv->query(
-            "SELECT idFamilia, nivel, familiaNombre FROM vw_jerarquias_familias WHERE idFamilia IN ($idsStr)"
-        );
-        $selectedInfo = [];
-        $allN1        = true;
-        while ($r = $rSel->fetch_assoc()) {
-            $selectedInfo[(int)$r['idFamilia']] = $r;
-            if ((int)$r['nivel'] !== 1) {
-                $allN1 = false;
-            }
-        }
-
-        if ($allN1) {
-            return [
-                'filtroSQL'       => "AND vj.idN1 IN ($idsStr)",
-                'virtualHierarchy' => null,
-                'needsIdFamilia'  => false,
-            ];
-        }
-
-        // Jerarquía virtual: construir descendientes y mapeo para cada ID seleccionado
-        $virtualHierarchy = [];
-        $allDescendants   = [];
-
-        foreach ($ids as $selId) {
-            if (!isset($selectedInfo[$selId])) {
-                continue;
-            }
-            $selName = $selectedInfo[$selId]['familiaNombre'];
-
-            // BFS para obtener todos los descendientes
-            $descendants = [$selId];
-            $famNames    = [$selId => $selName];
-            $famParent   = [$selId => null];
-            $queue       = [$selId];
-
-            while (!empty($queue)) {
-                $qStr = implode(',', $queue);
-                $rCh  = $BDTpv->query(
-                    "SELECT idFamilia, familiaNombre, familiaPadre
-                     FROM vw_jerarquias_familias
-                     WHERE familiaPadre IN ($qStr)"
-                );
-                $queue = [];
-                while ($rc = $rCh->fetch_assoc()) {
-                    $cId = (int)$rc['idFamilia'];
-                    if (!in_array($cId, $descendants)) {
-                        $descendants[]   = $cId;
-                        $queue[]         = $cId;
-                        $famNames[$cId]  = $rc['familiaNombre'];
-                        $famParent[$cId] = (int)$rc['familiaPadre'];
-                    }
-                }
-            }
-
-            // Hijos directos del ID seleccionado (virtual N2)
-            $directChildren = [];
-            foreach ($descendants as $d) {
-                if ($d !== $selId && isset($famParent[$d]) && $famParent[$d] === $selId) {
-                    $directChildren[$d] = $famNames[$d];
-                }
-            }
-
-            // Mapear cada descendiente a virtual N1 / N2
-            foreach ($descendants as $descId) {
-                if ($descId === $selId) {
-                    $virtualHierarchy[$descId] = [
-                        'vN1'     => $selId,
-                        'vN1Name' => $selName,
-                        'vN2'     => null,
-                        'vN2Name' => null,
-                    ];
-                } elseif (isset($directChildren[$descId])) {
-                    $virtualHierarchy[$descId] = [
-                        'vN1'     => $selId,
-                        'vN1Name' => $selName,
-                        'vN2'     => $descId,
-                        'vN2Name' => $famNames[$descId],
-                    ];
-                } else {
-                    // Subir en el árbol hasta encontrar el hijo directo de $selId
-                    $cur = $descId;
-                    while (isset($famParent[$cur]) && $famParent[$cur] !== $selId && $famParent[$cur] !== null) {
-                        $cur = $famParent[$cur];
-                    }
-                    $vN2 = (isset($famParent[$cur]) && $famParent[$cur] === $selId) ? $cur : null;
-                    $virtualHierarchy[$descId] = [
-                        'vN1'     => $selId,
-                        'vN1Name' => $selName,
-                        'vN2'     => $vN2,
-                        'vN2Name' => $vN2 !== null ? ($famNames[$vN2] ?? '') : null,
-                    ];
-                }
-                $allDescendants[] = $descId;
-            }
-        }
-
-        $allDescStr = implode(',', array_unique($allDescendants));
-        return [
-            'filtroSQL'        => "AND af.idFamilia IN ($allDescStr)",
-            'virtualHierarchy' => $virtualHierarchy,
-            'needsIdFamilia'   => true,
-        ];
-    }
 }
