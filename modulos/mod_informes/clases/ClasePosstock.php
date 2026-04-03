@@ -66,6 +66,8 @@
  *
  * ─────────────────────────────────────────────────────────────────────────────
  */
+require_once __DIR__ . '/PosstockStatistics.php';
+
 class ClasePosstock
 {
     private $db;
@@ -2354,531 +2356,6 @@ class ClasePosstock
      *
      * @return array  Filas de incidencia (sin campo 'nombre')
      */
-    /**
-     * Cuantil de la distribución normal estándar (función probit).
-     * Aproximación racional de Acklam — error máximo < 1.15e-9.
-     */
-    private function _normalQuantile(float $p): float
-    {
-        $p = max(1e-15, min(1 - 1e-15, $p));
-        $a = [
-            -3.969683028665376e+01,
-            2.209460984245205e+02,
-            -2.759285104469687e+02,
-            1.383577518672690e+02,
-            -3.066479806614716e+01,
-            2.506628277459239e+00
-        ];
-        $b = [
-            -5.447609879822406e+01,
-            1.615858368580409e+02,
-            -1.556989798598866e+02,
-            6.680131188771972e+01,
-            -1.328068155288572e+01
-        ];
-        $c = [
-            -7.784894002430293e-03,
-            -3.223964580411365e-01,
-            -2.400758277161838e+00,
-            -2.549732539343734e+00,
-            4.374664141464968e+00,
-            2.938163982698783e+00
-        ];
-        $d = [
-            7.784695709041462e-03,
-            3.224671290700398e-01,
-            2.445134137142996e+00,
-            3.754408661907416e+00
-        ];
-
-        $p_low = 0.02425;
-        if ($p < $p_low) {
-            $q = sqrt(-2.0 * log($p));
-            return (((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5]) /
-                ((((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0)));
-        } elseif ($p <= 1.0 - $p_low) {
-            $q = $p - 0.5;
-            $r = $q * $q;
-            return (((((($a[0] * $r + $a[1]) * $r + $a[2]) * $r + $a[3]) * $r + $a[4]) * $r + $a[5]) * $q /
-                (((((($b[0] * $r + $b[1]) * $r + $b[2]) * $r + $b[3]) * $r + $b[4]) * $r + 1.0)));
-        } else {
-            $q = sqrt(-2.0 * log(1.0 - $p));
-            return - (((((($c[0] * $q + $c[1]) * $q + $c[2]) * $q + $c[3]) * $q + $c[4]) * $q + $c[5]) /
-                ((((($d[0] * $q + $d[1]) * $q + $d[2]) * $q + $d[3]) * $q + 1.0)));
-        }
-    }
-
-    /**
-     * Cuantil de la distribución Gamma(α, θ) mediante la aproximación Wilson-Hilferty.
-     *
-     * X ~ Gamma(α, scale=θ)  →  E[X] = α·θ,  Var[X] = α·θ²
-     * Cuantil_p ≈ α·θ · max(0, 1 − 1/(9α) + z_p/√(9α))³
-     *
-     * Error < 1 % para α > 0.5; exacto en el límite α → ∞ (normal).
-     */
-    private function _gammaQuantileWH(float $alpha, float $theta, float $p): float
-    {
-        if ($alpha <= 0.0 || $theta <= 0.0) return 0.0;
-        $z    = $this->_normalQuantile($p);
-        $term = 1.0 - 1.0 / (9.0 * $alpha) + $z / sqrt(9.0 * $alpha);
-        if ($term <= 0.0) return 0.0;
-        return $alpha * $theta * ($term ** 3);
-    }
-
-    /**
-     * Modelo Gamma para detección de roturas (C5).
-     *
-     * Ajusta una distribución Gamma a los gaps observados entre días de venta
-     * y usa el cuantil (1 − umbral_prob) como umbral de anomalía:
-     *
-     *   α = μ² / σ²   (shape)
-     *   θ = σ² / μ    (scale)
-     *   umbral = Gamma_quantile(1 − p, α, θ)  [Wilson-Hilferty]
-     *
-     * La distribución Gamma es más adecuada que la exponencial (Poisson) cuando los
-     * inter-arrivals presentan coeficiente de variación ≠ 1 (artículos con ventas
-     * agrupadas o muy regulares).
-     */
-    private function _calcularRoturasC5Gamma(
-        int    $id,
-        array  $fechas_map,
-        float  $stock_actual,
-        int    $ff_ts,
-        int    $min_ventas,
-        float  $umbral_prob,
-        bool   $incluir_stock_negativo = false,
-        string $label = 'Gamma'   // 'Gamma' | 'GammaReg' | dejado 'Normal' internamente si degenerado
-    ): array {
-        $fechas = array_keys($fechas_map);
-        sort($fechas);
-        $n = count($fechas);
-        if ($n < $min_ventas) return [];
-
-        $ts = array_map('strtotime', $fechas);
-
-        $gaps = [];
-        for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-            if ($gap > 0) $gaps[] = (float)$gap;
-        }
-        if (count($gaps) < 2) return [];
-
-        $n_gaps  = count($gaps);
-        $avg_gap = array_sum($gaps) / $n_gaps;
-        $var_gap = array_sum(array_map(fn($g) => ($g - $avg_gap) ** 2, $gaps)) / ($n_gaps - 1);
-        $sd_gap  = sqrt(max(0.0, $var_gap));
-
-        // Ajuste gamma; si la varianza es prácticamente nula, usar media+3σ como fallback
-        if ($var_gap > 1e-9 && $avg_gap > 1e-9) {
-            $alpha_gap    = ($avg_gap ** 2) / $var_gap;
-            $theta_gap    = $var_gap / $avg_gap;
-            $umbral_gap   = $this->_gammaQuantileWH($alpha_gap, $theta_gap, 1.0 - $umbral_prob);
-            $modelo_usado = $label;          // 'Gamma' | 'GammaReg' según el contexto de llamada
-        } else {
-            $umbral_gap   = $avg_gap + 3.0 * $sd_gap;
-            $modelo_usado = 'Normal';        // varianza ≈ 0: umbral = media + 3σ (Normal)
-        }
-
-        $umbral_ceil  = (int)ceil($umbral_gap);
-        $avg_gap_real = $avg_gap;
-
-        $campos = [
-            'idArticulo'            => $id,
-            'tipo'                  => 'Venta Cero (Posible Rotura Física)',
-            'stock_actual'          => $stock_actual,
-            'avg_dias_entre_ventas' => round($avg_gap, 1),
-            'sd_dias'               => round($sd_gap, 1),
-            'umbral_dias'           => round($umbral_gap, 1),
-            'posible_causa'         => 'Hueco en lineal o merma no registrada',
-            'modelo_usado'          => $modelo_usado,
-        ];
-
-        $incidencias = [];
-        for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-            if ($gap > $umbral_gap) {
-                $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
-                $fin               = $fechas[$i];
-                $dias_confirmados  = $gap - $umbral_ceil;
-                $rotura_confirmada = $inicio < $fin;
-                $cr                = $rotura_confirmada && ($dias_confirmados > $umbral_ceil);
-                $dias_real         = (int)((strtotime($fin) - strtotime($inicio)) / 86400);
-                $rk                = $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap_real);
-                $sev               = $cr ? 'ALTA' : 'MEDIA';
-                $incidencias[] = $campos + [
-                    'severidad'           => $sev,
-                    'ultima_venta'        => $fechas[$i - 1],
-                    'fecha_inicio_rotura' => $inicio,
-                    'fecha_fin_rotura'    => $fin,
-                    'dias_rotura'         => $gap,
-                    'rotura_confirmada'   => $rotura_confirmada,
-                    'cr'                  => $cr,
-                    'rk'                  => $rk,
-                    'ko'                  => false,
-                ];
-            }
-        }
-
-        // Rotura en curso: desde última venta hasta ff_mov.
-        // El filtro de inclusión (c5_incluir_stock_negativo) ya se aplicó upstream;
-        // aquí se detecta para todos los artículos incluidos sin restricción adicional.
-        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral_gap) {
-            $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
-            $hoy_ts       = time();
-            $fin_virtual  = date('Y-m-d', min($ff_ts, $hoy_ts));
-            $dias_conf_ko = $dias_final - $umbral_ceil;
-            $rot_conf_ko  = $inicio_ko < $fin_virtual;
-            $cr_ko        = $rot_conf_ko && ($dias_conf_ko > $umbral_ceil);
-            $dias_real_ko = $rot_conf_ko
-                ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
-                : 0;
-            $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real);
-            // KO: stock agotado (≤ 0) durante rotura en curso → inventario en descubierto
-            $ko_val = $stock_actual <= 0;
-            $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
-            $incidencias[] = $campos + [
-                'severidad'           => $sev_ko,
-                'ultima_venta'        => $fechas[$n - 1],
-                'fecha_inicio_rotura' => $inicio_ko,
-                'fecha_fin_rotura'    => null,
-                'dias_rotura'         => $dias_final,
-                'rotura_confirmada'   => false,
-                'cr'                  => $cr_ko,
-                'rk'                  => $rk_ko,
-                'ko'                  => $ko_val,
-            ];
-        }
-        return $incidencias;
-    }
-
-    /**
-     * Modo automático C5: selecciona el modelo estadístico más adecuado para cada artículo.
-     *
-     * Árbol de decisión:
-     *
-     * RAMA 1 — Alta rotación (>80 % de días con venta):
-     *   · Gaps muy regulares (CV < umbral) → Gamma (cuantil de gap; cubre Normal/Gamma B3 del árbol).
-     *   · Gaps más variables              → Poisson (gaps ~ Exponencial, B4 del árbol).
-     *
-     * RAMA 2 — Rotación media/baja (≤80 %):
-     *   · Demanda en rachas (s²_chunk > μ_chunk) → Binomial Negativa (via _calcularRoturasC5Poisson, B6).
-     *   · Muy esporádico (rotación < 15 %)        → Poisson (eventos raros, B8).
-     *   · General o tipo-peso                     → Gamma (ajuste a gaps, cuantil, B9).
-     *
-     * Heurística "tipo peso": fracción decimal significativa en los gaps (cantidades
-     * no enteras en ventas) → umbral Gamma más permisivo (0.65 → 0.45) para alta rotación
-     * y fuerza Gamma en la rama general (B9) aunque la rotación sea moderada.
-     */
-    private function _autoDispatchC5(
-        int   $id,
-        array $fechas_map,
-        float $stock_actual,
-        int   $ff_ts,
-        int   $min_ventas,
-        float $umbral_prob,
-        int   $periodo_dias,
-        bool  $incluir_stock_negativo,
-        int   $ff_stats_ts = 0   // extremo de la ventana estadística (0 = usar $ff_ts)
-    ): array {
-        $fechas = array_keys($fechas_map);
-        sort($fechas);
-        $ts  = array_map('strtotime', $fechas);
-        $n   = count($ts);
-        if ($n < $min_ventas) return [];
-
-        $rotation = $n / max(1, $periodo_dias);   // fracción de días con venta
-
-        // ── Gaps entre ventas consecutivas ──────────────────────────────────
-        $gaps = [];
-        for ($i = 1; $i < $n; $i++) {
-            $g = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-            if ($g > 0) $gaps[] = (float)$g;
-        }
-
-        $cv_g = 1.0;
-        if (count($gaps) >= 2) {
-            $n_g   = count($gaps);
-            $mu_g  = array_sum($gaps) / $n_g;
-            $var_g = array_sum(array_map(fn($g) => ($g - $mu_g) ** 2, $gaps)) / ($n_g - 1);
-            $cv_g  = $mu_g > 1e-9 ? sqrt(max(0.0, $var_g)) / $mu_g : 1.0;
-        }
-
-        // ── Sobredispersión de chunks (ventas en rachas) ─────────────────────
-        // fi_period_ts: usar ff_stats_ts (extremo estadístico) para que las chunks
-        // cubran exactamente [fi_stats, ff_stats] y no queden chunks vacíos artificiales.
-        $ff_for_chunks = $ff_stats_ts ?: $ff_ts;
-        $fi_period_ts = $ff_for_chunks - ($periodo_dias - 1) * 86400;
-        if ($periodo_dias < 40)       $chunk_days = 1;
-        elseif ($periodo_dias <= 130) $chunk_days = 5;
-        else                          $chunk_days = 10;
-        $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
-        $chunk_counts = array_fill(0, $n_chunks, 0);
-        foreach ($ts as $t) {
-            $offset = (int)(($t - $fi_period_ts) / 86400);
-            $chunk  = min($n_chunks - 1, max(0, (int)floor($offset / $chunk_days)));
-            $chunk_counts[$chunk]++;
-        }
-        $mu_chunk = $n / $n_chunks;
-        $s2_chunk = 0.0;
-        if ($n_chunks > 1) {
-            foreach ($chunk_counts as $c) $s2_chunk += ($c - $mu_chunk) ** 2;
-            $s2_chunk /= ($n_chunks - 1);
-        }
-        $overdispersed = $n_chunks >= 4 && $mu_chunk > 1e-9 && $s2_chunk > $mu_chunk + 1e-9;
-
-        // ── Heurística "tipo peso" ────────────────────────────────────────────
-        // Fracción decimal significativa en gaps → cantidades no enteras (peso/líquido)
-        $is_peso = false;
-        if (count($gaps) >= 2) {
-            $n_g      = count($gaps);
-            $frac_sum = 0.0;
-            $frac_sq  = 0.0;
-            foreach ($gaps as $g) {
-                $f = $g - floor($g);
-                $frac_sum += $f;
-                $frac_sq  += $f * $f;
-            }
-            $frac_mean = $frac_sum / $n_g;
-            $frac_var  = $n_g > 1 ? ($frac_sq - $n_g * $frac_mean ** 2) / ($n_g - 1) : 0.0;
-            $is_peso   = $frac_mean > 0.05 && $frac_var > 0.001;
-        }
-
-        // ── Árbol de decisión ────────────────────────────────────────────────
-        // RAMA 1: Alta rotación (>80 % días con venta)
-        if ($rotation > 0.80) {
-            // Tipo peso o gaps muy regulares → Gamma (cuantil directo)
-            $cv_th = $is_peso ? 0.65 : 0.45;
-            if ($cv_g < $cv_th) {
-                return $this->_calcularRoturasC5Gamma(
-                    $id,
-                    $fechas_map,
-                    $stock_actual,
-                    $ff_ts,
-                    $min_ventas,
-                    $umbral_prob,
-                    $incluir_stock_negativo,
-                    'GammaReg'
-                );
-            }
-            // Alta rotación, gaps más variables → Poisson (inter-arrivals ~ Exponencial)
-            return $this->_calcularRoturasC5Poisson(
-                $id,
-                $fechas_map,
-                $stock_actual,
-                $ff_ts,
-                $min_ventas,
-                $umbral_prob,
-                $periodo_dias,
-                $incluir_stock_negativo,
-                $ff_stats_ts
-            );
-        }
-
-        // RAMA 2: Rotación media/baja (≤80 %)
-        // 2a. Demanda en rachas → Binomial Negativa (activa internamente en _calcularRoturasC5Poisson)
-        if ($overdispersed) {
-            return $this->_calcularRoturasC5Poisson(
-                $id,
-                $fechas_map,
-                $stock_actual,
-                $ff_ts,
-                $min_ventas,
-                $umbral_prob,
-                $periodo_dias,
-                $incluir_stock_negativo,
-                $ff_stats_ts
-            );
-        }
-
-        // 2b. Muy esporádico (no tipo peso) → Poisson (proceso de eventos raros)
-        if (!$is_peso && $rotation < 0.15) {
-            return $this->_calcularRoturasC5Poisson(
-                $id,
-                $fechas_map,
-                $stock_actual,
-                $ff_ts,
-                $min_ventas,
-                $umbral_prob,
-                $periodo_dias,
-                $incluir_stock_negativo,
-                $ff_stats_ts
-            );
-        }
-
-        // 2c. General / tipo peso → Gamma (ajuste a distribución de gaps, cuantil de rotura)
-        return $this->_calcularRoturasC5Gamma(
-            $id,
-            $fechas_map,
-            $stock_actual,
-            $ff_ts,
-            $min_ventas,
-            $umbral_prob,
-            $incluir_stock_negativo
-        );
-    }
-
-    /**
-     * Modelo Poisson / Binomial Negativa adaptativo para detección de roturas (C5).
-     *
-     * El modelo se selecciona automáticamente en función de la dispersión real
-     * de las ventas del artículo dentro del periodo:
-     *
-     *   1. Se divide el periodo en sub-ventanas semanales (o diarias si ≤ 14 días)
-     *      y se cuenta el número de días con venta por sub-ventana.
-     *   2. Se calculan μ (media) y s² (varianza muestral) de esos conteos.
-     *   3. Si s² > μ  → sobredispersión → Binomial Negativa (ventas en "rachas")
-     *      Si s² ≤ μ  → dispersión normal → Poisson puro
-     *
-     * Poisson (umbral de gap):
-     *   gap > −ln(p) / λ_día
-     *
-     * Binomial Negativa:
-     *   r = μ² / (s² − μ)          [parámetro de forma]
-     *   P(0 en d días) = (r/(r+μ))^(r·d/chunk_days) < p
-     *   → gap > ln(p) · chunk_days / (r · ln(r/(r+μ)))
-     *
-     * La fórmula BN converge a Poisson cuando r → ∞ (s² → μ).
-     */
-    private function _calcularRoturasC5Poisson(
-        int   $id,
-        array $fechas_map,
-        float $stock_actual,
-        int   $ff_ts,
-        int   $min_ventas,
-        float $umbral_prob,
-        int   $periodo_dias,
-        bool  $incluir_stock_negativo = false,
-        int   $ff_stats_ts = 0   // extremo de la ventana estadística (0 = usar $ff_ts)
-    ): array {
-        $fechas = array_keys($fechas_map);
-        sort($fechas);
-        $n = count($fechas);
-        if ($n < $min_ventas) return [];
-
-        $ts         = array_map('strtotime', $fechas);
-        $lambda_dia = $n / max(1, $periodo_dias);
-        if ($lambda_dia <= 0) return [];
-
-        // ── Detectar sobredispersión mediante sub-ventanas ───────────────────
-        // chunk_days: granularidad de las sub-ventanas (diaria ≤14 días, semanal el resto)
-        $fi_period_ts = ($ff_stats_ts ?: $ff_ts) - ($periodo_dias - 1) * 86400;
-        // Ajuste de granularidad de sub-ventanas según duración del periodo:
-        // - <= 31 días: ventanas diarias (semanal/quincenal/mensual)
-        // - 32..120 días: ventanas de 5 días (trimestral, cuatrimestral)
-        // - > 120 días: ventanas de 10 días (semestral, anual)
-        if ($periodo_dias < 40) {
-            $chunk_days = 1;
-        } elseif ($periodo_dias <= 130) {
-            $chunk_days = 5;
-        } else {
-            $chunk_days = 10;
-        }
-        $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
-
-        $chunk_counts = array_fill(0, $n_chunks, 0);
-        foreach ($ts as $t) {
-            $offset = (int)(($t - $fi_period_ts) / 86400);
-            $chunk  = min($n_chunks - 1, max(0, (int)floor($offset / $chunk_days)));
-            $chunk_counts[$chunk]++;
-        }
-
-        $mu_chunk = $n / $n_chunks;
-        $s2_chunk = 0.0;
-        if ($n_chunks > 1) {
-            foreach ($chunk_counts as $c) {
-                $s2_chunk += ($c - $mu_chunk) ** 2;
-            }
-            $s2_chunk /= ($n_chunks - 1);   // varianza muestral insesgada
-        }
-
-        // ── Selección del modelo y cálculo del umbral de gap ────────────────
-        $modelo_usado = 'Poisson';
-        if ($n_chunks >= 4 && $s2_chunk > $mu_chunk + 1e-9 && $mu_chunk > 1e-9) {
-            // Sobredispersión confirmada → Binomial Negativa
-            // r = μ² / (s² − μ);  cuanto más pequeño r, más volátil el artículo
-            $r        = max(0.001, ($mu_chunk ** 2) / ($s2_chunk - $mu_chunk));
-            $ln_ratio = log($r / ($r + $mu_chunk));   // siempre < 0
-            // d > ln(p)·chunk_days / (r·ln(r/(r+μ)))  — ambos ln negativos → d > 0
-            $umbral_gap   = log($umbral_prob) * $chunk_days / ($r * $ln_ratio);
-            $modelo_usado = 'BN';
-        } else {
-            // Poisson puro: gap > −ln(p) / λ_día
-            $umbral_gap = -log($umbral_prob) / $lambda_dia;
-        }
-
-        $umbral_ceil = (int)ceil($umbral_gap);
-
-        $campos = [
-            'idArticulo'            => $id,
-            'tipo'                  => 'Venta Cero (Posible Rotura Física)',
-            'stock_actual'          => $stock_actual,
-            'avg_dias_entre_ventas' => round($periodo_dias / $n, 1),
-            'sd_dias'               => null,
-            'umbral_dias'           => round($umbral_gap, 1),
-            'posible_causa'         => 'Hueco en lineal o merma no registrada',
-            'modelo_usado'          => $modelo_usado,
-        ];
-
-        $avg_gap_real = $n > 1 ? $periodo_dias / $n : 1.0;
-        $incidencias  = [];
-        for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-            if ($gap > $umbral_gap) {
-                $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
-                $fin               = $fechas[$i];
-                $dias_confirmados  = $gap - $umbral_ceil;
-                $rotura_confirmada = $inicio < $fin;
-                $cr                = $rotura_confirmada && ($dias_confirmados > $umbral_ceil);
-                $dias_real         = (int)((strtotime($fin) - strtotime($inicio)) / 86400);
-                $rk                = $rotura_confirmada && !$cr && $dias_real >= (int)ceil($avg_gap_real);
-                // KO no aplica en roturas recuperadas (no tenemos el stock en el momento del gap)
-                // Severidad: CR→ALTA; resto→MEDIA (RK y detecciones básicas se muestran igual)
-                $sev = $cr ? 'ALTA' : 'MEDIA';
-                $incidencias[] = $campos + [
-                    'severidad'           => $sev,
-                    'ultima_venta'        => $fechas[$i - 1],
-                    'fecha_inicio_rotura' => $inicio,
-                    'fecha_fin_rotura'    => $fin,
-                    'dias_rotura'         => $gap,
-                    'rotura_confirmada'   => $rotura_confirmada,
-                    'cr'                  => $cr,
-                    'rk'                  => $rk,
-                    'ko'                  => false,
-                ];
-            }
-        }
-        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
-        if ($dias_final > $umbral_gap) {
-            $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
-            // Capamos a hoy: si el periodo analizado termina en el futuro (trimestral, etc.),
-            // la rotura estimada puede no haber comenzado aún → CR/RK no aplican
-            $hoy_ts       = time();
-            $fin_virtual  = date('Y-m-d', min($ff_ts, $hoy_ts));
-            $dias_conf_ko = $dias_final - $umbral_ceil;
-            $rot_conf_ko  = $inicio_ko < $fin_virtual;
-            $cr_ko        = $rot_conf_ko && ($dias_conf_ko > $umbral_ceil);
-            $dias_real_ko = $rot_conf_ko
-                ? (int)((min($ff_ts, $hoy_ts) - strtotime($inicio_ko)) / 86400)
-                : 0;
-            $rk_ko  = $rot_conf_ko && !$cr_ko && $dias_real_ko >= (int)ceil($avg_gap_real);
-            // KO: stock agotado (≤ 0) durante rotura en curso → inventario en descubierto
-            $ko_val = $stock_actual <= 0;
-            $sev_ko = $ko_val ? 'CRITICA' : ($cr_ko ? 'ALTA' : 'MEDIA');
-            $incidencias[] = $campos + [
-                'severidad'           => $sev_ko,
-                'ultima_venta'        => $fechas[$n - 1],
-                'fecha_inicio_rotura' => $inicio_ko,
-                'fecha_fin_rotura'    => null,
-                'dias_rotura'         => $dias_final,
-                'rotura_confirmada'   => false,
-                'cr'                  => $cr_ko,
-                'rk'                  => $rk_ko,
-                'ko'                  => $ko_val,
-            ];
-        }
-        return $incidencias;
-    }
 
     /**
      * Modelo clásico media + n·σ para detección de roturas (C5).
@@ -3133,7 +2610,7 @@ class ClasePosstock
             $sa = $stock_actual[$id] ?? 0.0;
             $ff_stats_ts = strtotime($ff_stats);
             $roturas = match ($modelo) {
-                'automatico' => $this->_autoDispatchC5(
+                'automatico' => PosstockStatistics::autoDispatch(
                     $id,
                     $fechas_map,
                     $sa,
@@ -3144,7 +2621,7 @@ class ClasePosstock
                     $c5_incluir_stock_negativo,
                     $ff_stats_ts
                 ),
-                'gamma' => $this->_calcularRoturasC5Gamma(
+                'gamma' => PosstockStatistics::roturaGamma(
                     $id,
                     $fechas_map,
                     $sa,
@@ -3153,7 +2630,7 @@ class ClasePosstock
                     $umbral_prob,
                     $c5_incluir_stock_negativo
                 ),
-                'poisson_bn', 'poisson' => $this->_calcularRoturasC5Poisson(
+                'poisson_bn', 'poisson' => PosstockStatistics::roturaPoisson(
                     $id,
                     $fechas_map,
                     $sa,
@@ -3457,7 +2934,7 @@ class ClasePosstock
                     $alpha_dia    = ($d ** 2) / $var_d;
                     $theta_dia    = $var_d / $d;
                     // Demanda durante L días ~ Gamma(L·α, θ) → cuantil directo
-                    $ROP          = $this->_gammaQuantileWH((float)$L * $alpha_dia, $theta_dia, $nivel_servicio);
+                    $ROP          = PosstockStatistics::gammaQuantileWH((float)$L * $alpha_dia, $theta_dia, $nivel_servicio);
                     $SS           = max(0.0, $ROP - $d * $L);
                     $modelo_usado = 'Gamma';
                 } else {
@@ -3516,7 +2993,7 @@ class ClasePosstock
                 } elseif ($cv_d_auto > 1.0 && $var_d_auto > 1e-9 && $d > 1e-9) {
                     $alpha_auto   = ($d ** 2) / $var_d_auto;
                     $theta_auto   = $var_d_auto / $d;
-                    $ROP          = $this->_gammaQuantileWH((float)$L * $alpha_auto, $theta_auto, $nivel_servicio);
+                    $ROP          = PosstockStatistics::gammaQuantileWH((float)$L * $alpha_auto, $theta_auto, $nivel_servicio);
                     $SS           = max(0.0, $ROP - $d * $L);
                     $modelo_usado = 'Gamma';
 
@@ -4507,146 +3984,6 @@ class ClasePosstock
     }
 
     /**
-     * C7 helper — Estadísticos básicos de un array de suelos (valores float).
-     *
-     * @param  float[] $floors  Valores de suelo (pueden ser negativos para C7b)
-     * @return array  [media, desv_típica_muestral, n]
-     */
-    private function _statsFloors(array $floors): array
-    {
-        $n = count($floors);
-        if ($n === 0) return [0.0, 0.0, 0];
-        $mean = array_sum($floors) / $n;
-        $var  = 0.0;
-        foreach ($floors as $v) $var += ($v - $mean) ** 2;
-        $sd = $n > 1 ? sqrt($var / ($n - 1)) : 0.0;
-        return [$mean, $sd, $n];
-    }
-
-    /**
-     * Correlación de Pearson entre dos arrays de igual longitud.
-     * Devuelve 0.0 si n < 2 o si alguna serie es constante.
-     */
-    private function _pearsonCorr(array $x, array $y): float
-    {
-        $n = count($x);
-        if ($n < 2 || $n !== count($y)) return 0.0;
-        $mx = array_sum($x) / $n;
-        $my = array_sum($y) / $n;
-        $num = 0.0;
-        $dx2 = 0.0;
-        $dy2 = 0.0;
-        for ($i = 0; $i < $n; $i++) {
-            $dx  = $x[$i] - $mx;
-            $dy  = $y[$i] - $my;
-            $num += $dx * $dy;
-            $dx2 += $dx * $dx;
-            $dy2 += $dy * $dy;
-        }
-        $denom = sqrt($dx2 * $dy2);
-        return $denom > 0.0 ? $num / $denom : 0.0;
-    }
-
-    /**
-     * Regresión lineal simple OLS sobre y[0..n-1] con x = 0, 1, …, n-1.
-     *
-     * Devuelve:
-     *   'slope'   — pendiente β̂₁  (ud/recepción)
-     *   'r2'      — coeficiente de determinación R²
-     *   'p_value' — p-valor bilateral aproximado para el test t sobre β̂₁
-     *               (0.05 si significativa al 10 %, 0.15 si no lo es)
-     *
-     * Devuelve p_value = 1.0 si n < 3 (grados de libertad insuficientes).
-     */
-    private function _regressionStats(array $y): array
-    {
-        $n = count($y);
-        if ($n < 3) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0, 'se' => 0.0];
-
-        $sum_x  = 0;
-        $sum_y  = 0.0;
-        $sum_xy = 0.0;
-        $sum_xx = 0;
-        for ($i = 0; $i < $n; $i++) {
-            $sum_x  += $i;
-            $sum_y  += $y[$i];
-            $sum_xy += $i * $y[$i];
-            $sum_xx += $i * $i;
-        }
-        $denom = $n * $sum_xx - $sum_x * $sum_x;
-        if ($denom == 0.0) return ['slope' => 0.0, 'r2' => 0.0, 'p_value' => 1.0, 'se' => 0.0];
-
-        $slope     = ($n * $sum_xy - $sum_x * $sum_y) / $denom;
-        $intercept = ($sum_y - $slope * $sum_x) / $n;
-        $mean_y    = $sum_y / $n;
-
-        $ss_tot = 0.0;
-        $ss_res = 0.0;
-        for ($i = 0; $i < $n; $i++) {
-            $y_hat   = $intercept + $slope * $i;
-            $ss_res += ($y[$i] - $y_hat) ** 2;
-            $ss_tot += ($y[$i] - $mean_y) ** 2;
-        }
-        $r2 = ($ss_tot > 0.0) ? max(0.0, 1.0 - $ss_res / $ss_tot) : 0.0;
-
-        // t-estadístico: β̂₁ / se(β̂₁), df = n-2
-        $sxx = (float)$sum_xx - (float)($sum_x * $sum_x) / $n;
-        // C7a-014: guard near-zero SSE (floors perfectamente colineales o casi).
-        // <= 0.0 solo captura cero exacto; < 1e-9 cubre ruido float que produce t → ∞.
-        // Se devuelve se=0.0 para que el Nivel 4 de la cascada C7a no ejecute (guard $se_corr_c7a > 0).
-        // p_value=0.01 (no 0.0) evita la "certeza perfecta" artificial: Mann-Kendall tomará la decisión.
-        if ($ss_res < 1e-9 || $sxx <= 0.0) {
-            return ['slope' => $slope, 'r2' => 1.0, 'p_value' => ($slope > 0.0 ? 0.01 : 1.0), 'se' => 0.0];
-        }
-        $se = sqrt(($ss_res / ($n - 2)) / $sxx);
-        $t  = abs($slope / $se);
-
-        // Valores críticos t_{df, 0.95} (bilateral α = 0.10) — lookup + interpolación lineal
-        static $t_tab = [
-            1 => 6.314,
-            2 => 2.920,
-            3 => 2.353,
-            4 => 2.132,
-            5 => 2.015,
-            6 => 1.943,
-            7 => 1.895,
-            8 => 1.860,
-            9 => 1.833,
-            10 => 1.812,
-            11 => 1.796,
-            12 => 1.782,
-            13 => 1.771,
-            14 => 1.761,
-            15 => 1.753,
-            16 => 1.746,
-            17 => 1.740,
-            18 => 1.734,
-            19 => 1.729,
-            20 => 1.725,
-            25 => 1.708,
-            30 => 1.697,
-            40 => 1.684,
-            60 => 1.671,
-            120 => 1.658,
-        ];
-        $df = $n - 2;
-        if ($df > 120) {
-            $t_crit = 1.645;
-        } elseif (isset($t_tab[$df])) {
-            $t_crit = $t_tab[$df];
-        } else {
-            $keys = array_keys($t_tab);
-            $lo = $hi = null;
-            foreach ($keys as $k) {
-                if ($k <= $df) $lo = $k;
-                if ($k >= $df && $hi === null) $hi = $k;
-            }
-            $t_crit = ($lo !== null && $hi !== null && $lo !== $hi)
-                ? $t_tab[$lo] + ($df - $lo) / ($hi - $lo) * ($t_tab[$hi] - $t_tab[$lo])
-                : ($lo !== null ? $t_tab[$lo] : 1.645);
-        }
-        return ['slope' => $slope, 'r2' => $r2, 'p_value' => ($t >= $t_crit ? 0.05 : 0.15), 'se' => $se];
-    }
 
     /**
      * C7c — Metadatos de artículos para la detección de cruces.
@@ -4704,19 +4041,6 @@ class ClasePosstock
         return $meta;
     }
 
-    /**
-     * Similitud de Jaccard sobre bolsa de palabras (insensible a mayúsculas).
-     * Devuelve 0.0–1.0; 1.0 = mismas palabras exactas.
-     */
-    private function _jaccardNombre(string $a, string $b): float
-    {
-        $wa = array_filter(preg_split('/\s+/', mb_strtolower($a)));
-        $wb = array_filter(preg_split('/\s+/', mb_strtolower($b)));
-        if (empty($wa) || empty($wb)) return 0.0;
-        $inter = count(array_intersect($wa, $wb));
-        $union = count(array_unique(array_merge($wa, $wb)));
-        return $union > 0 ? $inter / $union : 0.0;
-    }
 
     /**
      * C7 — Offset sistemático de inventario.
@@ -4965,7 +4289,7 @@ class ClasePosstock
             for ($i = 0; $i < $n_floors; $i++) {
                 $floors_norm_all[] = $floors[$i] / $dias_intervalos[$i];
             }
-            $reg_norm        = $this->_regressionStats($floors_norm_all);
+            $reg_norm        = PosstockStatistics::regressionStats($floors_norm_all);
             $slope_norm      = $reg_norm['slope'];
             // tendencia_visible se calcula más abajo usando Theil-Sen (C7a-019/C7a-012)
 
@@ -4996,7 +4320,7 @@ class ClasePosstock
             }
 
             // mantener reg/slope brutos por si otras partes los usan
-            $reg   = $this->_regressionStats($floors);
+            $reg   = PosstockStatistics::regressionStats($floors);
             $slope = $reg['slope'];
 
             // ── Tabla t_{df, 0.975} ──────────────────────────────────────────
@@ -6252,8 +5576,8 @@ class ClasePosstock
                     $n_pairs = count($pairs_a);
                     if ($n_pairs < 4) continue;   // mínimo 4 pares solapados
 
-                    [$mu_a, $sd_a] = $this->_statsFloors($pairs_a);
-                    [$mu_b, $sd_b] = $this->_statsFloors($pairs_b);   // mu_b < 0
+                    [$mu_a, $sd_a] = PosstockStatistics::statsFloors($pairs_a);
+                    [$mu_b, $sd_b] = PosstockStatistics::statsFloors($pairs_b);   // mu_b < 0
 
                     if ($mu_a < 1.5 || abs($mu_b) < 1.5) continue;   // offset pequeño → falsos positivos
 
@@ -6271,7 +5595,7 @@ class ClasePosstock
 
                     // ── 4. Correlación de Pearson (en valor absoluto) ────────────────
                     $pairs_b_abs = array_map('abs', $pairs_b);
-                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($pairs_a, $pairs_b_abs) : 0.5;
+                    $corr = ($n_pairs >= 4) ? PosstockStatistics::pearsonCorr($pairs_a, $pairs_b_abs) : 0.5;
                     if ($n_pairs >= 4 && $corr < 0.50) continue;
 
                     // ── 5. Score compuesto ───────────────────────────────────────────
@@ -6280,7 +5604,7 @@ class ClasePosstock
                     $s_disp = ($sd_a > 0.0 && $sd_b > 0.0)
                         ? max(0.0, 1.0 - abs(log($sd_a / $sd_b)) / 2.0)
                         : 0.5;
-                    $s_nombre = $this->_jaccardNombre(
+                    $s_nombre = PosstockStatistics::jaccardNombre(
                         $meta_c7c[$inc['idArticulo']]['nombre'] ?? '',
                         $meta_c7c[$id_b]['nombre'] ?? ''
                     );
@@ -6485,10 +5809,10 @@ class ClasePosstock
 
                         if (count($triples_c) < 6) continue;
 
-                        [$mu_c,  $sd_c]  = $this->_statsFloors($triples_c);
-                        [$mu_ab] = $this->_statsFloors($triples_ab);
-                        [,       $sd_a_t] = $this->_statsFloors($triples_a);
-                        [,       $sd_b_t] = $this->_statsFloors($triples_b);
+                        [$mu_c,  $sd_c]  = PosstockStatistics::statsFloors($triples_c);
+                        [$mu_ab] = PosstockStatistics::statsFloors($triples_ab);
+                        [,       $sd_a_t] = PosstockStatistics::statsFloors($triples_a);
+                        [,       $sd_b_t] = PosstockStatistics::statsFloors($triples_b);
 
                         if ($mu_c < 1.5 || $mu_ab < 1.5) continue;
 
@@ -6501,7 +5825,7 @@ class ClasePosstock
                         if (!empty($sds) && max($sds) / min($sds) > 2.0) continue;
 
                         // Criterio 3: Pearson(suma_AB, merma_C) ≥ 0.7
-                        $corr = $this->_pearsonCorr($triples_ab, $triples_c);
+                        $corr = PosstockStatistics::pearsonCorr($triples_ab, $triples_c);
                         if ($corr < 0.7) continue;
 
                         // Score: magnitud (60 %) + correlación (40 %)
@@ -6666,8 +5990,8 @@ class ClasePosstock
                 $n_pairs = count($pairs_a);
                 if ($n_pairs < 5) continue;
 
-                [$mu_a, $sd_a] = $this->_statsFloors($pairs_a);
-                [$mu_b, $sd_b] = $this->_statsFloors($pairs_b);   // mu_b < 0
+                [$mu_a, $sd_a] = PosstockStatistics::statsFloors($pairs_a);
+                [$mu_b, $sd_b] = PosstockStatistics::statsFloors($pairs_b);   // mu_b < 0
 
                 if ($mu_a < 1.5 || abs($mu_b) < 1.5) continue;
 
@@ -6714,10 +6038,10 @@ class ClasePosstock
                 // ── Pearson sobre pares escalados ─────────────────────────────
                 if ($dir === 'A_por_B') {
                     $scaled_b = array_map(fn($v) => $k * abs($v), $pairs_b);
-                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($pairs_a, $scaled_b) : 0.5;
+                    $corr = ($n_pairs >= 4) ? PosstockStatistics::pearsonCorr($pairs_a, $scaled_b) : 0.5;
                 } else {
                     $scaled_a = array_map(fn($v) => $k * $v, $pairs_a);
-                    $corr = ($n_pairs >= 4) ? $this->_pearsonCorr($scaled_a, array_map('abs', $pairs_b)) : 0.5;
+                    $corr = ($n_pairs >= 4) ? PosstockStatistics::pearsonCorr($scaled_a, array_map('abs', $pairs_b)) : 0.5;
                 }
                 if ($n_pairs >= 4 && $corr < 0.50) continue;
 
@@ -6725,7 +6049,7 @@ class ClasePosstock
                 $s_mag    = max(0.0, 1.0 - $suma_scaled / $eps);
                 $s_corr   = max(0.0, (float)$corr);
                 $s_disp   = max(0.0, 1.0 - abs(log(sqrt($var_ratio))) / 2.0);
-                $s_nombre = $this->_jaccardNombre(
+                $s_nombre = PosstockStatistics::jaccardNombre(
                     $meta[$inc['idArticulo']]['nombre'] ?? '',
                     $meta[$id_b]['nombre'] ?? ''
                 );
