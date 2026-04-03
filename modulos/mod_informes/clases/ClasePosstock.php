@@ -67,10 +67,12 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 require_once __DIR__ . '/PosstockStatistics.php';
+require_once __DIR__ . '/PosstockQueryRepository.php';
 
 class ClasePosstock
 {
     private $db;
+    private PosstockQueryRepository $repo;
 
     // Umbral de stock negativo a partir del cual C6 reconstruye el stock
     // desde la última entrada de proveedor (más fiable que el stockOn acumulado).
@@ -80,1550 +82,13 @@ class ClasePosstock
     public function __construct($conexion)
     {
         $this->db = $conexion;
-    }
-
-    // ══════════════════════════════════════════════════════════════════════════
-    // SQL HELPERS — Construcción de cláusulas WHERE
-    // ══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Expande una lista de idFamilia a todos sus descendientes usando
-     * vw_jerarquias_familias (idN1, idN2 capturan hijos de nivel 1 y 2).
-     * Devuelve el IN-clause listo para SQL, o '' si la lista está vacía.
-     */
-    private function expandirFamilias(array $ids): string
-    {
-        if (empty($ids)) return '';
-        $in = implode(',', array_map('intval', $ids));
-        $smt = $this->db->query("
-            SELECT DISTINCT idFamilia
-            FROM vw_jerarquias_familias
-            WHERE idFamilia IN ($in)
-               OR idN1      IN ($in)
-               OR idN2      IN ($in)
-        ");
-        if (!$smt) return $in; // fallback: usar IDs originales
-        $expanded = [];
-        while ($r = $smt->fetch_assoc()) $expanded[] = (int)$r['idFamilia'];
-        return implode(',', $expanded);
-    }
-
-    /** Construye las cláusulas WHERE de familia (incluir/excluir) para el alias dado. */
-    private function _familiaWhere(array $incluir, array $excluir, string $alias = 'l'): string
-    {
-        $w = '';
-        if (!empty($incluir)) {
-            $ids = $this->expandirFamilias($incluir);
-            if ($ids) $w .= " AND $alias.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
-        }
-        if (!empty($excluir)) {
-            $ids = $this->expandirFamilias($excluir);
-            if ($ids) $w .= " AND $alias.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
-        }
-        return $w;
-    }
-
-    /** Construye la cláusula AND idArticulo IN (...) o '' si la lista está vacía. */
-    private function _idsWhere(array $ids_filter, string $alias = 'l'): string
-    {
-        if (empty($ids_filter)) return '';
-        return " AND $alias.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
-    }
-
-    // ══════════════════════════════════════════════════════════════════════════
-    // SQL QUERIES — Métodos privados de solo consulta, sin lógica de negocio.
-    // Reciben strings ya escapados y cláusulas WHERE ya construidas.
-    // Devuelven array de filas raw o ['error' => ...] si falla la consulta.
-    // ══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * T4.1 — UNION ALL de los 3 tipos de movimiento físico en el periodo.
-     * Agrupado por (tipo, artículo, fecha) para reducir filas en memoria.
-     *
-     * @return array  Filas raw o ['error' => ...]
-     */
-    private function _queryMovimientosPeriodo(
-        string $fi,
-        string $ff,
-        string $where_familia,
-        string $where_ids
-    ): array {
-        $sql = "
-            SELECT tipo_movimiento, idArticulo, SUM(nunidades) AS nunidades, fecha, NULL AS idDocumento
-            FROM (
-                SELECT
-                    'entrada_proveedor'    AS tipo_movimiento,
-                    l.idArticulo,
-                    l.nunidades,
-                    DATE(c.Fecha)          AS fecha
-                FROM albprolinea l
-                INNER JOIN albprot      c ON c.id         = l.idalbpro
-                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado       IN ('Guardado', 'Facturado')
-                  AND l.estadoLinea  = 'Activo'
-                  $where_familia
-                  $where_ids
-
-                UNION ALL
-
-                SELECT
-                    'salida_ticket'        AS tipo_movimiento,
-                    l.idArticulo,
-                    l.nunidades,
-                    DATE(c.Fecha)          AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst     c ON c.id         = l.idticketst
-                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado       = 'Cerrado'
-                  AND l.estadoLinea  = 'Activo'
-                  $where_familia
-                  $where_ids
-
-                UNION ALL
-
-                SELECT
-                    'salida_albcli'        AS tipo_movimiento,
-                    l.idArticulo,
-                    l.nunidades,
-                    DATE(c.Fecha)          AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit      c ON c.id         = l.idalbcli
-                INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado       IN ('Guardado', 'Procesado')
-                  AND l.estadoLinea  = 'Activo'
-                  $where_familia
-                  $where_ids
-            ) AS all_movs
-            GROUP BY tipo_movimiento, idArticulo, fecha
-            ORDER BY idArticulo, fecha
-        ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error, 'consulta' => $sql];
-        $rows = [];
-        while ($row = $smt->fetch_assoc()) $rows[] = $row;
-        return $rows;
-    }
-
-    /**
-     * T4.2 — UNION ALL de movimientos en el rango de stock base.
-     * Filtra solo los idArticulo indicados.
-     *
-     * @return array  Filas raw (idArticulo, nunidades_signo, tipo_mov, fecha) o ['error' => ...]
-     */
-    private function _queryStockBase(string $fi, string $ff, string $ids_str): array
-    {
-        $sql = "
-            SELECT
-                idArticulo,
-                SUM(nunidades_signo)                        AS saldo_acumulado,
-                MAX(CASE WHEN tipo_mov = 'entrada'
-                         THEN fecha END)                AS ultima_compra,
-                MAX(CASE WHEN tipo_mov = 'salida'
-                         THEN fecha END)                AS ultima_venta
-            FROM (
-
-                -- Entradas proveedor (positivo)
-                SELECT
-                    l.idArticulo,
-                     l.nunidades                            AS nunidades_signo,
-                    'entrada'                           AS tipo_mov,
-                    DATE(c.Fecha)                       AS fecha
-                FROM albprolinea l
-                INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo  IN ($ids_str)
-
-                UNION ALL
-
-                -- Salidas tickets (negativo)
-                SELECT
-                    l.idArticulo,
-                    -l.nunidades                            AS nunidades_signo,
-                    'salida'                            AS tipo_mov,
-                    DATE(c.Fecha)                       AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo  IN ($ids_str)
-
-                UNION ALL
-
-                -- Salidas albaranes cliente (negativo)
-                SELECT
-                    l.idArticulo,
-                    -l.nunidades                            AS nunidades_signo,
-                    'salida'                            AS tipo_mov,
-                    DATE(c.Fecha)                       AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      IN ('Guardado', 'Procesado')
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo  IN ($ids_str)
-
-            ) AS movimientos_stock
-            GROUP BY idArticulo
-        ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error, 'consulta' => $sql];
-        $rows = [];
-        while ($row = $smt->fetch_assoc()) $rows[] = $row;
-        return $rows;
-    }
-
-    /**
-     * C4 paso 1 — Todos los idArticulo físicos que cumplen el filtro de familia.
-     *
-     * @return array  Filas raw (idArticulo) o ['error' => ...]
-     */
-    private function _queryArticulosFisicos(string $where_familia): array
-    {
-        $smt = $this->db->query(
-            "SELECT idArticulo FROM articulos a $where_familia"
-        );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C4 paso 2 — idArticulo con cualquier movimiento (los 3 tipos) en [fi, ff].
-     * Sin filtro de familia (se aplica en PHP mediante diff con los físicos filtrados).
-     *
-     * @return array  Filas raw (idArticulo) o ['error' => ...]
-     */
-    private function _queryIdsConMovimientoC4(string $fi, string $ff): array
-    {
-        $smt = $this->db->query("
-            SELECT DISTINCT idArticulo FROM (
-                SELECT l.idArticulo FROM albprolinea l
-                INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
-                  AND l.estadoLinea = 'Activo'
-                UNION
-                SELECT l.idArticulo FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                UNION
-                SELECT l.idArticulo FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado', 'Procesado')
-                  AND l.estadoLinea = 'Activo'
-            ) AS movs_año
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C4/C5 — Stock rebobinado desde articulosStocks.stockOn hasta ff_esc.
-     *
-     * stock_en_ff = stockOn_hoy − net_posterior
-     * net_posterior = Σ entradas_post_ff − Σ salidas_post_ff
-     *
-     * @param string $ids_str        IN-clause de idArticulo ya preparado
-     * @param string $ff_esc         Fecha fin escapada ('YYYY-MM-DD')
-     * @param bool   $solo_positivos Si true, filtra HAVING stock > 0 (usado en C4)
-     *
-     * @return array  Filas raw (idArticulo, stock) o ['error' => ...]
-     */
-    private function _queryStockRebobinado(
-        string $ids_str,
-        string $ff_esc,
-        bool   $solo_positivos = false
-    ): array {
-        $having = $solo_positivos ? 'HAVING stock_en_periodo > 0' : '';
-        $smt = $this->db->query("
-            SELECT
-                base.idArticulo,
-                base.total_stockOn - COALESCE(post.net_posterior, 0) AS stock_en_periodo
-            FROM (
-                SELECT idArticulo, SUM(stockOn) AS total_stockOn
-                FROM articulosStocks
-                WHERE idArticulo IN ($ids_str)
-                GROUP BY idArticulo
-            ) AS base
-            LEFT JOIN (
-                SELECT idArticulo, SUM(nunidades_signo) AS net_posterior
-                FROM (
-                    SELECT l.idArticulo,  l.nunidades AS nunidades_signo
-                    FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
-                    WHERE DATE(c.Fecha) > '$ff_esc'
-                      AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
-                      AND l.estadoLinea = 'Activo'
-                      AND l.idArticulo IN ($ids_str)
-                    UNION ALL
-                    SELECT l.idArticulo, -l.nunidades AS nunidades_signo
-                    FROM ticketslinea l INNER JOIN ticketst c ON c.id = l.idticketst
-                    WHERE DATE(c.Fecha) > '$ff_esc'
-                      AND c.estado = 'Cerrado'
-                      AND l.estadoLinea = 'Activo'
-                      AND l.idArticulo IN ($ids_str)
-                    UNION ALL
-                    SELECT l.idArticulo, -l.nunidades AS nunidades_signo
-                    FROM albclilinea l INNER JOIN albclit c ON c.id = l.idalbcli
-                    WHERE DATE(c.Fecha) > '$ff_esc'
-                      AND c.estado IN ('Guardado','Procesado')
-                      AND l.estadoLinea = 'Activo'
-                      AND l.idArticulo IN ($ids_str)
-                ) AS post_movs
-                GROUP BY idArticulo
-            ) AS post ON post.idArticulo = base.idArticulo
-            $having
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C5 paso 1 — Fechas de venta únicas por artículo físico.
-     *
-     * Por defecto solo incluye tickets de caja. Cuando $incluir_albcli = true
-     * se añaden también los albaranes de cliente (útil si representan ventas
-     * reales recurrentes y no regularizaciones de stock).
-     *
-     * @return array  Filas raw (idArticulo, fecha) o ['error' => ...]
-     */
-    private function _queryVentasFechasC5(
-        string $fi,
-        string $ff,
-        string $where_fam,
-        string $where_ids,
-        bool   $incluir_albcli = false
-    ): array {
-        $union_albcli = $incluir_albcli ? "
-                UNION
-                SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit   c ON c.id = l.idalbcli
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-                  $where_fam
-                  $where_ids" : '';
-        $smt = $this->db->query("
-            SELECT idArticulo, fecha FROM (
-                SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst  c ON c.id = l.idticketst
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  $where_fam
-                  $where_ids
-                $union_albcli
-            ) AS ventas
-            ORDER BY idArticulo, fecha
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C5 anti-falso-positivo — Primera venta post-periodo por artículo.
-     *
-     * Para stockouts en curso detectados al final del periodo, comprueba si el
-     * artículo vendió en los $dias_post días siguientes a ff_mov. Si es así,
-     * la rotura se considera recuperada y se actualiza en PHP sin nueva consulta SQL.
-     *
-     * @param string $ids_str       IN-clause ya preparado (idArticulo)
-     * @param string $fi_esc        Primer día post-periodo escapado (ff_mov + 1)
-     * @param string $ff_esc        Último día de la ventana post-periodo escapado
-     * @param bool   $incluir_albcli Incluir albaranes de cliente como ventas
-     * @return array  [idArticulo => 'YYYY-MM-DD'] primera venta post-periodo
-     */
-    private function _queryVentasPostPeriodoC5(
-        string $ids_str,
-        string $fi_esc,
-        string $ff_esc,
-        bool   $incluir_albcli = false
-    ): array {
-        $union_albcli = $incluir_albcli ? "
-                UNION ALL
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
-                  AND c.estado IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'" : '';
-
-        $smt = $this->db->query("
-            SELECT idArticulo, MIN(fecha) AS primera_venta_post
-            FROM (
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                $union_albcli
-            ) AS ventas_post
-            GROUP BY idArticulo
-        ");
-        if (!$smt) return [];
-        $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            $result[(int)$r['idArticulo']] = $r['primera_venta_post'];
-        }
-        return $result;
-    }
-
-    /**
-     * C6 paso 1 — Cantidad vendida por día por artículo físico.
-     *
-     * Por defecto solo incluye tickets de caja. Cuando $incluir_albcli = true
-     * se suman también los albaranes de cliente (útil si representan ventas
-     * reales recurrentes y no regularizaciones de stock).
-     *
-     * @return array  Filas raw (idArticulo, fecha, nunidades_dia) o ['error' => ...]
-     */
-    private function _queryVentasCantidadesC6(
-        string $fi,
-        string $ff,
-        string $where_fam,
-        string $where_ids,
-        bool   $incluir_albcli = false,
-        bool   $incluir_todos_tipos = false
-    ): array {
-        if ($incluir_albcli) {
-            $smt = $this->db->query("
-                SELECT idArticulo, fecha, SUM(nunidades) AS nunidades_dia
-                FROM (
-                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades
-                    FROM ticketslinea l
-                    INNER JOIN ticketst  c ON c.id = l.idticketst
-                    INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                            AND c.estado = 'Cerrado'
-                                            AND l.estadoLinea = 'Activo'
-                                            $where_fam
-                                            $where_ids
-                    UNION ALL
-                    SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades
-                    FROM albclilinea l
-                    INNER JOIN albclit   c ON c.id = l.idalbcli
-                    INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                            AND c.estado IN ('Guardado','Procesado')
-                                            AND l.estadoLinea = 'Activo'
-                                            $where_fam
-                                            $where_ids
-                ) AS ventas
-                GROUP BY idArticulo, fecha
-                ORDER BY idArticulo, fecha
-            ");
-        } else {
-            $smt = $this->db->query("
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades_dia
-                                FROM ticketslinea l
-                                INNER JOIN ticketst  c ON c.id = l.idticketst
-                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                    AND c.estado = 'Cerrado'
-                                    AND l.estadoLinea = 'Activo'
-                                    $where_fam
-                                    $where_ids
-                GROUP BY l.idArticulo, DATE(c.Fecha)
-                ORDER BY l.idArticulo, DATE(c.Fecha)
-            ");
-        }
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C1 — Detalle de actividad en el periodo para los artículos ya identificados con stock negativo.
-     * Devuelve n_entradas, ultima_entrada y n_ventas para cada idArticulo del listado.
-     * Usado para enriquecer el detalle de C1a con señales de diagnóstico.
-     *
-     * @param  string $ids  Lista de IDs separados por coma (ya validados como enteros)
-     * @return array  ['idArticulo' => ['n_entradas'=>int, 'ultima_entrada'=>string|null, 'n_ventas'=>int]]
-     */
-    private function _queryDetalleC1(string $ids, string $fi, string $ff): array
-    {
-        $detalle = [];
-
-        // Recepciones de proveedor en el periodo
-        $smt = $this->db->query("
-            SELECT l.idArticulo,
-                   COUNT(*)           AS n_entradas,
-                   MAX(DATE(c.Fecha)) AS ultima_entrada
-            FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado      IN ('Guardado','Facturado')
-              AND l.estadoLinea = 'Activo'
-            GROUP BY l.idArticulo
-        ");
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
-                $detalle[$id] = [
-                    'n_entradas'     => (int)$r['n_entradas'],
-                    'ultima_entrada' => $r['ultima_entrada'],
-                    'n_ventas'       => 0,
-                ];
-            }
-        }
-
-        // Líneas de venta en el periodo (tickets + albcli)
-        $smt2 = $this->db->query("
-            SELECT idArticulo, SUM(cnt) AS n_ventas
-            FROM (
-                SELECT l.idArticulo, COUNT(*) AS cnt
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                GROUP BY l.idArticulo
-                UNION ALL
-                SELECT l.idArticulo, COUNT(*) AS cnt
-                FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-                GROUP BY l.idArticulo
-            ) v
-            GROUP BY idArticulo
-        ");
-        if ($smt2) {
-            while ($r = $smt2->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
-                if (!isset($detalle[$id])) {
-                    $detalle[$id] = ['n_entradas' => 0, 'ultima_entrada' => null];
-                }
-                $detalle[$id]['n_ventas'] = (int)$r['n_ventas'];
-            }
-        }
-
-        return $detalle;
-    }
-
-    /**
-     * C1b — Confirma hipótesis de timing: comprueba si hay una entrada de proveedor
-     * dentro de los $ventana_dias días posteriores a la fecha en que el balance fue mínimo.
-     *
-     * Solo dispara el badge "Timing recepción" cuando la entrada es temporalmente
-     * próxima al negativo, descartando el ruido en periodos largos.
-     *
-     * @param array $id_fecha_map  [idArticulo => 'YYYY-MM-DD' (fecha_minimo), ...]
-     * @param int   $ventana_dias  Días máximos tras fecha_minimo para considerar timing (default 3)
-     * @return array  Set de idArticulo con timing confirmado [idArticulo => true]
-     */
-    private function _queryTimingC1b(array $id_fecha_map, int $ventana_dias = 1): array
-    {
-        if (empty($id_fecha_map)) return [];
-
-        $conditions = [];
-        foreach ($id_fecha_map as $id => $fecha) {
-            if (!$fecha) continue;
-            $id_esc    = (int)$id;
-            $f_esc     = $this->db->real_escape_string($fecha);
-            $f_fin_esc = $this->db->real_escape_string(
-                date('Y-m-d', strtotime($fecha . " +{$ventana_dias} days"))
-            );
-            $conditions[] = "(l.idArticulo = $id_esc AND DATE(c.Fecha) BETWEEN '$f_esc' AND '$f_fin_esc')";
-        }
-
-        if (empty($conditions)) return [];
-
-        $where_or = implode(' OR ', $conditions);
-        $smt = $this->db->query("
-            SELECT DISTINCT l.idArticulo
-            FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE ($where_or)
-              AND c.estado      IN ('Guardado','Facturado')
-              AND l.estadoLinea = 'Activo'
-        ");
-        if (!$smt) return [];
-
-        $resultado = [];
-        while ($r = $smt->fetch_assoc()) {
-            $resultado[(int)$r['idArticulo']] = true;
-        }
-        return $resultado;
-    }
-
-    /**
-     * C1 — Proveedor habitual y último proveedor para una lista de artículos.
-     *
-     * Busca en el rango anual (fi_stock → ff) para tener datos suficientes incluso
-     * en períodos de análisis cortos (semanal, quincenal…).
-     *
-     * Devuelve por artículo:
-     *   prov_habitual_nombre  — nombre del proveedor con más albaranes distintos
-     *   prov_habitual_n       — número de albaranes de ese proveedor
-     *   prov_ultimo_nombre    — nombre del proveedor del último albarán recibido
-     *   prov_ultima_fecha     — fecha del último albarán (YYYY-MM-DD)
-     *   prov_es_mismo         — true si habitual == último (mismo idProveedor)
-     *
-     * @param string $ids_str   IDs de artículo separados por coma (ya validados)
-     * @param string $fi_stock  Inicio del rango anual (escapado)
-     * @param string $ff        Fin del período de análisis (escapado)
-     * @return array  [idArticulo => [...]] o vacío si no hay datos
-     */
-    private function _queryProveedorArticulos(string $ids_str, string $fi_stock, string $ff): array
-    {
-        if (empty($ids_str)) return [];
-
-        // Frecuencia: proveedor con más albaranes distintos que incluyen el artículo.
-        // Desempate: mayor volumen total comprado (SUM nunidades); segundo desempate: albarán más reciente.
-        $smt = $this->db->query("
-            SELECT
-                l.idArticulo,
-                c.idProveedor,
-                p.nombrecomercial           AS nombre,
-                COUNT(DISTINCT c.id)        AS n_albaranes,
-                SUM(ABS(l.nunidades))           AS cantidad_total,
-                MAX(DATE(c.Fecha))          AS ultima_fecha
-            FROM albprolinea l
-            INNER JOIN albprot     c ON c.id          = l.idalbpro
-            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_stock' AND '$ff'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea = 'Activo'
-            GROUP BY l.idArticulo, c.idProveedor
-            ORDER BY l.idArticulo, n_albaranes DESC, cantidad_total DESC, ultima_fecha DESC
-        ");
-        if (!$smt) return [];
-
-        // Por artículo: el primer resultado es el habitual (más albaranes); buscar también el último
-        $por_art = [];
-        while ($r = $smt->fetch_assoc()) {
-            $id = (int)$r['idArticulo'];
-            if (!isset($por_art[$id])) {
-                // Primer resultado = proveedor habitual
-                $por_art[$id] = [
-                    'prov_habitual_id'     => (int)$r['idProveedor'],
-                    'prov_habitual_nombre' => $r['nombre'],
-                    'prov_habitual_n'      => (int)$r['n_albaranes'],
-                    'prov_ultimo_id'       => (int)$r['idProveedor'],
-                    'prov_ultimo_nombre'   => $r['nombre'],
-                    'prov_ultima_fecha'    => $r['ultima_fecha'],
-                ];
-            } else {
-                // Comprobar si este proveedor tiene una fecha más reciente
-                if ($r['ultima_fecha'] > $por_art[$id]['prov_ultima_fecha']) {
-                    $por_art[$id]['prov_ultimo_id']     = (int)$r['idProveedor'];
-                    $por_art[$id]['prov_ultimo_nombre'] = $r['nombre'];
-                    $por_art[$id]['prov_ultima_fecha']  = $r['ultima_fecha'];
-                }
-            }
-        }
-
-        // Marcar si habitual == último
-        foreach ($por_art as &$d) {
-            $d['prov_es_mismo'] = ($d['prov_habitual_id'] === $d['prov_ultimo_id']);
-        }
-        unset($d);
-
-        return $por_art;
-    }
-
-    /**
-     * C7b-011: precio medio ponderado de compra por artículo en la ventana dada.
-     * Fórmula: SUM(costeSiva × nunidades) / SUM(nunidades) sobre albaranes confirmados.
-     * Devuelve [idArticulo => precio_medio_compra].
-     */
-    private function _queryPrecioMedioCompra(string $ids_str, string $fi, string $ff): array
-    {
-        if (empty($ids_str)) return [];
-
-        $smt = $this->db->query("
-            SELECT
-                l.idArticulo,
-                SUM(l.costeSiva * l.nunidades) / NULLIF(SUM(l.nunidades), 0) AS precio_medio
-            FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea = 'Activo'
-              AND l.nunidades       > 0
-            GROUP BY l.idArticulo
-        ");
-        if (!$smt) return [];
-
-        $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            if ($r['precio_medio'] !== null) {
-                $result[(int)$r['idArticulo']] = (float)$r['precio_medio'];
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * C1 — Delta total y mínimo de la suma acumulada por artículo mediante window function.
-     * Una fila por artículo con delta_total (saldo del periodo) y min_running (mínimo acumulado).
-     * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
-     *
-     * @return array  Filas raw (idArticulo, delta_total, min_running) o ['error' => ...]
-     */
-    private function _queryDeltasC1(
-        string $fi,
-        string $ff,
-        string $wf,
-        string $wi
-    ): array {
-        $sql = "
-            SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running,
-                   MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo,
-                   SUM(CASE WHEN cum_sum = min_per_art THEN 1 ELSE 0 END) AS dias_en_minimo,
-                   SUM(CASE WHEN cum_sum < 0 THEN 1 ELSE 0 END) AS dias_en_negativo
-            FROM (
-                SELECT idArticulo, fecha, day_delta, cum_sum, min_per_art,
-                       ROW_NUMBER() OVER (PARTITION BY idArticulo
-                                          ORDER BY cum_sum ASC, fecha ASC) AS rn_min
-                FROM (
-                    SELECT idArticulo, fecha, day_delta, cum_sum,
-                           MIN(cum_sum) OVER (PARTITION BY idArticulo) AS min_per_art
-                    FROM (
-                        SELECT idArticulo, fecha, day_delta,
-                               SUM(day_delta) OVER (PARTITION BY idArticulo ORDER BY fecha
-                                                    ROWS UNBOUNDED PRECEDING) AS cum_sum
-                        FROM (
-                            SELECT idArticulo, fecha, SUM(delta) AS day_delta
-                            FROM (
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
-                                FROM albprolinea l
-                                INNER JOIN albprot    c ON c.id        = l.idalbpro
-                                INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                  AND c.estado      IN ('Guardado','Facturado')
-                                  AND l.estadoLinea = 'Activo'
-                                  $wf $wi
-                                UNION ALL
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
-                                FROM ticketslinea l
-                                INNER JOIN ticketst  c ON c.id        = l.idticketst
-                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                  AND c.estado      = 'Cerrado'
-                                  AND l.estadoLinea = 'Activo'
-                                  $wf $wi
-                                UNION ALL
-                                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
-                                FROM albclilinea l
-                                INNER JOIN albclit   c ON c.id        = l.idalbcli
-                                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                                  AND c.estado      IN ('Guardado','Procesado')
-                                  AND l.estadoLinea = 'Activo'
-                                  $wf $wi
-                            ) AS all_movs
-                            GROUP BY idArticulo, fecha
-                        ) AS daily
-                    ) AS windowed_inner
-                ) AS with_min
-            ) AS windowed
-            GROUP BY idArticulo
-            HAVING MIN(cum_sum) < 0 OR SUM(day_delta) < 0
-        ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C2 — Entradas de proveedor con su suma acumulada de movimientos anteriores
-     * calculada mediante window function (SUM OVER ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING).
-     *
-     * @return array  Filas raw (idArticulo, fecha, nunidades, cum_before) o ['error' => ...]
-     */
-    private function _queryEntradasC2(
-        string $fi,
-        string $ff,
-        string $wf,
-        string $wi
-    ): array {
-        $sql = "
-            SELECT e.idArticulo, e.fecha, e.nunidades,
-                   COALESCE(r.cum_before, 0) AS cum_before
-            FROM (
-                -- Entradas positivas de proveedor agrupadas por artículo y fecha
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades
-                FROM albprolinea l
-                INNER JOIN albprot   c ON c.id        = l.idalbpro
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado      IN ('Guardado','Facturado')
-                  AND l.estadoLinea = 'Activo'
-                  AND l.nunidades       > 0
-                  $wf $wi
-                GROUP BY l.idArticulo, DATE(c.Fecha)
-            ) AS e
-            LEFT JOIN (
-                -- Running sum de todos los movimientos hasta la fecha anterior (exclusive)
-                SELECT idArticulo, fecha,
-                       COALESCE(SUM(day_delta) OVER (
-                           PARTITION BY idArticulo ORDER BY fecha
-                           ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-                       ), 0) AS cum_before
-                FROM (
-                    SELECT idArticulo, fecha, SUM(delta) AS day_delta
-                    FROM (
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
-                        FROM albprolinea l
-                        INNER JOIN albprot    c ON c.id        = l.idalbpro
-                        INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      IN ('Guardado','Facturado')
-                          AND l.estadoLinea = 'Activo'
-                          $wf $wi
-                        UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
-                        FROM ticketslinea l
-                        INNER JOIN ticketst  c ON c.id        = l.idticketst
-                        INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      = 'Cerrado'
-                          AND l.estadoLinea = 'Activo'
-                          $wf $wi
-                        UNION ALL
-                        SELECT l.idArticulo, DATE(c.Fecha) AS fecha, -l.nunidades AS delta
-                        FROM albclilinea l
-                        INNER JOIN albclit   c ON c.id        = l.idalbcli
-                        INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                          AND c.estado      IN ('Guardado','Procesado')
-                          AND l.estadoLinea = 'Activo'
-                          $wf $wi
-                    ) AS all_movs
-                    GROUP BY idArticulo, fecha
-                ) AS daily
-            ) AS r ON r.idArticulo = e.idArticulo AND r.fecha = e.fecha
-        ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C3 — Artículos con entrada en la ventana y su última venta conocida.
-     * Pre-filtrado SQL: solo artículos cuya última venta es >= min_umbral semanas atrás (o nula).
-     *
-     * @return array  Filas raw (idArticulo, ultima_venta) o ['error' => ...]
-     */
-    private function _queryUltimaVentaC3(
-        string $fi_m,
-        string $ff_m,
-        string $fi_s,
-        string $wf,
-        string $wi,
-        int    $min_u,
-        int    $dias_post = 14,
-        float  $multiplicador_cadencia = 3.0
-    ): array {
-        // Mínimo floor SQL para C3a: al menos ceil(multiplicador) días sin venta
-        $c3a_floor_dias = max(3, (int)ceil($multiplicador_cadencia));
-        $sql = "
-            SELECT ent.idArticulo,
-                   MAX(sal.fecha)              AS ultima_venta,
-                   COUNT(DISTINCT sal.fecha)   AS n_ventas_historico,
-                   MIN(sal_post.fecha)         AS primera_venta_post,
-                   ent.n_entradas,
-                   ent.cantidad_recibida,
-                   ent.fecha_primera_entrada,
-                   ent.n_devoluciones,
-                   ent.cantidad_devuelta
-            FROM (
-                SELECT l.idArticulo,
-                       COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END)        AS n_entradas,
-                       SUM(CASE WHEN l.nunidades > 0 THEN l.nunidades ELSE 0 END)         AS cantidad_recibida,
-                       MIN(CASE WHEN l.nunidades > 0 THEN DATE(c.Fecha) END)          AS fecha_primera_entrada,
-                       COUNT(DISTINCT CASE WHEN l.nunidades < 0 THEN c.id END)        AS n_devoluciones,
-                       SUM(CASE WHEN l.nunidades < 0 THEN ABS(l.nunidades) ELSE 0 END)   AS cantidad_devuelta
-                FROM albprolinea l
-                INNER JOIN albprot   c ON c.id        = l.idalbpro
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi_m' AND '$ff_m'
-                  AND c.estado      IN ('Guardado','Facturado')
-                  AND l.estadoLinea = 'Activo'
-                  $wf $wi
-                GROUP BY l.idArticulo
-                HAVING COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END) > 0
-            ) AS ent
-            LEFT JOIN (
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi_s' AND '$ff_m'
-                  AND c.estado      = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                UNION ALL
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi_s' AND '$ff_m'
-                  AND c.estado      IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-            ) AS sal ON sal.idArticulo = ent.idArticulo
-            LEFT JOIN (
-                -- Ventas en los $dias_post días posteriores al periodo: detecta falsos positivos
-                -- de C3b-nunca cuando el artículo entra al final del rango y aún no ha vendido
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
-                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
-                  AND c.estado      = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                UNION ALL
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha
-                FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
-                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
-                  AND c.estado      IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-            ) AS sal_post ON sal_post.idArticulo = ent.idArticulo
-            GROUP BY ent.idArticulo
-            HAVING MAX(sal.fecha) IS NULL
-                OR DATEDIFF('$ff_m', MAX(sal.fecha)) / 7.0 >= $min_u
-                OR DATEDIFF('$ff_m', MAX(sal.fecha)) >= $c3a_floor_dias
-        ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    // ── C7 ────────────────────────────────────────────────────────────────────
-
-    /**
-     * C7 — Fechas de recepción de proveedor por artículo físico en el periodo.
-     *
-     * Devuelve una fila por (idArticulo, fecha) de recepción.
-     * Se usa en PHP para filtrar artículos con ≥ N fechas distintas de recepción.
-     *
-     * @return array  Filas [{idArticulo, fecha}] o ['error' => ...]
-     */
-    private function _queryRecepcionesFechasC7(
-        string $fi,
-        string $ff,
-        string $wf,
-        string $wi
-    ): array {
-        $sql = "
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS cantidad
-            FROM albprolinea l
-            INNER JOIN albprot c  ON c.id = l.idalbpro
-            INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea = 'Activo'
-              AND l.nunidades > 0
-              $wf $wi
-            GROUP BY l.idArticulo, DATE(c.Fecha)
-            ORDER BY l.idArticulo, DATE(c.Fecha)
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 recepciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * C7 — Timeline de movimientos diarios (entradas + salidas de ticket + salidas albcli)
-     * para los artículos candidatos. Devuelve el delta neto por (idArticulo, fecha).
-     *
-     * @param  string $ids_str  IN-clause de idArticulo ya preparado
-     * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error' => ...]
-     */
-    /**
-     * Artículos con al menos un albarán de cliente en la ventana fi–ff.
-     * Usado en C7a para enriquecer posible_causa cuando hay transferencias
-     * inter-tienda registradas (un albaran no marcado inflaría el floor).
-     *
-     * @return array  Set de idArticulo (int) con actividad albcli, o ['error'=>...]
-     */
-    private function _queryHasAlbcliC7(string $fi, string $ff, string $ids_str): array
-    {
-        if (empty($ids_str)) return [];
-        $sql = "
-            SELECT DISTINCT l.idArticulo
-            FROM albclilinea l
-            INNER JOIN albclit a ON a.id = l.idalbcli
-            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
-              AND a.estado IN ('Guardado','Procesado')
-              AND l.idArticulo IN ($ids_str)
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 albcli check: ' . $this->db->error];
-        $ids = [];
-        while ($row = $res->fetch_assoc()) $ids[(int)$row['idArticulo']] = true;
-        $res->free();
-        return $ids;
-    }
-
-    private function _queryTimelineMovimientosC7(
-        string $fi,
-        string $ff,
-        string $ids_str
-    ): array {
-        if (empty($ids_str)) return [];
-        $sql = "
-            SELECT idArticulo, fecha, SUM(delta) AS day_delta
-            FROM (
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
-                FROM albprolinea l
-                INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo IN ($ids_str)
-                UNION ALL
-                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, -l.nunidades AS delta
-                FROM ticketslinea l
-                INNER JOIN ticketst t ON t.id = l.idticketst
-                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND t.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo IN ($ids_str)
-                UNION ALL
-                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.nunidades AS delta
-                FROM albclilinea l
-                INNER JOIN albclit a ON a.id = l.idalbcli
-                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND a.estado IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-                  AND l.idArticulo IN ($ids_str)
-            ) AS all_movs
-            GROUP BY idArticulo, fecha
-            ORDER BY idArticulo, fecha
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 timeline: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    // ══════════════════════════════════════════════════════════════════════
-    //  C9 — Merma por backstaging (queries)
-    // ══════════════════════════════════════════════════════════════════════
-
-    /**
-     * C9 paso 1 — Recepciones reales (proveedor no especial, nunidades>0) por artículo.
-     * Variante de _queryRecepcionesFechasC7 que excluye proveedores especiales y amplía
-     * el rango hasta ff_post para capturar la primera recepción post-periodo (cierre del
-     * último ciclo analizable).
-     *
-     * @param  string $fi          Inicio del periodo analizado (fi_mov)
-     * @param  string $ff_mov      Último día del periodo analizado
-     * @param  string $wf          WHERE de familia
-     * @param  string $wi          WHERE de idArticulo
-     * @param  int    $dias_post   Días a ampliar tras ff_mov (default 60)
-     * @return array  Filas [{idArticulo, fecha, cantidad, es_post_periodo}] o ['error'=>...]
-     */
-    private function _queryRecepcionesC9(
-        string $fi,
-        string $ff_mov,
-        string $wf,
-        string $wi,
-        int    $dias_post = 60
-    ): array {
-        $ff_post = $this->db->real_escape_string(
-            date('Y-m-d', strtotime("$ff_mov +$dias_post days"))
-        );
-        $ff_esc = $this->db->real_escape_string($ff_mov);
-        $sql = "
-            SELECT
-                l.idArticulo,
-                DATE(c.Fecha)            AS fecha,
-                SUM(l.nunidades)         AS cantidad,
-                DATE(c.Fecha) > '$ff_esc' AS es_post_periodo
-            FROM albprolinea  l
-            INNER JOIN albprot     c ON c.id          = l.idalbpro
-            INNER JOIN articulos   a ON a.idArticulo  = l.idArticulo
-            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea  = 'Activo'
-              AND l.nunidades    > 0
-              AND p.estado      != 'Especial'
-              $wf $wi
-            GROUP BY l.idArticulo, DATE(c.Fecha)
-            ORDER BY l.idArticulo, DATE(c.Fecha)
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 recepciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * C9 paso 1b — Devoluciones ordinarias a proveedor (nunidades < 0, proveedor no especial).
-     * Devuelve la cantidad devuelta (valor absoluto) por artículo y fecha.
-     * Se usa en _calcularLotesC9 para netear E_t de cada lote.
-     *
-     * @param  string $fi        Inicio del periodo analizado (fi_mov)
-     * @param  string $ff_post   Fin extendido (ff_mov + dias_post)
-     * @param  string $ids_str   Lista de IDs artículo para WHERE IN
-     * @return array  Filas [{idArticulo, fecha, devolucion}] o ['error'=>...]
-     */
-    private function _queryDevolucionesProvC9(
-        string $fi,
-        string $ff_post,
-        string $ids_str
-    ): array {
-        if (empty($ids_str)) return [];
-        $sql = "
-            SELECT
-                l.idArticulo,
-                DATE(c.Fecha)          AS fecha,
-                SUM(ABS(l.nunidades))  AS devolucion
-            FROM albprolinea  l
-            INNER JOIN albprot     c ON c.id          = l.idalbpro
-            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea  = 'Activo'
-              AND l.nunidades    < 0
-              AND p.estado      != 'Especial'
-              AND l.idArticulo   IN ($ids_str)
-            GROUP BY l.idArticulo, DATE(c.Fecha)
-            ORDER BY l.idArticulo, DATE(c.Fecha)
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 devoluciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * C9 paso 2 — Timeline de SALIDAS diarias (solo ventas/albaranes cliente).
-     * NO incluye recepciones de proveedor: E_t viene de _queryRecepcionesC9.
-     * Excluye clientes con estado='Especial' (merma declarada, gestionada en Q5b).
-     *
-     * @return array  Filas [{idArticulo, fecha, day_delta}] (day_delta siempre >= 0) o ['error'=>...]
-     */
-    private function _queryTimelineC9(
-        string $fi,
-        string $ff,
-        string $ids_str
-    ): array {
-        if (empty($ids_str)) return [];
-        $sql = "
-            SELECT idArticulo, fecha, SUM(delta) AS day_delta
-            FROM (
-                SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.nunidades AS delta
-                FROM ticketslinea l
-                INNER JOIN ticketst t ON t.id = l.idticketst
-                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND t.estado       = 'Cerrado'
-                  AND l.estadoLinea  = 'Activo'
-                  AND l.idArticulo  IN ($ids_str)
-                UNION ALL
-                SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.nunidades AS delta
-                FROM albclilinea l
-                INNER JOIN albclit  a  ON a.id         = l.idalbcli
-                INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND a.estado       IN ('Guardado','Procesado')
-                  AND l.estadoLinea  = 'Activo'
-                  AND cl.estado     != 'Especial'
-                  AND l.idArticulo  IN ($ids_str)
-            ) AS all_salidas
-            GROUP BY idArticulo, fecha
-            ORDER BY idArticulo, fecha
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 timeline: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * C9 paso Q5a — Líneas de albaranes de proveedores con estado='Especial'.
-     * Cada fila lleva idAlbaran para que en PHP se clasifique:
-     *   - Mezcla de signos en el mismo albarán → cruce (excluir del flujo).
-     *   - Todas las líneas negativas → merma declarada (acumular aparte).
-     *
-     * @return array  Filas [{idArticulo, fecha, nunidades, idAlbaran}] o ['error'=>...]
-     */
-    private function _queryAlbaranesProvEspecialesC9(
-        string $fi,
-        string $ff,
-        string $ids_str
-    ): array {
-        if (empty($ids_str)) return [];
-        // Devuelve TODAS las líneas de los albaranes donde algún artículo del lote aparece,
-        // no solo las líneas de ids_str. Esto permite detectar cruces (signos mixtos en el
-        // mismo albarán para distintos artículos) incluso cuando el lote analizado es pequeño.
-        $sql = "
-            SELECT
-                l.idArticulo,
-                DATE(c.Fecha) AS fecha,
-                l.nunidades    AS nunidades,
-                c.id          AS idAlbaran
-            FROM albprolinea  l
-            INNER JOIN albprot     c ON c.id          = l.idalbpro
-            INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
-              AND l.estadoLinea  = 'Activo'
-              AND p.estado       = 'Especial'
-              AND c.id IN (
-                  SELECT DISTINCT l2.idalbpro
-                  FROM albprolinea l2
-                  WHERE l2.idArticulo IN ($ids_str)
-                    AND l2.estadoLinea = 'Activo'
-              )
-            ORDER BY c.id, l.idArticulo
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 prov especiales: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * C9 paso Q5b — Albaranes de clientes con estado='Especial' (todos son merma declarada).
-     * Se excluyen de V_t y se acumulan aparte como merma_declarada.
-     *
-     * @return array  Filas [{idArticulo, fecha, cantidad}] o ['error'=>...]
-     */
-    private function _queryAlbaranesCliEspecialesC9(
-        string $fi,
-        string $ff,
-        string $ids_str
-    ): array {
-        if (empty($ids_str)) return [];
-        // Devuelve líneas individuales con idAlbaran para poder detectar cruces
-        // intra-albarán (signos mixtos por artículo) igual que el lado proveedor.
-        $sql = "
-            SELECT l.idArticulo, DATE(a.Fecha) AS fecha, l.nunidades AS nunidades, a.id AS idAlbaran
-            FROM albclilinea l
-            INNER JOIN albclit  a  ON a.id         = l.idalbcli
-            INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
-              AND a.estado      IN ('Guardado','Procesado')
-              AND l.estadoLinea  = 'Activo'
-              AND cl.estado      = 'Especial'
-              AND l.idArticulo  IN ($ids_str)
-            ORDER BY a.id, l.idArticulo
-        ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 cli especiales: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
-    }
-
-    /**
-     * Proveedor — idArticulo vinculados a los proveedores indicados (estado Activo).
-     *
-     * @param  string $ids_prov  IN-clause de idProveedor ya preparado
-     * @return array  Filas raw (idArticulo) o ['error' => ...]
-     */
-    private function _queryIdsArticulosByProveedores(string $ids_prov): array
-    {
-        $smt = $this->db->query(
-            "SELECT DISTINCT idArticulo FROM articulosProveedores
-             WHERE idProveedor IN ($ids_prov)
-               AND estado = 'Activo'"
-        );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * Proveedor — idArticulo vinculados a los proveedores indicados (sin filtro de estado).
-     * Usado por C6b: un artículo puede estar inactivo en la relación proveedor
-     * pero seguir en stock y vendiendo, y debe evaluarse para el punto de pedido.
-     *
-     * @param  string $ids_prov  IN-clause de idProveedor ya preparado
-     * @return array  Filas raw (idArticulo) o ['error' => ...]
-     */
-    private function _queryIdsArticulosByProveedoresTodos(string $ids_prov): array
-    {
-        $smt = $this->db->query(
-            "SELECT DISTINCT idArticulo FROM articulosProveedores
-             WHERE idProveedor IN ($ids_prov)"
-        );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * Paginación de artículos de un proveedor sin filtro de actividad en el periodo.
-     * Usado cuando proveedor_todos_productos=true para analizar todos los artículos
-     * del proveedor independientemente del rango analizado.
-     *
-     * @return int[]  Array de idArticulo, o array con clave 'error'.
-     */
-    private function _queryArticulosProveedorPaginados(string $ids_prov, int $offset, int $limit): array
-    {
-        $smt = $this->db->query(
-            "SELECT DISTINCT ap.idArticulo
-             FROM articulosProveedores ap
-             INNER JOIN articulos a ON a.idArticulo = ap.idArticulo
-             WHERE ap.idProveedor IN ($ids_prov)
-               AND ap.estado = 'Activo'
-             ORDER BY ap.idArticulo
-             LIMIT $limit OFFSET $offset"
-        );
-        if (!$smt) return ['error' => $this->db->error];
-        $ids = [];
-        while ($r = $smt->fetch_assoc()) $ids[] = (int)$r['idArticulo'];
-        return $ids;
-    }
-
-    /**
-     * C6 — Fechas únicas de albarán por proveedor en el rango dado.
-     * Usado para estimar el lead time desde el intervalo entre albaranes consecutivos.
-     *
-     * @return array  Filas raw (idProveedor, fecha_albaran) o ['error' => ...]
-     */
-    private function _queryFechasAlbaranesByProveedores(string $fi, string $ff, string $ids_prov): array
-    {
-        $smt = $this->db->query("
-            SELECT idProveedor, DATE(Fecha) AS fecha_albaran
-            FROM albprot
-            WHERE DATE(Fecha) BETWEEN '$fi' AND '$ff'
-              AND estado       IN ('Guardado','Facturado','Exportado','Importado')
-              AND idProveedor  IN ($ids_prov)
-            GROUP BY idProveedor, DATE(Fecha)
-            ORDER BY idProveedor, DATE(Fecha)
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
-    }
-
-    /**
-     * C6 — Reconstrucción de stock desde la última entrada de proveedor.
-     *
-     * Cuando el stock rebobinado está muy por debajo de -2 (errores de inventario,
-     * pesajes mal registrados, etc.) este método ofrece una estimación más fiable:
-     *   stock_reconstituido = nunidades_última_entrada − ventas_desde_esa_entrada_hasta_ff_esc
-     *
-     * Solo se aplica a los artículos cuyo stock rebobinado < STOCK_NEGATIVO_UMBRAL.
-     *
-     * @param  string $ids_str  IDs de artículo separados por coma (ya validados)
-     * @param  string $ff_esc   Fecha tope de ventas (= hoy para C6b), ya escapada
-     * @return array  [idArticulo => stock_reconstituido] o ['error' => ...]
-     */
-    private function _queryStockReconstituido(string $ids_str, string $ff_esc): array
-    {
-        $smt = $this->db->query("
-            SELECT e.idArticulo,
-                   e.nunidades_entrada - COALESCE(SUM(v.nunidades), 0) AS stock_reconstituido
-            FROM (
-                -- Última línea de albarán de proveedor (ROW_NUMBER garantiza exactamente una por artículo)
-                SELECT ult.idArticulo, ult.nunidades AS nunidades_entrada, DATE(cab.Fecha) AS fecha_entrada
-                FROM (
-                    SELECT l.idArticulo, l.nunidades, l.idalbpro,
-                           ROW_NUMBER() OVER (PARTITION BY l.idArticulo ORDER BY h.Fecha DESC, l.id DESC) AS rn
-                    FROM albprolinea l
-                    INNER JOIN albprot h ON h.id = l.idalbpro
-                    WHERE l.idArticulo IN ($ids_str)
-                      AND h.estado IN ('Guardado','Facturado','Exportado','Importado')
-                      AND l.estadoLinea = 'Activo'
-                ) ult
-                INNER JOIN albprot cab ON cab.id = ult.idalbpro
-                WHERE ult.rn = 1
-            ) e
-            LEFT JOIN (
-                -- Ventas por ticket hasta ff_esc (sin albcli: solo salidas reales de caja)
-                SELECT l.idArticulo, DATE(c.Fecha) AS fecha_venta, l.nunidades
-                FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE l.idArticulo IN ($ids_str)
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  AND DATE(c.Fecha) <= '$ff_esc'
-            ) v ON v.idArticulo = e.idArticulo
-                AND v.fecha_venta >= e.fecha_entrada
-            GROUP BY e.idArticulo, e.nunidades_entrada
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            $result[(int)$r['idArticulo']] = (float)$r['stock_reconstituido'];
-        }
-        return $result;
-    }
-
-    /**
-     * C6 — Calcula el lead time medio (días entre albaranes consecutivos)
-     * para los proveedores indicados en el rango anual [fi_stock, ff_mov].
-     *
-     * Si hay varios proveedores se promedia el LT individual de cada uno.
-     * Devuelve 0 si no hay suficientes albaranes (< 2 por proveedor) en ninguno.
-     *
-     * @return int  Días de LT calculado, o 0 si no hay datos suficientes.
-     */
-    private function _calcularLeadTimeProveedores(string $fi_stock, string $ff_mov, array $proveedores_incluir): int
-    {
-        if (empty($proveedores_incluir)) return 0;
-
-        $fi       = $this->db->real_escape_string($fi_stock);
-        $ff       = $this->db->real_escape_string($ff_mov);
-        $ids_prov = implode(',', array_map('intval', $proveedores_incluir));
-
-        $rows = $this->_queryFechasAlbaranesByProveedores($fi, $ff, $ids_prov);
-        if (isset($rows['error']) || empty($rows)) return 0;
-
-        // Agrupar fechas por proveedor
-        $por_proveedor = [];
-        foreach ($rows as $r) {
-            $por_proveedor[(int)$r['idProveedor']][] = $r['fecha_albaran'];
-        }
-
-        $lts = [];
-        foreach ($por_proveedor as $fechas) {
-            if (count($fechas) < 2) continue;
-            $ts = array_map('strtotime', $fechas);
-            sort($ts);
-            $intervalos = [];
-            for ($i = 1, $np = count($ts); $i < $np; $i++) {
-                $dias = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-                if ($dias > 0) $intervalos[] = $dias;
-            }
-            if (!empty($intervalos)) {
-                $lts[] = array_sum($intervalos) / count($intervalos);
-            }
-        }
-
-        if (empty($lts)) return 0;
-        return max(1, (int)round(array_sum($lts) / count($lts)));
-    }
-
-    /**
-     * Paginación — DISTINCT idArticulo con actividad en el rango, con LIMIT/OFFSET.
-     *
-     * @return array  Filas raw (idArticulo) o ['error' => ...]
-     */
-    private function _queryIdsConActividad(
-        string $fi,
-        string $ff,
-        string $where_fam,
-        string $limit_clause,
-        string $where_prov = ''   // cláusula AND idArticulo IN (...) de proveedores
-    ): array {
-        $smt = $this->db->query("
-            SELECT DISTINCT idArticulo FROM (
-                SELECT l.idArticulo FROM albprolinea l
-                INNER JOIN albprot c ON c.id = l.idalbpro
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
-                  AND l.estadoLinea = 'Activo'
-                  $where_fam $where_prov
-                UNION
-                SELECT l.idArticulo FROM ticketslinea l
-                INNER JOIN ticketst c ON c.id = l.idticketst
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado = 'Cerrado'
-                  AND l.estadoLinea = 'Activo'
-                  $where_fam $where_prov
-                UNION
-                SELECT l.idArticulo FROM albclilinea l
-                INNER JOIN albclit c ON c.id = l.idalbcli
-                INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-                  AND c.estado IN ('Guardado','Procesado')
-                  AND l.estadoLinea = 'Activo'
-                  $where_fam $where_prov
-            ) AS sub
-            ORDER BY idArticulo
-            $limit_clause
-        ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        $this->repo = new PosstockQueryRepository($conexion);
     }
 
     // ══════════════════════════════════════════════════════════════════════════
     // LÓGICA — Métodos de negocio y helpers de transformación
+    // (SQL queries desplazadas a PosstockQueryRepository — Fase 2)
     // ══════════════════════════════════════════════════════════════════════════
-
-    /** Añade el campo 'nombre' (articulo_name) a cada fila de incidencias. */
-    private function _anadirNombres(array $incidencias): array
-    {
-        if (empty($incidencias)) return $incidencias;
-        // La conexión puede haberse perdido durante el cálculo estadístico pesado de C7.
-        // En PHP 8.1+ con MYSQLI_REPORT_STRICT, ping() puede lanzar mysqli_sql_exception
-        // si la conexión está completamente cerrada; se captura para no bloquear al usuario.
-        try {
-            if (!$this->db->ping()) return $incidencias;
-        } catch (\mysqli_sql_exception $e) {
-            return $incidencias; // devolver filas sin nombre; no bloquear
-        }
-        $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-        $smt = $this->db->query(
-            "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
-        );
-        $nombres = [];
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
-            }
-        }
-        foreach ($incidencias as &$inc) {
-            $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
-        }
-        unset($inc);
-        return $incidencias;
-    }
 
     /** Convierte el resultado de getArticulosSinMovimiento en filas de incidencia caso4. */
     private function _formatearCaso4(array $articulos): array
@@ -1662,11 +127,11 @@ class ClasePosstock
 
         $where_familia = '';
         if (!empty($familias_incluir)) {
-            $ids = $this->expandirFamilias($familias_incluir);
+            $ids = $this->repo->expandirFamilias($familias_incluir);
             if ($ids) $where_familia .= " AND l.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
         if (!empty($familias_excluir)) {
-            $ids = $this->expandirFamilias($familias_excluir);
+            $ids = $this->repo->expandirFamilias($familias_excluir);
             if ($ids) $where_familia .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
 
@@ -1674,7 +139,7 @@ class ClasePosstock
             ? ''
             : " AND l.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
 
-        return $this->_queryMovimientosPeriodo($fi, $ff, $where_familia, $where_ids);
+        return $this->repo->queryMovimientosPeriodo($fi, $ff, $where_familia, $where_ids);
     }
 
     /**
@@ -1701,7 +166,7 @@ class ClasePosstock
         $ff  = $this->db->real_escape_string($fecha_fin);
         $ids = implode(',', array_map('intval', $ids_articulos));
 
-        $rows = $this->_queryStockBase($fi, $ff, $ids);
+        $rows = $this->repo->queryStockBase($fi, $ff, $ids);
         if (isset($rows['error'])) return $rows;
 
         $resultado = [];
@@ -1879,7 +344,7 @@ class ClasePosstock
             $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
             if (!empty($proveedores_incluir)) {
                 $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+                $rows_prov = $this->repo->queryIdsArticulosByProveedores($ids_str_prov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
@@ -2073,7 +538,7 @@ class ClasePosstock
             $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
             if (!empty($proveedores_incluir)) {
                 $ids_str_prov_c6b = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_c6b = $this->_queryIdsArticulosByProveedoresTodos($ids_str_prov_c6b);
+                $rows_c6b = $this->repo->queryIdsArticulosByProveedoresTodos($ids_str_prov_c6b);
                 $ids_c6b  = isset($rows_c6b['error']) ? $ids_proveedor_filter : array_column($rows_c6b, 'idArticulo');
                 // ids_proveedor_filter ya contiene solo estado='Activo' (resuelto al inicio de getIncidencias)
                 $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
@@ -2328,7 +793,7 @@ class ClasePosstock
         }
         unset($inc);
 
-        return $this->_anadirNombres($incidencias);
+        return $this->repo->anadirNombres($incidencias);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -2484,23 +949,23 @@ class ClasePosstock
         // Filtro de familias sobre la tabla articulos (alias 'a')
         $where_familia = '';
         if (!empty($familias_incluir)) {
-            $ids_fam = $this->expandirFamilias($familias_incluir);
+            $ids_fam = $this->repo->expandirFamilias($familias_incluir);
             if ($ids_fam) $where_familia .= " AND a.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
         }
         if (!empty($familias_excluir)) {
-            $ids_fam = $this->expandirFamilias($familias_excluir);
+            $ids_fam = $this->repo->expandirFamilias($familias_excluir);
             if ($ids_fam) $where_familia .= " AND a.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
         }
 
         // Paso 1: todos los artículos físicos (con filtro de familia)
-        $rows_fisicos = $this->_queryArticulosFisicos($where_familia);
+        $rows_fisicos = $this->repo->queryArticulosFisicos($where_familia);
         if (isset($rows_fisicos['error'])) return $rows_fisicos;
 
         $todos_ids = array_map(fn($r) => (int)$r['idArticulo'], $rows_fisicos);
         if (empty($todos_ids)) return [];
 
         // Paso 2: artículos con cualquier movimiento (los 3 tipos) en [fi_año, ff_mov]
-        $rows_con_mov = $this->_queryIdsConMovimientoC4($fi, $ff);
+        $rows_con_mov = $this->repo->queryIdsConMovimientoC4($fi, $ff);
         if (isset($rows_con_mov['error'])) return $rows_con_mov;
 
         $con_movimiento = [];
@@ -2512,7 +977,7 @@ class ClasePosstock
 
         // Paso 3: stock en el momento del análisis (fecha ff_mov) via rebobinado
         $ids_str = implode(',', array_map('intval', $sin_movimiento));
-        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, $c5_incluir_stock_negativo);
+        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, $c5_incluir_stock_negativo);
         if (isset($rows_stock['error'])) return $rows_stock;
 
         $resultado = [];
@@ -2564,11 +1029,11 @@ class ClasePosstock
         $ff   = $this->db->real_escape_string($ff_mov);
         $ff_stats_esc = $this->db->real_escape_string($ff_stats);
 
-        $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $where_ids = $this->_idsWhere($ids_filter);
+        $where_fam = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $where_ids = $this->repo->idsWhere($ids_filter);
 
         // Paso 1: fechas de venta únicas por artículo físico (ventana estadística fi_stats→ff_stats)
-        $rows_ventas = $this->_queryVentasFechasC5($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
+        $rows_ventas = $this->repo->queryVentasFechasC5($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
@@ -2579,7 +1044,7 @@ class ClasePosstock
 
         // Paso 2: stock en ff_mov via rebobinado desde articulosStocks.stockOn
         $ids_str = implode(',', array_keys($ventas_fechas));
-        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, false);
+        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, false);
         if (isset($rows_stock['error'])) return $rows_stock;
 
         $stock_actual = [];
@@ -2672,7 +1137,7 @@ class ClasePosstock
                 $ff_post_esc   = $this->db->real_escape_string(
                     date('Y-m-d', strtotime($ff_mov . " +{$dias_post} days"))
                 );
-                $ventas_post = $this->_queryVentasPostPeriodoC5(
+                $ventas_post = $this->repo->queryVentasPostPeriodoC5(
                     $ids_str_curso,
                     $fi_post_esc,
                     $ff_post_esc,
@@ -2796,8 +1261,8 @@ class ClasePosstock
         $ff = $this->db->real_escape_string($stock_anchor ?: $ff_mov);  // rebobinar a hoy (C6b) o ff_mov (C6a)
         $ff_stats_esc = $this->db->real_escape_string($ff_stats);
 
-        $where_fam = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $where_ids = $this->_idsWhere($ids_filter);
+        $where_fam = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $where_ids = $this->repo->idsWhere($ids_filter);
 
         // Umbrales de reconstrucción (recibidos como parámetros desde getIncidencias)
         $umbral_rop_mult  = max(3.0, $umbral_rop_mult);
@@ -2808,7 +1273,7 @@ class ClasePosstock
         // Ventana estadística fi_stats→ff_stats para mayor muestra en vistas cortas
         // Si se filtra por proveedores (C6b) incluir todos los tipos de artículo
         $incluir_todos_tipos = !empty($proveedores_incluir);
-        $rows_ventas = $this->_queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli, $incluir_todos_tipos);
+        $rows_ventas = $this->repo->queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli, $incluir_todos_tipos);
         if (isset($rows_ventas['error'])) return $rows_ventas;
         if (empty($rows_ventas)) return [];
 
@@ -2820,7 +1285,7 @@ class ClasePosstock
 
         // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
         $ids_str    = implode(',', array_keys($ventas_cant));
-        $rows_stock = $this->_queryStockRebobinado($ids_str, $ff, false);
+        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, false);
         if (isset($rows_stock['error'])) return $rows_stock;
 
         $stock_actual = [];
@@ -2839,7 +1304,7 @@ class ClasePosstock
         $stock_reconstituido_set = [];
         if (!empty($ids_muy_negativos)) {
             $ids_neg_str = implode(',', $ids_muy_negativos);
-            $rows_rec    = $this->_queryStockReconstituido($ids_neg_str, $ff);
+            $rows_rec    = $this->repo->queryStockReconstituido($ids_neg_str, $ff);
             if (!isset($rows_rec['error'])) {
                 foreach ($rows_rec as $id_rec => $stock_rec) {
                     $stock_actual[$id_rec]             = $stock_rec;
@@ -2852,7 +1317,7 @@ class ClasePosstock
         $lead_fuente = 'defecto';
         $L           = max(1, $lead_time_defecto);
         if (!empty($proveedores_incluir)) {
-            $lt_prov = $this->_calcularLeadTimeProveedores($fi_stock, $ff_mov, $proveedores_incluir);
+            $lt_prov = $this->repo->calcularLeadTimeProveedores($fi_stock, $ff_mov, $proveedores_incluir);
             if ($lt_prov > 0) {
                 $L           = $lt_prov;
                 $lead_fuente = 'proveedor';
@@ -3087,7 +1552,7 @@ class ClasePosstock
         // Se reconstruye el stock desde la última entrada y se re-evalúa si son accionables.
         if (!empty($pending_reconstruction)) {
             $ids_pend_str = implode(',', array_keys($pending_reconstruction));
-            $rows_rec_alt = $this->_queryStockReconstituido($ids_pend_str, $ff);
+            $rows_rec_alt = $this->repo->queryStockReconstituido($ids_pend_str, $ff);
             if (!isset($rows_rec_alt['error'])) {
                 foreach ($rows_rec_alt as $id_rec => $stock_rec) {
                     if (!isset($pending_reconstruction[$id_rec])) continue;
@@ -3181,10 +1646,10 @@ class ClasePosstock
         $fi     = $this->db->real_escape_string($fi_mov);
         $ff     = $this->db->real_escape_string($ff_mov);
         $fi_stk = $this->db->real_escape_string($fi_stock);
-        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi     = $this->_idsWhere($ids_filter);
+        $wf     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->repo->idsWhere($ids_filter);
 
-        $rows = $this->_queryDeltasC1($fi, $ff, $wf, $wi);
+        $rows = $this->repo->queryDeltasC1($fi, $ff, $wf, $wi);
         if (isset($rows['error'])) return $rows;
         if (empty($rows)) return [];
 
@@ -3260,12 +1725,12 @@ class ClasePosstock
         // Enriquecer C1a y C1b con actividad del periodo (una sola consulta compartida)
         $ids_todos = array_merge($ids_c1a, $ids_c1b);
         $detalle   = !empty($ids_todos)
-            ? $this->_queryDetalleC1(implode(',', $ids_todos), $fi, $ff)
+            ? $this->repo->queryDetalleC1(implode(',', $ids_todos), $fi, $ff)
             : [];
 
         // Proveedor habitual y último para C1a (rango anual para tener datos suficientes)
         $prov_map = !empty($ids_c1a)
-            ? $this->_queryProveedorArticulos(implode(',', $ids_c1a), $fi_stk, $ff)
+            ? $this->repo->queryProveedorArticulos(implode(',', $ids_c1a), $fi_stk, $ff)
             : [];
 
         if (!empty($ids_c1a)) {
@@ -3320,7 +1785,7 @@ class ClasePosstock
                     $id_fecha_map[$inc['idArticulo']] = $inc['fecha_minimo'];
                 }
             }
-            $timing_set = $this->_queryTimingC1b($id_fecha_map, $timing_ventana_dias);
+            $timing_set = $this->repo->queryTimingC1b($id_fecha_map, $timing_ventana_dias);
 
             foreach ($incidencias as &$inc) {
                 if ($inc['tipo'] !== 'Desajuste Puntual de Stock') continue;
@@ -3368,117 +1833,6 @@ class ClasePosstock
      *
      * C2 MEDIA — stock_previo >= nunidades * umbral_sobrestock
      */
-    /**
-     * Ventas por ticket en el periodo para los artículos candidatos de C2.
-     * Usado para calcular cobertura_dias = stock_previo / ventas_diarias.
-     */
-    private function _queryVentasC2(string $ids, string $fi, string $ff): array
-    {
-        if (empty($ids)) return [];
-        $smt = $this->db->query("
-            SELECT l.idArticulo, SUM(l.nunidades) AS ventas_total
-            FROM ticketslinea l
-            INNER JOIN ticketst c ON c.id = l.idticketst
-            WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.estado      = 'Cerrado'
-              AND l.estadoLinea = 'Activo'
-            GROUP BY l.idArticulo
-        ");
-        if (!$smt) return [];
-        $map = [];
-        while ($r = $smt->fetch_assoc()) {
-            $map[(int)$r['idArticulo']] = (float)$r['ventas_total'];
-        }
-        return $map;
-    }
-
-    /**
-     * Enriquece cada incidencia C2 con datos de la recepción anterior al evento:
-     *   - dias_desde_anterior  : días entre la recepción anterior y la actual (null si no hay)
-     *   - nunidades_anterior       : cantidad de la recepción anterior (null si no hay)
-     *   - ventas_entre_recepciones : unidades vendidas por ticket entre ambas recepciones (null si no hay anterior)
-     * Busca recepciones hasta 90 días antes de fi para cubrir el primer pedido del periodo.
-     */
-    private function _queryDetalleC2(array &$incidencias, string $fi, string $ff): void
-    {
-        if (empty($incidencias)) return;
-
-        $ids     = array_unique(array_column($incidencias, 'idArticulo'));
-        $ids_str = implode(',', $ids);
-        $fi_ext  = $this->db->real_escape_string(date('Y-m-d', strtotime($fi . ' -90 days')));
-
-        // ── Todas las recepciones del periodo extendido ───────────────────────
-        $smt = $this->db->query("
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades
-            FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
-              AND c.estado      IN ('Guardado','Facturado')
-              AND l.estadoLinea = 'Activo'
-              AND l.nunidades       > 0
-            GROUP BY l.idArticulo, DATE(c.Fecha)
-            ORDER BY l.idArticulo, DATE(c.Fecha)
-        ");
-        $rec_por_art = [];
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $rec_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'nunidades' => (float)$r['nunidades']];
-            }
-        }
-
-        // ── Ventas por ticket, por día, del periodo extendido ─────────────────
-        $smt2 = $this->db->query("
-            SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS qty
-            FROM ticketslinea l
-            INNER JOIN ticketst c ON c.id = l.idticketst
-            WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
-              AND c.estado      = 'Cerrado'
-              AND l.estadoLinea = 'Activo'
-            GROUP BY l.idArticulo, DATE(c.Fecha)
-        ");
-        $vtas_por_art = [];
-        if ($smt2) {
-            while ($r = $smt2->fetch_assoc()) {
-                $vtas_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'qty' => (float)$r['qty']];
-            }
-        }
-
-        // ── Enriquecer cada incidencia ────────────────────────────────────────
-        foreach ($incidencias as &$inc) {
-            $id           = $inc['idArticulo'];
-            $fecha_actual = $inc['fecha'];
-
-            // Recepción anterior más reciente (la última antes de fecha_actual)
-            $anterior = null;
-            foreach ($rec_por_art[$id] ?? [] as $rec) {
-                if ($rec['fecha'] < $fecha_actual) $anterior = $rec;
-                elseif ($rec['fecha'] >= $fecha_actual) break;
-            }
-
-            if ($anterior !== null) {
-                $dias = (int)((strtotime($fecha_actual) - strtotime($anterior['fecha'])) / 86400);
-                $inc['dias_desde_anterior'] = $dias;
-                $inc['nunidades_anterior']      = $anterior['nunidades'];
-
-                $ventas_entre = 0.0;
-                foreach ($vtas_por_art[$id] ?? [] as $v) {
-                    if ($v['fecha'] > $anterior['fecha'] && $v['fecha'] < $fecha_actual) {
-                        $ventas_entre += $v['qty'];
-                    }
-                }
-                $inc['ventas_entre_recepciones'] = $ventas_entre;
-            } else {
-                $inc['dias_desde_anterior']      = null;
-                $inc['nunidades_anterior']            = null;
-                $inc['ventas_entre_recepciones']  = null;
-            }
-        }
-        unset($inc);
-    }
-
     private function getIncidenciasC2(
         string $fi_mov,
         string $ff_mov,
@@ -3495,10 +1849,10 @@ class ClasePosstock
     ): array {
         $fi    = $this->db->real_escape_string($fi_mov);
         $ff    = $this->db->real_escape_string($ff_mov);
-        $wf    = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi    = $this->_idsWhere($ids_filter);
+        $wf    = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi    = $this->repo->idsWhere($ids_filter);
 
-        $filas_sql = $this->_queryEntradasC2($fi, $ff, $wf, $wi);
+        $filas_sql = $this->repo->queryEntradasC2($fi, $ff, $wf, $wi);
         if (isset($filas_sql['error'])) return $filas_sql;
         if (empty($filas_sql)) return [];
 
@@ -3548,7 +1902,7 @@ class ClasePosstock
 
         // ── Paso 2: filtro de cobertura ───────────────────────────────────────
         $ids_cands  = array_unique(array_column($candidatos, 'idArticulo'));
-        $ventas_map = $this->_queryVentasC2(implode(',', $ids_cands), $fi, $ff);
+        $ventas_map = $this->repo->queryVentasC2(implode(',', $ids_cands), $fi, $ff);
         $n_dias     = max(1, (int)((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
 
         $incidencias = [];
@@ -3566,7 +1920,7 @@ class ClasePosstock
         if (empty($incidencias)) return [];
 
         // ── Paso 3: enriquecer con recepción anterior ─────────────────────────
-        $this->_queryDetalleC2($incidencias, $fi_mov, $ff_mov);
+        $this->repo->queryDetalleC2($incidencias, $fi_mov, $ff_mov);
 
         // ── Paso 4: reasignar severidad y posible_causa con todas las señales ─
         foreach ($incidencias as &$inc) {
@@ -3775,18 +2129,18 @@ class ClasePosstock
         $fi_m  = $this->db->real_escape_string($fi_mov);
         $ff_m  = $this->db->real_escape_string($ff_mov);
         $fi_s  = $this->db->real_escape_string($fi_stock);
-        $wf    = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi    = $this->_idsWhere($ids_filter);
+        $wf    = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi    = $this->repo->idsWhere($ids_filter);
         $min_u = min($umbral_caducidad, $umbral_sin_rotacion);
 
-        $rows = $this->_queryUltimaVentaC3($fi_m, $ff_m, $fi_s, $wf, $wi, $min_u, $dias_post, $multiplicador_cadencia);
+        $rows = $this->repo->queryUltimaVentaC3($fi_m, $ff_m, $fi_s, $wf, $wi, $min_u, $dias_post, $multiplicador_cadencia);
         if (isset($rows['error'])) return $rows;
 
         // Stock al cierre del periodo para los artículos afectados
         $stock_map = [];
         if (!empty($rows)) {
             $ids_c3    = implode(',', array_unique(array_map(fn($r) => (int)$r['idArticulo'], $rows)));
-            $rows_stk  = $this->_queryStockRebobinado($ids_c3, $ff_m, false);
+            $rows_stk  = $this->repo->queryStockRebobinado($ids_c3, $ff_m, false);
             if (!isset($rows_stk['error'])) {
                 foreach ($rows_stk as $rs) {
                     $stock_map[(int)$rs['idArticulo']] = (float)$rs['stock_en_periodo'];
@@ -3985,62 +2339,6 @@ class ClasePosstock
 
     /**
 
-    /**
-     * C7c — Metadatos de artículos para la detección de cruces.
-     * Devuelve [idArticulo => ['nombre' => string, 'tipo' => string, 'familias' => int[]]].
-     */
-    private function _queryMetaC7c(string $ids_str): array
-    {
-        if (empty($ids_str)) return [];
-        $meta = [];
-
-        // Nombre y tipo de venta
-        $smt = $this->db->query(
-            "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($ids_str)"
-        );
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $meta[(int)$r['idArticulo']] = [
-                    'nombre'      => (string)$r['articulo_name'],
-                    'tipo'        => (string)$r['tipo'],
-                    'familias'    => [],   // familia directa del artículo
-                    'familias_n2' => [],   // nivel 2 de la jerarquía
-                    'familias_n1' => [],   // nivel 1 (departamento)
-                ];
-            }
-        }
-
-        // Familia directa + N1/N2 desde la vista de jerarquía (una sola query)
-        $smt = $this->db->query("
-            SELECT af.idArticulo,
-                   vj.idFamilia,
-                   vj.idN1,
-                   vj.idN2
-            FROM   articulosFamilias af
-            JOIN   vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
-            WHERE  af.idArticulo IN ($ids_str)
-        ");
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
-                if (!isset($meta[$id])) continue;
-                $meta[$id]['familias'][]    = (int)$r['idFamilia'];
-                if (!empty($r['idN2'])) $meta[$id]['familias_n2'][] = (int)$r['idN2'];
-                if (!empty($r['idN1'])) $meta[$id]['familias_n1'][] = (int)$r['idN1'];
-            }
-        }
-
-        // Deduplica los arrays de jerarquía
-        foreach ($meta as &$m) {
-            $m['familias']    = array_unique($m['familias']);
-            $m['familias_n2'] = array_unique($m['familias_n2']);
-            $m['familias_n1'] = array_unique($m['familias_n1']);
-        }
-        unset($m);
-
-        return $meta;
-    }
-
 
     /**
      * C7 — Offset sistemático de inventario.
@@ -4110,13 +2408,13 @@ class ClasePosstock
         $fi     = $this->db->real_escape_string($fi_mov);
         $ff     = $this->db->real_escape_string($ff_mov);
         $fi_stk = $this->db->real_escape_string($fi_stock);  // inicio ventana extendida (1-Ene)
-        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi     = $this->_idsWhere($ids_filter);
+        $wf     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->repo->idsWhere($ids_filter);
 
         // ── Paso 1: recepciones en ventana extendida fi_stock→ff_mov ─────────
         // Se amplía el rango al periodo base (fi_stock→fi_mov-1) para disponer de
         // más floors históricos y poder confirmar el patrón antes del análisis.
-        $rows_rec = $this->_queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
+        $rows_rec = $this->repo->queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
         if (isset($rows_rec['error'])) return $rows_rec;
         if (empty($rows_rec)) return [];
 
@@ -4162,7 +2460,7 @@ class ClasePosstock
         // Matemáticamente equivale al enfoque anterior (saldo_base + Σ deltas(fi_mov→d))
         // pero permite calcular floors también en el periodo base previo a fi_mov.
         // $stock_base_cache se conserva en la firma por compatibilidad pero no se usa.
-        $rows_timeline = $this->_queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
+        $rows_timeline = $this->repo->queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
         if (isset($rows_timeline['error'])) return $rows_timeline;
 
         // Indexar delta diario por [idArticulo][fecha]
@@ -4174,7 +2472,7 @@ class ClasePosstock
         // ── Artículos con actividad albcli en el período (C7a-025) ───────────
         // Set idArticulo → true para los que tienen al menos un albarán de cliente.
         // Una salida inter-tienda no registrada inflaría el floor artificialmente.
-        $has_albcli_ids = $this->_queryHasAlbcliC7($fi_stk, $ff, $ids_str);
+        $has_albcli_ids = $this->repo->queryHasAlbcliC7($fi_stk, $ff, $ids_str);
         if (isset($has_albcli_ids['error'])) $has_albcli_ids = []; // no bloquear si falla
 
         // ── Paso 3: calcular suelos inter-recepción y detectar patrón ────────
@@ -5439,8 +3737,8 @@ class ClasePosstock
                 $fi_stock_esc_c7a = $this->db->real_escape_string($fi_stock);
                 $ids_c7a_str      = implode(',', array_map('intval', $ids_c7a_enr));
 
-                $prov_map_c7a   = $this->_queryProveedorArticulos($ids_c7a_str, $fi_stock_esc_c7a, $ff);
-                $precio_map_c7a = $this->_queryPrecioMedioCompra($ids_c7a_str, $fi_stock_esc_c7a, $ff);
+                $prov_map_c7a   = $this->repo->queryProveedorArticulos($ids_c7a_str, $fi_stock_esc_c7a, $ff);
+                $precio_map_c7a = $this->repo->queryPrecioMedioCompra($ids_c7a_str, $fi_stock_esc_c7a, $ff);
 
                 foreach ($incidencias as &$inc) {
                     $sub = $inc['c7_subcaso'] ?? '';
@@ -5473,8 +3771,8 @@ class ClasePosstock
                 $fi_stock_esc = $this->db->real_escape_string($fi_stock);
                 $ids_c7b_str  = implode(',', array_map('intval', $ids_c7b));
 
-                $prov_map_c7b   = $this->_queryProveedorArticulos($ids_c7b_str, $fi_stock_esc, $ff);
-                $precio_map_c7b = $this->_queryPrecioMedioCompra($ids_c7b_str, $fi_stock_esc, $ff);
+                $prov_map_c7b   = $this->repo->queryProveedorArticulos($ids_c7b_str, $fi_stock_esc, $ff);
+                $precio_map_c7b = $this->repo->queryPrecioMedioCompra($ids_c7b_str, $fi_stock_esc, $ff);
 
                 foreach ($incidencias as &$inc) {
                     if (!str_starts_with($inc['c7_subcaso'] ?? '', 'C7b')) continue;
@@ -5532,7 +3830,7 @@ class ClasePosstock
 
             // Meta (nombre, familias N1) de todos los artículos C7 — una sola query
             $ids_c7   = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-            $meta_c7c = $this->_queryMetaC7c($ids_c7);
+            $meta_c7c = $this->repo->queryMetaC7c($ids_c7);
 
             $cruces = [];   // id_c7a => ['id_b' => int, 'score' => float, 'nivel' => string]
 
@@ -5942,7 +4240,7 @@ class ClasePosstock
         }
 
         $ids_c7 = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-        $meta   = $this->_queryMetaC7c($ids_c7);
+        $meta   = $this->repo->queryMetaC7c($ids_c7);
 
         $cruces_e = [];   // id_c7a => ['id_b', 'score', 'nivel', 'k', 'dir']
 
@@ -6172,18 +4470,18 @@ class ClasePosstock
 
         $where_fam = '';
         if (!empty($familias_incluir)) {
-            $ids = $this->expandirFamilias($familias_incluir);
+            $ids = $this->repo->expandirFamilias($familias_incluir);
             if ($ids) $where_fam .= " AND l.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
         if (!empty($familias_excluir)) {
-            $ids = $this->expandirFamilias($familias_excluir);
+            $ids = $this->repo->expandirFamilias($familias_excluir);
             if ($ids) $where_fam .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
 
-        $where_prov   = $this->_idsWhere($ids_proveedor_filter);
+        $where_prov   = $this->repo->idsWhere($ids_proveedor_filter);
         $limit_clause = ($pagina > 0) ? "LIMIT $pagina OFFSET $inicial" : '';
 
-        $rows = $this->_queryIdsConActividad($fi, $ff, $where_fam, $limit_clause, $where_prov);
+        $rows = $this->repo->queryIdsConActividad($fi, $ff, $where_fam, $limit_clause, $where_prov);
         if (isset($rows['error'])) return [];
 
         $ids = [];
@@ -6707,10 +5005,10 @@ class ClasePosstock
     ): array {
         $fi   = $this->db->real_escape_string($fi_mov);
         $ff   = $this->db->real_escape_string($ff_mov);
-        $wf   = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi   = $this->_idsWhere($ids_filter);
+        $wf   = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi   = $this->repo->idsWhere($ids_filter);
         // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
-        $rows_rec = $this->_queryRecepcionesC9($fi, $ff_mov, $wf, $wi, $c9_dias_post);
+        $rows_rec = $this->repo->queryRecepcionesC9($fi, $ff_mov, $wf, $wi, $c9_dias_post);
         if (isset($rows_rec['error'])) return $rows_rec;
         if (empty($rows_rec)) return [];
 
@@ -6750,7 +5048,7 @@ class ClasePosstock
         $ff_post_dev = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $rows_dev = $this->_queryDevolucionesProvC9($fi, $ff_post_dev, $ids_str);
+        $rows_dev = $this->repo->queryDevolucionesProvC9($fi, $ff_post_dev, $ids_str);
         if (isset($rows_dev['error'])) return $rows_dev;
         $devs_map = [];
         foreach ($rows_dev as $r) {
@@ -6762,7 +5060,7 @@ class ClasePosstock
         $ff_post_tl = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $rows_tl = $this->_queryTimelineC9($fi, $ff_post_tl, $ids_str);
+        $rows_tl = $this->repo->queryTimelineC9($fi, $ff_post_tl, $ids_str);
         if (isset($rows_tl['error'])) return $rows_tl;
         $timeline_map = [];
         foreach ($rows_tl as $r) {
@@ -6775,9 +5073,9 @@ class ClasePosstock
         );
         // Los albaranes especiales (merma declarada) se acotan al periodo fi_mov..ff_mov,
         // no a ff_post: las regularizaciones post-periodo pertenecen al siguiente análisis.
-        $rows_prov_esp = $this->_queryAlbaranesProvEspecialesC9($fi, $ff, $ids_str);
+        $rows_prov_esp = $this->repo->queryAlbaranesProvEspecialesC9($fi, $ff, $ids_str);
         if (isset($rows_prov_esp['error'])) return $rows_prov_esp;
-        $rows_cli_esp  = $this->_queryAlbaranesCliEspecialesC9($fi, $ff, $ids_str);
+        $rows_cli_esp  = $this->repo->queryAlbaranesCliEspecialesC9($fi, $ff, $ids_str);
         if (isset($rows_cli_esp['error'])) return $rows_cli_esp;
 
         // Clasificar albaranes proveedor especial: cruce intra-albarán vs merma declarada
@@ -6985,7 +5283,7 @@ class ClasePosstock
         $fi_reb = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$fi_mov -1 day"))
         );
-        $rows_si = $this->_queryStockRebobinado($ids_str, $fi_reb);
+        $rows_si = $this->repo->queryStockRebobinado($ids_str, $fi_reb);
         if (isset($rows_si['error'])) return $rows_si;
         $stock_inicial_map = [];
         foreach ($rows_si as $r) {
@@ -6993,7 +5291,7 @@ class ClasePosstock
         }
 
         // ── Paso 6: stock rebobinado al ff_mov (ancla conservación) ────────
-        $rows_sf = $this->_queryStockRebobinado($ids_str, $ff);
+        $rows_sf = $this->repo->queryStockRebobinado($ids_str, $ff);
         if (isset($rows_sf['error'])) return $rows_sf;
         $stock_final_map = [];
         foreach ($rows_sf as $r) $stock_final_map[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
@@ -7149,8 +5447,8 @@ class ClasePosstock
             $fi_esc     = $this->db->real_escape_string($fi);
             $ff_esc     = $this->db->real_escape_string($ff);
 
-            $prov_map_c9   = $this->_queryProveedorArticulos($ids_c9_str, $fi_esc, $ff_esc);
-            $precio_map_c9 = $this->_queryPrecioMedioCompra($ids_c9_str, $fi_esc, $ff_esc);
+            $prov_map_c9   = $this->repo->queryProveedorArticulos($ids_c9_str, $fi_esc, $ff_esc);
+            $precio_map_c9 = $this->repo->queryPrecioMedioCompra($ids_c9_str, $fi_esc, $ff_esc);
 
             foreach ($incidencias as &$inc) {
                 $prov = $prov_map_c9[$inc['idArticulo']] ?? null;
@@ -7190,7 +5488,7 @@ class ClasePosstock
             $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
             if (!$proveedor_todos) {
                 // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $rows_prov = $this->_queryIdsArticulosByProveedores($ids_str_prov);
+                $rows_prov = $this->repo->queryIdsArticulosByProveedores($ids_str_prov);
                 if (isset($rows_prov['error'])) return $rows_prov;
                 $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
                 if (empty($ids_proveedor_filter)) {
@@ -7199,7 +5497,7 @@ class ClasePosstock
             }
             // C6b evalúa todos los artículos del proveedor independientemente del estado:
             // un artículo inactivo en articulosProveedores puede seguir en stock y vendiendo.
-            $rows_prov_c6b = $this->_queryIdsArticulosByProveedoresTodos($ids_str_prov);
+            $rows_prov_c6b = $this->repo->queryIdsArticulosByProveedoresTodos($ids_str_prov);
             if (!isset($rows_prov_c6b['error'])) {
                 $ids_proveedor_filter_c6b = array_column($rows_prov_c6b, 'idArticulo');
             }
@@ -7253,7 +5551,7 @@ class ClasePosstock
         if ($proveedor_todos && $ids_str_prov !== '') {
             // Modo "todos los productos del proveedor": paginar directamente sobre
             // articulosProveedores, sin filtro de actividad en el periodo.
-            $ids_batch = $this->_queryArticulosProveedorPaginados($ids_str_prov, $inicial, $pagina);
+            $ids_batch = $this->repo->queryArticulosProveedorPaginados($ids_str_prov, $inicial, $pagina);
             if (isset($ids_batch['error'])) return $ids_batch;
             // El filtro de proveedor ya está embebido en ids_filter; no aplicar doble filtro
             $params_batch['ids_proveedor_filter'] = [];
@@ -7337,11 +5635,11 @@ class ClasePosstock
 
         $fi_stk = $this->db->real_escape_string($fi_stock);
         $ff     = $this->db->real_escape_string($ff_mov);
-        $wf     = $this->_familiaWhere($familias_incluir, $familias_excluir);
-        $wi     = $this->_idsWhere($ids_all);
+        $wf     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $wi     = $this->repo->idsWhere($ids_all);
 
         // ── SQL 1: recepciones en la ventana fi_stock→ff_mov ─────────────────
-        $rows_rec = $this->_queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
+        $rows_rec = $this->repo->queryRecepcionesFechasC7($fi_stk, $ff, $wf, $wi);
         if (isset($rows_rec['error'])) return $rows_rec;
         if (empty($rows_rec)) return ['cruces' => []];
 
@@ -7357,7 +5655,7 @@ class ClasePosstock
 
         // ── SQL 2: timeline de movimientos ───────────────────────────────────
         $ids_str = implode(',', $ids_all);
-        $rows_tl = $this->_queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
+        $rows_tl = $this->repo->queryTimelineMovimientosC7($fi_stk, $ff, $ids_str);
         if (isset($rows_tl['error'])) return $rows_tl;
 
         $daily_map = [];
@@ -7457,7 +5755,7 @@ class ClasePosstock
             ];
         }
         $ids_str_cde = implode(',', array_unique(array_column($incidencias_cde, 'idArticulo')));
-        $meta_c7c    = $this->_queryMetaC7c($ids_str_cde);
+        $meta_c7c    = $this->repo->queryMetaC7c($ids_str_cde);
         $cruces_map  = [];
 
         // ── C7c inline (replicado del bloque en getIncidenciasC7) ────────────
