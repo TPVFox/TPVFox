@@ -300,4 +300,73 @@ class PosstockC2Detector
 
         return array_merge($consolidadas, $resultado_b);
     }
+
+    // ── Métodos algorítmicos puros (sin BD) — públicos para tests unitarios ──
+
+    /**
+     * Clasifica un ratio stock_previo/nunidades en categoría C2.
+     *
+     * @return array{categoria: string, posible_causa: string}
+     */
+    public function clasificarRatio(float $ratio, float $umbral_duplicado, float $umbral_severo): array
+    {
+        if ($ratio <= $umbral_duplicado) {
+            return [
+                'categoria'     => 'duplicado',
+                'posible_causa' => 'Stock disponible similar a la entrada recibida: el pedido podría no estar justificado',
+            ];
+        } elseif ($ratio >= $umbral_severo) {
+            return [
+                'categoria'     => 'severo',
+                'posible_causa' => 'Sobrestock significativo: el stock previo superaba ampliamente la cantidad recibida',
+            ];
+        } else {
+            return [
+                'categoria'     => 'elevado',
+                'posible_causa' => 'Sobrestock moderado: el stock disponible superaba el umbral establecido antes de recibir la entrada',
+            ];
+        }
+    }
+
+    /**
+     * Determina si un grupo de incidencias del mismo artículo constituye una
+     * secuencia de acumulación (≥ 3 entradas con ≥ 70 % de eventos sin salida).
+     *
+     * @param array $lista  Array de incidencias; cada elemento debe tener
+     *                      'ventas_entre_recepciones' (float|null) y 'cobertura_dias' (int|null).
+     */
+    public function esAcumulacion(array $lista, float $umbral_fraccion = 0.70): bool
+    {
+        $n_total = count($lista);
+        if ($n_total < 3) return false;
+
+        $n_acum = 0;
+        foreach ($lista as $inc) {
+            $vtr = $inc['ventas_entre_recepciones'];
+            $cob = $inc['cobertura_dias'];
+            if (($vtr !== null && $vtr < 1) || ($vtr === null && $cob === null)) {
+                $n_acum++;
+            }
+        }
+        return ($n_acum / $n_total) >= $umbral_fraccion;
+    }
+
+    /**
+     * Determina si un array de coberturas (días) muestra tendencia creciente significativa.
+     *
+     * Requisitos: al menos 3 valores no-null, cob_ini > 0,
+     * cob_fin/cob_ini >= $ratio_min y cob_fin >= $cob_min_fin.
+     *
+     * @param array<int|null> $coberturas  Coberturas en días ordenadas cronológicamente.
+     */
+    public function esTendenciaCreciente(array $coberturas, float $ratio_min = 1.5, int $cob_min_fin = 45): bool
+    {
+        $cobs = array_values(array_filter($coberturas, fn($c) => $c !== null));
+        if (count($cobs) < 3) return false;
+
+        $cob_ini = (int)$cobs[0];
+        $cob_fin = (int)end($cobs);
+
+        return $cob_ini > 0 && ($cob_fin / $cob_ini) >= $ratio_min && $cob_fin >= $cob_min_fin;
+    }
 }
