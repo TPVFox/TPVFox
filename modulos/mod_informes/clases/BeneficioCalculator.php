@@ -205,7 +205,7 @@ class BeneficioCalculator
             }
             $idArt    = (int)$fila['idArticulo'];
             // Coste medio ponderado del período si hubo compra; si no, ultimoCoste actual
-            $costeUsar = isset($costePeriodo[$idArt]) ? $costePeriodo[$idArt] : (float)$fila['ultimoCoste'];
+            $costeUsar = $costePeriodo[$idArt] ?? (float)$fila['ultimoCoste'];
             $totalVenta       = (float)$fila['totalVenta'];
             $totalCoste       = $costeUsar * (float)$fila['totalUnidades'];
 
@@ -349,7 +349,7 @@ class BeneficioCalculator
             );
             if (!$sentenciaArticulo || $sentenciaArticulo->num_rows === 0) continue;
             $filaArticulo = $sentenciaArticulo->fetch_assoc();
-            $costeArt = isset($costePeriodo[$idArt]) ? $costePeriodo[$idArt] : (float)$filaArticulo['ultimoCoste'];
+            $costeArt = $costePeriodo[$idArt] ?? (float)$filaArticulo['ultimoCoste'];
             $valor = $uds * $costeArt;
             $gtMermaSinVentas += $valor;
             $mermaSinVentas[] = [
@@ -565,6 +565,7 @@ class BeneficioCalculator
         $fechaVispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
 
         // Reconstruye unidades netas acumuladas desde 1ene hasta $hasta (inclusive)
+        // Nota: $this está disponible en closures PHP >= 5.4 sin declare en use().
         $calcularStockEn = function (string $hasta) use ($inicioAnio): array {
             // Si $hasta < $inicioAnio (período empieza el 1 ene → víspera = 31 dic año anterior)
             // devolvemos array vacío → stock inicio = 0

@@ -545,9 +545,9 @@ class ClasePosstock
             // IDs activos del proveedor (estado='Activo'): para marcar proveedor_es_principal en cada incidencia.
             $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
             if (!empty($proveedores_incluir)) {
-                $ids_str_prov_c6b = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_c6b = $this->repo->queryIdsArticulosByProveedoresTodos($ids_str_prov_c6b);
-                $ids_c6b  = isset($rows_c6b['error']) ? $ids_proveedor_filter : array_column($rows_c6b, 'idArticulo');
+                $idsProvC6bCsv = implode(',', array_map('intval', $proveedores_incluir));
+                $filasC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProvC6bCsv);
+                $ids_c6b  = isset($filasC6b['error']) ? $ids_proveedor_filter : array_column($filasC6b, 'idArticulo');
                 // ids_proveedor_filter ya contiene solo estado='Activo' (resuelto al inicio de getIncidencias)
                 $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
             } else {
@@ -577,10 +577,10 @@ class ClasePosstock
             );
             if (isset($c6b['error'])) return $c6b;
             // Marcar si el proveedor seleccionado es el proveedor principal (estado='Activo') de cada artículo
-            foreach ($c6b as &$inc_c6b) {
-                $inc_c6b['proveedor_es_principal'] = isset($ids_activos_c6b[$inc_c6b['idArticulo']]);
+            foreach ($c6b as &$incidenciaC6b) {
+                $incidenciaC6b['proveedor_es_principal'] = isset($ids_activos_c6b[$incidenciaC6b['idArticulo']]);
             }
-            unset($inc_c6b);
+            unset($incidenciaC6b);
             $incidencias = array_merge($incidencias, $c6b);
         }
 
@@ -692,7 +692,7 @@ class ClasePosstock
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
         $subtipo_baja = static function (array $incidencia): int {
             if ($incidencia['tipo'] === 'Entrada sin rotación previa') {
-                return (isset($incidencia['ultima_salida']) && $incidencia['ultima_salida'] !== null) ? 0 : 1;
+                return (isset($incidencia['ultima_salida'])) ? 0 : 1;
             }
             return 2; // 'Stock Inactivo en Periodo' (C4)
         };
@@ -761,7 +761,7 @@ class ClasePosstock
                 $incidencia['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $incidencia['idArticulo']);
             } elseif ($incidencia['severidad'] === 'BAJA') {
                 if ($incidencia['tipo'] === 'Entrada sin rotación previa') {
-                    $sub = (isset($incidencia['ultima_salida']) && $incidencia['ultima_salida'] !== null) ? '0' : '1';
+                    $sub = isset($incidencia['ultima_salida']) ? '0' : '1';
                 } else {
                     $sub = '2'; // Stock Inactivo en Periodo (C4)
                 }

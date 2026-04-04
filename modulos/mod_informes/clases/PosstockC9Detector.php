@@ -626,14 +626,14 @@ class PosstockC9Detector
                     // como si fuera un proveedor ordinario.
                     $ya_existe = false;
                     if (isset($recepciones_map[$aid])) {
-                        foreach ($recepciones_map[$aid] as &$_rec) {
-                            if ($_rec['fecha'] === $fecha) {
-                                $_rec['cantidad'] += $nunidades;
+                        foreach ($recepciones_map[$aid] as &$recepcionRef) {
+                            if ($recepcionRef['fecha'] === $fecha) {
+                                $recepcionRef['cantidad'] += $nunidades;
                                 $ya_existe = true;
                                 break;
                             }
                         }
-                        unset($_rec);
+                        unset($recepcionRef);
                     }
                     if (!$ya_existe) {
                         $recepciones_map[$aid][] = [
@@ -679,8 +679,8 @@ class PosstockC9Detector
                 } else {
                     // Sin recepción regular ese día → merma declarada normal
                     $merma_prov_decl[$aid] = ($merma_prov_decl[$aid] ?? 0.0) + $monto;
-                    $_mes_pd = (int)substr($fecha, 5, 2);
-                    $merma_prov_decl_mes[$aid][$_mes_pd] = ($merma_prov_decl_mes[$aid][$_mes_pd] ?? 0.0) + $monto;
+                    $mesProvDecl = (int)substr($fecha, 5, 2);
+                    $merma_prov_decl_mes[$aid][$mesProvDecl] = ($merma_prov_decl_mes[$aid][$mesProvDecl] ?? 0.0) + $monto;
                 }
             }
         }
@@ -709,8 +709,8 @@ class PosstockC9Detector
                 if ($nunidades > 0) {
                     // Salida especial → merma declarada
                     $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $nunidades;
-                    $_mes_cd = (int)substr($fecha, 5, 2);
-                    $merma_cli_decl_mes[$aid][$_mes_cd] = ($merma_cli_decl_mes[$aid][$_mes_cd] ?? 0.0) + $nunidades;
+                    $mesCliDecl = (int)substr($fecha, 5, 2);
+                    $merma_cli_decl_mes[$aid][$mesCliDecl] = ($merma_cli_decl_mes[$aid][$mesCliDecl] ?? 0.0) + $nunidades;
                 } else {
                     // Entrada especial → candidato a neta V_t o entrada directa
                     $entradas_cli_esp[$aid][$fecha] = ($entradas_cli_esp[$aid][$fecha] ?? 0.0)
@@ -753,24 +753,24 @@ class PosstockC9Detector
                     $ya_existe    = false;
                     $prev_rec_idx = null;
                     if (isset($recepciones_map[$aid])) {
-                        foreach ($recepciones_map[$aid] as $ridx => &$_rec) {
-                            if ($_rec['fecha'] === $fecha && !($_rec['es_post_periodo'] ?? false)) {
+                        foreach ($recepciones_map[$aid] as $ridx => &$recepcionRef) {
+                            if ($recepcionRef['fecha'] === $fecha && !($recepcionRef['es_post_periodo'] ?? false)) {
                                 // Recepción en la misma fecha: añadir directamente
-                                $_rec['cantidad'] += $monto;
+                                $recepcionRef['cantidad'] += $monto;
                                 $ya_existe = true;
                                 break;
                             }
-                            if ($_rec['fecha'] <= $fecha && !($_rec['es_post_periodo'] ?? false)) {
+                            if ($recepcionRef['fecha'] <= $fecha && !($recepcionRef['es_post_periodo'] ?? false)) {
                                 // Candidato a recepción previa (la más reciente gana)
                                 if (
                                     $prev_rec_idx === null
-                                    || $_rec['fecha'] >= $recepciones_map[$aid][$prev_rec_idx]['fecha']
+                                    || $recepcionRef['fecha'] >= $recepciones_map[$aid][$prev_rec_idx]['fecha']
                                 ) {
                                     $prev_rec_idx = $ridx;
                                 }
                             }
                         }
-                        unset($_rec);
+                        unset($recepcionRef);
                     }
                     if (!$ya_existe) {
                         if ($prev_rec_idx !== null) {
@@ -853,9 +853,9 @@ class PosstockC9Detector
             $stock_at_first_rec = $stock_base;
             if ($first_rec_date > $fi_mov) {
                 $pre_end = date('Y-m-d', strtotime($first_rec_date . ' -1 day'));
-                foreach ($timeline_art as $_tl) {
-                    if ($_tl['fecha'] >= $fi_mov && $_tl['fecha'] <= $pre_end) {
-                        $stock_at_first_rec -= (float)$_tl['day_delta'];
+                foreach ($timeline_art as $filaTimelineRef) {
+                    if ($filaTimelineRef['fecha'] >= $fi_mov && $filaTimelineRef['fecha'] <= $pre_end) {
+                        $stock_at_first_rec -= (float)$filaTimelineRef['day_delta'];
                     }
                 }
             }
@@ -909,26 +909,26 @@ class PosstockC9Detector
                 }
             }
             // Propagar: es_lote_incierto incluye siempre es_ultimo_abierto
-            foreach ($lotes as &$_lot) {
-                if (!isset($_lot['es_lote_incierto'])) {
-                    $_lot['es_lote_incierto'] = !empty($_lot['es_ultimo_abierto']);
+            foreach ($lotes as &$loteRef) {
+                if (!isset($loteRef['es_lote_incierto'])) {
+                    $loteRef['es_lote_incierto'] = !empty($loteRef['es_ultimo_abierto']);
                 }
             }
-            unset($_lot);
+            unset($loteRef);
 
             $resultado = $this->backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda);
 
             $umbral     = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
             $merma_decl = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
             // Construir desglose mensual de la merma declarada (proveedor + cliente especiales)
-            $_merma_decl_mes = [];
-            foreach (($merma_prov_decl_mes[$idArticulo] ?? []) as $_mpm => $_vpd) {
-                $_merma_decl_mes[$_mpm] = ($_merma_decl_mes[$_mpm] ?? 0.0) + $_vpd;
+            $mermaDeclaradaPorMes = [];
+            foreach (($merma_prov_decl_mes[$idArticulo] ?? []) as $mesProvD => $valorProvDecl) {
+                $mermaDeclaradaPorMes[$mesProvD] = ($mermaDeclaradaPorMes[$mesProvD] ?? 0.0) + $valorProvDecl;
             }
-            foreach (($merma_cli_decl_mes[$idArticulo] ?? []) as $_mcm => $_vcd) {
-                $_merma_decl_mes[$_mcm] = ($_merma_decl_mes[$_mcm] ?? 0.0) + $_vcd;
+            foreach (($merma_cli_decl_mes[$idArticulo] ?? []) as $mesCliD => $valorCliDecl) {
+                $mermaDeclaradaPorMes[$mesCliD] = ($mermaDeclaradaPorMes[$mesCliD] ?? 0.0) + $valorCliDecl;
             }
-            ksort($_merma_decl_mes);
+            ksort($mermaDeclaradaPorMes);
             $clasif = $this->clasificarMermaC9(
                 $resultado['lotes'],
                 $stock_final,
@@ -949,7 +949,7 @@ class PosstockC9Detector
                 'deficit_bloqueado_kg' => $clasif['deficit_bloqueado'], // sobreventa no redistribuible
                 'n_lotes_inciertos'   => $clasif['n_lotes_inciertos'],
                 'merma_declarada_kg'  => round($merma_decl, 3),
-                'merma_decl_por_mes'  => !empty($_merma_decl_mes) ? array_map(fn($v) => round($v, 3), $_merma_decl_mes) : [],
+                'merma_decl_por_mes'  => !empty($mermaDeclaradaPorMes) ? array_map(fn($v) => round($v, 3), $mermaDeclaradaPorMes) : [],
                 'pct_merma'           => $clasif['pct_merma'],
                 'n_lotes'             => count($resultado['lotes']),
                 'n_recepciones'       => $n_en_periodo,
