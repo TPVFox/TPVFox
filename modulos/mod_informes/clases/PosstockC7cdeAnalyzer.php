@@ -470,11 +470,21 @@ class PosstockC7cdeAnalyzer
                 $causa = ($mejor_dir === 'A_por_B')
                     ? sprintf(
                         'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de %d uds. de este artículo como 1 ud. de art. %d en la balanza',
-                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
+                        $mejor_k,
+                        $mejor_id,
+                        $mejor_nivel,
+                        $mejor_score,
+                        $mejor_k,
+                        $mejor_id
                     )
                     : sprintf(
                         'Merma con patrón múltiplo k=%d respecto a art. %d (%s, score=%.2f): posible cobro de 1 ud. de este artículo como %d uds. de art. %d en la balanza',
-                        $mejor_k, $mejor_id, $mejor_nivel, $mejor_score, $mejor_k, $mejor_id
+                        $mejor_k,
+                        $mejor_id,
+                        $mejor_nivel,
+                        $mejor_score,
+                        $mejor_k,
+                        $mejor_id
                     );
 
                 $inc['posible_cruce_con'] = $mejor_id;
@@ -540,25 +550,25 @@ class PosstockC7cdeAnalyzer
      */
     private function emparejarFloors(array $floors_a, array $floors_b): array
     {
-        $ventana = 7 * 86400;
-        $pairs_a = [];
-        $pairs_b = [];
-        foreach ($floors_a as $da => $va) {
-            $ts_a      = strtotime($da);
-            $best_diff = $ventana + 1;
-            $best_vb   = null;
-            foreach ($floors_b as $db => $vb) {
-                $diff = abs($ts_a - strtotime($db));
-                if ($diff <= $ventana && $diff < $best_diff) {
-                    $best_diff = $diff;
-                    $best_vb   = $vb;
+        $ventanaSegundos = 7 * 86400;
+        $floorsEmparejadosA = [];
+        $floorsEmparejadosB = [];
+        foreach ($floors_a as $fechaA => $valorA) {
+            $timestampA    = strtotime($fechaA);
+            $mejorDiferencia = $ventanaSegundos + 1;
+            $mejorValorB   = null;
+            foreach ($floors_b as $fechaB => $valorB) {
+                $diferencia = abs($timestampA - strtotime($fechaB));
+                if ($diferencia <= $ventanaSegundos && $diferencia < $mejorDiferencia) {
+                    $mejorDiferencia = $diferencia;
+                    $mejorValorB     = $valorB;
                 }
             }
-            if ($best_vb !== null) {
-                $pairs_a[] = $va;
-                $pairs_b[] = $best_vb;
+            if ($mejorValorB !== null) {
+                $floorsEmparejadosA[] = $valorA;
+                $floorsEmparejadosB[] = $mejorValorB;
             }
         }
-        return [$pairs_a, $pairs_b];
+        return [$floorsEmparejadosA, $floorsEmparejadosB];
     }
 }
