@@ -154,39 +154,12 @@ class PosstockC7Detector
             $n_rec      = count($fechas_rec);
 
             // Stock acumulado fi_stock→ff_mov
-            $cum_delta     = 0.0;
-            $stock_by_date = [];
-            $all_dates     = array_keys($daily);
-            sort($all_dates);
-            foreach ($all_dates as $d) {
-                $cum_delta        += $daily[$d];
-                $stock_by_date[$d] = $cum_delta;
-            }
+            $stock_by_date = $this->construirStockAcumuladoPorFecha($daily);
             if (empty($stock_by_date)) continue;
 
             // Suelos inter-recepción y duraciones
-            $floors          = [];
-            $dias_intervalos = [];
-            $fechas_floors   = [];
-            for ($i = 0; $i < $n_rec; $i++) {
-                $fecha_ini      = $fechas_rec[$i];
-                $fecha_fin      = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null;
-                $fecha_fin_real = $fecha_fin ?? $ff_mov;
-                $dias_intervalo = max(1, (int)(
-                    (strtotime($fecha_fin_real) - strtotime($fecha_ini)) / 86400
-                ));
-                $min_floor = null;
-                foreach ($stock_by_date as $d => $stock) {
-                    if ($d < $fecha_ini) continue;
-                    if ($fecha_fin !== null && $d >= $fecha_fin) continue;
-                    if ($min_floor === null || $stock < $min_floor) $min_floor = $stock;
-                }
-                if ($min_floor !== null) {
-                    $floors[]          = $min_floor;
-                    $dias_intervalos[] = $dias_intervalo;
-                    $fechas_floors[]   = $fecha_ini;
-                }
-            }
+            ['floors' => $floors, 'dias_intervalos' => $dias_intervalos, 'fechas_floors' => $fechas_floors] =
+                $this->construirFloorsPorRecepciones($fechas_rec, $stock_by_date, $ff_mov);
             $n_floors = count($floors);
             if ($n_floors < $min_recepciones) continue;
 
@@ -626,35 +599,13 @@ class PosstockC7Detector
         foreach ($ids_all as $id) {
             if (!isset($recepciones_map[$id])) continue;
             $fechas_rec = $recepciones_map[$id];
-            $n_rec      = count($fechas_rec);
             $daily      = $daily_map[$id] ?? [];
 
-            $cum_delta     = 0.0;
-            $stock_by_date = [];
-            $all_dates     = array_keys($daily);
-            sort($all_dates);
-            foreach ($all_dates as $d) {
-                $cum_delta        += $daily[$d];
-                $stock_by_date[$d] = $cum_delta;
-            }
+            $stock_by_date = $this->construirStockAcumuladoPorFecha($daily);
             if (empty($stock_by_date)) continue;
 
-            $floors         = [];
-            $fechas_floors  = [];
-            for ($i = 0; $i < $n_rec; $i++) {
-                $fecha_ini = $fechas_rec[$i];
-                $fecha_fin = ($i + 1 < $n_rec) ? $fechas_rec[$i + 1] : null;
-                $min_floor = null;
-                foreach ($stock_by_date as $d => $stock) {
-                    if ($d < $fecha_ini) continue;
-                    if ($fecha_fin !== null && $d >= $fecha_fin) continue;
-                    if ($min_floor === null || $stock < $min_floor) $min_floor = $stock;
-                }
-                if ($min_floor !== null) {
-                    $floors[]        = $min_floor;
-                    $fechas_floors[] = $fecha_ini;
-                }
-            }
+            ['floors' => $floors, 'fechas_floors' => $fechas_floors] =
+                $this->construirFloorsPorRecepciones($fechas_rec, $stock_by_date, $ff_mov);
             $n_floors = count($floors);
             if ($n_floors < 2) continue;
 
@@ -723,6 +674,56 @@ class PosstockC7Detector
     // ═══════════════════════════════════════════════════════════════════
     // Helpers privados
     // ═══════════════════════════════════════════════════════════════════
+
+    private function construirStockAcumuladoPorFecha(array $daily): array
+    {
+        $acumulado = 0.0;
+        $stockPorFecha = [];
+        $fechas = array_keys($daily);
+        sort($fechas);
+
+        foreach ($fechas as $fecha) {
+            $acumulado += $daily[$fecha];
+            $stockPorFecha[$fecha] = $acumulado;
+        }
+
+        return $stockPorFecha;
+    }
+
+    private function construirFloorsPorRecepciones(array $fechasRecepcion, array $stockPorFecha, string $fechaFinPorDefecto): array
+    {
+        $floors = [];
+        $diasIntervalos = [];
+        $fechasFloors = [];
+
+        $totalRecepciones = count($fechasRecepcion);
+        for ($i = 0; $i < $totalRecepciones; $i++) {
+            $fechaInicio = $fechasRecepcion[$i];
+            $fechaFin = ($i + 1 < $totalRecepciones) ? $fechasRecepcion[$i + 1] : null;
+            $fechaFinReal = $fechaFin ?? $fechaFinPorDefecto;
+
+            $diasIntervalo = max(1, (int)((strtotime($fechaFinReal) - strtotime($fechaInicio)) / 86400));
+            $floorMinimo = null;
+
+            foreach ($stockPorFecha as $fecha => $stock) {
+                if ($fecha < $fechaInicio) continue;
+                if ($fechaFin !== null && $fecha >= $fechaFin) continue;
+                if ($floorMinimo === null || $stock < $floorMinimo) $floorMinimo = $stock;
+            }
+
+            if ($floorMinimo !== null) {
+                $floors[] = $floorMinimo;
+                $diasIntervalos[] = $diasIntervalo;
+                $fechasFloors[] = $fechaInicio;
+            }
+        }
+
+        return [
+            'floors' => $floors,
+            'dias_intervalos' => $diasIntervalos,
+            'fechas_floors' => $fechasFloors,
+        ];
+    }
 
     /**
      * Calcula la mediana Theil-Sen de la pendiente sobre floors (normalizados o brutos).
