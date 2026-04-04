@@ -169,31 +169,9 @@ class BeneficioCalculator
         $familias = [];
 
         foreach ($lineas as $fila) {
-            // Si se usa jerarquía virtual, remapear N1/N2 a partir del idFamilia real del artículo
-            if ($virtualHierarchy !== null && isset($fila['familiaDirecta'])) {
-                $famId = (int)$fila['familiaDirecta'];
-                $vh    = $virtualHierarchy[$famId] ?? null;
-                if ($vh !== null) {
-                    $idN1     = $vh['vN1'];
-                    $nombreN1 = $vh['vN1Name'];
-                    $idN2     = $vh['vN2'];
-                    $keyN2    = $idN2 !== null ? $idN2 : '__sin_n2__';
-                    $labelN2  = $idN2 !== null ? ($vh['vN2Name'] ?? 'Sin subfamilia') : '(Sin subfamilia)';
-                } else {
-                    // Familia fuera del virtual map (no debería ocurrir con el filtro SQL)
-                    $idN1 = '__sin_familia__';
-                    $nombreN1 = 'Sin familia';
-                    $idN2 = null;
-                    $keyN2 = '__sin_n2__';
-                    $labelN2 = '(Sin subfamilia)';
-                }
-            } else {
-                $idN1     = $fila['idN1'] !== null ? (int)$fila['idN1'] : '__sin_familia__';
-                $nombreN1 = $fila['nombreN1'] !== null ? $fila['nombreN1'] : 'Sin familia';
-                $idN2     = $fila['idN2'] !== null ? (int)$fila['idN2'] : null;
-                $keyN2    = $idN2 !== null ? $idN2 : '__sin_n2__';
-                $labelN2  = $idN2 !== null ? ($fila['nombreN2'] ?? 'Sin subfamilia') : '(Sin subfamilia)';
-            }
+            ['idN1' => $idN1, 'nombreN1' => $nombreN1, 'idN2' => $idN2, 'keyN2' => $keyN2, 'labelN2' => $labelN2] =
+                $this->resolverJerarquiaFila($fila, $virtualHierarchy);
+
             $idArt    = (int)$fila['idArticulo'];
             // Coste medio ponderado del período si hubo compra; si no, ultimoCoste actual
             $costeUsar = $costePeriodo[$idArt] ?? (float)$fila['ultimoCoste'];
@@ -248,7 +226,7 @@ class BeneficioCalculator
                 : 0;
             $articulo['beneficio']  = $articulo['totalVenta'] - $articulo['totalCoste'] - $articulo['valorMerma'];
             $articulo['margen_pct'] = $articulo['totalVenta'] > 0
-                ? round($articulo['beneficio'] / $articulo['totalVenta'] * 100, 2)
+                ? $this->calcularPorcentajeSeguro($articulo['beneficio'], $articulo['totalVenta'])
                 : 0;
 
             unset($articulo);
@@ -287,7 +265,7 @@ class BeneficioCalculator
                     'totalCoste'      => $costeN2,
                     'totalMerma'      => $mermaFN2,
                     'beneficio'       => $beneficioN2,
-                    'margen_pct'      => $ventasN2 > 0 ? round($beneficioN2 / $ventasN2 * 100, 2) : 0,
+                    'margen_pct'      => $this->calcularPorcentajeSeguro($beneficioN2, $ventasN2),
                     'num_referencias' => count($articulosOrdenados),
                     'articulos'       => $articulosOrdenados
                 ];
@@ -302,7 +280,7 @@ class BeneficioCalculator
                 'totalCoste'      => $costeN1,
                 'totalMerma'      => $mermaFN1,
                 'beneficio'       => $beneficioN1,
-                'margen_pct'      => $ventasN1 > 0 ? round($beneficioN1 / $ventasN1 * 100, 2) : 0,
+                'margen_pct'      => $this->calcularPorcentajeSeguro($beneficioN1, $ventasN1),
                 'num_referencias' => count($refsN1),
                 'subfamilias'     => $subfamiliasAgregadas
             ];
@@ -355,7 +333,7 @@ class BeneficioCalculator
 
         $gtMermaTotal  = $gtMerma + $gtMermaSinVentas;
         $gtBeneficio   = $gtVenta - $gtCoste - $gtMermaTotal;
-        $gtMargen      = $gtVenta > 0 ? round($gtBeneficio / $gtVenta * 100, 2) : 0;
+        $gtMargen = $this->calcularPorcentajeSeguro($gtBeneficio, $gtVenta);
 
         // ── Vista de flujo: compras reales del período ─────────────────────
         // Suma directa de albaranes de compra (sin estimaciones de PMP).
@@ -609,12 +587,12 @@ class BeneficioCalculator
             $stockFam = $stockPorN1[$key] ?? 0;
             $margenFam = $familia['totalVenta'] - $familia['totalCoste'];
             $familia['valor_stock'] = $stockFam;
-            $familia['gmroi']       = ($stockFam > 0) ? round($margenFam / $stockFam, 2) : null;
+            $familia['gmroi'] = $this->calcularRatioSeguroONulo($margenFam, $stockFam);
         }
         unset($familia);
 
         $gtMargenBruto = $gtVenta - $gtCoste;
-        $gtGmroi       = ($gtValorStock > 0) ? round($gtMargenBruto / $gtValorStock, 2) : null;
+        $gtGmroi = $this->calcularRatioSeguroONulo($gtMargenBruto, $gtValorStock);
 
         return [
             'familias' => $resultado,
@@ -751,5 +729,60 @@ class BeneficioCalculator
         }
 
         return $rawKey !== null ? (int)$rawKey : '__sin_familia__';
+    }
+
+    private function resolverJerarquiaFila(array $fila, ?array $virtualHierarchy): array
+    {
+        if ($virtualHierarchy !== null && isset($fila['familiaDirecta'])) {
+            $idFamiliaDirecta = (int)$fila['familiaDirecta'];
+            $jerarquiaVirtual = $virtualHierarchy[$idFamiliaDirecta] ?? null;
+
+            if ($jerarquiaVirtual !== null) {
+                $idN2 = $jerarquiaVirtual['vN2'];
+                return [
+                    'idN1' => $jerarquiaVirtual['vN1'],
+                    'nombreN1' => $jerarquiaVirtual['vN1Name'],
+                    'idN2' => $idN2,
+                    'keyN2' => $idN2 !== null ? $idN2 : '__sin_n2__',
+                    'labelN2' => $idN2 !== null ? ($jerarquiaVirtual['vN2Name'] ?? 'Sin subfamilia') : '(Sin subfamilia)',
+                ];
+            }
+
+            // Familia fuera del virtual map (no debería ocurrir con el filtro SQL)
+            return [
+                'idN1' => '__sin_familia__',
+                'nombreN1' => 'Sin familia',
+                'idN2' => null,
+                'keyN2' => '__sin_n2__',
+                'labelN2' => '(Sin subfamilia)',
+            ];
+        }
+
+        $idN2 = $fila['idN2'] !== null ? (int)$fila['idN2'] : null;
+        return [
+            'idN1' => $fila['idN1'] !== null ? (int)$fila['idN1'] : '__sin_familia__',
+            'nombreN1' => $fila['nombreN1'] !== null ? $fila['nombreN1'] : 'Sin familia',
+            'idN2' => $idN2,
+            'keyN2' => $idN2 !== null ? $idN2 : '__sin_n2__',
+            'labelN2' => $idN2 !== null ? ($fila['nombreN2'] ?? 'Sin subfamilia') : '(Sin subfamilia)',
+        ];
+    }
+
+    private function calcularPorcentajeSeguro(float $numerador, float $denominador): float
+    {
+        if ($denominador <= 0.0) {
+            return 0.0;
+        }
+
+        return round($numerador / $denominador * 100, 2);
+    }
+
+    private function calcularRatioSeguroONulo(float $numerador, float $denominador): ?float
+    {
+        if ($denominador <= 0.0) {
+            return null;
+        }
+
+        return round($numerador / $denominador, 2);
     }
 }
