@@ -26,7 +26,8 @@ class PosstockQueryRepository
     public function expandirFamilias(array $ids): string
     {
         if (empty($ids)) return '';
-        $in = implode(',', array_map('intval', $ids));
+        $in = $this->convertirIdsEnterosACsv($ids);
+        if ($in === '') return '';
         $sentencia = $this->db->query("
             SELECT DISTINCT idFamilia
             FROM vw_jerarquias_familias
@@ -60,7 +61,10 @@ class PosstockQueryRepository
     public function idsWhere(array $ids_filter, string $alias = 'l'): string
     {
         if (empty($ids_filter)) return '';
-        return " AND $alias.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
+        $idsCsv = $this->convertirIdsEnterosACsv($ids_filter);
+        if ($idsCsv === '') return '';
+
+        return " AND $alias.idArticulo IN ($idsCsv)";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -561,7 +565,8 @@ class PosstockQueryRepository
 
         $fechaInicioEsc = $this->db->real_escape_string($fi_stock);
         $fechaFinEsc = $this->db->real_escape_string($ff_mov);
-        $ids_prov = implode(',', array_map('intval', $proveedores_incluir));
+        $ids_prov = $this->convertirIdsEnterosACsv($proveedores_incluir);
+        if ($ids_prov === '') return 0;
 
         $filas = $this->queryFechasAlbaranesByProveedores($fechaInicioEsc, $fechaFinEsc, $ids_prov);
         if (isset($filas['error']) || empty($filas)) return 0;
@@ -969,8 +974,9 @@ class PosstockQueryRepository
     {
         if (empty($incidencias)) return;
 
-        $ids     = array_unique(array_column($incidencias, 'idArticulo'));
-        $ids_str = implode(',', $ids);
+        $ids = $this->extraerIdsUnicosIncidencias($incidencias);
+        $ids_str = $this->convertirIdsEnterosACsv($ids);
+        if ($ids_str === '') return;
         $fi_ext  = $this->db->real_escape_string(date('Y-m-d', strtotime($fechaInicioEsc . ' -90 days')));
 
         $sentencia = $this->db->query("
@@ -1610,7 +1616,8 @@ class PosstockQueryRepository
         $idsIncidencias = $this->extraerIdsUnicosIncidencias($incidencias);
         if (empty($idsIncidencias)) return $incidencias;
 
-        $idsIncidenciasCsv = implode(',', $idsIncidencias);
+        $idsIncidenciasCsv = $this->convertirIdsEnterosACsv($idsIncidencias);
+        if ($idsIncidenciasCsv === '') return $incidencias;
         $sentencia = $this->db->query(
             "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
         );
@@ -1671,6 +1678,20 @@ class PosstockQueryRepository
         }
 
         return array_sum($intervalos) / count($intervalos);
+    }
+
+    private function convertirIdsEnterosACsv(array $ids): string
+    {
+        $idsEnteros = [];
+        foreach ($ids as $id) {
+            $idsEnteros[] = (int)$id;
+        }
+
+        if (empty($idsEnteros)) {
+            return '';
+        }
+
+        return implode(',', $idsEnteros);
     }
 
     private function construirCondicionTimingArticulo(mixed $idArticulo, mixed $fechaMinimo, int $ventanaDias): ?string
