@@ -78,15 +78,6 @@ class ClaseInformes extends TFModelo
 
     public function ResumenProveedores($parametros = array())
     {
-        // @Objetivo:
-        // Sumas los albaranes de los proveedores y por las fechas que indiquemos en los parametros.
-        // @ Parametros
-        // Array (  [id] => (int) Indica el Informe que vamos hacer.
-        //          [titulo_informe] => (String) Nombre del informe ,
-        //          [Fecha_Inicio] => (fecha Y-m-d),
-        //          [Fecha_Final] => (fecha Y-m-d),
-        //          [opcion] => (int) Indica el la opcion seleccionada para realizar filtros.
-        // @ Devolvemos
         $db = $this->conexionBDTPV();
         $CProveedor = new ClaseProveedor($db);
         // Tratamos parametros para añadir ids_proveedores y tratarlos
@@ -193,22 +184,14 @@ class ClaseInformes extends TFModelo
             ];
         }
 
-        // Ahora tenemos ordenar y hacer las sumas de lineas albaranes por producto y totales por proveedor.
         $ArrayProductos = [];
         $SumaAlbaranes = [];
         $DesgloseAlbaranes = [];
         foreach ($todosProveedores as $key => $proveedor) {
             if (isset($proveedor['albaranes']['productos'])) {
                 $p = $CProveedor->SumaLineasAlbaranesProveedores($proveedor['albaranes']['productos']);
-                // Ahora montamos array con todos los productos comprado de cada proveedor para luego sumarlos,
-                // es decir tener un array con la suma de todos los productos, de todos los proveedores en el intervalo de
-                // tiempo que indicamos.
                 $ArrayProductos[] = $p;
-                // Ahora añadimo propiedad "cant_referencias", que indica (int) la cantidad de referencias compradas
-                // en esos albaranes.
                 $todosProveedores[$key]['referencias_productos'] = count($p);
-                // Ahora sumar el desglose .
-
 
                 $SumaAlbaranes[] = $proveedor['albaranes']['resumenBases'];
                 $SumaAlbaranes[] = $todosProveedores[$key];
@@ -217,29 +200,14 @@ class ClaseInformes extends TFModelo
             }
         }
 
-        /* Queda pendiente sumar los albaranes y los desglose.
-         * y ver como controlar cuando queremos filtrar algun proveedor o albaran no facturado.
-         * Aquí en el proceso anterior, añadimos [referencias_productos]
-         * */
         $Productos = [];
-        // Esto es necesario ya que tenemos varios array con productos, uno por cada Proveedor.
         foreach ($ArrayProductos as $P) {
             foreach ($P as $producto) {
                 $Productos[] = $producto;
             }
         }
-        // Ahora sumamos todos los productos ( deberíamos controlar si hay mas de un proveedor), ya que no tiene sentido, si es uno
 
         $Productos = $this->SumaProductosTodosProveedores($Productos);
-        // Ahora tenemos los productos sumados de todos los albaranes de todos los proveedores..
-
-        // Montamos lo que devolvemos..
-        // Hay que tener en cuenta que la memoria es limitada, por a lo mejor sería bueno devolver solo informe , no los datos, deberíamos
-        // utilizar uset si lo quisieramos hacer.
-        // ya todosProveedores no hacen falta para obtener resto datos :
-        // Nombre
-        // idProveedor
-        // cant_albaranes  ( este dato en esta metodo)
         $respuesta = array(
             'datos'     => $todosProveedores,
 
@@ -265,9 +233,8 @@ class ClaseInformes extends TFModelo
         $Productos = []; // inicializa tabla que aparece como resumen productos
         foreach ($LineasProductos as $producto) {
             $id_producto = $producto['idArticulo'];
-            // Eliminamos propiedad de idalbpro ya que no es necesario.
             unset($producto['idalbpro']);
-            if (array_key_exists($id_producto, $Productos) == false) { // busca el indice. Si no existe lo crea con $producto
+            if (array_key_exists($id_producto, $Productos) == false) {
                 $Productos[$id_producto] = $producto;
                 $Productos[$id_producto]['costeSiva'] = $producto['costeSiva'];
                 $Productos[$id_producto]['coste_medio'] = 'KO';
