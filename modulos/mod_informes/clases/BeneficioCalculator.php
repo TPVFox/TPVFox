@@ -53,10 +53,10 @@ class BeneficioCalculator
               AND pv.estado != 'Especial'
             GROUP BY lp.idArticulo
         ";
-        $smtC = $BDTpv->query($sqlCoste);
+        $sentenciaCoste = $BDTpv->query($sqlCoste);
         $costePeriodo = [];
-        while ($rc = $smtC->fetch_assoc()) {
-            $costePeriodo[(int)$rc['idArticulo']] = (float)$rc['coste_periodo'];
+        while ($filaCoste = $sentenciaCoste->fetch_assoc()) {
+            $costePeriodo[(int)$filaCoste['idArticulo']] = (float)$filaCoste['coste_periodo'];
         }
 
         // Mermas declaradas: albaranes de clientes Especial en el período.
@@ -96,10 +96,10 @@ class BeneficioCalculator
               $mermaFamiliaWhere
             GROUP BY l.idArticulo
         ";
-        $smtM = $BDTpv->query($sqlMerma);
+        $sentenciaMerma = $BDTpv->query($sqlMerma);
         $mermasPorArticulo = [];
-        while ($rm = $smtM->fetch_assoc()) {
-            $mermasPorArticulo[(int)$rm['idArticulo']] = (float)$rm['unidades_merma'];
+        while ($filaMerma = $sentenciaMerma->fetch_assoc()) {
+            $mermasPorArticulo[(int)$filaMerma['idArticulo']] = (float)$filaMerma['unidades_merma'];
         }
 
         // Cuando se usa jerarquía virtual (familia no-N1 seleccionada) necesitamos af.idFamilia
@@ -170,10 +170,10 @@ class BeneficioCalculator
             ORDER BY nombreN1, nombreN2, idArticulo
         ";
 
-        $smt    = $BDTpv->query($sql);
+        $sentenciaVentas    = $BDTpv->query($sql);
         $lineas = [];
-        while ($row = $smt->fetch_assoc()) {
-            $lineas[] = $row;
+        while ($fila = $sentenciaVentas->fetch_assoc()) {
+            $lineas[] = $fila;
         }
 
         $familias = [];
@@ -207,8 +207,8 @@ class BeneficioCalculator
             $idArt    = (int)$fila['idArticulo'];
             // Coste medio ponderado del período si hubo compra; si no, ultimoCoste actual
             $costeUsar = isset($costePeriodo[$idArt]) ? $costePeriodo[$idArt] : (float)$fila['ultimoCoste'];
-            $tv       = (float)$fila['totalVenta'];
-            $tc       = $costeUsar * (float)$fila['totalUnidades'];
+            $totalVenta       = (float)$fila['totalVenta'];
+            $totalCoste       = $costeUsar * (float)$fila['totalUnidades'];
 
             if (!isset($familias[$idN1])) {
                 $familias[$idN1] = [
@@ -226,13 +226,13 @@ class BeneficioCalculator
                 ];
             }
 
-            $art = &$familias[$idN1]['subfamilias'][$keyN2]['articulos'][$idArt];
+            $articulo = &$familias[$idN1]['subfamilias'][$keyN2]['articulos'][$idArt];
 
             $udsMerma   = $mermasPorArticulo[$idArt] ?? 0.0;
             $valorMerma = $udsMerma * $costeUsar;
 
-            if (!isset($art['idArticulo'])) {
-                $art = [
+            if (!isset($articulo['idArticulo'])) {
+                $articulo = [
                     'idArticulo'       => $idArt,
                     'articulo_name'    => $fila['articulo_name'],
                     'tipo'             => $fila['tipo'],
@@ -240,81 +240,81 @@ class BeneficioCalculator
                     'pvpSiva'          => (float)$fila['pvpSiva'],
                     'costeUsado'       => $costeUsar,
                     'coste_es_periodo' => isset($costePeriodo[$idArt]),
-                    'totalVenta'       => $tv,
-                    'totalCoste'       => $tc,
+                    'totalVenta'       => $totalVenta,
+                    'totalCoste'       => $totalCoste,
                     'udsMerma'         => $udsMerma,
                     'valorMerma'       => $valorMerma,
                     'num_ventas'       => (int)$fila['num_documentos']
                 ];
             } else {
-                $art['totalUnidades'] += (float)$fila['totalUnidades'];
-                $art['totalVenta']    += $tv;
-                $art['totalCoste']    += $costeUsar * (float)$fila['totalUnidades'];
-                $art['num_ventas']    += (int)$fila['num_documentos'];
+                $articulo['totalUnidades'] += (float)$fila['totalUnidades'];
+                $articulo['totalVenta']    += $totalVenta;
+                $articulo['totalCoste']    += $costeUsar * (float)$fila['totalUnidades'];
+                $articulo['num_ventas']    += (int)$fila['num_documentos'];
                 // udsMerma y valorMerma ya están fijados por idArticulo, no acumulan por precio
             }
-            $art['pvpSiva']    = $art['totalUnidades'] > 0
-                ? $art['totalVenta'] / $art['totalUnidades']
+            $articulo['pvpSiva']    = $articulo['totalUnidades'] > 0
+                ? $articulo['totalVenta'] / $articulo['totalUnidades']
                 : 0;
-            $art['beneficio']  = $art['totalVenta'] - $art['totalCoste'] - $art['valorMerma'];
-            $art['margen_pct'] = $art['totalVenta'] > 0
-                ? round($art['beneficio'] / $art['totalVenta'] * 100, 2)
+            $articulo['beneficio']  = $articulo['totalVenta'] - $articulo['totalCoste'] - $articulo['valorMerma'];
+            $articulo['margen_pct'] = $articulo['totalVenta'] > 0
+                ? round($articulo['beneficio'] / $articulo['totalVenta'] * 100, 2)
                 : 0;
 
-            unset($art);
+            unset($articulo);
         }
 
         $resultado = [];
         foreach ($familias as $familia) {
-            $tvN1    = 0;
-            $tcN1    = 0;
-            $tmN1    = 0;
+            $ventasN1    = 0;
+            $costeN1    = 0;
+            $mermaFN1    = 0;
             $refsN1  = [];
-            $sfs     = [];
+            $subfamiliasAgregadas     = [];
 
-            foreach ($familia['subfamilias'] as $sf) {
-                $arts  = array_values($sf['articulos']);
-                $tvN2  = 0;
-                $tcN2  = 0;
-                $tmN2  = 0;
-                foreach ($arts as $art) {
-                    $tvN2 += $art['totalVenta'];
-                    $tcN2 += $art['totalCoste'];
-                    $tmN2 += $art['valorMerma'];
-                    $refsN1[$art['idArticulo']] = true;
+            foreach ($familia['subfamilias'] as $subfamilia) {
+                $articulos  = array_values($subfamilia['articulos']);
+                $ventasN2  = 0;
+                $costeN2  = 0;
+                $mermaFN2  = 0;
+                foreach ($articulos as $articulo) {
+                    $ventasN2 += $articulo['totalVenta'];
+                    $costeN2 += $articulo['totalCoste'];
+                    $mermaFN2 += $articulo['valorMerma'];
+                    $refsN1[$articulo['idArticulo']] = true;
                 }
-                $tvN1 += $tvN2;
-                $tcN1 += $tcN2;
-                $tmN1 += $tmN2;
+                $ventasN1 += $ventasN2;
+                $costeN1 += $costeN2;
+                $mermaFN1 += $mermaFN2;
 
-                $benN2 = $tvN2 - $tcN2 - $tmN2;
-                $arts_sorted = $arts;
-                usort($arts_sorted, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
-                $sfs[] = [
-                    'idN2'            => $sf['idN2'],
-                    'nombreN2'        => $sf['nombreN2'],
-                    'totalVenta'      => $tvN2,
-                    'totalCoste'      => $tcN2,
-                    'totalMerma'      => $tmN2,
-                    'beneficio'       => $benN2,
-                    'margen_pct'      => $tvN2 > 0 ? round($benN2 / $tvN2 * 100, 2) : 0,
-                    'num_referencias' => count($arts_sorted),
-                    'articulos'       => $arts_sorted
+                $beneficioN2 = $ventasN2 - $costeN2 - $mermaFN2;
+                $articulosOrdenados = $articulos;
+                usort($articulosOrdenados, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
+                $subfamiliasAgregadas[] = [
+                    'idN2'            => $subfamilia['idN2'],
+                    'nombreN2'        => $subfamilia['nombreN2'],
+                    'totalVenta'      => $ventasN2,
+                    'totalCoste'      => $costeN2,
+                    'totalMerma'      => $mermaFN2,
+                    'beneficio'       => $beneficioN2,
+                    'margen_pct'      => $ventasN2 > 0 ? round($beneficioN2 / $ventasN2 * 100, 2) : 0,
+                    'num_referencias' => count($articulosOrdenados),
+                    'articulos'       => $articulosOrdenados
                 ];
             }
-            usort($sfs, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
+            usort($subfamiliasAgregadas, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
 
-            $benN1 = $tvN1 - $tcN1 - $tmN1;
+            $beneficioN1 = $ventasN1 - $costeN1 - $mermaFN1;
             $resultado[] = [
                 'idN1'            => $familia['idN1'],
                 'nombreN1'        => $familia['nombreN1'],
-                'totalVenta'      => $tvN1,
-                'totalCoste'      => $tcN1,
-                'totalMerma'      => $tmN1,
-                'beneficio'       => $benN1,
-                'margen_pct'      => $tvN1 > 0 ? round($benN1 / $tvN1 * 100, 2) : 0,
+                'totalVenta'      => $ventasN1,
+                'totalCoste'      => $costeN1,
+                'totalMerma'      => $mermaFN1,
+                'beneficio'       => $beneficioN1,
+                'margen_pct'      => $ventasN1 > 0 ? round($beneficioN1 / $ventasN1 * 100, 2) : 0,
                 'num_referencias' => count($refsN1),
-                'subfamilias'     => $sfs
+                'subfamilias'     => $subfamiliasAgregadas
             ];
         }
         usort($resultado, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
@@ -325,15 +325,15 @@ class BeneficioCalculator
         $gtCoste = 0;
         $gtMerma = 0;
         $articulosConVentas = [];
-        foreach ($resultado as $fam) {
-            foreach ($fam['subfamilias'] as $sf) {
-                foreach ($sf['articulos'] as $art) {
-                    $idArt = $art['idArticulo'];
+        foreach ($resultado as $familia) {
+            foreach ($familia['subfamilias'] as $subfamilia) {
+                foreach ($subfamilia['articulos'] as $articulo) {
+                    $idArt = $articulo['idArticulo'];
                     if (isset($articulosConVentas[$idArt])) continue;
                     $articulosConVentas[$idArt] = true;
-                    $gtVenta += $art['totalVenta'];
-                    $gtCoste += $art['totalCoste'];
-                    $gtMerma += $art['valorMerma'];
+                    $gtVenta += $articulo['totalVenta'];
+                    $gtCoste += $articulo['totalCoste'];
+                    $gtMerma += $articulo['valorMerma'];
                 }
             }
         }
@@ -345,17 +345,17 @@ class BeneficioCalculator
         foreach ($mermasPorArticulo as $idArt => $uds) {
             if (isset($articulosConVentas[$idArt])) continue;
             // Obtener nombre y ultimoCoste
-            $rArt = $BDTpv->query(
+            $sentenciaArticulo = $BDTpv->query(
                 "SELECT articulo_name, ultimoCoste FROM articulos WHERE idArticulo = $idArt LIMIT 1"
             );
-            if (!$rArt || $rArt->num_rows === 0) continue;
-            $datoArt = $rArt->fetch_assoc();
-            $costeArt = isset($costePeriodo[$idArt]) ? $costePeriodo[$idArt] : (float)$datoArt['ultimoCoste'];
+            if (!$sentenciaArticulo || $sentenciaArticulo->num_rows === 0) continue;
+            $filaArticulo = $sentenciaArticulo->fetch_assoc();
+            $costeArt = isset($costePeriodo[$idArt]) ? $costePeriodo[$idArt] : (float)$filaArticulo['ultimoCoste'];
             $valor = $uds * $costeArt;
             $gtMermaSinVentas += $valor;
             $mermaSinVentas[] = [
                 'idArticulo'    => $idArt,
-                'articulo_name' => $datoArt['articulo_name'],
+                'articulo_name' => $filaArticulo['articulo_name'],
                 'udsMerma'      => $uds,
                 'costeUsar'     => $costeArt,
                 'valorMerma'    => $valor,
@@ -434,10 +434,10 @@ class BeneficioCalculator
               AND pv.estado != 'Especial'
               $filtroFlujoGlobalWhereC
         ";
-        $smtFCG = $BDTpv->query($sqlFlujoComprasGlobal);
-        $rowFCG = $smtFCG->fetch_assoc();
-        $gtComprasSiva = (float)($rowFCG['compras_siva'] ?? 0);
-        $gtComprasCiva = (float)($rowFCG['compras_civa'] ?? 0);
+        $sentenciaFlujoComprasGlobal = $BDTpv->query($sqlFlujoComprasGlobal);
+        $filaFlujoComprasGlobal = $sentenciaFlujoComprasGlobal->fetch_assoc();
+        $gtComprasSiva = (float)($filaFlujoComprasGlobal['compras_siva'] ?? 0);
+        $gtComprasCiva = (float)($filaFlujoComprasGlobal['compras_civa'] ?? 0);
 
         // Compras por familia: agrupa por $flujoGroupByKey para soportar jerarquía virtual
         $sqlFlujoCompras = "
@@ -458,10 +458,10 @@ class BeneficioCalculator
               $filtroFlujoN1Where
             GROUP BY $flujoGroupByKey
         ";
-        $smtFC = $BDTpv->query($sqlFlujoCompras);
+        $sentenciaFlujoCompras = $BDTpv->query($sqlFlujoCompras);
         $flujoComprasPorN1 = [];
-        while ($rfc = $smtFC->fetch_assoc()) {
-            $rawKey = $rfc['flujo_key'];
+        while ($filaFlujoCompra = $sentenciaFlujoCompras->fetch_assoc()) {
+            $rawKey = $filaFlujoCompra['flujo_key'];
             // Con jerarquía virtual, mapear idFamilia real → virtual N1
             if ($virtualHierarchy !== null && $rawKey !== null) {
                 $vN1 = $virtualHierarchy[(int)$rawKey]['vN1'] ?? null;
@@ -469,8 +469,8 @@ class BeneficioCalculator
             } else {
                 $idN1key = $rawKey !== null ? (int)$rawKey : '__sin_familia__';
             }
-            $flujoComprasPorN1[$idN1key]['compras_siva'] = ($flujoComprasPorN1[$idN1key]['compras_siva'] ?? 0) + (float)$rfc['compras_siva'];
-            $flujoComprasPorN1[$idN1key]['compras_civa'] = ($flujoComprasPorN1[$idN1key]['compras_civa'] ?? 0) + (float)$rfc['compras_civa'];
+            $flujoComprasPorN1[$idN1key]['compras_siva'] = ($flujoComprasPorN1[$idN1key]['compras_siva'] ?? 0) + (float)$filaFlujoCompra['compras_siva'];
+            $flujoComprasPorN1[$idN1key]['compras_civa'] = ($flujoComprasPorN1[$idN1key]['compras_civa'] ?? 0) + (float)$filaFlujoCompra['compras_civa'];
         }
 
         // Ventas globales para el flujo
@@ -501,12 +501,12 @@ class BeneficioCalculator
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
               $filtroFlujoGlobalWhereV
         ";
-        $smtFV = $BDTpv->query($sqlFlujoVentas);
+        $sentenciaFlujoVentas = $BDTpv->query($sqlFlujoVentas);
         $gtVentasCiva = 0;
         $gtVentasSiva = 0;
-        while ($rfv = $smtFV->fetch_assoc()) {
-            $gtVentasCiva += (float)$rfv['ventas_civa'];
-            $gtVentasSiva += (float)$rfv['ventas_siva'];
+        while ($filaFlujoVenta = $sentenciaFlujoVentas->fetch_assoc()) {
+            $gtVentasCiva += (float)$filaFlujoVenta['ventas_civa'];
+            $gtVentasSiva += (float)$filaFlujoVenta['ventas_siva'];
         }
 
         // Ventas por familia para el panel por familia
@@ -541,18 +541,18 @@ class BeneficioCalculator
               $filtroFlujoN1Where
             GROUP BY $flujoGroupByKey
         ";
-        $smtFVN1 = $BDTpv->query($sqlFlujoVentasN1);
+        $sentenciaFlujoVentasPorN1 = $BDTpv->query($sqlFlujoVentasN1);
         $flujoVentasPorN1 = [];
-        while ($rfvn1 = $smtFVN1->fetch_assoc()) {
-            $rawKey = $rfvn1['flujo_key'];
+        while ($filaFlujoVentaN1 = $sentenciaFlujoVentasPorN1->fetch_assoc()) {
+            $rawKey = $filaFlujoVentaN1['flujo_key'];
             if ($virtualHierarchy !== null && $rawKey !== null) {
                 $vN1 = $virtualHierarchy[(int)$rawKey]['vN1'] ?? null;
                 $idN1key = $vN1 !== null ? $vN1 : '__sin_familia__';
             } else {
                 $idN1key = $rawKey !== null ? (int)$rawKey : '__sin_familia__';
             }
-            $flujoVentasPorN1[$idN1key]['ventas_civa'] = ($flujoVentasPorN1[$idN1key]['ventas_civa'] ?? 0) + (float)$rfvn1['ventas_civa'];
-            $flujoVentasPorN1[$idN1key]['ventas_siva'] = ($flujoVentasPorN1[$idN1key]['ventas_siva'] ?? 0) + (float)$rfvn1['ventas_siva'];
+            $flujoVentasPorN1[$idN1key]['ventas_civa'] = ($flujoVentasPorN1[$idN1key]['ventas_civa'] ?? 0) + (float)$filaFlujoVentaN1['ventas_civa'];
+            $flujoVentasPorN1[$idN1key]['ventas_siva'] = ($flujoVentasPorN1[$idN1key]['ventas_siva'] ?? 0) + (float)$filaFlujoVentaN1['ventas_siva'];
         }
 
         // ── Stock medio del período para Rotación y GMROI ────────────────
@@ -562,28 +562,28 @@ class BeneficioCalculator
         //   stock_fin    = reconstruido(1ene → fechaFinal)
         //   stock_inicio = reconstruido(1ene → fechaInicio−1)   [0 si fechaInicio=1ene]
         //   stock_medio  = (stock_inicio + stock_fin) / 2
-        $inicioAno = date('Y', strtotime($fechaFinal)) . '-01-01';
-        $vispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
+        $inicioAnio = date('Y', strtotime($fechaFinal)) . '-01-01';
+        $fechaVispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
 
         // Reconstruye unidades netas acumuladas desde 1ene hasta $hasta (inclusive)
-        $fnStockEn = function (string $hasta) use ($BDTpv, $inicioAno): array {
-            // Si $hasta < $inicioAno (período empieza el 1 ene → víspera = 31 dic año anterior)
+        $calcularStockEn = function (string $hasta) use ($BDTpv, $inicioAnio): array {
+            // Si $hasta < $inicioAnio (período empieza el 1 ene → víspera = 31 dic año anterior)
             // devolvemos array vacío → stock inicio = 0
-            if ($hasta < $inicioAno) return [];
-            $smt = $BDTpv->query("
+            if ($hasta < $inicioAnio) return [];
+            $sentenciaVentas = $BDTpv->query("
                 SELECT idArticulo, SUM(delta) AS neto
                 FROM (
                     SELECT l.idArticulo,  l.nunidades AS delta
                     FROM albprolinea l
                     JOIN albprot c ON c.id = l.idalbpro
-                    WHERE DATE(c.Fecha) BETWEEN '$inicioAno' AND '$hasta'
+                    WHERE DATE(c.Fecha) BETWEEN '$inicioAnio' AND '$hasta'
                       AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                       AND l.estadoLinea = 'Activo'
                     UNION ALL
                     SELECT l.idArticulo, -l.nunidades AS delta
                     FROM ticketslinea l
                     JOIN ticketst c ON c.id = l.idticketst
-                    WHERE DATE(c.Fecha) BETWEEN '$inicioAno' AND '$hasta'
+                    WHERE DATE(c.Fecha) BETWEEN '$inicioAnio' AND '$hasta'
                       AND c.estado = 'Cerrado'
                       AND l.estadoLinea = 'Activo'
                     UNION ALL
@@ -591,7 +591,7 @@ class BeneficioCalculator
                     FROM albclilinea l
                     JOIN albclit c ON c.id = l.idalbcli
                     LEFT JOIN clientes cl ON cl.idClientes = c.idCliente
-                    WHERE DATE(c.Fecha) BETWEEN '$inicioAno' AND '$hasta'
+                    WHERE DATE(c.Fecha) BETWEEN '$inicioAnio' AND '$hasta'
                       AND c.estado IN ('Guardado','Procesado')
                       AND l.estadoLinea = 'Activo'
                       AND (c.idCliente = 0 OR cl.estado != 'Especial')
@@ -599,20 +599,20 @@ class BeneficioCalculator
                 GROUP BY idArticulo
             ");
             $result = [];
-            while ($r = $smt->fetch_assoc()) {
+            while ($r = $sentenciaVentas->fetch_assoc()) {
                 $result[(int)$r['idArticulo']] = (float)$r['neto'];
             }
             return $result;
         };
 
-        $stockFinPorArt    = $fnStockEn($fechaFinal);  // stock al cierre del período
-        $stockInicioPorArt = $fnStockEn($vispera);     // stock en la víspera (= inicio del período)
+        $stockFinPorArt    = $calcularStockEn($fechaFinal);  // stock al cierre del período
+        $stockInicioPorArt = $calcularStockEn($fechaVispera);     // stock en la víspera (= inicio del período)
 
         // Obtener ultimoCoste para el fallback de valoración
-        $smtUC = $BDTpv->query("SELECT idArticulo, ultimoCoste FROM articulos WHERE ultimoCoste > 0");
+        $sentenciaUltimoCoste = $BDTpv->query("SELECT idArticulo, ultimoCoste FROM articulos WHERE ultimoCoste > 0");
         $ultimoCostePorArt = [];
-        while ($ruc = $smtUC->fetch_assoc()) {
-            $ultimoCostePorArt[(int)$ruc['idArticulo']] = (float)$ruc['ultimoCoste'];
+        while ($filaUltimoCoste = $sentenciaUltimoCoste->fetch_assoc()) {
+            $ultimoCostePorArt[(int)$filaUltimoCoste['idArticulo']] = (float)$filaUltimoCoste['ultimoCoste'];
         }
 
         // stock_medio por artículo = (unidades_inicio + unidades_fin) / 2
@@ -637,11 +637,11 @@ class BeneficioCalculator
         $gtValorStock = 0;
         $articulosContadosStock = []; // para el global, contar cada artículo una sola vez
 
-        foreach ($resultado as $fam) {
-            $key = $fam['idN1'];
-            foreach ($fam['subfamilias'] as $sf) {
-                foreach ($sf['articulos'] as $art) {
-                    $idA = $art['idArticulo'];
+        foreach ($resultado as $familia) {
+            $key = $familia['idN1'];
+            foreach ($familia['subfamilias'] as $subfamilia) {
+                foreach ($subfamilia['articulos'] as $articulo) {
+                    $idA = $articulo['idArticulo'];
                     if (!isset($stockMedioPorArt[$idA])) continue;
                     $costeArt = $costePeriodo[$idA] ?? $ultimoCostePorArt[$idA] ?? 0;
                     if ($costeArt <= 0) continue;
@@ -658,13 +658,13 @@ class BeneficioCalculator
         }
 
         // Añadir flujo + stock + GMROI por familia a cada elemento del resultado
-        foreach ($resultado as &$fam) {
-            $key = $fam['idN1'];
+        foreach ($resultado as &$familia) {
+            $key = $familia['idN1'];
             $vSiva = $flujoVentasPorN1[$key]['ventas_siva'] ?? 0;
             $vCiva = $flujoVentasPorN1[$key]['ventas_civa'] ?? 0;
             $cSiva = $flujoComprasPorN1[$key]['compras_siva'] ?? 0;
             $cCiva = $flujoComprasPorN1[$key]['compras_civa'] ?? 0;
-            $fam['flujo'] = [
+            $familia['flujo'] = [
                 'ventas_siva'    => $vSiva,
                 'ventas_civa'    => $vCiva,
                 'compras_siva'   => $cSiva,
@@ -673,11 +673,11 @@ class BeneficioCalculator
                 'resultado_civa' => $vCiva - $cCiva,
             ];
             $stockFam = $stockPorN1[$key] ?? 0;
-            $margenFam = $fam['totalVenta'] - $fam['totalCoste'];
-            $fam['valor_stock'] = $stockFam;
-            $fam['gmroi']       = ($stockFam > 0) ? round($margenFam / $stockFam, 2) : null;
+            $margenFam = $familia['totalVenta'] - $familia['totalCoste'];
+            $familia['valor_stock'] = $stockFam;
+            $familia['gmroi']       = ($stockFam > 0) ? round($margenFam / $stockFam, 2) : null;
         }
-        unset($fam);
+        unset($familia);
 
         $gtMargenBruto = $gtVenta - $gtCoste;
         $gtGmroi       = ($gtValorStock > 0) ? round($gtMargenBruto / $gtValorStock, 2) : null;
