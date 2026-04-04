@@ -19,22 +19,13 @@ class BeneficioCalculator
         // AVISO: el coste es ultimoCoste en el momento de ejecutar el informe, no histórico.
         // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
 
-        
-        $fechaInicio = $this->db->real_escape_string($parametros['Finicio']);
-        $fechaFinal  = $this->db->real_escape_string($parametros['Ffinal']);
-
-        $filtroN1         = '';
-        $virtualHierarchy = null;
-        $needsIdFamilia   = false;
-        if ((int)($parametros['opcion'] ?? 0) === 4) {
-            $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
-            if (!empty($ids)) {
-                $fop4             = InformesFiltros::buildFiltroOp4($this->db, $ids);
-                $filtroN1         = $fop4['filtroSQL'];
-                $virtualHierarchy = $fop4['virtualHierarchy'];
-                $needsIdFamilia   = $fop4['needsIdFamilia'];
-            }
-        }
+        [
+            'fechaInicio'       => $fechaInicio,
+            'fechaFinal'        => $fechaFinal,
+            'filtroN1'          => $filtroN1,
+            'virtualHierarchy'  => $virtualHierarchy,
+            'needsIdFamilia'    => $needsIdFamilia,
+        ] = $this->prepararContextoInicial($parametros);
 
         // Coste medio ponderado de compra en el período por artículo (excluye proveedores Especial).
         // Si no hubo compra en el período se usa ultimoCoste como fallback (ver COALESCE en el UNION).
@@ -374,48 +365,14 @@ class BeneficioCalculator
         // Las consultas globales no tienen JOIN de familias, hay que añadirlos cuando se filtra.
         // Las consultas per-N1 ya tienen los JOINs af/vj, solo hay que añadir el WHERE.
         // Con jerarquía virtual, agrupamos por af.idFamilia y mapeamos al virtual N1 en PHP.
-        $filtroFlujoGlobalJoinC  = ''; // JOIN extra para compras globales (alias afF/vjF)
-        $filtroFlujoGlobalWhereC = ''; // WHERE extra para compras globales
-        $filtroFlujoGlobalJoinV  = ''; // JOIN extra para ventas globales (alias afFv/vjFv)
-        $filtroFlujoGlobalWhereV = ''; // WHERE extra para ventas globales
-        $filtroFlujoN1Where      = ''; // WHERE extra para consultas per-N1 (ya tienen af/vj)
-        $flujoGroupByKey         = 'vj.idN1'; // columna de agrupación per-N1
-
-        if ($filtroN1 !== '') {
-            if ($virtualHierarchy === null) {
-                // Filtro normal por idN1.
-                // Usamos EXISTS en lugar de JOIN para evitar multiplicar filas cuando un artículo
-                // tiene varias entradas en articulosFamilias que mapean al mismo idN1
-                // (ej: artículo asignado a 2 subfamilias del mismo N1 → JOIN generaría 2 filas).
-                preg_match('/IN\s*\(([^)]+)\)/', $filtroN1, $mN1);
-                $n1Str = $mN1[1] ?? '0';
-                $filtroFlujoGlobalJoinC  = '';
-                $filtroFlujoGlobalWhereC = "AND EXISTS (
-                    SELECT 1 FROM articulosFamilias afF
-                    JOIN vw_jerarquias_familias vjF ON vjF.idFamilia = afF.idFamilia
-                    WHERE afF.idArticulo = lp.idArticulo AND vjF.idN1 IN ($n1Str)
-                )";
-                $filtroFlujoGlobalJoinV  = '';
-                $filtroFlujoGlobalWhereV = "AND EXISTS (
-                    SELECT 1 FROM articulosFamilias afFv
-                    JOIN vw_jerarquias_familias vjFv ON vjFv.idFamilia = afFv.idFamilia
-                    WHERE afFv.idArticulo = l.idArticulo AND vjFv.idN1 IN ($n1Str)
-                )";
-                $filtroFlujoN1Where      = $filtroN1;
-                $flujoGroupByKey         = 'vj.idN1';
-            } else {
-                // Filtro por idFamilia descendiente: solo necesita JOIN articulosFamilias
-                // Extraemos la lista de IDs del fragmento "AND af.idFamilia IN (...)"
-                preg_match('/IN\s*\(([^)]+)\)/', $filtroN1, $m);
-                $descStr = $m[1] ?? '0';
-                $filtroFlujoGlobalJoinC  = '';
-                $filtroFlujoGlobalWhereC = "AND EXISTS (SELECT 1 FROM articulosFamilias afF WHERE afF.idArticulo = lp.idArticulo AND afF.idFamilia IN ($descStr))";
-                $filtroFlujoGlobalJoinV  = '';
-                $filtroFlujoGlobalWhereV = "AND EXISTS (SELECT 1 FROM articulosFamilias afFv WHERE afFv.idArticulo = l.idArticulo AND afFv.idFamilia IN ($descStr))";
-                $filtroFlujoN1Where      = $filtroN1;   // ya tiene af JOIN
-                $flujoGroupByKey         = 'af.idFamilia'; // agrupar por familia real; mapear a virtual N1 en PHP
-            }
-        }
+        [
+            'filtroFlujoGlobalJoinC'  => $filtroFlujoGlobalJoinC,
+            'filtroFlujoGlobalWhereC' => $filtroFlujoGlobalWhereC,
+            'filtroFlujoGlobalJoinV'  => $filtroFlujoGlobalJoinV,
+            'filtroFlujoGlobalWhereV' => $filtroFlujoGlobalWhereV,
+            'filtroFlujoN1Where'      => $filtroFlujoN1Where,
+            'flujoGroupByKey'         => $flujoGroupByKey,
+        ] = $this->construirContextoFlujo($filtroN1, $virtualHierarchy);
 
         // Compras globales (sin JOIN de familia — fuente canónica sin duplicados cuando no se filtra)
         $sqlFlujoComprasGlobal = "
@@ -704,6 +661,88 @@ class BeneficioCalculator
                     'resultado_civa' => $gtVentasCiva - $gtComprasCiva,
                 ],
             ]
+        ];
+    }
+
+    private function prepararContextoInicial(array $parametros): array
+    {
+        $fechaInicio = $this->db->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $this->db->real_escape_string($parametros['Ffinal']);
+
+        $filtroN1         = '';
+        $virtualHierarchy = null;
+        $needsIdFamilia   = false;
+
+        if ((int)($parametros['opcion'] ?? 0) === 4) {
+            $idsFamilia = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
+            if (!empty($idsFamilia)) {
+                $filtroOp4 = InformesFiltros::buildFiltroOp4($this->db, $idsFamilia);
+                $filtroN1         = $filtroOp4['filtroSQL'];
+                $virtualHierarchy = $filtroOp4['virtualHierarchy'];
+                $needsIdFamilia   = $filtroOp4['needsIdFamilia'];
+            }
+        }
+
+        return [
+            'fechaInicio'       => $fechaInicio,
+            'fechaFinal'        => $fechaFinal,
+            'filtroN1'          => $filtroN1,
+            'virtualHierarchy'  => $virtualHierarchy,
+            'needsIdFamilia'    => $needsIdFamilia,
+        ];
+    }
+
+    private function construirContextoFlujo(string $filtroN1, ?array $virtualHierarchy): array
+    {
+        $filtroFlujoGlobalJoinC  = '';
+        $filtroFlujoGlobalWhereC = '';
+        $filtroFlujoGlobalJoinV  = '';
+        $filtroFlujoGlobalWhereV = '';
+        $filtroFlujoN1Where      = '';
+        $flujoGroupByKey         = 'vj.idN1';
+
+        if ($filtroN1 === '') {
+            return [
+                'filtroFlujoGlobalJoinC'  => $filtroFlujoGlobalJoinC,
+                'filtroFlujoGlobalWhereC' => $filtroFlujoGlobalWhereC,
+                'filtroFlujoGlobalJoinV'  => $filtroFlujoGlobalJoinV,
+                'filtroFlujoGlobalWhereV' => $filtroFlujoGlobalWhereV,
+                'filtroFlujoN1Where'      => $filtroFlujoN1Where,
+                'flujoGroupByKey'         => $flujoGroupByKey,
+            ];
+        }
+
+        if ($virtualHierarchy === null) {
+            preg_match('/IN\s*\(([^)]+)\)/', $filtroN1, $coincidenciaN1);
+            $listaN1 = $coincidenciaN1[1] ?? '0';
+            $filtroFlujoGlobalWhereC = "AND EXISTS (
+                SELECT 1 FROM articulosFamilias afF
+                JOIN vw_jerarquias_familias vjF ON vjF.idFamilia = afF.idFamilia
+                WHERE afF.idArticulo = lp.idArticulo AND vjF.idN1 IN ($listaN1)
+            )";
+            $filtroFlujoGlobalWhereV = "AND EXISTS (
+                SELECT 1 FROM articulosFamilias afFv
+                JOIN vw_jerarquias_familias vjFv ON vjFv.idFamilia = afFv.idFamilia
+                WHERE afFv.idArticulo = l.idArticulo AND vjFv.idN1 IN ($listaN1)
+            )";
+            $filtroFlujoN1Where = $filtroN1;
+            $flujoGroupByKey    = 'vj.idN1';
+        } else {
+            preg_match('/IN\s*\(([^)]+)\)/', $filtroN1, $coincidenciaFamilias);
+            $listaFamiliasDesc = $coincidenciaFamilias[1] ?? '0';
+            $filtroFlujoGlobalWhereC = "AND EXISTS (SELECT 1 FROM articulosFamilias afF WHERE afF.idArticulo = lp.idArticulo AND afF.idFamilia IN ($listaFamiliasDesc))";
+            $filtroFlujoGlobalWhereV = "AND EXISTS (SELECT 1 FROM articulosFamilias afFv WHERE afFv.idArticulo = l.idArticulo AND afFv.idFamilia IN ($listaFamiliasDesc))";
+            $filtroFlujoN1Where = $filtroN1;
+            $flujoGroupByKey    = 'af.idFamilia';
+        }
+
+        return [
+            'filtroFlujoGlobalJoinC'  => $filtroFlujoGlobalJoinC,
+            'filtroFlujoGlobalWhereC' => $filtroFlujoGlobalWhereC,
+            'filtroFlujoGlobalJoinV'  => $filtroFlujoGlobalJoinV,
+            'filtroFlujoGlobalWhereV' => $filtroFlujoGlobalWhereV,
+            'filtroFlujoN1Where'      => $filtroFlujoN1Where,
+            'flujoGroupByKey'         => $flujoGroupByKey,
         ];
     }
 }
