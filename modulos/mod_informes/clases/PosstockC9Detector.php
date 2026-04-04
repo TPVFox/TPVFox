@@ -444,24 +444,24 @@ class PosstockC9Detector
         $merma_max  = $merma_total + $merma_carryover;
         $pct_max    = ($total_E_all > 0.0) ? ($merma_max / $total_E_all * 100.0) : 0.0;
 
-        $calc_sev = static function (float $m, float $p, string $tipo): int {
-            if ($tipo === 'peso') {
-                if ($m >= 15.0 && $p >= 15.0) return 5;
-                elseif ($m >=  8.0 && $p >= 10.0) return 4;
-                elseif ($m >=  3.0 && $p >=  5.0) return 3;
-                elseif ($m >=  1.0 && $p >=  2.0) return 2;
+        $calcularSeveridad = static function (float $merma, float $porcentajeMerma, string $tipoFisico): int {
+            if ($tipoFisico === 'peso') {
+                if ($merma >= 15.0 && $porcentajeMerma >= 15.0) return 5;
+                elseif ($merma >=  8.0 && $porcentajeMerma >= 10.0) return 4;
+                elseif ($merma >=  3.0 && $porcentajeMerma >=  5.0) return 3;
+                elseif ($merma >=  1.0 && $porcentajeMerma >=  2.0) return 2;
                 else                                return 1;
             } else {
-                if ($m >= 20.0 && $p >= 15.0) return 5;
-                elseif ($m >= 10.0 && $p >= 10.0) return 4;
-                elseif ($m >=  5.0 && $p >=  5.0) return 3;
-                elseif ($m >=  2.0 && $p >=  2.0) return 2;
+                if ($merma >= 20.0 && $porcentajeMerma >= 15.0) return 5;
+                elseif ($merma >= 10.0 && $porcentajeMerma >= 10.0) return 4;
+                elseif ($merma >=  5.0 && $porcentajeMerma >=  5.0) return 3;
+                elseif ($merma >=  2.0 && $porcentajeMerma >=  2.0) return 2;
                 else                                return 1;
             }
         };
-        $sev     = $calc_sev($merma_total, $pct, $tipo_fisico);
-        $sev_max = $calc_sev($merma_max, $pct_max, $tipo_fisico);
-        $sev     = max($sev, $sev_max);
+        $severidadBase = $calcularSeveridad($merma_total, $pct, $tipo_fisico);
+        $severidadMaximaHorquilla = $calcularSeveridad($merma_max, $pct_max, $tipo_fisico);
+        $sev = max($severidadBase, $severidadMaximaHorquilla);
 
         $sev_labels = [1 => 'BAJA', 2 => 'BAJA', 3 => 'MEDIA', 4 => 'ALTA', 5 => 'CRITICA'];
 
