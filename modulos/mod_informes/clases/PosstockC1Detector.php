@@ -79,189 +79,193 @@ class PosstockC1Detector
         float  $umbral_por_venta    = 0.010,
         int    $timing_ventana_dias = 1
     ): array {
-        $fi     = $this->db->real_escape_string($fi_mov);
-        $ff     = $this->db->real_escape_string($ff_mov);
-        $fi_stk = $this->db->real_escape_string($fi_stock);
-        $wf     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
-        $wi     = $this->repo->idsWhere($ids_filter);
+        $fechaInicio       = $this->db->real_escape_string($fi_mov);
+        $fechaFin          = $this->db->real_escape_string($ff_mov);
+        $fechaInicioStock  = $this->db->real_escape_string($fi_stock);
+        $filtroFamiliasSql = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $filtroArticulosSql = $this->repo->idsWhere($ids_filter);
 
-        $rows = $this->repo->queryDeltasC1($fi, $ff, $wf, $wi);
-        if (isset($rows['error'])) return $rows;
-        if (empty($rows)) return [];
+        $filasDeltas = $this->repo->queryDeltasC1($fechaInicio, $fechaFin, $filtroFamiliasSql, $filtroArticulosSql);
+        if (isset($filasDeltas['error'])) return $filasDeltas;
+        if (empty($filasDeltas)) return [];
 
-        $delta_map = [];
-        $ids       = [];
-        foreach ($rows as $r) {
-            $delta_map[(int)$r['idArticulo']] = [
-                'delta_total'      => (float)$r['delta_total'],
-                'min_running'      => (float)$r['min_running'],
-                'fecha_minimo'     => $r['fecha_minimo'],
-                'dias_en_minimo'   => (int)$r['dias_en_minimo'],
-                'dias_en_negativo' => (int)$r['dias_en_negativo'],
+        $mapaDeltas = [];
+        $idsArticulos = [];
+        foreach ($filasDeltas as $filaDelta) {
+            $mapaDeltas[(int)$filaDelta['idArticulo']] = [
+                'delta_total'      => (float)$filaDelta['delta_total'],
+                'min_running'      => (float)$filaDelta['min_running'],
+                'fecha_minimo'     => $filaDelta['fecha_minimo'],
+                'dias_en_minimo'   => (int)$filaDelta['dias_en_minimo'],
+                'dias_en_negativo' => (int)$filaDelta['dias_en_negativo'],
             ];
-            $ids[] = (int)$r['idArticulo'];
+            $idsArticulos[] = (int)$filaDelta['idArticulo'];
         }
 
         // Obtener stock base: usar cache si disponible, si no consultar
         if (!empty($stock_base_cache)) {
             $stock_base = $stock_base_cache;
         } else {
-            $fi_sb   = $this->db->real_escape_string($fi_stock);
-            $ff_sb   = $this->db->real_escape_string($ff_stock);
-            $ids_sb  = implode(',', array_map('intval', $ids));
-            $rows_sb = $this->repo->queryStockBase($fi_sb, $ff_sb, $ids_sb);
-            if (isset($rows_sb['error'])) return $rows_sb;
+            $fechaInicioStockBase = $this->db->real_escape_string($fi_stock);
+            $fechaFinStockBase    = $this->db->real_escape_string($ff_stock);
+            $idsArticulosCsv      = implode(',', array_map('intval', $idsArticulos));
+            $filasStockBase       = $this->repo->queryStockBase($fechaInicioStockBase, $fechaFinStockBase, $idsArticulosCsv);
+            if (isset($filasStockBase['error'])) return $filasStockBase;
             $stock_base = [];
-            foreach ($rows_sb as $row) {
-                $stock_base[(int)$row['idArticulo']] = [
-                    'saldo_acumulado' => (float)$row['saldo_acumulado'],
-                    'ultima_compra'   => $row['ultima_compra'],
-                    'ultima_venta'    => $row['ultima_venta'],
+            foreach ($filasStockBase as $filaStockBase) {
+                $stock_base[(int)$filaStockBase['idArticulo']] = [
+                    'saldo_acumulado' => (float)$filaStockBase['saldo_acumulado'],
+                    'ultima_compra'   => $filaStockBase['ultima_compra'],
+                    'ultima_venta'    => $filaStockBase['ultima_venta'],
                 ];
             }
         }
 
         $incidencias    = [];
-        $ids_c1a        = [];   // negativos al cierre (detalle enriquecido)
-        $ids_c1b        = [];   // negativos puntuales recuperados (detalle enriquecido)
+        $idsC1a         = [];   // negativos al cierre (detalle enriquecido)
+        $idsC1b         = [];   // negativos puntuales recuperados (detalle enriquecido)
 
-        foreach ($delta_map as $id => $data) {
-            $saldo_base   = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
-            $stock_actual = $saldo_base + $data['delta_total'];
-            $min_balance  = $saldo_base + $data['min_running'];
+        foreach ($mapaDeltas as $idArticulo => $datosDelta) {
+            $saldo_base   = $stock_base[$idArticulo]['saldo_acumulado'] ?? 0.0;
+            $stock_actual = $saldo_base + $datosDelta['delta_total'];
+            $min_balance  = $saldo_base + $datosDelta['min_running'];
 
             if ($stock_actual < 0) {
-                $ya_negativo_inicio  = $saldo_base < 0;
-                $frac                = abs($stock_actual - round($stock_actual));
-                $es_fraccionado      = $frac > $umbral_fraccionado;
-                $fraccionado_es_causa = $es_fraccionado && abs($stock_actual) < $umbral_magnitud && abs($min_balance) < $umbral_magnitud;
+                $ya_negativo_inicio = $saldo_base < 0;
+                $senalesC1a         = $this->calcularSignalesC1a(
+                    $stock_actual,
+                    $min_balance,
+                    $ya_negativo_inicio,
+                    $umbral_fraccionado,
+                    $umbral_magnitud
+                );
 
                 $incidencias[] = [
-                    'idArticulo'           => $id,
+                    'idArticulo'           => $idArticulo,
                     'tipo'                 => 'Inventario en negativo',
-                    'severidad'            => ($fraccionado_es_causa || $ya_negativo_inicio) ? 'ALTA' : 'CRITICA',
+                    'severidad'            => $senalesC1a['severidad'],
                     'stock_actual'         => $stock_actual,
                     'min_balance'          => $min_balance,
                     'ya_negativo_inicio'   => $ya_negativo_inicio,
-                    'fraccionado_es_causa' => $fraccionado_es_causa,
+                    'fraccionado_es_causa' => $senalesC1a['fraccionado_es_causa'],
                     'saldo_base'           => $ya_negativo_inicio ? $saldo_base : null,
-                    'dias_en_negativo'     => $data['dias_en_negativo'],
+                    'dias_en_negativo'     => $datosDelta['dias_en_negativo'],
                     'posible_causa'        => '',   // sobreescrito en el bloque de enriquecimiento
                 ];
-                $ids_c1a[] = $id;
+                $idsC1a[] = $idArticulo;
             } elseif ($min_balance < 0) {
                 $frac_c1b             = abs($min_balance - round($min_balance));
                 $es_fraccionado       = $frac_c1b > $umbral_fraccionado;
                 $fraccionado_es_causa = $es_fraccionado && abs($min_balance) < $umbral_magnitud;
 
                 $incidencias[] = [
-                    'idArticulo'           => $id,
+                    'idArticulo'           => $idArticulo,
                     'tipo'                 => 'Desajuste Puntual de Stock',
                     'severidad'            => 'ALTA',
                     'stock_actual'         => $stock_actual,
                     'min_balance'          => $min_balance,
                     'fraccionado_es_causa' => $fraccionado_es_causa,
-                    'fecha_minimo'         => $data['fecha_minimo'],
-                    'dias_en_minimo'       => $data['dias_en_minimo'],
+                    'fecha_minimo'         => $datosDelta['fecha_minimo'],
+                    'dias_en_minimo'       => $datosDelta['dias_en_minimo'],
                     'posible_causa'        => 'Negativo puntual, recuperado al cierre',
                 ];
-                $ids_c1b[] = $id;
+                $idsC1b[] = $idArticulo;
             }
         }
 
         // Enriquecer C1a y C1b con actividad del periodo (una sola consulta compartida)
-        $ids_todos = array_merge($ids_c1a, $ids_c1b);
-        $detalle   = !empty($ids_todos)
-            ? $this->repo->queryDetalleC1(implode(',', $ids_todos), $fi, $ff)
+        $idsIncidencias = array_merge($idsC1a, $idsC1b);
+        $detalle        = !empty($idsIncidencias)
+            ? $this->repo->queryDetalleC1(implode(',', $idsIncidencias), $fechaInicio, $fechaFin)
             : [];
 
         // Proveedor habitual y último para C1a (rango anual para tener datos suficientes)
-        $prov_map = !empty($ids_c1a)
-            ? $this->repo->queryProveedorArticulos(implode(',', $ids_c1a), $fi_stk, $ff)
+        $mapaProveedores = !empty($idsC1a)
+            ? $this->repo->queryProveedorArticulos(implode(',', $idsC1a), $fechaInicioStock, $fechaFin)
             : [];
 
-        if (!empty($ids_c1a)) {
-            foreach ($incidencias as &$inc) {
-                if ($inc['tipo'] !== 'Inventario en negativo') continue;
-                $d     = $detalle[$inc['idArticulo']] ?? null;
-                $n_ent = $d['n_entradas'] ?? 0;
-                $inc['n_entradas']     = $n_ent;
-                $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
-                $inc['n_ventas']       = $d['n_ventas']       ?? 0;
+        if (!empty($idsC1a)) {
+            foreach ($incidencias as &$incidencia) {
+                if ($incidencia['tipo'] !== 'Inventario en negativo') continue;
+                $detalleArticulo = $detalle[$incidencia['idArticulo']] ?? null;
+                $numeroEntradas  = $detalleArticulo['n_entradas'] ?? 0;
+                $incidencia['n_entradas']     = $numeroEntradas;
+                $incidencia['ultima_entrada'] = $detalleArticulo['ultima_entrada'] ?? null;
+                $incidencia['n_ventas']       = $detalleArticulo['n_ventas']       ?? 0;
 
-                $prov = $prov_map[$inc['idArticulo']] ?? null;
-                $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
-                $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
-                $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
-                $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
-                $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+                $datosProveedor = $mapaProveedores[$incidencia['idArticulo']] ?? null;
+                $incidencia['prov_habitual_nombre'] = $datosProveedor['prov_habitual_nombre'] ?? null;
+                $incidencia['prov_habitual_n']      = $datosProveedor['prov_habitual_n']      ?? null;
+                $incidencia['prov_ultimo_nombre']   = $datosProveedor['prov_ultimo_nombre']   ?? null;
+                $incidencia['prov_ultima_fecha']    = $datosProveedor['prov_ultima_fecha']    ?? null;
+                $incidencia['prov_es_mismo']        = $datosProveedor['prov_es_mismo']        ?? null;
 
                 // Refinar fraccionado_es_causa con n_ventas: umbral dinámico por operación de pesaje
-                if ($inc['fraccionado_es_causa']) {
-                    $umbral_frac = $umbral_por_venta * max(1, $inc['n_ventas']);
-                    if (abs($inc['stock_actual']) > $umbral_frac || abs($inc['min_balance']) > $umbral_frac) {
-                        $inc['fraccionado_es_causa'] = false;
-                        $inc['severidad']            = $inc['ya_negativo_inicio'] ? 'ALTA' : 'CRITICA';
+                if ($incidencia['fraccionado_es_causa']) {
+                    $umbralFraccionado = $umbral_por_venta * max(1, $incidencia['n_ventas']);
+                    if (abs($incidencia['stock_actual']) > $umbralFraccionado || abs($incidencia['min_balance']) > $umbralFraccionado) {
+                        $incidencia['fraccionado_es_causa'] = false;
+                        $incidencia['severidad']            = $incidencia['ya_negativo_inicio'] ? 'ALTA' : 'CRITICA';
                     }
                 }
 
-                if ($inc['ya_negativo_inicio']) {
-                    $inc['posible_causa'] = 'Stock ya negativo al inicio del periodo: el problema viene de antes, revisar inventario anterior';
-                } elseif (!empty($inc['fraccionado_es_causa'])) {
-                    $inc['posible_causa'] = 'Stock decimal dentro del margen de pesaje: probable venta de últimos restos en balanza o imprecisión acumulada';
-                    $inc['severidad']     = 'MEDIA';
-                } elseif ($n_ent === 0 && $inc['n_ventas'] > 0) {
-                    $inc['posible_causa'] = 'Ventas registradas sin ninguna recepción en el periodo: comprobar si falta dar entrada de mercancía';
-                } elseif ($n_ent > 0) {
-                    $inc['posible_causa'] = 'Entradas registradas pero el stock sigue negativo: revisar si falta alguna recepción o si hay ventas duplicadas';
+                if ($incidencia['ya_negativo_inicio']) {
+                    $incidencia['posible_causa'] = 'Stock ya negativo al inicio del periodo: el problema viene de antes, revisar inventario anterior';
+                } elseif (!empty($incidencia['fraccionado_es_causa'])) {
+                    $incidencia['posible_causa'] = 'Stock decimal dentro del margen de pesaje: probable venta de últimos restos en balanza o imprecisión acumulada';
+                    $incidencia['severidad']     = 'MEDIA';
+                } elseif ($numeroEntradas === 0 && $incidencia['n_ventas'] > 0) {
+                    $incidencia['posible_causa'] = 'Ventas registradas sin ninguna recepción en el periodo: comprobar si falta dar entrada de mercancía';
+                } elseif ($numeroEntradas > 0) {
+                    $incidencia['posible_causa'] = 'Entradas registradas pero el stock sigue negativo: revisar si falta alguna recepción o si hay ventas duplicadas';
                 } else {
-                    $inc['posible_causa'] = 'Stock negativo sin movimientos en el periodo: revisar el saldo inicial del artículo o si hay ajustes no registrados';
+                    $incidencia['posible_causa'] = 'Stock negativo sin movimientos en el periodo: revisar el saldo inicial del artículo o si hay ajustes no registrados';
                 }
             }
-            unset($inc);
+            unset($incidencia);
         }
 
         // Enriquecer C1b con causa dinámica + timing
-        if (!empty($ids_c1b)) {
-            $id_fecha_map = [];
-            foreach ($incidencias as $inc) {
-                if ($inc['tipo'] === 'Desajuste Puntual de Stock' && !empty($inc['fecha_minimo'])) {
-                    $id_fecha_map[$inc['idArticulo']] = $inc['fecha_minimo'];
+        if (!empty($idsC1b)) {
+            $mapaIdFechaMinimo = [];
+            foreach ($incidencias as $incidencia) {
+                if ($incidencia['tipo'] === 'Desajuste Puntual de Stock' && !empty($incidencia['fecha_minimo'])) {
+                    $mapaIdFechaMinimo[$incidencia['idArticulo']] = $incidencia['fecha_minimo'];
                 }
             }
-            $timing_set = $this->repo->queryTimingC1b($id_fecha_map, $timing_ventana_dias);
+            $articulosConTimingProximo = $this->repo->queryTimingC1b($mapaIdFechaMinimo, $timing_ventana_dias);
 
-            foreach ($incidencias as &$inc) {
-                if ($inc['tipo'] !== 'Desajuste Puntual de Stock') continue;
-                $d     = $detalle[$inc['idArticulo']] ?? null;
-                $n_ent = $d['n_entradas'] ?? 0;
-                $inc['n_entradas']     = $n_ent;
-                $inc['ultima_entrada'] = $d['ultima_entrada'] ?? null;
-                $inc['n_ventas']       = $d['n_ventas']       ?? 0;
+            foreach ($incidencias as &$incidencia) {
+                if ($incidencia['tipo'] !== 'Desajuste Puntual de Stock') continue;
+                $detalleArticulo = $detalle[$incidencia['idArticulo']] ?? null;
+                $numeroEntradas  = $detalleArticulo['n_entradas'] ?? 0;
+                $incidencia['n_entradas']     = $numeroEntradas;
+                $incidencia['ultima_entrada'] = $detalleArticulo['ultima_entrada'] ?? null;
+                $incidencia['n_ventas']       = $detalleArticulo['n_ventas']       ?? 0;
                 // Refinar fraccionado_es_causa con n_ventas
-                if ($inc['fraccionado_es_causa']) {
-                    $umbral_frac = $umbral_por_venta * max(1, $inc['n_ventas']);
-                    if (abs($inc['min_balance']) > $umbral_frac) {
-                        $inc['fraccionado_es_causa'] = false;
+                if ($incidencia['fraccionado_es_causa']) {
+                    $umbralFraccionado = $umbral_por_venta * max(1, $incidencia['n_ventas']);
+                    if (abs($incidencia['min_balance']) > $umbralFraccionado) {
+                        $incidencia['fraccionado_es_causa'] = false;
                     }
                 }
 
-                if (!empty($inc['fraccionado_es_causa'])) {
-                    $inc['timing_proximo'] = false;
-                    $inc['severidad']      = 'MEDIA';
-                    $inc['posible_causa']  = 'Mínimo negativo dentro del margen de pesaje: probable venta de últimos restos en balanza';
+                if (!empty($incidencia['fraccionado_es_causa'])) {
+                    $incidencia['timing_proximo'] = false;
+                    $incidencia['severidad']      = 'MEDIA';
+                    $incidencia['posible_causa']  = 'Mínimo negativo dentro del margen de pesaje: probable venta de últimos restos en balanza';
                 } else {
-                    $inc['timing_proximo'] = isset($timing_set[$inc['idArticulo']]);
-                    if ($inc['timing_proximo']) {
-                        $inc['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
-                    } elseif ($n_ent > 0) {
-                        $inc['posible_causa'] = 'Entradas en el periodo pero no coinciden con el momento del negativo: revisar si hay un desajuste de inventario puntual';
+                    $incidencia['timing_proximo'] = isset($articulosConTimingProximo[$incidencia['idArticulo']]);
+                    if ($incidencia['timing_proximo']) {
+                        $incidencia['posible_causa'] = 'Probable venta registrada antes que la recepción (timing de entrada)';
+                    } elseif ($numeroEntradas > 0) {
+                        $incidencia['posible_causa'] = 'Entradas en el periodo pero no coinciden con el momento del negativo: revisar si hay un desajuste de inventario puntual';
                     } else {
-                        $inc['posible_causa'] = 'Sin recepciones en el periodo: revisar movimientos duplicados o ajustes manuales';
+                        $incidencia['posible_causa'] = 'Sin recepciones en el periodo: revisar movimientos duplicados o ajustes manuales';
                     }
                 }
             }
-            unset($inc);
+            unset($incidencia);
         }
 
         return $incidencias;
