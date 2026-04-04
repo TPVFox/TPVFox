@@ -51,7 +51,7 @@ function cargarDatosPosstock(periodo, tipoIncidencia) {
  * Cuando termina el último lote, envía los datos acumulados a PHP para renderizar.
  */
 function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
-    var parametros = {
+    const parametros = {
         pulsado: "getPOSStockBatch",
         fecha_inicio_movimientos: periodo.fecha_inicio_movimientos,
         fecha_fin_movimientos: periodo.fecha_fin_movimientos,
@@ -87,16 +87,16 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            let resultado = JSON.parse(response);
             if (resultado.error) {
                 _posstockMostrarError(resultado.error);
                 return;
             }
 
-            var acum = acumuladas.concat(resultado.filas || []);
-            var actual = resultado.actual;
-            var elementos = resultado.elementos;
-            var paginaEfectiva = resultado.pagina_efectiva || parametros.pagina;
+            const acum = acumuladas.concat(resultado.filas || []);
+            const actual = resultado.actual;
+            const elementos = resultado.elementos;
+            const paginaEfectiva = resultado.pagina_efectiva || parametros.pagina;
 
             if (paginaEfectiva > 0 && elementos >= paginaEfectiva) {
                 $("#posstockProgreso").text(
@@ -105,7 +105,7 @@ function _posstockCargaLote(inicial, acumuladas, periodo, tipoIncidencia) {
                 _posstockCargaLote(actual, acum, periodo, tipoIncidencia);
             } else {
                 acum.sort(_posstockSortComparator);
-                var idsC7a = [],
+                const idsC7a = [],
                     idsC7b = [];
                 acum.forEach(function (f) {
                     if (f.c7_subcaso === "C7a") idsC7a.push(f.idArticulo);
@@ -150,7 +150,7 @@ function _posstockFinalizarTabla(acum, periodo) {
 }
 
 /** Tamaño de lote para el renderizado de la tabla (filas por petición HTTP). */
-var POSSTOCK_RENDER_BATCH = 150;
+const POSSTOCK_RENDER_BATCH = 150;
 
 /**
  * Llama a PHP para renderizar la tabla HTML en lotes de ≤150 filas.
@@ -160,8 +160,8 @@ function _posstockRenderizarTabla(filas, periodo) {
 }
 
 function _posstockRenderLote(filas, periodo, offset) {
-    var batch = filas.slice(offset, offset + POSSTOCK_RENDER_BATCH);
-    var esPrimerLote = offset === 0;
+    const batch = filas.slice(offset, offset + POSSTOCK_RENDER_BATCH);
+    const esPrimerLote = offset === 0;
 
     $.ajax({
         data: {
@@ -178,7 +178,7 @@ function _posstockRenderLote(filas, periodo, offset) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            const resultado = JSON.parse(response);
             if (resultado.error) {
                 _posstockMostrarError(resultado.error);
                 return;
@@ -189,7 +189,7 @@ function _posstockRenderLote(filas, periodo, offset) {
                 $("#posstockTabla tbody").append(resultado.html);
             }
 
-            var nextOffset = offset + batch.length;
+            const nextOffset = offset + batch.length;
             if (nextOffset < filas.length) {
                 $("#posstockProgreso").text(
                     "Preparando tabla: " +
@@ -227,7 +227,7 @@ function _posstockRenderLote(filas, periodo, offset) {
  */
 function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
     if (tipoIncidenciaAnual) return tipoIncidenciaAnual;
-    var seleccionados = [];
+    const seleccionados = [];
     document
         .querySelectorAll("#posstockFilaCasos input[type=checkbox]")
         .forEach(function (chk) {

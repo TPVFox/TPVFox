@@ -25,8 +25,8 @@ function _posstockSortComparator(a, b) {
 }
 
 // ── localStorage — preferencias UI ───────────────────────────────────────────
-var _POSSTOCK_LS_KEY = "posstock_ui_v1";
-var _posstockAgrupadoPorProv = false;
+const _POSSTOCK_LS_KEY = "posstock_ui_v1";
+let _posstockAgrupadoPorProv = false;
 
 function _posstockGuardarPrefs() {
     try {
@@ -42,7 +42,7 @@ function _posstockGuardarPrefs() {
 
 function _posstockCargarPrefs() {
     try {
-        var raw = localStorage.getItem(_POSSTOCK_LS_KEY);
+        const raw = localStorage.getItem(_POSSTOCK_LS_KEY);
         return raw ? JSON.parse(raw) : {};
     } catch (e) {
         return {};
@@ -53,7 +53,7 @@ function _posstockCargarPrefs() {
 
 function posstockToggleAgruparProveedor() {
     _posstockAgrupadoPorProv = !_posstockAgrupadoPorProv;
-    var label = document.getElementById("posstockAgruparProvLabel");
+    let label = document.getElementById("posstockAgruparProvLabel");
     if (label) {
         label.className = _posstockAgrupadoPorProv
             ? "label label-success"
@@ -66,7 +66,7 @@ function posstockToggleAgruparProveedor() {
 
 // Aplica el estado guardado de "agrupar proveedor" al label del botón (sin toggle)
 function _posstockRestaurarAgruparProv() {
-    var label = document.getElementById("posstockAgruparProvLabel");
+    const label = document.getElementById("posstockAgruparProvLabel");
     if (label) {
         label.className = _posstockAgrupadoPorProv
             ? "label label-success"
@@ -82,7 +82,7 @@ function _posstockRestaurarAgruparProv() {
  *                   mantiene el orden por data-orden
  */
 function _posstockReordenarTabla() {
-    var tbody = document.querySelector("#posstockTabla tbody");
+    const tbody = document.querySelector("#posstockTabla tbody");
     if (!tbody) return;
 
     // Eliminar cabeceras de grupo previas
@@ -92,27 +92,27 @@ function _posstockReordenarTabla() {
         },
     );
 
-    var filas = Array.from(tbody.querySelectorAll("tr"));
+    let filas = Array.from(tbody.querySelectorAll("tr"));
 
     if (_posstockAgrupadoPorProv) {
         // Ordenar: primero por proveedor (asc, vacíos al final), luego por orden_clave (asc)
         filas.sort(function (a, b) {
-            var pa = a.dataset.prov || "";
-            var pb = b.dataset.prov || "";
-            if (pa === "" && pb !== "") return 1;
-            if (pa !== "" && pb === "") return -1;
-            if (pa !== pb) return pa.localeCompare(pb, "es");
-            var oa = a.dataset.orden || "";
-            var ob = b.dataset.orden || "";
-            return oa < ob ? -1 : oa > ob ? 1 : 0;
+            const provA = a.dataset.prov || "";
+            const provB = b.dataset.prov || "";
+            if (pa === "" && provB !== "") return 1;
+            if (provA !== "" && pb === "") return -1;
+            if (provA !== provB) return provA.localeCompare(provB, "es");
+            let ordenA = a.dataset.orden || "";
+            let ordenB = b.dataset.orden || "";
+            return ordenA < ordenB ? -1 : ordenA > ordenB ? 1 : 0;
         });
 
         // Reinsertar filas e inyectar cabecera al inicio de cada grupo
-        var provActual = null;
-        var sinProvHeader = false;
+        let provActual = null;
+        let sinProvHeader = false;
 
         function _crearCabeceraGrupo(provKey, label, icono) {
-            var nGrupo = 0,
+            let nGrupo = 0,
                 costeGrupo = 0;
             filas.forEach(function (f) {
                 if (
@@ -123,7 +123,7 @@ function _posstockReordenarTabla() {
                     costeGrupo += parseFloat(f.dataset.coste || "0");
                 }
             });
-            var costeTexto =
+            const costeTexto =
                 costeGrupo > 0
                     ? " &nbsp;·&nbsp; Valor est.: <strong>~" +
                       costeGrupo.toLocaleString("es-ES", {
@@ -131,7 +131,7 @@ function _posstockReordenarTabla() {
                       }) +
                       " €</strong>"
                     : "";
-            var tr = document.createElement("tr");
+            const tr = document.createElement("tr");
             tr.setAttribute("data-prov-header", provKey || "__sinprov__");
             tr.style.cssText =
                 "background:#f0f4fa;border-top:2px solid #c8d4e8;" +
@@ -153,7 +153,7 @@ function _posstockReordenarTabla() {
         }
 
         filas.forEach(function (fila) {
-            var prov = fila.dataset.prov || "";
+            const prov = fila.dataset.prov || "";
             if (prov !== "" && prov !== provActual) {
                 provActual = prov;
                 tbody.appendChild(_crearCabeceraGrupo(prov, prov, "truck"));
@@ -171,22 +171,22 @@ function _posstockReordenarTabla() {
         });
 
         // Fila de totales al inicio y al final del agrupado
-        var nTotal = 0,
+        let nTotal = 0,
             costeTotal = 0,
             nProveedores = 0;
-        var provsVistos = {};
+        const provsVistos = {};
         filas.forEach(function (f) {
             if (f.style.display === "none") return;
             nTotal++;
             costeTotal += parseFloat(f.dataset.coste || "0");
-            var p = f.dataset.prov || "__sinprov__";
+            const p = f.dataset.prov || "__sinprov__";
             if (!provsVistos[p]) {
                 provsVistos[p] = true;
                 nProveedores++;
             }
         });
         if (nTotal > 0) {
-            var costeTotalTexto =
+            const costeTotalTexto =
                 costeTotal > 0
                     ? " &nbsp;·&nbsp; Valor est. total: <strong>~" +
                       costeTotal.toLocaleString("es-ES", {
@@ -194,7 +194,7 @@ function _posstockReordenarTabla() {
                       }) +
                       " €</strong>"
                     : "";
-            var totalInnerHTML =
+            const totalInnerHTML =
                 '<td colspan="7" style="font-weight:600;padding:4px 8px;font-size:12px;text-align:right;">' +
                 'Total: <span class="label label-primary">' +
                 nTotal +
@@ -208,13 +208,13 @@ function _posstockReordenarTabla() {
                 "</span>" +
                 costeTotalTexto +
                 "</td>";
-            var trTotalTop = document.createElement("tr");
+            const trTotalTop = document.createElement("tr");
             trTotalTop.setAttribute("data-prov-header", "__total__");
             trTotalTop.style.cssText =
                 "background:#e8edf5; border-bottom:2px solid #b0bdd6;";
             trTotalTop.innerHTML = totalInnerHTML;
             tbody.insertBefore(trTotalTop, tbody.firstChild);
-            var trTotalBottom = document.createElement("tr");
+            const trTotalBottom = document.createElement("tr");
             trTotalBottom.setAttribute("data-prov-header", "__total__");
             trTotalBottom.style.cssText =
                 "background:#e8edf5; border-top:2px solid #b0bdd6;";
@@ -224,9 +224,9 @@ function _posstockReordenarTabla() {
     } else {
         // Restaurar orden original por data-orden
         filas.sort(function (a, b) {
-            var oa = a.dataset.orden || "";
-            var ob = b.dataset.orden || "";
-            return oa < ob ? -1 : oa > ob ? 1 : 0;
+            const ordenA = a.dataset.orden || "";
+            const ordenB = b.dataset.orden || "";
+            return ordenA < ordenB ? -1 : ordenA > ordenB ? 1 : 0;
         });
         filas.forEach(function (fila) {
             tbody.appendChild(fila);
@@ -237,7 +237,7 @@ function _posstockReordenarTabla() {
 // Resetear el estado de agrupación cuando se recarga la tabla
 function _posstockResetAgruparProv() {
     // Restaurar desde localStorage en lugar de resetear siempre a false
-    var prefs = _posstockCargarPrefs();
+    let prefs = _posstockCargarPrefs();
     _posstockAgrupadoPorProv = prefs.agruparProv || false;
     _posstockRestaurarAgruparProv();
 }
@@ -247,7 +247,7 @@ window.posstockToggleAgruparProveedor = posstockToggleAgruparProveedor;
 // ── Filtro por badges ─────────────────────────────────────────────────────────
 
 // Mapeo badge → grupo. Los badges dinámicos se detectan por regex en _posstockBadgeGrupo.
-var _POSSTOCK_BADGE_GRUPOS = {
+const _POSSTOCK_BADGE_GRUPOS = {
     // C1 · Stock negativo
     "Recepción no registrada": "C1",
     "Timing recepción": "C1",
@@ -309,7 +309,7 @@ var _POSSTOCK_BADGE_GRUPOS = {
 };
 
 // Etiquetas de grupo para la barra visual
-var _POSSTOCK_GRUPOS_LABEL = {
+const _POSSTOCK_GRUPOS_LABEL = {
     C1: "C1 · Neg.",
     C2: "C2 · Sobrestock",
     C3: "C3 · Rotación",
@@ -322,7 +322,7 @@ var _POSSTOCK_GRUPOS_LABEL = {
     C6: "C6 · Pedido",
     Otros: "Otros",
 };
-var _POSSTOCK_GRUPOS_ORDEN = [
+const _POSSTOCK_GRUPOS_ORDEN = [
     "C1",
     "C2",
     "C3",
@@ -338,7 +338,7 @@ var _POSSTOCK_GRUPOS_ORDEN = [
 
 // Orden explícito dentro de cada grupo.
 // '|' = separador visual de subgrupo (estado / severidad / calidad dato / etc.)
-var _POSSTOCK_GRUPO_ORDEN_BADGES = {
+const _POSSTOCK_GRUPO_ORDEN_BADGES = {
     C1: [
         "Recepción no registrada",
         "Timing recepción",
@@ -403,7 +403,7 @@ var _POSSTOCK_GRUPO_ORDEN_BADGES = {
 };
 
 // Mapeo data-tipo (valor exacto del HTML) → grupo del filtro.
-var _POSSTOCK_TIPO_A_GRUPO = {
+const _POSSTOCK_TIPO_A_GRUPO = {
     "Inventario en negativo": "C1",
     "Desajuste Puntual de Stock": "C1",
     "Entrada con stock alto": "C2",
@@ -427,7 +427,7 @@ var _POSSTOCK_TIPO_A_GRUPO = {
  */
 function _posstockBadgeGrupo(badge, badgeGruposReales) {
     // 1. Si en la tabla actual el badge solo aparece en filas de un grupo → ese grupo
-    var reales = badgeGruposReales ? badgeGruposReales[badge] || [] : [];
+    const reales = badgeGruposReales ? badgeGruposReales[badge] || [] : [];
     if (reales.length === 1) return reales[0];
 
     // 2. Mapa estático para badges no ambiguos o cuando aparecen en varios grupos
@@ -448,19 +448,19 @@ function _posstockBadgeGrupo(badge, badgeGruposReales) {
  * Ciclo al hacer clic: 0 → 1 → 2 → 0
  */
 function _posstockIniciarFiltroBadges() {
-    var filas = document.querySelectorAll(
+    const filas = document.querySelectorAll(
         "#posstockTablaWrap tbody tr[data-badges]",
     );
     if (!filas.length) return;
 
     // Recopilar badges únicos y, por cada badge, qué grupos (data-tipo → grupo) tiene en la tabla
-    var badgesSet = {};
-    var badgeGruposReales = {};
-    var haySinBadge = false;
+    const badgesSet = {};
+    const badgeGruposReales = {};
+    let haySinBadge = false;
     filas.forEach(function (tr) {
-        var val = tr.getAttribute("data-badges") || "";
-        var tipo = tr.getAttribute("data-tipo") || "";
-        var grupoFila = _POSSTOCK_TIPO_A_GRUPO[tipo] || null;
+        let val = tr.getAttribute("data-badges") || "";
+        const tipo = tr.getAttribute("data-tipo") || "";
+        const grupoFila = _POSSTOCK_TIPO_A_GRUPO[tipo] || null;
         if (val === "") {
             haySinBadge = true;
         } else {
@@ -479,12 +479,12 @@ function _posstockIniciarFiltroBadges() {
         badgeGruposReales[b] = Object.keys(badgeGruposReales[b]);
     });
 
-    var badges = Object.keys(badgesSet).sort();
+    const badges = Object.keys(badgesSet).sort();
     if (!badges.length && !haySinBadge) return;
 
     // Restaurar estados guardados o inicializar a neutral
-    var prefs = _posstockCargarPrefs();
-    var savedStates = prefs.badgeStates || {};
+    const prefs = _posstockCargarPrefs();
+    const savedStates = prefs.badgeStates || {};
     window._posstockBadgeStates = {};
     badges.forEach(function (b) {
         window._posstockBadgeStates[b] = savedStates[b] || 0;
@@ -496,25 +496,25 @@ function _posstockIniciarFiltroBadges() {
 
     // ── Construir barra ──────────────────────────────────────────────────
     if (!document.getElementById("posstockFiltroBadgesStyle")) {
-        var st = document.createElement("style");
+        const st = document.createElement("style");
         st.id = "posstockFiltroBadgesStyle";
         st.textContent = "#posstockFiltroBadges .btn { margin: 0 !important; }";
         document.head.appendChild(st);
     }
-    var barra = document.createElement("div");
+    const barra = document.createElement("div");
     barra.id = "posstockFiltroBadges";
     barra.style.cssText =
         "margin-bottom:10px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; padding:6px 8px;";
 
-    var cabecera = document.createElement("div");
+    const cabecera = document.createElement("div");
     cabecera.style.cssText =
         "display:flex; align-items:center; gap:6px; margin-bottom:6px;";
-    var lblFiltro = document.createElement("span");
+    const lblFiltro = document.createElement("span");
     lblFiltro.className = "text-muted small";
     lblFiltro.style.fontWeight = "bold";
     lblFiltro.textContent = "Filtrar por badge:";
     cabecera.appendChild(lblFiltro);
-    var btnReset = document.createElement("button");
+    const btnReset = document.createElement("button");
     btnReset.type = "button";
     btnReset.className = "btn btn-xs btn-default";
     btnReset.setAttribute("data-badge-filtro", "__todos__");
@@ -531,37 +531,37 @@ function _posstockIniciarFiltroBadges() {
     cabecera.appendChild(btnReset);
     barra.appendChild(cabecera);
 
-    var porGrupo = {};
+    const porGrupo = {};
     badges.forEach(function (b) {
-        var g = _posstockBadgeGrupo(b, badgeGruposReales);
+        const g = _posstockBadgeGrupo(b, badgeGruposReales);
         if (!porGrupo[g]) porGrupo[g] = [];
         porGrupo[g].push(b);
     });
 
-    var filaGrupos = document.createElement("div");
+    const filaGrupos = document.createElement("div");
     filaGrupos.style.cssText =
         "display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start;";
 
     _POSSTOCK_GRUPOS_ORDEN.forEach(function (grupo) {
         if (!porGrupo[grupo]) return;
-        var bloque = document.createElement("div");
+        const bloque = document.createElement("div");
         bloque.style.cssText =
             "display:inline-flex; align-items:stretch; background:#fff; border:1px solid #e0e0e0; border-radius:3px; overflow:hidden;";
-        var etq = document.createElement("span");
+        const etq = document.createElement("span");
         etq.className = "text-muted";
         etq.style.cssText =
             "display:flex; align-items:center; font-size:10px; font-weight:bold; white-space:nowrap; padding:0 6px 0 7px; border-right:1px solid #e0e0e0; background:#f5f5f5;";
         etq.textContent = _POSSTOCK_GRUPOS_LABEL[grupo] || grupo;
-        var cuerpo = document.createElement("div");
+        const cuerpo = document.createElement("div");
         cuerpo.style.cssText =
             "display:flex; align-items:center; flex-wrap:wrap; gap:3px; padding:3px 7px;";
         bloque.appendChild(etq);
 
-        var ordenExplicito = _POSSTOCK_GRUPO_ORDEN_BADGES[grupo] || [];
-        var yaRenderizados = {};
+        const ordenExplicito = _POSSTOCK_GRUPO_ORDEN_BADGES[grupo] || [];
+        const yaRenderizados = {};
         ordenExplicito.forEach(function (b) {
             if (b === "|") {
-                var sep = document.createElement("span");
+                const sep = document.createElement("span");
                 sep.style.cssText =
                     "display:inline-block; width:1px; height:14px; background:#ddd; margin:0 2px; align-self:center; flex-shrink:0;";
                 cuerpo.appendChild(sep);
@@ -582,7 +582,7 @@ function _posstockIniciarFiltroBadges() {
     });
 
     if (haySinBadge) {
-        var bloqueSin = document.createElement("div");
+        const bloqueSin = document.createElement("div");
         bloqueSin.style.cssText =
             "display:inline-flex; align-items:center; gap:3px; background:#fff; border:1px solid #e0e0e0; border-radius:3px; padding:3px 7px;";
         bloqueSin.appendChild(_crearBtnBadge("__sinbadge__", filas, barra));
@@ -591,8 +591,8 @@ function _posstockIniciarFiltroBadges() {
 
     barra.appendChild(filaGrupos);
 
-    var wrap = document.getElementById("posstockTablaWrap");
-    var tabla = wrap ? wrap.querySelector("table") : null;
+    const wrap = document.getElementById("posstockTablaWrap");
+    const tabla = wrap ? wrap.querySelector("table") : null;
     if (tabla) wrap.insertBefore(barra, tabla);
 
     _aplicarFiltroBadges(filas);
@@ -600,14 +600,14 @@ function _posstockIniciarFiltroBadges() {
 }
 
 function _crearBtnBadge(badge, filas, barra) {
-    var btn = document.createElement("button");
+    const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "btn btn-xs btn-default";
     btn.setAttribute("data-badge-filtro", badge);
     btn.textContent = badge === "__sinbadge__" ? "Sin badge" : badge;
     btn.title = "Clic: neutro → incluir (verde) → excluir (rojo) → neutro";
     btn.onclick = function () {
-        var cur = window._posstockBadgeStates[badge] || 0;
+        const cur = window._posstockBadgeStates[badge] || 0;
         window._posstockBadgeStates[badge] = (cur + 1) % 3;
         _aplicarFiltroBadges(filas);
         _actualizarBotonesEstado(barra);
@@ -622,27 +622,27 @@ function _crearBtnBadge(badge, filas, barra) {
  * Actualiza window._posstockFilasVisibles para CSV/PDF filtrado.
  */
 function _aplicarFiltroBadges(filas) {
-    var states = window._posstockBadgeStates || {};
-    var incluidosBadges = Object.keys(states).filter(function (b) {
+    let states = window._posstockBadgeStates || {};
+    const incluidosBadges = Object.keys(states).filter(function (b) {
         return b !== "__sinbadge__" && states[b] === 1;
     });
-    var excluidosBadges = Object.keys(states).filter(function (b) {
+    const excluidosBadges = Object.keys(states).filter(function (b) {
         return b !== "__sinbadge__" && states[b] === 2;
     });
-    var sinBadgeState = states["__sinbadge__"] || 0;
-    var hayInclusiones = incluidosBadges.length > 0 || sinBadgeState === 1;
+    const sinBadgeState = states["__sinbadge__"] || 0;
+    const hayInclusiones = incluidosBadges.length > 0 || sinBadgeState === 1;
 
     filas.forEach(function (tr) {
         if (tr.hasAttribute("data-prov-header")) return;
-        var val = tr.getAttribute("data-badges") || "";
-        var rowBadges =
+        const val = tr.getAttribute("data-badges") || "";
+        const rowBadges =
             val === ""
                 ? []
                 : val.split("|").map(function (b) {
                       return b.trim();
                   });
-        var esSinBadge = val === "";
-        var mostrar = true;
+        const esSinBadge = val === "";
+        let mostrar = true;
 
         // 1. Exclusiones (prioridad máxima)
         if (esSinBadge) {
@@ -679,18 +679,18 @@ function _aplicarFiltroBadges(filas) {
 }
 
 function _actualizarBotonesEstado(barra) {
-    var states = window._posstockBadgeStates || {};
-    var hayFiltro = Object.keys(states).some(function (b) {
+    const states = window._posstockBadgeStates || {};
+    const hayFiltro = Object.keys(states).some(function (b) {
         return states[b] !== 0;
     });
     barra.querySelectorAll("[data-badge-filtro]").forEach(function (btn) {
-        var b = btn.getAttribute("data-badge-filtro");
+        const b = btn.getAttribute("data-badge-filtro");
         if (b === "__todos__") {
             btn.className =
                 "btn btn-xs " + (hayFiltro ? "btn-warning" : "btn-default");
             return;
         }
-        var estado = states[b] || 0;
+        const estado = states[b] || 0;
         btn.className =
             "btn btn-xs " +
             (estado === 1

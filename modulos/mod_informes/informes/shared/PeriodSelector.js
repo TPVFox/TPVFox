@@ -16,27 +16,27 @@ import { cargarDatosPosstock, _posstockMostrarError } from "../posstock/Posstock
  * También habilita/deshabilita el botón Generar.
  */
 function posstockActualizarNumero(mantenerNumero) {
-    var tipo = document.getElementById("posstockTipo").value;
-    var anio = parseInt(document.getElementById("posstockAnio").value, 10);
-    var sel = document.getElementById("posstockNumero");
+    let tipo = document.getElementById("posstockTipo").value;
+    let anio = parseInt(document.getElementById("posstockAnio").value, 10);
+    let sel = document.getElementById("posstockNumero");
 
-    var prevNumero = mantenerNumero && sel.value ? sel.value : null;
+    const prevNumero = mantenerNumero && sel.value ? sel.value : null;
 
     sel.innerHTML = "";
     sel.disabled = true;
     document.getElementById("posstockBtnGenerar").disabled = true;
     document.getElementById("posstockAvisoVentana").style.display = "none";
 
-    var barra = document.getElementById("posstockBarraBotones");
+    const barra = document.getElementById("posstockBarraBotones");
     if (barra) barra.style.display = "none";
-    var wrapBotones = document.getElementById("posstockBotonesPeriodo");
+    const wrapBotones = document.getElementById("posstockBotonesPeriodo");
     if (wrapBotones) wrapBotones.innerHTML = "";
 
-    var labelEl = document.getElementById("posstockLabelNumero");
+    const labelEl = document.getElementById("posstockLabelNumero");
     if (labelEl)
         labelEl.textContent = tipo === "anual" ? "Tipo de análisis" : "Periodo";
 
-    var filaCasos = document.getElementById("posstockFilaCasos");
+    const filaCasos = document.getElementById("posstockFilaCasos");
     if (filaCasos) filaCasos.style.display = tipo === "anual" ? "none" : "";
 
     if (!tipo || !anio) return;
@@ -54,7 +54,7 @@ function posstockActualizarNumero(mantenerNumero) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            let resultado = JSON.parse(response);
             if (resultado.error) return;
             sel.innerHTML =
                 '<option value="">— seleccionar —</option>' +
@@ -62,7 +62,7 @@ function posstockActualizarNumero(mantenerNumero) {
             sel.disabled = false;
 
             if (prevNumero) {
-                for (var i = 0; i < sel.options.length; i++) {
+                for (let i = 0; i < sel.options.length; i++) {
                     if (
                         String(sel.options[i].value) === String(prevNumero) &&
                         !sel.options[i].disabled
@@ -84,9 +84,9 @@ function posstockActualizarNumero(mantenerNumero) {
  * y si es válido carga los datos y pinta la barra de botones.
  */
 function posstockGenerar() {
-    var tipo = document.getElementById("posstockTipo").value;
-    var numero = document.getElementById("posstockNumero").value;
-    var anio = document.getElementById("posstockAnio").value;
+    let tipo = document.getElementById("posstockTipo").value;
+    const numero = document.getElementById("posstockNumero").value;
+    let anio = document.getElementById("posstockAnio").value;
 
     if (!tipo || !numero || !anio) return;
 
@@ -100,7 +100,7 @@ function posstockGenerar() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var periodo = JSON.parse(response);
+            let periodo = JSON.parse(response);
             if (periodo.error) {
                 _posstockMostrarError(
                     "Error al calcular periodo: " + periodo.error,
@@ -108,15 +108,15 @@ function posstockGenerar() {
                 return;
             }
 
-            var tipoInc = tipo === "anual" ? numero : "";
-            var _enVentana = false;
+            const tipoInc = tipo === "anual" ? numero : "";
+            let _enVentana = false;
 
             if (window.POSSTOCK_VENTANA_DIAS > 0) {
-                var hoy = new Date();
+                const hoy = new Date();
                 hoy.setHours(0, 0, 0, 0);
-                var limite = new Date(hoy);
+                const limite = new Date(hoy);
                 limite.setDate(limite.getDate() - window.POSSTOCK_VENTANA_DIAS);
-                var ffMov = new Date(periodo.fecha_fin_movimientos);
+                const ffMov = new Date(periodo.fecha_fin_movimientos);
                 if (ffMov >= limite) {
                     document.getElementById(
                         "posstockAvisoVentana",
@@ -167,9 +167,9 @@ function _posstockCargarBarraPeriodos(tipo, numeroActivo, enVentana) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            const resultado = JSON.parse(response);
             if (resultado.error) return;
-            var wrap = document.getElementById("posstockBotonesPeriodo");
+            const wrap = document.getElementById("posstockBotonesPeriodo");
             if (wrap) {
                 wrap.innerHTML = resultado.html || "";
                 document.getElementById("posstockBarraBotones").style.display =
@@ -183,8 +183,8 @@ function _posstockCargarBarraPeriodos(tipo, numeroActivo, enVentana) {
  * Navega a otro periodo desde la barra sin necesidad de pulsar "Generar".
  */
 function posstockNavegar(numero) {
-    var tipo = window.posstockTipoActivo;
-    var anio = window.posstockAnioActivo;
+    const tipo = window.posstockTipoActivo;
+    const anio = window.posstockAnioActivo;
     if (!tipo || !anio) return;
 
     if (tipo === "anual") {
@@ -193,13 +193,13 @@ function posstockNavegar(numero) {
         document.querySelectorAll("[id^='posstockBtn_']").forEach(function (b) {
             if (!b.disabled) b.className = "btn btn-default btn-xs";
         });
-        var btnActivo = document.getElementById("posstockBtn_" + numero);
+        const btnActivo = document.getElementById("posstockBtn_" + numero);
         if (btnActivo) btnActivo.className = "btn btn-primary btn-xs";
         cargarDatosPosstock(window.posstockPeriodoActivo, numero);
         return;
     }
 
-    var btn = document.getElementById("posstockBtn_" + numero);
+    let btn = document.getElementById("posstockBtn_" + numero);
     if (btn && btn.disabled) return;
 
     document.querySelectorAll("[id^='posstockBtn_']").forEach(function (b) {
@@ -217,7 +217,7 @@ function posstockNavegar(numero) {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var periodo = JSON.parse(response);
+            const periodo = JSON.parse(response);
             if (periodo.error) {
                 _posstockMostrarError(periodo.error);
                 return;
@@ -235,10 +235,10 @@ function posstockNavegar(numero) {
 
 // Habilitar botón Generar cuando se elige número de periodo
 document.addEventListener("DOMContentLoaded", function () {
-    var sel = document.getElementById("posstockNumero");
+    const sel = document.getElementById("posstockNumero");
     if (sel) {
         sel.addEventListener("change", function () {
-            var btn = document.getElementById("posstockBtnGenerar");
+            const btn = document.getElementById("posstockBtnGenerar");
             if (btn) btn.disabled = this.value === "";
         });
     }

@@ -15,7 +15,7 @@ import { _posstockMostrarError } from "./PosstockLoader.js";
 
 window.posstockFamiliasIncluir = [];
 window.posstockFamiliasExcluir = [];
-var _posstockFamiliasCache = null;
+let _posstockFamiliasCache = null;
 
 function posstockAbrirFiltroFamilias() {
     $.ajax({
@@ -31,7 +31,7 @@ function posstockAbrirFiltroFamilias() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            let resultado = JSON.parse(response);
             if (resultado.error) {
                 _posstockMostrarError(
                     "Error al cargar familias: " + resultado.error,
@@ -49,9 +49,9 @@ function posstockAbrirFiltroFamilias() {
 
 /** Agrega una familia a la tabla incluir/excluir del modal. */
 function posstockAgregarFamilia(lista) {
-    var input = document.getElementById("posstockBuscar_" + lista);
-    var val = input ? input.value.trim() : "";
-    var encontrado = null;
+    let input = document.getElementById("posstockBuscar_" + lista);
+    let val = input ? input.value.trim() : "";
+    let encontrado = null;
 
     (_posstockFamiliasCache || []).forEach(function (f) {
         if (f.nombre.toLowerCase() === val.toLowerCase()) encontrado = f;
@@ -66,17 +66,17 @@ function posstockAgregarFamilia(lista) {
         });
     }
 
-    var wrapErr = document.getElementById("posstockFamiliaError_" + lista);
+    let wrapErr = document.getElementById("posstockFamiliaError_" + lista);
     if (!encontrado) {
         if (wrapErr) wrapErr.textContent = "Familia no encontrada: " + val;
         return;
     }
     if (wrapErr) wrapErr.textContent = "";
 
-    var tabla = document.querySelector("#posstockTabla_" + lista + " tbody");
-    var rows = tabla ? Array.from(tabla.querySelectorAll("tr")) : [];
+    const tabla = document.querySelector("#posstockTabla_" + lista + " tbody");
+    let filas = tabla ? Array.from(tabla.querySelectorAll("tr")) : [];
     if (
-        rows.some(function (r) {
+        filas.some(function (r) {
             return parseInt(r.dataset.id) === encontrado.id;
         })
     ) {
@@ -106,7 +106,7 @@ function posstockAplicarFiltroFamilias() {
 }
 
 function _leerTablaFamilias(lista) {
-    var rows = document.querySelectorAll(
+    let filas = document.querySelectorAll(
         "#posstockTabla_" + lista + " tbody tr",
     );
     return Array.from(rows).map(function (r) {
@@ -115,10 +115,10 @@ function _leerTablaFamilias(lista) {
 }
 
 function _posstockActualizarBadgeFiltro() {
-    var badge = document.getElementById("posstockFiltroLabel");
+    let badge = document.getElementById("posstockFiltroLabel");
     if (!badge) return;
-    var nInc = (window.posstockFamiliasIncluir || []).length;
-    var nExc = (window.posstockFamiliasExcluir || []).length;
+    const nInc = (window.posstockFamiliasIncluir || []).length;
+    const nExc = (window.posstockFamiliasExcluir || []).length;
     if (nInc > 0) {
         badge.className = "label label-success";
         badge.textContent = nInc + " incluidas";
@@ -156,7 +156,7 @@ window.posstockAplicarFiltroFamilias = posstockAplicarFiltroFamilias;
 
 window.posstockProveedoresIncluir = [];
 window.posstockProveedorTodosProductos = false;
-var _posstockProveedoresCache = null;
+let _posstockProveedoresCache = null;
 
 function posstockAbrirFiltroProveedores() {
     $.ajax({
@@ -172,7 +172,7 @@ function posstockAbrirFiltroProveedores() {
         url: "tareas.php",
         type: "post",
         success: function (response) {
-            var resultado = JSON.parse(response);
+            const resultado = JSON.parse(response);
             if (resultado.error) {
                 _posstockMostrarError(
                     "Error al cargar proveedores: " + resultado.error,
@@ -191,9 +191,9 @@ function posstockAbrirFiltroProveedores() {
 }
 
 function posstockAgregarProveedor() {
-    var input = document.getElementById("posstockBuscarProveedor");
-    var val = input ? input.value.trim() : "";
-    var encontrado = null;
+    const input = document.getElementById("posstockBuscarProveedor");
+    const val = input ? input.value.trim() : "";
+    let encontrado = null;
 
     (_posstockProveedoresCache || []).forEach(function (p) {
         if (p.nombre.toLowerCase() === val.toLowerCase()) encontrado = p;
@@ -208,17 +208,17 @@ function posstockAgregarProveedor() {
         });
     }
 
-    var wrapErr = document.getElementById("posstockProveedorError");
+    const wrapErr = document.getElementById("posstockProveedorError");
     if (!encontrado) {
         if (wrapErr) wrapErr.textContent = "Proveedor no encontrado: " + val;
         return;
     }
     if (wrapErr) wrapErr.textContent = "";
 
-    var tbody = document.querySelector("#posstockTablaProveedores tbody");
-    var rows = tbody ? Array.from(tbody.querySelectorAll("tr")) : [];
+    let tbody = document.querySelector("#posstockTablaProveedores tbody");
+    const filas = tbody ? Array.from(tbody.querySelectorAll("tr")) : [];
     if (
-        rows.some(function (r) {
+        filas.some(function (r) {
             return parseInt(r.dataset.id) === encontrado.id;
         })
     ) {
@@ -239,7 +239,7 @@ function posstockEliminarProveedor(boton) {
 }
 
 function posstockAplicarFiltroProveedores() {
-    var tbody = document.querySelector("#posstockTablaProveedores tbody");
+    const tbody = document.querySelector("#posstockTablaProveedores tbody");
     window.posstockProveedoresIncluir = tbody
         ? Array.from(tbody.querySelectorAll("tr")).map(function (r) {
               return {
@@ -248,16 +248,16 @@ function posstockAplicarFiltroProveedores() {
               };
           })
         : [];
-    var chk = document.getElementById("posstockChkTodosProductos");
+    const chk = document.getElementById("posstockChkTodosProductos");
     window.posstockProveedorTodosProductos = chk ? chk.checked : false;
     _posstockActualizarBadgeProveedores();
     cerrarModal();
 }
 
 function _posstockActualizarBadgeProveedores() {
-    var badge = document.getElementById("posstockFiltroProveedorLabel");
+    const badge = document.getElementById("posstockFiltroProveedorLabel");
     if (!badge) return;
-    var n = (window.posstockProveedoresIncluir || []).length;
+    const n = (window.posstockProveedoresIncluir || []).length;
     if (n > 0) {
         badge.className = "label label-success";
         badge.textContent = n + " " + (n === 1 ? "proveedor" : "proveedores");
