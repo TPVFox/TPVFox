@@ -35,47 +35,52 @@ class PosstockC4Detector
         array  $familias_excluir = [],
         bool   $c5_incluir_stock_negativo = false
     ): array {
-        $fi    = $this->db->real_escape_string($fi_año);
-        $ff    = $this->db->real_escape_string($ff_mov);
+        $fechaInicio = $this->db->real_escape_string($fi_año);
+        $fechaFin    = $this->db->real_escape_string($ff_mov);
 
         // Filtro de familias sobre la tabla articulos (alias 'a')
-        $where_familia = '';
+        $filtroFamiliasSql = '';
         if (!empty($familias_incluir)) {
-            $ids_fam = $this->repo->expandirFamilias($familias_incluir);
-            if ($ids_fam) $where_familia .= " AND a.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+            $idsFamilias = $this->repo->expandirFamilias($familias_incluir);
+            if ($idsFamilias) $filtroFamiliasSql .= " AND a.idArticulo IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($idsFamilias))";
         }
         if (!empty($familias_excluir)) {
-            $ids_fam = $this->repo->expandirFamilias($familias_excluir);
-            if ($ids_fam) $where_familia .= " AND a.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids_fam))";
+            $idsFamilias = $this->repo->expandirFamilias($familias_excluir);
+            if ($idsFamilias) $filtroFamiliasSql .= " AND a.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($idsFamilias))";
         }
 
         // Paso 1: todos los artículos físicos (con filtro de familia)
-        $rows_fisicos = $this->repo->queryArticulosFisicos($where_familia);
-        if (isset($rows_fisicos['error'])) return $rows_fisicos;
+        $filasArticulosFisicos = $this->repo->queryArticulosFisicos($filtroFamiliasSql);
+        if (isset($filasArticulosFisicos['error'])) return $filasArticulosFisicos;
 
-        $todos_ids = array_map(fn($r) => (int)$r['idArticulo'], $rows_fisicos);
-        if (empty($todos_ids)) return [];
+        $idsArticulosFisicos = array_map(fn($filaArticulo) => (int)$filaArticulo['idArticulo'], $filasArticulosFisicos);
+        if (empty($idsArticulosFisicos)) return [];
 
         // Paso 2: artículos con cualquier movimiento (los 3 tipos) en [fi_año, ff_mov]
-        $rows_con_mov = $this->repo->queryIdsConMovimientoC4($fi, $ff);
-        if (isset($rows_con_mov['error'])) return $rows_con_mov;
+        $filasArticulosConMovimiento = $this->repo->queryIdsConMovimientoC4($fechaInicio, $fechaFin);
+        if (isset($filasArticulosConMovimiento['error'])) return $filasArticulosConMovimiento;
 
-        $con_movimiento = [];
-        foreach ($rows_con_mov as $r) $con_movimiento[(int)$r['idArticulo']] = true;
+        $articulosConMovimiento = [];
+        foreach ($filasArticulosConMovimiento as $filaMovimiento) {
+            $articulosConMovimiento[(int)$filaMovimiento['idArticulo']] = true;
+        }
 
         // Diff en PHP: artículos físicos (con familia) sin ningún movimiento en el año
-        $sin_movimiento = array_values(array_filter($todos_ids, fn($id) => !isset($con_movimiento[$id])));
-        if (empty($sin_movimiento)) return [];
+        $idsSinMovimiento = array_values(array_filter(
+            $idsArticulosFisicos,
+            fn($idArticulo) => !isset($articulosConMovimiento[$idArticulo])
+        ));
+        if (empty($idsSinMovimiento)) return [];
 
         // Paso 3: stock en el momento del análisis (fecha ff_mov) via rebobinado
-        $ids_str    = implode(',', array_map('intval', $sin_movimiento));
-        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, $c5_incluir_stock_negativo);
-        if (isset($rows_stock['error'])) return $rows_stock;
+        $idsArticulosCsv = implode(',', array_map('intval', $idsSinMovimiento));
+        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFin, $c5_incluir_stock_negativo);
+        if (isset($filasStock['error'])) return $filasStock;
 
         $resultado = [];
-        foreach ($rows_stock as $row) {
-            $resultado[(int)$row['idArticulo']] = [
-                'saldo_acumulado' => (float)$row['stock_en_periodo'],
+        foreach ($filasStock as $filaStock) {
+            $resultado[(int)$filaStock['idArticulo']] = [
+                'saldo_acumulado' => (float)$filaStock['stock_en_periodo'],
                 'ultima_compra'   => null,
                 'ultima_venta'    => null,
             ];
@@ -92,16 +97,16 @@ class PosstockC4Detector
      */
     public function formatearIncidencias(array $articulos): array
     {
-        $rows = [];
-        foreach ($articulos as $id => $art) {
-            $rows[] = [
-                'idArticulo'    => (int)$id,
+        $filasIncidencia = [];
+        foreach ($articulos as $idArticulo => $articulo) {
+            $filasIncidencia[] = [
+                'idArticulo'    => (int)$idArticulo,
                 'tipo'          => 'Stock Inactivo en Periodo',
                 'severidad'     => 'BAJA',
-                'stock_actual'  => $art['saldo_acumulado'],
+                'stock_actual'  => $articulo['saldo_acumulado'],
                 'posible_causa' => 'Stock sin actividad en el periodo',
             ];
         }
-        return $rows;
+        return $filasIncidencia;
     }
 }
