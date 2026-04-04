@@ -101,7 +101,7 @@ class ClaseInformes extends TFModelo
         $fechaFinal   = $db->real_escape_string($parametros['Ffinal']);
         $idsStr       = implode(',', array_map('intval', $ids));
 
-        // ── Bulk Query 1: todos los albaranes de todos los proveedores ──────
+                // Consulta masiva de cabeceras de albarán para evitar consultas por proveedor.
         $sentenciaAlbaranes = $db->query("
             SELECT id AS idalbpro, idProveedor
             FROM albprot
@@ -123,7 +123,6 @@ class ClaseInformes extends TFModelo
         if (!empty($allAlbIds)) {
             $albStr = implode(',', $allAlbIds);
 
-            // ── Bulk Query 2: líneas para todos los albaranes ───────────────
             $sentenciaLineas = $db->query("
                 SELECT idalbpro, idArticulo, costeSiva,
                        SUM(nunidades) AS totalUnidades
@@ -136,7 +135,6 @@ class ClaseInformes extends TFModelo
                 $productosByAlb[(int)$fila['idalbpro']][] = $fila;
             }
 
-            // ── Bulk Query 3: resumenBases para todos los albaranes ─────────
             $sentenciaResumen = $db->query("
                 SELECT i.iva, i.totalbase, i.importeIva,
                        t.id AS idalbpro, t.Su_numero, t.idTienda, t.estado,
@@ -155,7 +153,6 @@ class ClaseInformes extends TFModelo
             }
         }
 
-        // ── Construir $todosProveedores con la misma estructura que antes ──
         foreach ($todosProveedores as $key => $proveedor) {
             $idProveedor    = (int)$proveedor['idProveedor'];
             $albIds = $albIdsByProveedor[$idProveedor] ?? [];
@@ -223,11 +220,6 @@ class ClaseInformes extends TFModelo
 
     public function SumaProductosTodosProveedores($LineasProductos)
     {
-        $totalProductos = 0;
-        $totalLineas = 0;
-        /* $cdetalleArray = $this->ObtenerIdsArray($LineasProductos,'cdetalle');
-        array_multisort($cdetalleArray, SORT_ASC, $LineasProductos); */
-
         $Productos = [];
         foreach ($LineasProductos as $producto) {
             $id_producto = $producto['idArticulo'];
