@@ -112,9 +112,21 @@ class PosstockC7aAnalyzer
         $cascade_nivel_act   = 1;
 
         static $t_tab_nw = [
-            1 => 6.314, 2 => 2.920, 3 => 2.353, 4 => 2.132,  5 => 2.015,
-            6 => 1.943, 7 => 1.895, 8 => 1.860, 9 => 1.833, 10 => 1.812,
-            15 => 1.753, 20 => 1.725, 30 => 1.697, 60 => 1.671, 120 => 1.658,
+            1 => 6.314,
+            2 => 2.920,
+            3 => 2.353,
+            4 => 2.132,
+            5 => 2.015,
+            6 => 1.943,
+            7 => 1.895,
+            8 => 1.860,
+            9 => 1.833,
+            10 => 1.812,
+            15 => 1.753,
+            20 => 1.725,
+            30 => 1.697,
+            60 => 1.671,
+            120 => 1.658,
         ];
 
         while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
@@ -159,9 +171,9 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-            // ═══════════════════════════════════════════════════════════════
-            // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99
-            // ═══════════════════════════════════════════════════════════════
+                // ═══════════════════════════════════════════════════════════════
+                // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99
+                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 2) {
                 if ($n_floors < 8) {
                     $fallback_reason   = ($fallback_reason ? $fallback_reason . '; ' : '')
@@ -226,9 +238,9 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-            // ═══════════════════════════════════════════════════════════════
-            // NIVEL 3 · MANN-KENDALL + HAMED & RAO
-            // ═══════════════════════════════════════════════════════════════
+                // ═══════════════════════════════════════════════════════════════
+                // NIVEL 3 · MANN-KENDALL + HAMED & RAO
+                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 3) {
                 if ($n_floors < 4 || $n_floors > 20) {
                     $fallback_reason   = ($fallback_reason ? $fallback_reason . '; ' : '')
@@ -278,9 +290,9 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-            // ═══════════════════════════════════════════════════════════════
-            // NIVEL 4 · TEST DE SIGNO BINOMIAL
-            // ═══════════════════════════════════════════════════════════════
+                // ═══════════════════════════════════════════════════════════════
+                // NIVEL 4 · TEST DE SIGNO BINOMIAL
+                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 4) {
                 $n_diffs = $n_floors - 1;
                 if ($n_diffs > 0) {
@@ -357,24 +369,25 @@ class PosstockC7aAnalyzer
     ): string {
         if ($es_posible_subcaso) return 'BAJA';   // C7a_posible siempre BAJA
 
-        static $sev_tab = [
+        static $tablaSeveridad = [
             'alta'    => ['both' => 'ALTA',  'analysis' => 'ALTA',  'base' => 'MEDIA'],
             'media'   => ['both' => 'ALTA',  'analysis' => 'MEDIA', 'base' => 'MEDIA'],
             'posible' => ['both' => 'MEDIA', 'analysis' => 'MEDIA', 'base' => 'BAJA'],
         ];
-        static $sev_num  = ['ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
-        static $sev_name = [2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
+        static $severidadANivel = ['ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
+        static $nivelASeveridad = [2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
 
-        $col      = $test_period ?? 'analysis';
-        $sev_base = $sev_tab[$confianza][$col] ?? 'BAJA';
-        $nivel    = $sev_num[$sev_base];
+        $periodoEvaluado = $test_period ?? 'analysis';
+        $severidadBase   = $tablaSeveridad[$confianza][$periodoEvaluado] ?? 'BAJA';
+        $nivelSeveridad  = $severidadANivel[$severidadBase];
 
-        $umbral_alta_delta = ($tipo_art === 'peso') ? $umbral_alta_delta_peso : $umbral_alta_delta_unidad;
-        $umbral_alta_slope = ($tipo_art === 'peso') ? $umbral_alta_slope_peso : $umbral_alta_slope_unidad;
+        $umbralDeltaAlto = ($tipo_art === 'peso') ? $umbral_alta_delta_peso : $umbral_alta_delta_unidad;
+        $umbralSlopeAlto = ($tipo_art === 'peso') ? $umbral_alta_slope_peso : $umbral_alta_slope_unidad;
 
-        if ($delta_total < $umbral_alta_delta && $tendencia_visible < $umbral_alta_slope) {
-            $nivel--;
+        if ($delta_total < $umbralDeltaAlto && $tendencia_visible < $umbralSlopeAlto) {
+            $nivelSeveridad--;
         }
-        return $sev_name[max(0, $nivel)];
+
+        return $nivelASeveridad[max(0, $nivelSeveridad)];
     }
 }
