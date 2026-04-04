@@ -344,27 +344,16 @@ class ClasePosstock
         $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
         $ids_filter          = (array) ($params['ids_filter']       ?? []);
 
-        // ── Filtro de proveedores → intersectar article IDs ───────────────────
-        // ids_proveedor_filter: pre-resueltos por getIncidenciasBatch (evita doble query).
-        // proveedores_incluir: IDs de proveedor raw (cuando se llama directamente).
-        $ids_proveedor_filter = (array)($params['ids_proveedor_filter'] ?? []);
-        if (empty($ids_proveedor_filter)) {
-            $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
-            if (!empty($proveedores_incluir)) {
-                $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
-                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
-                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
-                $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
-                if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
-            }
-        }
-        if (!empty($ids_proveedor_filter)) {
-            if (!empty($ids_filter)) {
-                $ids_filter = array_values(array_intersect($ids_filter, $ids_proveedor_filter));
-                if (empty($ids_filter)) return []; // intersección vacía
-            } else {
-                $ids_filter = $ids_proveedor_filter;
-            }
+        $filtroProveedor = $this->resolverIdsFiltroConProveedores($params, $ids_filter);
+        if (isset($filtroProveedor['error'])) return $filtroProveedor;
+        if (!empty($filtroProveedor['sin_resultados'])) return [];
+        $ids_filter = $filtroProveedor['ids_filter'];
+
+        $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
+        if (!empty($filtroProveedor['ids_proveedor_filter'])) {
+            $ids_proveedor_filter = $filtroProveedor['ids_proveedor_filter'];
+        } else {
+            $ids_proveedor_filter = [];
         }
 
         // casos_incluir [] = todos los casos activos excepto C4
@@ -991,6 +980,43 @@ class ClasePosstock
             'ids_proveedor_filter' => $ids_proveedor_filter,
             'ids_proveedor_filter_c6b' => $ids_proveedor_filter_c6b,
             'sin_articulos' => $sin_articulos,
+        ];
+    }
+
+    private function resolverIdsFiltroConProveedores(array $params, array $idsFilterInicial): array
+    {
+        // ids_proveedor_filter: pre-resueltos por getIncidenciasBatch (evita doble query).
+        // proveedores_incluir: IDs de proveedor raw (cuando se llama directamente).
+        $idsProveedorFilter = (array)($params['ids_proveedor_filter'] ?? []);
+        if (empty($idsProveedorFilter)) {
+            $proveedoresIncluir = (array)($params['proveedores_incluir'] ?? []);
+            if (!empty($proveedoresIncluir)) {
+                $idsProveedoresCsv = implode(',', array_map('intval', $proveedoresIncluir));
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
+                $idsProveedorFilter = array_column($filasArticulosProv, 'idArticulo');
+                if (empty($idsProveedorFilter)) {
+                    return ['ids_filter' => [], 'ids_proveedor_filter' => [], 'sin_resultados' => true];
+                }
+            }
+        }
+
+        $idsFilterFinal = $idsFilterInicial;
+        if (!empty($idsProveedorFilter)) {
+            if (!empty($idsFilterFinal)) {
+                $idsFilterFinal = array_values(array_intersect($idsFilterFinal, $idsProveedorFilter));
+                if (empty($idsFilterFinal)) {
+                    return ['ids_filter' => [], 'ids_proveedor_filter' => $idsProveedorFilter, 'sin_resultados' => true];
+                }
+            } else {
+                $idsFilterFinal = $idsProveedorFilter;
+            }
+        }
+
+        return [
+            'ids_filter' => $idsFilterFinal,
+            'ids_proveedor_filter' => $idsProveedorFilter,
+            'sin_resultados' => false,
         ];
     }
 
