@@ -84,14 +84,13 @@ class PosstockC7Detector
         $subcasos_set    = array_flip($subcasos);
         $min_recepciones = 2;
 
-        $fi     = $this->db->real_escape_string($fi_mov);
-        $ff     = $this->db->real_escape_string($ff_mov);
+        $fechaFinEsc     = $this->db->real_escape_string($ff_mov);
         $fechaInicioStockEsc = $this->db->real_escape_string($fi_stock);
         $filtroFamiliasSql     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql     = $this->repo->idsWhere($ids_filter);
 
         // ── Paso 1: recepciones en ventana extendida fi_stock→ff_mov ─────────
-        $filasRecepciones = $this->repo->queryRecepcionesFechasC7($fechaInicioStockEsc, $ff, $filtroFamiliasSql, $filtroArticulosSql);
+        $filasRecepciones = $this->repo->queryRecepcionesFechasC7($fechaInicioStockEsc, $fechaFinEsc, $filtroFamiliasSql, $filtroArticulosSql);
         if (isset($filasRecepciones['error'])) return $filasRecepciones;
         if (empty($filasRecepciones)) return [];
 
@@ -129,7 +128,7 @@ class PosstockC7Detector
             }
         }
 
-        $filasTimeline = $this->repo->queryTimelineMovimientosC7($fechaInicioStockEsc, $ff, $idsArticulosCsv);
+        $filasTimeline = $this->repo->queryTimelineMovimientosC7($fechaInicioStockEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($filasTimeline['error'])) return $filasTimeline;
 
         $daily_map = [];
@@ -137,7 +136,7 @@ class PosstockC7Detector
             $daily_map[(int)$fila['idArticulo']][$fila['fecha']] = (float)$fila['day_delta'];
         }
 
-        $has_albcli_ids = $this->repo->queryHasAlbcliC7($fechaInicioStockEsc, $ff, $idsArticulosCsv);
+        $has_albcli_ids = $this->repo->queryHasAlbcliC7($fechaInicioStockEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($has_albcli_ids['error'])) $has_albcli_ids = [];
 
         // ── Paso 3: analizar por artículo ─────────────────────────────────────
@@ -505,8 +504,8 @@ class PosstockC7Detector
             if (!empty($idsC7aEnriquecer)) {
                 $fechaInicioStockEsc = $this->db->real_escape_string($fi_stock);
                 $idsC7aCsv  = implode(',', array_map('intval', $idsC7aEnriquecer));
-                $prov_map     = $this->repo->queryProveedorArticulos($idsC7aCsv, $fechaInicioStockEsc, $ff);
-                $precio_map   = $this->repo->queryPrecioMedioCompra($idsC7aCsv, $fechaInicioStockEsc, $ff);
+                $prov_map     = $this->repo->queryProveedorArticulos($idsC7aCsv, $fechaInicioStockEsc, $fechaFinEsc);
+                $precio_map   = $this->repo->queryPrecioMedioCompra($idsC7aCsv, $fechaInicioStockEsc, $fechaFinEsc);
                 foreach ($incidencias as &$inc) {
                     $sub = $inc['c7_subcaso'] ?? '';
                     if ($sub !== 'C7a' && $sub !== 'C7a_posible') continue;
@@ -535,8 +534,8 @@ class PosstockC7Detector
             if (!empty($ids_c7b)) {
                 $fechaInicioStockEsc = $this->db->real_escape_string($fi_stock);
                 $idsC7bCsv  = implode(',', array_map('intval', $ids_c7b));
-                $prov_map     = $this->repo->queryProveedorArticulos($idsC7bCsv, $fechaInicioStockEsc, $ff);
-                $precio_map   = $this->repo->queryPrecioMedioCompra($idsC7bCsv, $fechaInicioStockEsc, $ff);
+                $prov_map     = $this->repo->queryProveedorArticulos($idsC7bCsv, $fechaInicioStockEsc, $fechaFinEsc);
+                $precio_map   = $this->repo->queryPrecioMedioCompra($idsC7bCsv, $fechaInicioStockEsc, $fechaFinEsc);
                 foreach ($incidencias as &$inc) {
                     if (!str_starts_with($inc['c7_subcaso'] ?? '', 'C7b')) continue;
                     $prov = $prov_map[$inc['idArticulo']] ?? null;
@@ -592,11 +591,11 @@ class PosstockC7Detector
         $familias_excluir = (array)($params['familias_excluir'] ?? []);
 
         $fechaInicioStockEsc = $this->db->real_escape_string($fi_stock);
-        $ff     = $this->db->real_escape_string($ff_mov);
+        $fechaFinEsc     = $this->db->real_escape_string($ff_mov);
         $filtroFamiliasSql     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql     = $this->repo->idsWhere($ids_all);
 
-        $filasRecepciones = $this->repo->queryRecepcionesFechasC7($fechaInicioStockEsc, $ff, $filtroFamiliasSql, $filtroArticulosSql);
+        $filasRecepciones = $this->repo->queryRecepcionesFechasC7($fechaInicioStockEsc, $fechaFinEsc, $filtroFamiliasSql, $filtroArticulosSql);
         if (isset($filasRecepciones['error'])) return $filasRecepciones;
         if (empty($filasRecepciones)) return ['cruces' => []];
 
@@ -611,7 +610,7 @@ class PosstockC7Detector
         }
 
         $idsArticulosCsv   = implode(',', $ids_all);
-        $filasTimeline   = $this->repo->queryTimelineMovimientosC7($fechaInicioStockEsc, $ff, $idsArticulosCsv);
+        $filasTimeline   = $this->repo->queryTimelineMovimientosC7($fechaInicioStockEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($filasTimeline['error'])) return $filasTimeline;
 
         $daily_map = [];

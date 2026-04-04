@@ -90,7 +90,7 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot      c ON c.id         = l.idalbpro
                 INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado       IN ('Guardado', 'Facturado')
                   AND l.estadoLinea  = 'Activo'
                   $where_familia
@@ -106,7 +106,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst     c ON c.id         = l.idticketst
                 INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado       = 'Cerrado'
                   AND l.estadoLinea  = 'Activo'
                   $where_familia
@@ -122,7 +122,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit      c ON c.id         = l.idalbcli
                 INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado       IN ('Guardado', 'Procesado')
                   AND l.estadoLinea  = 'Activo'
                   $where_familia
@@ -164,7 +164,7 @@ class PosstockQueryRepository
                     DATE(c.Fecha)                       AS fecha
                 FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
@@ -179,7 +179,7 @@ class PosstockQueryRepository
                     DATE(c.Fecha)                       AS fecha
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
@@ -194,7 +194,7 @@ class PosstockQueryRepository
                     DATE(c.Fecha)                       AS fecha
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      IN ('Guardado', 'Procesado')
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
@@ -240,19 +240,19 @@ class PosstockQueryRepository
             SELECT DISTINCT idArticulo FROM (
                 SELECT l.idArticulo FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
                   AND l.estadoLinea = 'Activo'
                 UNION
                 SELECT l.idArticulo FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 UNION
                 SELECT l.idArticulo FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado', 'Procesado')
                   AND l.estadoLinea = 'Activo'
             ) AS movs_año
@@ -268,17 +268,17 @@ class PosstockQueryRepository
     // ══════════════════════════════════════════════════════════════════════════
 
     /**
-     * C4/C5 — Stock rebobinado desde articulosStocks.stockOn hasta ff_esc.
+     * C4/C5 — Stock rebobinado desde articulosStocks.stockOn hasta fechaFinEsc.
      *
      * @param string $ids_str        IN-clause de idArticulo ya preparado
-     * @param string $ff_esc         Fecha fin escapada ('YYYY-MM-DD')
+     * @param string $fechaFinEsc         Fecha fin escapada ('YYYY-MM-DD')
      * @param bool   $solo_positivos Si true, filtra HAVING stock > 0 (usado en C4)
      *
      * @return array  Filas raw (idArticulo, stock_en_periodo) o ['error' => ...]
      */
     public function queryStockRebobinado(
         string $ids_str,
-        string $ff_esc,
+        string $fechaFinEsc,
         bool   $solo_positivos = false
     ): array {
         $having = $solo_positivos ? 'HAVING stock_en_periodo > 0' : '';
@@ -297,21 +297,21 @@ class PosstockQueryRepository
                 FROM (
                     SELECT l.idArticulo,  l.nunidades AS nunidades_signo
                     FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
-                    WHERE DATE(c.Fecha) > '$ff_esc'
+                    WHERE DATE(c.Fecha) > '$fechaFinEsc'
                       AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
                     UNION ALL
                     SELECT l.idArticulo, -l.nunidades AS nunidades_signo
                     FROM ticketslinea l INNER JOIN ticketst c ON c.id = l.idticketst
-                    WHERE DATE(c.Fecha) > '$ff_esc'
+                    WHERE DATE(c.Fecha) > '$fechaFinEsc'
                       AND c.estado = 'Cerrado'
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
                     UNION ALL
                     SELECT l.idArticulo, -l.nunidades AS nunidades_signo
                     FROM albclilinea l INNER JOIN albclit c ON c.id = l.idalbcli
-                    WHERE DATE(c.Fecha) > '$ff_esc'
+                    WHERE DATE(c.Fecha) > '$fechaFinEsc'
                       AND c.estado IN ('Guardado','Procesado')
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
@@ -348,7 +348,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit   c ON c.id = l.idalbcli
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                   $where_fam
@@ -359,7 +359,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst  c ON c.id = l.idticketst
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   $where_fam
@@ -381,8 +381,8 @@ class PosstockQueryRepository
      */
     public function queryVentasPostPeriodoC5(
         string $ids_str,
-        string $fi_esc,
-        string $ff_esc,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         bool   $incluir_albcli = false
     ): array {
         $union_albcli = $incluir_albcli ? "
@@ -391,7 +391,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'" : '';
 
@@ -402,7 +402,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fi_esc' AND '$ff_esc'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 $union_albcli
@@ -442,7 +442,7 @@ class PosstockQueryRepository
                     FROM ticketslinea l
                     INNER JOIN ticketst  c ON c.id = l.idticketst
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                             AND c.estado = 'Cerrado'
                                             AND l.estadoLinea = 'Activo'
                                             $where_fam
@@ -452,7 +452,7 @@ class PosstockQueryRepository
                     FROM albclilinea l
                     INNER JOIN albclit   c ON c.id = l.idalbcli
                     INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                             AND c.estado IN ('Guardado','Procesado')
                                             AND l.estadoLinea = 'Activo'
                                             $where_fam
@@ -467,7 +467,7 @@ class PosstockQueryRepository
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id = l.idticketst
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                     AND c.estado = 'Cerrado'
                                     AND l.estadoLinea = 'Activo'
                                     $where_fam
@@ -492,7 +492,7 @@ class PosstockQueryRepository
         $sentencia = $this->db->query("
             SELECT idProveedor, DATE(Fecha) AS fecha_albaran
             FROM albprot
-            WHERE DATE(Fecha) BETWEEN '$fi' AND '$ff'
+            WHERE DATE(Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND estado       IN ('Guardado','Facturado','Exportado','Importado')
               AND idProveedor  IN ($ids_prov)
             GROUP BY idProveedor, DATE(Fecha)
@@ -509,7 +509,7 @@ class PosstockQueryRepository
      *
      * @return array  [idArticulo => stock_reconstituido] o ['error' => ...]
      */
-    public function queryStockReconstituido(string $ids_str, string $ff_esc): array
+    public function queryStockReconstituido(string $ids_str, string $fechaFinEsc): array
     {
         $sentencia = $this->db->query("
             SELECT e.idArticulo,
@@ -530,14 +530,14 @@ class PosstockQueryRepository
                 WHERE ult.rn = 1
             ) e
             LEFT JOIN (
-                -- Ventas por ticket hasta ff_esc (sin albcli: solo salidas reales de caja)
+                -- Ventas por ticket hasta fechaFinEsc (sin albcli: solo salidas reales de caja)
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha_venta, l.nunidades
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids_str)
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
-                  AND DATE(c.Fecha) <= '$ff_esc'
+                  AND DATE(c.Fecha) <= '$fechaFinEsc'
             ) v ON v.idArticulo = e.idArticulo
                 AND v.fecha_venta >= e.fecha_entrada
             GROUP BY e.idArticulo, e.nunidades_entrada
@@ -610,7 +610,7 @@ class PosstockQueryRepository
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
@@ -633,7 +633,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 GROUP BY l.idArticulo
@@ -642,7 +642,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                 GROUP BY l.idArticulo
@@ -725,7 +725,7 @@ class PosstockQueryRepository
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_stock' AND '$ff'
+              AND DATE(c.Fecha) BETWEEN '$fi_stock' AND '$fechaFinEsc'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo, c.idProveedor
@@ -777,7 +777,7 @@ class PosstockQueryRepository
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
               AND l.nunidades       > 0
@@ -829,7 +829,7 @@ class PosstockQueryRepository
                                 FROM albprolinea l
                                 INNER JOIN albprot    c ON c.id        = l.idalbpro
                                 INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                   AND c.estado      IN ('Guardado','Facturado')
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -838,7 +838,7 @@ class PosstockQueryRepository
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id        = l.idticketst
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                   AND c.estado      = 'Cerrado'
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -847,7 +847,7 @@ class PosstockQueryRepository
                                 FROM albclilinea l
                                 INNER JOIN albclit   c ON c.id        = l.idalbcli
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                                   AND c.estado      IN ('Guardado','Procesado')
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -890,7 +890,7 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
                   AND l.nunidades       > 0
@@ -910,7 +910,7 @@ class PosstockQueryRepository
                         FROM albprolinea l
                         INNER JOIN albprot    c ON c.id        = l.idalbpro
                         INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                           AND c.estado      IN ('Guardado','Facturado')
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -919,7 +919,7 @@ class PosstockQueryRepository
                         FROM ticketslinea l
                         INNER JOIN ticketst  c ON c.id        = l.idticketst
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                           AND c.estado      = 'Cerrado'
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -928,7 +928,7 @@ class PosstockQueryRepository
                         FROM albclilinea l
                         INNER JOIN albclit   c ON c.id        = l.idalbcli
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                           AND c.estado      IN ('Guardado','Procesado')
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -956,7 +956,7 @@ class PosstockQueryRepository
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
             WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND c.estado      = 'Cerrado'
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
@@ -986,7 +986,7 @@ class PosstockQueryRepository
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$fi'
+              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$fechaInicioEsc'
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
               AND l.nunidades       > 0
@@ -1005,7 +1005,7 @@ class PosstockQueryRepository
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
             WHERE l.idArticulo IN ($ids_str)
-              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$ff'
+              AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$fechaFinEsc'
               AND c.estado      = 'Cerrado'
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo, DATE(c.Fecha)
@@ -1159,7 +1159,7 @@ class PosstockQueryRepository
             FROM albprolinea l
             INNER JOIN albprot c  ON c.id = l.idalbpro
             INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea = 'Activo'
               AND l.nunidades > 0
@@ -1187,7 +1187,7 @@ class PosstockQueryRepository
             SELECT DISTINCT l.idArticulo
             FROM albclilinea l
             INNER JOIN albclit a ON a.id = l.idalbcli
-            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+            WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND a.estado IN ('Guardado','Procesado')
               AND l.idArticulo IN ($ids_str)
         ";
@@ -1216,7 +1216,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades AS delta
                 FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
@@ -1224,7 +1224,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(t.Fecha) AS fecha, -l.nunidades AS delta
                 FROM ticketslinea l
                 INNER JOIN ticketst t ON t.id = l.idticketst
-                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(t.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND t.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
@@ -1232,7 +1232,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(a.Fecha) AS fecha, -l.nunidades AS delta
                 FROM albclilinea l
                 INNER JOIN albclit a ON a.id = l.idalbcli
-                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND a.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
@@ -1320,18 +1320,18 @@ class PosstockQueryRepository
         $ff_post = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$dias_post days"))
         );
-        $ff_esc = $this->db->real_escape_string($ff_mov);
+        $fechaFinEsc = $this->db->real_escape_string($ff_mov);
         $sql = "
             SELECT
                 l.idArticulo,
                 DATE(c.Fecha)            AS fecha,
                 SUM(l.nunidades)         AS cantidad,
-                DATE(c.Fecha) > '$ff_esc' AS es_post_periodo
+                DATE(c.Fecha) > '$fechaFinEsc' AS es_post_periodo
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN articulos   a ON a.idArticulo  = l.idArticulo
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
+            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$ff_post'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    > 0
@@ -1367,7 +1367,7 @@ class PosstockQueryRepository
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff_post'
+            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$ff_post'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    < 0
@@ -1401,7 +1401,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.nunidades AS delta
                 FROM ticketslinea l
                 INNER JOIN ticketst t ON t.id = l.idticketst
-                WHERE DATE(t.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(t.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND t.estado       = 'Cerrado'
                   AND l.estadoLinea  = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
@@ -1410,7 +1410,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit  a  ON a.id         = l.idalbcli
                 INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-                WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND a.estado       IN ('Guardado','Procesado')
                   AND l.estadoLinea  = 'Activo'
                   AND cl.estado     != 'Especial'
@@ -1447,7 +1447,7 @@ class PosstockQueryRepository
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND p.estado       = 'Especial'
@@ -1483,7 +1483,7 @@ class PosstockQueryRepository
             FROM albclilinea l
             INNER JOIN albclit  a  ON a.id         = l.idalbcli
             INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-            WHERE DATE(a.Fecha) BETWEEN '$fi' AND '$ff'
+            WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
               AND a.estado      IN ('Guardado','Procesado')
               AND l.estadoLinea  = 'Activo'
               AND cl.estado      = 'Especial'
@@ -1576,7 +1576,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
                   AND l.estadoLinea = 'Activo'
                   $where_fam $where_prov
@@ -1584,7 +1584,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   $where_fam $where_prov
@@ -1592,7 +1592,7 @@ class PosstockQueryRepository
                 SELECT l.idArticulo FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
+                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                   $where_fam $where_prov
