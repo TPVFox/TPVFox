@@ -143,40 +143,46 @@ class PosstockC5Detector
         // Para semana/quincena/mes se amplía ±1 periodo preservando estacionalidad.
         // ff_mov sigue siendo el límite de detección y rebobinado de stock.
         $ff_stats = $ff_stats ?: $ff_mov;
-        $fi   = $this->db->real_escape_string($fi_stats);
-        $ff   = $this->db->real_escape_string($ff_mov);
-        $ff_stats_esc = $this->db->real_escape_string($ff_stats);
+        $fechaInicioEstadistica = $this->db->real_escape_string($fi_stats);
+        $fechaFinMovimientos    = $this->db->real_escape_string($ff_mov);
+        $fechaFinEstadistica    = $this->db->real_escape_string($ff_stats);
 
-        $where_fam = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
-        $where_ids = $this->repo->idsWhere($ids_filter);
+        $filtroFamiliasSql = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $filtroArticulosSql = $this->repo->idsWhere($ids_filter);
 
         // Paso 1: fechas de venta únicas por artículo físico (ventana estadística fi_stats→ff_stats)
-        $rows_ventas = $this->repo->queryVentasFechasC5($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli);
-        if (isset($rows_ventas['error'])) return $rows_ventas;
-        if (empty($rows_ventas)) return [];
+        $filasVentas = $this->repo->queryVentasFechasC5(
+            $fechaInicioEstadistica,
+            $fechaFinEstadistica,
+            $filtroFamiliasSql,
+            $filtroArticulosSql,
+            $incluir_albcli
+        );
+        if (isset($filasVentas['error'])) return $filasVentas;
+        if (empty($filasVentas)) return [];
 
-        $ventas_fechas = [];
-        foreach ($rows_ventas as $r) {
-            $ventas_fechas[(int)$r['idArticulo']][$r['fecha']] = true;
+        $mapaFechasVenta = [];
+        foreach ($filasVentas as $filaVenta) {
+            $mapaFechasVenta[(int)$filaVenta['idArticulo']][$filaVenta['fecha']] = true;
         }
 
         // Paso 2: stock en ff_mov via rebobinado desde articulosStocks.stockOn
-        $ids_str = implode(',', array_keys($ventas_fechas));
-        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, false);
-        if (isset($rows_stock['error'])) return $rows_stock;
+        $idsArticulosCsv = implode(',', array_keys($mapaFechasVenta));
+        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinMovimientos, false);
+        if (isset($filasStock['error'])) return $filasStock;
 
-        $stock_actual = [];
-        foreach ($rows_stock as $r) {
-            $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        $stockActualPorArticulo = [];
+        foreach ($filasStock as $filaStock) {
+            $stockActualPorArticulo[(int)$filaStock['idArticulo']] = (float)$filaStock['stock_en_periodo'];
         }
 
         // Si no se incluye stock negativo, excluir artículos con stock_actual < 0
         // (ya aparecen en C1 como stock negativo; KO requiere stock > 0 de todas formas)
         if (!$c5_incluir_stock_negativo) {
-            $ventas_fechas = array_filter(
-                $ventas_fechas,
-                function ($_, $id) use ($stock_actual) {
-                    return ($stock_actual[$id] ?? 0.0) >= 0;
+            $mapaFechasVenta = array_filter(
+                $mapaFechasVenta,
+                function ($_, $id) use ($stockActualPorArticulo) {
+                    return ($stockActualPorArticulo[$id] ?? 0.0) >= 0;
                 },
                 ARRAY_FILTER_USE_BOTH
             );
@@ -189,8 +195,8 @@ class PosstockC5Detector
         $periodo_dias = max(1, (int)round((strtotime($ff_stats) - strtotime($fi_stats)) / 86400) + 1);
         $incidencias  = [];
 
-        foreach ($ventas_fechas as $id => $fechas_map) {
-            $sa = $stock_actual[$id] ?? 0.0;
+        foreach ($mapaFechasVenta as $id => $fechas_map) {
+            $sa = $stockActualPorArticulo[$id] ?? 0.0;
             $ff_stats_ts = strtotime($ff_stats);
             $roturas = match ($modelo) {
                 'automatico' => PosstockStatistics::autoDispatch(
@@ -291,14 +297,14 @@ class PosstockC5Detector
 
         // Añadir nombres
         if (!empty($incidencias)) {
-            $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-            $smt = $this->db->query(
-                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+            $idsIncidenciasCsv = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $resultadoConsulta = $this->db->query(
+                "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
             );
             $nombres = [];
-            if ($smt) {
-                while ($r = $smt->fetch_assoc()) {
-                    $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+            if ($resultadoConsulta) {
+                while ($filaNombre = $resultadoConsulta->fetch_assoc()) {
+                    $nombres[(int)$filaNombre['idArticulo']] = $filaNombre['articulo_name'];
                 }
             }
             foreach ($incidencias as &$inc) {
