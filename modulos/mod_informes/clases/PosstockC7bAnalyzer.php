@@ -117,9 +117,21 @@ class PosstockC7bAnalyzer
         $r1                   = 0.0;
 
         static $t_975_tab = [
-            1 => 12.706, 2 => 4.303, 3 => 3.182, 4 => 2.776,  5 => 2.571,
-            6 =>  2.447, 7 => 2.365, 8 => 2.306, 9 => 2.262, 10 => 2.228,
-            15 => 2.131, 20 => 2.086, 30 => 2.042, 60 => 2.000, 120 => 1.980,
+            1 => 12.706,
+            2 => 4.303,
+            3 => 3.182,
+            4 => 2.776,
+            5 => 2.571,
+            6 =>  2.447,
+            7 => 2.365,
+            8 => 2.306,
+            9 => 2.262,
+            10 => 2.228,
+            15 => 2.131,
+            20 => 2.086,
+            30 => 2.042,
+            60 => 2.000,
+            120 => 1.980,
         ];
 
         // ═══════════════════════════════════════════════════════════════════
@@ -357,24 +369,24 @@ class PosstockC7bAnalyzer
         int    $umbral_sev_unidad = 5,
         float  $umbral_sev_peso   = 2.5
     ): string {
-        static $sev_tab = [
+        static $tablaSeveridad = [
             'alta'    => ['A' => 'CRITICA', 'B' => 'ALTA',  'C' => 'ALTA'],
             'media'   => ['A' => 'ALTA',    'B' => 'ALTA',  'C' => 'MEDIA'],
             'posible' => ['A' => 'ALTA',    'B' => 'MEDIA', 'C' => 'MEDIA'],
         ];
-        static $sev_num  = ['CRITICA' => 3, 'ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
-        static $sev_name = [3 => 'CRITICA', 2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
+        static $severidadANivel = ['CRITICA' => 3, 'ALTA' => 2, 'MEDIA' => 1, 'BAJA' => 0];
+        static $nivelASeveridad = [3 => 'CRITICA', 2 => 'ALTA', 1 => 'MEDIA', 0 => 'BAJA'];
 
-        $sev_base = $sev_tab[$confianza][$cobertura] ?? 'BAJA';
-        $nivel    = $sev_num[$sev_base];
+        $severidadBase = $tablaSeveridad[$confianza][$cobertura] ?? 'BAJA';
+        $nivelSeveridad = $severidadANivel[$severidadBase];
 
-        $mag_small = ($tipo_art === 'peso')
+        $magnitudPequena = ($tipo_art === 'peso')
             ? ($abs_mean_raw < $umbral_sev_peso)
             : ($abs_mean_raw < $umbral_sev_unidad);
 
-        if ($mag_small)    $nivel--;
-        if ($pct_neg < 50) $nivel--;
+        if ($magnitudPequena) $nivelSeveridad--;
+        if ($pct_neg < 50)    $nivelSeveridad--;
 
-        return $sev_name[max(0, $nivel)];
+        return $nivelASeveridad[max(0, $nivelSeveridad)];
     }
 }
