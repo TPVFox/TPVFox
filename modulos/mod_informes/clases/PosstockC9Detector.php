@@ -263,25 +263,7 @@ class PosstockC9Detector
         $n_deficit = 0;
 
         // Pre-computar qué lotes tienen déficit inicial (antes de cualquier redistribución)
-        $lotes_deficit = [];
-        for ($i = $n - 1; $i >= 0; $i--) {
-            if ($lotes[$i]['S_t'] < 0.0) $lotes_deficit[] = $i;
-        }
-
-        // Helper: estadísticas de una ventana de intervalos (mu, sigma)
-        $stats_ventana = static function (array $deltas, int $t, int $k): array {
-            $win_ini = max(1, $t - $k - 1);
-            $win_fin = $t; // deltas[$t] = intervalo entre lote t-1 y t
-            $window  = [];
-            for ($i = $win_ini; $i <= $win_fin; $i++) {
-                if (isset($deltas[$i])) $window[] = $deltas[$i];
-            }
-            if (empty($window)) return ['mu' => PHP_INT_MAX, 'sigma' => 0.0];
-            $mu  = array_sum($window) / count($window);
-            $sq  = array_map(fn($d) => ($d - $mu) ** 2, $window);
-            $sig = count($window) > 1 ? sqrt(array_sum($sq) / count($window)) : 0.0;
-            return ['mu' => $mu, 'sigma' => $sig];
-        };
+        $lotes_deficit = $this->obtenerIndicesLotesDeficitInicial($lotes);
 
         // LIFO inverso: solo procesar lotes con déficit original (no cascadas)
         foreach ($lotes_deficit as $t) {
@@ -291,7 +273,7 @@ class PosstockC9Detector
             $n_deficit++;
 
             // Threshold local: mu/sigma de la ventana de k+1 intervalos antes del lote t
-            $st = $stats_ventana($deltas, $t, $k);
+            $st = $this->calcularEstadisticasVentanaDeltas($deltas, $t, $k);
             $threshold_local = $st['mu'] + $lambda * $st['sigma'];
 
             // Calcular pesos para los k lotes anteriores
@@ -331,6 +313,36 @@ class PosstockC9Detector
         }
 
         return ['lotes' => $lotes, 'trace' => $trace, 'n_deficit' => $n_deficit];
+    }
+
+    private function obtenerIndicesLotesDeficitInicial(array $lotes): array
+    {
+        $indicesDeficit = [];
+        for ($i = count($lotes) - 1; $i >= 0; $i--) {
+            if ($lotes[$i]['S_t'] < 0.0) $indicesDeficit[] = $i;
+        }
+        return $indicesDeficit;
+    }
+
+    private function calcularEstadisticasVentanaDeltas(array $deltas, int $indiceLote, int $profundidad): array
+    {
+        $ventanaInicio = max(1, $indiceLote - $profundidad - 1);
+        $ventanaFin    = $indiceLote; // deltas[$indiceLote] = intervalo entre lote indiceLote-1 y indiceLote
+        $ventana = [];
+
+        for ($i = $ventanaInicio; $i <= $ventanaFin; $i++) {
+            if (isset($deltas[$i])) $ventana[] = $deltas[$i];
+        }
+
+        if (empty($ventana)) {
+            return ['mu' => PHP_INT_MAX, 'sigma' => 0.0];
+        }
+
+        $media = array_sum($ventana) / count($ventana);
+        $cuadrados = array_map(fn($delta) => ($delta - $media) ** 2, $ventana);
+        $sigma = count($ventana) > 1 ? sqrt(array_sum($cuadrados) / count($ventana)) : 0.0;
+
+        return ['mu' => $media, 'sigma' => $sigma];
     }
 
     /**
