@@ -592,12 +592,12 @@ class PosstockQueryRepository
 
         $sentencia = $this->db->query("
             SELECT l.idArticulo,
-                   COUNT(*)           AS n_entradas,
-                   MAX(DATE(c.Fecha)) AS ultima_entrada
+                   COUNT(DISTINCT c.id) AS n_entradas,
+                   MAX(DATE(c.Fecha))   AS ultima_entrada
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+              AND c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
@@ -620,7 +620,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                  AND c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado      = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 GROUP BY l.idArticulo
@@ -629,7 +629,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 WHERE l.idArticulo IN ($ids)
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                  AND c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado      IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                 GROUP BY l.idArticulo
@@ -653,6 +653,9 @@ class PosstockQueryRepository
      * C1b — Confirma hipótesis de timing: entrada de proveedor dentro de $ventana_dias
      * días posteriores a la fecha en que el balance fue mínimo.
      *
+     * Implementación mediante tabla temporal + JOIN para evitar la explosión de
+     * cláusulas OR que degrada el plan de ejecución con muchos artículos C1b (C1-024).
+     *
      * @param array $id_fecha_map  [idArticulo => 'YYYY-MM-DD' (fecha_minimo), ...]
      * @return array  Set de idArticulo con timing confirmado [idArticulo => true]
      */
@@ -660,24 +663,46 @@ class PosstockQueryRepository
     {
         if (empty($id_fecha_map)) return [];
 
-        $condicionesPorArticulo = [];
+        // Filtrar entradas sin fecha y escapar valores
+        $filas_tmp = [];
         foreach ($id_fecha_map as $idArticulo => $fechaMinimo) {
-            $condicionArticulo = $this->construirCondicionTimingArticulo($idArticulo, $fechaMinimo, $ventana_dias);
-            if ($condicionArticulo === null) continue;
-            $condicionesPorArticulo[] = $condicionArticulo;
+            if (empty($fechaMinimo)) continue;
+            $id      = (int)$idArticulo;
+            $fi      = $this->db->real_escape_string((string)$fechaMinimo);
+            $ff      = $this->db->real_escape_string(
+                date('Y-m-d', strtotime($fechaMinimo . " +{$ventana_dias} days"))
+            );
+            $filas_tmp[] = "($id, '$fi 00:00:00', DATE_ADD('$ff', INTERVAL 1 DAY))";
         }
 
-        if (empty($condicionesPorArticulo)) return [];
+        if (empty($filas_tmp)) return [];
 
-        $where_or = implode(' OR ', $condicionesPorArticulo);
+        $this->db->query('DROP TEMPORARY TABLE IF EXISTS tmp_timing_c1b');
+        $this->db->query('
+            CREATE TEMPORARY TABLE tmp_timing_c1b (
+                idArticulo INT NOT NULL,
+                fi_timing  DATETIME NOT NULL,
+                ff_timing  DATETIME NOT NULL,
+                PRIMARY KEY (idArticulo)
+            ) ENGINE=MEMORY
+        ');
+        $this->db->query(
+            'INSERT INTO tmp_timing_c1b (idArticulo, fi_timing, ff_timing) VALUES '
+            . implode(',', $filas_tmp)
+        );
+
         $sentencia = $this->db->query("
             SELECT DISTINCT l.idArticulo
             FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE ($where_or)
+            INNER JOIN albprot        c ON c.id          = l.idalbpro
+            INNER JOIN tmp_timing_c1b t ON t.idArticulo  = l.idArticulo
+            WHERE c.Fecha >= t.fi_timing AND c.Fecha < t.ff_timing
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
         ");
+
+        $this->db->query('DROP TEMPORARY TABLE IF EXISTS tmp_timing_c1b');
+
         if (!$sentencia) return [];
 
         $resultado = [];
@@ -792,7 +817,7 @@ class PosstockQueryRepository
         $sql = "
             SELECT idArticulo, SUM(day_delta) AS delta_total, MIN(cum_sum) AS min_running,
                    MIN(CASE WHEN rn_min = 1 THEN fecha END) AS fecha_minimo,
-                   SUM(CASE WHEN cum_sum = min_per_art THEN 1 ELSE 0 END) AS dias_en_minimo,
+                   SUM(CASE WHEN ABS(cum_sum - min_per_art) < 1e-9 THEN 1 ELSE 0 END) AS dias_en_minimo,
                    SUM(CASE WHEN cum_sum < 0 THEN 1 ELSE 0 END) AS dias_en_negativo
             FROM (
                 SELECT idArticulo, fecha, day_delta, cum_sum, min_per_art,
@@ -812,7 +837,7 @@ class PosstockQueryRepository
                                 FROM albprolinea l
                                 INNER JOIN albprot    c ON c.id        = l.idalbpro
                                 INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                                WHERE c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                                   AND c.estado      IN ('Guardado','Facturado')
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -821,7 +846,7 @@ class PosstockQueryRepository
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id        = l.idticketst
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                                WHERE c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                                   AND c.estado      = 'Cerrado'
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -830,7 +855,7 @@ class PosstockQueryRepository
                                 FROM albclilinea l
                                 INNER JOIN albclit   c ON c.id        = l.idalbcli
                                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                                WHERE c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                                   AND c.estado      IN ('Guardado','Procesado')
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
@@ -1682,7 +1707,7 @@ class PosstockQueryRepository
         $fechaFinVentana = date('Y-m-d', strtotime((string)$fechaMinimo . " +{$ventanaDias} days"));
         $fechaFinEscapada = $this->db->real_escape_string($fechaFinVentana);
 
-        return "(l.idArticulo = $idArticuloEscapado AND DATE(c.Fecha) BETWEEN '$fechaInicioEscapada' AND '$fechaFinEscapada')";
+        return "(l.idArticulo = $idArticuloEscapado AND c.Fecha >= '$fechaInicioEscapada 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEscapada', INTERVAL 1 DAY))";
     }
 
     private function buscarRecepcionAnterior(array $recepcionesPorArticulo, string $fechaActual): ?array

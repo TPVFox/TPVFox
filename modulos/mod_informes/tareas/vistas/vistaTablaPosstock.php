@@ -144,7 +144,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $nEnt1b   = isset($f['n_entradas']) && $f['n_entradas'] !== null ? (int)$f['n_entradas'] : null;
 
             if (!empty($f['timing_proximo'])) {
-                $badges1b .= ' <span class="label label-info" title="Entrada de proveedor registrada en los 3 días siguientes al momento del negativo: probable venta registrada antes que la recepción.">Timing recepción</span>';
+                $badges1b .= ' <span class="label label-info" title="Entrada de proveedor registrada poco después del momento del negativo: probable venta registrada antes que la recepción.">Timing recepción</span>';
             }
             if (!empty($f['fraccionado_es_causa'])) {
                 $badges1b .= ' <span class="label label-info" title="El mínimo negativo se explica por acumulación de imprecisiones en ventas por peso o fraccionado.">Stock decimal</span>';

@@ -177,9 +177,10 @@ class PosstockC1Detector
             ? $this->repo->queryDetalleC1(implode(',', $idsIncidencias), $fechaInicio, $fechaFin)
             : [];
 
-        // Proveedor habitual y último para C1a (rango anual para tener datos suficientes)
-        $mapaProveedores = !empty($idsC1a)
-            ? $this->repo->queryProveedorArticulos(implode(',', $idsC1a), $fechaInicioStock, $fechaFin)
+        // Proveedor habitual y último para C1a + C1b (rango anual para datos suficientes en períodos cortos)
+        $idsParaProveedor = array_merge($idsC1a, $idsC1b);
+        $mapaProveedores  = !empty($idsParaProveedor)
+            ? $this->repo->queryProveedorArticulos(implode(',', $idsParaProveedor), $fechaInicioStock, $fechaFin)
             : [];
 
         if (!empty($idsC1a)) {
@@ -240,6 +241,13 @@ class PosstockC1Detector
                 $incidencia['n_entradas']     = $numeroEntradas;
                 $incidencia['ultima_entrada'] = $detalleArticulo['ultima_entrada'] ?? null;
                 $incidencia['n_ventas']       = $detalleArticulo['n_ventas']       ?? 0;
+
+                $datosProveedor = $mapaProveedores[$incidencia['idArticulo']] ?? null;
+                $incidencia['prov_habitual_nombre'] = $datosProveedor['prov_habitual_nombre'] ?? null;
+                $incidencia['prov_habitual_n']      = $datosProveedor['prov_habitual_n']      ?? null;
+                $incidencia['prov_ultimo_nombre']   = $datosProveedor['prov_ultimo_nombre']   ?? null;
+                $incidencia['prov_ultima_fecha']    = $datosProveedor['prov_ultima_fecha']    ?? null;
+                $incidencia['prov_es_mismo']        = $datosProveedor['prov_es_mismo']        ?? null;
                 // Refinar fraccionado_es_causa con n_ventas
                 if ($incidencia['fraccionado_es_causa']) {
                     $umbralFraccionado = $umbral_por_venta * max(1, $incidencia['n_ventas']);
