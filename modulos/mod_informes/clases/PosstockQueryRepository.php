@@ -27,16 +27,16 @@ class PosstockQueryRepository
     {
         if (empty($ids)) return '';
         $in = implode(',', array_map('intval', $ids));
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT DISTINCT idFamilia
             FROM vw_jerarquias_familias
             WHERE idFamilia IN ($in)
                OR idN1      IN ($in)
                OR idN2      IN ($in)
         ");
-        if (!$smt) return $in; // fallback: usar IDs originales
+        if (!$sentencia) return $in; // fallback: usar IDs originales
         $expanded = [];
-        while ($r = $smt->fetch_assoc()) $expanded[] = (int)$r['idFamilia'];
+        while ($fila = $sentencia->fetch_assoc()) $expanded[] = (int)$fila['idFamilia'];
         if (empty($expanded)) return $in; // fallback: familia no encontrada en jerarquía
         return implode(',', $expanded);
     }
@@ -74,8 +74,8 @@ class PosstockQueryRepository
      * @return array  Filas raw o ['error' => ...]
      */
     public function queryMovimientosPeriodo(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $where_familia,
         string $where_ids
     ): array {
@@ -131,11 +131,11 @@ class PosstockQueryRepository
             GROUP BY tipo_movimiento, idArticulo, fecha
             ORDER BY idArticulo, fecha
         ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error, 'consulta' => $sql];
-        $rows = [];
-        while ($row = $smt->fetch_assoc()) $rows[] = $row;
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error, 'consulta' => $sql];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -144,7 +144,7 @@ class PosstockQueryRepository
      *
      * @return array  Filas raw (idArticulo, saldo_acumulado, ultima_compra, ultima_venta) o ['error' => ...]
      */
-    public function queryStockBase(string $fi, string $ff, string $ids_str): array
+    public function queryStockBase(string $fechaInicioEsc, string $fechaFinEsc, string $ids_str): array
     {
         $sql = "
             SELECT
@@ -202,11 +202,11 @@ class PosstockQueryRepository
             ) AS movimientos_stock
             GROUP BY idArticulo
         ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error, 'consulta' => $sql];
-        $rows = [];
-        while ($row = $smt->fetch_assoc()) $rows[] = $row;
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error, 'consulta' => $sql];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -220,13 +220,13 @@ class PosstockQueryRepository
      */
     public function queryArticulosFisicos(string $where_familia): array
     {
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT idArticulo FROM articulos a $where_familia"
         );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -234,9 +234,9 @@ class PosstockQueryRepository
      *
      * @return array  Filas raw (idArticulo) o ['error' => ...]
      */
-    public function queryIdsConMovimientoC4(string $fi, string $ff): array
+    public function queryIdsConMovimientoC4(string $fechaInicioEsc, string $fechaFinEsc): array
     {
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT DISTINCT idArticulo FROM (
                 SELECT l.idArticulo FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
@@ -257,10 +257,10 @@ class PosstockQueryRepository
                   AND l.estadoLinea = 'Activo'
             ) AS movs_año
         ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -282,7 +282,7 @@ class PosstockQueryRepository
         bool   $solo_positivos = false
     ): array {
         $having = $solo_positivos ? 'HAVING stock_en_periodo > 0' : '';
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT
                 base.idArticulo,
                 base.total_stockOn - COALESCE(post.net_posterior, 0) AS stock_en_periodo
@@ -320,10 +320,10 @@ class PosstockQueryRepository
             ) AS post ON post.idArticulo = base.idArticulo
             $having
         ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -336,8 +336,8 @@ class PosstockQueryRepository
      * @return array  Filas raw (idArticulo, fecha) o ['error' => ...]
      */
     public function queryVentasFechasC5(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $where_fam,
         string $where_ids,
         bool   $incluir_albcli = false
@@ -353,7 +353,7 @@ class PosstockQueryRepository
                   AND l.estadoLinea = 'Activo'
                   $where_fam
                   $where_ids" : '';
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT idArticulo, fecha FROM (
                 SELECT DISTINCT l.idArticulo, DATE(c.Fecha) AS fecha
                 FROM ticketslinea l
@@ -368,10 +368,10 @@ class PosstockQueryRepository
             ) AS ventas
             ORDER BY idArticulo, fecha
         ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -395,7 +395,7 @@ class PosstockQueryRepository
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'" : '';
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT idArticulo, MIN(fecha) AS primera_venta_post
             FROM (
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
@@ -409,10 +409,10 @@ class PosstockQueryRepository
             ) AS ventas_post
             GROUP BY idArticulo
         ");
-        if (!$smt) return [];
+        if (!$sentencia) return [];
         $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            $result[(int)$r['idArticulo']] = $r['primera_venta_post'];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $result[(int)$fila['idArticulo']] = $fila['primera_venta_post'];
         }
         return $result;
     }
@@ -427,15 +427,15 @@ class PosstockQueryRepository
      * @return array  Filas raw (idArticulo, fecha, nunidades_dia) o ['error' => ...]
      */
     public function queryVentasCantidadesC6(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $where_fam,
         string $where_ids,
         bool   $incluir_albcli = false,
         bool   $incluir_todos_tipos = false
     ): array {
         if ($incluir_albcli) {
-            $smt = $this->db->query("
+            $sentencia = $this->db->query("
                 SELECT idArticulo, fecha, SUM(nunidades) AS nunidades_dia
                 FROM (
                     SELECT l.idArticulo, DATE(c.Fecha) AS fecha, l.nunidades
@@ -462,7 +462,7 @@ class PosstockQueryRepository
                 ORDER BY idArticulo, fecha
             ");
         } else {
-            $smt = $this->db->query("
+            $sentencia = $this->db->query("
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades_dia
                                 FROM ticketslinea l
                                 INNER JOIN ticketst  c ON c.id = l.idticketst
@@ -476,10 +476,10 @@ class PosstockQueryRepository
                 ORDER BY l.idArticulo, DATE(c.Fecha)
             ");
         }
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -487,9 +487,9 @@ class PosstockQueryRepository
      *
      * @return array  Filas raw (idProveedor, fecha_albaran) o ['error' => ...]
      */
-    public function queryFechasAlbaranesByProveedores(string $fi, string $ff, string $ids_prov): array
+    public function queryFechasAlbaranesByProveedores(string $fechaInicioEsc, string $fechaFinEsc, string $ids_prov): array
     {
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT idProveedor, DATE(Fecha) AS fecha_albaran
             FROM albprot
             WHERE DATE(Fecha) BETWEEN '$fi' AND '$ff'
@@ -498,10 +498,10 @@ class PosstockQueryRepository
             GROUP BY idProveedor, DATE(Fecha)
             ORDER BY idProveedor, DATE(Fecha)
         ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -511,7 +511,7 @@ class PosstockQueryRepository
      */
     public function queryStockReconstituido(string $ids_str, string $ff_esc): array
     {
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT e.idArticulo,
                    e.nunidades_entrada - COALESCE(SUM(v.nunidades), 0) AS stock_reconstituido
             FROM (
@@ -542,10 +542,10 @@ class PosstockQueryRepository
                 AND v.fecha_venta >= e.fecha_entrada
             GROUP BY e.idArticulo, e.nunidades_entrada
         ");
-        if (!$smt) return ['error' => $this->db->error];
+        if (!$sentencia) return ['error' => $this->db->error];
         $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            $result[(int)$r['idArticulo']] = (float)$r['stock_reconstituido'];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $result[(int)$fila['idArticulo']] = (float)$fila['stock_reconstituido'];
         }
         return $result;
     }
@@ -559,16 +559,16 @@ class PosstockQueryRepository
     {
         if (empty($proveedores_incluir)) return 0;
 
-        $fi       = $this->db->real_escape_string($fi_stock);
-        $ff       = $this->db->real_escape_string($ff_mov);
+        $fechaInicioEsc       = $this->db->real_escape_string($fi_stock);
+        $fechaFinEsc       = $this->db->real_escape_string($ff_mov);
         $ids_prov = implode(',', array_map('intval', $proveedores_incluir));
 
-        $rows = $this->queryFechasAlbaranesByProveedores($fi, $ff, $ids_prov);
-        if (isset($rows['error']) || empty($rows)) return 0;
+        $filas = $this->queryFechasAlbaranesByProveedores($fechaInicioEsc, $fechaFinEsc, $ids_prov);
+        if (isset($filas['error']) || empty($filas)) return 0;
 
         $por_proveedor = [];
-        foreach ($rows as $r) {
-            $por_proveedor[(int)$r['idProveedor']][] = $r['fecha_albaran'];
+        foreach ($filas as $fila) {
+            $por_proveedor[(int)$fila['idProveedor']][] = $fila['fecha_albaran'];
         }
 
         $lts = [];
@@ -599,11 +599,11 @@ class PosstockQueryRepository
      *
      * @return array  ['idArticulo' => ['n_entradas'=>int, 'ultima_entrada'=>string|null, 'n_ventas'=>int]]
      */
-    public function queryDetalleC1(string $ids, string $fi, string $ff): array
+    public function queryDetalleC1(string $ids, string $fechaInicioEsc, string $fechaFinEsc): array
     {
         $detalle = [];
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT l.idArticulo,
                    COUNT(*)           AS n_entradas,
                    MAX(DATE(c.Fecha)) AS ultima_entrada
@@ -615,12 +615,12 @@ class PosstockQueryRepository
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
         ");
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
+        if ($sentencia) {
+            while ($fila = $sentencia->fetch_assoc()) {
+                $id = (int)$fila['idArticulo'];
                 $detalle[$id] = [
-                    'n_entradas'     => (int)$r['n_entradas'],
-                    'ultima_entrada' => $r['ultima_entrada'],
+                    'n_entradas'     => (int)$fila['n_entradas'],
+                    'ultima_entrada' => $fila['ultima_entrada'],
                     'n_ventas'       => 0,
                 ];
             }
@@ -650,12 +650,12 @@ class PosstockQueryRepository
             GROUP BY idArticulo
         ");
         if ($smt2) {
-            while ($r = $smt2->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
+            while ($fila = $smt2->fetch_assoc()) {
+                $id = (int)$fila['idArticulo'];
                 if (!isset($detalle[$id])) {
                     $detalle[$id] = ['n_entradas' => 0, 'ultima_entrada' => null];
                 }
-                $detalle[$id]['n_ventas'] = (int)$r['n_ventas'];
+                $detalle[$id]['n_ventas'] = (int)$fila['n_ventas'];
             }
         }
 
@@ -687,7 +687,7 @@ class PosstockQueryRepository
         if (empty($conditions)) return [];
 
         $where_or = implode(' OR ', $conditions);
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT DISTINCT l.idArticulo
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
@@ -695,11 +695,11 @@ class PosstockQueryRepository
               AND c.estado      IN ('Guardado','Facturado')
               AND l.estadoLinea = 'Activo'
         ");
-        if (!$smt) return [];
+        if (!$sentencia) return [];
 
         $resultado = [];
-        while ($r = $smt->fetch_assoc()) {
-            $resultado[(int)$r['idArticulo']] = true;
+        while ($fila = $sentencia->fetch_assoc()) {
+            $resultado[(int)$fila['idArticulo']] = true;
         }
         return $resultado;
     }
@@ -709,11 +709,11 @@ class PosstockQueryRepository
      *
      * @return array  [idArticulo => [...]] o vacío si no hay datos
      */
-    public function queryProveedorArticulos(string $ids_str, string $fi_stock, string $ff): array
+    public function queryProveedorArticulos(string $ids_str, string $fi_stock, string $fechaFinEsc): array
     {
         if (empty($ids_str)) return [];
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT
                 l.idArticulo,
                 c.idProveedor,
@@ -731,25 +731,25 @@ class PosstockQueryRepository
             GROUP BY l.idArticulo, c.idProveedor
             ORDER BY l.idArticulo, n_albaranes DESC, cantidad_total DESC, ultima_fecha DESC
         ");
-        if (!$smt) return [];
+        if (!$sentencia) return [];
 
         $por_art = [];
-        while ($r = $smt->fetch_assoc()) {
-            $id = (int)$r['idArticulo'];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $id = (int)$fila['idArticulo'];
             if (!isset($por_art[$id])) {
                 $por_art[$id] = [
-                    'prov_habitual_id'     => (int)$r['idProveedor'],
-                    'prov_habitual_nombre' => $r['nombre'],
-                    'prov_habitual_n'      => (int)$r['n_albaranes'],
-                    'prov_ultimo_id'       => (int)$r['idProveedor'],
-                    'prov_ultimo_nombre'   => $r['nombre'],
-                    'prov_ultima_fecha'    => $r['ultima_fecha'],
+                    'prov_habitual_id'     => (int)$fila['idProveedor'],
+                    'prov_habitual_nombre' => $fila['nombre'],
+                    'prov_habitual_n'      => (int)$fila['n_albaranes'],
+                    'prov_ultimo_id'       => (int)$fila['idProveedor'],
+                    'prov_ultimo_nombre'   => $fila['nombre'],
+                    'prov_ultima_fecha'    => $fila['ultima_fecha'],
                 ];
             } else {
-                if ($r['ultima_fecha'] > $por_art[$id]['prov_ultima_fecha']) {
-                    $por_art[$id]['prov_ultimo_id']     = (int)$r['idProveedor'];
-                    $por_art[$id]['prov_ultimo_nombre'] = $r['nombre'];
-                    $por_art[$id]['prov_ultima_fecha']  = $r['ultima_fecha'];
+                if ($fila['ultima_fecha'] > $por_art[$id]['prov_ultima_fecha']) {
+                    $por_art[$id]['prov_ultimo_id']     = (int)$fila['idProveedor'];
+                    $por_art[$id]['prov_ultimo_nombre'] = $fila['nombre'];
+                    $por_art[$id]['prov_ultima_fecha']  = $fila['ultima_fecha'];
                 }
             }
         }
@@ -766,11 +766,11 @@ class PosstockQueryRepository
      * C7b-011: precio medio ponderado de compra por artículo en la ventana dada.
      * Devuelve [idArticulo => precio_medio_compra].
      */
-    public function queryPrecioMedioCompra(string $ids_str, string $fi, string $ff): array
+    public function queryPrecioMedioCompra(string $ids_str, string $fechaInicioEsc, string $fechaFinEsc): array
     {
         if (empty($ids_str)) return [];
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT
                 l.idArticulo,
                 SUM(l.costeSiva * l.nunidades) / NULLIF(SUM(l.nunidades), 0) AS precio_medio
@@ -783,12 +783,12 @@ class PosstockQueryRepository
               AND l.nunidades       > 0
             GROUP BY l.idArticulo
         ");
-        if (!$smt) return [];
+        if (!$sentencia) return [];
 
         $result = [];
-        while ($r = $smt->fetch_assoc()) {
-            if ($r['precio_medio'] !== null) {
-                $result[(int)$r['idArticulo']] = (float)$r['precio_medio'];
+        while ($fila = $sentencia->fetch_assoc()) {
+            if ($fila['precio_medio'] !== null) {
+                $result[(int)$fila['idArticulo']] = (float)$fila['precio_medio'];
             }
         }
         return $result;
@@ -801,8 +801,8 @@ class PosstockQueryRepository
      * @return array  Filas raw (idArticulo, delta_total, min_running, fecha_minimo, ...) o ['error' => ...]
      */
     public function queryDeltasC1(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $wf,
         string $wi
     ): array {
@@ -860,11 +860,11 @@ class PosstockQueryRepository
             GROUP BY idArticulo
             HAVING MIN(cum_sum) < 0 OR SUM(day_delta) < 0
         ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -877,8 +877,8 @@ class PosstockQueryRepository
      * @return array  Filas raw (idArticulo, fecha, nunidades, cum_before) o ['error' => ...]
      */
     public function queryEntradasC2(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $wf,
         string $wi
     ): array {
@@ -937,21 +937,21 @@ class PosstockQueryRepository
                 ) AS daily
             ) AS r ON r.idArticulo = e.idArticulo AND r.fecha = e.fecha
         ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
      * Ventas por ticket en el periodo para los artículos candidatos de C2.
      * Devuelve [idArticulo => ventas_total].
      */
-    public function queryVentasC2(string $ids, string $fi, string $ff): array
+    public function queryVentasC2(string $ids, string $fechaInicioEsc, string $fechaFinEsc): array
     {
         if (empty($ids)) return [];
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT l.idArticulo, SUM(l.nunidades) AS ventas_total
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
@@ -961,10 +961,10 @@ class PosstockQueryRepository
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
         ");
-        if (!$smt) return [];
+        if (!$sentencia) return [];
         $map = [];
-        while ($r = $smt->fetch_assoc()) {
-            $map[(int)$r['idArticulo']] = (float)$r['ventas_total'];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $map[(int)$fila['idArticulo']] = (float)$fila['ventas_total'];
         }
         return $map;
     }
@@ -973,15 +973,15 @@ class PosstockQueryRepository
      * Enriquece cada incidencia C2 con datos de la recepción anterior al evento.
      * Modifica el array por referencia.
      */
-    public function queryDetalleC2(array &$incidencias, string $fi, string $ff): void
+    public function queryDetalleC2(array &$incidencias, string $fechaInicioEsc, string $fechaFinEsc): void
     {
         if (empty($incidencias)) return;
 
         $ids     = array_unique(array_column($incidencias, 'idArticulo'));
         $ids_str = implode(',', $ids);
-        $fi_ext  = $this->db->real_escape_string(date('Y-m-d', strtotime($fi . ' -90 days')));
+        $fi_ext  = $this->db->real_escape_string(date('Y-m-d', strtotime($fechaInicioEsc . ' -90 days')));
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT l.idArticulo, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS nunidades
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
@@ -994,9 +994,9 @@ class PosstockQueryRepository
             ORDER BY l.idArticulo, DATE(c.Fecha)
         ");
         $rec_por_art = [];
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $rec_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'nunidades' => (float)$r['nunidades']];
+        if ($sentencia) {
+            while ($fila = $sentencia->fetch_assoc()) {
+                $rec_por_art[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'nunidades' => (float)$fila['nunidades']];
             }
         }
 
@@ -1012,8 +1012,8 @@ class PosstockQueryRepository
         ");
         $vtas_por_art = [];
         if ($smt2) {
-            while ($r = $smt2->fetch_assoc()) {
-                $vtas_por_art[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'qty' => (float)$r['qty']];
+            while ($fila = $smt2->fetch_assoc()) {
+                $vtas_por_art[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'qty' => (float)$fila['qty']];
             }
         }
 
@@ -1132,11 +1132,11 @@ class PosstockQueryRepository
                 OR DATEDIFF('$ff_m', MAX(sal.fecha)) / 7.0 >= $min_u
                 OR DATEDIFF('$ff_m', MAX(sal.fecha)) >= $c3a_floor_dias
         ";
-        $smt = $this->db->query($sql);
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1149,8 +1149,8 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, cantidad}] o ['error' => ...]
      */
     public function queryRecepcionesFechasC7(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $wf,
         string $wi
     ): array {
@@ -1167,12 +1167,12 @@ class PosstockQueryRepository
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 recepciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C7 recepciones: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1180,7 +1180,7 @@ class PosstockQueryRepository
      *
      * @return array  Set de idArticulo (int) con actividad albcli, o ['error'=>...]
      */
-    public function queryHasAlbcliC7(string $fi, string $ff, string $ids_str): array
+    public function queryHasAlbcliC7(string $fechaInicioEsc, string $fechaFinEsc, string $ids_str): array
     {
         if (empty($ids_str)) return [];
         $sql = "
@@ -1191,11 +1191,11 @@ class PosstockQueryRepository
               AND a.estado IN ('Guardado','Procesado')
               AND l.idArticulo IN ($ids_str)
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 albcli check: ' . $this->db->error];
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C7 albcli check: ' . $this->db->error];
         $ids = [];
-        while ($row = $res->fetch_assoc()) $ids[(int)$row['idArticulo']] = true;
-        $res->free();
+        while ($fila = $sentencia->fetch_assoc()) $ids[(int)$fila['idArticulo']] = true;
+        $sentencia->free();
         return $ids;
     }
 
@@ -1205,8 +1205,8 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error' => ...]
      */
     public function queryTimelineMovimientosC7(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
@@ -1240,12 +1240,12 @@ class PosstockQueryRepository
             GROUP BY idArticulo, fecha
             ORDER BY idArticulo, fecha
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C7 timeline: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C7 timeline: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1257,14 +1257,14 @@ class PosstockQueryRepository
         if (empty($ids_str)) return [];
         $meta = [];
 
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($ids_str)"
         );
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $meta[(int)$r['idArticulo']] = [
-                    'nombre'      => (string)$r['articulo_name'],
-                    'tipo'        => (string)$r['tipo'],
+        if ($sentencia) {
+            while ($fila = $sentencia->fetch_assoc()) {
+                $meta[(int)$fila['idArticulo']] = [
+                    'nombre'      => (string)$fila['articulo_name'],
+                    'tipo'        => (string)$fila['tipo'],
                     'familias'    => [],
                     'familias_n2' => [],
                     'familias_n1' => [],
@@ -1272,7 +1272,7 @@ class PosstockQueryRepository
             }
         }
 
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT af.idArticulo,
                    vj.idFamilia,
                    vj.idN1,
@@ -1281,13 +1281,13 @@ class PosstockQueryRepository
             JOIN   vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             WHERE  af.idArticulo IN ($ids_str)
         ");
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $id = (int)$r['idArticulo'];
+        if ($sentencia) {
+            while ($fila = $sentencia->fetch_assoc()) {
+                $id = (int)$fila['idArticulo'];
                 if (!isset($meta[$id])) continue;
-                $meta[$id]['familias'][]    = (int)$r['idFamilia'];
-                if (!empty($r['idN2'])) $meta[$id]['familias_n2'][] = (int)$r['idN2'];
-                if (!empty($r['idN1'])) $meta[$id]['familias_n1'][] = (int)$r['idN1'];
+                $meta[$id]['familias'][]    = (int)$fila['idFamilia'];
+                if (!empty($fila['idN2'])) $meta[$id]['familias_n2'][] = (int)$fila['idN2'];
+                if (!empty($fila['idN1'])) $meta[$id]['familias_n1'][] = (int)$fila['idN1'];
             }
         }
 
@@ -1311,7 +1311,7 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, cantidad, es_post_periodo}] o ['error'=>...]
      */
     public function queryRecepcionesC9(
-        string $fi,
+        string $fechaInicioEsc,
         string $ff_mov,
         string $wf,
         string $wi,
@@ -1340,12 +1340,12 @@ class PosstockQueryRepository
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 recepciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C9 recepciones: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1354,7 +1354,7 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, devolucion}] o ['error'=>...]
      */
     public function queryDevolucionesProvC9(
-        string $fi,
+        string $fechaInicioEsc,
         string $ff_post,
         string $ids_str
     ): array {
@@ -1376,12 +1376,12 @@ class PosstockQueryRepository
             GROUP BY l.idArticulo, DATE(c.Fecha)
             ORDER BY l.idArticulo, DATE(c.Fecha)
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 devoluciones: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C9 devoluciones: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1390,8 +1390,8 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, day_delta}] o ['error'=>...]
      */
     public function queryTimelineC9(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
@@ -1419,12 +1419,12 @@ class PosstockQueryRepository
             GROUP BY idArticulo, fecha
             ORDER BY idArticulo, fecha
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 timeline: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C9 timeline: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1433,8 +1433,8 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, nunidades, idAlbaran}] o ['error'=>...]
      */
     public function queryAlbaranesProvEspecialesC9(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
@@ -1459,12 +1459,12 @@ class PosstockQueryRepository
               )
             ORDER BY c.id, l.idArticulo
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 prov especiales: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C9 prov especiales: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     /**
@@ -1473,8 +1473,8 @@ class PosstockQueryRepository
      * @return array  Filas [{idArticulo, fecha, nunidades, idAlbaran}] o ['error'=>...]
      */
     public function queryAlbaranesCliEspecialesC9(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $ids_str
     ): array {
         if (empty($ids_str)) return [];
@@ -1490,12 +1490,12 @@ class PosstockQueryRepository
               AND l.idArticulo  IN ($ids_str)
             ORDER BY a.id, l.idArticulo
         ";
-        $res = $this->db->query($sql);
-        if ($res === false) return ['error' => 'C9 cli especiales: ' . $this->db->error];
-        $rows = [];
-        while ($row = $res->fetch_assoc()) $rows[] = $row;
-        $res->free();
-        return $rows;
+        $sentencia = $this->db->query($sql);
+        if ($sentencia === false) return ['error' => 'C9 cli especiales: ' . $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        $sentencia->free();
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1509,15 +1509,15 @@ class PosstockQueryRepository
      */
     public function queryIdsArticulosByProveedores(string $ids_prov): array
     {
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT DISTINCT idArticulo FROM articulosProveedores
              WHERE idProveedor IN ($ids_prov)
                AND estado = 'Activo'"
         );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -1527,14 +1527,14 @@ class PosstockQueryRepository
      */
     public function queryIdsArticulosByProveedoresTodos(string $ids_prov): array
     {
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT DISTINCT idArticulo FROM articulosProveedores
              WHERE idProveedor IN ($ids_prov)"
         );
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     /**
@@ -1544,7 +1544,7 @@ class PosstockQueryRepository
      */
     public function queryArticulosProveedorPaginados(string $ids_prov, int $offset, int $limit): array
     {
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT DISTINCT ap.idArticulo
              FROM articulosProveedores ap
              INNER JOIN articulos a ON a.idArticulo = ap.idArticulo
@@ -1553,9 +1553,9 @@ class PosstockQueryRepository
              ORDER BY ap.idArticulo
              LIMIT $limit OFFSET $offset"
         );
-        if (!$smt) return ['error' => $this->db->error];
+        if (!$sentencia) return ['error' => $this->db->error];
         $ids = [];
-        while ($r = $smt->fetch_assoc()) $ids[] = (int)$r['idArticulo'];
+        while ($fila = $sentencia->fetch_assoc()) $ids[] = (int)$fila['idArticulo'];
         return $ids;
     }
 
@@ -1565,13 +1565,13 @@ class PosstockQueryRepository
      * @return array  Filas raw (idArticulo) o ['error' => ...]
      */
     public function queryIdsConActividad(
-        string $fi,
-        string $ff,
+        string $fechaInicioEsc,
+        string $fechaFinEsc,
         string $where_fam,
         string $limit_clause,
         string $where_prov = ''
     ): array {
-        $smt = $this->db->query("
+        $sentencia = $this->db->query("
             SELECT DISTINCT idArticulo FROM (
                 SELECT l.idArticulo FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
@@ -1600,10 +1600,10 @@ class PosstockQueryRepository
             ORDER BY idArticulo
             $limit_clause
         ");
-        if (!$smt) return ['error' => $this->db->error];
-        $rows = [];
-        while ($r = $smt->fetch_assoc()) $rows[] = $r;
-        return $rows;
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1620,13 +1620,13 @@ class PosstockQueryRepository
             return $incidencias;
         }
         $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-        $smt = $this->db->query(
+        $sentencia = $this->db->query(
             "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
         );
         $nombres = [];
-        if ($smt) {
-            while ($r = $smt->fetch_assoc()) {
-                $nombres[(int)$r['idArticulo']] = $r['articulo_name'];
+        if ($sentencia) {
+            while ($fila = $sentencia->fetch_assoc()) {
+                $nombres[(int)$fila['idArticulo']] = $fila['articulo_name'];
             }
         }
         foreach ($incidencias as &$inc) {
