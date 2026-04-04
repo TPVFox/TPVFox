@@ -48,11 +48,11 @@ class PosstockC9Detector
         // Separar recepciones en-periodo vs post-periodo
         $rec_periodo  = [];
         $primera_post = null;
-        foreach ($recs_art as $r) {
-            if ($r['es_post_periodo']) {
-                if ($primera_post === null) $primera_post = $r;
+        foreach ($recs_art as $fila) {
+            if ($fila['es_post_periodo']) {
+                if ($primera_post === null) $primera_post = $fila;
             } else {
-                $rec_periodo[] = $r;
+                $rec_periodo[] = $fila;
             }
         }
         if (empty($rec_periodo)) return [];
@@ -222,10 +222,10 @@ class PosstockC9Detector
             }
         }
         unset($prev);
-        foreach ($lotes_merged as $k => &$l) {
-            $l['idx'] = $k;
+        foreach ($lotes_merged as $k => &$linea) {
+            $linea['idx'] = $k;
         }
-        unset($l);
+        unset($linea);
         $lotes = $lotes_merged;
 
         return $lotes;
@@ -525,54 +525,54 @@ class PosstockC9Detector
     ): array {
         $fi   = $this->db->real_escape_string($fi_mov);
         $ff   = $this->db->real_escape_string($ff_mov);
-        $wf   = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
-        $wi   = $this->repo->idsWhere($ids_filter);
+        $filtroFamiliasSql   = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $filtroArticulosSql   = $this->repo->idsWhere($ids_filter);
         // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
-        $rows_rec = $this->repo->queryRecepcionesC9($fi, $ff_mov, $wf, $wi, $c9_dias_post);
-        if (isset($rows_rec['error'])) return $rows_rec;
-        if (empty($rows_rec)) return [];
+        $filasRecepciones = $this->repo->queryRecepcionesC9($fi, $ff_mov, $filtroFamiliasSql, $filtroArticulosSql, $c9_dias_post);
+        if (isset($filasRecepciones['error'])) return $filasRecepciones;
+        if (empty($filasRecepciones)) return [];
 
         // Agrupar por artículo; filtrar por n_recepciones mínimo en-periodo
         $recepciones_map = [];
-        foreach ($rows_rec as $r) {
-            $aid = (int)$r['idArticulo'];
+        foreach ($filasRecepciones as $fila) {
+            $aid = (int)$fila['idArticulo'];
             $recepciones_map[$aid][] = [
-                'fecha'           => $r['fecha'],
-                'cantidad'        => (float)$r['cantidad'],
-                'es_post_periodo' => (bool)$r['es_post_periodo'],
+                'fecha'           => $fila['fecha'],
+                'cantidad'        => (float)$fila['cantidad'],
+                'es_post_periodo' => (bool)$fila['es_post_periodo'],
             ];
         }
         $ids_candidatos = [];
         foreach ($recepciones_map as $aid => $recs) {
-            $n_periodo = count(array_filter($recs, fn($r) => !$r['es_post_periodo']));
+            $n_periodo = count(array_filter($recs, fn($fila) => !$fila['es_post_periodo']));
             if ($n_periodo >= $c9_min_rec) $ids_candidatos[] = $aid;
         }
         if (empty($ids_candidatos)) return [];
 
-        $ids_str = implode(',', array_map('intval', $ids_candidatos));
+        $idsArticulosCsv = implode(',', array_map('intval', $ids_candidatos));
 
         // ── Paso 2: filtrar solo artículos físicos ──────────────────────────
-        $res_art = $this->db->query(
+        $sentenciaArticulos = $this->db->query(
             "SELECT idArticulo, tipo FROM articulos
-              WHERE idArticulo IN ($ids_str)"
+              WHERE idArticulo IN ($idsArticulosCsv)"
         );
-        if (!$res_art) return ['error' => 'C9 tipos: ' . $this->db->error];
+        if (!$sentenciaArticulos) return ['error' => 'C9 tipos: ' . $this->db->error];
         $tipos_map = [];
-        while ($row = $res_art->fetch_assoc()) $tipos_map[(int)$row['idArticulo']] = $row['tipo'];
-        $res_art->free();
+        while ($fila = $sentenciaArticulos->fetch_assoc()) $tipos_map[(int)$fila['idArticulo']] = $fila['tipo'];
+        $sentenciaArticulos->free();
         $ids_candidatos = array_values(array_filter($ids_candidatos, fn($id) => isset($tipos_map[$id])));
         if (empty($ids_candidatos)) return [];
-        $ids_str = implode(',', array_map('intval', $ids_candidatos));
+        $idsArticulosCsv = implode(',', array_map('intval', $ids_candidatos));
 
         // ── Paso 1b: devoluciones ordinarias (nunidades < 0, proveedor no especial) ──
         $ff_post_dev = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $rows_dev = $this->repo->queryDevolucionesProvC9($fi, $ff_post_dev, $ids_str);
-        if (isset($rows_dev['error'])) return $rows_dev;
+        $filasDevolucionesProv = $this->repo->queryDevolucionesProvC9($fi, $ff_post_dev, $idsArticulosCsv);
+        if (isset($filasDevolucionesProv['error'])) return $filasDevolucionesProv;
         $devs_map = [];
-        foreach ($rows_dev as $r) {
-            $devs_map[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'devolucion' => (float)$r['devolucion']];
+        foreach ($filasDevolucionesProv as $fila) {
+            $devs_map[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'devolucion' => (float)$fila['devolucion']];
         }
 
         // ── Paso 3: timeline limpio (Q2) — extendido hasta ff_post para capturar
@@ -580,11 +580,11 @@ class PosstockC9Detector
         $ff_post_tl = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $rows_tl = $this->repo->queryTimelineC9($fi, $ff_post_tl, $ids_str);
-        if (isset($rows_tl['error'])) return $rows_tl;
+        $filasTimeline = $this->repo->queryTimelineC9($fi, $ff_post_tl, $idsArticulosCsv);
+        if (isset($filasTimeline['error'])) return $filasTimeline;
         $timeline_map = [];
-        foreach ($rows_tl as $r) {
-            $timeline_map[(int)$r['idArticulo']][] = ['fecha' => $r['fecha'], 'day_delta' => (float)$r['day_delta']];
+        foreach ($filasTimeline as $fila) {
+            $timeline_map[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'day_delta' => (float)$fila['day_delta']];
         }
 
         // ── Paso 4: albaranes especiales (Q5a + Q5b) ───────────────────────
@@ -593,10 +593,10 @@ class PosstockC9Detector
         );
         // Los albaranes especiales (merma declarada) se acotan al periodo fi_mov..ff_mov,
         // no a ff_post: las regularizaciones post-periodo pertenecen al siguiente análisis.
-        $rows_prov_esp = $this->repo->queryAlbaranesProvEspecialesC9($fi, $ff, $ids_str);
-        if (isset($rows_prov_esp['error'])) return $rows_prov_esp;
-        $rows_cli_esp  = $this->repo->queryAlbaranesCliEspecialesC9($fi, $ff, $ids_str);
-        if (isset($rows_cli_esp['error'])) return $rows_cli_esp;
+        $filasAlbaranesProv = $this->repo->queryAlbaranesProvEspecialesC9($fi, $ff, $idsArticulosCsv);
+        if (isset($filasAlbaranesProv['error'])) return $filasAlbaranesProv;
+        $filasAlbaranesCliEsp  = $this->repo->queryAlbaranesCliEspecialesC9($fi, $ff, $idsArticulosCsv);
+        if (isset($filasAlbaranesCliEsp['error'])) return $filasAlbaranesCliEsp;
 
         // Clasificar albaranes proveedor especial: cruce intra-albarán vs merma declarada
         // Paso A: separar intra-albarán cruces (signos mixtos POR ARTÍCULO) de candidatos negativos.
@@ -604,23 +604,23 @@ class PosstockC9Detector
         // para otros artículos (p.e. regularizaciones de múltiples artículos) sin que eso invalide
         // las líneas negativas del artículo analizado.
         $alb_prov = [];
-        foreach ($rows_prov_esp as $r) $alb_prov[(int)$r['idAlbaran']][] = $r;
+        foreach ($filasAlbaranesProv as $fila) $alb_prov[(int)$fila['idAlbaran']][] = $fila;
         $candidatos_decl = []; // [aid][fecha] => monto absoluto
         foreach ($alb_prov as $lineas) {
             // Detectar signos mixtos por artículo dentro del albarán
             $signos_art = [];
-            foreach ($lineas as $l) {
-                $aid = (int)$l['idArticulo'];
-                $nunidades = (float)$l['nunidades'];
+            foreach ($lineas as $linea) {
+                $aid = (int)$linea['idArticulo'];
+                $nunidades = (float)$linea['nunidades'];
                 if ($nunidades > 0) $signos_art[$aid]['pos'] = true;
                 if ($nunidades < 0) $signos_art[$aid]['neg'] = true;
             }
-            foreach ($lineas as $l) {
-                $aid   = (int)$l['idArticulo'];
-                $nunidades = (float)$l['nunidades'];
+            foreach ($lineas as $linea) {
+                $aid   = (int)$linea['idArticulo'];
+                $nunidades = (float)$linea['nunidades'];
                 // Cruce intra-albarán: este artículo tiene signos mixtos en el mismo albarán → ignorar
                 if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
-                $fecha = $l['fecha'];
+                $fecha = $linea['fecha'];
                 if ($nunidades > 0) {
                     // Proveedor especial positivo = entrada normal: añadir a recepciones_map
                     // como si fuera un proveedor ordinario.
@@ -688,24 +688,24 @@ class PosstockC9Detector
         // En albaranes cliente: nunidades > 0 = salida de stock (merma/venta especial),
         //                       nunidades < 0 = entrada de stock (devolución/regularización).
         $alb_cli = [];
-        foreach ($rows_cli_esp as $r) $alb_cli[(int)$r['idAlbaran']][] = $r;
+        foreach ($filasAlbaranesCliEsp as $fila) $alb_cli[(int)$fila['idAlbaran']][] = $fila;
         $merma_cli_decl      = [];
         $merma_cli_decl_mes  = []; // [aid][mes(1-12)] => kg acumulado
         $entradas_cli_esp = []; // [aid][fecha] => monto absoluto (nunidades < 0 sin cruce)
         foreach ($alb_cli as $lineas) {
             // Paso A: detectar signos mixtos por artículo dentro del albarán
             $signos_art = [];
-            foreach ($lineas as $l) {
-                $aid   = (int)$l['idArticulo'];
-                $nunidades = (float)$l['nunidades'];
+            foreach ($lineas as $linea) {
+                $aid   = (int)$linea['idArticulo'];
+                $nunidades = (float)$linea['nunidades'];
                 if ($nunidades > 0) $signos_art[$aid]['pos'] = true;
                 if ($nunidades < 0) $signos_art[$aid]['neg'] = true;
             }
-            foreach ($lineas as $l) {
-                $aid   = (int)$l['idArticulo'];
-                $nunidades = (float)$l['nunidades'];
+            foreach ($lineas as $linea) {
+                $aid   = (int)$linea['idArticulo'];
+                $nunidades = (float)$linea['nunidades'];
                 if (!empty($signos_art[$aid]['pos']) && !empty($signos_art[$aid]['neg'])) continue;
-                $fecha = $l['fecha'];
+                $fecha = $linea['fecha'];
                 if ($nunidades > 0) {
                     // Salida especial → merma declarada
                     $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $nunidades;
@@ -792,41 +792,41 @@ class PosstockC9Detector
 
         // ── Paso 5: stock base (compartido con C7 en batch) ────────────────
         if (empty($stock_base_cache)) {
-            $fi_sb   = $this->db->real_escape_string($fi_stock);
-            $ff_sb   = $this->db->real_escape_string($fi_mov);
-            $ids_sb  = implode(',', array_map('intval', $ids_candidatos));
-            $rows_sb = $this->repo->queryStockBase($fi_sb, $ff_sb, $ids_sb);
-            if (isset($rows_sb['error'])) return $rows_sb;
+            $fechaInicioStockBaseEsc   = $this->db->real_escape_string($fi_stock);
+            $fechaFinStockBaseEsc   = $this->db->real_escape_string($fi_mov);
+            $idsStockBaseCsv  = implode(',', array_map('intval', $ids_candidatos));
+            $filasStockBase = $this->repo->queryStockBase($fechaInicioStockBaseEsc, $fechaFinStockBaseEsc, $idsStockBaseCsv);
+            if (isset($filasStockBase['error'])) return $filasStockBase;
             $stock_base_cache = [];
-            foreach ($rows_sb as $r) {
-                $stock_base_cache[(int)$r['idArticulo']] = [
-                    'saldo_acumulado' => (float)$r['saldo_acumulado'],
-                    'ultima_compra'   => $r['ultima_compra'],
-                    'ultima_venta'    => $r['ultima_venta'],
+            foreach ($filasStockBase as $fila) {
+                $stock_base_cache[(int)$fila['idArticulo']] = [
+                    'saldo_acumulado' => (float)$fila['saldo_acumulado'],
+                    'ultima_compra'   => $fila['ultima_compra'],
+                    'ultima_venta'    => $fila['ultima_venta'],
                 ];
             }
         }
-        $sb = $stock_base_cache;
+        $cacheStockBase = $stock_base_cache;
 
         // ── Paso 5b: stock real al inicio del periodo (rebobinado) ──────────
         // Se usa como E_lote0 en lugar del saldo acumulado desde fi_stock.
         // _queryStockRebobinado incluye TODO el histórico (no solo desde fi_stock),
         // capturando inventario de años anteriores no reflejado en getStockBase.
-        $fi_reb = $this->db->real_escape_string(
+        $fechaRebobinadoEsc = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$fi_mov -1 day"))
         );
-        $rows_si = $this->repo->queryStockRebobinado($ids_str, $fi_reb);
-        if (isset($rows_si['error'])) return $rows_si;
+        $filasStockInicial = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaRebobinadoEsc);
+        if (isset($filasStockInicial['error'])) return $filasStockInicial;
         $stock_inicial_map = [];
-        foreach ($rows_si as $r) {
-            $stock_inicial_map[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        foreach ($filasStockInicial as $fila) {
+            $stock_inicial_map[(int)$fila['idArticulo']] = (float)$fila['stock_en_periodo'];
         }
 
         // ── Paso 6: stock rebobinado al ff_mov (ancla conservación) ────────
-        $rows_sf = $this->repo->queryStockRebobinado($ids_str, $ff);
-        if (isset($rows_sf['error'])) return $rows_sf;
+        $filasStockFinal = $this->repo->queryStockRebobinado($idsArticulosCsv, $ff);
+        if (isset($filasStockFinal['error'])) return $filasStockFinal;
         $stock_final_map = [];
-        foreach ($rows_sf as $r) $stock_final_map[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        foreach ($filasStockFinal as $fila) $stock_final_map[(int)$fila['idArticulo']] = (float)$fila['stock_en_periodo'];
 
         // ── Paso 7: loop por artículo ───────────────────────────────────────
         $incidencias = [];
@@ -836,7 +836,7 @@ class PosstockC9Detector
             // E_lote0: stock real al inicio del periodo (rebobinado historial completo).
             // Fallback al saldo acumulado desde fi_stock si el rebobinado no devuelve fila.
             $stock_base   = $stock_inicial_map[$idArticulo]
-                ?? (float)($sb[$idArticulo]['saldo_acumulado'] ?? 0.0);
+                ?? (float)($cacheStockBase[$idArticulo]['saldo_acumulado'] ?? 0.0);
             $stock_final  = $stock_final_map[$idArticulo] ?? 0.0;
             $timeline_art = $timeline_map[$idArticulo] ?? [];
             $recs_art     = $recepciones_map[$idArticulo] ?? [];
@@ -877,7 +877,7 @@ class PosstockC9Detector
             $hoy_str  = date('Y-m-d');
             $ff_post_continuidad = date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"));
             $es_vivo         = ($hoy_str <= $ff_post_continuidad);
-            $hay_abierto     = !empty(array_filter($lotes, fn($l) => !empty($l['es_ultimo_abierto'])));
+            $hay_abierto     = !empty(array_filter($lotes, fn($linea) => !empty($linea['es_ultimo_abierto'])));
             $aplicar_umbral  = $es_vivo || $hay_abierto;
 
             if ($aplicar_umbral && count($lotes) >= 2) {
@@ -938,7 +938,7 @@ class PosstockC9Detector
                 $merma_decl
             );
             if (($clasif['merma_total'] + $clasif['merma_carryover']) < $umbral) continue;
-            $n_en_periodo = count(array_filter($recs_art, fn($r) => !$r['es_post_periodo']));
+            $n_en_periodo = count(array_filter($recs_art, fn($fila) => !$fila['es_post_periodo']));
 
             $incidencias[] = [
                 'caso'                => 'C9',
@@ -975,12 +975,12 @@ class PosstockC9Detector
         // ── C9: enriquecer con proveedor habitual y coste estimado de la merma ──
         if (!empty($incidencias)) {
             $ids_c9     = array_column($incidencias, 'idArticulo');
-            $ids_c9_str = implode(',', array_map('intval', $ids_c9));
+            $idsC9Csv = implode(',', array_map('intval', $ids_c9));
             $fi_esc     = $this->db->real_escape_string($fi);
             $ff_esc     = $this->db->real_escape_string($ff);
 
-            $prov_map_c9   = $this->repo->queryProveedorArticulos($ids_c9_str, $fi_esc, $ff_esc);
-            $precio_map_c9 = $this->repo->queryPrecioMedioCompra($ids_c9_str, $fi_esc, $ff_esc);
+            $prov_map_c9   = $this->repo->queryProveedorArticulos($idsC9Csv, $fi_esc, $ff_esc);
+            $precio_map_c9 = $this->repo->queryPrecioMedioCompra($idsC9Csv, $fi_esc, $ff_esc);
 
             foreach ($incidencias as &$inc) {
                 $prov = $prov_map_c9[$inc['idArticulo']] ?? null;
