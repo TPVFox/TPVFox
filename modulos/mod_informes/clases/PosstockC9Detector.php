@@ -561,7 +561,8 @@ class PosstockC9Detector
         }
         if (empty($ids_candidatos)) return [];
 
-        $idsArticulosCsv = implode(',', array_map('intval', $ids_candidatos));
+        $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
+        if ($idsArticulosCsv === '') return [];
 
         // ── Paso 2: filtrar solo artículos físicos ──────────────────────────
         $sentenciaArticulos = $this->db->query(
@@ -574,7 +575,8 @@ class PosstockC9Detector
         $sentenciaArticulos->free();
         $ids_candidatos = array_values(array_filter($ids_candidatos, fn($id) => isset($tipos_map[$id])));
         if (empty($ids_candidatos)) return [];
-        $idsArticulosCsv = implode(',', array_map('intval', $ids_candidatos));
+        $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
+        if ($idsArticulosCsv === '') return [];
 
         // ── Paso 1b: devoluciones ordinarias (nunidades < 0, proveedor no especial) ──
         $ff_post_dev = $this->db->real_escape_string(
@@ -806,7 +808,8 @@ class PosstockC9Detector
         if (empty($stock_base_cache)) {
             $fechaInicioStockBaseEsc   = $this->db->real_escape_string($fi_stock);
             $fechaFinStockBaseEsc   = $this->db->real_escape_string($fi_mov);
-            $idsStockBaseCsv  = implode(',', array_map('intval', $ids_candidatos));
+            $idsStockBaseCsv = $this->convertirIdsACsv($ids_candidatos);
+            if ($idsStockBaseCsv === '') return [];
             $filasStockBase = $this->repo->queryStockBase($fechaInicioStockBaseEsc, $fechaFinStockBaseEsc, $idsStockBaseCsv);
             if (isset($filasStockBase['error'])) return $filasStockBase;
             $stock_base_cache = [];
@@ -987,7 +990,8 @@ class PosstockC9Detector
         // ── C9: enriquecer con proveedor habitual y coste estimado de la merma ──
         if (!empty($incidencias)) {
             $ids_c9     = array_column($incidencias, 'idArticulo');
-            $idsC9Csv = implode(',', array_map('intval', $ids_c9));
+            $idsC9Csv = $this->convertirIdsACsv($ids_c9);
+            if ($idsC9Csv === '') return $incidencias;
             $prov_map_c9   = $this->repo->queryProveedorArticulos($idsC9Csv, $fechaInicioEsc, $fechaFinEsc);
             $precio_map_c9 = $this->repo->queryPrecioMedioCompra($idsC9Csv, $fechaInicioEsc, $fechaFinEsc);
 
@@ -1009,5 +1013,19 @@ class PosstockC9Detector
         }
 
         return $incidencias;
+    }
+
+    private function convertirIdsACsv(array $ids): string
+    {
+        $idsEnteros = [];
+        foreach ($ids as $id) {
+            $idsEnteros[] = (int)$id;
+        }
+
+        if (empty($idsEnteros)) {
+            return '';
+        }
+
+        return implode(',', $idsEnteros);
     }
 }
