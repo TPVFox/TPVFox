@@ -175,54 +175,44 @@ class PosstockC2Detector
             usort($lista, fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
 
             $n_total = count($lista);
-            if ($n_total >= 3) {
-                $n_acum = 0;
+            if ($this->esAcumulacion($lista)) {
+                $primero   = $lista[0];
+                $ultimo    = end($lista);
+                $stock_max = max(array_column($lista, 'stock_previo'));
+
+                $gaps = [];
                 foreach ($lista as $inc) {
-                    $vtr = $inc['ventas_entre_recepciones'];
-                    $cob = $inc['cobertura_dias'];
-                    $es_acum = ($vtr !== null && $vtr < 1)
-                        || ($vtr === null && $cob === null);
-                    if ($es_acum) $n_acum++;
+                    if ($inc['dias_desde_anterior'] !== null) $gaps[] = $inc['dias_desde_anterior'];
                 }
-                if ($n_acum / $n_total >= 0.70) {
-                    $primero   = $lista[0];
-                    $ultimo    = end($lista);
-                    $stock_max = max(array_column($lista, 'stock_previo'));
+                $gap_medio = !empty($gaps) ? (int)round(array_sum($gaps) / count($gaps)) : null;
 
-                    $gaps = [];
-                    foreach ($lista as $inc) {
-                        if ($inc['dias_desde_anterior'] !== null) $gaps[] = $inc['dias_desde_anterior'];
-                    }
-                    $gap_medio = !empty($gaps) ? (int)round(array_sum($gaps) / count($gaps)) : null;
-
-                    if ($gap_medio !== null && $gap_medio <= 3) {
-                        $causa = "Verificar: merma no registrada · devoluciones no gestionadas · ventas no escaneadas en mostrador";
-                    } elseif ($gap_medio !== null && $gap_medio <= 10) {
-                        $causa = "(1) Merma no registrada — descartes sin movimiento de baja · (2) Devoluciones pendientes — {$n_total} recepciones semanales sin retorno · (3) Cruce de artículo — verificar si se vende bajo referencia similar";
-                    } else {
-                        $causa = "(1) Cruce de artículo — verificar si se vende bajo referencia similar · (2) Merma no registrada · (3) Stock inmovilizado — {$n_total} pedidos acumulados sin salida registrada";
-                    }
-
-                    $incidencias_final[] = [
-                        'idArticulo'               => $idArt,
-                        'tipo'                     => 'Entrada con stock alto',
-                        'severidad'                => 'ALTA',
-                        'nunidades'                => $ultimo['nunidades'],
-                        'stock_previo'             => $stock_max,
-                        'ratio'                    => $ultimo['ratio'],
-                        'c2_categoria'             => 'acumulacion',
-                        'fecha'                    => $ultimo['fecha'],
-                        'fecha_inicio'             => $primero['fecha'],
-                        'n_eventos'                => $n_total,
-                        'gap_medio'                => $gap_medio,
-                        'cobertura_dias'           => $ultimo['cobertura_dias'],
-                        'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
-                        'nunidades_anterior'       => $ultimo['nunidades_anterior'],
-                        'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
-                        'posible_causa'            => $causa,
-                    ];
-                    continue;
+                if ($gap_medio !== null && $gap_medio <= 3) {
+                    $causa = "Verificar: merma no registrada · devoluciones no gestionadas · ventas no escaneadas en mostrador";
+                } elseif ($gap_medio !== null && $gap_medio <= 10) {
+                    $causa = "(1) Merma no registrada — descartes sin movimiento de baja · (2) Devoluciones pendientes — {$n_total} recepciones semanales sin retorno · (3) Cruce de artículo — verificar si se vende bajo referencia similar";
+                } else {
+                    $causa = "(1) Cruce de artículo — verificar si se vende bajo referencia similar · (2) Merma no registrada · (3) Stock inmovilizado — {$n_total} pedidos acumulados sin salida registrada";
                 }
+
+                $incidencias_final[] = [
+                    'idArticulo'               => $idArt,
+                    'tipo'                     => 'Entrada con stock alto',
+                    'severidad'                => 'ALTA',
+                    'nunidades'                => $ultimo['nunidades'],
+                    'stock_previo'             => $stock_max,
+                    'ratio'                    => $ultimo['ratio'],
+                    'c2_categoria'             => 'acumulacion',
+                    'fecha'                    => $ultimo['fecha'],
+                    'fecha_inicio'             => $primero['fecha'],
+                    'n_eventos'                => $n_total,
+                    'gap_medio'                => $gap_medio,
+                    'cobertura_dias'           => $ultimo['cobertura_dias'],
+                    'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
+                    'nunidades_anterior'       => $ultimo['nunidades_anterior'],
+                    'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
+                    'posible_causa'            => $causa,
+                ];
+                continue;
             }
             foreach ($lista as $inc) {
                 $incidencias_final[] = $inc;
@@ -256,34 +246,31 @@ class PosstockC2Detector
                     fn($c) => $c !== null
                 ));
 
-                if (count($cobs) >= 3) {
+                if ($this->esTendenciaCreciente($cobs)) {
                     $cob_ini = (int)$cobs[0];
                     $cob_fin = (int)end($cobs);
-
-                    if ($cob_ini > 0 && ($cob_fin / $cob_ini) >= 1.5 && $cob_fin >= 45) {
-                        $primero   = $lista[0];
-                        $ultimo    = end($lista);
-                        $stock_max = max(array_column($lista, 'stock_previo'));
-                        $resultado_b[] = [
-                            'idArticulo'               => $idArt,
-                            'tipo'                     => 'Entrada con stock alto',
-                            'severidad'                => 'ALTA',
-                            'nunidades'                => $ultimo['nunidades'],
-                            'stock_previo'             => $stock_max,
-                            'ratio'                    => $ultimo['ratio'],
-                            'c2_categoria'             => 'tendencia',
-                            'fecha'                    => $ultimo['fecha'],
-                            'fecha_inicio'             => $primero['fecha'],
-                            'n_eventos'                => $n,
-                            'cobertura_inicio'         => $cob_ini,
-                            'cobertura_dias'           => $cob_fin,
-                            'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
-                            'nunidades_anterior'       => $ultimo['nunidades_anterior'],
-                            'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
-                            'posible_causa'            => "Sobrestock progresivo: la cobertura creció de {$cob_ini} a {$cob_fin} días en {$n} entregas — el ritmo de pedidos supera sistemáticamente las ventas",
-                        ];
-                        continue;
-                    }
+                    $primero   = $lista[0];
+                    $ultimo    = end($lista);
+                    $stock_max = max(array_column($lista, 'stock_previo'));
+                    $resultado_b[] = [
+                        'idArticulo'               => $idArt,
+                        'tipo'                     => 'Entrada con stock alto',
+                        'severidad'                => 'ALTA',
+                        'nunidades'                => $ultimo['nunidades'],
+                        'stock_previo'             => $stock_max,
+                        'ratio'                    => $ultimo['ratio'],
+                        'c2_categoria'             => 'tendencia',
+                        'fecha'                    => $ultimo['fecha'],
+                        'fecha_inicio'             => $primero['fecha'],
+                        'n_eventos'                => $n,
+                        'cobertura_inicio'         => $cob_ini,
+                        'cobertura_dias'           => $cob_fin,
+                        'dias_desde_anterior'      => $ultimo['dias_desde_anterior'],
+                        'nunidades_anterior'       => $ultimo['nunidades_anterior'],
+                        'ventas_entre_recepciones' => $ultimo['ventas_entre_recepciones'],
+                        'posible_causa'            => "Sobrestock progresivo: la cobertura creció de {$cob_ini} a {$cob_fin} días en {$n} entregas — el ritmo de pedidos supera sistemáticamente las ventas",
+                    ];
+                    continue;
                 }
             }
             foreach ($lista as $inc) {
