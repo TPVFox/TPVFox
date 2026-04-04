@@ -857,29 +857,16 @@ class ClasePosstock
         $familias_excluir = (array)($params['familias_excluir'] ?? []);
         $casos_incluir    = (array)($params['casos_incluir']    ?? []);
 
-        // ── Resolver filtro de proveedores una sola vez para toda la paginación ──
-        $proveedores_incluir      = (array)($params['proveedores_incluir']      ?? []);
-        $proveedor_todos          = (bool)  ($params['proveedor_todos_productos'] ?? false);
-        $ids_proveedor_filter     = [];
-        $ids_proveedor_filter_c6b = [];  // C6b: todos los artículos del proveedor, sin filtro de estado
-        $idsProveedoresCsv             = '';
-        if (!empty($proveedores_incluir)) {
-            $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
-            if (!$proveedor_todos) {
-                // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
-                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
-                $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
-                if (empty($ids_proveedor_filter)) {
-                    return ['filas' => [], 'actual' => $inicial, 'elementos' => 0];
-                }
-            }
-            // C6b evalúa todos los artículos del proveedor independientemente del estado:
-            // un artículo inactivo en articulosProveedores puede seguir en stock y vendiendo.
-            $filasArticulosProvC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProveedoresCsv);
-            if (!isset($filasArticulosProvC6b['error'])) {
-                $ids_proveedor_filter_c6b = array_column($filasArticulosProvC6b, 'idArticulo');
-            }
+        $contextoProveedor = $this->resolverContextoProveedorBatch($params);
+        if (isset($contextoProveedor['error'])) return $contextoProveedor;
+
+        $proveedor_todos = $contextoProveedor['proveedor_todos'];
+        $idsProveedoresCsv = $contextoProveedor['idsProveedoresCsv'];
+        $ids_proveedor_filter = $contextoProveedor['ids_proveedor_filter'];
+        $ids_proveedor_filter_c6b = $contextoProveedor['ids_proveedor_filter_c6b'];
+
+        if (!empty($contextoProveedor['sin_articulos'])) {
+            return ['filas' => [], 'actual' => $inicial, 'elementos' => 0];
         }
 
         // C4 y C6b no son paginables por actividad en el periodo:
@@ -895,26 +882,8 @@ class ClasePosstock
             return ['filas' => $filas, 'actual' => count($filas), 'elementos' => 0, 'pagina_efectiva' => 0]; // elementos=0 → fin
         }
 
-        // C7a y C7b requieren cálculo estadístico intensivo por artículo (bootstrap 999
-        // iteraciones, Mann-Kendall O(n²), Theil-Sen O(n²)). Con lotes grandes el proceso
-        // puede tardar varios minutos y provocar que MySQL cierre la conexión por wait_timeout.
-        // Se reduce el tamaño del lote para que cada request tarde <30 s.
-        // C7c/d/e se salta en estos lotes parciales: requiere el conjunto COMPLETO de
-        // artículos C7a+C7b para detectar cruces; ver resolverPOSStockC7cde.php (fase 2).
         $casos_c7_activos = array_intersect($casos_incluir, ['caso7a', 'caso7b']);
-        if (!empty($casos_c7_activos)) {
-            // C7 usa bootstrap O(n²) por artículo — lotes más grandes que otros casos pero
-            // razonables. C7cde ya corre aparte (fase 2), así que el riesgo de timeout
-            // por lote es menor. 80 artículos ≈ 10–20 s de procesado estadístico.
-            $pagina = min($pagina, 80);
-        }
-
-        // C9 es O(n) por artículo (backstaging lineal) pero ejecuta 5 queries extra
-        // (recepciones, timeline, prov/cli especiales, stock rebobinado). Lotes de 150
-        // son seguros; si se combina con C7 la reducción ya aplica.
-        if (in_array('caso9', $casos_incluir, true) && !in_array('caso7a', $casos_incluir, true) && !in_array('caso7b', $casos_incluir, true)) {
-            $pagina = min($pagina, 150);
-        }
+        $pagina = $this->ajustarPaginaSegunCasos($pagina, $casos_incluir);
 
         // En batches mixtos, excluir C4 y C6b de la paginación;
         // C6b se añade al primer lote (inicial === 0) para que aparezca una sola vez.
@@ -983,6 +952,72 @@ class ClasePosstock
             'elementos'      => $elementos,
             'pagina_efectiva' => $pagina,   // el JS usa este valor para saber si hay más lotes
         ];
+    }
+
+    private function resolverContextoProveedorBatch(array $params): array
+    {
+        $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
+        $proveedor_todos = (bool)($params['proveedor_todos_productos'] ?? false);
+
+        $ids_proveedor_filter = [];
+        $ids_proveedor_filter_c6b = []; // C6b: todos los artículos del proveedor, sin filtro de estado
+        $idsProveedoresCsv = '';
+        $sin_articulos = false;
+
+        if (!empty($proveedores_incluir)) {
+            $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
+            if (!$proveedor_todos) {
+                // Modo normal: solo artículos del proveedor con actividad en el periodo
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
+
+                $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
+                if (empty($ids_proveedor_filter)) {
+                    $sin_articulos = true;
+                }
+            }
+
+            // C6b evalúa todos los artículos del proveedor independientemente del estado:
+            // un artículo inactivo en articulosProveedores puede seguir en stock y vendiendo.
+            $filasArticulosProvC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProveedoresCsv);
+            if (!isset($filasArticulosProvC6b['error'])) {
+                $ids_proveedor_filter_c6b = array_column($filasArticulosProvC6b, 'idArticulo');
+            }
+        }
+
+        return [
+            'proveedor_todos' => $proveedor_todos,
+            'idsProveedoresCsv' => $idsProveedoresCsv,
+            'ids_proveedor_filter' => $ids_proveedor_filter,
+            'ids_proveedor_filter_c6b' => $ids_proveedor_filter_c6b,
+            'sin_articulos' => $sin_articulos,
+        ];
+    }
+
+    private function ajustarPaginaSegunCasos(int $pagina, array $casos_incluir): int
+    {
+        // C7a y C7b requieren cálculo estadístico intensivo por artículo (bootstrap 999
+        // iteraciones, Mann-Kendall O(n²), Theil-Sen O(n²)). Con lotes grandes el proceso
+        // puede tardar varios minutos y provocar que MySQL cierre la conexión por wait_timeout.
+        // Se reduce el tamaño del lote para que cada request tarde <30 s.
+        // C7c/d/e se salta en estos lotes parciales: requiere el conjunto COMPLETO de
+        // artículos C7a+C7b para detectar cruces; ver resolverPOSStockC7cde.php (fase 2).
+        $casos_c7_activos = array_intersect($casos_incluir, ['caso7a', 'caso7b']);
+        if (!empty($casos_c7_activos)) {
+            // C7 usa bootstrap O(n²) por artículo — lotes más grandes que otros casos pero
+            // razonables. C7cde ya corre aparte (fase 2), así que el riesgo de timeout
+            // por lote es menor. 80 artículos ≈ 10–20 s de procesado estadístico.
+            $pagina = min($pagina, 80);
+        }
+
+        // C9 es O(n) por artículo (backstaging lineal) pero ejecuta 5 queries extra
+        // (recepciones, timeline, prov/cli especiales, stock rebobinado). Lotes de 150
+        // son seguros; si se combina con C7 la reducción ya aplica.
+        if (in_array('caso9', $casos_incluir, true) && !in_array('caso7a', $casos_incluir, true) && !in_array('caso7b', $casos_incluir, true)) {
+            $pagina = min($pagina, 150);
+        }
+
+        return $pagina;
     }
 
     /**
