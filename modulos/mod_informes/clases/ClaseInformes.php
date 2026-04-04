@@ -87,8 +87,8 @@ class ClaseInformes extends TFModelo
         //          [Fecha_Final] => (fecha Y-m-d),
         //          [opcion] => (int) Indica el la opcion seleccionada para realizar filtros.
         // @ Devolvemos
-        $BDTpv = $this->conexionBDTPV();
-        $CProveedor = new ClaseProveedor($BDTpv);
+        $db = $this->conexionBDTPV();
+        $CProveedor = new ClaseProveedor($db);
         // Tratamos parametros para añadir ids_proveedores y tratarlos
         $opcion = $parametros['opcion'];
         $id_informe = $parametros['id'];
@@ -108,12 +108,12 @@ class ClaseInformes extends TFModelo
             ];
         }
 
-        $fechaInicial = $BDTpv->real_escape_string($parametros['Finicio']);
-        $fechaFinal   = $BDTpv->real_escape_string($parametros['Ffinal']);
+        $fechaInicial = $db->real_escape_string($parametros['Finicio']);
+        $fechaFinal   = $db->real_escape_string($parametros['Ffinal']);
         $idsStr       = implode(',', array_map('intval', $ids));
 
         // ── Bulk Query 1: todos los albaranes de todos los proveedores ──────
-        $rAlb = $BDTpv->query("
+        $sentenciaAlbaranes = $db->query("
             SELECT id AS idalbpro, idProveedor
             FROM albprot
             WHERE idProveedor IN ($idsStr)
@@ -121,11 +121,11 @@ class ClaseInformes extends TFModelo
         ");
         $albIdsByProveedor = [];
         $allAlbIds         = [];
-        while ($row = $rAlb->fetch_assoc()) {
-            $pId = (int)$row['idProveedor'];
-            $aId = (int)$row['idalbpro'];
-            $albIdsByProveedor[$pId][] = $aId;
-            $allAlbIds[]               = $aId;
+        while ($fila = $sentenciaAlbaranes->fetch_assoc()) {
+            $idProveedor = (int)$fila['idProveedor'];
+            $idAlbaran = (int)$fila['idalbpro'];
+            $albIdsByProveedor[$idProveedor][] = $idAlbaran;
+            $allAlbIds[]               = $idAlbaran;
         }
 
         $productosByAlb = [];
@@ -135,7 +135,7 @@ class ClaseInformes extends TFModelo
             $albStr = implode(',', $allAlbIds);
 
             // ── Bulk Query 2: líneas para todos los albaranes ───────────────
-            $rLin = $BDTpv->query("
+            $sentenciaLineas = $db->query("
                 SELECT idalbpro, idArticulo, costeSiva,
                        SUM(nunidades) AS totalUnidades
                 FROM albprolinea
@@ -143,12 +143,12 @@ class ClaseInformes extends TFModelo
                   AND estadoLinea <> 'Eliminado'
                 GROUP BY idalbpro, idArticulo, costeSiva
             ");
-            while ($row = $rLin->fetch_assoc()) {
-                $productosByAlb[(int)$row['idalbpro']][] = $row;
+            while ($fila = $sentenciaLineas->fetch_assoc()) {
+                $productosByAlb[(int)$fila['idalbpro']][] = $fila;
             }
 
             // ── Bulk Query 3: resumenBases para todos los albaranes ─────────
-            $rRes = $BDTpv->query("
+            $sentenciaResumen = $db->query("
                 SELECT i.iva, i.totalbase, i.importeIva,
                        t.id AS idalbpro, t.Su_numero, t.idTienda, t.estado,
                        t.idProveedor, t.idUsuario,
@@ -161,15 +161,15 @@ class ClaseInformes extends TFModelo
                 GROUP BY i.idalbpro
                 ORDER BY t.idProveedor, t.Fecha
             ");
-            while ($row = $rRes->fetch_assoc()) {
-                $resumenByAlb[(int)$row['idalbpro']] = $row;
+            while ($fila = $sentenciaResumen->fetch_assoc()) {
+                $resumenByAlb[(int)$fila['idalbpro']] = $fila;
             }
         }
 
         // ── Construir $todosProveedores con la misma estructura que antes ──
         foreach ($todosProveedores as $key => $proveedor) {
-            $pId    = (int)$proveedor['idProveedor'];
-            $albIds = $albIdsByProveedor[$pId] ?? [];
+            $idProveedor    = (int)$proveedor['idProveedor'];
+            $albIds = $albIdsByProveedor[$idProveedor] ?? [];
 
             if (empty($albIds)) {
                 continue; // sin albaranes en el período
@@ -177,12 +177,12 @@ class ClaseInformes extends TFModelo
 
             $productos    = [];
             $resumenBases = [];
-            foreach ($albIds as $aId) {
-                foreach ($productosByAlb[$aId] ?? [] as $linea) {
+            foreach ($albIds as $idAlbaran) {
+                foreach ($productosByAlb[$idAlbaran] ?? [] as $linea) {
                     $productos[] = $linea;
                 }
-                if (isset($resumenByAlb[$aId])) {
-                    $resumenBases[] = $resumenByAlb[$aId];
+                if (isset($resumenByAlb[$idAlbaran])) {
+                    $resumenBases[] = $resumenByAlb[$idAlbaran];
                 }
             }
 
@@ -344,9 +344,9 @@ class ClaseInformes extends TFModelo
         //                      articulos => [ idArticulo, totalUnidades, costeSiva,
         //                                     coste_medio, num_compras, total_linea ] ] ]
 
-        $BDTpv       = $this->conexionBDTPV();
-        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
-        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
+        $db       = $this->conexionBDTPV();
+        $fechaInicio = $db->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $db->real_escape_string($parametros['Ffinal']);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -354,7 +354,7 @@ class ClaseInformes extends TFModelo
         if ((int)$parametros['opcion'] === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($db, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -388,10 +388,10 @@ class ClaseInformes extends TFModelo
             ORDER BY nombreN1, nombreN2, l.idArticulo
         ";
 
-        $smt    = $BDTpv->query($sql);
+        $sentencia    = $db->query($sql);
         $lineas = [];
-        while ($row = $smt->fetch_assoc()) {
-            $lineas[] = $row;
+        while ($fila = $sentencia->fetch_assoc()) {
+            $lineas[] = $fila;
         }
 
         // ── Construir estructura jerárquica ──────────────────────────────────
@@ -517,9 +517,9 @@ class ClaseInformes extends TFModelo
         // Misma estructura de respuesta que ResumenFamilias pero sobre ventas.
         // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
 
-        $BDTpv       = $this->conexionBDTPV();
-        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
-        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
+        $db       = $this->conexionBDTPV();
+        $fechaInicio = $db->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $db->real_escape_string($parametros['Ffinal']);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -527,7 +527,7 @@ class ClaseInformes extends TFModelo
         if ((int)($parametros['opcion'] ?? 0) === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($db, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -596,10 +596,10 @@ class ClaseInformes extends TFModelo
             ORDER BY nombreN1, nombreN2, idArticulo
         ";
 
-        $smt    = $BDTpv->query($sql);
+        $sentencia    = $db->query($sql);
         $lineas = [];
-        while ($row = $smt->fetch_assoc()) {
-            $lineas[] = $row;
+        while ($fila = $sentencia->fetch_assoc()) {
+            $lineas[] = $fila;
         }
 
         $familias = [];
