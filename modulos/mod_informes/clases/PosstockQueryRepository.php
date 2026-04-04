@@ -1013,23 +1013,18 @@ class PosstockQueryRepository
             $id           = $inc['idArticulo'];
             $fecha_actual = $inc['fecha'];
 
-            $anterior = null;
-            foreach ($rec_por_art[$id] ?? [] as $rec) {
-                if ($rec['fecha'] < $fecha_actual) $anterior = $rec;
-                elseif ($rec['fecha'] >= $fecha_actual) break;
-            }
+            $anterior = $this->buscarRecepcionAnterior($rec_por_art[$id] ?? [], $fecha_actual);
 
             if ($anterior !== null) {
                 $dias = (int)((strtotime($fecha_actual) - strtotime($anterior['fecha'])) / 86400);
                 $inc['dias_desde_anterior'] = $dias;
                 $inc['nunidades_anterior']      = $anterior['nunidades'];
 
-                $ventas_entre = 0.0;
-                foreach ($vtas_por_art[$id] ?? [] as $v) {
-                    if ($v['fecha'] > $anterior['fecha'] && $v['fecha'] < $fecha_actual) {
-                        $ventas_entre += $v['qty'];
-                    }
-                }
+                $ventas_entre = $this->sumarVentasEntreFechas(
+                    $vtas_por_art[$id] ?? [],
+                    $anterior['fecha'],
+                    $fecha_actual
+                );
                 $inc['ventas_entre_recepciones'] = $ventas_entre;
             } else {
                 $inc['dias_desde_anterior']      = null;
@@ -1690,5 +1685,36 @@ class PosstockQueryRepository
         $fechaFinEscapada = $this->db->real_escape_string($fechaFinVentana);
 
         return "(l.idArticulo = $idArticuloEscapado AND DATE(c.Fecha) BETWEEN '$fechaInicioEscapada' AND '$fechaFinEscapada')";
+    }
+
+    private function buscarRecepcionAnterior(array $recepcionesPorArticulo, string $fechaActual): ?array
+    {
+        $recepcionAnterior = null;
+
+        foreach ($recepcionesPorArticulo as $recepcion) {
+            if ($recepcion['fecha'] < $fechaActual) {
+                $recepcionAnterior = $recepcion;
+                continue;
+            }
+
+            if ($recepcion['fecha'] >= $fechaActual) {
+                break;
+            }
+        }
+
+        return $recepcionAnterior;
+    }
+
+    private function sumarVentasEntreFechas(array $ventasPorArticulo, string $fechaInicioExclusiva, string $fechaFinExclusiva): float
+    {
+        $ventasAcumuladas = 0.0;
+
+        foreach ($ventasPorArticulo as $venta) {
+            if ($venta['fecha'] <= $fechaInicioExclusiva) continue;
+            if ($venta['fecha'] >= $fechaFinExclusiva) continue;
+            $ventasAcumuladas += $venta['qty'];
+        }
+
+        return $ventasAcumuladas;
     }
 }
