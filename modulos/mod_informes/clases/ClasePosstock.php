@@ -68,6 +68,7 @@
  */
 require_once __DIR__ . '/PosstockStatistics.php';
 require_once __DIR__ . '/PosstockQueryRepository.php';
+require_once __DIR__ . '/PosstockParamsDTO.php';
 require_once __DIR__ . '/PosstockC1Detector.php';
 require_once __DIR__ . '/PosstockC2Detector.php';
 require_once __DIR__ . '/PosstockC3Detector.php';
@@ -298,13 +299,15 @@ class ClasePosstock
      */
     public function getIncidencias(array $params): array
     {
-        $fi_mov   = $params['fecha_inicio_movimientos'];
-        $ff_mov   = $params['fecha_fin_movimientos'];
-        $fi_stock = $params['fecha_inicio_stock'];
-        $ff_stock = $params['fecha_fin_stock'];
+        $paramsDto = PosstockParamsDTO::fromArray($params);
+
+        $fi_mov   = $paramsDto->fecha_inicio_movimientos;
+        $ff_mov   = $paramsDto->fecha_fin_movimientos;
+        $fi_stock = $paramsDto->fecha_inicio_stock;
+        $ff_stock = $paramsDto->fecha_fin_stock;
         // Ventana estadística ampliada para semana/quincena/mes (±1 periodo)
-        $fi_stats = $params['fecha_inicio_stats'] ?? $fi_stock;
-        $ff_stats = $params['fecha_fin_stats']    ?? $ff_mov;
+        $fi_stats = $paramsDto->fecha_inicio_stats;
+        $ff_stats = $paramsDto->fecha_fin_stats;
 
         $umbral_sobrestock         = (float)  ($params['umbral_sobrestock']           ?? 0.5);
         $umbral_caducidad          = (int)    ($params['umbral_caducidad_semanas']    ?? 24);
@@ -340,16 +343,16 @@ class ClasePosstock
         $c7a_umbral_alta_slope_peso = (float)  ($params['c7a_umbral_alta_slope_peso']    ?? 1.0);
         $c7a_umbral_snr             = (float)  ($params['c7a_umbral_snr']                ?? 0.15);
         $c7a_cascada_exhaustiva     = (bool)   ($params['c7a_cascada_exhaustiva']        ?? false);
-        $familias_incluir    = (array) ($params['familias_incluir'] ?? []);
-        $familias_excluir    = (array) ($params['familias_excluir'] ?? []);
-        $ids_filter          = (array) ($params['ids_filter']       ?? []);
+        $familias_incluir    = $paramsDto->familias_incluir;
+        $familias_excluir    = $paramsDto->familias_excluir;
+        $ids_filter          = $paramsDto->ids_filter;
 
         $filtroProveedor = $this->resolverIdsFiltroConProveedores($params, $ids_filter);
         if (isset($filtroProveedor['error'])) return $filtroProveedor;
         if (!empty($filtroProveedor['sin_resultados'])) return [];
         $ids_filter = $filtroProveedor['ids_filter'];
 
-        $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
+        $proveedores_incluir = $paramsDto->proveedores_incluir;
         if (!empty($filtroProveedor['ids_proveedor_filter'])) {
             $ids_proveedor_filter = $filtroProveedor['ids_proveedor_filter'];
         } else {
@@ -840,11 +843,13 @@ class ClasePosstock
 
     public function getIncidenciasBatch(array $params, int $inicial, int $pagina): array
     {
-        $fi_mov           = $params['fecha_inicio_movimientos'];
-        $ff_mov           = $params['fecha_fin_movimientos'];
-        $familias_incluir = (array)($params['familias_incluir'] ?? []);
-        $familias_excluir = (array)($params['familias_excluir'] ?? []);
-        $casos_incluir    = (array)($params['casos_incluir']    ?? []);
+        $paramsDto = PosstockParamsDTO::fromArray($params);
+
+        $fi_mov           = $paramsDto->fecha_inicio_movimientos;
+        $ff_mov           = $paramsDto->fecha_fin_movimientos;
+        $familias_incluir = $paramsDto->familias_incluir;
+        $familias_excluir = $paramsDto->familias_excluir;
+        $casos_incluir    = $paramsDto->casos_incluir;
 
         $contextoProveedor = $this->resolverContextoProveedorBatch($params);
         if (isset($contextoProveedor['error'])) return $contextoProveedor;
