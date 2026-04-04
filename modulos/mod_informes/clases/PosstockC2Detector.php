@@ -50,89 +50,82 @@ class PosstockC2Detector
         array  $ids_filter = [],
         array  $stock_base_cache = []
     ): array {
-        $fi    = $this->db->real_escape_string($fi_mov);
-        $ff    = $this->db->real_escape_string($ff_mov);
-        $wf    = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
-        $wi    = $this->repo->idsWhere($ids_filter);
+        $fechaInicio       = $this->db->real_escape_string($fi_mov);
+        $fechaFin          = $this->db->real_escape_string($ff_mov);
+        $filtroFamiliasSql = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $filtroArticulosSql = $this->repo->idsWhere($ids_filter);
 
-        $filas_sql = $this->repo->queryEntradasC2($fi, $ff, $wf, $wi);
-        if (isset($filas_sql['error'])) return $filas_sql;
-        if (empty($filas_sql)) return [];
+        $filasEntradas = $this->repo->queryEntradasC2($fechaInicio, $fechaFin, $filtroFamiliasSql, $filtroArticulosSql);
+        if (isset($filasEntradas['error'])) return $filasEntradas;
+        if (empty($filasEntradas)) return [];
 
-        $ids = [];
-        foreach ($filas_sql as $e) $ids[(int)$e['idArticulo']] = true;
-        $ids = array_keys($ids);
+        $idsArticulos = [];
+        foreach ($filasEntradas as $filaEntrada) {
+            $idsArticulos[(int)$filaEntrada['idArticulo']] = true;
+        }
+        $idsArticulos = array_keys($idsArticulos);
 
         // Obtener stock base: usar cache si disponible, si no consultar
         if (!empty($stock_base_cache)) {
             $stock_base = $stock_base_cache;
         } else {
-            $fi_sb   = $this->db->real_escape_string($fi_stock);
-            $ff_sb   = $this->db->real_escape_string($ff_stock);
-            $ids_sb  = implode(',', array_map('intval', $ids));
-            $rows_sb = $this->repo->queryStockBase($fi_sb, $ff_sb, $ids_sb);
-            if (isset($rows_sb['error'])) return $rows_sb;
+            $fechaInicioStockBase = $this->db->real_escape_string($fi_stock);
+            $fechaFinStockBase    = $this->db->real_escape_string($ff_stock);
+            $idsArticulosCsv      = implode(',', array_map('intval', $idsArticulos));
+            $filasStockBase       = $this->repo->queryStockBase($fechaInicioStockBase, $fechaFinStockBase, $idsArticulosCsv);
+            if (isset($filasStockBase['error'])) return $filasStockBase;
             $stock_base = [];
-            foreach ($rows_sb as $row) {
-                $stock_base[(int)$row['idArticulo']] = [
-                    'saldo_acumulado' => (float)$row['saldo_acumulado'],
-                    'ultima_compra'   => $row['ultima_compra'],
-                    'ultima_venta'    => $row['ultima_venta'],
+            foreach ($filasStockBase as $filaStockBase) {
+                $stock_base[(int)$filaStockBase['idArticulo']] = [
+                    'saldo_acumulado' => (float)$filaStockBase['saldo_acumulado'],
+                    'ultima_compra'   => $filaStockBase['ultima_compra'],
+                    'ultima_venta'    => $filaStockBase['ultima_venta'],
                 ];
             }
         }
 
         // ── Paso 1: recoger candidatos (filtro ratio) ────────────────────────
         $candidatos = [];
-        foreach ($filas_sql as $e) {
-            $id           = (int)$e['idArticulo'];
-            $saldo_base   = $stock_base[$id]['saldo_acumulado'] ?? 0.0;
-            $stock_previo = $saldo_base + (float)$e['cum_before'];
-            $nunidades    = (float)$e['nunidades'];
+        foreach ($filasEntradas as $filaEntrada) {
+            $idArticulo   = (int)$filaEntrada['idArticulo'];
+            $saldo_base   = $stock_base[$idArticulo]['saldo_acumulado'] ?? 0.0;
+            $stock_previo = $saldo_base + (float)$filaEntrada['cum_before'];
+            $nunidades    = (float)$filaEntrada['nunidades'];
             if ($nunidades <= 0 || $stock_previo < $nunidades * $umbral_sobrestock) continue;
 
             $ratio = $stock_previo / $nunidades;
-            if ($ratio <= $umbral_duplicado) {
-                $categoria     = 'duplicado';
-                $posible_causa = 'Stock disponible similar a la entrada recibida: el pedido podría no estar justificado';
-            } elseif ($ratio >= $umbral_severo) {
-                $categoria     = 'severo';
-                $posible_causa = 'Sobrestock significativo: el stock previo superaba ampliamente la cantidad recibida';
-            } else {
-                $categoria     = 'elevado';
-                $posible_causa = 'Sobrestock moderado: el stock disponible superaba el umbral establecido antes de recibir la entrada';
-            }
+            $clasificacion = $this->clasificarRatio($ratio, $umbral_duplicado, $umbral_severo);
 
             $candidatos[] = [
-                'idArticulo'    => $id,
+                'idArticulo'    => $idArticulo,
                 'tipo'          => 'Entrada con stock alto',
                 'severidad'     => 'MEDIA',
                 'nunidades'     => $nunidades,
                 'stock_previo'  => $stock_previo,
                 'ratio'         => round($ratio, 2),
-                'c2_categoria'  => $categoria,
-                'fecha'         => $e['fecha'],
-                'posible_causa' => $posible_causa,
+                'c2_categoria'  => $clasificacion['categoria'],
+                'fecha'         => $filaEntrada['fecha'],
+                'posible_causa' => $clasificacion['posible_causa'],
             ];
         }
         if (empty($candidatos)) return [];
 
         // ── Paso 2: filtro de cobertura ───────────────────────────────────────
-        $ids_cands  = array_unique(array_column($candidatos, 'idArticulo'));
-        $ventas_map = $this->repo->queryVentasC2(implode(',', $ids_cands), $fi, $ff);
-        $n_dias     = max(1, (int)((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
+        $idsCandidatos  = array_unique(array_column($candidatos, 'idArticulo'));
+        $mapaVentas     = $this->repo->queryVentasC2(implode(',', $idsCandidatos), $fechaInicio, $fechaFin);
+        $numeroDias     = max(1, (int)((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
 
         $incidencias = [];
-        foreach ($candidatos as $cand) {
-            $ventas = $ventas_map[$cand['idArticulo']] ?? 0.0;
+        foreach ($candidatos as $candidato) {
+            $ventas = $mapaVentas[$candidato['idArticulo']] ?? 0.0;
             if ($ventas > 0) {
-                $cobertura = (int)round($cand['stock_previo'] / ($ventas / $n_dias));
+                $cobertura = (int)round($candidato['stock_previo'] / ($ventas / $numeroDias));
                 if ($cobertura <= $umbral_cobertura_dias) continue;  // rotación suficiente, falso positivo
-                $cand['cobertura_dias'] = $cobertura;
+                $candidato['cobertura_dias'] = $cobertura;
             } else {
-                $cand['cobertura_dias'] = null;  // sin ventas = cobertura infinita, siempre flagear
+                $candidato['cobertura_dias'] = null;  // sin ventas = cobertura infinita, siempre flagear
             }
-            $incidencias[] = $cand;
+            $incidencias[] = $candidato;
         }
         if (empty($incidencias)) return [];
 
