@@ -415,19 +415,7 @@ class BeneficioCalculator
             GROUP BY $flujoGroupByKey
         ";
         $sentenciaFlujoCompras = $this->db->query($sqlFlujoCompras);
-        $flujoComprasPorN1 = [];
-        while ($filaFlujoCompra = $sentenciaFlujoCompras->fetch_assoc()) {
-            $rawKey = $filaFlujoCompra['flujo_key'];
-            // Con jerarquía virtual, mapear idFamilia real → virtual N1
-            if ($virtualHierarchy !== null && $rawKey !== null) {
-                $vN1 = $virtualHierarchy[(int)$rawKey]['vN1'] ?? null;
-                $idN1key = $vN1 !== null ? $vN1 : '__sin_familia__';
-            } else {
-                $idN1key = $rawKey !== null ? (int)$rawKey : '__sin_familia__';
-            }
-            $flujoComprasPorN1[$idN1key]['compras_siva'] = ($flujoComprasPorN1[$idN1key]['compras_siva'] ?? 0) + (float)$filaFlujoCompra['compras_siva'];
-            $flujoComprasPorN1[$idN1key]['compras_civa'] = ($flujoComprasPorN1[$idN1key]['compras_civa'] ?? 0) + (float)$filaFlujoCompra['compras_civa'];
-        }
+        $flujoComprasPorN1 = $this->acumularFlujoPorN1($sentenciaFlujoCompras, $virtualHierarchy, 'compras');
 
         // Ventas globales para el flujo
         $sqlFlujoVentas = "
@@ -498,18 +486,7 @@ class BeneficioCalculator
             GROUP BY $flujoGroupByKey
         ";
         $sentenciaFlujoVentasPorN1 = $this->db->query($sqlFlujoVentasN1);
-        $flujoVentasPorN1 = [];
-        while ($filaFlujoVentaN1 = $sentenciaFlujoVentasPorN1->fetch_assoc()) {
-            $rawKey = $filaFlujoVentaN1['flujo_key'];
-            if ($virtualHierarchy !== null && $rawKey !== null) {
-                $vN1 = $virtualHierarchy[(int)$rawKey]['vN1'] ?? null;
-                $idN1key = $vN1 !== null ? $vN1 : '__sin_familia__';
-            } else {
-                $idN1key = $rawKey !== null ? (int)$rawKey : '__sin_familia__';
-            }
-            $flujoVentasPorN1[$idN1key]['ventas_civa'] = ($flujoVentasPorN1[$idN1key]['ventas_civa'] ?? 0) + (float)$filaFlujoVentaN1['ventas_civa'];
-            $flujoVentasPorN1[$idN1key]['ventas_siva'] = ($flujoVentasPorN1[$idN1key]['ventas_siva'] ?? 0) + (float)$filaFlujoVentaN1['ventas_siva'];
-        }
+        $flujoVentasPorN1 = $this->acumularFlujoPorN1($sentenciaFlujoVentasPorN1, $virtualHierarchy, 'ventas');
 
         // ── Stock medio del período para Rotación y GMROI ────────────────
         // La BD es anualizada: toda la información de stock está en los movimientos del año.
@@ -744,5 +721,35 @@ class BeneficioCalculator
             'filtroFlujoN1Where'      => $filtroFlujoN1Where,
             'flujoGroupByKey'         => $flujoGroupByKey,
         ];
+    }
+
+    private function acumularFlujoPorN1(mysqli_result $sentenciaFlujo, ?array $virtualHierarchy, string $modo): array
+    {
+        $acumulado = [];
+
+        while ($filaFlujo = $sentenciaFlujo->fetch_assoc()) {
+            $idN1key = $this->resolverKeyN1Flujo($filaFlujo['flujo_key'] ?? null, $virtualHierarchy);
+
+            if ($modo === 'compras') {
+                $acumulado[$idN1key]['compras_siva'] = ($acumulado[$idN1key]['compras_siva'] ?? 0) + (float)$filaFlujo['compras_siva'];
+                $acumulado[$idN1key]['compras_civa'] = ($acumulado[$idN1key]['compras_civa'] ?? 0) + (float)$filaFlujo['compras_civa'];
+            } else {
+                $acumulado[$idN1key]['ventas_civa'] = ($acumulado[$idN1key]['ventas_civa'] ?? 0) + (float)$filaFlujo['ventas_civa'];
+                $acumulado[$idN1key]['ventas_siva'] = ($acumulado[$idN1key]['ventas_siva'] ?? 0) + (float)$filaFlujo['ventas_siva'];
+            }
+        }
+
+        return $acumulado;
+    }
+
+    private function resolverKeyN1Flujo(mixed $rawKey, ?array $virtualHierarchy): int|string
+    {
+        // Con jerarquía virtual, mapear idFamilia real → virtual N1.
+        if ($virtualHierarchy !== null && $rawKey !== null) {
+            $vN1 = $virtualHierarchy[(int)$rawKey]['vN1'] ?? null;
+            return $vN1 !== null ? $vN1 : '__sin_familia__';
+        }
+
+        return $rawKey !== null ? (int)$rawKey : '__sin_familia__';
     }
 }
