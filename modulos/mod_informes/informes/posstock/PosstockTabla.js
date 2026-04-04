@@ -99,8 +99,8 @@ function _posstockReordenarTabla() {
         filas.sort(function (a, b) {
             const provA = a.dataset.prov || "";
             const provB = b.dataset.prov || "";
-            if (pa === "" && provB !== "") return 1;
-            if (provA !== "" && pb === "") return -1;
+            if (provA === "" && provB !== "") return 1;
+            if (provA !== "" && provB === "") return -1;
             if (provA !== provB) return provA.localeCompare(provB, "es");
             let ordenA = a.dataset.orden || "";
             let ordenB = b.dataset.orden || "";
