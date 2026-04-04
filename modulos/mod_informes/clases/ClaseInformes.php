@@ -332,18 +332,6 @@ class ClaseInformes extends TFModelo
 
     public function ResumenFamilias($parametros = array())
     {
-        // @ Objetivo
-        // Suma las líneas de albaranes de proveedor agrupadas por la jerarquía de familias
-        // (N1 = familia raíz, N2 = subfamilia) usando la vista vw_jerarquias_familias.
-        // @ Parámetros
-        //   Finicio  (Y-m-d)
-        //   Ffinal   (Y-m-d)
-        // @ Devuelve  array indexado de familias N1:
-        //   [ idN1, nombreN1, total_linea, num_referencias,
-        //     subfamilias => [ idN2, nombreN2, total_linea, num_referencias,
-        //                      articulos => [ idArticulo, totalUnidades, costeSiva,
-        //                                     coste_medio, num_compras, total_linea ] ] ]
-
         $db       = $this->conexionBDTPV();
         $fechaInicio = $db->real_escape_string($parametros['Finicio']);
         $fechaFinal  = $db->real_escape_string($parametros['Ffinal']);
@@ -361,6 +349,8 @@ class ClaseInformes extends TFModelo
             }
         }
 
+        // Se añade familiaDirecta solo en opcion=4 para remapear N1/N2 virtual en PHP
+        // sin introducir consultas adicionales por artículo (evita patrón N+1).
         $selectFamId  = $needsIdFamilia ? ', af.idFamilia AS familiaDirecta' : ', NULL AS familiaDirecta';
         $groupByFamId = $needsIdFamilia ? ', af.idFamilia'                   : '';
 
@@ -534,6 +524,9 @@ class ClaseInformes extends TFModelo
             }
         }
 
+        // Para opcion=4 se conserva idFamilia y se agrupa también por él, porque la
+        // jerarquía virtual se resuelve en memoria y una familia real puede mapear a
+        // un nodo virtual distinto al de la jerarquía estándar.
         $selectFamId  = $needsIdFamilia ? ', af.idFamilia AS familiaDirecta' : ', NULL AS familiaDirecta';
         $groupByFamId = $needsIdFamilia ? ', af.idFamilia'                   : '';
 
