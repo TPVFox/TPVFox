@@ -760,32 +760,32 @@ class ClasePosstock
                 $incidencia['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $incidencia['idArticulo']);
             } elseif ($incidencia['tipo'] === 'Inventario en negativo') {
                 // C1a: stock_actual desc (más negativo primero), desempate por días en negativo desc
-                $inv_stock = str_pad(max(0, 9999999999 - (int)(abs((float)($incidencia['stock_actual'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
-                $inv_dias  = str_pad(max(0, 9999 - (int)($incidencia['dias_en_negativo'] ?? 0)), 4, '0', STR_PAD_LEFT);
+                $inv_stock = $this->construirClaveDescendenteDecimal($incidencia['stock_actual'] ?? 0, 100, 9999999999, 10);
+                $inv_dias  = $this->construirClaveDescendenteEntera($incidencia['dias_en_negativo'] ?? 0, 9999, 4);
                 $incidencia['orden_clave'] = $sev_idx . '0' . $inv_stock . $inv_dias;
             } elseif ($incidencia['tipo'] === 'Desajuste Puntual de Stock') {
                 // C1b: abs(min_balance) desc — el mínimo más profundo primero
-                $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($incidencia['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
+                $inv_min = $this->construirClaveDescendenteDecimal($incidencia['min_balance'] ?? 0, 100, 9999999999, 10);
                 $incidencia['orden_clave'] = $sev_idx . '0' . $inv_min;
             } elseif (in_array($incidencia['c7_subcaso'] ?? '', ['C7a', 'C7a_posible'], true)) {
                 // C7a: coste_estimado_merma desc → delta_acumulado desc → tendencia desc
-                $coste_inv  = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['coste_estimado_merma'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
-                $delta_inv  = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['delta_acumulado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
-                $slope_inv  = str_pad(max(0, 9999 - (int)(abs((float)($incidencia['tendencia'] ?? 0)) * 10)), 4, '0', STR_PAD_LEFT);
+                $coste_inv  = $this->construirClaveDescendenteDecimal($incidencia['coste_estimado_merma'] ?? 0, 100, 9999999, 7);
+                $delta_inv  = $this->construirClaveDescendenteDecimal($incidencia['delta_acumulado'] ?? 0, 10, 99999, 5);
+                $slope_inv  = $this->construirClaveDescendenteDecimal($incidencia['tendencia'] ?? 0, 10, 9999, 4);
                 $coste_null = ($incidencia['coste_estimado_merma'] ?? null) === null ? '1' : '0';
                 $incidencia['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $delta_inv . $slope_inv;
             } elseif (in_array($incidencia['c7_subcaso'] ?? '', ['C7b', 'C7b_posible', 'C7b_ruido_peso'], true)) {
                 // C7b: coste_estimado desc → n_recepciones desc → déficit abs desc
-                $coste_inv = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['coste_estimado'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
-                $rec_inv   = str_pad(max(0, 9999 - (int)($incidencia['n_recepciones'] ?? 0)), 4, '0', STR_PAD_LEFT);
-                $def_inv   = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['offset_estimado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
+                $coste_inv = $this->construirClaveDescendenteDecimal($incidencia['coste_estimado'] ?? 0, 100, 9999999, 7);
+                $rec_inv   = $this->construirClaveDescendenteEntera($incidencia['n_recepciones'] ?? 0, 9999, 4);
+                $def_inv   = $this->construirClaveDescendenteDecimal($incidencia['offset_estimado'] ?? 0, 10, 99999, 5);
                 // Nulls de coste al final
                 $coste_null = ($incidencia['coste_estimado'] ?? null) === null ? '1' : '0';
                 $incidencia['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $rec_inv . $def_inv;
             } elseif ($incidencia['tipo'] === 'Merma backstaging') {
                 // C9: pct_merma desc → merma_total_kg desc
-                $pct_inv   = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['pct_merma']     ?? 0)) * 100)), 5, '0', STR_PAD_LEFT);
-                $merma_inv = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['merma_total_kg'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $pct_inv   = $this->construirClaveDescendenteDecimal($incidencia['pct_merma'] ?? 0, 100, 99999, 5);
+                $merma_inv = $this->construirClaveDescendenteDecimal($incidencia['merma_total_kg'] ?? 0, 100, 9999999, 7);
                 $incidencia['orden_clave'] = $sev_idx . '0' . $pct_inv . $merma_inv;
             } else {
                 $incidencia['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $incidencia['idArticulo']);
@@ -1049,6 +1049,31 @@ class ClasePosstock
         }
 
         return $pagina;
+    }
+
+    private function construirClaveDescendenteDecimal(mixed $valor, int $escala, int $maximo, int $ancho): string
+    {
+        $valorAbsoluto = abs((float)$valor);
+        $valorEscalado = (int)($valorAbsoluto * $escala);
+        $valorInvertido = $maximo - $valorEscalado;
+        if ($valorInvertido < 0) {
+            $valorInvertido = 0;
+        }
+
+        // Se mantiene esta codificación por rendimiento: el frontend ordena por orden_clave
+        // sin recomputar reglas de prioridad ni abrir nuevas ramas condicionales por columna.
+        return str_pad((string)$valorInvertido, $ancho, '0', STR_PAD_LEFT);
+    }
+
+    private function construirClaveDescendenteEntera(mixed $valor, int $maximo, int $ancho): string
+    {
+        $valorEntero = (int)$valor;
+        $valorInvertido = $maximo - $valorEntero;
+        if ($valorInvertido < 0) {
+            $valorInvertido = 0;
+        }
+
+        return str_pad((string)$valorInvertido, $ancho, '0', STR_PAD_LEFT);
     }
 
     /**
