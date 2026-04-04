@@ -559,8 +559,8 @@ class PosstockQueryRepository
     {
         if (empty($proveedores_incluir)) return 0;
 
-        $fechaInicioEsc       = $this->db->real_escape_string($fi_stock);
-        $fechaFinEsc       = $this->db->real_escape_string($ff_mov);
+        $fechaInicioEsc = $this->db->real_escape_string($fi_stock);
+        $fechaFinEsc = $this->db->real_escape_string($ff_mov);
         $ids_prov = implode(',', array_map('intval', $proveedores_incluir));
 
         $filas = $this->queryFechasAlbaranesByProveedores($fechaInicioEsc, $fechaFinEsc, $ids_prov);
@@ -571,23 +571,19 @@ class PosstockQueryRepository
             $por_proveedor[(int)$fila['idProveedor']][] = $fila['fecha_albaran'];
         }
 
-        $lts = [];
+        $leadTimes = [];
         foreach ($por_proveedor as $fechas) {
             if (count($fechas) < 2) continue;
-            $ts = array_map('strtotime', $fechas);
-            sort($ts);
-            $intervalos = [];
-            for ($i = 1, $np = count($ts); $i < $np; $i++) {
-                $dias = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
-                if ($dias > 0) $intervalos[] = $dias;
-            }
-            if (!empty($intervalos)) {
-                $lts[] = array_sum($intervalos) / count($intervalos);
-            }
+
+            $timestampsOrdenados = $this->ordenarTimestampsDesdeFechas($fechas);
+            $mediaIntervalosDias = $this->calcularMediaIntervalosPositivosDias($timestampsOrdenados);
+            if ($mediaIntervalosDias === null) continue;
+
+            $leadTimes[] = $mediaIntervalosDias;
         }
 
-        if (empty($lts)) return 0;
-        return max(1, (int)round(array_sum($lts) / count($lts)));
+        if (empty($leadTimes)) return 0;
+        return max(1, (int)round(array_sum($leadTimes) / count($leadTimes)));
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -1654,5 +1650,35 @@ class PosstockQueryRepository
         }
 
         return array_keys($idsUnicos);
+    }
+
+    private function ordenarTimestampsDesdeFechas(array $fechas): array
+    {
+        $timestamps = [];
+        foreach ($fechas as $fecha) {
+            $timestamps[] = strtotime($fecha);
+        }
+
+        sort($timestamps);
+        return $timestamps;
+    }
+
+    private function calcularMediaIntervalosPositivosDias(array $timestampsOrdenados): ?float
+    {
+        $intervalos = [];
+        $totalTimestamps = count($timestampsOrdenados);
+
+        for ($i = 1; $i < $totalTimestamps; $i++) {
+            $dias = (int)(($timestampsOrdenados[$i] - $timestampsOrdenados[$i - 1]) / 86400);
+            if ($dias > 0) {
+                $intervalos[] = $dias;
+            }
+        }
+
+        if (empty($intervalos)) {
+            return null;
+        }
+
+        return array_sum($intervalos) / count($intervalos);
     }
 }
