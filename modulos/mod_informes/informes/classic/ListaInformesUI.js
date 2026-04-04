@@ -8,7 +8,7 @@
  *   - AbrirModalLoading: disparo AJAX + apertura ventana informe
  */
 
-import * as JSTpv from "./../../../lib/js/tpvfox.js";
+import * as JSTpv from "./../../../../lib/js/tpvfox.js";
 
 // ── Selección múltiple de familias para opción 4 ──────────────────────────────
 
