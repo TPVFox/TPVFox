@@ -16,9 +16,7 @@ class PosstockC6Detector
         private PosstockQueryRepository $repo
     ) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Algoritmos internos (públicos para testabilidad directa)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Determina la severidad de una incidencia C6 dados los parámetros de stock y ROP.
@@ -127,7 +125,7 @@ class PosstockC6Detector
             $stock_actual[(int)$filaStock['idArticulo']] = (float)$filaStock['stock_en_periodo'];
         }
 
-        // ── Stock reconstruido para artículos muy negativos ───────────────────
+        // Stock reconstruido para artículos muy negativos
         $ids_muy_negativos = array_keys(
             array_filter($stock_actual, fn($s) => $s < -$umbral_stock_neg)
         );
@@ -184,7 +182,7 @@ class PosstockC6Detector
             $d = $total_units / $periodo_dias;   // demanda diaria en unidades
             if ($d <= 0) continue;
 
-            // ── Parámetros estadísticos sobre cantidades por sub-ventana ──────────
+            // Parámetros estadísticos sobre cantidades por sub-ventana
             $n_chunks     = (int)ceil($periodo_dias / $chunk_days);
             $chunk_counts = array_fill(0, $n_chunks, 0.0);
             foreach ($fechas_map as $fecha => $qty) {
@@ -201,7 +199,7 @@ class PosstockC6Detector
                 $s2_chunk /= ($n_chunks - 1);
             }
 
-            // ── σ_d / ROP según modelo seleccionado ──────────────────────────
+            // σ_d / ROP según modelo seleccionado
             $sigma_d      = null;
             $SS           = null;
             $ROP          = null;
@@ -234,7 +232,7 @@ class PosstockC6Detector
                 $sigma_d      = sqrt(max(0.0, $p_sale * (1.0 - $p_sale) * $q_mean ** 2 + $p_sale * $s2_q));
                 $modelo_usado = 'Binomial';
             } elseif ($modelo === 'automatico') {
-                // ── Árbol de decisión C6 ─────────────────────────────────────────
+                // Árbol de decisión C6
                 $sum_sq_auto   = array_sum(array_map(fn($q) => $q ** 2, $fechas_map));
                 $var_d_auto    = $periodo_dias > 1
                     ? max(0.0, ($sum_sq_auto - $periodo_dias * $d * $d) / ($periodo_dias - 1))
@@ -319,7 +317,7 @@ class PosstockC6Detector
             // Solo artículos accionables: bajo ROP, o modelo de alta variabilidad
             if ($stock >= $ROP && !$alta_variabilidad) continue;
 
-            // ── Severidad ─────────────────────────────────────────────────────
+            // Severidad
             $severidad = $this->calcularSeveridadC6($dias_autonomia, $stock, $ROP, $L);
             if ($severidad === 'CRITICA') {
                 $posible_causa = 'Agotamiento estimado antes del próximo pedido';
@@ -347,7 +345,7 @@ class PosstockC6Detector
             ];
         }
 
-        // ── Reconstrucción post-bucle para sobrestock sospechoso (> umbral_rop_mult×ROP) ─────
+        // Reconstrucción post-bucle para sobrestock sospechoso (> umbral_rop_mult×ROP)
         if (!empty($pending_reconstruction)) {
             $idsPendientesCsv = implode(',', array_keys($pending_reconstruction));
             $filasStockReconstituidoAlt = $this->repo->queryStockReconstituido($idsPendientesCsv, $fechaAnclaStockEsc);

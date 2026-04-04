@@ -541,8 +541,7 @@ class PosstockC7cdeAnalyzer
         }
     }
 
-    // ── Helpers privados ────────────────────────────────────────────────────
-
+    // Helpers privados
     /**
      * Empareja suelos de dos artículos por fecha con ventana de ±7 días.
      *

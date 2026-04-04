@@ -14,9 +14,7 @@ class PosstockQueryRepository
 {
     public function __construct(private mysqli $db) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // SQL HELPERS — Construcción de cláusulas WHERE
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Expande una lista de idFamilia a todos sus descendientes usando
@@ -67,9 +65,7 @@ class PosstockQueryRepository
         return " AND $alias.idArticulo IN ($idsCsv)";
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // T4.1 / T4.2
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * T4.1 — UNION ALL de los 3 tipos de movimiento físico en el periodo.
@@ -213,9 +209,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C4
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C4 paso 1 — Todos los idArticulo físicos que cumplen el filtro de familia.
@@ -267,9 +261,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Stock rebobinado (C4, C5, C6, C7)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C4/C5 — Stock rebobinado desde articulosStocks.stockOn hasta fechaFinEsc.
@@ -330,9 +322,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C5
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C5 paso 1 — Fechas de venta únicas por artículo físico.
@@ -421,9 +411,7 @@ class PosstockQueryRepository
         return $result;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C6
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C6 paso 1 — Cantidad vendida por día por artículo físico.
@@ -591,9 +579,7 @@ class PosstockQueryRepository
         return max(1, (int)round(array_sum($leadTimes) / count($leadTimes)));
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C1
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C1 — Detalle de actividad en el periodo para los artículos ya identificados.
@@ -864,9 +850,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C2
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C2 — Entradas de proveedor con sum acumulada (window function).
@@ -1041,9 +1025,7 @@ class PosstockQueryRepository
         unset($inc);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C3
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C3 — Artículos con entrada en la ventana y su última venta conocida.
@@ -1132,9 +1114,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C7
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C7 — Fechas de recepción de proveedor por artículo físico en el periodo.
@@ -1294,9 +1274,7 @@ class PosstockQueryRepository
         return $meta;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // C9
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C9 paso 1 — Recepciones reales (proveedor no especial) por artículo.
@@ -1491,9 +1469,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Proveedores — Paginación y actividad
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Proveedor — idArticulo vinculados a los proveedores indicados (estado Activo).
@@ -1599,9 +1575,7 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Enriquecimiento
-    // ══════════════════════════════════════════════════════════════════════════
 
     /** Añade el campo 'nombre' (articulo_name) a cada fila de incidencias. */
     public function anadirNombres(array $incidencias): array
@@ -1684,14 +1658,17 @@ class PosstockQueryRepository
     {
         $idsEnteros = [];
         foreach ($ids as $id) {
-            $idsEnteros[] = (int)$id;
+            $idEntero = (int)$id;
+            if ($idEntero > 0) {
+                $idsEnteros[$idEntero] = true;
+            }
         }
 
         if (empty($idsEnteros)) {
             return '';
         }
 
-        return implode(',', $idsEnteros);
+        return implode(',', array_keys($idsEnteros));
     }
 
     private function construirCondicionTimingArticulo(mixed $idArticulo, mixed $fechaMinimo, int $ventanaDias): ?string

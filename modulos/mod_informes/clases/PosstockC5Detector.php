@@ -17,9 +17,7 @@ class PosstockC5Detector
         private PosstockQueryRepository $repo
     ) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Algoritmos internos (públicos para testabilidad directa)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Modelo clásico media + n·σ para detección de roturas (C5).
@@ -113,9 +111,7 @@ class PosstockC5Detector
         return $incidencias;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Orquestador principal
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Orquestador C5 — detecta roturas físicas (hueco en ventas + stock insuficiente).

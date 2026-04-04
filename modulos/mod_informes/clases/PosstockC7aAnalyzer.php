@@ -60,7 +60,7 @@ class PosstockC7aAnalyzer
         $umbral_delta = ($tipo_art === 'peso') ? $umbral_delta_peso : $umbral_delta_unidad;
         if ($delta_total < $umbral_delta) return null;
 
-        // ── Theil-Sen slope sobre floors normalizados ─────────────────────────
+        // Theil-Sen slope sobre floors normalizados
         $ts_pairs = [];
         for ($i = 0; $i < $n_floors; $i++) {
             for ($j = $i + 1; $j < $n_floors; $j++) {
@@ -77,7 +77,7 @@ class PosstockC7aAnalyzer
 
         if ($beta_ts <= 0.0) return null;
 
-        // ── Pre-calcular OLS y autocorrelación lag-1 ──────────────────────────
+        // Pre-calcular OLS y autocorrelación lag-1
         $reg        = PosstockStatistics::regressionStats($floors_norm);
         $slope_norm = $reg['slope'];
         $se_corr    = $reg['se'];
@@ -104,7 +104,7 @@ class PosstockC7aAnalyzer
             }
         }
 
-        // ── Estado de la cascada ──────────────────────────────────────────────
+        // Estado de la cascada
         $c7a_confianza       = null;
         $c7a_cascade_nivel   = 0;
         $p_mk_c7a            = null;
@@ -131,9 +131,7 @@ class PosstockC7aAnalyzer
 
         while ($cascade_nivel_act > 0 && $c7a_confianza === null) {
 
-            // ═══════════════════════════════════════════════════════════════
             // NIVEL 1 · OLS + NEWEY-WEST IC95
-            // ═══════════════════════════════════════════════════════════════
             if ($cascade_nivel_act === 1) {
                 if ($n_floors < 10 || $se_corr <= 0.0) {
                     $fallback_reason    = $n_floors < 10 ? 'n<10_skip_ols' : 'se_invalido_skip_ols';
@@ -171,9 +169,7 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-                // ═══════════════════════════════════════════════════════════════
                 // NIVEL 2 · BOOTSTRAP THEIL-SEN IC99
-                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 2) {
                 if ($n_floors < 8) {
                     $fallback_reason   = ($fallback_reason ? $fallback_reason . '; ' : '')
@@ -238,9 +234,7 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-                // ═══════════════════════════════════════════════════════════════
                 // NIVEL 3 · MANN-KENDALL + HAMED & RAO
-                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 3) {
                 if ($n_floors < 4 || $n_floors > 20) {
                     $fallback_reason   = ($fallback_reason ? $fallback_reason . '; ' : '')
@@ -290,9 +284,7 @@ class PosstockC7aAnalyzer
                     }
                 }
 
-                // ═══════════════════════════════════════════════════════════════
                 // NIVEL 4 · TEST DE SIGNO BINOMIAL
-                // ═══════════════════════════════════════════════════════════════
             } elseif ($cascade_nivel_act === 4) {
                 $n_diffs = $n_floors - 1;
                 if ($n_diffs > 0) {

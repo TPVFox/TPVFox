@@ -84,7 +84,7 @@ class PosstockC2Detector
             }
         }
 
-        // ── Paso 1: recoger candidatos (filtro ratio) ────────────────────────
+        // Paso 1: recoger candidatos (filtro ratio)
         $candidatos = [];
         foreach ($filasEntradas as $filaEntrada) {
             $idArticulo   = (int)$filaEntrada['idArticulo'];
@@ -110,7 +110,7 @@ class PosstockC2Detector
         }
         if (empty($candidatos)) return [];
 
-        // ── Paso 2: filtro de cobertura ───────────────────────────────────────
+        // Paso 2: filtro de cobertura
         $idsCandidatos  = array_unique(array_column($candidatos, 'idArticulo'));
         $mapaVentas     = $this->repo->queryVentasC2(implode(',', $idsCandidatos), $fechaInicio, $fechaFin);
         $numeroDias     = max(1, (int)((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1);
@@ -119,7 +119,15 @@ class PosstockC2Detector
         foreach ($candidatos as $candidato) {
             $ventas = $mapaVentas[$candidato['idArticulo']] ?? 0.0;
             if ($ventas > 0) {
-                $cobertura = (int)round($candidato['stock_previo'] / ($ventas / $numeroDias));
+                $ventasDiarias = $ventas / $numeroDias;
+
+                // En periodos de 1-2 dias con ventas residuales la extrapolacion puede
+                // inflar cobertura_dias de forma no representativa (falso positivo C2).
+                if ($numeroDias <= 2 && $ventasDiarias < 1.0) {
+                    continue;
+                }
+
+                $cobertura = (int)round($candidato['stock_previo'] / $ventasDiarias);
                 if ($cobertura <= $umbral_cobertura_dias) continue;  // rotación suficiente, falso positivo
                 $candidato['cobertura_dias'] = $cobertura;
             } else {
@@ -129,10 +137,10 @@ class PosstockC2Detector
         }
         if (empty($incidencias)) return [];
 
-        // ── Paso 3: enriquecer con recepción anterior ─────────────────────────
+        // Paso 3: enriquecer con recepción anterior
         $this->repo->queryDetalleC2($incidencias, $fi_mov, $ff_mov);
 
-        // ── Paso 4: reasignar severidad y posible_causa con todas las señales ─
+        // Paso 4: reasignar severidad y posible_causa con todas las señales.
         foreach ($incidencias as &$incidencia) {
             $diasDesdeAnterior      = $incidencia['dias_desde_anterior'];
             $nunidadesAnteriores    = $incidencia['nunidades_anterior'];
@@ -163,7 +171,7 @@ class PosstockC2Detector
         }
         unset($incidencia);
 
-        // ── Paso 5: consolidar secuencias de acumulación por artículo ─────────
+        // Paso 5: consolidar secuencias de acumulación por artículo
         $incidenciasPorArticulo = [];
         foreach ($incidencias as $incidencia) {
             $incidenciasPorArticulo[$incidencia['idArticulo']][] = $incidencia;
@@ -219,7 +227,7 @@ class PosstockC2Detector
             }
         }
 
-        // ── Paso 6: C2b — sobrestock progresivo (cobertura creciente con ventas) ─
+        // Paso 6: C2b, sobrestock progresivo (cobertura creciente con ventas).
         $incidenciasConsolidadas = [];
         $incidenciasIndividuales = [];
         foreach ($incidenciasFinales as $incidencia) {
@@ -281,8 +289,7 @@ class PosstockC2Detector
         return array_merge($incidenciasConsolidadas, $resultadoTendencia);
     }
 
-    // ── Métodos algorítmicos puros (sin BD) — públicos para tests unitarios ──
-
+    // Métodos algorítmicos puros (sin BD) — públicos para tests unitarios
     /**
      * Clasifica un ratio stock_previo/nunidades en categoría C2.
      *

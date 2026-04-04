@@ -53,7 +53,7 @@ class PosstockC7bAnalyzer
         $n = count($test_floors);
         if ($n < 2) return null;
 
-        // ── Normalizar floors por duración del intervalo (C7b-002) ────────────
+        // Normalizar floors por duración del intervalo (C7b-002)
         $floors_norm = [];
         for ($i = 0; $i < $n; $i++) {
             $floors_norm[] = $test_floors[$i] / max(1, $test_dias[$i]);
@@ -66,7 +66,7 @@ class PosstockC7bAnalyzer
         }
         $std_dev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
 
-        // ── Heterogeneidad de duraciones (C7b-025) ────────────────────────────
+        // Heterogeneidad de duraciones (C7b-025)
         $mean_dias = array_sum($test_dias) / $n;
         $var_dias  = 0.0;
         foreach ($test_dias as $d) {
@@ -75,7 +75,7 @@ class PosstockC7bAnalyzer
         $std_dias   = $n > 1 ? sqrt($var_dias / ($n - 1)) : 0.0;
         $cv_dias    = $mean_dias > 0.0 ? $std_dias / $mean_dias : 0.0;
 
-        // ── Caso determinista (C7b-024 / C7b-026): std ≈ 0 ──────────────────
+        // Caso determinista (C7b-024 / C7b-026): std ≈ 0
         if ($std_dev < 1e-9) {
             if ($mean < 0.0) {
                 return [
@@ -91,7 +91,7 @@ class PosstockC7bAnalyzer
             return null;
         }
 
-        // ── Filtro de estabilidad — guards CV + IQR (C7b-009) ────────────────
+        // Filtro de estabilidad — guards CV + IQR (C7b-009)
         $umbral_cv_efectivo = ($tipo_art === 'peso') ? $umbral_cv_peso : $umbral_cv;
         $umbral_iqr_mult    = ($tipo_art === 'peso') ? $umbral_iqr_peso : 1.5;
         $sf = $floors_norm;
@@ -107,7 +107,7 @@ class PosstockC7bAnalyzer
             return null;
         }
 
-        // ── Estado de la cascada ──────────────────────────────────────────────
+        // Estado de la cascada
         $test_type            = null;
         $test_pvalue          = null;
         $test_fallback_reason = null;
@@ -134,9 +134,7 @@ class PosstockC7bAnalyzer
             120 => 1.980,
         ];
 
-        // ═══════════════════════════════════════════════════════════════════
         // NIVEL 1 · WILCOXON SIGNED-RANK (C7b-020)
-        // ═══════════════════════════════════════════════════════════════════
         $ratio_distinct  = count(array_unique($floors_norm)) / $n;
         $wilcoxon_tipo_a = ($n < 4 || $ratio_distinct < 0.75);
         if (!$wilcoxon_tipo_a) {
@@ -208,9 +206,7 @@ class PosstockC7bAnalyzer
             $test_fallback_reason = 'wilcoxon_tipo_a:' . implode(',', $rs);
         }
 
-        // ═══════════════════════════════════════════════════════════════════
         // NIVEL 2 · BOOTSTRAP PERCENTILE (C7b-023)
-        // ═══════════════════════════════════════════════════════════════════
         if (!$c7b_confirmed) {
             $n_distinct_boot = count(array_unique($floors_norm));
             if ($std_dev > 0.0 && $n_distinct_boot > 1) {
@@ -241,9 +237,7 @@ class PosstockC7bAnalyzer
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
         // NIVEL 3 · TEST DE SIGNO BINOMIAL (C7b-021)
-        // ═══════════════════════════════════════════════════════════════════
         if (!$c7b_confirmed) {
             $floors_eff = array_values(array_filter($floors_norm, fn($f) => $f != 0.0));
             $n_eff      = count($floors_eff);
@@ -279,9 +273,7 @@ class PosstockC7bAnalyzer
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
         // NIVEL 4 · T-TEST + NEWEY-WEST (C7b-004)
-        // ═══════════════════════════════════════════════════════════════════
         if (!$c7b_confirmed) {
             $df_ic = $n - 1;
             if ($df_ic > 120) {

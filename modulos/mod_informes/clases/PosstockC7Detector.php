@@ -39,9 +39,7 @@ class PosstockC7Detector
         $this->c7cde = $c7cde ?? new PosstockC7cdeAnalyzer();
     }
 
-    // ═══════════════════════════════════════════════════════════════════
     // API Pública
-    // ═══════════════════════════════════════════════════════════════════
 
     /**
      * Detecta incidencias C7a y/o C7b para los artículos candidatos.
@@ -89,7 +87,7 @@ class PosstockC7Detector
         $filtroFamiliasSql     = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql     = $this->repo->idsWhere($ids_filter);
 
-        // ── Paso 1: recepciones en ventana extendida fi_stock→ff_mov ─────────
+        // Paso 1: recepciones en ventana extendida fi_stock→ff_mov
         $filasRecepciones = $this->repo->queryRecepcionesFechasC7($fechaInicioStockEsc, $fechaFinEsc, $filtroFamiliasSql, $filtroArticulosSql);
         if (isset($filasRecepciones['error'])) return $filasRecepciones;
         if (empty($filasRecepciones)) return [];
@@ -115,7 +113,7 @@ class PosstockC7Detector
         }
         if (empty($candidatos_ids)) return [];
 
-        // ── Paso 2: timeline + tipos de artículo ─────────────────────────────
+        // Paso 2: timeline + tipos de artículo
         $idsArticulosCsv = implode(',', array_map('intval', $candidatos_ids));
 
         $tipos_map = [];
@@ -139,7 +137,7 @@ class PosstockC7Detector
         $has_albcli_ids = $this->repo->queryHasAlbcliC7($fechaInicioStockEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($has_albcli_ids['error'])) $has_albcli_ids = [];
 
-        // ── Paso 3: analizar por artículo ─────────────────────────────────────
+        // Paso 3: analizar por artículo
         $incidencias   = [];
         $ping_cada_n   = 20;
         $ping_contador = 0;
@@ -199,7 +197,7 @@ class PosstockC7Detector
 
             $delta_total = $floors[$n_floors - 1] - $floors[0];
 
-            // ── C7a ───────────────────────────────────────────────────────────
+            // C7a
             if (isset($subcasos_set['C7a']) && $mean_raw >= 0 && $delta_total >= (($tipo_art === 'peso') ? $c7a_umbral_delta_peso : $c7a_umbral_delta_unidad)) {
                 $result_c7a = $this->c7a->analizarCascada(
                     $floors_norm_all,
@@ -311,8 +309,7 @@ class PosstockC7Detector
                 }
             } // end C7a
 
-            // ── C7b ───────────────────────────────────────────────────────────
-            // Seleccionar conjunto de test (base o análisis)
+            // C7b            // Seleccionar conjunto de test (base o análisis)
             if (isset($subcasos_set['C7b'])) {
                 $test_floors = null;
                 $test_dias   = null;
@@ -468,7 +465,7 @@ class PosstockC7Detector
             } // end C7b
         } // foreach candidatos
 
-        // ── C7a-004: enriquecer C7a con coste y proveedor ────────────────────
+        // C7a-004: enriquecer C7a con coste y proveedor
         if (isset($subcasos_set['C7a'])) {
             $idsC7aEnriquecer = array_column(
                 array_filter($incidencias, fn($inc) => in_array($inc['c7_subcaso'] ?? '', ['C7a','C7a_posible'], true)),
@@ -498,7 +495,7 @@ class PosstockC7Detector
             }
         }
 
-        // ── C7b-007: enriquecer C7b con coste y proveedor ────────────────────
+        // C7b-007: enriquecer C7b con coste y proveedor
         if (isset($subcasos_set['C7b'])) {
             $ids_c7b = array_column(
                 array_filter($incidencias, fn($inc) => str_starts_with($inc['c7_subcaso'] ?? '', 'C7b')),
@@ -527,7 +524,7 @@ class PosstockC7Detector
             }
         }
 
-        // ── C7c/d/e ───────────────────────────────────────────────────────────
+        // C7c/d/e
         if (!$skip_cde && isset($subcasos_set['C7a']) && isset($subcasos_set['C7b'])) {
             $idsC7TodosCsv  = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
             if (!empty($idsC7TodosCsv)) {
@@ -671,9 +668,7 @@ class PosstockC7Detector
         return ['cruces' => $cruces];
     }
 
-    // ═══════════════════════════════════════════════════════════════════
     // Helpers privados
-    // ═══════════════════════════════════════════════════════════════════
 
     private function construirStockAcumuladoPorFecha(array $daily): array
     {

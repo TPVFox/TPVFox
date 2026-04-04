@@ -16,9 +16,7 @@ class PosstockC1Detector
         private PosstockQueryRepository $repo
     ) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Algoritmos internos (públicos para testabilidad directa)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Calcula las señales de badge C1a dados los valores de stock.

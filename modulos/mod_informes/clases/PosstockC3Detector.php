@@ -16,9 +16,7 @@ class PosstockC3Detector
         private PosstockQueryRepository $repo
     ) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Algoritmos internos (públicos para testabilidad directa)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * Determina la severidad C3a a partir del ratio de caída de rotación.

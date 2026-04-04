@@ -19,9 +19,7 @@ class PosstockC9Detector
         private PosstockQueryRepository $repo
     ) {}
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Algoritmos internos (públicos para testabilidad directa)
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C9 — Construye los lotes (intervalos inter-recepción) para un artículo.
@@ -101,7 +99,7 @@ class PosstockC9Detector
         $lotes = [];
         $n     = count($rec_periodo);
 
-        // ── Lotes 0..n-1 del periodo: intervalos entre recepciones ─────────
+        // Lotes 0..n-1 del periodo: intervalos entre recepciones
         for ($i = 0; $i < $n - 1; $i++) {
             $fi_lot   = $rec_periodo[$i]['fecha'];
             $ff_lot   = date('Y-m-d', strtotime($rec_periodo[$i + 1]['fecha'] . ' -1 day'));
@@ -127,8 +125,7 @@ class PosstockC9Detector
             ];
         }
 
-        // ── Último lote del periodo: siempre incluir ────────────────────────
-        // Con primera_post: V_t hasta primera_post-1 (ciclo cerrado, v_t_parcial=false).
+        // Último lote del periodo: siempre incluir        // Con primera_post: V_t hasta primera_post-1 (ciclo cerrado, v_t_parcial=false).
         // Sin primera_post: V_t hasta ff_mov (ciclo abierto, v_t_parcial=true).
         //   El sobrante positivo del ciclo abierto es carryover al siguiente periodo,
         //   no merma; se excluye de merma_total. Los déficits (S_t<0) sí participan
@@ -169,8 +166,7 @@ class PosstockC9Detector
             ];
         }
 
-        // ── Devolucion carryback: propagar exceso de devolución al lote anterior ─────
-        // Cuando dev_t > E_t_bruto (devolución posterior mayor que la entrada del mismo
+        // Devolucion carryback: propagar exceso de devolución al lote anterior        // Cuando dev_t > E_t_bruto (devolución posterior mayor que la entrada del mismo
         // lote), el exceso de devolución se traslada al lote inmediatamente anterior para
         // reajustar su E_t. Esto cubre el escenario de albaranes erróneos que se registran
         // en un periodo y se devuelven creando un lote nuevo:
@@ -197,8 +193,7 @@ class PosstockC9Detector
             );
         }
 
-        // ── Merge lotes vacíos: E_t=0 + V_t≈0 → extender lote anterior ─────────────
-        // Tras el carryback, un lote puede quedar con E_t=0 y sin ventas (V_t≈0):
+        // Merge lotes vacíos: E_t=0 + V_t≈0 → extender lote anterior        // Tras el carryback, un lote puede quedar con E_t=0 y sin ventas (V_t≈0):
         // es una recepción errónea completamente anulada por devolución posterior.
         // Si se deja como lote separado, el backstaging lo trata como "sumidero":
         // absorbe parte del déficit del siguiente lote, pero su S_t negativo resultante
@@ -503,9 +498,7 @@ class PosstockC9Detector
         ];
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
     // Orquestador principal
-    // ══════════════════════════════════════════════════════════════════════════
 
     /**
      * C9 — Merma por backstaging LIFO inverso con ponderación exponencial temporal.
@@ -539,7 +532,7 @@ class PosstockC9Detector
         $fechaFinEsc   = $this->db->real_escape_string($ff_mov);
         $filtroFamiliasSql   = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql   = $this->repo->idsWhere($ids_filter);
-        // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
+        // Paso 1: recepciones (Q1)
         $filasRecepciones = $this->repo->queryRecepcionesC9($fechaInicioEsc, $ff_mov, $filtroFamiliasSql, $filtroArticulosSql, $c9_dias_post);
         if (isset($filasRecepciones['error'])) return $filasRecepciones;
         if (empty($filasRecepciones)) return [];
@@ -564,7 +557,7 @@ class PosstockC9Detector
         $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
         if ($idsArticulosCsv === '') return [];
 
-        // ── Paso 2: filtrar solo artículos físicos ──────────────────────────
+        // Paso 2: filtrar solo artículos físicos
         $sentenciaArticulos = $this->db->query(
             "SELECT idArticulo, tipo FROM articulos
               WHERE idArticulo IN ($idsArticulosCsv)"
@@ -578,7 +571,7 @@ class PosstockC9Detector
         $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
         if ($idsArticulosCsv === '') return [];
 
-        // ── Paso 1b: devoluciones ordinarias (nunidades < 0, proveedor no especial) ──
+        // Paso 1b: devoluciones ordinarias (nunidades < 0, proveedor no especial)
         $ff_post_dev = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
@@ -589,8 +582,8 @@ class PosstockC9Detector
             $devs_map[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'devolucion' => (float)$fila['devolucion']];
         }
 
-        // ── Paso 3: timeline limpio (Q2) — extendido hasta ff_post para capturar
-        //    ventas post-periodo del último lote (hasta primera_post - 1) ────────
+        // Paso 3: timeline limpio (Q2), extendido hasta ff_post para capturar
+        // ventas post-periodo del ultimo lote (hasta primera_post - 1).
         $ff_post_tl = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
@@ -601,7 +594,7 @@ class PosstockC9Detector
             $timeline_map[(int)$fila['idArticulo']][] = ['fecha' => $fila['fecha'], 'day_delta' => (float)$fila['day_delta']];
         }
 
-        // ── Paso 4: albaranes especiales (Q5a + Q5b) ───────────────────────
+        // Paso 4: albaranes especiales (Q5a + Q5b)
         $ff_post = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
@@ -804,7 +797,7 @@ class PosstockC9Detector
             }
         }
 
-        // ── Paso 5: stock base (compartido con C7 en batch) ────────────────
+        // Paso 5: stock base (compartido con C7 en batch)
         if (empty($stock_base_cache)) {
             $fechaInicioStockBaseEsc   = $this->db->real_escape_string($fi_stock);
             $fechaFinStockBaseEsc   = $this->db->real_escape_string($fi_mov);
@@ -823,8 +816,7 @@ class PosstockC9Detector
         }
         $cacheStockBase = $stock_base_cache;
 
-        // ── Paso 5b: stock real al inicio del periodo (rebobinado) ──────────
-        // Se usa como E_lote0 en lugar del saldo acumulado desde fi_stock.
+        // Paso 5b: stock real al inicio del periodo (rebobinado)        // Se usa como E_lote0 en lugar del saldo acumulado desde fi_stock.
         // _queryStockRebobinado incluye TODO el histórico (no solo desde fi_stock),
         // capturando inventario de años anteriores no reflejado en getStockBase.
         $fechaRebobinadoEsc = $this->db->real_escape_string(
@@ -837,13 +829,13 @@ class PosstockC9Detector
             $stock_inicial_map[(int)$fila['idArticulo']] = (float)$fila['stock_en_periodo'];
         }
 
-        // ── Paso 6: stock rebobinado al ff_mov (ancla conservación) ────────
+        // Paso 6: stock rebobinado al ff_mov (ancla conservación)
         $filasStockFinal = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinEsc);
         if (isset($filasStockFinal['error'])) return $filasStockFinal;
         $stock_final_map = [];
         foreach ($filasStockFinal as $fila) $stock_final_map[(int)$fila['idArticulo']] = (float)$fila['stock_en_periodo'];
 
-        // ── Paso 7: loop por artículo ───────────────────────────────────────
+        // Paso 7: loop por artículo
         $incidencias = [];
 
         foreach ($ids_candidatos as $idArticulo) {
@@ -875,8 +867,7 @@ class PosstockC9Detector
                 }
             }
 
-            // ── Marcar lotes inciertos al final del periodo ──────────────────
-            // Un lote es incierto si su ciclo puede no haber cerrado todavía.
+            // Marcar lotes inciertos al final del periodo            // Un lote es incierto si su ciclo puede no haber cerrado todavía.
             // Se aplica el umbral de continuidad local (mu + lambda * sigma) en DOS casos:
             //
             //   A) Corte de DB / fin de periodo sin datos posteriores:
@@ -987,7 +978,7 @@ class PosstockC9Detector
             ];
         }
 
-        // ── C9: enriquecer con proveedor habitual y coste estimado de la merma ──
+        // C9: enriquecer con proveedor habitual y coste estimado de la merma
         if (!empty($incidencias)) {
             $ids_c9     = array_column($incidencias, 'idArticulo');
             $idsC9Csv = $this->convertirIdsACsv($ids_c9);
