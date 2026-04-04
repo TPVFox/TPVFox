@@ -669,20 +669,16 @@ class PosstockQueryRepository
     {
         if (empty($id_fecha_map)) return [];
 
-        $conditions = [];
-        foreach ($id_fecha_map as $id => $fecha) {
-            if (!$fecha) continue;
-            $id_esc    = (int)$id;
-            $f_esc     = $this->db->real_escape_string($fecha);
-            $f_fin_esc = $this->db->real_escape_string(
-                date('Y-m-d', strtotime($fecha . " +{$ventana_dias} days"))
-            );
-            $conditions[] = "(l.idArticulo = $id_esc AND DATE(c.Fecha) BETWEEN '$f_esc' AND '$f_fin_esc')";
+        $condicionesPorArticulo = [];
+        foreach ($id_fecha_map as $idArticulo => $fechaMinimo) {
+            $condicionArticulo = $this->construirCondicionTimingArticulo($idArticulo, $fechaMinimo, $ventana_dias);
+            if ($condicionArticulo === null) continue;
+            $condicionesPorArticulo[] = $condicionArticulo;
         }
 
-        if (empty($conditions)) return [];
+        if (empty($condicionesPorArticulo)) return [];
 
-        $where_or = implode(' OR ', $conditions);
+        $where_or = implode(' OR ', $condicionesPorArticulo);
         $sentencia = $this->db->query("
             SELECT DISTINCT l.idArticulo
             FROM albprolinea l
@@ -1680,5 +1676,19 @@ class PosstockQueryRepository
         }
 
         return array_sum($intervalos) / count($intervalos);
+    }
+
+    private function construirCondicionTimingArticulo(mixed $idArticulo, mixed $fechaMinimo, int $ventanaDias): ?string
+    {
+        if (empty($fechaMinimo)) {
+            return null;
+        }
+
+        $idArticuloEscapado = (int)$idArticulo;
+        $fechaInicioEscapada = $this->db->real_escape_string((string)$fechaMinimo);
+        $fechaFinVentana = date('Y-m-d', strtotime((string)$fechaMinimo . " +{$ventanaDias} days"));
+        $fechaFinEscapada = $this->db->real_escape_string($fechaFinVentana);
+
+        return "(l.idArticulo = $idArticuloEscapado AND DATE(c.Fecha) BETWEEN '$fechaInicioEscapada' AND '$fechaFinEscapada')";
     }
 }
