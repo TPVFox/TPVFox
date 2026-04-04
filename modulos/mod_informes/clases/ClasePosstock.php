@@ -110,11 +110,6 @@ class ClasePosstock
         $this->c7   = new PosstockC7Detector($conexion, $this->repo);
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // LÓGICA — Métodos de negocio y helpers de transformación
-    // (SQL queries desplazadas a PosstockQueryRepository — Fase 2)
-    // ══════════════════════════════════════════════════════════════════════════
-
     /**
      * T4.1 — Movimientos en la ventana de análisis.
      *
