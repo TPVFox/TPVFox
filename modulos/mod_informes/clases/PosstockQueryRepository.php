@@ -1619,20 +1619,40 @@ class PosstockQueryRepository
         } catch (\mysqli_sql_exception $e) {
             return $incidencias;
         }
-        $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+
+        $idsIncidencias = $this->extraerIdsUnicosIncidencias($incidencias);
+        if (empty($idsIncidencias)) return $incidencias;
+
+        $idsIncidenciasCsv = implode(',', $idsIncidencias);
         $sentencia = $this->db->query(
-            "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($ids_inc)"
+            "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
         );
+
         $nombres = [];
         if ($sentencia) {
             while ($fila = $sentencia->fetch_assoc()) {
                 $nombres[(int)$fila['idArticulo']] = $fila['articulo_name'];
             }
         }
+
         foreach ($incidencias as &$inc) {
-            $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+            $idArticulo = (int)($inc['idArticulo'] ?? 0);
+            $inc['nombre'] = $nombres[$idArticulo] ?? '';
         }
         unset($inc);
+
         return $incidencias;
+    }
+
+    private function extraerIdsUnicosIncidencias(array $incidencias): array
+    {
+        $idsUnicos = [];
+        foreach ($incidencias as $incidencia) {
+            if (!isset($incidencia['idArticulo'])) continue;
+            $idArticulo = (int)$incidencia['idArticulo'];
+            $idsUnicos[$idArticulo] = true;
+        }
+
+        return array_keys($idsUnicos);
     }
 }
