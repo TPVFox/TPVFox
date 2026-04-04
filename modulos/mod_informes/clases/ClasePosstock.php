@@ -144,9 +144,10 @@ class ClasePosstock
             if ($ids) $where_familia .= " AND l.idArticulo NOT IN (SELECT DISTINCT idArticulo FROM articulosFamilias WHERE idFamilia IN ($ids))";
         }
 
-        $where_ids = empty($ids_filter)
-            ? ''
-            : " AND l.idArticulo IN (" . implode(',', array_map('intval', $ids_filter)) . ")";
+        $idsArticulosCsv = $this->convertirIdsACsv($ids_filter);
+        $where_ids = $idsArticulosCsv !== ''
+            ? " AND l.idArticulo IN ($idsArticulosCsv)"
+            : '';
 
         return $this->repo->queryMovimientosPeriodo($fi, $ff, $where_familia, $where_ids);
     }
@@ -173,7 +174,10 @@ class ClasePosstock
 
         $fi  = $this->db->real_escape_string($fecha_inicio);
         $ff  = $this->db->real_escape_string($fecha_fin);
-        $ids = implode(',', array_map('intval', $ids_articulos));
+        $ids = $this->convertirIdsACsv($ids_articulos);
+        if ($ids === '') {
+            return [];
+        }
 
         $filas = $this->repo->queryStockBase($fi, $ff, $ids);
         if (isset($filas['error'])) return $filas;
@@ -236,7 +240,7 @@ class ClasePosstock
             // Acumular delta firmado por fecha (signo: entradas +, salidas -)
             $delta_por_fecha = [];
             foreach ($movs as $m) {
-                $signo = ($m['tipo_movimiento'] === 'entrada_proveedor') ? 1.0 : -1.0;
+                $signo = $this->resolverSignoMovimiento($m['tipo_movimiento'] ?? '');
                 $delta_por_fecha[$m['fecha']] = ($delta_por_fecha[$m['fecha']] ?? 0.0)
                     + $signo * (float)$m['nunidades'];
             }
@@ -251,7 +255,7 @@ class ClasePosstock
             }
 
             // stock_tras_ultimo_albaran: acumulado hasta fin del día de la última entrada
-            $ultima_fecha_entrada = max(array_column(array_values($entradas), 'fecha'));
+            $ultima_fecha_entrada = $this->obtenerUltimaFechaEntradas($entradas);
             $saldo_tras_ultima = $saldo_base_art;
             foreach ($delta_por_fecha as $fecha => $delta) {
                 if ($fecha <= $ultima_fecha_entrada) {
@@ -1074,6 +1078,38 @@ class ClasePosstock
         }
 
         return str_pad((string)$valorInvertido, $ancho, '0', STR_PAD_LEFT);
+    }
+
+    private function convertirIdsACsv(array $ids): string
+    {
+        $idsEnteros = [];
+        foreach ($ids as $id) {
+            $idsEnteros[] = (int)$id;
+        }
+
+        if (empty($idsEnteros)) {
+            return '';
+        }
+
+        return implode(',', $idsEnteros);
+    }
+
+    private function resolverSignoMovimiento(string $tipoMovimiento): float
+    {
+        return $tipoMovimiento === 'entrada_proveedor' ? 1.0 : -1.0;
+    }
+
+    private function obtenerUltimaFechaEntradas(array $entradas): string
+    {
+        $ultimaFecha = '';
+        foreach ($entradas as $entrada) {
+            $fechaEntrada = (string)($entrada['fecha'] ?? '');
+            if ($fechaEntrada > $ultimaFecha) {
+                $ultimaFecha = $fechaEntrada;
+            }
+        }
+
+        return $ultimaFecha;
     }
 
     /**
