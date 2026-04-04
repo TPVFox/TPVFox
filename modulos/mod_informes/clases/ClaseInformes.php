@@ -101,7 +101,7 @@ class ClaseInformes extends TFModelo
         $fechaFinal   = $db->real_escape_string($parametros['Ffinal']);
         $idsStr       = implode(',', array_map('intval', $ids));
 
-                // Consulta masiva de cabeceras de albarán para evitar consultas por proveedor.
+            // Consulta masiva de cabeceras de albarán para evitar consultas por proveedor.
         $sentenciaAlbaranes = $db->query("
             SELECT id AS idalbpro, idProveedor
             FROM albprot
@@ -158,7 +158,7 @@ class ClaseInformes extends TFModelo
             $albIds = $albIdsByProveedor[$idProveedor] ?? [];
 
             if (empty($albIds)) {
-                continue; // sin albaranes en el período
+                continue;
             }
 
             $productos    = [];
