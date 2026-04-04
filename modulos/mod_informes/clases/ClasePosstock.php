@@ -174,15 +174,15 @@ class ClasePosstock
         $ff  = $this->db->real_escape_string($fecha_fin);
         $ids = implode(',', array_map('intval', $ids_articulos));
 
-        $rows = $this->repo->queryStockBase($fi, $ff, $ids);
-        if (isset($rows['error'])) return $rows;
+        $filas = $this->repo->queryStockBase($fi, $ff, $ids);
+        if (isset($filas['error'])) return $filas;
 
         $resultado = [];
-        foreach ($rows as $row) {
-            $resultado[(int)$row['idArticulo']] = [
-                'saldo_acumulado' => (float)$row['saldo_acumulado'],
-                'ultima_compra'   => $row['ultima_compra'],
-                'ultima_venta'    => $row['ultima_venta'],
+        foreach ($filas as $fila) {
+            $resultado[(int)$fila['idArticulo']] = [
+                'saldo_acumulado' => (float)$fila['saldo_acumulado'],
+                'ultima_compra'   => $fila['ultima_compra'],
+                'ultima_venta'    => $fila['ultima_venta'],
             ];
         }
         return $resultado;
@@ -351,10 +351,10 @@ class ClasePosstock
         if (empty($ids_proveedor_filter)) {
             $proveedores_incluir = (array)($params['proveedores_incluir'] ?? []);
             if (!empty($proveedores_incluir)) {
-                $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
-                $rows_prov = $this->repo->queryIdsArticulosByProveedores($ids_str_prov);
-                if (isset($rows_prov['error'])) return $rows_prov;
-                $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
+                $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
+                $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
                 if (empty($ids_proveedor_filter)) return []; // ningún artículo para esos proveedores
             }
         }
@@ -407,9 +407,9 @@ class ClasePosstock
 
         // IDs con C1a activo — usados para marcar stock_no_fiable en C5/C6
         $ids_con_c1a = [];
-        foreach ($incidencias as $inc) {
-            if ($inc['tipo'] === 'Inventario en negativo') {
-                $ids_con_c1a[$inc['idArticulo']] = true;
+        foreach ($incidencias as $incidencia) {
+            if ($incidencia['tipo'] === 'Inventario en negativo') {
+                $ids_con_c1a[$incidencia['idArticulo']] = true;
             }
         }
 
@@ -453,7 +453,7 @@ class ClasePosstock
                 $tipos_c3 = [];
                 if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Caída de rotación';
                 if (isset($casos_set['caso3b'])) $tipos_c3[] = 'Entrada sin rotación previa';
-                $c3 = array_values(array_filter($c3, fn($inc) => in_array($inc['tipo'], $tipos_c3, true)));
+                $c3 = array_values(array_filter($c3, fn($incidencia) => in_array($incidencia['tipo'], $tipos_c3, true)));
             }
             $incidencias = array_merge($incidencias, $c3);
         }
@@ -657,22 +657,22 @@ class ClasePosstock
                 $c5_incluir_stock_negativo
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
-            foreach ($this->c4->formatearIncidencias($articulos_sin_mov) as $inc) {
-                $incidencias[] = $inc;
+            foreach ($this->c4->formatearIncidencias($articulos_sin_mov) as $incidencia) {
+                $incidencias[] = $incidencia;
             }
         }
 
         // ── Marcar stock_no_fiable en C5/C6 cuando el artículo tiene C1a activo ──
         if (!empty($ids_con_c1a)) {
-            foreach ($incidencias as &$inc) {
+            foreach ($incidencias as &$incidencia) {
                 if (
-                    isset($ids_con_c1a[$inc['idArticulo']]) &&
-                    in_array($inc['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)
+                    isset($ids_con_c1a[$incidencia['idArticulo']]) &&
+                    in_array($incidencia['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)
                 ) {
-                    $inc['stock_no_fiable'] = true;
+                    $incidencia['stock_no_fiable'] = true;
                 }
             }
-            unset($inc);
+            unset($incidencia);
         }
 
         // ── Ordenar: CRITICA → ALTA → MEDIA (C2→C5→C3a) → BAJA (C3b sin-rot→C3b nunca→C4) ─
@@ -690,9 +690,9 @@ class ClasePosstock
         ];
 
         // C3b con ultima_salida (Sin rotación) antes que sin ultima_salida (Nunca salidas)
-        $subtipo_baja = static function (array $inc): int {
-            if ($inc['tipo'] === 'Entrada sin rotación previa') {
-                return (isset($inc['ultima_salida']) && $inc['ultima_salida'] !== null) ? 0 : 1;
+        $subtipo_baja = static function (array $incidencia): int {
+            if ($incidencia['tipo'] === 'Entrada sin rotación previa') {
+                return (isset($incidencia['ultima_salida']) && $incidencia['ultima_salida'] !== null) ? 0 : 1;
             }
             return 2; // 'Stock Inactivo en Periodo' (C4)
         };
@@ -730,76 +730,76 @@ class ClasePosstock
         // para ordenar los grupos de producto de más reciente a más antiguo.
         $c5_tipo = 'Venta Cero (Posible Rotura Física)';
         $max_fecha_c5 = [];
-        foreach ($incidencias as $inc) {
-            if ($inc['tipo'] === $c5_tipo) {
-                $id = $inc['idArticulo'];
-                $f  = $inc['fecha_inicio_rotura'] ?? '0000-00-00';
-                if (!isset($max_fecha_c5[$id]) || $f > $max_fecha_c5[$id]) {
-                    $max_fecha_c5[$id] = $f;
+        foreach ($incidencias as $incidencia) {
+            if ($incidencia['tipo'] === $c5_tipo) {
+                $id = $incidencia['idArticulo'];
+                $fechaRotura  = $incidencia['fecha_inicio_rotura'] ?? '0000-00-00';
+                if (!isset($max_fecha_c5[$id]) || $fechaRotura > $max_fecha_c5[$id]) {
+                    $max_fecha_c5[$id] = $fechaRotura;
                 }
             }
         }
 
-        foreach ($incidencias as &$inc) {
-            $sev_idx = $orden_sev[$inc['severidad']] ?? 9;
-            if ($inc['tipo'] === $c5_tipo) {
+        foreach ($incidencias as &$incidencia) {
+            $sev_idx = $orden_sev[$incidencia['severidad']] ?? 9;
+            if ($incidencia['tipo'] === $c5_tipo) {
                 // Agrupar por artículo ordenando grupos por fecha de última rotura (asc: más antigua primero).
                 // Dentro de cada artículo: orden cronológico de fecha_inicio_rotura (asc).
-                $max_f = $max_fecha_c5[$inc['idArticulo']] ?? '0000-00-00';
-                $fi_r  = $inc['fecha_inicio_rotura'] ?? '0000-00-00';
-                $inc['orden_clave'] = $sev_idx . '1' . $max_f . sprintf('%08d', $inc['idArticulo']) . $fi_r;
-            } elseif ($inc['tipo'] === 'Agotamiento Estimado' || $inc['tipo'] === 'Punto de Pedido') {
+                $maxFechaRotura = $max_fecha_c5[$incidencia['idArticulo']] ?? '0000-00-00';
+                $fechaInicioRotura  = $incidencia['fecha_inicio_rotura'] ?? '0000-00-00';
+                $incidencia['orden_clave'] = $sev_idx . '1' . $maxFechaRotura . sprintf('%08d', $incidencia['idArticulo']) . $fechaInicioRotura;
+            } elseif ($incidencia['tipo'] === 'Agotamiento Estimado' || $incidencia['tipo'] === 'Punto de Pedido') {
                 // C6a/C6b CRITICA/ALTA: ordenar por dias_autonomia ascendente (más urgente primero).
                 // C6a/C6b MEDIA: se ordena por tipo dentro del bloque MEDIA (ya cubierto por orden_tipo_media).
                 // C6b (Punto de Pedido) se desplaza un sub-nivel respecto a C6a dentro de la misma severidad.
-                $dias_pad = str_pad((int)($inc['dias_autonomia'] * 10), 8, '0', STR_PAD_LEFT);
-                $c6b_shift = ($inc['tipo'] === 'Punto de Pedido') ? '1' : '0';
-                $sub       = ($inc['severidad'] === 'MEDIA') ? '2' : '0';
-                $inc['orden_clave'] = $sev_idx . $sub . $c6b_shift . $dias_pad . sprintf('%08d', $inc['idArticulo']);
-            } elseif ($inc['severidad'] === 'MEDIA') {
-                $sub = $orden_tipo_media_clave[$inc['tipo']] ?? '9';
-                $inc['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $inc['idArticulo']);
-            } elseif ($inc['severidad'] === 'BAJA') {
-                if ($inc['tipo'] === 'Entrada sin rotación previa') {
-                    $sub = (isset($inc['ultima_salida']) && $inc['ultima_salida'] !== null) ? '0' : '1';
+                $dias_pad = str_pad((int)($incidencia['dias_autonomia'] * 10), 8, '0', STR_PAD_LEFT);
+                $c6b_shift = ($incidencia['tipo'] === 'Punto de Pedido') ? '1' : '0';
+                $sub       = ($incidencia['severidad'] === 'MEDIA') ? '2' : '0';
+                $incidencia['orden_clave'] = $sev_idx . $sub . $c6b_shift . $dias_pad . sprintf('%08d', $incidencia['idArticulo']);
+            } elseif ($incidencia['severidad'] === 'MEDIA') {
+                $sub = $orden_tipo_media_clave[$incidencia['tipo']] ?? '9';
+                $incidencia['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $incidencia['idArticulo']);
+            } elseif ($incidencia['severidad'] === 'BAJA') {
+                if ($incidencia['tipo'] === 'Entrada sin rotación previa') {
+                    $sub = (isset($incidencia['ultima_salida']) && $incidencia['ultima_salida'] !== null) ? '0' : '1';
                 } else {
                     $sub = '2'; // Stock Inactivo en Periodo (C4)
                 }
-                $inc['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $inc['idArticulo']);
-            } elseif ($inc['tipo'] === 'Inventario en negativo') {
+                $incidencia['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $incidencia['idArticulo']);
+            } elseif ($incidencia['tipo'] === 'Inventario en negativo') {
                 // C1a: stock_actual desc (más negativo primero), desempate por días en negativo desc
-                $inv_stock = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['stock_actual'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
-                $inv_dias  = str_pad(max(0, 9999 - (int)($inc['dias_en_negativo'] ?? 0)), 4, '0', STR_PAD_LEFT);
-                $inc['orden_clave'] = $sev_idx . '0' . $inv_stock . $inv_dias;
-            } elseif ($inc['tipo'] === 'Desajuste Puntual de Stock') {
+                $inv_stock = str_pad(max(0, 9999999999 - (int)(abs((float)($incidencia['stock_actual'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
+                $inv_dias  = str_pad(max(0, 9999 - (int)($incidencia['dias_en_negativo'] ?? 0)), 4, '0', STR_PAD_LEFT);
+                $incidencia['orden_clave'] = $sev_idx . '0' . $inv_stock . $inv_dias;
+            } elseif ($incidencia['tipo'] === 'Desajuste Puntual de Stock') {
                 // C1b: abs(min_balance) desc — el mínimo más profundo primero
-                $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($inc['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
-                $inc['orden_clave'] = $sev_idx . '0' . $inv_min;
-            } elseif (in_array($inc['c7_subcaso'] ?? '', ['C7a', 'C7a_posible'], true)) {
+                $inv_min = str_pad(max(0, 9999999999 - (int)(abs((float)($incidencia['min_balance'] ?? 0)) * 100)), 10, '0', STR_PAD_LEFT);
+                $incidencia['orden_clave'] = $sev_idx . '0' . $inv_min;
+            } elseif (in_array($incidencia['c7_subcaso'] ?? '', ['C7a', 'C7a_posible'], true)) {
                 // C7a: coste_estimado_merma desc → delta_acumulado desc → tendencia desc
-                $coste_inv  = str_pad(max(0, 9999999 - (int)(abs((float)($inc['coste_estimado_merma'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
-                $delta_inv  = str_pad(max(0, 99999 - (int)(abs((float)($inc['delta_acumulado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
-                $slope_inv  = str_pad(max(0, 9999 - (int)(abs((float)($inc['tendencia'] ?? 0)) * 10)), 4, '0', STR_PAD_LEFT);
-                $coste_null = ($inc['coste_estimado_merma'] ?? null) === null ? '1' : '0';
-                $inc['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $delta_inv . $slope_inv;
-            } elseif (in_array($inc['c7_subcaso'] ?? '', ['C7b', 'C7b_posible', 'C7b_ruido_peso'], true)) {
+                $coste_inv  = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['coste_estimado_merma'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $delta_inv  = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['delta_acumulado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
+                $slope_inv  = str_pad(max(0, 9999 - (int)(abs((float)($incidencia['tendencia'] ?? 0)) * 10)), 4, '0', STR_PAD_LEFT);
+                $coste_null = ($incidencia['coste_estimado_merma'] ?? null) === null ? '1' : '0';
+                $incidencia['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $delta_inv . $slope_inv;
+            } elseif (in_array($incidencia['c7_subcaso'] ?? '', ['C7b', 'C7b_posible', 'C7b_ruido_peso'], true)) {
                 // C7b: coste_estimado desc → n_recepciones desc → déficit abs desc
-                $coste_inv = str_pad(max(0, 9999999 - (int)(abs((float)($inc['coste_estimado'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
-                $rec_inv   = str_pad(max(0, 9999 - (int)($inc['n_recepciones'] ?? 0)), 4, '0', STR_PAD_LEFT);
-                $def_inv   = str_pad(max(0, 99999 - (int)(abs((float)($inc['offset_estimado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
+                $coste_inv = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['coste_estimado'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $rec_inv   = str_pad(max(0, 9999 - (int)($incidencia['n_recepciones'] ?? 0)), 4, '0', STR_PAD_LEFT);
+                $def_inv   = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['offset_estimado'] ?? 0)) * 10)), 5, '0', STR_PAD_LEFT);
                 // Nulls de coste al final
-                $coste_null = ($inc['coste_estimado'] ?? null) === null ? '1' : '0';
-                $inc['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $rec_inv . $def_inv;
-            } elseif ($inc['tipo'] === 'Merma backstaging') {
+                $coste_null = ($incidencia['coste_estimado'] ?? null) === null ? '1' : '0';
+                $incidencia['orden_clave'] = $sev_idx . '0' . $coste_null . $coste_inv . $rec_inv . $def_inv;
+            } elseif ($incidencia['tipo'] === 'Merma backstaging') {
                 // C9: pct_merma desc → merma_total_kg desc
-                $pct_inv   = str_pad(max(0, 99999 - (int)(abs((float)($inc['pct_merma']     ?? 0)) * 100)), 5, '0', STR_PAD_LEFT);
-                $merma_inv = str_pad(max(0, 9999999 - (int)(abs((float)($inc['merma_total_kg'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
-                $inc['orden_clave'] = $sev_idx . '0' . $pct_inv . $merma_inv;
+                $pct_inv   = str_pad(max(0, 99999 - (int)(abs((float)($incidencia['pct_merma']     ?? 0)) * 100)), 5, '0', STR_PAD_LEFT);
+                $merma_inv = str_pad(max(0, 9999999 - (int)(abs((float)($incidencia['merma_total_kg'] ?? 0)) * 100)), 7, '0', STR_PAD_LEFT);
+                $incidencia['orden_clave'] = $sev_idx . '0' . $pct_inv . $merma_inv;
             } else {
-                $inc['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $inc['idArticulo']);
+                $incidencia['orden_clave'] = $sev_idx . '0' . sprintf('%08d', $incidencia['idArticulo']);
             }
         }
-        unset($inc);
+        unset($incidencia);
 
         return $this->repo->anadirNombres($incidencias);
     }
@@ -841,11 +841,11 @@ class ClasePosstock
         $where_prov   = $this->repo->idsWhere($ids_proveedor_filter);
         $limit_clause = ($pagina > 0) ? "LIMIT $pagina OFFSET $inicial" : '';
 
-        $rows = $this->repo->queryIdsConActividad($fi, $ff, $where_fam, $limit_clause, $where_prov);
-        if (isset($rows['error'])) return [];
+        $filas = $this->repo->queryIdsConActividad($fi, $ff, $where_fam, $limit_clause, $where_prov);
+        if (isset($filas['error'])) return [];
 
         $ids = [];
-        foreach ($rows as $r) $ids[] = (int)$r['idArticulo'];
+        foreach ($filas as $fila) $ids[] = (int)$fila['idArticulo'];
         return $ids;
     }
 
@@ -862,23 +862,23 @@ class ClasePosstock
         $proveedor_todos          = (bool)  ($params['proveedor_todos_productos'] ?? false);
         $ids_proveedor_filter     = [];
         $ids_proveedor_filter_c6b = [];  // C6b: todos los artículos del proveedor, sin filtro de estado
-        $ids_str_prov             = '';
+        $idsProveedoresCsv             = '';
         if (!empty($proveedores_incluir)) {
-            $ids_str_prov = implode(',', array_map('intval', $proveedores_incluir));
+            $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
             if (!$proveedor_todos) {
                 // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $rows_prov = $this->repo->queryIdsArticulosByProveedores($ids_str_prov);
-                if (isset($rows_prov['error'])) return $rows_prov;
-                $ids_proveedor_filter = array_column($rows_prov, 'idArticulo');
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
+                $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
                 if (empty($ids_proveedor_filter)) {
                     return ['filas' => [], 'actual' => $inicial, 'elementos' => 0];
                 }
             }
             // C6b evalúa todos los artículos del proveedor independientemente del estado:
             // un artículo inactivo en articulosProveedores puede seguir en stock y vendiendo.
-            $rows_prov_c6b = $this->repo->queryIdsArticulosByProveedoresTodos($ids_str_prov);
-            if (!isset($rows_prov_c6b['error'])) {
-                $ids_proveedor_filter_c6b = array_column($rows_prov_c6b, 'idArticulo');
+            $filasArticulosProvC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProveedoresCsv);
+            if (!isset($filasArticulosProvC6b['error'])) {
+                $ids_proveedor_filter_c6b = array_column($filasArticulosProvC6b, 'idArticulo');
             }
         }
 
@@ -927,10 +927,10 @@ class ClasePosstock
         }
 
         // ── Obtener IDs del lote según modo de proveedor ─────────────────────
-        if ($proveedor_todos && $ids_str_prov !== '') {
+        if ($proveedor_todos && $idsProveedoresCsv !== '') {
             // Modo "todos los productos del proveedor": paginar directamente sobre
             // articulosProveedores, sin filtro de actividad en el periodo.
-            $ids_batch = $this->repo->queryArticulosProveedorPaginados($ids_str_prov, $inicial, $pagina);
+            $ids_batch = $this->repo->queryArticulosProveedorPaginados($idsProveedoresCsv, $inicial, $pagina);
             if (isset($ids_batch['error'])) return $ids_batch;
             // El filtro de proveedor ya está embebido en ids_filter; no aplicar doble filtro
             $params_batch['ids_proveedor_filter'] = [];
