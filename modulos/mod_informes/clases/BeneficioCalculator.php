@@ -13,7 +13,6 @@ class BeneficioCalculator
 
     public function calcular(array $parametros): array
     {
-        $BDTpv = $this->db;
         // @ Objetivo
         // Suma ventas y costes (ultimoCoste) por jerarquía de familias para calcular
         // beneficio bruto y margen porcentual en el período.
@@ -21,8 +20,8 @@ class BeneficioCalculator
         // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
 
         
-        $fechaInicio = $BDTpv->real_escape_string($parametros['Finicio']);
-        $fechaFinal  = $BDTpv->real_escape_string($parametros['Ffinal']);
+        $fechaInicio = $this->db->real_escape_string($parametros['Finicio']);
+        $fechaFinal  = $this->db->real_escape_string($parametros['Ffinal']);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -30,7 +29,7 @@ class BeneficioCalculator
         if ((int)($parametros['opcion'] ?? 0) === 4) {
             $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
             if (!empty($ids)) {
-                $fop4             = InformesFiltros::buildFiltroOp4($BDTpv, $ids);
+                $fop4             = InformesFiltros::buildFiltroOp4($this->db, $ids);
                 $filtroN1         = $fop4['filtroSQL'];
                 $virtualHierarchy = $fop4['virtualHierarchy'];
                 $needsIdFamilia   = $fop4['needsIdFamilia'];
@@ -53,7 +52,7 @@ class BeneficioCalculator
               AND pv.estado != 'Especial'
             GROUP BY lp.idArticulo
         ";
-        $sentenciaCoste = $BDTpv->query($sqlCoste);
+        $sentenciaCoste = $this->db->query($sqlCoste);
         $costePeriodo = [];
         while ($filaCoste = $sentenciaCoste->fetch_assoc()) {
             $costePeriodo[(int)$filaCoste['idArticulo']] = (float)$filaCoste['coste_periodo'];
@@ -96,7 +95,7 @@ class BeneficioCalculator
               $mermaFamiliaWhere
             GROUP BY l.idArticulo
         ";
-        $sentenciaMerma = $BDTpv->query($sqlMerma);
+        $sentenciaMerma = $this->db->query($sqlMerma);
         $mermasPorArticulo = [];
         while ($filaMerma = $sentenciaMerma->fetch_assoc()) {
             $mermasPorArticulo[(int)$filaMerma['idArticulo']] = (float)$filaMerma['unidades_merma'];
@@ -170,7 +169,7 @@ class BeneficioCalculator
             ORDER BY nombreN1, nombreN2, idArticulo
         ";
 
-        $sentenciaVentas    = $BDTpv->query($sql);
+        $sentenciaVentas    = $this->db->query($sql);
         $lineas = [];
         while ($fila = $sentenciaVentas->fetch_assoc()) {
             $lineas[] = $fila;
@@ -345,7 +344,7 @@ class BeneficioCalculator
         foreach ($mermasPorArticulo as $idArt => $uds) {
             if (isset($articulosConVentas[$idArt])) continue;
             // Obtener nombre y ultimoCoste
-            $sentenciaArticulo = $BDTpv->query(
+            $sentenciaArticulo = $this->db->query(
                 "SELECT articulo_name, ultimoCoste FROM articulos WHERE idArticulo = $idArt LIMIT 1"
             );
             if (!$sentenciaArticulo || $sentenciaArticulo->num_rows === 0) continue;
@@ -434,7 +433,7 @@ class BeneficioCalculator
               AND pv.estado != 'Especial'
               $filtroFlujoGlobalWhereC
         ";
-        $sentenciaFlujoComprasGlobal = $BDTpv->query($sqlFlujoComprasGlobal);
+        $sentenciaFlujoComprasGlobal = $this->db->query($sqlFlujoComprasGlobal);
         $filaFlujoComprasGlobal = $sentenciaFlujoComprasGlobal->fetch_assoc();
         $gtComprasSiva = (float)($filaFlujoComprasGlobal['compras_siva'] ?? 0);
         $gtComprasCiva = (float)($filaFlujoComprasGlobal['compras_civa'] ?? 0);
@@ -458,7 +457,7 @@ class BeneficioCalculator
               $filtroFlujoN1Where
             GROUP BY $flujoGroupByKey
         ";
-        $sentenciaFlujoCompras = $BDTpv->query($sqlFlujoCompras);
+        $sentenciaFlujoCompras = $this->db->query($sqlFlujoCompras);
         $flujoComprasPorN1 = [];
         while ($filaFlujoCompra = $sentenciaFlujoCompras->fetch_assoc()) {
             $rawKey = $filaFlujoCompra['flujo_key'];
@@ -501,7 +500,7 @@ class BeneficioCalculator
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
               $filtroFlujoGlobalWhereV
         ";
-        $sentenciaFlujoVentas = $BDTpv->query($sqlFlujoVentas);
+        $sentenciaFlujoVentas = $this->db->query($sqlFlujoVentas);
         $gtVentasCiva = 0;
         $gtVentasSiva = 0;
         while ($filaFlujoVenta = $sentenciaFlujoVentas->fetch_assoc()) {
@@ -541,7 +540,7 @@ class BeneficioCalculator
               $filtroFlujoN1Where
             GROUP BY $flujoGroupByKey
         ";
-        $sentenciaFlujoVentasPorN1 = $BDTpv->query($sqlFlujoVentasN1);
+        $sentenciaFlujoVentasPorN1 = $this->db->query($sqlFlujoVentasN1);
         $flujoVentasPorN1 = [];
         while ($filaFlujoVentaN1 = $sentenciaFlujoVentasPorN1->fetch_assoc()) {
             $rawKey = $filaFlujoVentaN1['flujo_key'];
@@ -566,11 +565,11 @@ class BeneficioCalculator
         $fechaVispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
 
         // Reconstruye unidades netas acumuladas desde 1ene hasta $hasta (inclusive)
-        $calcularStockEn = function (string $hasta) use ($BDTpv, $inicioAnio): array {
+        $calcularStockEn = function (string $hasta) use ($inicioAnio): array {
             // Si $hasta < $inicioAnio (período empieza el 1 ene → víspera = 31 dic año anterior)
             // devolvemos array vacío → stock inicio = 0
             if ($hasta < $inicioAnio) return [];
-            $sentenciaVentas = $BDTpv->query("
+            $sentenciaVentas = $this->db->query("
                 SELECT idArticulo, SUM(delta) AS neto
                 FROM (
                     SELECT l.idArticulo,  l.nunidades AS delta
@@ -609,7 +608,7 @@ class BeneficioCalculator
         $stockInicioPorArt = $calcularStockEn($fechaVispera);     // stock en la víspera (= inicio del período)
 
         // Obtener ultimoCoste para el fallback de valoración
-        $sentenciaUltimoCoste = $BDTpv->query("SELECT idArticulo, ultimoCoste FROM articulos WHERE ultimoCoste > 0");
+        $sentenciaUltimoCoste = $this->db->query("SELECT idArticulo, ultimoCoste FROM articulos WHERE ultimoCoste > 0");
         $ultimoCostePorArt = [];
         while ($filaUltimoCoste = $sentenciaUltimoCoste->fetch_assoc()) {
             $ultimoCostePorArt[(int)$filaUltimoCoste['idArticulo']] = (float)$filaUltimoCoste['ultimoCoste'];

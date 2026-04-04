@@ -71,10 +71,10 @@ class PosstockC9Detector
         }
 
         // Suma de salidas entre dos fechas inclusive (day_delta siempre positivo)
-        $sum_salidas = static function (array $deltas, string $fi, string $ff): float {
+        $sum_salidas = static function (array $deltas, string $fechaInicio, string $fechaFin): float {
             $total = 0.0;
             foreach ($deltas as $fecha => $delta) {
-                if ($fecha >= $fi && $fecha <= $ff) {
+                if ($fecha >= $fechaInicio && $fecha <= $fechaFin) {
                     $total += $delta;
                 }
             }
@@ -82,10 +82,10 @@ class PosstockC9Detector
         };
 
         // Suma de devoluciones (ABS) en intervalo inclusive
-        $sum_devs = static function (array $devs, string $fi, string $ff): float {
+        $sum_devs = static function (array $devs, string $fechaInicio, string $fechaFin): float {
             $total = 0.0;
             foreach ($devs as $fecha => $dev) {
-                if ($fecha >= $fi && $fecha <= $ff) {
+                if ($fecha >= $fechaInicio && $fecha <= $fechaFin) {
                     $total += $dev;
                 }
             }
@@ -523,12 +523,12 @@ class PosstockC9Detector
         float  $c9_umbral_peso    = 1.0,
         int    $c9_dias_post      = 60
     ): array {
-        $fi   = $this->db->real_escape_string($fi_mov);
-        $ff   = $this->db->real_escape_string($ff_mov);
+        $fechaInicioEsc   = $this->db->real_escape_string($fi_mov);
+        $fechaFinEsc   = $this->db->real_escape_string($ff_mov);
         $filtroFamiliasSql   = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql   = $this->repo->idsWhere($ids_filter);
         // ── Paso 1: recepciones (Q1) ────────────────────────────────────────
-        $filasRecepciones = $this->repo->queryRecepcionesC9($fi, $ff_mov, $filtroFamiliasSql, $filtroArticulosSql, $c9_dias_post);
+        $filasRecepciones = $this->repo->queryRecepcionesC9($fechaInicioEsc, $ff_mov, $filtroFamiliasSql, $filtroArticulosSql, $c9_dias_post);
         if (isset($filasRecepciones['error'])) return $filasRecepciones;
         if (empty($filasRecepciones)) return [];
 
@@ -568,7 +568,7 @@ class PosstockC9Detector
         $ff_post_dev = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $filasDevolucionesProv = $this->repo->queryDevolucionesProvC9($fi, $ff_post_dev, $idsArticulosCsv);
+        $filasDevolucionesProv = $this->repo->queryDevolucionesProvC9($fechaInicioEsc, $ff_post_dev, $idsArticulosCsv);
         if (isset($filasDevolucionesProv['error'])) return $filasDevolucionesProv;
         $devs_map = [];
         foreach ($filasDevolucionesProv as $fila) {
@@ -580,7 +580,7 @@ class PosstockC9Detector
         $ff_post_tl = $this->db->real_escape_string(
             date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"))
         );
-        $filasTimeline = $this->repo->queryTimelineC9($fi, $ff_post_tl, $idsArticulosCsv);
+        $filasTimeline = $this->repo->queryTimelineC9($fechaInicioEsc, $ff_post_tl, $idsArticulosCsv);
         if (isset($filasTimeline['error'])) return $filasTimeline;
         $timeline_map = [];
         foreach ($filasTimeline as $fila) {
@@ -593,9 +593,9 @@ class PosstockC9Detector
         );
         // Los albaranes especiales (merma declarada) se acotan al periodo fi_mov..ff_mov,
         // no a ff_post: las regularizaciones post-periodo pertenecen al siguiente análisis.
-        $filasAlbaranesProv = $this->repo->queryAlbaranesProvEspecialesC9($fi, $ff, $idsArticulosCsv);
+        $filasAlbaranesProv = $this->repo->queryAlbaranesProvEspecialesC9($fechaInicioEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($filasAlbaranesProv['error'])) return $filasAlbaranesProv;
-        $filasAlbaranesCliEsp  = $this->repo->queryAlbaranesCliEspecialesC9($fi, $ff, $idsArticulosCsv);
+        $filasAlbaranesCliEsp  = $this->repo->queryAlbaranesCliEspecialesC9($fechaInicioEsc, $fechaFinEsc, $idsArticulosCsv);
         if (isset($filasAlbaranesCliEsp['error'])) return $filasAlbaranesCliEsp;
 
         // Clasificar albaranes proveedor especial: cruce intra-albarán vs merma declarada
@@ -823,7 +823,7 @@ class PosstockC9Detector
         }
 
         // ── Paso 6: stock rebobinado al ff_mov (ancla conservación) ────────
-        $filasStockFinal = $this->repo->queryStockRebobinado($idsArticulosCsv, $ff);
+        $filasStockFinal = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinEsc);
         if (isset($filasStockFinal['error'])) return $filasStockFinal;
         $stock_final_map = [];
         foreach ($filasStockFinal as $fila) $stock_final_map[(int)$fila['idArticulo']] = (float)$fila['stock_en_periodo'];
@@ -976,11 +976,8 @@ class PosstockC9Detector
         if (!empty($incidencias)) {
             $ids_c9     = array_column($incidencias, 'idArticulo');
             $idsC9Csv = implode(',', array_map('intval', $ids_c9));
-            $fi_esc     = $this->db->real_escape_string($fi);
-            $ff_esc     = $this->db->real_escape_string($ff);
-
-            $prov_map_c9   = $this->repo->queryProveedorArticulos($idsC9Csv, $fi_esc, $ff_esc);
-            $precio_map_c9 = $this->repo->queryPrecioMedioCompra($idsC9Csv, $fi_esc, $ff_esc);
+            $prov_map_c9   = $this->repo->queryProveedorArticulos($idsC9Csv, $fechaInicioEsc, $fechaFinEsc);
+            $precio_map_c9 = $this->repo->queryPrecioMedioCompra($idsC9Csv, $fechaInicioEsc, $fechaFinEsc);
 
             foreach ($incidencias as &$inc) {
                 $prov = $prov_map_c9[$inc['idArticulo']] ?? null;
