@@ -313,14 +313,12 @@ class PosstockC6Detector
             if ($stock >= $ROP && !$alta_variabilidad) continue;
 
             // ── Severidad ─────────────────────────────────────────────────────
-            if ($dias_autonomia < $L) {
-                $severidad     = 'CRITICA';
+            $severidad = $this->calcularSeveridadC6($dias_autonomia, $stock, $ROP, $L);
+            if ($severidad === 'CRITICA') {
                 $posible_causa = 'Agotamiento estimado antes del próximo pedido';
-            } elseif ($stock < $ROP) {
-                $severidad     = 'ALTA';
+            } elseif ($severidad === 'ALTA') {
                 $posible_causa = 'Stock por debajo del punto de pedido (ROP)';
             } else {
-                $severidad     = 'MEDIA';
                 $posible_causa = 'Stock suficiente pero con alta variabilidad de demanda';
             }
 
@@ -360,14 +358,12 @@ class PosstockC6Detector
 
                     $dias_auto_rec = $d_rec > 0 ? max(0.0, $stock_rec / $d_rec) : PHP_FLOAT_MAX;
 
-                    if ($dias_auto_rec < $L) {
-                        $sev_rec   = 'CRITICA';
+                    $sev_rec = $this->calcularSeveridadC6($dias_auto_rec, $stock_rec, $ROP_rec, $L);
+                    if ($sev_rec === 'CRITICA') {
                         $causa_rec = 'Agotamiento estimado antes del próximo pedido';
-                    } elseif ($stock_rec < $ROP_rec) {
-                        $sev_rec   = 'ALTA';
+                    } elseif ($sev_rec === 'ALTA') {
                         $causa_rec = 'Stock por debajo del punto de pedido (ROP)';
                     } else {
-                        $sev_rec   = 'MEDIA';
                         $causa_rec = 'Stock suficiente pero con alta variabilidad de demanda';
                     }
 
