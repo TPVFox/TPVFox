@@ -13,11 +13,7 @@ class BeneficioCalculator
 
     public function calcular(array $parametros): array
     {
-        // @ Objetivo
-        // Suma ventas y costes (ultimoCoste) por jerarquía de familias para calcular
-        // beneficio bruto y margen porcentual en el período.
-        // AVISO: el coste es ultimoCoste en el momento de ejecutar el informe, no histórico.
-        // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
+        // El coste de referencia es ultimoCoste en tiempo de ejecución, no coste histórico.
 
         [
             'fechaInicio'       => $fechaInicio,

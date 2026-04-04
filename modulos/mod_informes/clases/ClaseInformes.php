@@ -257,20 +257,6 @@ class ClaseInformes extends TFModelo
 
     public function SumaProductosTodosProveedores($LineasProductos)
     {
-        // @ Objetivo
-        // Obtener un array con la suma de productos comprados con su precio coste medio del array que recibimos.
-        // @ Parametros:
-        // $productos -> Es un array que puede trae :Array
-        //(
-        //    [idalbpro] => int
-        //    [idArticulo] => int
-        //    [totalUnidades] => float
-        //    [costeSiva] =>float
-        //    [coste_medio] => float
-        //    [num_compras] => int
-        //    [total_linea] => float
-        //)
-
         $totalProductos = 0;
         $totalLineas = 0;
         /* $cdetalleArray = $this->ObtenerIdsArray($LineasProductos,'cdetalle');
@@ -321,8 +307,6 @@ class ClaseInformes extends TFModelo
 
     public function ObtenerIdsArray($datos, $campo)
     {
-        // @ Objetivo
-        // Obtener un array con los datos de un campo determinado.
         $valores = [];
         foreach ($datos as $dato) {
             $valores[] = $dato[$campo];
@@ -502,10 +486,8 @@ class ClaseInformes extends TFModelo
 
     public function ResumenVentasFamilias($parametros = array())
     {
-        // @ Objetivo
-        // Suma las líneas de ventas (albaranes + tickets) agrupadas por jerarquía de familias.
-        // Misma estructura de respuesta que ResumenFamilias pero sobre ventas.
-        // @ Parámetros: Finicio (Y-m-d), Ffinal (Y-m-d)
+        // Se mantiene UNION ALL entre albaranes y tickets para consolidar ventas en
+        // una sola agregación SQL y evitar combinaciones en memoria por artículo/familia.
 
         $db       = $this->conexionBDTPV();
         $fechaInicio = $db->real_escape_string($parametros['Finicio']);
