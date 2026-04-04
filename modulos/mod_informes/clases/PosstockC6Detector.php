@@ -87,12 +87,12 @@ class PosstockC6Detector
     ): array {
         $fi_stats = $fi_stats ?: $fi_mov;
         $ff_stats = $ff_stats ?: $ff_mov;
-        $fi = $this->db->real_escape_string($fi_stats);
-        $ff = $this->db->real_escape_string($stock_anchor ?: $ff_mov);  // rebobinar a hoy (C6b) o ff_mov (C6a)
-        $ff_stats_esc = $this->db->real_escape_string($ff_stats);
+        $fechaInicioEstadisticaEsc = $this->db->real_escape_string($fi_stats);
+        $fechaAnclaStockEsc = $this->db->real_escape_string($stock_anchor ?: $ff_mov);  // rebobinar a hoy (C6b) o ff_mov (C6a)
+        $fechaFinEstadisticaEsc = $this->db->real_escape_string($ff_stats);
 
-        $where_fam = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
-        $where_ids = $this->repo->idsWhere($ids_filter);
+        $filtroFamiliasSql = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
+        $filtroArticulosSql = $this->repo->idsWhere($ids_filter);
 
         // Umbrales de reconstrucción (recibidos como parámetros)
         $umbral_rop_mult  = max(3.0, $umbral_rop_mult);
@@ -100,24 +100,31 @@ class PosstockC6Detector
 
         // Paso 1 — Cantidades vendidas por día y artículo en el periodo
         $incluir_todos_tipos = !empty($proveedores_incluir);
-        $rows_ventas = $this->repo->queryVentasCantidadesC6($fi, $ff_stats_esc, $where_fam, $where_ids, $incluir_albcli, $incluir_todos_tipos);
-        if (isset($rows_ventas['error'])) return $rows_ventas;
-        if (empty($rows_ventas)) return [];
+        $filasVentas = $this->repo->queryVentasCantidadesC6(
+            $fechaInicioEstadisticaEsc,
+            $fechaFinEstadisticaEsc,
+            $filtroFamiliasSql,
+            $filtroArticulosSql,
+            $incluir_albcli,
+            $incluir_todos_tipos
+        );
+        if (isset($filasVentas['error'])) return $filasVentas;
+        if (empty($filasVentas)) return [];
 
         // $ventas_cant[idArticulo][fecha] = nunidades_dia  (float)
         $ventas_cant = [];
-        foreach ($rows_ventas as $r) {
-            $ventas_cant[(int)$r['idArticulo']][$r['fecha']] = (float)$r['nunidades_dia'];
+        foreach ($filasVentas as $filaVenta) {
+            $ventas_cant[(int)$filaVenta['idArticulo']][$filaVenta['fecha']] = (float)$filaVenta['nunidades_dia'];
         }
 
         // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
-        $ids_str    = implode(',', array_keys($ventas_cant));
-        $rows_stock = $this->repo->queryStockRebobinado($ids_str, $ff, false);
-        if (isset($rows_stock['error'])) return $rows_stock;
+        $idsArticulosCsv = implode(',', array_keys($ventas_cant));
+        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaAnclaStockEsc, false);
+        if (isset($filasStock['error'])) return $filasStock;
 
         $stock_actual = [];
-        foreach ($rows_stock as $r) {
-            $stock_actual[(int)$r['idArticulo']] = (float)$r['stock_en_periodo'];
+        foreach ($filasStock as $filaStock) {
+            $stock_actual[(int)$filaStock['idArticulo']] = (float)$filaStock['stock_en_periodo'];
         }
 
         // ── Stock reconstruido para artículos muy negativos ───────────────────
@@ -126,10 +133,10 @@ class PosstockC6Detector
         );
         $stock_reconstituido_set = [];
         if (!empty($ids_muy_negativos)) {
-            $ids_neg_str = implode(',', $ids_muy_negativos);
-            $rows_rec    = $this->repo->queryStockReconstituido($ids_neg_str, $ff);
-            if (!isset($rows_rec['error'])) {
-                foreach ($rows_rec as $id_rec => $stock_rec) {
+            $idsMuyNegativosCsv = implode(',', $ids_muy_negativos);
+            $filasStockReconstituido = $this->repo->queryStockReconstituido($idsMuyNegativosCsv, $fechaAnclaStockEsc);
+            if (!isset($filasStockReconstituido['error'])) {
+                foreach ($filasStockReconstituido as $id_rec => $stock_rec) {
                     $stock_actual[$id_rec]             = $stock_rec;
                     $stock_reconstituido_set[$id_rec]  = 'negativo';
                 }
@@ -342,10 +349,10 @@ class PosstockC6Detector
 
         // ── Reconstrucción post-bucle para sobrestock sospechoso (> umbral_rop_mult×ROP) ─────
         if (!empty($pending_reconstruction)) {
-            $ids_pend_str = implode(',', array_keys($pending_reconstruction));
-            $rows_rec_alt = $this->repo->queryStockReconstituido($ids_pend_str, $ff);
-            if (!isset($rows_rec_alt['error'])) {
-                foreach ($rows_rec_alt as $id_rec => $stock_rec) {
+            $idsPendientesCsv = implode(',', array_keys($pending_reconstruction));
+            $filasStockReconstituidoAlt = $this->repo->queryStockReconstituido($idsPendientesCsv, $fechaAnclaStockEsc);
+            if (!isset($filasStockReconstituidoAlt['error'])) {
+                foreach ($filasStockReconstituidoAlt as $id_rec => $stock_rec) {
                     if (!isset($pending_reconstruction[$id_rec])) continue;
                     $pr            = $pending_reconstruction[$id_rec];
                     $d_rec         = (float)$pr['d'];
@@ -388,14 +395,14 @@ class PosstockC6Detector
 
         // Añadir nombres y tipo (peso / unidad)
         if (!empty($incidencias)) {
-            $ids_inc = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
-            $smt     = $this->db->query(
-                "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($ids_inc)"
+            $idsIncidenciasCsv = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+            $resultadoConsulta = $this->db->query(
+                "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
             );
             $meta = [];
-            if ($smt) {
-                while ($r = $smt->fetch_assoc()) {
-                    $meta[(int)$r['idArticulo']] = ['nombre' => $r['articulo_name'], 'tipo' => $r['tipo']];
+            if ($resultadoConsulta) {
+                while ($filaMeta = $resultadoConsulta->fetch_assoc()) {
+                    $meta[(int)$filaMeta['idArticulo']] = ['nombre' => $filaMeta['articulo_name'], 'tipo' => $filaMeta['tipo']];
                 }
             }
             foreach ($incidencias as &$inc) {
