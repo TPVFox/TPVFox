@@ -31,9 +31,7 @@ declare(strict_types=1);
 
 class PosstockStatistics
 {
-    // ─────────────────────────────────────────────────────────────────────────
     // Distribuciones
-    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * Cuantil de la distribución normal estándar mediante la aproximación racional
@@ -106,9 +104,7 @@ class PosstockStatistics
         return $alpha * $theta * ($term ** 3);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // Modelos de rotura C5
-    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * Modelo Gamma para detección de roturas (C5).
@@ -255,7 +251,7 @@ class PosstockStatistics
         $lambda_dia = $n / max(1, $periodo_dias);
         if ($lambda_dia <= 0) return [];
 
-        // ── Detectar sobredispersión mediante sub-ventanas ───────────────────
+        // Detectar sobredispersión mediante sub-ventanas
         $fi_period_ts = ($ff_stats_ts ?: $ff_ts) - ($periodo_dias - 1) * 86400;
         if ($periodo_dias < 40) {
             $chunk_days = 1;
@@ -282,7 +278,7 @@ class PosstockStatistics
             $s2_chunk /= ($n_chunks - 1);   // varianza muestral insesgada
         }
 
-        // ── Selección del modelo y cálculo del umbral de gap ────────────────
+        // Selección del modelo y cálculo del umbral de gap
         $modelo_usado = 'Poisson';
         if ($n_chunks >= 4 && $s2_chunk > $mu_chunk + 1e-9 && $mu_chunk > 1e-9) {
             // Sobredispersión confirmada → Binomial Negativa
@@ -394,7 +390,7 @@ class PosstockStatistics
 
         $rotation = $n / max(1, $periodo_dias);   // fracción de días con venta
 
-        // ── Gaps entre ventas consecutivas ──────────────────────────────────
+        // Gaps entre ventas consecutivas
         $gaps = [];
         for ($i = 1; $i < $n; $i++) {
             $g = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
@@ -409,7 +405,7 @@ class PosstockStatistics
             $cv_g  = $mu_g > 1e-9 ? sqrt(max(0.0, $var_g)) / $mu_g : 1.0;
         }
 
-        // ── Sobredispersión de chunks (ventas en rachas) ─────────────────────
+        // Sobredispersión de chunks (ventas en rachas)
         $ff_for_chunks = $ff_stats_ts ?: $ff_ts;
         $fi_period_ts = $ff_for_chunks - ($periodo_dias - 1) * 86400;
         if ($periodo_dias < 40)       $chunk_days = 1;
@@ -430,7 +426,7 @@ class PosstockStatistics
         }
         $overdispersed = $n_chunks >= 4 && $mu_chunk > 1e-9 && $s2_chunk > $mu_chunk + 1e-9;
 
-        // ── Heurística "tipo peso" ────────────────────────────────────────────
+        // Heurística "tipo peso"
         $is_peso = false;
         if (count($gaps) >= 2) {
             $n_g      = count($gaps);
@@ -446,8 +442,7 @@ class PosstockStatistics
             $is_peso   = $frac_mean > 0.05 && $frac_var > 0.001;
         }
 
-        // ── Árbol de decisión ────────────────────────────────────────────────
-        // RAMA 1: Alta rotación (>80 % días con venta)
+        // Árbol de decisión        // RAMA 1: Alta rotación (>80 % días con venta)
         if ($rotation > 0.80) {
             // Tipo peso o gaps muy regulares → Gamma (cuantil directo)
             $cv_th = $is_peso ? 0.65 : 0.45;
@@ -520,9 +515,7 @@ class PosstockStatistics
         );
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // Estadística descriptiva
-    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * Media, desviación típica muestral y tamaño de un array de suelos de stock.

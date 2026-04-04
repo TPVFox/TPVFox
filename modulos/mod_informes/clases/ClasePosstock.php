@@ -3,8 +3,7 @@
 /**
  * ClasePosstock — Lógica de datos para el informe POSStock.
  *
- * ─── ARQUITECTURA ────────────────────────────────────────────────────────────
- *
+ * ARQUITECTURA *
  * El cálculo se divide en tres fases que se encadenan:
  *
  *   1. getMovimientosPeriodo($fi, $ff)          [T4.1 — SQL]
@@ -25,16 +24,14 @@
  *        · stock_previo             = saldo al inicio del día anterior a la entrada
  *        · stock_tras_ultimo_albaran = saldo acumulado tras la última entrada del periodo
  *
- * ─── DECISIÓN: T4.3 EN PHP, NO EN SQL ───────────────────────────────────────
- *
+ * DECISIÓN: T4.3 EN PHP, NO EN SQL *
  * MariaDB 10.11 (verificado con SELECT VERSION()) soporta window functions
  * (SUM() OVER, ROW_NUMBER(), etc. disponibles desde 10.2).
  * Se eligió PHP porque T4.1 y T4.2 ya están en memoria y una tercera consulta
  * SQL con CTE + window frame habría replicado la misma lógica con más complejidad
  * y sin ganancia de rendimiento para el volumen de datos esperado (~4.000 filas).
  *
- * ─── ESTADOS DE DOCUMENTO VÁLIDOS ───────────────────────────────────────────
- *
+ * ESTADOS DE DOCUMENTO VÁLIDOS *
  *   albprot  (entradas proveedor) : Guardado, Facturado, Exportado, Importado
  *     · Exportado: era Guardado y se exportó a XML (sigue siendo movimiento real)
  *     · Importado: creado por importación XML (ClaseAlbaranCompraXML)
@@ -47,16 +44,14 @@
  *     · Excluido : Sin guardar (borrador)
  *
  *
- * ─── REGLA "DÍA ANTERIOR" PARA stock_previo ─────────────────────────────────
- *
+ * REGLA "DÍA ANTERIOR" PARA stock_previo *
  *   stock_previo de una entrada en fecha D = saldo_base + Σ movimientos con fecha < D
  *   Si varias entradas caen el mismo día D, todas comparten el mismo stock_previo
  *   (estado al inicio de D, antes de que llegue ningún albarán de ese día).
  *   Las ventas del mismo día D se excluyen del stock_previo (se contabilizarán
  *   en el stock_previo de entradas de días posteriores).
  *
- * ─── USO ─────────────────────────────────────────────────────────────────────
- *
+ * USO *
  *   $p   = new ClasePosstock($BDTpv);
  *   $mov = $p->getMovimientosPeriodo('2025-02-01', '2025-02-28');
  *   $ids = array_unique(array_column($mov, 'idArticulo'));
@@ -64,7 +59,6 @@
  *   $calc = $p->calcularStockPrevio($mov, $base);
  *   // $calc: array de entradas con stock_previo y stock_tras_ultimo_albaran
  *
- * ─────────────────────────────────────────────────────────────────────────────
  */
 require_once __DIR__ . '/PosstockStatistics.php';
 require_once __DIR__ . '/PosstockQueryRepository.php';
@@ -369,14 +363,14 @@ class ClasePosstock
 
         $incidencias = [];
 
-        // ── Precalcular stock_base compartido para C1, C2, C7 y C9 ──────────
+        // Precalcular stock_base compartido para C1, C2, C7 y C9
         $sb_shared = [];
         if (!empty($ids_filter) && (isset($casos_set['caso1']) || isset($casos_set['caso2']) || isset($casos_set['caso7a']) || isset($casos_set['caso7b']) || isset($casos_set['caso9']))) {
             $sb_shared = $this->getStockBase($ids_filter, $fi_stock, $ff_stock);
             if (isset($sb_shared['error'])) return $sb_shared;
         }
 
-        // ── C1 ───────────────────────────────────────────────────────────────
+        // C1
         if (isset($casos_set['caso1'])) {
             $c1 = $this->c1->detectar(
                 $fi_mov,
@@ -404,7 +398,7 @@ class ClasePosstock
             }
         }
 
-        // ── C2 ───────────────────────────────────────────────────────────────
+        // C2
         if (isset($casos_set['caso2'])) {
             $c2 = $this->c2->detectar(
                 $fi_mov,
@@ -424,7 +418,7 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c2);
         }
 
-        // ── C3 (3a y/o 3b — una sola query, filtrar resultado por sub-caso) ──
+        // C3 (3a y/o 3b — una sola query, filtrar resultado por sub-caso)
         if (isset($casos_set['caso3a']) || isset($casos_set['caso3b'])) {
             $c3 = $this->c3->detectar(
                 $fi_mov,
@@ -451,7 +445,7 @@ class ClasePosstock
 
         $incluir_albcli = (bool)($params['incluir_albcli_ventas'] ?? false);
 
-        // ── C5 ───────────────────────────────────────────────────────────────
+        // C5
         if (isset($casos_set['caso5'])) {
             $c5 = $this->c5->detectar(
                 $fi_mov,
@@ -478,7 +472,7 @@ class ClasePosstock
         $c6_lead_time    = (int)  ($params['c6_lead_time_defecto'] ?? 14);
         $c6_nivel_serv   = (float)($params['c6_nivel_servicio']    ?? 0.95);
 
-        // ── C6a — ROP estacional (ventana ligada al periodo ±1) ──────────────
+        // C6a — ROP estacional (ventana ligada al periodo ±1)
         if (isset($casos_set['caso6a'])) {
             $c6a = $this->c6->detectar(
                 $fi_mov,
@@ -506,8 +500,7 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c6a);
         }
 
-        // ── C6b — ROP operacional (ventana histórica fija anclada en hoy) ───────
-        // A diferencia de C6a (ligada al periodo analizado), C6b siempre mide
+        // C6b — ROP operacional (ventana histórica fija anclada en hoy)        // A diferencia de C6a (ligada al periodo analizado), C6b siempre mide
         // la demanda de los últimos N días desde hoy. Así:
         //   · El stock reflejado es el real actual (no rebobinado a ff_mov).
         //   · La muestra estadística corresponde a la demanda reciente real.
@@ -575,8 +568,7 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c6b);
         }
 
-        // ── C7a / C7b — Offset sistemático de inventario ────────────────────
-        // Se ejecutan con una sola pasada SQL si ambos están activos.
+        // C7a / C7b — Offset sistemático de inventario        // Se ejecutan con una sola pasada SQL si ambos están activos.
         $c7_subcasos = [];
         if (isset($casos_set['caso7a'])) $c7_subcasos[] = 'C7a';
         if (isset($casos_set['caso7b'])) $c7_subcasos[] = 'C7b';
@@ -615,7 +607,7 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c7);
         }
 
-        // ── C9 — Merma por backstaging LIFO inverso ──────────────────────────
+        // C9 — Merma por backstaging LIFO inverso
         if (isset($casos_set['caso9'])) {
             $c9 = $this->c9->detectar(
                 $fi_mov,
@@ -638,7 +630,7 @@ class ClasePosstock
             $incidencias = array_merge($incidencias, $c9);
         }
 
-        // ── C4 — solo si solicitado explícitamente (no paginable por actividad) ─
+        // C4: solo si solicitado explícitamente (no paginable por actividad).
         if (isset($casos_set['caso4'])) {
             $articulos_sin_mov = $this->c4->detectar(
                 $fi_mov,
@@ -653,7 +645,7 @@ class ClasePosstock
             }
         }
 
-        // ── Marcar stock_no_fiable en C5/C6 cuando el artículo tiene C1a activo ──
+        // Marcar stock_no_fiable en C5/C6 cuando el artículo tiene C1a activo
         if (!empty($ids_con_c1a)) {
             foreach ($incidencias as &$incidencia) {
                 if (
@@ -666,7 +658,7 @@ class ClasePosstock
             unset($incidencia);
         }
 
-        // ── Ordenar: CRITICA → ALTA → MEDIA (C2→C5→C3a) → BAJA (C3b sin-rot→C3b nunca→C4) ─
+        // Ordenar: CRITICA -> ALTA -> MEDIA (C2->C5->C3a) -> BAJA (C3b sin-rot->C3b nunca->C4).
         $orden_sev = ['CRITICA' => 0, 'ALTA' => 1, 'MEDIA' => 2, 'BAJA' => 3];
 
         $orden_tipo_media = [
@@ -888,7 +880,7 @@ class ClasePosstock
             $params_batch['skip_c7_cde'] = true;
         }
 
-        // ── Obtener IDs del lote según modo de proveedor ─────────────────────
+        // Obtener IDs del lote según modo de proveedor
         if ($proveedor_todos && $idsProveedoresCsv !== '') {
             // Modo "todos los productos del proveedor": paginar directamente sobre
             // articulosProveedores, sin filtro de actividad en el periodo.

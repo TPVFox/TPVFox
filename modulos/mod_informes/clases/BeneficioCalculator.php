@@ -283,8 +283,7 @@ class BeneficioCalculator
         }
         usort($resultado, fn($a, $b) => $b['totalVenta'] <=> $a['totalVenta']);
 
-        // ── Resumen global ─────────────────────────────────────────────────────
-        // Iteramos por artículo único para evitar duplicar artículos en varias familias.
+        // Resumen global        // Iteramos por artículo único para evitar duplicar artículos en varias familias.
         $gtVenta = 0;
         $gtCoste = 0;
         $gtMerma = 0;
@@ -331,8 +330,7 @@ class BeneficioCalculator
         $gtBeneficio   = $gtVenta - $gtCoste - $gtMermaTotal;
         $gtMargen = $this->calcularPorcentajeSeguro($gtBeneficio, $gtVenta);
 
-        // ── Vista de flujo: compras reales del período ─────────────────────
-        // Suma directa de albaranes de compra (sin estimaciones de PMP).
+        // Vista de flujo: compras reales del período        // Suma directa de albaranes de compra (sin estimaciones de PMP).
         // Cuando hay filtro de familias (opción 4), se aplica también aquí para coherencia.
 
         // Fragmentos SQL para aplicar el filtro de familia a las consultas de flujo.
@@ -462,13 +460,13 @@ class BeneficioCalculator
         $sentenciaFlujoVentasPorN1 = $this->db->query($sqlFlujoVentasN1);
         $flujoVentasPorN1 = $this->acumularFlujoPorN1($sentenciaFlujoVentasPorN1, $virtualHierarchy, 'ventas');
 
-        // ── Stock medio del período para Rotación y GMROI ────────────────
+        // Stock medio del período para Rotación y GMROI.
         // La BD es anualizada: toda la información de stock está en los movimientos del año.
         // Reconstrucción pura desde movimientos (sin articulosStocks):
-        //   stock_en_D = SUM(entradas − salidas desde 1ene hasta D)
-        //   stock_fin    = reconstruido(1ene → fechaFinal)
-        //   stock_inicio = reconstruido(1ene → fechaInicio−1)   [0 si fechaInicio=1ene]
-        //   stock_medio  = (stock_inicio + stock_fin) / 2
+        // stock_en_D = SUM(entradas - salidas desde 1ene hasta D)
+        // stock_fin = reconstruido(1ene -> fechaFinal)
+        // stock_inicio = reconstruido(1ene -> fechaInicio-1) [0 si fechaInicio=1ene]
+        // stock_medio = (stock_inicio + stock_fin) / 2
         $inicioAnio = date('Y', strtotime($fechaFinal)) . '-01-01';
         $fechaVispera   = date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
 
