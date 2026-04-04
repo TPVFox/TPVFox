@@ -295,17 +295,19 @@ class PosstockC2Detector
                 'categoria'     => 'duplicado',
                 'posible_causa' => 'Stock disponible similar a la entrada recibida: el pedido podría no estar justificado',
             ];
-        } elseif ($ratio >= $umbral_severo) {
+        }
+
+        if ($ratio >= $umbral_severo) {
             return [
                 'categoria'     => 'severo',
                 'posible_causa' => 'Sobrestock significativo: el stock previo superaba ampliamente la cantidad recibida',
             ];
-        } else {
-            return [
-                'categoria'     => 'elevado',
-                'posible_causa' => 'Sobrestock moderado: el stock disponible superaba el umbral establecido antes de recibir la entrada',
-            ];
         }
+
+        return [
+            'categoria'     => 'elevado',
+            'posible_causa' => 'Sobrestock moderado: el stock disponible superaba el umbral establecido antes de recibir la entrada',
+        ];
     }
 
     /**
@@ -317,18 +319,19 @@ class PosstockC2Detector
      */
     public function esAcumulacion(array $lista, float $umbral_fraccion = 0.70): bool
     {
-        $n_total = count($lista);
-        if ($n_total < 3) return false;
+        $numeroEventos = count($lista);
+        if ($numeroEventos < 3) return false;
 
-        $n_acum = 0;
-        foreach ($lista as $inc) {
-            $vtr = $inc['ventas_entre_recepciones'];
-            $cob = $inc['cobertura_dias'];
-            if (($vtr !== null && $vtr < 1) || ($vtr === null && $cob === null)) {
-                $n_acum++;
+        $eventosAcumulacion = 0;
+        foreach ($lista as $incidencia) {
+            $ventasEntreRecepciones = $incidencia['ventas_entre_recepciones'];
+            $coberturaDias = $incidencia['cobertura_dias'];
+            if (($ventasEntreRecepciones !== null && $ventasEntreRecepciones < 1) || ($ventasEntreRecepciones === null && $coberturaDias === null)) {
+                $eventosAcumulacion++;
             }
         }
-        return ($n_acum / $n_total) >= $umbral_fraccion;
+
+        return ($eventosAcumulacion / $numeroEventos) >= $umbral_fraccion;
     }
 
     /**
@@ -341,12 +344,14 @@ class PosstockC2Detector
      */
     public function esTendenciaCreciente(array $coberturas, float $ratio_min = 1.5, int $cob_min_fin = 45): bool
     {
-        $cobs = array_values(array_filter($coberturas, fn($c) => $c !== null));
-        if (count($cobs) < 3) return false;
+        $coberturasValidas = array_values(array_filter($coberturas, fn($cobertura) => $cobertura !== null));
+        if (count($coberturasValidas) < 3) return false;
 
-        $cob_ini = (int)$cobs[0];
-        $cob_fin = (int)end($cobs);
+        $coberturaInicio = (int)$coberturasValidas[0];
+        $coberturaFin = (int)end($coberturasValidas);
 
-        return $cob_ini > 0 && ($cob_fin / $cob_ini) >= $ratio_min && $cob_fin >= $cob_min_fin;
+        return $coberturaInicio > 0
+            && ($coberturaFin / $coberturaInicio) >= $ratio_min
+            && $coberturaFin >= $cob_min_fin;
     }
 }
