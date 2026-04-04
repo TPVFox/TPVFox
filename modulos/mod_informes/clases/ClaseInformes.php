@@ -9,7 +9,7 @@ class ClaseInformes extends TFModelo
         '1' => array(
             'Titulo' => 'Informe de Compras por Proveedores.',
             'opciones' => array(
-                '1' => 'Todos', // Todos los provedores y albaranes (esten o no facturados.)
+                '1' => 'Todos',
                 '2' => 'Facturados',
                 '3' => 'Sin Facturar',
                 '4' => 'Proveedores activos'
@@ -80,11 +80,9 @@ class ClaseInformes extends TFModelo
     {
         $db = $this->conexionBDTPV();
         $CProveedor = new ClaseProveedor($db);
-        // Tratamos parametros para añadir ids_proveedores y tratarlos
         $opcion = $parametros['opcion'];
         $id_informe = $parametros['id'];
 
-        // Cargamos los ids de los proveedores que indicamos.
         $todosProveedores = [];
         $ids              = [];
         if ($this->informes[$id_informe]['opciones'][$opcion] == 'Todos') {
@@ -230,7 +228,7 @@ class ClaseInformes extends TFModelo
         /* $cdetalleArray = $this->ObtenerIdsArray($LineasProductos,'cdetalle');
         array_multisort($cdetalleArray, SORT_ASC, $LineasProductos); */
 
-        $Productos = []; // inicializa tabla que aparece como resumen productos
+        $Productos = [];
         foreach ($LineasProductos as $producto) {
             $id_producto = $producto['idArticulo'];
             unset($producto['idalbpro']);
@@ -246,7 +244,7 @@ class ClaseInformes extends TFModelo
                 if ($producto['num_compras'] > 0) {
                     $Productos[$id_producto]['num_compras'] = $producto['num_compras'];
                 }
-            } else {  // Si ya existe suma las unidades y calcula el precio medio
+            } else {
                 $total_producto = $producto['totalUnidades'] * $producto['costeSiva'];
                 if ($Productos[$id_producto]['costeSiva'] !== $producto['costeSiva']) {
                     $Productos[$id_producto]['coste_medio'] = 'OK';
@@ -264,7 +262,6 @@ class ClaseInformes extends TFModelo
             }
             $Productos[$id_producto]['total_linea'] = $Productos[$id_producto]['totalUnidades'] * $Productos[$id_producto]['costeSiva'];
         }
-        // Una vez terminado, Volvemos a recorrer el array para quitar indice que pusimos como el idArticulo.
         $respuesta = [];
         foreach ($Productos  as $producto) {
             $respuesta[] = $producto;
@@ -335,7 +332,6 @@ class ClaseInformes extends TFModelo
             $lineas[] = $fila;
         }
 
-        // ── Construir estructura jerárquica ──────────────────────────────────
         $familias = [];
 
         foreach ($lineas as $fila) {
@@ -394,7 +390,6 @@ class ClaseInformes extends TFModelo
                     'total_linea'   => $unidades * $coste
                 ];
             } else {
-                // Coste medio ponderado si el precio varió entre albaranes
                 if ($art['costeSiva'] != $coste) {
                     $art['coste_medio'] = 'OK';
                     $suma_unidades      = $art['totalUnidades'] + $unidades;
@@ -412,7 +407,6 @@ class ClaseInformes extends TFModelo
             unset($art);
         }
 
-        // ── Calcular subtotales y reindexar ──────────────────────────────────
         $resultado = [];
         foreach ($familias as $familia) {
             $totalN1 = 0;
@@ -663,5 +657,4 @@ class ClaseInformes extends TFModelo
     {
         return (new BeneficioCalculator($this->conexionBDTPV()))->calcular($parametros);
     }
-
 }
