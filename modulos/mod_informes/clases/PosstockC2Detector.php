@@ -147,6 +147,10 @@ class PosstockC2Detector
             $ventasEntreRecepciones = $incidencia['ventas_entre_recepciones'];
             $coberturaDias          = $incidencia['cobertura_dias'];
 
+            // Tolerancia del 15% para considerar dos cantidades "similares".
+            // Absorbe redondeos de báscula (±kg en artículos de peso) y pequeñas
+            // mermas de transporte. Por encima del 15% la diferencia es suficientemente
+            // significativa para descartar que sea el mismo albarán registrado dos veces.
             $esDuplicadoProbable = $diasDesdeAnterior !== null && $diasDesdeAnterior <= 1 && $nunidadesAnteriores !== null
                 && (abs($incidencia['nunidades'] - $nunidadesAnteriores) / max($incidencia['nunidades'], $nunidadesAnteriores)) < 0.15;
 
@@ -286,7 +290,13 @@ class PosstockC2Detector
             }
         }
 
-        return array_merge($incidenciasConsolidadas, $resultadoTendencia);
+        $resultado = array_merge($incidenciasConsolidadas, $resultadoTendencia);
+        $ordSev = ['ALTA' => 0, 'MEDIA' => 1];
+        usort($resultado, function ($a, $b) use ($ordSev) {
+            $cmpSev = ($ordSev[$a['severidad']] ?? 2) <=> ($ordSev[$b['severidad']] ?? 2);
+            return $cmpSev !== 0 ? $cmpSev : strcmp($b['fecha'], $a['fecha']);
+        });
+        return $resultado;
     }
 
     // Métodos algorítmicos puros (sin BD) — públicos para tests unitarios

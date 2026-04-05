@@ -896,7 +896,8 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
+                  AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
                   AND l.nunidades       > 0
@@ -916,7 +917,8 @@ class PosstockQueryRepository
                         FROM albprolinea l
                         INNER JOIN albprot    c ON c.id        = l.idalbpro
                         INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                        WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
+                          AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                           AND c.estado      IN ('Guardado','Facturado')
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -925,7 +927,8 @@ class PosstockQueryRepository
                         FROM ticketslinea l
                         INNER JOIN ticketst  c ON c.id        = l.idticketst
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                        WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
+                          AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                           AND c.estado      = 'Cerrado'
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -934,7 +937,8 @@ class PosstockQueryRepository
                         FROM albclilinea l
                         INNER JOIN albclit   c ON c.id        = l.idalbcli
                         INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                        WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                        WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
+                          AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                           AND c.estado      IN ('Guardado','Procesado')
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
@@ -962,7 +966,8 @@ class PosstockQueryRepository
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
             WHERE l.idArticulo IN ($ids)
-              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+              AND c.Fecha >= '$fechaInicioEsc 00:00:00'
+              AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
               AND c.estado      = 'Cerrado'
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
@@ -978,6 +983,18 @@ class PosstockQueryRepository
     /**
      * Enriquece cada incidencia C2 con datos de la recepción anterior al evento.
      * Modifica el array por referencia.
+     *
+     * La búsqueda de recepción anterior cubre los 90 días previos a $fechaInicioEsc
+     * (hardcoded). Este rango es un compromiso entre cobertura histórica y rendimiento:
+     *   - Rango mayor: captura más duplicados/pedidos prematuros con baja rotación.
+     *   - Rango menor: consultas más rápidas, pero puede perder recepciones antiguas.
+     * Para artículos cuya cadencia de compra supera los 90 días, $dias_desde_anterior
+     * será null aunque exista una recepción anterior.
+     *
+     * Enriquece cada incidencia con:
+     *   - dias_desde_anterior       (int|null): días entre recepción anterior y la actual
+     *   - nunidades_anterior        (float|null): unidades de la recepción anterior
+     *   - ventas_entre_recepciones  (float|null): unidades vendidas entre ambas recepciones
      */
     public function queryDetalleC2(array &$incidencias, string $fechaInicioEsc, string $fechaFinEsc): void
     {
