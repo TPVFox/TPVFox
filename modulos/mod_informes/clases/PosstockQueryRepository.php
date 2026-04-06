@@ -228,20 +228,16 @@ class PosstockQueryRepository
     }
 
     /**
-     * C4 paso 2 — idArticulo con cualquier movimiento (los 3 tipos) en [fi, ff].
+     * C4 paso 2 — idArticulo con ventas (tickets + albcli) en [fi, ff].
+     *
+     * Artículos con ventas en el periodo quedan fuera de C4: los cubren C1/C3/C5.
      *
      * @return array  Filas raw (idArticulo) o ['error' => ...]
      */
-    public function queryIdsConMovimientoC4(string $fechaInicioEsc, string $fechaFinEsc): array
+    public function queryIdsConVentasC4(string $fechaInicioEsc, string $fechaFinEsc): array
     {
         $sentencia = $this->db->query("
             SELECT DISTINCT idArticulo FROM (
-                SELECT l.idArticulo FROM albprolinea l
-                INNER JOIN albprot c ON c.id = l.idalbpro
-                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-                  AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
-                  AND l.estadoLinea = 'Activo'
-                UNION
                 SELECT l.idArticulo FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
@@ -253,7 +249,7 @@ class PosstockQueryRepository
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
                   AND c.estado IN ('Guardado', 'Procesado')
                   AND l.estadoLinea = 'Activo'
-            ) AS movs_año
+            ) AS ventas_periodo
         ");
         if (!$sentencia) return ['error' => $this->db->error];
         $filas = [];
@@ -261,33 +257,82 @@ class PosstockQueryRepository
         return $filas;
     }
 
-    // Stock rebobinado (C4, C5, C6, C7)
+    /**
+     * C4 paso 4 — Recepciones de proveedor en el periodo para los candidatos C4.
+     *
+     * Retorna conteos y fechas de recepciones EN EL PERIODO (no global),
+     * para distinguir C4-A (sin nada) de C4-B (compras sin ventas).
+     *
+     * @param string $ids_str          CSV de idArticulo candidatos (sin ventas)
+     * @param string $fechaInicioEsc   Inicio del periodo escapado
+     * @param string $fechaFinEsc      Fin del periodo escapado
+     *
+     * @return array  Indexado por idArticulo: [n_recepciones, cantidad_recibida, ultima_recepcion] o ['error' => ...]
+     */
+    public function queryRecepcionesPeriodoC4(string $ids_str, string $fechaInicioEsc, string $fechaFinEsc): array
+    {
+        if (empty($ids_str)) return [];
+
+        $sql = "
+            SELECT
+                l.idArticulo,
+                COUNT(*) AS n_recepciones,
+                SUM(l.nunidades) AS cantidad_recibida,
+                MAX(DATE(c.Fecha)) AS ultima_recepcion
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE l.idArticulo IN ($ids_str)
+              AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+              AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+              AND l.estadoLinea = 'Activo'
+            GROUP BY l.idArticulo
+        ";
+
+        $sentencia = $this->db->query($sql);
+        if (!$sentencia) return ['error' => $this->db->error];
+
+        $resultado = [];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $resultado[(int)$fila['idArticulo']] = [
+                'n_recepciones'    => (int)$fila['n_recepciones'],
+                'cantidad_recibida' => (float)$fila['cantidad_recibida'],
+                'ultima_recepcion'  => $fila['ultima_recepcion'],
+            ];
+        }
+        $sentencia->free();
+
+        return $resultado;
+    }
+
+    // Stock rebobinado (C3, C4, C5, C6, C9)
 
     /**
-     * C4/C5 — Stock rebobinado desde articulosStocks.stockOn hasta fechaFinEsc.
+     * Stock rebobinado: stock actual (articulosStocks.stockOn) menos movimientos
+     * posteriores a $fechaFinEsc, con LEFT JOIN desde articulos para cubrir
+     * artículos sin fila en articulosStocks (stock base = 0).
      *
      * @param string $ids_str        IN-clause de idArticulo ya preparado
-     * @param string $fechaFinEsc         Fecha fin escapada ('YYYY-MM-DD')
-     * @param bool   $solo_positivos Si true, filtra HAVING stock > 0 (usado en C4)
+     * @param string $fechaFinEsc    Fecha fin escapada ('YYYY-MM-DD')
      *
      * @return array  Filas raw (idArticulo, stock_en_periodo) o ['error' => ...]
      */
     public function queryStockRebobinado(
         string $ids_str,
-        string $fechaFinEsc,
-        bool   $solo_positivos = false
+        string $fechaFinEsc
     ): array {
-        $having = $solo_positivos ? 'HAVING stock_en_periodo > 0' : '';
         $sentencia = $this->db->query("
             SELECT
-                base.idArticulo,
-                base.total_stockOn - COALESCE(post.net_posterior, 0) AS stock_en_periodo
+                a.idArticulo,
+                COALESCE(base.total_stockOn, 0) - COALESCE(post.net_posterior, 0) AS stock_en_periodo
             FROM (
+                SELECT idArticulo FROM articulos WHERE idArticulo IN ($ids_str)
+            ) AS a
+            LEFT JOIN (
                 SELECT idArticulo, SUM(stockOn) AS total_stockOn
                 FROM articulosStocks
                 WHERE idArticulo IN ($ids_str)
                 GROUP BY idArticulo
-            ) AS base
+            ) AS base ON base.idArticulo = a.idArticulo
             LEFT JOIN (
                 SELECT idArticulo, SUM(nunidades_signo) AS net_posterior
                 FROM (
@@ -313,13 +358,57 @@ class PosstockQueryRepository
                       AND l.idArticulo IN ($ids_str)
                 ) AS post_movs
                 GROUP BY idArticulo
-            ) AS post ON post.idArticulo = base.idArticulo
-            $having
+            ) AS post ON post.idArticulo = a.idArticulo
         ");
         if (!$sentencia) return ['error' => $this->db->error];
         $filas = [];
         while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
         return $filas;
+    }
+
+    /**
+     * C9 — Stock rebobinado al cierre de cada mes calendario dentro del periodo.
+     *
+     * Llama a queryStockRebobinado para el último día de cada mes [fi_mov..ff_mov].
+     * Usado por calcularPlanMensual para distribuir la merma sin generar stock negativo.
+     *
+     * @param  int    $idArticulo   ID del artículo
+     * @param  string $fi_mov       Inicio del periodo (YYYY-MM-DD)
+     * @param  string $ff_mov       Fin del periodo (YYYY-MM-DD)
+     * @return array  ['YYYY-MM' => float, ...]  Stock al cierre de cada mes
+     */
+    public function queryStockCierreMes(int $idArticulo, string $fi_mov, string $ff_mov): array
+    {
+        $idEsc = (int)$idArticulo;
+        $idsStr = (string)$idEsc;
+        $result = [];
+
+        // Iterar mes a mes dentro del periodo
+        $cursor = new \DateTimeImmutable(substr($fi_mov, 0, 7) . '-01');
+        $finPeriodo = new \DateTimeImmutable(substr($ff_mov, 0, 7) . '-01');
+
+        while ($cursor <= $finPeriodo) {
+            $mesKey = $cursor->format('Y-m');
+            // Último día del mes, acotado a ff_mov si el mes coincide con el último del periodo
+            $ultimoDiaMes = $cursor->modify('last day of this month');
+            $fechaCierre = ($ultimoDiaMes->format('Y-m-d') > $ff_mov)
+                ? $ff_mov
+                : $ultimoDiaMes->format('Y-m-d');
+            $fechaEsc = $this->db->real_escape_string($fechaCierre);
+            $filas = $this->queryStockRebobinado($idsStr, $fechaEsc);
+            // Si hay fila para el artículo, usar su stock; si no, stock=0
+            $stock = 0.0;
+            foreach ($filas as $fila) {
+                if ((int)$fila['idArticulo'] === $idEsc) {
+                    $stock = (float)$fila['stock_en_periodo'];
+                    break;
+                }
+            }
+            $result[$mesKey] = $stock;
+            $cursor = $cursor->modify('first day of next month');
+        }
+
+        return $result;
     }
 
     // C5
@@ -688,7 +777,7 @@ class PosstockQueryRepository
         ');
         $this->db->query(
             'INSERT INTO tmp_timing_c1b (idArticulo, fi_timing, ff_timing) VALUES '
-            . implode(',', $filas_tmp)
+                . implode(',', $filas_tmp)
         );
 
         $sentencia = $this->db->query("
@@ -1344,7 +1433,8 @@ class PosstockQueryRepository
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN articulos   a ON a.idArticulo  = l.idArticulo
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$ff_post'
+            WHERE c.Fecha >= '$fechaInicioEsc'
+              AND c.Fecha  < DATE_ADD('$ff_post', INTERVAL 1 DAY)
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    > 0
@@ -1380,7 +1470,8 @@ class PosstockQueryRepository
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$ff_post'
+            WHERE c.Fecha >= '$fechaInicioEsc'
+              AND c.Fecha  < DATE_ADD('$ff_post', INTERVAL 1 DAY)
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    < 0
@@ -1414,7 +1505,8 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(t.Fecha) AS fecha, l.nunidades AS delta
                 FROM ticketslinea l
                 INNER JOIN ticketst t ON t.id = l.idticketst
-                WHERE DATE(t.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                WHERE t.Fecha >= '$fechaInicioEsc'
+                  AND t.Fecha  < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND t.estado       = 'Cerrado'
                   AND l.estadoLinea  = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
@@ -1423,7 +1515,8 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit  a  ON a.id         = l.idalbcli
                 INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-                WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                WHERE a.Fecha >= '$fechaInicioEsc'
+                  AND a.Fecha  < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND a.estado       IN ('Guardado','Procesado')
                   AND l.estadoLinea  = 'Activo'
                   AND cl.estado     != 'Especial'
@@ -1460,7 +1553,8 @@ class PosstockQueryRepository
             FROM albprolinea  l
             INNER JOIN albprot     c ON c.id          = l.idalbpro
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
-            WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+            WHERE c.Fecha >= '$fechaInicioEsc'
+              AND c.Fecha  < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
               AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
               AND l.estadoLinea  = 'Activo'
               AND p.estado       = 'Especial'
@@ -1496,7 +1590,8 @@ class PosstockQueryRepository
             FROM albclilinea l
             INNER JOIN albclit  a  ON a.id         = l.idalbcli
             INNER JOIN clientes cl ON cl.idClientes = a.idCliente
-            WHERE DATE(a.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+            WHERE a.Fecha >= '$fechaInicioEsc'
+              AND a.Fecha  < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
               AND a.estado      IN ('Guardado','Procesado')
               AND l.estadoLinea  = 'Activo'
               AND cl.estado      = 'Especial'

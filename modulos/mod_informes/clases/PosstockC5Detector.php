@@ -81,7 +81,7 @@ class PosstockC5Detector
         // Rotura en curso: desde última venta hasta ff_mov.
         // CR/RK capados a hoy para evitar marcar roturas que aún no han empezado.
         // El filtro de inclusión (c5_incluir_stock_negativo) ya se aplicó upstream.
-        $dias_final   = (int)(($ff_ts - $ts[$n - 1]) / 86400);
+        $dias_final   = (int)((min($ff_ts, time()) - $ts[$n - 1]) / 86400);
         if ($dias_final > $umbral) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
@@ -162,9 +162,9 @@ class PosstockC5Detector
             $mapaFechasVenta[(int)$filaVenta['idArticulo']][$filaVenta['fecha']] = true;
         }
 
-        // Paso 2: stock en ff_mov via rebobinado desde articulosStocks.stockOn
+        // Paso 2: stock en ff_mov via rebobinado
         $idsArticulosCsv = implode(',', array_keys($mapaFechasVenta));
-        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinMovimientos, false);
+        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinMovimientos);
         if (isset($filasStock['error'])) return $filasStock;
 
         $stockActualPorArticulo = [];

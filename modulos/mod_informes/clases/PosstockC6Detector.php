@@ -117,7 +117,7 @@ class PosstockC6Detector
 
         // Paso 2 — Stock actual en ff_mov por rebobinado (igual que C5)
         $idsArticulosCsv = implode(',', array_keys($ventas_cant));
-        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaAnclaStockEsc, false);
+        $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaAnclaStockEsc);
         if (isset($filasStock['error'])) return $filasStock;
 
         $stock_actual = [];

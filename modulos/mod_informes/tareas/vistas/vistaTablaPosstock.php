@@ -21,11 +21,14 @@ function renderTablaPosstock(array $filas, array $cfg): string
     $ffMov          = $cfg['fecha_fin_movimientos'] ?? '';
     $fiStock        = $cfg['fecha_inicio_stock']    ?? '';
     $anio           = (int)($cfg['anio']             ?? date('Y'));
-    $diasPost       = (int)($cfg['c3b_dias_post']    ?? 14);
     $c6bDias        = (int)($cfg['c6b_dias_historico'] ?? 90);
     $mostrarTecnico = !empty($cfg['mostrar_tecnico']);
 
     $fiInicio = $anio . '-01-01';
+    // "Ver mayor" siempre abarca el año completo:
+    // - Año en curso → 1 enero … hoy
+    // - Año cerrado  → 1 enero … 31 diciembre
+    $ffAnioMayor = ($anio < (int)date('Y')) ? $anio . '-12-31' : date('Y-m-d');
 
     $badgeSev = [
         'CRITICA' => '<span class="label label-danger">Crítica</span>',
@@ -118,6 +121,12 @@ function renderTablaPosstock(array $filas, array $cfg): string
             if ($nEnt !== null && $nEnt > 0) {
                 $linea3 .= ($linea3 ? ' | ' : '') . 'Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
             }
+            $costeC1 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC1 !== null) {
+                $linea3 .= ($linea3 ? ' | ' : '')
+                    . '<span title="Valor estimado del stock en descubierto: déficit × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC1, 0, ',', '.') . ' €</strong></span>';
+            }
             if (!empty($f['prov_habitual_nombre'])) {
                 if (!empty($f['prov_es_mismo'])) {
                     $linea3 .= ($linea3 ? ' | ' : '')
@@ -172,6 +181,28 @@ function renderTablaPosstock(array $filas, array $cfg): string
             if ($nEnt1b !== null && $nEnt1b > 0) {
                 $linea3b .= ($linea3b ? ' | ' : '') . 'Últ. recepción: ' . $fmtF($f['ultima_entrada'] ?? null);
             }
+            $costeC1b = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC1b !== null) {
+                $linea3b .= ($linea3b ? ' | ' : '')
+                    . '<span title="Valor estimado del stock en descubierto: déficit × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC1b, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                if (!empty($f['prov_es_mismo'])) {
+                    $linea3b .= ($linea3b ? ' | ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                } else {
+                    $linea3b .= ($linea3b ? ' | ' : '')
+                        . '<span title="Proveedor con más compras del artículo en el año en curso">Prov. habitual: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                    if (!empty($f['prov_ultimo_nombre'])) {
+                        $linea3b .= ' | <span title="Proveedor del último albarán recibido ('
+                            . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                            . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                    }
+                }
+            }
             if ($linea3b) {
                 $detalle .= '<br><small class="text-muted">' . $linea3b . '</small>';
             }
@@ -195,19 +226,33 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $c2Cat    = $f['c2_categoria'] ?? '';
 
             if ($c2Cat === 'tendencia') {
-                $nEvt   = (int)($f['n_eventos'] ?? 1);
-                $cobIni = isset($f['cobertura_inicio']) && $f['cobertura_inicio'] !== null ? (int)$f['cobertura_inicio'] . ' días' : '—';
-                $cobFin = $cob !== null ? $cob . ' días' : 'sin ventas';
+                $nEvt    = (int)($f['n_eventos'] ?? 1);
+                $cobIni  = isset($f['cobertura_inicio']) && $f['cobertura_inicio'] !== null ? (int)$f['cobertura_inicio'] . ' días' : '—';
+                $cobFin  = $cob !== null ? $cob . ' días' : 'sin ventas';
                 $fInicio = $f['fecha_inicio'] ?? '—';
                 $fFin    = $f['fecha'] ?? '—';
                 $stockMax = (float)($f['stock_previo'] ?? 0);
                 $badgeC2 = '<span class="label label-warning" title="La cobertura crece de ' . $cobIni . ' a ' . $cobFin
                     . ' en ' . $nEvt . ' entregas: las compras superan el ritmo de ventas de forma sistemática.">Tendencia creciente</span>';
-                $detalle = $badgeC2
-                    . ' <strong>' . $nEvt . ' entregas</strong>'
-                    . ' | Cobertura: ' . $cobIni . ' → <strong>' . $cobFin . '</strong>'
-                    . ' | Periodo: ' . $fInicio . ' → ' . $fFin
+
+                // L1: badges
+                $detalle = $badgeC2;
+                // L2: dato operativo principal
+                $detalle .= '<br><strong>' . $nEvt . ' entregas</strong>'
+                    . ' | Cobertura: ' . $cobIni . ' → <strong>' . $cobFin . '</strong>';
+                // L3: contexto complementario
+                $linea3C2t = 'Periodo: ' . $fInicio . ' → ' . $fFin
                     . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '');
+                $costeC2t = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+                if ($costeC2t !== null) {
+                    $linea3C2t .= ' | <span title="Valor estimado del exceso de stock acumulado: stock máx. × precio medio de compra">Coste est.: <strong>~'
+                        . number_format($costeC2t, 0, ',', '.') . ' €</strong></span>';
+                }
+                if (!empty($f['prov_habitual_nombre'])) {
+                    $linea3C2t .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                }
+                $detalle .= '<br><small class="text-muted">' . $linea3C2t . '</small>';
             } elseif ($c2Cat === 'acumulacion') {
                 $nEvt    = (int)($f['n_eventos'] ?? 1);
                 $cobFin  = $cob !== null ? $cob . ' días' : 'sin ventas';
@@ -216,11 +261,25 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $stockMax = (float)($f['stock_previo'] ?? 0);
                 $badgeC2 = '<span class="label label-danger" title="' . $nEvt
                     . ' recepciones consecutivas sin retorno: el stock se acumula sin salida. Revisar gestión de devoluciones.">Acumulación crónica</span>';
-                $detalle = $badgeC2
-                    . ' <strong>' . $nEvt . ' recepciones</strong> consolidadas'
-                    . ' | Periodo: ' . $fInicio . ' → ' . $fFin
-                    . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '')
+
+                // L1: badges
+                $detalle = $badgeC2;
+                // L2: dato operativo principal
+                $detalle .= '<br><strong>' . $nEvt . ' recepciones</strong> sin salida'
                     . ' | Cobertura final: <strong>' . $cobFin . '</strong>';
+                // L3: contexto complementario
+                $linea3C2a = 'Periodo: ' . $fInicio . ' → ' . $fFin
+                    . ' | Stock máx.: ' . number_format($stockMax, 2, '.', '');
+                $costeC2a = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+                if ($costeC2a !== null) {
+                    $linea3C2a .= ' | <span title="Valor estimado del stock acumulado sin salida: stock máx. × precio medio de compra">Coste est.: <strong>~'
+                        . number_format($costeC2a, 0, ',', '.') . ' €</strong></span>';
+                }
+                if (!empty($f['prov_habitual_nombre'])) {
+                    $linea3C2a .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                }
+                $detalle .= '<br><small class="text-muted">' . $linea3C2a . '</small>';
             } else {
                 $esDupProbable = $dias !== null && $dias <= 1 && $ncantA !== null
                     && (max($ncant, $ncantA) > 0) && (abs($ncant - $ncantA) / max($ncant, $ncantA)) < 0.15;
@@ -255,15 +314,34 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 }
                 $cobStr = $cob !== null ? $cob . ' días' : 'sin ventas';
 
-                $detalle = $badgeC2
-                    . ' Previo: ' . number_format($previo, 2, '.', '')
-                    . ' | Entrada: <strong>' . number_format($ncant, 2, '.', '') . ' ud. (' . $ratio . ' previo)</strong>'
+                // L1: badges
+                $detalle = $badgeC2;
+                // L2: dato operativo principal
+                $detalle .= '<br>Entrada: <strong>' . number_format($ncant, 2, '.', '') . ' ud.'
+                    . ' (' . $ratio . ' sobre previo)</strong>'
                     . ' | Cobertura: <strong>' . $cobStr . '</strong>';
-
+                // L3: contexto complementario
+                $linea3C2i = 'Previo: ' . number_format($previo, 2, '.', '');
                 if ($dias !== null) {
-                    $detalle .= ' | Anter.: ' . $dias . ' días';
+                    $linea3C2i .= ' | Anter.: ' . $dias . ' días';
                 }
-                $detalle .= ' | Fecha: ' . ($f['fecha'] ?? '—');
+                $linea3C2i .= ' | Fecha: ' . ($f['fecha'] ?? '—');
+                $costeC2i = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+                if ($costeC2i !== null) {
+                    $linea3C2i .= ' | <span title="Valor estimado del exceso de stock: stock previo × precio medio de compra">Coste est.: <strong>~'
+                        . number_format($costeC2i, 0, ',', '.') . ' €</strong></span>';
+                }
+                if (!empty($f['prov_habitual_nombre'])) {
+                    $provC2iLabel = !empty($f['prov_es_mismo']) ? 'Prov.' : 'Prov. habitual';
+                    $linea3C2i .= ' | <span title="Proveedor principal del artículo en el año en curso">' . $provC2iLabel . ': '
+                        . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                    if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                        $linea3C2i .= ' | <span title="Proveedor del último albarán recibido ('
+                            . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                            . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                    }
+                }
+                $detalle .= '<br><small class="text-muted">' . $linea3C2i . '</small>';
             }
 
             // ── C3a ───────────────────────────────────────────────────────────────
@@ -300,9 +378,28 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $sinVentaStr = '<strong>—</strong>';
             }
 
-            $detalle = $badgeC3a . ' ' . $sinVentaStr
-                . ' | Stock: <strong>' . $stkStr . '</strong>'
-                . ' | ' . $refFechaStr;
+            // L1: badges
+            $detalle = $badgeC3a;
+            // L2: dato operativo principal
+            $detalle .= '<br>' . $sinVentaStr
+                . ' | Stock: <strong>' . $stkStr . '</strong>';
+            // L3: contexto complementario
+            $linea3C3a = $refFechaStr;
+            $costeC3a = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC3a !== null) {
+                $linea3C3a .= ' | <span title="Valor estimado del stock en riesgo de caducidad o deterioro: stock × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC3a, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $linea3C3a .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                    $linea3C3a .= ' | <span title="Proveedor del último albarán recibido ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                }
+            }
+            $detalle .= '<br><small class="text-muted">' . $linea3C3a . '</small>';
 
             // ── C5 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Venta Cero (Posible Rotura Física)') {
@@ -341,14 +438,36 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $badgeMod = ' <span class="label ' . $c5m['cls'] . '" title="' . htmlspecialchars($c5m['tip']) . '">' . $c5m['lbl'] . '</span>';
             $sdStr    = (isset($f['sd_dias']) && $f['sd_dias'] !== null) ? ' σ=' . $f['sd_dias'] . ' d' : '';
 
-            $detalle = $badgeStockNoFiable . $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado . ' ' . $diasRoturaStr
+            // L1: badges de diagnóstico
+            $detalle = $badgeStockNoFiable . $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado;
+            if ($mostrarTecnico) {
+                $detalle .= ' ' . $badgeMod;
+            }
+            // L2: dato operativo principal
+            $detalle .= '<br>' . $diasRoturaStr
                 . ' | Desde: ' . $fmtF($f['fecha_inicio_rotura'] ?? null)
-                . ' | Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null)
-                . ' | Cadencia: ' . (isset($f['avg_dias_entre_ventas']) ? $f['avg_dias_entre_ventas'] . ' d' : '—')
-                . $sdStr
-                . ' (umbral ' . (isset($f['umbral_dias']) ? $f['umbral_dias'] . ' d' : '—') . ')'
-                . $badgeMod
-                . ' <small class="text-muted">· ' . htmlspecialchars($c5m['comp']) . '</small>';
+                . ' | Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null);
+            // L3: contexto complementario
+            $linea3C5 = 'Cadencia: ' . (isset($f['avg_dias_entre_ventas']) ? $f['avg_dias_entre_ventas'] . ' d' : '—')
+                . ' (umbral ' . (isset($f['umbral_dias']) ? $f['umbral_dias'] . ' d' : '—') . ')';
+            if ($mostrarTecnico) {
+                $linea3C5 .= $sdStr . ' · ' . htmlspecialchars($c5m['comp']);
+            }
+            $costeC5 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC5 !== null) {
+                $linea3C5 .= ' | <span title="Valor estimado de la rotura: ventas perdidas estimadas × precio medio de venta">Coste est.: <strong>~'
+                    . number_format($costeC5, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $linea3C5 .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                    $linea3C5 .= ' | <span title="Proveedor del último albarán recibido ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                }
+            }
+            $detalle .= '<br><small class="text-muted">' . $linea3C5 . '</small>';
 
             // ── C3b ───────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada sin rotación previa') {
@@ -388,14 +507,55 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 $movStr3b = '<strong>Sin ventas en historial</strong>';
             }
 
-            $detalle = $badgeC3b . $badgeDev3b
-                . ' Stock: <strong>' . $stockC3b . '</strong>'
-                . ' | ' . $entStr3b
-                . ' | ' . $movStr3b;
+            // L1: badges
+            $detalle = $badgeC3b . $badgeDev3b;
+            // L2: dato operativo principal
+            $detalle .= '<br>Stock: <strong>' . $stockC3b . '</strong>'
+                . ' | ' . $entStr3b;
+            // L3: contexto complementario
+            $linea3C3b = $movStr3b;
+            $costeC3b = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC3b !== null) {
+                $linea3C3b .= ' | <span title="Valor estimado del stock sin rotación: stock × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC3b, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $linea3C3b .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                    $linea3C3b .= ' | <span title="Proveedor del último albarán recibido ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                }
+            }
+            $detalle .= '<br><small class="text-muted">' . $linea3C3b . '</small>';
 
             // ── C4 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Stock Inactivo en Periodo') {
-            $detalle = 'Stock: ' . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, '.', '') : '—');
+            // L1: badge indicativo
+            $detalle = '<span class="label label-default" title="El artículo tiene stock pero no registró ningún movimiento de entrada ni salida en el periodo analizado.">Sin movimiento</span>';
+            // L2: dato operativo principal
+            $detalle .= '<br>Stock: <strong>' . (isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, '.', '') : '—') . '</strong>';
+            // L3: contexto complementario
+            $linea3C4 = '';
+            $costeC4 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC4 !== null) {
+                $linea3C4 .= '<span title="Valor estimado del stock inmovilizado: stock × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC4, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $linea3C4 .= ($linea3C4 ? ' | ' : '')
+                    . '<span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                    $linea3C4 .= ' | <span title="Proveedor del último albarán recibido ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                }
+            }
+            if ($linea3C4) {
+                $detalle .= '<br><small class="text-muted">' . $linea3C4 . '</small>';
+            }
 
             // ── C7b / C7b_posible ─────────────────────────────────────────────────
         } elseif ($tipo === 'Entrada no registrada') {
@@ -616,12 +776,13 @@ function renderTablaPosstock(array $filas, array $cfg): string
 
             // ── C9 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Merma backstaging') {
-            $mermaKg      = isset($f['merma_total_kg'])     ? (float)$f['merma_total_kg']     : null;
-            $mermaCarryKg = isset($f['merma_carryover_kg']) ? (float)$f['merma_carryover_kg']  : 0.0;
-            $nInciertos9  = (int)($f['n_lotes_inciertos'] ?? ($mermaCarryKg > 0.001 ? 1 : 0));
-            $mermaDeclKg  = isset($f['merma_declarada_kg']) ? (float)$f['merma_declarada_kg']  : null;
+            $mermaKg      = isset($f['merma_total_kg'])      ? (float)$f['merma_total_kg']      : null;
+            $mermaPendKg  = isset($f['merma_pendiente_kg'])  ? (float)$f['merma_pendiente_kg']  : 0.0;
+            $mermaCarryKg = isset($f['merma_carryover_kg'])  ? (float)$f['merma_carryover_kg']  : 0.0;
+            $nInciertos9  = (int)($f['n_lotes_inciertos'] ?? ($mermaPendKg > 0.001 ? 1 : 0));
+            $mermaDeclKg  = isset($f['merma_declarada_kg'])  ? (float)$f['merma_declarada_kg']  : null;
             $mermaDeclMes = !empty($f['merma_decl_por_mes']) ? $f['merma_decl_por_mes'] : [];
-            $pctMerma     = isset($f['pct_merma'])          ? (float)$f['pct_merma']           : null;
+            $pctMerma     = isset($f['pct_merma'])           ? (float)$f['pct_merma']           : null;
             $nLotes       = (int)($f['n_lotes']         ?? 0);
             $nDeficit     = (int)($f['n_lotes_deficit'] ?? 0);
             $nMerma       = (int)($f['n_lotes_merma']   ?? 0);
@@ -631,256 +792,439 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $consDelta9   = isset($f['conservation_delta']) ? (float)$f['conservation_delta'] : null;
             $tipoArt9     = $f['tipo_articulo'] ?? 'peso';
             $unidad9      = $tipoArt9 === 'peso' ? 'kg' : 'ud.';
-            $betaUsado    = isset($f['beta_usado']) ? (float)$f['beta_usado'] : null;
+            $_dec9        = $tipoArt9 === 'peso' ? 2 : 0;  // decimales para formatear cantidades
+            $betaUsado    = isset($f['beta_usado'])    ? (float)$f['beta_usado']    : null;
             $modo9        = $f['modo'] ?? 'continuo';
-            $totalE9         = isset($f['total_E'])           ? (float)$f['total_E']           : null;
-            $stockFinal9     = isset($f['stock_final'])       ? (float)$f['stock_final']       : null;
-            $deficitBloq9    = isset($f['deficit_bloqueado_kg']) ? (float)$f['deficit_bloqueado_kg'] : 0.0;
+            $totalE9      = isset($f['total_E'])       ? (float)$f['total_E']       : null;
+            $stockFinal9  = isset($f['stock_final'])   ? (float)$f['stock_final']   : null;
+            $deficitBloq9 = isset($f['deficit_bloqueado_kg']) ? (float)$f['deficit_bloqueado_kg'] : 0.0;
+            $deficitMomentos9 = !empty($f['deficit_bloqueado_momentos']) ? $f['deficit_bloqueado_momentos'] : [];
+            $deficitEstable9 = !empty($f['deficit_bloqueado_patron_estable']);
+            $deficitIntTipico9 = isset($f['deficit_bloqueado_intervalo_tipico_dias']) ? (int)$f['deficit_bloqueado_intervalo_tipico_dias'] : null;
+            $deficitCvInt9 = isset($f['deficit_bloqueado_cv_intervalos']) ? (float)$f['deficit_bloqueado_cv_intervalos'] : null;
+            $deficitEstimaciones9 = !empty($f['deficit_bloqueado_estimaciones']) ? $f['deficit_bloqueado_estimaciones'] : [];
+            $deficitAbsHered9 = isset($f['deficit_bloqueado_absorbido_heredado_kg']) ? (float)$f['deficit_bloqueado_absorbido_heredado_kg'] : 0.0;
+            $coste9       = isset($f['coste_estimado_merma']) && $f['coste_estimado_merma'] !== null
+                ? (float)$f['coste_estimado_merma'] : null;
 
-            // ── Pre-calcular agregado mensual (necesario para badge pico) ────
-            $_mc9     = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-            $_mmAgg   = [];
-            $_mmCarry = [];
-            foreach (($f['merma_por_lote'] ?? []) as $_lot) {
-                $_mt       = (float)($_lot['merma_t'] ?? 0.0);
-                $_incierto = !empty($_lot['es_lote_incierto']) || !empty($_lot['v_t_parcial']);
-                $_mes      = (int)substr($_lot['fecha_ini'] ?? '', 5, 2);
-                if ($_mes < 1 || $_mes > 12) continue;
-                if ($_incierto && $_mt > 0.001) {
-                    $_mmCarry[$_mes] = ($_mmCarry[$_mes] ?? 0.0) + $_mt;
-                } elseif (!$_incierto && $_mt > 0.001) {
-                    $_mmAgg[$_mes] = ($_mmAgg[$_mes] ?? 0.0) + $_mt;
+            // Plan mensual: distribución contable de la merma mes a mes
+            $planMensual9      = !empty($f['plan_mensual']) ? $f['plan_mensual'] : [];
+            $planArrastre9     = isset($f['plan_arrastre_final']) ? (float)$f['plan_arrastre_final'] : 0.0;
+            $planTotalAplicable9 = isset($f['plan_total_aplicable']) ? (float)$f['plan_total_aplicable'] : 0.0;
+
+            // Etiquetas de meses
+            $_mc9 = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+            // Mes de referencia del plan: mes actual si cae en el periodo, si no el último mes del plan
+            $_mesHoy = date('Y-m');
+            if (!empty($planMensual9)) {
+                $_mesesPlan = array_keys($planMensual9);
+                if (in_array($_mesHoy, $_mesesPlan, true)) {
+                    $_mesRefPlan = $_mesHoy;
+                } else {
+                    $_mesRefPlan = end($_mesesPlan);
                 }
+            } else {
+                $_mesRefPlan = null;
             }
-            ksort($_mmAgg);
-            $_nMesesConMerma9 = count($_mmAgg);
-            $_mesMaxVal9      = !empty($_mmAgg) ? max($_mmAgg) : 0.0;
-            $_mesMaxIdx9      = !empty($_mmAgg) ? array_search($_mesMaxVal9, $_mmAgg) : 0;
 
-            // ── Badge confianza ──────────────────────────────────────────────
+            // ── Pre-calcular merma pendiente mensual (lotes inciertos) ───────
+            // Solo para la posible causa: saber si hay meses con pendiente sin confirmar
+            $_mmPend = [];
+            foreach (($f['merma_por_lote'] ?? []) as $_lot) {
+                $_mt = (float)($_lot['merma_t'] ?? 0.0);
+                if ($_mt < 0.001) continue;
+                if (empty($_lot['es_lote_incierto']) && empty($_lot['v_t_parcial'])) continue;
+                $_mes = (int)substr($_lot['fecha_ini'] ?? '', 5, 2);
+                if ($_mes < 1 || $_mes > 12) continue;
+                $_mmPend[$_mes] = ($_mmPend[$_mes] ?? 0.0) + $_mt;
+            }
+
+            // ── Badge de acción principal (qué debe hacer el operador) ───────
             if ($confianza9 === 'alta' && $consOk9) {
-                $badgeConf9 = '<span class="label label-danger"'
-                    . ' title="Merma estimada con alta confianza. El balance de entradas y salidas cuadra con el stock contable al cierre del periodo.">'
-                    . 'Merma confirmada</span>';
-            } elseif ($confianza9 === 'media' || $consOk9) {
+                // Severidad 4-5: danger; 2-3: warning; 1: default
+                $sevNum9 = (int)($f['severidad_num'] ?? 1);
+                $_clsBadgeAccion = $sevNum9 >= 4 ? 'label-danger' : ($sevNum9 >= 2 ? 'label-warning' : 'label-default');
+                $badgeConf9 = '<span class="label ' . $_clsBadgeAccion . '"'
+                    . ' title="Merma confirmada: el modelo tiene alta confianza y el balance de entradas/salidas cuadra con el stock contable. '
+                    . 'Registrar como ajuste de inventario: ~' . ($mermaKg !== null ? number_format($mermaKg, $_dec9, ',', '.') . ' ' . $unidad9 : '—') . '.">'
+                    . 'Registrar merma</span>';
+            } elseif ($confianza9 === 'media' || ($confianza9 === 'alta' && !$consOk9)) {
                 $badgeConf9 = '<span class="label label-warning"'
-                    . ' title="Merma estimada con confianza media. El patrón es claro pero el balance stock puede tener pequeños desajustes. Revisar si hay albaranes sin registrar.">'
-                    . 'Merma probable</span>';
+                    . ' title="Merma probable: el patrón es claro pero hay pequeños desajustes en el balance de stock. Revisar albaranes del periodo y, si todo es correcto, registrar el ajuste de inventario.">'
+                    . 'Revisar y registrar</span>';
             } else {
                 $badgeConf9 = '<span class="label label-default"'
-                    . ' title="Señal de merma detectada pero la evidencia es limitada (pocas recepciones o stock contable desajustado). Revisar manualmente.">'
-                    . 'Merma posible</span>';
+                    . ' title="Señal de merma detectada con evidencia limitada (pocas recepciones o balance de stock desajustado). Esperar a acumular más datos o hacer recuento físico antes de registrar.">'
+                    . 'Pendiente de confirmar</span>';
             }
 
             // ── Badge lotes inciertos ────────────────────────────────────────
             $badgeIncierto9 = '';
             if ($nInciertos9 > 0) {
+                $_provLabel9 = !empty($f['prov_habitual_nombre'])
+                    ? ' Proveedor habitual: ' . htmlspecialchars($f['prov_habitual_nombre']) . '.'
+                    : '';
+                $_pendFmt9 = $mermaPendKg > 0.001 ? number_format($mermaPendKg, $_dec9, ',', '.') . ' ' . $unidad9 : '?';
                 $tooltipInc = $nInciertos9 === 1
-                    ? 'El último lote del periodo puede no estar cerrado (sin recepción posterior dentro del umbral de continuidad). Su sobrante se muestra entre paréntesis pero NO se suma a la merma confirmada.'
-                    : $nInciertos9 . ' lotes finales no han recibido recepción posterior dentro del umbral de continuidad. Sus sobrantes se muestran como horquilla superior, no como merma confirmada.';
+                    ? 'Ciclo en curso: el último lote no tiene recepción posterior dentro del periodo. '
+                    . 'La merma pendiente (' . $_pendFmt9 . ') se confirmará cuando llegue la próxima recepción.' . $_provLabel9
+                    : $nInciertos9 . ' lotes finales sin recepción posterior. '
+                    . 'Merma pendiente (' . $_pendFmt9 . '): se confirmará con las próximas recepciones.' . $_provLabel9;
                 $badgeIncierto9 = ' <span class="label label-info"'
                     . ($nInciertos9 > 1 ? ' data-nofiltro="1"' : '')
                     . ' title="' . htmlspecialchars($tooltipInc) . '">'
-                    . ($nInciertos9 === 1 ? 'Lote abierto' : $nInciertos9 . ' lotes inciertos')
+                    . ($nInciertos9 === 1 ? 'Ciclo en curso' : $nInciertos9 . ' lotes en curso')
                     . '</span>';
             }
 
-            // ── Badge déficit bloqueado (sobreventa: posible albarán faltante) ──
+            // ── Badge déficit bloqueado (sobreventa: acción clara) ───────────
             $badgeDeficitBloq9 = '';
             if ($deficitBloq9 > 0.001) {
+                $_momentosTxt = [];
+                foreach ($deficitMomentos9 as $_mom) {
+                    $_fi = $_mom['fecha_ini'] ?? '';
+                    $_ff = $_mom['fecha_fin'] ?? '';
+                    $_kg = isset($_mom['kg']) ? (float)$_mom['kg'] : 0.0;
+                    if (!$_fi) continue;
+                    $_momLabel = $_fi;
+                    if (!empty($_ff) && $_ff !== $_fi) {
+                        $_momLabel .= '→' . $_ff;
+                    }
+                    $_momLabel .= ': ' . number_format($_kg, $_dec9, ',', '.') . ' ' . $unidad9;
+                    $_momentosTxt[] = $_momLabel;
+                }
+                $_estTxt = '';
+                if ($deficitEstable9 && !empty($deficitEstimaciones9)) {
+                    $_fechasEst = array_values(array_filter(array_map(fn($_e) => $_e['fecha_estimada'] ?? null, $deficitEstimaciones9)));
+                    $_fechasEst = array_unique($_fechasEst);
+                    if (!empty($_fechasEst)) {
+                        $_estTxt = ' Patrón de entradas estable';
+                        if ($deficitIntTipico9 !== null && $deficitIntTipico9 > 0) {
+                            $_estTxt .= ' (cadencia ~' . $deficitIntTipico9 . ' días';
+                            if ($deficitCvInt9 !== null) {
+                                $_estTxt .= ', CV=' . number_format($deficitCvInt9, 2, ',', '.');
+                            }
+                            $_estTxt .= ')';
+                        }
+                        $_estTxt .= '. Fecha estimada de albarán faltante: ' . implode(' | ', $_fechasEst) . '.';
+                    }
+                }
+                $_momentoDetalle = !empty($_momentosTxt)
+                    ? ' Momentos de déficit: ' . implode(' | ', $_momentosTxt) . '.'
+                    : '';
                 $badgeDeficitBloq9 = ' <span class="label label-warning"'
-                    . ' title="Se detectó sobreventa de '
-                    . number_format($deficitBloq9, 3, ',', '.') . ' ' . $unidad9
-                    . ' que no pudo redistribuirse hacia lotes anteriores.'
-                    . ' Esto indica un posible albarán de compra sin registrar o stock heredado de periodos anteriores sin regularizar.'
-                    . ' Este déficit NO está incluido en la merma estimada.">'
-                    . 'Sobreventa no compensada</span>';
+                    . ' title="Hay ' . number_format($deficitBloq9, $_dec9, ',', '.') . ' ' . $unidad9
+                    . ' de sobreventa que el modelo no puede asignar a ningún lote anterior.'
+                    . ' Acción: comprobar si falta un albarán de compra sin registrar en este periodo.'
+                    . $_momentoDetalle
+                    . $_estTxt
+                    . ' Este importe NO está incluido en la merma estimada.">'
+                    . 'Revisar albarán</span>';
             }
 
-            // ── Badge merma declarada (data-nofiltro: valor único por artículo, no filtrable) ──
+            // ── Badge arrastre del plan (stock insuficiente para regularizar) ──
+            $badgeArrastre9 = '';
+            if ($planArrastre9 > 0.001) {
+                $badgeArrastre9 = ' <span class="label label-warning" data-nofiltro="1"'
+                    . ' title="La merma supera el stock disponible en algún mes. '
+                    . number_format($planArrastre9, $_dec9, ',', '.') . ' ' . $unidad9
+                    . ' no se pueden regularizar sin generar stock negativo. '
+                    . 'Considerar diferir al siguiente periodo o hacer recuento físico.">'
+                    . 'Arrastre ' . number_format($planArrastre9, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</span>';
+            }
+
+            // ── Badge merma declarada ────────────────────────────────────────
             $badgeDecl9 = '';
             if ($mermaDeclKg !== null && $mermaDeclKg > 0.0) {
-                $_declTooltip = 'Merma declarada en albaranes de regularizacion o proveedores/clientes especiales: '
-                    . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '.';
+                $_declTooltip = 'Ya registrada en albaranes de regularización: '
+                    . number_format($mermaDeclKg, $_dec9, ',', '.') . ' ' . $unidad9 . '.';
                 if (!empty($mermaDeclMes)) {
-                    // $_mc9 ya está definido más arriba en este bloque C9
                     $_declParts = [];
                     foreach ($mermaDeclMes as $_dm => $_dv) {
-                        $_declParts[] = $_mc9[$_dm] . ': ' . number_format($_dv, 3, ',', '.') . ' ' . $unidad9;
+                        $_dmNum = is_int($_dm) ? $_dm : (int)substr($_dm, 5, 2);
+                        $_dmLbl = ($_dmNum >= 1 && $_dmNum <= 12) ? $_mc9[$_dmNum] : $_dm;
+                        $_declParts[] = $_dmLbl . ': ' . number_format($_dv, $_dec9, ',', '.') . ' ' . $unidad9;
                     }
-                    $_declTooltip .= ' Desglose mensual: ' . implode(' | ', $_declParts) . '.';
+                    $_declTooltip .= ' Desglose: ' . implode(' | ', $_declParts) . '.';
                 }
-                $_declTooltip .= ' Esta cifra esta separada de la merma estimada por el modelo.';
+                $_declTooltip .= ' La merma estimada ya incluye la declarada; la pérdida no documentada es la diferencia.';
                 $badgeDecl9 = ' <span class="label label-info" data-nofiltro="1"'
                     . ' title="' . htmlspecialchars($_declTooltip) . '">'
-                    . 'Declarada: ' . number_format($mermaDeclKg, 3, ',', '.') . ' ' . $unidad9 . '</span>';
+                    . 'Ya declarada: ' . number_format($mermaDeclKg, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</span>';
             }
 
-            // ── Badge pico de merma mensual ──────────────────────────────────
-            // Se activa cuando un mes concentra ≥25% del total Y supera ≥2,5× la media
-            // de los demás meses. Indica posible regularización puntual o cruce sin conciliar.
-            $badgePico9 = '';
-            if ($_nMesesConMerma9 >= 3 && $mermaKg !== null && $mermaKg > 0.001 && $_mesMaxVal9 / $mermaKg >= 0.25) {
-                $_avgOtros9 = ($_mesMaxVal9 < $mermaKg)
-                    ? ($mermaKg - $_mesMaxVal9) / ($_nMesesConMerma9 - 1)
-                    : 0.0;
-                if ($_avgOtros9 > 0.001 && $_mesMaxVal9 / $_avgOtros9 >= 2.5) {
-                    $_pctPico9 = number_format($_mesMaxVal9 / $mermaKg * 100, 1, ',', '.');
-                    $_nomPico9 = $_mesMaxIdx9 ? $_mc9[$_mesMaxIdx9] : '?';
-                    $badgePico9 = ' <span class="label label-warning"'
-                        . ' title="Pico en ' . $_nomPico9 . ': concentra el ' . $_pctPico9 . '% de la merma total ('
-                        . number_format($_mesMaxVal9, 2, ',', '.') . '&nbsp;' . $unidad9 . '), superando ' . number_format($_mesMaxVal9 / $_avgOtros9, 1, ',', '.') . '× la media del resto de meses ('
-                        . number_format($_avgOtros9, 2, ',', '.') . '&nbsp;' . $unidad9 . '). Puede indicar una regularización puntual, un cruce sin conciliar o una pérdida excepcional. Revisar albaranes de ese mes.">'
-                        . 'Pico de merma</span>';
-                }
-            }
-
-            // ── Badge conservación de masa (solo técnico) ────────────────────
-            $badgeCons9 = '';
+            // ── Badges solo técnico ──────────────────────────────────────────
+            $badgeTec9 = '';
             if ($mostrarTecnico) {
-                $badgeCons9 = $consOk9
-                    ? ' <span class="label label-success" title="Conservación OK: sum(S_t) coincide con el stock contable al cierre (Δ=' . ($f['conservation_delta'] ?? '?') . '). El modelo explica correctamente la trayectoria.">Conservación OK</span>'
-                    : ' <span class="label label-default" title="El modelo no cierra masa exactamente (Δ=' . ($f['conservation_delta'] ?? '?') . '). El stock contable puede tener desajustes históricos no cubiertos por el periodo analizado.">Stock desajustado</span>';
+                // Conservación de masa
+                $badgeTec9 .= $consOk9
+                    ? ' <span class="label label-success" title="Conservación OK: sum(S_t) coincide con el stock contable al cierre (Δ=' . ($f['conservation_delta'] ?? '?') . '). El modelo explica la trayectoria correctamente.">Cons. OK</span>'
+                    : ' <span class="label label-default" title="El modelo no cierra masa (Δ=' . ($f['conservation_delta'] ?? '?') . '). Posibles desajustes históricos o albaranes sin registrar.">Stock desaj.</span>';
+                // Pico de merma mensual (solo técnico: indica outlier estadístico)
+                if (!empty($planMensual9) && $mermaKg !== null && $mermaKg > 0.001) {
+                    $_planVals = array_column($planMensual9, 'propuesto');
+                    $_planMax  = !empty($_planVals) ? max($_planVals) : 0.0;
+                    $_nMesesPlan = count($_planVals);
+                    if ($_nMesesPlan >= 3 && $_planMax / $mermaKg >= 0.25) {
+                        $_avgOtros9 = ($_nMesesPlan > 1) ? ($mermaKg - $_planMax) / ($_nMesesPlan - 1) : 0.0;
+                        if ($_avgOtros9 > 0.001 && $_planMax / $_avgOtros9 >= 2.5) {
+                            $_mesMaxKey9 = array_search($_planMax, array_column($planMensual9, 'propuesto', null));
+                            // array_search sobre associative: buscar la clave correcta
+                            foreach ($planMensual9 as $_mk => $_mv) {
+                                if (abs($_mv['propuesto'] - $_planMax) < 0.001) {
+                                    $_mesMaxKey9 = $_mk;
+                                    break;
+                                }
+                            }
+                            $_mesMaxNum9 = $_mesMaxKey9 ? (int)substr($_mesMaxKey9, 5, 2) : 0;
+                            $_nomPico9   = ($_mesMaxNum9 >= 1 && $_mesMaxNum9 <= 12) ? $_mc9[$_mesMaxNum9] : '?';
+                            $badgeTec9  .= ' <span class="label label-warning"'
+                                . ' title="Outlier: ' . $_nomPico9 . ' concentra el ' . number_format($_planMax / $mermaKg * 100, 1, ',', '.') . '% de la merma ('
+                                . number_format($_planMax, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '), superando '
+                                . number_format($_planMax / $_avgOtros9, 1, ',', '.') . '× la media del resto. Puede indicar regularización puntual o cruce sin conciliar.">'
+                                . 'Pico ' . $_nomPico9 . '</span>';
+                        }
+                    }
+                }
             }
 
             // ── Línea 1: badges ──────────────────────────────────────────────
-            $detalle = $badgeConf9 . $badgeIncierto9 . $badgeDeficitBloq9 . $badgePico9 . $badgeDecl9 . $badgeCons9;
+            $detalle = $badgeConf9 . $badgeIncierto9 . $badgeDeficitBloq9 . $badgeArrastre9 . $badgeDecl9 . $badgeTec9;
 
-            // ── Línea 2: información básica — merma + horquilla + % ──────────
-            if ($mermaKg !== null) {
-                $mermaStr9 = '<strong>' . number_format($mermaKg, 3, ',', '.') . ' ' . $unidad9 . '</strong>';
-                if ($mermaCarryKg > 0.001) {
-                    $mermaMax9  = $mermaKg + $mermaCarryKg;
-                    $mermaStr9 .= ' <span class="text-muted"'
-                        . ' title="Horquilla superior: si todo el sobrante de los lotes inciertos fuera pérdida real, la merma máxima sería '
-                        . number_format($mermaMax9, 3, ',', '.') . ' ' . $unidad9 . '. El valor confirmado es el que aparece antes del paréntesis.">'
-                        . '(hasta ' . number_format($mermaMax9, 3, ',', '.') . ' ' . $unidad9 . ')</span>';
+            // ── Línea 2: dato operativo — "a registrar este mes" o total ─────
+            // Si hay plan mensual: mostrar el aplicable del mes de referencia
+            // como dato principal. Si no hay plan: mostrar merma total del periodo.
+            if (
+                $_mesRefPlan !== null && !empty($planMensual9[$_mesRefPlan])
+                && $planMensual9[$_mesRefPlan]['aplicable'] > 0.001
+            ) {
+                $_mesRefNum9  = (int)substr($_mesRefPlan, 5, 2);
+                $_mesRefLabel9 = ($_mesRefNum9 >= 1 && $_mesRefNum9 <= 12) ? $_mc9[$_mesRefNum9] : $_mesRefPlan;
+                $_aplicable9  = $planMensual9[$_mesRefPlan]['aplicable'];
+                $_arrastre9   = $planMensual9[$_mesRefPlan]['arrastre'];
+                $linea2_9 = 'A registrar en ' . $_mesRefLabel9 . ': <strong>~'
+                    . number_format($_aplicable9, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</strong>';
+                if ($planTotalAplicable9 > 0.001 && abs($planTotalAplicable9 - $_aplicable9) > 0.01) {
+                    $linea2_9 .= ' <span class="text-muted" title="Merma confirmada total del periodo, distribuida entre los meses según el plan">'
+                        . '(total periodo: ~' . number_format($planTotalAplicable9, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . ')</span>';
+                }
+                if ($_arrastre9 > 0.001) {
+                    $linea2_9 .= ' <span class="text-muted" title="El stock de ' . $_mesRefLabel9 . ' no tiene margen suficiente para absorber toda la merma. '
+                        . number_format($_arrastre9, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . ' se trasladan al mes siguiente.">'
+                        . '· arrastre ' . number_format($_arrastre9, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</span>';
                 }
             } else {
-                $mermaStr9 = '—';
+                // Sin plan o mes sin aplicable: mostrar merma total estimada
+                $linea2_9 = 'Merma est.: ';
+                if ($mermaKg !== null) {
+                    $linea2_9 .= '<strong>~' . number_format($mermaKg, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</strong>';
+                } else {
+                    $linea2_9 .= '—';
+                }
+                if ($pctMerma !== null) {
+                    $linea2_9 .= ' <span class="text-muted">(' . number_format($pctMerma, 1, ',', '.') . '% s/entradas)</span>';
+                }
             }
-            $linea2_9 = 'Merma estimada: ' . $mermaStr9;
-            if ($pctMerma !== null) {
-                $linea2_9 .= ' <span class="text-muted">(' . number_format($pctMerma, 1, ',', '.') . '% s/entradas)</span>';
+            // Siempre: si hay pendiente, añadir nota
+            if ($mermaPendKg > 0.001) {
+                $linea2_9 .= ' <span class="text-muted"'
+                    . ' title="Merma en ciclos no cerrados (el artículo sigue vendiéndose). Se confirmará con la próxima recepción. NO registrar aún.">'
+                    . '+ pendiente ~' . number_format($mermaPendKg, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . '</span>';
             }
             $detalle .= '<br>' . $linea2_9;
 
-            // ── Línea 3: información adicional ───────────────────────────────
-            // Siempre: nº recepciones.
-            // Técnico: lotes/déficit/merma + entradas totales + stock cierre + parámetros modelo.
-            $linea3_9 = $nRec . ' rec. en periodo';
-            if ($mostrarTecnico) {
-                $linea3_9 .= ' · ' . $nLotes . ' lotes | ' . $nDeficit . ' c/déficit · ' . $nMerma . ' c/merma';
-                if ($totalE9 !== null) {
-                    $linea3_9 .= ' | Σ&nbsp;E=' . number_format($totalE9, 3, ',', '.');
-                    if ($unidad9 === 'kg') $linea3_9 .= '&nbsp;kg';
+            // ── Línea 3: distribución mensual del plan ────────────────────────
+            // Operador: lista de "Mes: X kg a registrar" usando plan_mensual.aplicable
+            // Técnico: añade arrastre por mes y parámetros del modelo
+            if (!empty($planMensual9)) {
+                $_planPartes = [];
+                foreach ($planMensual9 as $_pmk => $_pmv) {
+                    $_pmNum = (int)substr($_pmk, 5, 2);
+                    $_pmLbl = ($_pmNum >= 1 && $_pmNum <= 12) ? $_mc9[$_pmNum] : $_pmk;
+                    $_aplic = (float)$_pmv['propuesto'];  // propuesto = a registrar sin tope
+                    $_apliReal = (float)$_pmv['aplicable']; // aplicable = con tope de stock
+                    if ($_aplic < 0.001 && $_apliReal < 0.001) continue;
+
+                    if ($mostrarTecnico && abs($_aplic - $_apliReal) > 0.01) {
+                        // Mes con tope: mostrar propuesto vs aplicable
+                        $_planPartes[] = $_pmLbl . ':&nbsp;~' . number_format($_apliReal, $_dec9, ',', '.') . '&nbsp;'
+                            . $unidad9 . ' <span class="text-muted" title="Limitado por stock disponible. Propuesto: '
+                            . number_format($_aplic, $_dec9, ',', '.') . '">(' . number_format($_aplic, $_dec9, ',', '.') . ' prop.)</span>';
+                    } else {
+                        $_planPartes[] = $_pmLbl . ':&nbsp;~' . number_format($_apliReal > 0.001 ? $_apliReal : $_aplic, $_dec9, ',', '.') . '&nbsp;' . $unidad9;
+                    }
+                    // Mes con pendiente solapado: añadir nota
+                    if (!empty($_mmPend)) {
+                        if (isset($_mmPend[$_pmNum])) {
+                            $_planPartes[count($_planPartes) - 1] .= ' <span class="text-muted">(+' . number_format($_mmPend[$_pmNum], $_dec9, ',', '.') . '&nbsp;pend.)</span>';
+                        }
+                    }
                 }
-                if ($stockFinal9 !== null) {
-                    $linea3_9 .= ' · S<sub>f</sub>=' . number_format($stockFinal9, 3, ',', '.');
-                    if ($unidad9 === 'kg') $linea3_9 .= '&nbsp;kg';
-                }
-                if ($betaUsado !== null) {
-                    $linea3_9 .= ' | ' . $modo9 . ' β=' . number_format($betaUsado, 2, '.', '');
+                $linea3_9 = implode(' · ', $_planPartes);
+                // Técnico: parámetros del modelo al final
+                if ($mostrarTecnico && $betaUsado !== null) {
+                    $linea3_9 .= ' <span class="text-muted"> | ' . $modo9 . ' β=' . number_format($betaUsado, 2, '.', '');
                     if (isset($f['k_usado']))      $linea3_9 .= ' k=' . (int)$f['k_usado'];
                     if (isset($f['lambda_usado'])) $linea3_9 .= ' λ=' . number_format((float)$f['lambda_usado'], 1, '.', '');
+                    $linea3_9 .= '</span>';
                 }
-                if ($consDelta9 !== null) {
-                    $consDeltaFmt = number_format($consDelta9, 4, '.', '');
-                    $consColor    = $consOk9 ? 'color:#3c763d' : 'color:#a94442';
-                    $linea3_9 .= ' | <span style="' . $consColor . '" title="Δ conservación de masa: |sum(S_t) − (S_f − S_0)|. Debe ser ≤ ε=' . ($f['c9_epsilon'] ?? '?') . '.">'
-                        . 'Δcons=' . $consDeltaFmt . '</span>';
+            } else {
+                // Sin plan: fallback — nº recepciones (informativo)
+                $linea3_9 = $nRec . ' rec. en periodo';
+                if ($mostrarTecnico) {
+                    $linea3_9 .= ' · ' . $nLotes . ' lotes | ' . $nDeficit . ' c/déficit · ' . $nMerma . ' c/merma';
+                    if ($betaUsado !== null) {
+                        $linea3_9 .= ' | ' . $modo9 . ' β=' . number_format($betaUsado, 2, '.', '');
+                        if (isset($f['k_usado']))      $linea3_9 .= ' k=' . (int)$f['k_usado'];
+                        if (isset($f['lambda_usado'])) $linea3_9 .= ' λ=' . number_format((float)$f['lambda_usado'], 1, '.', '');
+                    }
                 }
             }
             $detalle .= '<br><small class="text-muted">' . $linea3_9 . '</small>';
 
-            // ── Posible causa: patrón + desglose mensual ─────────────────────
-            // $_mc9, $_mmAgg, $_mmCarry ya calculados arriba para el badge pico.
+            // ── Posible causa: orientada a la acción del operador ────────────
+            // Estructura: [acción principal] + [desglose del plan] + [contexto técnico]
 
-            if (!empty($_mmAgg) || !empty($_mmCarry)) {
-                // Patrón: concentrada (1-2 meses) vs continuada (≥3 meses)
-                $_nMesesConMerma = $_nMesesConMerma9;
-                $_mesMaxVal  = $_mesMaxVal9;
-                $_mesMaxIdx  = $_mesMaxIdx9;
-                $_causaIntro = '';
-                if ($_nMesesConMerma === 0) {
-                    $_causaIntro = 'Merma pendiente de confirmar (solo lotes inciertos). ';
-                } elseif ($_nMesesConMerma <= 2) {
-                    $_nombMes = $_mesMaxIdx ? $_mc9[$_mesMaxIdx] : '';
-                    $_causaIntro = 'Pérdida concentrada'
-                        . ($_nombMes ? ' en ' . $_nombMes : '')
-                        . '. Revisar recepciones y manipulación de ese periodo. ';
-                } elseif ($_nMesesConMerma >= 6) {
-                    $_causaIntro = 'Pérdida continuada durante el periodo. Posible merma estructural por manipulación o condiciones de almacenamiento. ';
-                } else {
-                    $_causaIntro = 'Pérdida intermitente en ' . $_nMesesConMerma . ' meses. Revisar patrones de recepción y almacenamiento. ';
-                }
-                if ($pctMerma !== null && $pctMerma >= 15.0) {
-                    $_causaIntro .= 'Tasa alta (' . number_format($pctMerma, 1, ',', '.') . '%). ';
-                }
-
-                // Desglose mensual.
-                // En modo técnico: añadir % sobre merma_total junto a los kg.
-                $_causaParts = [];
-                foreach ($_mmAgg as $_mes => $_merma_m) {
-                    $_pctMes = ($mermaKg !== null && $mermaKg > 0.001)
-                        ? ' <span class="text-muted" title="% sobre merma confirmada total">(' . number_format($_merma_m / $mermaKg * 100, 0) . '%)</span>'
-                        : '';
-                    $_pctMes = $mostrarTecnico ? $_pctMes : '';
-                    if (isset($_mmCarry[$_mes])) {
-                        $_causaParts[] = $_mc9[$_mes] . ': ~' . number_format($_merma_m, 2, ',', '.') . '&nbsp;' . $unidad9 . $_pctMes
-                            . ' <span class="text-muted">(hasta ' . number_format($_merma_m + $_mmCarry[$_mes], 2, ',', '.') . ')</span>';
-                        unset($_mmCarry[$_mes]);
-                    } else {
-                        $_causaParts[] = $_mc9[$_mes] . ': ~' . number_format($_merma_m, 2, ',', '.') . '&nbsp;' . $unidad9 . $_pctMes;
-                    }
-                }
-                ksort($_mmCarry);
-                foreach ($_mmCarry as $_mes => $_carry_m) {
-                    $_causaParts[] = $_mc9[$_mes] . ': <span class="text-muted">~(hasta ' . number_format($_carry_m, 2, ',', '.') . '&nbsp;' . $unidad9 . ')</span>';
-                }
-                $posibleCausaHtml = $_causaIntro . implode(' · ', $_causaParts);
-
-                // En modo técnico: añadir línea con stock ancla + conservación de masa.
-                if ($mostrarTecnico) {
-                    $_tecLine = [];
-                    if ($totalE9 !== null) {
-                        $_tecLine[] = 'Σ&nbsp;entradas: ' . number_format($totalE9, 3, ',', '.') . '&nbsp;' . $unidad9;
-                    }
-                    if ($stockFinal9 !== null) {
-                        $_tecLine[] = 'Stock cierre: ' . number_format($stockFinal9, 3, ',', '.') . '&nbsp;' . $unidad9;
-                    }
-                    if ($consDelta9 !== null) {
-                        $_consStr = 'Δcons=' . number_format($consDelta9, 4, '.', '');
-                        $_consStyle = $consOk9 ? 'color:#3c763d' : 'color:#a94442';
-                        $_tecLine[] = '<span style="' . $_consStyle . '">' . $_consStr . ($consOk9 ? ' ✓' : ' ✗') . '</span>';
-                    }
-                    if (!empty($_tecLine)) {
-                        $posibleCausaHtml .= '<br><small class="text-muted">' . implode(' · ', $_tecLine) . '</small>';
-                    }
-                }
+            // 1. Determinar acción principal según patrón
+            $_nMesesPlan9 = count($planMensual9);
+            $_mesesConMerma9 = 0;
+            foreach ($planMensual9 as $_pv) {
+                if ((float)$_pv['propuesto'] > 0.001) $_mesesConMerma9++;
             }
 
-            // ── Línea complementaria C9: coste estimado + proveedor ──────────
-            $coste9    = isset($f['coste_estimado_merma']) && $f['coste_estimado_merma'] !== null
-                ? (float)$f['coste_estimado_merma'] : null;
-            $lineaComp9 = '';
+            $_accionPrincipal = '';
+            if ($deficitBloq9 > 0.001) {
+                // Prioridad 1: albarán faltante
+                $_accionPrincipal = 'Comprobar si falta un albarán de compra sin registrar: hay '
+                    . number_format($deficitBloq9, 2, ',', '.') . '&nbsp;' . $unidad9
+                    . ' de sobreventa que el modelo no puede explicar con el historial de recepciones. ';
+
+                if (!empty($deficitMomentos9)) {
+                    $_mTxt = [];
+                    foreach ($deficitMomentos9 as $_m) {
+                        $_fi = $_m['fecha_ini'] ?? '';
+                        $_ff = $_m['fecha_fin'] ?? '';
+                        $_kg = isset($_m['kg']) ? (float)$_m['kg'] : 0.0;
+                        if (!$_fi) continue;
+                        $_label = $_fi;
+                        if (!empty($_ff) && $_ff !== $_fi) {
+                            $_label .= '→' . $_ff;
+                        }
+                        $_label .= ' (~' . number_format($_kg, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . ')';
+                        $_mTxt[] = $_label;
+                    }
+                    if (!empty($_mTxt)) {
+                        $_accionPrincipal .= 'Momentos detectados: ' . implode(' · ', $_mTxt) . '. ';
+                    }
+                }
+
+                if ($deficitEstable9 && !empty($deficitEstimaciones9)) {
+                    $_fEst = array_values(array_filter(array_map(fn($_e) => $_e['fecha_estimada'] ?? null, $deficitEstimaciones9)));
+                    $_fEst = array_unique($_fEst);
+                    if (!empty($_fEst)) {
+                        $_accionPrincipal .= 'Con patrón de entradas estable';
+                        if ($deficitIntTipico9 !== null && $deficitIntTipico9 > 0) {
+                            $_accionPrincipal .= ' (cadencia ~' . $deficitIntTipico9 . ' días';
+                            if ($deficitCvInt9 !== null) {
+                                $_accionPrincipal .= ', CV=' . number_format($deficitCvInt9, 2, ',', '.');
+                            }
+                            $_accionPrincipal .= ')';
+                        }
+                        $_accionPrincipal .= ', fecha estimada de albarán faltante: ' . implode(' · ', $_fEst) . '. ';
+                    }
+                }
+            } elseif ($nInciertos9 > 0 && ($mermaKg === null || $mermaKg < 0.5)) {
+                // Prioridad 2: ciclo en curso sin merma confirmada aún
+                $_accionPrincipal = 'Ciclo en curso. Esperar a la próxima recepción'
+                    . (!empty($f['prov_habitual_nombre']) ? ' de ' . htmlspecialchars($f['prov_habitual_nombre']) : '')
+                    . ' para confirmar la merma. ';
+            } elseif ($_mesesConMerma9 === 0 && $mermaPendKg > 0.001) {
+                // Solo pendiente, nada confirmado
+                $_accionPrincipal = 'Merma pendiente de confirmar (ciclo no cerrado). No registrar hasta recibir la próxima recepción. ';
+            } elseif ($_mesesConMerma9 <= 2) {
+                $_accionPrincipal = 'Pérdida concentrada'
+                    . ($_mesRefPlan ? ' en ' . ($_mc9[(int)substr($_mesRefPlan, 5, 2)] ?? '') : '')
+                    . '. Revisar recepciones y manipulación de ese periodo. '
+                    . ($confianza9 === 'alta' ? 'Registrar ajuste de inventario. ' : 'Verificar y registrar ajuste. ');
+            } elseif ($_mesesConMerma9 >= 5) {
+                $_accionPrincipal = 'Pérdida continuada (' . $_mesesConMerma9 . ' meses). '
+                    . 'Plantear ajuste de inventario periódico o revisar condiciones de almacenamiento y manipulación. ';
+            } else {
+                $_accionPrincipal = 'Pérdida intermitente en ' . $_mesesConMerma9 . ' meses. '
+                    . 'Revisar patrones de recepción y almacenamiento. ';
+            }
+            if ($pctMerma !== null && $pctMerma >= 15.0) {
+                $_accionPrincipal .= 'Tasa de merma alta (' . number_format($pctMerma, 1, ',', '.') . '%). ';
+            }
+
+            // 2. Desglose del plan mensual (lo que hay que registrar)
+            $_planDesglose = [];
+            foreach ($planMensual9 as $_pmk => $_pmv) {
+                $_pmNum = (int)substr($_pmk, 5, 2);
+                $_pmLbl = ($_pmNum >= 1 && $_pmNum <= 12) ? $_mc9[$_pmNum] : $_pmk;
+                $_aplic = (float)$_pmv['aplicable'];
+                if ($_aplic < 0.001) continue;
+                $_planDesglose[] = $_pmLbl . ': ~' . number_format($_aplic, $_dec9, ',', '.') . '&nbsp;' . $unidad9;
+            }
+
+            // Pendiente sin plan: meses con merma en lotes inciertos
+            foreach ($_mmPend as $_pmNum => $_pendVal) {
+                $_pmLbl = ($_pmNum >= 1 && $_pmNum <= 12) ? $_mc9[$_pmNum] : '?';
+                $_planDesglose[] = $_pmLbl . ': <span class="text-muted">~' . number_format($_pendVal, $_dec9, ',', '.') . '&nbsp;' . $unidad9 . ' (pendiente)</span>';
+            }
+
+            // 3. Contexto de proveedor + coste
+            $_contextoOp = [];
             if ($coste9 !== null) {
-                $lineaComp9 .= '<span title="Valor estimado de la merma: merma total × precio medio de compra en el periodo">Valor merma est.: <strong>~'
-                    . number_format($coste9, 0, ',', '.') . ' €</strong></span>';
+                $_contextoOp[] = '<strong title="Valor económico estimado de la merma: merma total × precio medio de compra del periodo">~'
+                    . number_format($coste9, 0, ',', '.') . '&nbsp;€</strong>';
             }
             if (!empty($f['prov_habitual_nombre'])) {
-                $lineaComp9 .= ($lineaComp9 ? ' · ' : '')
-                    . '<span title="Proveedor principal: el que más albaranes tiene del artículo en el año en curso">Prov. principal: '
-                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
-                if (!empty($f['prov_ultimo_nombre'])) {
-                    $ultimoLabel9 = !empty($f['prov_es_mismo']) ? '(mismo)' : htmlspecialchars($f['prov_ultimo_nombre']);
-                    $lineaComp9 .= ' | <span title="Último proveedor que sirvió el artículo ('
-                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
-                        . $ultimoLabel9 . '</span>';
-                }
+                $_contextoOp[] = 'Prov.: ' . htmlspecialchars($f['prov_habitual_nombre']);
             }
-            if ($lineaComp9) {
-                $detalle .= '<br><small class="text-muted">' . $lineaComp9 . '</small>';
+
+            $posibleCausaHtml = $_accionPrincipal;
+            if (!empty($_planDesglose)) {
+                $posibleCausaHtml .= implode(' · ', $_planDesglose) . '.';
+            }
+            if (!empty($_contextoOp)) {
+                $posibleCausaHtml .= ' <span class="text-muted">· ' . implode(' · ', $_contextoOp) . '</span>';
+            }
+
+            // 4. Sección técnica: validación estadística del modelo
+            if ($mostrarTecnico) {
+                $_tecLines = [];
+                // Línea de anclas de conservación
+                $_anclas = [];
+                if ($totalE9 !== null) $_anclas[] = 'Σ&nbsp;E=' . number_format($totalE9, $_dec9, ',', '.') . '&nbsp;' . $unidad9;
+                if ($stockFinal9 !== null) $_anclas[] = 'S<sub>f</sub>=' . number_format($stockFinal9, $_dec9, ',', '.') . '&nbsp;' . $unidad9;
+                if ($consDelta9 !== null) {
+                    $_consStyle = $consOk9 ? 'color:#3c763d' : 'color:#a94442';
+                    $_anclas[] = '<span style="' . $_consStyle . '">Δcons=' . number_format($consDelta9, 4, '.', '') . ($consOk9 ? ' ✓' : ' ✗') . '</span>';
+                }
+                if (!empty($_anclas)) $_tecLines[] = implode(' · ', $_anclas);
+                // Lotes
+                $_lotesInfo = $nLotes . ' lotes | ' . $nDeficit . ' c/déficit · ' . $nMerma . ' c/merma';
+                if ($mermaCarryKg > 0.001) {
+                    $_lotesInfo .= ' · carryover=' . number_format($mermaCarryKg, $_dec9, ',', '.') . '&nbsp;' . $unidad9;
+                }
+                $_lotesInfo .= ' | ' . $nRec . ' rec.';
+                $_tecLines[] = $_lotesInfo;
+                // Plan arrastre
+                if ($planArrastre9 > 0.001) {
+                    $_tecLines[] = '<span style="color:#a94442">Arrastre sin aplicar: '
+                        . number_format($planArrastre9, $_dec9, ',', '.') . '&nbsp;' . $unidad9
+                        . ' (stock insuficiente para absorber toda la merma este periodo)</span>';
+                }
+                if ($deficitAbsHered9 > 0.001) {
+                    $_tecLines[] = '<span class="text-info">Déficit bloqueado absorbido por stock heredado: '
+                        . number_format($deficitAbsHered9, $_dec9, ',', '.') . '&nbsp;' . $unidad9
+                        . ' (evita falso "Revisar albarán" en el arranque del periodo)</span>';
+                }
+                if (!empty($_tecLines)) {
+                    $posibleCausaHtml .= '<br><small class="text-muted">' . implode('<br>', $_tecLines) . '</small>';
+                }
             }
 
             // ── C6a / C6b ─────────────────────────────────────────────────────────
@@ -946,13 +1290,36 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
                 : ' | Stock: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>';
 
-            $detalle = $badgeStockNoFiable . $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT . $badgeC6Rec . $badgeC6Q
-                . ' <small class="text-muted">· ' . htmlspecialchars($c6m['comp']) . '</small>'
-                . $stockLabel
-                . ' | Autonomía: <strong>' . (isset($f['dias_autonomia']) ? $f['dias_autonomia'] . ' d' : '—') . '</strong>'
-                . ' | LT: ' . (isset($f['lead_time_dias']) ? $f['lead_time_dias'] . ' d' : '—')
-                . ' | ROP: ' . number_format($ropC6, 2, '.', '') . ' ' . $unidad
-                . ($diasTrasPedido !== null ? ' | Cobertura tras pedido: <strong>' . $diasTrasPedido . ' d</strong>' : '');
+            // L1: badges de diagnóstico (acción principal + alertas)
+            $detalle = $badgeStockNoFiable . $badgeC6Q . $badgeC6Rec;
+            if ($mostrarTecnico) {
+                $detalle .= ' ' . $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT;
+                $detalle .= ' <small class="text-muted">· ' . htmlspecialchars($c6m['comp']) . '</small>';
+            }
+            // L2: dato operativo principal
+            $detalle .= '<br>' . $stockLabel
+                . ' | Autonomía: <strong>' . (isset($f['dias_autonomia']) ? $f['dias_autonomia'] . ' d' : '—') . '</strong>';
+            // L3: contexto complementario
+            $linea3C6 = 'LT: ' . (isset($f['lead_time_dias']) ? $f['lead_time_dias'] . ' d' : '—')
+                . ' | ROP: ' . number_format($ropC6, 2, '.', '') . ' ' . $unidad;
+            if ($diasTrasPedido !== null) {
+                $linea3C6 .= ' | Cobertura tras pedido: <strong>' . $diasTrasPedido . ' d</strong>';
+            }
+            $costeC6 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
+            if ($costeC6 !== null) {
+                $linea3C6 .= ' | <span title="Valor estimado del pedido recomendado: cantidad × precio medio de compra">Coste est.: <strong>~'
+                    . number_format($costeC6, 0, ',', '.') . ' €</strong></span>';
+            }
+            if (!empty($f['prov_habitual_nombre'])) {
+                $linea3C6 .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                    . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
+                if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
+                    $linea3C6 .= ' | <span title="Proveedor del último albarán recibido ('
+                        . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
+                        . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
+                }
+            }
+            $detalle .= '<br><small class="text-muted">' . $linea3C6 . '</small>';
         }
 
         // ── tipoLabel ──────────────────────────────────────────────────────────
@@ -1005,23 +1372,11 @@ function renderTablaPosstock(array $filas, array $cfg): string
         }
 
         // ── URL Listado Mayor ──────────────────────────────────────────────────
-        $fiMayor = $fiInicio;
-        $ffMayor = $ffMov;
-        $needsPostWindow =
-            ($tipo === 'Entrada sin rotación previa' && empty($f['ultima_salida'])) ||
-            ($tipo === 'Venta Cero (Posible Rotura Física)' && empty($f['fecha_fin_rotura']));
-
-        if ($needsPostWindow && $ffMov) {
-            $fiMayor = $fiStock ?: $fiInicio;
-            $dtFin   = new DateTime($ffMov);
-            $dtFin->modify('+' . $diasPost . ' days');
-            $ffMayor = $dtFin->format('Y-m-d');
-        }
-
+        // Siempre año completo: 1-ene … 31-dic (año cerrado) o 1-ene … hoy (año en curso).
         $urlMayor = '../../modulos/mod_producto/DetalleMayor.php'
             . '?idArticulo=' . (int)($f['idArticulo'] ?? 0)
-            . '&fecha_inicial=' . urlencode($fiMayor)
-            . '&fecha_final='   . urlencode($ffMayor);
+            . '&fecha_inicial=' . urlencode($fiInicio)
+            . '&fecha_final='   . urlencode($ffAnioMayor);
 
         // ── Fila HTML ─────────────────────────────────────────────────────────
         $sevBadge = $badgeSev[$f['severidad'] ?? ''] ?? htmlspecialchars($f['severidad'] ?? '');

@@ -101,7 +101,7 @@ class PosstockC3Detector
         $mapaStock = [];
         if (!empty($filasArticulos)) {
             $idsArticulosCsv = implode(',', array_unique(array_map(fn($filaArticulo) => (int)$filaArticulo['idArticulo'], $filasArticulos)));
-            $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinMovimientos, false);
+            $filasStock = $this->repo->queryStockRebobinado($idsArticulosCsv, $fechaFinMovimientos);
             if (!isset($filasStock['error'])) {
                 foreach ($filasStock as $filaStock) {
                     $mapaStock[(int)$filaStock['idArticulo']] = (float)$filaStock['stock_en_periodo'];

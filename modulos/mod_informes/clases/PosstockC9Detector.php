@@ -229,24 +229,26 @@ class PosstockC9Detector
     /**
      * C9 — LIFO inverso con backstaging exponencial ponderado por distancia temporal.
      *
-     * Para cada lote con S_t < 0 (sobreventa), redistribuye el déficit hacia los k
-     * lotes anteriores con pesos exponenciales w_i = exp(-beta * delta_t_i), bloqueando
-     * lotes cuyo intervalo supera mu + lambda*sigma de los intervalos del periodo.
+     * Para productos discretos (no peso), la redistribución mantiene integridad de enteros,
+     * redondea deficits a unidades completas y ajusta por diferencia de redondeo.
      *
      * @param  array  $lotes   Salida de calcularLotesC9 (S_t mutable)
      * @param  int    $k       Profundidad de backstaging (nº de lotes previos)
      * @param  float  $beta    Tasa de decaimiento exponencial
      * @param  float  $lambda  Multiplicador para umbral de continuidad temporal
+     * @param  string $tipo_fisico  Tipo de artículo (para redondeos discretos)
      * @return array  ['lotes' => array, 'trace' => array, 'n_deficit' => int]
      */
     public function backstagingExponencial(
         array $lotes,
         int   $k,
         float $beta,
-        float $lambda
+        float $lambda,
+        string $tipo_fisico = 'peso'  // Para redondeos discretos en redistribución
     ): array {
         $n = count($lotes);
         if ($n === 0) return ['lotes' => [], 'trace' => [], 'n_deficit' => 0];
+        $es_discreto = ($tipo_fisico !== 'peso');
 
         // Intervalos entre inicios de lotes consecutivos (días)
         $deltas = [];
@@ -289,19 +291,49 @@ class PosstockC9Detector
             if ($sum_w <= 0.0) {
                 // Déficit no redistribuible: merma local confirmada (no hay inventario previo).
                 // Se registra en merma_bloqueada para que clasificarMermaC9 la incluya en merma_total.
-                $lotes[$t]['merma_bloqueada'] = round($deficit, 4);
+                // Para DISCRETOS: redondear como entero
+                $deficit_redondeado = $es_discreto ? round($deficit, 0) : $deficit;
+                $lotes[$t]['merma_bloqueada'] = round($deficit_redondeado, $es_discreto ? 0 : 4);
                 $lotes[$t]['S_t'] = 0.0;
-                $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit, 4), 'bloqueado' => true, 'lotes_destino' => []];
+                $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit_redondeado, $es_discreto ? 0 : 4), 'bloqueado' => true, 'lotes_destino' => []];
                 continue;
             }
 
             // Redistribuir déficit con pesos normalizados
+            // Para DISCRETOS: los deficits redistribuidos deben ser enteros (o fracciones minimales)
             $destinos = [];
-            foreach ($pesos as $prev => $w) {
-                $alpha              = $w / $sum_w;
-                $redistrib          = $alpha * $deficit;
-                $lotes[$prev]['S_t'] -= $redistrib;
-                $destinos[]         = ['idx' => $prev, 'alpha' => round($alpha, 4), 'cantidad' => round($redistrib, 4)];
+            if ($es_discreto) {
+                // Para discretos, hacer redistribución proporcional manteniendo integridad de enteros
+                $deficit_redistribuido = 0.0;
+                $prev_indices = array_keys($pesos);
+
+                foreach ($prev_indices as $prev) {
+                    $w = $pesos[$prev];
+                    $alpha = $w / $sum_w;
+                    $redistrib = $alpha * $deficit;
+
+                    // Redondear pero asegurar que el total en discretos sea el déficit completo
+                    $redistrib_redondeado = round($redistrib, 0);
+                    $deficit_redistribuido += $redistrib_redondeado;
+
+                    $lotes[$prev]['S_t'] -= $redistrib_redondeado;
+                    $destinos[] = ['idx' => $prev, 'alpha' => round($alpha, 4), 'cantidad' => (float)$redistrib_redondeado];
+                }
+                // Ajustar el último destino si hay diferencia por redondeo
+                if (!empty($destinos) && abs($deficit_redistribuido - $deficit) > 0.001) {
+                    $delta = $deficit - $deficit_redistribuido;
+                    $last_prev = end($prev_indices);
+                    $lotes[$last_prev]['S_t'] -= $delta;
+                    $destinos[count($destinos) - 1]['cantidad'] += $delta;
+                }
+            } else {
+                // Para continuos, redistribución flotante normal
+                foreach ($pesos as $prev => $w) {
+                    $alpha              = $w / $sum_w;
+                    $redistrib          = $alpha * $deficit;
+                    $lotes[$prev]['S_t'] -= $redistrib;
+                    $destinos[]         = ['idx' => $prev, 'alpha' => round($alpha, 4), 'cantidad' => round($redistrib, 4)];
+                }
             }
             $lotes[$t]['S_t'] = 0.0;
             $trace[] = ['lote_origen' => $t, 'deficit' => round($deficit, 4), 'bloqueado' => false, 'lotes_destino' => $destinos];
@@ -341,13 +373,154 @@ class PosstockC9Detector
     }
 
     /**
+     * Evalúa si la cadencia de recepciones es estable para estimar fecha de albarán faltante.
+     *
+     * Se considera estable cuando hay suficientes intervalos y su variabilidad relativa
+     * (CV) es baja.
+     *
+     * @param  array  $recs_art  recepciones del artículo [{fecha, cantidad, es_post_periodo}]
+     * @return array  ['estable'=>bool,'intervalo_tipico_dias'=>?int,'cv'=>?float,'n_intervalos'=>int]
+     */
+    private function evaluarEstabilidadRecepciones(array $recs_art): array
+    {
+        $recs_periodo = [];
+        foreach ($recs_art as $rec) {
+            if (!($rec['es_post_periodo'] ?? false)) {
+                $recs_periodo[] = $rec;
+            }
+        }
+        usort($recs_periodo, fn($a, $b) => strcmp($a['fecha'], $b['fecha']));
+
+        if (count($recs_periodo) < 5) {
+            return ['estable' => false, 'intervalo_tipico_dias' => null, 'cv' => null, 'n_intervalos' => 0];
+        }
+
+        $intervalos = [];
+        for ($i = 1; $i < count($recs_periodo); $i++) {
+            $dias = (int)round((strtotime($recs_periodo[$i]['fecha']) - strtotime($recs_periodo[$i - 1]['fecha'])) / 86400);
+            if ($dias > 0) $intervalos[] = $dias;
+        }
+
+        $n = count($intervalos);
+        if ($n < 4) {
+            return ['estable' => false, 'intervalo_tipico_dias' => null, 'cv' => null, 'n_intervalos' => $n];
+        }
+
+        sort($intervalos);
+        $medio = (int)round($intervalos[(int)floor(($n - 1) / 2)]);
+        $media = array_sum($intervalos) / $n;
+        $var = 0.0;
+        foreach ($intervalos as $d) {
+            $var += ($d - $media) ** 2;
+        }
+        $sigma = $n > 1 ? sqrt($var / ($n - 1)) : 0.0;
+        $cv = $media > 0 ? $sigma / $media : INF;
+
+        // Estabilidad operativa: dispersión moderada en intervalos de recepción
+        $estable = $cv <= 0.35;
+
+        return [
+            'estable'              => $estable,
+            'intervalo_tipico_dias' => max(1, $medio),
+            'cv'                   => round($cv, 3),
+            'n_intervalos'         => $n,
+        ];
+    }
+
+    /**
+     * Construye diagnóstico de déficit bloqueado para la badge "Revisar albarán".
+     *
+     * Incluye momentos donde aparece sobreventa no explicada y, si la recepción es
+     * estable, una fecha estimada de entrada faltante.
+     *
+     * @param  array $lotes_post_backstaging  lotes resultantes del backstaging
+     * @param  array $recs_art                recepciones del artículo
+     * @return array
+     */
+    private function construirDiagnosticoDeficitBloqueado(array $lotes_post_backstaging, array $recs_art): array
+    {
+        $momentos = [];
+        foreach ($lotes_post_backstaging as $lot) {
+            $bloq = (float)($lot['merma_bloqueada'] ?? 0.0);
+            if ($bloq <= 0.001) continue;
+            $momentos[] = [
+                'idx'      => (int)($lot['idx'] ?? 0),
+                'fecha_ini' => $lot['fecha_ini'] ?? null,
+                'fecha_fin' => $lot['fecha_fin'] ?? null,
+                'kg'       => round($bloq, 3),
+            ];
+        }
+
+        $patron = $this->evaluarEstabilidadRecepciones($recs_art);
+        $estimaciones = [];
+
+        if (!empty($momentos) && !empty($patron['estable']) && !empty($patron['intervalo_tipico_dias'])) {
+            $intervalo = (int)$patron['intervalo_tipico_dias'];
+            foreach ($momentos as $m) {
+                if (empty($m['fecha_ini'])) continue;
+                $ts_ini = strtotime($m['fecha_ini']);
+                $ts_fin = !empty($m['fecha_fin']) ? strtotime($m['fecha_fin']) : $ts_ini;
+                $ts_est = $ts_ini + ($intervalo * 86400);
+                if ($ts_est > $ts_fin) $ts_est = $ts_fin;
+                $estimaciones[] = [
+                    'idx' => $m['idx'],
+                    'fecha_estimada' => date('Y-m-d', $ts_est),
+                ];
+            }
+        }
+
+        return [
+            'momentos'                => $momentos,
+            'patron_entradas_estable' => (bool)($patron['estable'] ?? false),
+            'intervalo_tipico_dias'   => $patron['intervalo_tipico_dias'] ?? null,
+            'cv_intervalos'           => $patron['cv'] ?? null,
+            'n_intervalos'            => (int)($patron['n_intervalos'] ?? 0),
+            'estimaciones'            => $estimaciones,
+        ];
+    }
+
+    /**
+     * Aplica stock heredado al inicio de periodo para absorber déficit bloqueado temprano.
+     *
+     * Si el artículo ya tenía stock disponible en la primera recepción del periodo,
+     * una parte del déficit "no redistribuible" puede explicarse por ese stock heredado
+     * (fuera de los lotes C9 del periodo) y no por albarán faltante.
+     *
+     * @param  array &$lotes                lotes post-backstaging (mutables)
+     * @param  float $stock_at_first_rec    stock disponible al inicio de la 1ª recepción
+     * @return float kg absorbidos desde stock heredado
+     */
+    private function absorberDeficitBloqueadoConStockHeredado(array &$lotes, float $stock_at_first_rec): float
+    {
+        $stock_heredado = max(0.0, $stock_at_first_rec);
+        if ($stock_heredado <= 0.001) return 0.0;
+
+        $absorbido = 0.0;
+        foreach ($lotes as &$lote) {
+            $bloq = (float)($lote['merma_bloqueada'] ?? 0.0);
+            if ($bloq <= 0.001 || $stock_heredado <= 0.001) continue;
+
+            $usa = min($bloq, $stock_heredado);
+            $lote['merma_bloqueada'] = round(max(0.0, $bloq - $usa), 4);
+            $stock_heredado -= $usa;
+            $absorbido      += $usa;
+        }
+        unset($lote);
+
+        return round($absorbido, 4);
+    }
+
+    /**
      * C9 — Clasifica merma por lote, calcula severidad/confianza y valida conservación.
+     *
+     * Para productos discretos (no peso), aplica redondeo a enteros en merma y deficits,
+     * epsilon más estricto (0.5 vs 1.0 kg), y degrada confianza más fácilmente.
      *
      * @param  array  $lotes              Lotes post-backstaging
      * @param  float  $stock_final        Stock contable al ff_mov (_queryStockRebobinado)
      * @param  float  $stock_at_first_rec Stock al inicio de la primera recepción del periodo
-     * @param  string $tipo_fisico        'peso' o 'unidad'
-     * @param  float  $epsilon            Tolerancia conservación de masa (kg)
+     * @param  string $tipo_fisico        Tipo de artículo (para ajustes discretos)
+     * @param  float  $epsilon            Tolerancia conservación de masa (kg), puede ser ajustada por tipo
      * @param  float  $merma_declarada    merma_prov_decl + merma_cli_decl: salidas declaradas
      *                                    que no están en V_t del timeline → ajuste de conservación
      * @return array  Métricas de merma + detalle por lote
@@ -360,18 +533,27 @@ class PosstockC9Detector
         float  $epsilon,
         float  $merma_declarada = 0.0
     ): array {
+        $es_discreto = ($tipo_fisico !== 'peso');
+        $precision = $es_discreto ? 0 : 3;  // 0 decimales para unidades, 3 para peso
+        // Epsilon más estricto para discretos: 0.5 unidades vs 1.0 kg
+        if ($es_discreto && $epsilon >= 1.0) {
+            $epsilon = 0.5;
+        }
+
         $merma_total       = 0.0;
-        $merma_carryover   = 0.0;  // S_t positivo de lotes inciertos al final (horquilla superior)
+        // Carryover: arrastre técnico de déficit (no merma pendiente positiva).
+        $merma_carryover   = 0.0;
+        // Merma pendiente: sobrante positivo en lotes inciertos aún no cerrados.
+        $merma_pendiente   = 0.0;
         $deficit_bloqueado = 0.0;  // Déficits no redistribuibles (sobreventa): NOT merma.
         // Indica albarán faltante, stock sin regularizar o cruce pendiente.
         $total_E           = 0.0;  // E_t solo de lotes cerrados (base del pct_merma)
-        $total_E_all       = 0.0;  // E_t de todos los lotes (para pct de la horquilla)
         $n_merma           = 0;
         $n_inciertos       = 0;
         $detalle           = [];
 
         foreach ($lotes as $lote) {
-            // es_lote_incierto: marcado por detectar() según umbral de continuidad vivo.
+            // es_lote_incierto: marcado por detectar() según umbral de continuidad.
             // Incluye siempre es_ultimo_abierto. Fallback a es_ultimo_abierto para compatibilidad
             // con tests unitarios que no pasan por detectar().
             $es_incierto        = ($lote['es_lote_incierto'] ?? false)
@@ -381,27 +563,31 @@ class PosstockC9Detector
             // NO es merma física — indica albarán faltante, stock no regularizado del
             // periodo anterior o cruce pendiente. Se acumula en deficit_bloqueado separado.
             $merma_bloqueada_t = $lote['merma_bloqueada'] ?? 0.0;
-            $total_E_all      += $lote['E_t'];
             // Acumular déficit bloqueado independientemente de si el lote es incierto o no
             $deficit_bloqueado += $merma_bloqueada_t;
-            // Lotes inciertos: carryover al siguiente periodo — sobrante no es merma confirmada.
+            // Lotes inciertos:
+            // - El sobrante positivo es merma pendiente (no confirmada)
+            // - El déficit se mantiene como arrastre técnico (carryover)
             if (!$es_incierto) {
                 $merma_total += $merma_t;   // ← sin merma_bloqueada_t: déficit ≠ merma
                 $total_E     += $lote['E_t'];
                 if ($merma_t > 0.0) $n_merma++;
             } else {
                 $n_inciertos++;
-                $merma_carryover += $merma_t;  // ← sin merma_bloqueada_t
+                $merma_pendiente += $merma_t;
+                $carry_deficit_t = max(0.0, -$lote['S_t']) + $merma_bloqueada_t;
+                $merma_carryover += $carry_deficit_t;
             }
             $detalle[] = [
                 'idx'              => $lote['idx'],
                 'fecha_ini'        => $lote['fecha_ini'],
                 'fecha_fin'        => $lote['fecha_fin'],
-                'E_t'              => round($lote['E_t'], 3),
-                'V_t'              => round($lote['V_t'], 3),
-                'S_t'              => round($lote['S_t'], 3),
-                'merma_t'          => round($merma_t, 3),
-                'deficit_bloqueado' => round($merma_bloqueada_t, 3),
+                'E_t'              => $es_discreto ? (float)intval($lote['E_t']) : round($lote['E_t'], 3),
+                'V_t'              => $es_discreto ? (float)intval($lote['V_t']) : round($lote['V_t'], 3),
+                'S_t'              => $es_discreto ? (float)intval($lote['S_t']) : round($lote['S_t'], 3),
+                'merma_t'          => round($merma_t, $precision),
+                'merma_pendiente_t' => round($es_incierto ? $merma_t : 0.0, $precision),
+                'deficit_bloqueado' => round($merma_bloqueada_t, $precision),
                 'v_t_parcial'      => $lote['v_t_parcial'] ?? false,
                 'es_lote_incierto' => $es_incierto,
             ];
@@ -409,6 +595,11 @@ class PosstockC9Detector
 
         // Conservación de masa ajustada:
         //   sum(S_t_after) + merma_bloqueada_total − merma_declarada ≈ Sf − Si
+        //
+        // Para PRODUCTOS DISCRETOS: la tolerancia es mucho menor porque el conteo de unidades
+        // debe ser exacto. Un error de 1 unidad en 100 es un 1% de error relativo.
+        // Los productos discretos se redondean a enteros, así que la discrepancia aceptable
+        // es menor.
         //
         // Dos correcciones necesarias respecto al Δcons ingenuo:
         //
@@ -444,12 +635,8 @@ class PosstockC9Detector
         $pct = ($total_E > 0.0) ? ($merma_total / $total_E * 100.0) : 0.0;
         $n   = count($lotes);
 
-        // Severidad base: calculada con merma confirmada (lotes cerrados) y su pct.
-        // Severidad horquilla: calculada con merma_total + merma_carryover y pct sobre total_E_all.
-        // Se usa el mayor nivel entre ambas para no subestimar mermas estacionales cuyo
-        // ciclo no cerró todavía (e.g., merma concentrada en los últimos meses del periodo).
-        $merma_max  = $merma_total + $merma_carryover;
-        $pct_max    = ($total_E_all > 0.0) ? ($merma_max / $total_E_all * 100.0) : 0.0;
+        // Severidad: se calcula únicamente con merma confirmada.
+        // La merma pendiente en lotes inciertos no eleva severidad hasta cierre de ciclo.
 
         $calcularSeveridad = static function (float $merma, float $porcentajeMerma, string $tipoFisico): int {
             if ($tipoFisico === 'peso') {
@@ -466,35 +653,261 @@ class PosstockC9Detector
                 else                                return 1;
             }
         };
-        $severidadBase = $calcularSeveridad($merma_total, $pct, $tipo_fisico);
-        $severidadMaximaHorquilla = $calcularSeveridad($merma_max, $pct_max, $tipo_fisico);
-        $sev = max($severidadBase, $severidadMaximaHorquilla);
+        $sev = $calcularSeveridad($merma_total, $pct, $tipo_fisico);
 
-        $sev_labels = [1 => 'BAJA', 2 => 'BAJA', 3 => 'MEDIA', 4 => 'ALTA', 5 => 'CRITICA'];
+        // C9 no usa etiqueta CRITICA: nivel 5 se mapea a ALTA.
+        $sev_labels = [1 => 'BAJA', 2 => 'BAJA', 3 => 'MEDIA', 4 => 'ALTA', 5 => 'ALTA'];
 
         // Confianza
         // delta_critico: la confianza cae a 'posible' cuando:
-        //   a) Δcons ajustado > 5×epsilon → datos base inconsistentes (rebobinado incorrecto)
+        //   a) Δcons ajustado > 5×epsilon → datos base inconsistentes (rebobinado incorrecto);
+        //      para DISCRETOS, usar 3×epsilon (más estricto) porque el error debe ser menor
         //   b) stock_final < 0 → físicamente imposible, indica rebobinado erróneo
-        $delta_critico = $conservation_delta > $epsilon * 5.0 || $stock_final < 0.0;
-        if (!$delta_critico && $conservation_ok && $n >= 5) $confianza = 'alta';
-        elseif (!$delta_critico && ($conservation_ok || $n >= 3)) $confianza = 'media';
-        else                                                        $confianza = 'posible';
+        $delta_umbral = $es_discreto ? $epsilon * 3.0 : $epsilon * 5.0;
+        $delta_critico = $conservation_delta > $delta_umbral || $stock_final < 0.0;
+
+        // Para productos DISCRETOS, ser más conservador con la confianza:
+        // - Requerir conservation_ok + n >= 5 para 'alta' (igual que continuos)
+        // - Pero degradar a 'posible' si hay alguna incertidumbre (n_inciertos > 0 para discretos)
+        // - No permitir n < 4 para discretos (vs n < 3 para continuos)
+        if (!$delta_critico && $conservation_ok && $n >= 5) {
+            if ($es_discreto && $n_inciertos > 0) {
+                $confianza = 'media';  // Si hay lotes abiertos, bajar a media incluso sin delta_critico
+            } else {
+                $confianza = 'alta';
+            }
+        } elseif (!$delta_critico && ($conservation_ok || ($n >= 4 && !$es_discreto))) {
+            $confianza = 'media';
+        } else {
+            $confianza = 'posible';
+        }
 
         return [
-            'merma_total'        => round($merma_total, 3),
-            'merma_carryover'    => round($merma_carryover, 3),  // carryover lotes inciertos (horquilla superior)
-            'deficit_bloqueado'  => round($deficit_bloqueado, 3), // sobreventa no redistribuible: albarán faltante / stock no regularizado
+            'merma_total'        => round($merma_total, $precision),
+            'merma_carryover'    => round($merma_carryover, $precision),  // arrastre técnico de déficit
+            'merma_pendiente'    => round($merma_pendiente, $precision),  // sobrante en lotes inciertos (no confirmado)
+            'deficit_bloqueado'  => round($deficit_bloqueado, $precision), // sobreventa no redistribuible: albarán faltante / stock no regularizado
             'n_lotes_inciertos'  => $n_inciertos,
             'pct_merma'          => round($pct, 2),
             'n_merma'            => $n_merma,
             'detalle_lotes'      => $detalle,
             'conservation_ok'    => $conservation_ok,
-            'conservation_delta' => round($conservation_delta, 4),
+            'conservation_delta' => round($conservation_delta, $es_discreto ? 1 : 4),
             'severidad'          => $sev,
             'severidad_label'    => $sev_labels[$sev],
             'confianza'          => $confianza,
-            'total_E'            => round($total_E, 3),
+            'total_E'            => $es_discreto ? (float)intval($total_E) : round($total_E, 3),
+        ];
+    }
+
+    /**
+     * Calcula el stock seguro por mes para registrar un ajuste contable de merma.
+     *
+     * A diferencia del cierre mensual bruto, este valor mira hacia delante desde el
+     * cierre de cada mes y toma el mínimo stock proyectado con los movimientos ya
+     * conocidos (ventas, recepciones y devoluciones). Así, si se registra la merma
+     * al final de mes, el ajuste no debería provocar un C1a/C1b en el horizonte ya
+     * visible para C9.
+     *
+     * @param  array  $stock_mes_cierre  stock rebobinado al cierre de cada mes [YYYY-MM => float]
+     * @param  array  $recs_art          recepciones del artículo [{fecha, cantidad, es_post_periodo}]
+     * @param  array  $timeline_art      ventas netas del artículo [{fecha, day_delta}]
+     * @param  array  $devs_art          devoluciones proveedor [{fecha, devolucion}]
+     * @param  string $ff_mov            fin del periodo analizado
+     * @return array  ['YYYY-MM' => float] stock máximo ajustable sin provocar negativos posteriores
+     */
+    private function calcularStockSeguroMes(
+        array  $stock_mes_cierre,
+        array  $recs_art,
+        array  $timeline_art,
+        array  $devs_art,
+        string $ff_mov,
+        string $tipo_fisico = 'peso'  // Para redondeo conservador en discretos
+    ): array {
+        if (empty($stock_mes_cierre)) return [];
+
+        $neto_por_fecha = [];
+
+        foreach ($recs_art as $rec) {
+            $fecha = $rec['fecha'];
+            $neto_por_fecha[$fecha] = ($neto_por_fecha[$fecha] ?? 0.0) + (float)$rec['cantidad'];
+        }
+        foreach ($timeline_art as $mov) {
+            $fecha = $mov['fecha'];
+            $neto_por_fecha[$fecha] = ($neto_por_fecha[$fecha] ?? 0.0) - (float)$mov['day_delta'];
+        }
+        foreach ($devs_art as $dev) {
+            $fecha = $dev['fecha'];
+            $neto_por_fecha[$fecha] = ($neto_por_fecha[$fecha] ?? 0.0) - (float)$dev['devolucion'];
+        }
+        ksort($neto_por_fecha);
+
+        $stock_seguro_mes = [];
+        $es_discreto = ($tipo_fisico !== 'peso');
+
+        foreach ($stock_mes_cierre as $mes => $stock_cierre) {
+            $fecha_cierre = $mes === substr($ff_mov, 0, 7)
+                ? $ff_mov
+                : (new \DateTimeImmutable($mes . '-01'))->modify('last day of this month')->format('Y-m-d');
+
+            $stock_cursor = (float)$stock_cierre;
+            $stock_minimo = $stock_cursor;
+
+            foreach ($neto_por_fecha as $fecha => $neto) {
+                if ($fecha <= $fecha_cierre) continue;
+                $stock_cursor += $neto;
+                if ($stock_cursor < $stock_minimo) {
+                    $stock_minimo = $stock_cursor;
+                }
+            }
+
+            // Para discretos, usar piso (floor) para ser conservador: si el stock mínimo es 10.3,
+            // el tope aplicable es 10 (no 10.3) para evitar negativos por redondeo de enteros.
+            $stock_final = max(0.0, $stock_minimo);
+            if ($es_discreto) {
+                $stock_seguro_mes[$mes] = (float)floor($stock_final);
+            } else {
+                $stock_seguro_mes[$mes] = round($stock_final, 4);
+            }
+        }
+
+        return $stock_seguro_mes;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    //  Capa operativa: distribución mensual de merma con tope de stock
+    // ───────────────────────────────────────────────────────────────────────
+
+    /**
+     * Genera un plan de aplicación mensual para la merma C9 de un artículo.
+     *
+     * Distribuye la merma de cada lote entre los meses calendario que abarca
+     * (prorrateo por días), aplica un tope de stock para evitar negativos y
+     * arrastra el remanente no aplicable al mes siguiente.
+     *
+     * @param  array  $detalle_lotes       merma_por_lote de la incidencia C9
+     * @param  array  $stock_mes             stock seguro de cada mes [YYYY-MM => float]
+     *                                       tras mirar los movimientos posteriores ya conocidos.
+     *                                       Representa cuánto puede ajustarse al cierre del mes
+     *                                       sin provocar stock negativo posterior en el horizonte.
+     * @param  float  $stock_minimo          suelo de stock (≥0); no se aplica merma si el
+     *                                       stock quedaría por debajo de este valor.
+     * @param  array  $merma_declarada_mes   merma ya declarada por mes [YYYY-MM => float].
+     *                                       Se resta de la merma prorrateada: la merma estimada
+     *                                       ya incluye la declarada (los albaranes especiales se
+     *                                       excluyen de V_t), así que el plan solo propone la
+     *                                       parte no documentada.
+     * @return array  [
+     *   'plan'      => [YYYY-MM => ['propuesto'=>f,'aplicable'=>f,'arrastre'=>f]],
+     *   'total_propuesto' => float,
+     *   'total_aplicable' => float,
+     *   'arrastre_final'  => float,   // merma no aplicada al cierre del último mes
+     * ]
+     */
+    public function calcularPlanMensual(
+        array  $detalle_lotes,
+        array  $stock_mes,
+        float  $stock_minimo = 0.0,
+        array  $merma_declarada_mes = [],
+        string $tipo_fisico = 'peso'
+    ): array {
+        $es_discreto = ($tipo_fisico !== 'peso');
+
+        // ── Paso 1: prorratear merma de cada lote a meses calendario ─────
+        $merma_por_mes = [];  // [YYYY-MM => float]
+
+        foreach ($detalle_lotes as $lote) {
+            $merma_t = $lote['merma_t'] ?? 0.0;
+            if ($merma_t <= 0.0) continue;
+            if ($lote['es_lote_incierto'] ?? false) continue;  // solo merma confirmada
+
+            $ini = new \DateTimeImmutable($lote['fecha_ini']);
+            $fin = new \DateTimeImmutable($lote['fecha_fin']);
+            $dias_total = max(1, (int)$ini->diff($fin)->days + 1);
+
+            // Recorrer cada mes que abarca el lote
+            $cursor = $ini;
+            while ($cursor <= $fin) {
+                $mesKey   = $cursor->format('Y-m');
+                $fin_mes  = $cursor->modify('last day of this month');
+                $tope     = ($fin_mes > $fin) ? $fin : $fin_mes;
+                $dias_mes = (int)$cursor->diff($tope)->days + 1;
+
+                $proporcion = $dias_mes / $dias_total;
+                $merma_por_mes[$mesKey] = ($merma_por_mes[$mesKey] ?? 0.0)
+                    + round($merma_t * $proporcion, 4);
+
+                // Avanzar al primer día del mes siguiente
+                $cursor = $tope->modify('+1 day');
+            }
+        }
+        ksort($merma_por_mes);
+
+        // ── Paso 1b: descontar merma declarada ──────────────────────────
+        // La merma estimada (sum S_t) ya incluye la merma declarada porque los
+        // albaranes especiales se excluyen de V_t. La parte declarada ya está
+        // registrada → solo proponer la diferencia no documentada.
+        foreach ($merma_declarada_mes as $mesDecl => $montoDecl) {
+            if (isset($merma_por_mes[$mesDecl])) {
+                $merma_por_mes[$mesDecl] = max(0.0, $merma_por_mes[$mesDecl] - $montoDecl);
+            }
+        }
+
+        // ── Paso 1c: para productos discretos, redistribuir a enteros ────
+        // Cuando un lote abarca varios meses el prorrateo produce fracciones
+        // (ej. 3 uds × 20/31 = 1,935). Usamos el algoritmo de "largest remainder"
+        // para convertir el mapa a enteros conservando la suma total exacta.
+        if ($es_discreto && !empty($merma_por_mes)) {
+            $total_uds  = (int)round(array_sum($merma_por_mes));
+            $floors     = [];
+            $fracciones = [];
+            foreach ($merma_por_mes as $mes => $val) {
+                $floors[$mes]     = (int)floor($val);
+                $fracciones[$mes] = $val - $floors[$mes];
+            }
+            $remainder = $total_uds - (int)array_sum($floors);
+            // Asignar unidades sobrantes a los meses con mayor parte fraccionaria
+            arsort($fracciones);
+            foreach (array_keys($fracciones) as $mes) {
+                if ($remainder <= 0) break;
+                $floors[$mes]++;
+                $remainder--;
+            }
+            // Restaurar en merma_por_mes como enteros
+            foreach ($merma_por_mes as $mes => $_) {
+                $merma_por_mes[$mes] = (float)$floors[$mes];
+            }
+        }
+
+        // ── Paso 2: aplicar tope de stock mes a mes con arrastre ─────────
+        $plan            = [];
+        $arrastre        = 0.0;
+        $total_propuesto = 0.0;
+        $total_aplicable = 0.0;
+        $prec = $es_discreto ? 0 : 4;
+
+        foreach ($merma_por_mes as $mes => $prorrateo) {
+            $propuesto = round($prorrateo + $arrastre, $prec);
+            $stock     = $stock_mes[$mes] ?? 0.0;
+            $margen    = max(0.0, round($stock - $stock_minimo, $prec));
+            $aplicable = round(min($propuesto, $margen), $prec);
+            $arrastre  = round($propuesto - $aplicable, $prec);
+
+            $plan[$mes] = [
+                'propuesto' => $propuesto,
+                'aplicable' => $aplicable,
+                'arrastre'  => $arrastre,
+            ];
+            $total_propuesto += $prorrateo;
+            $total_aplicable += $aplicable;
+        }
+
+        $precTot = $es_discreto ? 0 : 3;
+        return [
+            'plan'             => $plan,
+            'total_propuesto'  => round($total_propuesto, $precTot),
+            'total_aplicable'  => round($total_aplicable, $precTot),
+            'arrastre_final'   => round($arrastre, $precTot),
         ];
     }
 
@@ -507,7 +920,7 @@ class PosstockC9Detector
      * Q5a (prov especiales: cruce vs merma declarada) → Q5b (cli especiales: merma
      * declarada) → lotes → backstaging → clasificación.
      *
-     * Solo aplica a artículos con tipo_fisico IN ('unidad','peso').
+     * Aplica a todos los artículos candidatos por recepción y filtros de entrada.
      *
      * @return array  Incidencias C9 o ['error' => ...]
      */
@@ -557,7 +970,7 @@ class PosstockC9Detector
         $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
         if ($idsArticulosCsv === '') return [];
 
-        // Paso 2: filtrar solo artículos físicos
+        // Paso 2: obtener tipos para umbrales de severidad/visualización (sin filtrar artículos)
         $sentenciaArticulos = $this->db->query(
             "SELECT idArticulo, tipo FROM articulos
               WHERE idArticulo IN ($idsArticulosCsv)"
@@ -566,8 +979,7 @@ class PosstockC9Detector
         $tipos_map = [];
         while ($fila = $sentenciaArticulos->fetch_assoc()) $tipos_map[(int)$fila['idArticulo']] = $fila['tipo'];
         $sentenciaArticulos->free();
-        $ids_candidatos = array_values(array_filter($ids_candidatos, fn($id) => isset($tipos_map[$id])));
-        if (empty($ids_candidatos)) return [];
+        // No se excluyen artículos por tipo físico.
         $idsArticulosCsv = $this->convertirIdsACsv($ids_candidatos);
         if ($idsArticulosCsv === '') return [];
 
@@ -686,7 +1098,7 @@ class PosstockC9Detector
                 } else {
                     // Sin recepción regular ese día → merma declarada normal
                     $merma_prov_decl[$aid] = ($merma_prov_decl[$aid] ?? 0.0) + $monto;
-                    $mesProvDecl = (int)substr($fecha, 5, 2);
+                    $mesProvDecl = substr($fecha, 0, 7);
                     $merma_prov_decl_mes[$aid][$mesProvDecl] = ($merma_prov_decl_mes[$aid][$mesProvDecl] ?? 0.0) + $monto;
                 }
             }
@@ -716,7 +1128,7 @@ class PosstockC9Detector
                 if ($nunidades > 0) {
                     // Salida especial → merma declarada
                     $merma_cli_decl[$aid] = ($merma_cli_decl[$aid] ?? 0.0) + $nunidades;
-                    $mesCliDecl = (int)substr($fecha, 5, 2);
+                    $mesCliDecl = substr($fecha, 0, 7);
                     $merma_cli_decl_mes[$aid][$mesCliDecl] = ($merma_cli_decl_mes[$aid][$mesCliDecl] ?? 0.0) + $nunidades;
                 } else {
                     // Entrada especial → candidato a neta V_t o entrada directa
@@ -839,7 +1251,7 @@ class PosstockC9Detector
         $incidencias = [];
 
         foreach ($ids_candidatos as $idArticulo) {
-            $tipo_fisico  = $tipos_map[$idArticulo];
+            $tipo_fisico  = $tipos_map[$idArticulo] ?? 'unidad';
             // E_lote0: stock real al inicio del periodo (rebobinado historial completo).
             // Fallback al saldo acumulado desde fi_stock si el rebobinado no devuelve fila.
             $stock_base   = $stock_inicial_map[$idArticulo]
@@ -867,24 +1279,11 @@ class PosstockC9Detector
                 }
             }
 
-            // Marcar lotes inciertos al final del periodo            // Un lote es incierto si su ciclo puede no haber cerrado todavía.
-            // Se aplica el umbral de continuidad local (mu + lambda * sigma) en DOS casos:
-            //
-            //   A) Corte de DB / fin de periodo sin datos posteriores:
-            //      existe al menos un lote con es_ultimo_abierto=true.
-            //      Justificación: si la DB termina en ff_mov, los lotes cuya fecha_ini
-            //      cae dentro del umbral de continuidad ANTES de ff_mov tuvieron su ciclo
-            //      natural cortado por el límite del periodo, no por una recepción real.
-            //      Se aplica siempre, incluso para análisis históricos.
-            //
-            //   B) Análisis "en vivo" (hoy dentro de la ventana dias_post):
-            //      la primera recepción que cerraría los últimos lotes aún no ha llegado.
-            //      Se aplica aunque todos los lotes parezcan cerrados.
-            $hoy_str  = date('Y-m-d');
-            $ff_post_continuidad = date('Y-m-d', strtotime("$ff_mov +$c9_dias_post days"));
-            $es_vivo         = ($hoy_str <= $ff_post_continuidad);
+            // Marcar lotes inciertos al final del periodo.
+            // Solo aplica cuando hay lotes realmente abiertos (sin cierre por recepción posterior),
+            // lo que cubre tanto periodo en curso como BD anualizada sin datos de enero.
             $hay_abierto     = !empty(array_filter($lotes, fn($linea) => !empty($linea['es_ultimo_abierto'])));
-            $aplicar_umbral  = $es_vivo || $hay_abierto;
+            $aplicar_umbral  = $hay_abierto;
 
             if ($aplicar_umbral && count($lotes) >= 2) {
                 $n_lots = count($lotes);
@@ -922,7 +1321,11 @@ class PosstockC9Detector
             }
             unset($loteRef);
 
-            $resultado = $this->backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda);
+            $resultado = $this->backstagingExponencial($lotes, $c9_k, $c9_beta, $c9_lambda, $tipo_fisico);
+            $deficitAbsorbidoHeredado = $this->absorberDeficitBloqueadoConStockHeredado(
+                $resultado['lotes'],
+                $stock_at_first_rec
+            );
 
             $umbral     = ($tipo_fisico === 'peso') ? $c9_umbral_peso : $c9_umbral_unidad;
             $merma_decl = ($merma_prov_decl[$idArticulo] ?? 0.0) + ($merma_cli_decl[$idArticulo] ?? 0.0);
@@ -943,16 +1346,39 @@ class PosstockC9Detector
                 $c9_epsilon,
                 $merma_decl
             );
-            if (($clasif['merma_total'] + $clasif['merma_carryover']) < $umbral) continue;
+            if ($clasif['merma_total'] < $umbral) continue;
             $n_en_periodo = count(array_filter($recs_art, fn($fila) => !$fila['es_post_periodo']));
+
+            // Plan mensual: distribuir merma confirmada entre meses sin generar stock negativo.
+            // El tope usa stock "seguro" mirando meses posteriores ya visibles para que
+            // el asiento de merma no induzca C1a/C1b tras el cierre mensual.
+            $stock_mes_cierre = $this->repo->queryStockCierreMes($idArticulo, $fi_mov, $ff_mov);
+            $stock_mes_seguro = $this->calcularStockSeguroMes(
+                $stock_mes_cierre,
+                $recs_art,
+                $timeline_art,
+                $devs_art,
+                $ff_mov,
+                $tipo_fisico  // Pasar tipo para redondeo conservador en discretos
+            );
+            $plan = $this->calcularPlanMensual($clasif['detalle_lotes'], $stock_mes_seguro, 0.0, $mermaDeclaradaPorMes, $tipo_fisico);
+            $diagDeficitBloq = $this->construirDiagnosticoDeficitBloqueado($resultado['lotes'], $recs_art);
 
             $incidencias[] = [
                 'caso'                => 'C9',
                 'tipo'                => 'Merma backstaging',
                 'idArticulo'          => $idArticulo,
                 'merma_total_kg'      => $clasif['merma_total'],
-                'merma_carryover_kg'  => $clasif['merma_carryover'],   // lotes inciertos: horquilla superior
+                'merma_carryover_kg'  => $clasif['merma_carryover'],   // arrastre técnico de déficit
+                'merma_pendiente_kg'  => $clasif['merma_pendiente'],   // sobrante incierto no confirmado
                 'deficit_bloqueado_kg' => $clasif['deficit_bloqueado'], // sobreventa no redistribuible
+                'deficit_bloqueado_absorbido_heredado_kg' => round($deficitAbsorbidoHeredado, 3),
+                'deficit_bloqueado_momentos' => $diagDeficitBloq['momentos'],
+                'deficit_bloqueado_patron_estable' => $diagDeficitBloq['patron_entradas_estable'],
+                'deficit_bloqueado_intervalo_tipico_dias' => $diagDeficitBloq['intervalo_tipico_dias'],
+                'deficit_bloqueado_cv_intervalos' => $diagDeficitBloq['cv_intervalos'],
+                'deficit_bloqueado_n_intervalos' => $diagDeficitBloq['n_intervalos'],
+                'deficit_bloqueado_estimaciones' => $diagDeficitBloq['estimaciones'],
                 'n_lotes_inciertos'   => $clasif['n_lotes_inciertos'],
                 'merma_declarada_kg'  => round($merma_decl, 3),
                 'merma_decl_por_mes'  => !empty($mermaDeclaradaPorMes) ? array_map(fn($v) => round($v, 3), $mermaDeclaradaPorMes) : [],
@@ -969,6 +1395,10 @@ class PosstockC9Detector
                 'severidad'           => $clasif['severidad_label'],
                 'severidad_num'       => $clasif['severidad'],
                 'merma_por_lote'      => $clasif['detalle_lotes'],
+                'plan_mensual'        => $plan['plan'],           // [YYYY-MM => {propuesto,aplicable,arrastre}]
+                'plan_total_propuesto' => $plan['total_propuesto'],
+                'plan_total_aplicable' => $plan['total_aplicable'],
+                'plan_arrastre_final'  => $plan['arrastre_final'],
                 'backstaging_trace'   => $resultado['trace'],
                 'beta_usado'          => $c9_beta,
                 'k_usado'             => $c9_k,

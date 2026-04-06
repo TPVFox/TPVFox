@@ -193,7 +193,8 @@ class PosstockStatistics
         }
 
         // Rotura en curso: desde última venta hasta ff_mov.
-        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
+        // Usar tiempo actual si el período aún no ha finalizado.
+        $dias_final = (int)((min($ff_ts, time()) - $ts[$n - 1]) / 86400);
         if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
@@ -330,7 +331,8 @@ class PosstockStatistics
                 ];
             }
         }
-        $dias_final = (int)(($ff_ts - $ts[$n - 1]) / 86400);
+        // Usar tiempo actual si el período aún no ha finalizado.
+        $dias_final = (int)((min($ff_ts, time()) - $ts[$n - 1]) / 86400);
         if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();

@@ -637,7 +637,8 @@ class ClasePosstock
                 $ff_mov,
                 $familias_incluir,
                 $familias_excluir,
-                $c5_incluir_stock_negativo
+                $c5_incluir_stock_negativo,
+                $ids_filter
             );
             if (isset($articulos_sin_mov['error'])) return $articulos_sin_mov;
             foreach ($this->c4->formatearIncidencias($articulos_sin_mov) as $incidencia) {
@@ -952,8 +953,8 @@ class ClasePosstock
         if (!empty($proveedores_incluir)) {
             $idsProveedoresCsv = implode(',', array_map('intval', $proveedores_incluir));
             if (!$proveedor_todos) {
-                // Modo normal: solo artículos del proveedor con actividad en el periodo
-                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                // Modo normal: todos los artículos vinculados al proveedor
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedoresTodos($idsProveedoresCsv);
                 if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
 
                 $ids_proveedor_filter = array_column($filasArticulosProv, 'idArticulo');
@@ -988,7 +989,7 @@ class ClasePosstock
             $proveedoresIncluir = (array)($params['proveedores_incluir'] ?? []);
             if (!empty($proveedoresIncluir)) {
                 $idsProveedoresCsv = implode(',', array_map('intval', $proveedoresIncluir));
-                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedores($idsProveedoresCsv);
+                $filasArticulosProv = $this->repo->queryIdsArticulosByProveedoresTodos($idsProveedoresCsv);
                 if (isset($filasArticulosProv['error'])) return $filasArticulosProv;
                 $idsProveedorFilter = array_column($filasArticulosProv, 'idArticulo');
                 if (empty($idsProveedorFilter)) {

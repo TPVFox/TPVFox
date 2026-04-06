@@ -11,6 +11,20 @@
 
 import { _posstockMostrarError } from "./PosstockLoader.js";
 
+function _posstockCerrarModal() {
+    if (typeof window.cerrarModal === "function") {
+        window.cerrarModal();
+        return;
+    }
+    if (typeof window.cerrarPopUp === "function") {
+        window.cerrarPopUp();
+        return;
+    }
+    if (window.$) {
+        window.$("#ventanaModal").modal("hide");
+    }
+}
+
 // ── Filtro de familias ────────────────────────────────────────────────────────
 
 window.posstockFamiliasIncluir = [];
@@ -102,14 +116,14 @@ function posstockAplicarFiltroFamilias() {
     window.posstockFamiliasIncluir = _leerTablaFamilias("incluir");
     window.posstockFamiliasExcluir = _leerTablaFamilias("excluir");
     _posstockActualizarBadgeFiltro();
-    cerrarModal();
+    _posstockCerrarModal();
 }
 
 function _leerTablaFamilias(lista) {
     let filas = document.querySelectorAll(
         "#posstockTabla_" + lista + " tbody tr",
     );
-    return Array.from(rows).map(function (r) {
+    return Array.from(filas).map(function (r) {
         return { id: parseInt(r.dataset.id), nombre: r.dataset.nombre || "" };
     });
 }
@@ -251,7 +265,7 @@ function posstockAplicarFiltroProveedores() {
     const chk = document.getElementById("posstockChkTodosProductos");
     window.posstockProveedorTodosProductos = chk ? chk.checked : false;
     _posstockActualizarBadgeProveedores();
-    cerrarModal();
+    _posstockCerrarModal();
 }
 
 function _posstockActualizarBadgeProveedores() {
