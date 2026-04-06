@@ -3,7 +3,7 @@
 /**
  * Calcula las fechas y etiquetas de un periodo POSStock.
  *
- * @param string $tipo    'semana' | 'quincena' | 'mes' | 'trimestre' | 'cuatrimestre' | 'semestre' | 'anual'
+ * @param string $tipo    'semana' | 'quincena' | 'mes' | 'trimestre' | 'cuatrimestre' | 'semestre' | 'anual' | 'estacional'
  * @param int    $numero  Número del periodo dentro del año:
  *                        semana        : 1–52/53 anclado al 01-Ene (sem 1: 01-Ene → primer dom).
  *                        quincena      : 1–24 (impar = 1ª quincena del mes, par = 2ª quincena).
@@ -13,6 +13,8 @@
  *                        cuatrimestre  : 1–3  (C1=Ene-Abr, C2=May-Ago, C3=Sep-Dic)
  *                        semestre      : 1–2  (S1=Ene-Jun, S2=Jul-Dic)
  *                        anual         : siempre 1 (01-Ene → 31-Dic)
+ *                        estacional    : 1–5  (Invierno=01Ene–20Mar, Primavera=21Mar–20Jun,
+ *                                              Verano=21Jun–22Sep, Otoño=23Sep–30Nov, Navidad=01Dic–31Dic)
  * @param int    $anio    Año del ejercicio
  *
  * @return array|null  Con las claves:
@@ -167,6 +169,29 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
             $label_mov = 'Año ' . $anio;
             break;
 
+        case 'estacional':
+            // 5 estaciones dentro del año natural (sin cruzar frontera ene/dic)
+            // 1=Invierno  01-Ene – 20-Mar
+            // 2=Primavera 21-Mar – 20-Jun
+            // 3=Verano    21-Jun – 22-Sep
+            // 4=Otoño     23-Sep – 30-Nov
+            // 5=Navidad   01-Dic – 31-Dic
+            $estaciones = [
+                1 => ['01-01', '03-20', 'Invierno'],
+                2 => ['03-21', '06-20', 'Primavera'],
+                3 => ['06-21', '09-22', 'Verano'],
+                4 => ['09-23', '11-30', 'Otoño'],
+                5 => ['12-01', '12-31', 'Navidad'],
+            ];
+            if (!isset($estaciones[$numero])) return null;
+            [$md_ini, $md_fin, $nombre_est] = $estaciones[$numero];
+            $inicio = new DateTime(sprintf('%04d-%s', $anio, $md_ini));
+            $fin    = new DateTime(sprintf('%04d-%s', $anio, $md_fin));
+
+            $total_periodos = 5;
+            $label_mov = $nombre_est . ' ' . $anio;
+            break;
+
         default:
             return null;
     }
@@ -209,6 +234,7 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
         'quincena'     => 5,
         'mes'          => 7,
         'trimestre'    => 10,
+        'estacional'   => 12,
         'cuatrimestre' => 15,
         'semestre'     => 21,
         'anual'        => 30,

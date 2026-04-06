@@ -138,6 +138,15 @@ function _opcionesPeriodo(string $tipo, int $anio): array
                 ['v' => 2, 't' => '2º semestre (Jul–Dic)'],
             ];
             break;
+        case 'estacional':
+            $opts = [
+                ['v' => 1, 't' => 'Invierno (01 Ene – 20 Mar)'],
+                ['v' => 2, 't' => 'Primavera (21 Mar – 20 Jun)'],
+                ['v' => 3, 't' => 'Verano (21 Jun – 22 Sep)'],
+                ['v' => 4, 't' => 'Otoño (23 Sep – 30 Nov)'],
+                ['v' => 5, 't' => 'Navidad (01 Dic – 31 Dic)'],
+            ];
+            break;
     }
     return $opts;
 }

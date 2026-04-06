@@ -93,6 +93,7 @@ foreach ($tiposParaChks as $ti) {
                         <option value="quincena">Quincenal</option>
                         <option value="mes">Mensual</option>
                         <option value="trimestre">Trimestral</option>
+                        <option value="estacional">Estacional</option>
                         <option value="cuatrimestre">Cuatrimestral</option>
                         <option value="semestre">Semestral</option>
                         <option value="anual">Anual</option>

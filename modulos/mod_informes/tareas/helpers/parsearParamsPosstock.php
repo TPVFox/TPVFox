@@ -70,6 +70,7 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         'quincena'     => 5,
         'mes'          => 7,
         'trimestre'    => 10,
+        'estacional'   => 12,
         'cuatrimestre' => 15,
         'semestre'     => 21,
         'anual'        => 30,
@@ -79,9 +80,11 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         ? $min_ventas_c5_por_tipo[$tipo_periodo]
         : max(3, (int)($_POST['min_ventas_c5'] ?? 3));
 
-    // ── Ventana estadística triple (semana / quincena / mes) ──────────────────
-    // Para periodos cortos se amplía ±1 periodo (centrado) para aumentar la muestra
-    // sin romper estacionalidad. Trimestre/semestre/anual tienen datos suficientes.
+    // ── Ventana estadística ───────────────────────────────────────────────────
+    // semana/quincena/mes: ±1 periodo (centrado) para aumentar la muestra.
+    // estacional: fi_stats = fi_mov (inicio de la estación, sin extender a Jan 1
+    //             para no mezclar datos de estaciones distintas).
+    // trimestre/semestre/anual: fi_stats = Jan 1 (datos suficientes).
     $tipos_ventana_triple = ['semana', 'quincena', 'mes'];
     if (in_array($tipo_periodo, $tipos_ventana_triple, true)) {
         $dur_dias     = (int)round((strtotime($ff_mov) - strtotime($fi_mov)) / 86400) + 1;
@@ -90,6 +93,9 @@ function parsearParamsPosstock(array &$respuesta, string $tipo_periodo = ''): ?a
         $ff_stats_raw = date('Y-m-d', strtotime("$ff_mov +{$dur_dias} days"));
         $fi_stats     = max($fi_stats_raw, "{$anio_mov}-01-01");
         $ff_stats     = min($ff_stats_raw, "{$anio_mov}-12-31");
+    } elseif ($tipo_periodo === 'estacional') {
+        $fi_stats = $fi_mov;  // inicio de la estación como referencia natural
+        $ff_stats = $ff_mov;
     } else {
         $fi_stats = $fi_stock; // Jan 1 — ya tiene suficiente histórico
         $ff_stats = $ff_mov;   // sin extensión post-periodo

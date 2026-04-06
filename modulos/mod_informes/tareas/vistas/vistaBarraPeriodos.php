@@ -86,6 +86,9 @@ function _etiquetaBoton(string $tipo, int $n): string
         case 'cuatrimestre': return 'C' . $n;
         case 'semestre':     return $n === 1 ? '1S' : '2S';
         case 'anual':        return 'Año';
+        case 'estacional':
+            $nombres = ['', 'Inv', 'Pri', 'Ver', 'Oto', 'Nav'];
+            return $nombres[$n] ?? ('E' . $n);
         case 'quincena':
             $mes   = (int)ceil($n / 2);
             $mitad = ($n % 2 === 1) ? 'a' : 'b';
