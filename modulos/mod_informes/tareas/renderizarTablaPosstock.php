@@ -27,12 +27,14 @@ if (!is_array($filas)) {
 }
 
 $cfg = [
-    'fecha_fin_movimientos' => trim($_POST['fecha_fin_movimientos'] ?? ''),
-    'fecha_inicio_stock'    => trim($_POST['fecha_inicio_stock']    ?? ''),
-    'anio'                  => (int)($_POST['anio']               ?? date('Y')),
-    'c3b_dias_post'         => (int)($_POST['c3b_dias_post']       ?? 14),
-    'c6b_dias_historico'    => (int)($_POST['c6b_dias_historico']  ?? 90),
-    'mostrar_tecnico'       => !empty($_POST['mostrar_tecnico']),
+    'fecha_fin_movimientos'    => trim($_POST['fecha_fin_movimientos'] ?? ''),
+    'fecha_inicio_stock'       => trim($_POST['fecha_inicio_stock']    ?? ''),
+    'anio'                     => (int)($_POST['anio']                 ?? date('Y')),
+    'c3b_dias_post'            => (int)($_POST['c3b_dias_post']        ?? 14),
+    'c6b_dias_historico'       => (int)($_POST['c6b_dias_historico']   ?? 90),
+    'umbral_caducidad_semanas' => (int)($_POST['c3a_umbral_caducidad'] ?? 24),
+    'c3a_multiplicador_cadencia' => (float)($_POST['c3a_multiplicador_cadencia'] ?? 3.0),
+    'mostrar_tecnico'          => !empty($_POST['mostrar_tecnico']),
 ];
 
 $respuesta['html'] = ($_POST['modo'] ?? 'completo') === 'filas'

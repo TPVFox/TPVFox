@@ -22,6 +22,7 @@ class CosteFluctuacionCalculator
         $familiasIds = $this->parseIdsCsv((string)($params['familias'] ?? ''));
         $familiasFiltroSQL = $this->buildFamiliasFiltroSQL($familiasIds);
         $agrupacion = (string)($params['agrupacion'] ?? 'articulo');
+        $virtualHierarchy = $params['virtualHierarchy'] ?? null; // para opcion 4 con N2+ seleccionadas
         if (!in_array($agrupacion, ['articulo', 'familia', 'subfamilia'], true)) {
             $agrupacion = 'articulo';
         }
@@ -82,32 +83,49 @@ class CosteFluctuacionCalculator
             ];
         }
 
-        $mapFamiliasPorArticulo = $this->obtenerMapaFamiliasPorArticulo(array_map('intval', array_keys($porArticulo)));
+        // Para opcion 4 con familias N2+, filtrar el mapa a solo las familias del conjunto seleccionado
+        // (descendientes de las familias seleccionadas), para que idFamiliaDirecta apunte
+        // a la familia que pertenece al subárbol seleccionado y pueda resolverse con virtualHierarchy.
+        $filtroMapFamilias = $virtualHierarchy !== null ? array_keys($virtualHierarchy) : [];
+        $mapFamiliasPorArticulo = $this->obtenerMapaFamiliasPorArticulo(
+            array_map('intval', array_keys($porArticulo)),
+            $filtroMapFamilias
+        );
 
-        $items = $porArticulo;
-        if ($agrupacion !== 'articulo') {
-            $items = $this->agruparSeriesPorNivel($porArticulo, $agrupacion, $mapFamiliasPorArticulo);
+        // Siempre calculamos resultados por artículo individual (con desviacion_pct).
+        // Estos son los que pasan los filtros min_recepciones/min_meses por producto.
+        // Son la base correcta para agregar por familia usando promedio simple de %.
+        $articulosPorProducto = $this->construirResultadosFluctuacion($porArticulo, $mesesRango, $minRecepciones, $minMeses);
+
+        // Enriquecer con jerarquía familiar (real o virtual según opcion 4)
+        foreach ($articulosPorProducto as &$art) {
+            $fam = $mapFamiliasPorArticulo[(int)$art['idArticulo']] ?? null;
+
+            if ($virtualHierarchy !== null && $fam) {
+                // Opcion 4 con N2+ seleccionadas: usar jerarquía virtual
+                $famDirecta = (int)($fam['idFamiliaDirecta'] ?? 0);
+                $vh = $virtualHierarchy[$famDirecta] ?? null;
+                $art['idN1']     = $vh ? (int)$vh['vN1']                 : 0;
+                $art['nombreN1'] = $vh ? (string)$vh['vN1Name']           : '(Sin familia)';
+                $art['idN2']     = $vh ? (int)($vh['vN2'] ?? 0)           : 0;
+                $art['nombreN2'] = $vh ? (string)($vh['vN2Name'] ?? '')   : '(Sin subfamilia)';
+            } else {
+                $art['idN1']     = $fam ? (int)$fam['idN1']       : 0;
+                $art['nombreN1'] = $fam ? (string)$fam['nombreN1'] : '(Sin familia)';
+                $art['idN2']     = $fam ? (int)$fam['idN2']       : 0;
+                $art['nombreN2'] = $fam ? (string)$fam['nombreN2'] : '(Sin subfamilia)';
+            }
         }
-        $articulos = $this->construirResultadosFluctuacion($items, $mesesRango, $minRecepciones, $minMeses);
-        $familias = [];
+        unset($art);
+
+        // Agregados familia/subfamilia usando promedio simple de % de desviación por producto.
+        // Solo incluye productos que pasaron los filtros individuales (articulosPorProducto).
+        // Los artículos ya llevan idN1/idN2 enriquecidos (incluyendo jerarquía virtual para opcion 4).
+        $familias = $this->construirFamiliasConSubfamilias($articulosPorProducto, $mesesRango);
+
+        // Datos para la vista principal según agrupacion
+        $articulos   = $articulosPorProducto;
         $subfamilias = [];
-        if ($agrupacion === 'familia') {
-            $familias = $this->construirFamiliasConSubfamilias(
-                $porArticulo,
-                $mapFamiliasPorArticulo,
-                $mesesRango,
-                $minRecepciones,
-                $minMeses
-            );
-        } elseif ($agrupacion === 'subfamilia') {
-            $subfamilias = $this->construirSubfamiliasConFamiliasHijas(
-                $porArticulo,
-                $mapFamiliasPorArticulo,
-                $mesesRango,
-                $minRecepciones,
-                $minMeses
-            );
-        }
 
         usort($articulos, static function (array $a, array $b): int {
             if ($b['cv_pct'] === $a['cv_pct']) {
@@ -128,12 +146,8 @@ class CosteFluctuacionCalculator
                 'agrupacion' => $agrupacion,
             ],
             'resumen' => [
-                'articulos_total_evaluados' => $agrupacion === 'familia'
-                    ? count($familias)
-                    : ($agrupacion === 'subfamilia' ? count($subfamilias) : count($items)),
-                'articulos_con_fluctuacion' => $agrupacion === 'familia'
-                    ? count($familias)
-                    : ($agrupacion === 'subfamilia' ? count($subfamilias) : count($articulos)),
+                'articulos_total_evaluados' => count($porArticulo),
+                'articulos_con_fluctuacion' => count($articulos),
                 'meses_rango' => $mesesRango,
             ],
             'articulos' => $articulos,
@@ -234,19 +248,37 @@ class CosteFluctuacionCalculator
             $cvPct = $avg > 0 ? ($std / $avg) * 100 : 0.0;
             $rangoPct = $avg > 0 ? (($max - $min) / $avg) * 100 : 0.0;
 
+            // Excluir artículos/grupos sin varianza real (precio constante).
+            if ($min >= $max) {
+                continue;
+            }
+
+            // Añadir desviación % normalizada a cada mes:
+            // desviacion_pct = (coste_mes - media_anual) / media_anual × 100
+            // Esto hace comparables artículos de distinto tamaño/precio
+            // (aceite 5L vs 1L muestran el mismo % si fluctúan igual).
+            foreach ($mesesFormateados as &$mes) {
+                if ($mes['cumple_min_recepciones'] && $mes['coste_promedio'] !== null && $avg > 0) {
+                    $mes['desviacion_pct'] = (((float)$mes['coste_promedio'] - $avg) / $avg) * 100.0;
+                } else {
+                    $mes['desviacion_pct'] = null;
+                }
+            }
+            unset($mes);
+
             $rows[] = [
-                'idArticulo' => $item['idArticulo'],
-                'articulo_name' => $item['articulo_name'],
-                'meses_validos' => $mesesValidos,
-                'min_recepciones' => $minRecepciones,
+                'idArticulo'          => $item['idArticulo'],
+                'articulo_name'       => $item['articulo_name'],
+                'meses_validos'       => $mesesValidos,
+                'min_recepciones'     => $minRecepciones,
                 'max_recepciones_mes' => $maxRecepcionesMes,
-                'coste_media' => $avg,
-                'coste_min' => $min,
-                'coste_max' => $max,
-                'coste_stddev' => $std,
-                'cv_pct' => $cvPct,
-                'rango_pct' => $rangoPct,
-                'meses' => $mesesFormateados,
+                'coste_media'         => $avg,
+                'coste_min'           => $min,
+                'coste_max'           => $max,
+                'coste_stddev'        => $std,
+                'cv_pct'              => $cvPct,
+                'rango_pct'           => $rangoPct,
+                'meses'               => $mesesFormateados,
             ];
         }
 
@@ -260,141 +292,143 @@ class CosteFluctuacionCalculator
         return $rows;
     }
 
-    private function agruparSeriesPorNivel(array $porArticulo, string $agrupacion, array $map): array
+    /**
+     * Agrega los artículos ya procesados (con desviacion_pct por mes) por familia o subfamilia.
+     * Usa promedio simple de % de desviación de cada producto — no promedio ponderado por precio.
+     * Esto asegura que Aceite Oliva (3.55€) y Aceite Girasol (1.41€) contribuyen igual.
+     *
+     * @param array  $articulos  Salida de construirResultadosFluctuacion() — cada artículo tiene meses[*]['desviacion_pct']
+     * @param string $nivel      'familia' (N1) o 'subfamilia' (N2)
+     * @param array  $map        mapFamiliasPorArticulo
+     * @param array  $mesesRango Lista de 'Y-m' del rango
+     * @return array  Grupos con idGrupo, nombre, coste_media, cv_pct, meses[*]['desviacion_pct']
+     */
+    /**
+     * Agrega artículos ya enriquecidos (idN1/idN2 seteados) por familia o subfamilia.
+     * Usa promedio simple de desviacion_pct — sin ponderar por precio.
+     * Los artículos deben tener idN1, nombreN1, idN2, nombreN2 ya asignados
+     * (incluyendo jerarquía virtual para opcion 4).
+     */
+    private function agregarArticulosPorNivel(array $articulos, string $nivel, array $mesesRango): array
     {
-        if (empty($porArticulo)) {
-            return [];
-        }
-
-        $grupos = [];
-        foreach ($porArticulo as $idArticulo => $item) {
-            $fam = $map[(int)$idArticulo] ?? [
-                'idN1' => 0,
-                'nombreN1' => '(Sin familia)',
-                'idN2' => 0,
-                'nombreN2' => '(Sin subfamilia)',
-            ];
-
-            if ($agrupacion === 'familia') {
-                $gid = (int)$fam['idN1'];
-                $gname = (string)$fam['nombreN1'];
-                if ($gid <= 0) {
-                    $gid = 0;
-                    $gname = '(Sin familia)';
-                }
+        // Paso 1: agrupar artículos por familia/subfamilia usando los campos ya enriquecidos
+        $grupos = []; // [idGrupo => ['nombre'=>..., 'arts'=>[...]]]
+        foreach ($articulos as $art) {
+            if ($nivel === 'familia') {
+                $idGrupo = (int)($art['idN1'] ?? 0);
+                $nombre  = (string)($art['nombreN1'] ?? '(Sin familia)');
             } else {
-                $gid = (int)$fam['idN2'];
-                $gname = (string)$fam['nombreN2'];
-                if ($gid <= 0) {
-                    $gid = 0;
-                    $gname = '(Sin subfamilia)';
-                }
+                $idGrupo = (int)($art['idN2'] ?? 0);
+                $nombre  = (string)($art['nombreN2'] ?? '(Sin subfamilia)');
             }
 
-            $key = $agrupacion . ':' . $gid;
-            if (!isset($grupos[$key])) {
-                $grupos[$key] = [
-                    'idArticulo' => $gid,
-                    'articulo_name' => $gname,
-                    'meses' => [],
+            if (!isset($grupos[$idGrupo])) {
+                $grupos[$idGrupo] = ['nombre' => $nombre, 'arts' => []];
+            }
+            $grupos[$idGrupo]['arts'][] = $art;
+        }
+
+        // Paso 2: para cada grupo, calcular promedio de desviacion_pct por mes
+        $resultado = [];
+        foreach ($grupos as $idGrupo => $g) {
+            $arts = $g['arts'];
+            $mesesAgr = [];
+
+            foreach ($mesesRango as $ym) {
+                $pcts = [];
+                foreach ($arts as $art) {
+                    foreach ($art['meses'] as $mes) {
+                        if ($mes['ym'] === $ym && $mes['desviacion_pct'] !== null) {
+                            $pcts[] = (float)$mes['desviacion_pct'];
+                            break;
+                        }
+                    }
+                }
+                $mesesAgr[] = [
+                    'ym'            => $ym,
+                    'desviacion_pct' => count($pcts) > 0 ? $this->mean($pcts) : null,
+                    'n_articulos'   => count($pcts),
                 ];
             }
 
-            foreach (($item['meses'] ?? []) as $ym => $m) {
-                if (!isset($grupos[$key]['meses'][$ym])) {
-                    $grupos[$key]['meses'][$ym] = [
-                        'ym' => $ym,
-                        'recepciones' => 0,
-                        'unidades_total' => 0.0,
-                        '_coste_x_unidades' => 0.0,
-                    ];
-                }
+            // coste_media = promedio simple de las medias anuales de los productos
+            $mediasAnuales = array_column($arts, 'coste_media');
+            $costMedia = $this->mean($mediasAnuales);
 
-                $u = (float)($m['unidades_total'] ?? 0);
-                $c = $m['coste_promedio'];
-                // En agrupaciones no debemos sumar recepciones entre artículos,
-                // porque puede inflar el conteo del mes en la familia/subfamilia.
-                // Usamos el máximo mensual observado para mantener un umbral estable.
-                $grupos[$key]['meses'][$ym]['recepciones'] = max(
-                    (int)$grupos[$key]['meses'][$ym]['recepciones'],
-                    (int)($m['recepciones'] ?? 0)
-                );
-                $grupos[$key]['meses'][$ym]['unidades_total'] += $u;
-                if ($c !== null) {
-                    $grupos[$key]['meses'][$ym]['_coste_x_unidades'] += ((float)$c * $u);
-                }
-            }
+            // cv_pct del grupo: stddev / mean de las desviaciones promedio mensuales
+            $pctsMensuales = array_filter(
+                array_column($mesesAgr, 'desviacion_pct'),
+                static fn($v) => $v !== null
+            );
+            $pctsMensuales = array_values($pctsMensuales);
+            $meanPct = count($pctsMensuales) > 0 ? $this->mean($pctsMensuales) : 0.0;
+            $stdPct  = count($pctsMensuales) > 0 ? $this->stdDev($pctsMensuales, $meanPct) : 0.0;
+            $cvPct   = abs($meanPct) > 0.001 ? ($stdPct / abs($meanPct)) * 100.0 : 0.0;
+
+            $resultado[$idGrupo] = [
+                'idGrupo'     => $idGrupo,
+                'nombre'      => $g['nombre'],
+                'meses'       => $mesesAgr,
+                'coste_media' => $costMedia,
+                'cv_pct'      => $cvPct,
+            ];
         }
 
-        foreach ($grupos as &$g) {
-            foreach ($g['meses'] as &$m) {
-                $u = (float)$m['unidades_total'];
-                if ($u > 0) {
-                    $m['coste_promedio'] = (float)$m['_coste_x_unidades'] / $u;
-                } else {
-                    $m['coste_promedio'] = null;
-                }
-                unset($m['_coste_x_unidades']);
-            }
-            unset($m);
-        }
-        unset($g);
-
-        return $grupos;
+        return $resultado;
     }
 
     private function construirFamiliasConSubfamilias(
-        array $porArticulo,
-        array $mapFamiliasPorArticulo,
-        array $mesesRango,
-        int $minRecepciones,
-        int $minMeses
+        array $articulos,
+        array $mesesRango
     ): array {
-        $seriesFamilia = $this->agruparSeriesPorNivel($porArticulo, 'familia', $mapFamiliasPorArticulo);
-        $filasFamilia = $this->construirResultadosFluctuacion($seriesFamilia, $mesesRango, $minRecepciones, $minMeses);
+        $gruposFamilia    = $this->agregarArticulosPorNivel($articulos, 'familia', $mesesRango);
+        $gruposSubfamilia = $this->agregarArticulosPorNivel($articulos, 'subfamilia', $mesesRango);
 
-        $seriesSubfamilia = $this->agruparSeriesPorNivel($porArticulo, 'subfamilia', $mapFamiliasPorArticulo);
-        $filasSubfamilia = $this->construirResultadosFluctuacion($seriesSubfamilia, $mesesRango, $minRecepciones, $minMeses);
-
+        // Mapa subfamilia → familia derivado de los propios artículos enriquecidos
+        // (funciona tanto para jerarquía real como virtual de opcion 4)
         $subToFam = [];
-        foreach ($mapFamiliasPorArticulo as $m) {
-            $idN2 = (int)($m['idN2'] ?? 0);
+        foreach ($articulos as $art) {
+            $idN2 = (int)($art['idN2'] ?? 0);
             if ($idN2 <= 0 || isset($subToFam[$idN2])) {
                 continue;
             }
             $subToFam[$idN2] = [
-                'idN1' => (int)($m['idN1'] ?? 0),
-                'nombreN1' => (string)($m['nombreN1'] ?? '(Sin familia)'),
+                'idN1'    => (int)($art['idN1'] ?? 0),
+                'nombreN1' => (string)($art['nombreN1'] ?? '(Sin familia)'),
             ];
         }
 
         $familias = [];
-        foreach ($filasFamilia as $f) {
-            $fid = (int)($f['idArticulo'] ?? 0);
+        foreach ($gruposFamilia as $fid => $f) {
             $familias[$fid] = [
-                'idN1' => $fid,
-                'nombreN1' => (string)($f['articulo_name'] ?? '(Sin familia)'),
-                'meses' => $f['meses'] ?? [],
+                'idN1'        => $fid,
+                'nombreN1'    => $f['nombre'],
+                'meses'       => $f['meses'],
+                'cv_pct'      => $f['cv_pct'],
+                'coste_media' => $f['coste_media'],
                 'subfamilias' => [],
             ];
         }
 
-        foreach ($filasSubfamilia as $sf) {
-            $sid = (int)($sf['idArticulo'] ?? 0);
+        foreach ($gruposSubfamilia as $sid => $sf) {
             $infoFam = $subToFam[$sid] ?? ['idN1' => 0, 'nombreN1' => '(Sin familia)'];
             $fid = (int)$infoFam['idN1'];
             if (!isset($familias[$fid])) {
                 $familias[$fid] = [
-                    'idN1' => $fid,
-                    'nombreN1' => (string)$infoFam['nombreN1'],
-                    'meses' => [],
+                    'idN1'        => $fid,
+                    'nombreN1'    => (string)$infoFam['nombreN1'],
+                    'meses'       => [],
+                    'cv_pct'      => 0.0,
+                    'coste_media' => 0.0,
                     'subfamilias' => [],
                 ];
             }
             $familias[$fid]['subfamilias'][] = [
-                'idN2' => $sid,
-                'nombreN2' => (string)($sf['articulo_name'] ?? '(Sin subfamilia)'),
-                'meses' => $sf['meses'] ?? [],
+                'idN2'        => $sid,
+                'nombreN2'    => $sf['nombre'],
+                'meses'       => $sf['meses'],
+                'cv_pct'      => $sf['cv_pct'],
+                'coste_media' => $sf['coste_media'],
             ];
         }
 
@@ -408,149 +442,23 @@ class CosteFluctuacionCalculator
         return $salida;
     }
 
-    private function construirSubfamiliasConFamiliasHijas(
-        array $porArticulo,
-        array $mapFamiliasPorArticulo,
-        array $mesesRango,
-        int $minRecepciones,
-        int $minMeses
-    ): array {
-        $seriesSubfamilia = $this->agruparSeriesPorNivel($porArticulo, 'subfamilia', $mapFamiliasPorArticulo);
-        $filasSubfamilia = $this->construirResultadosFluctuacion($seriesSubfamilia, $mesesRango, $minRecepciones, $minMeses);
-
-        $seriesFamiliaDirecta = [];
-        foreach ($porArticulo as $idArticulo => $item) {
-            $fam = $mapFamiliasPorArticulo[(int)$idArticulo] ?? [
-                'idN2' => 0,
-                'nombreN2' => '(Sin subfamilia)',
-                'idFamiliaDirecta' => 0,
-                'nombreFamiliaDirecta' => '(Sin familia)',
-            ];
-
-            $idN2 = (int)($fam['idN2'] ?? 0);
-            $nombreN2 = (string)($fam['nombreN2'] ?? '(Sin subfamilia)');
-            if ($idN2 <= 0) {
-                $idN2 = 0;
-                $nombreN2 = '(Sin subfamilia)';
-            }
-
-            $idFam = (int)($fam['idFamiliaDirecta'] ?? 0);
-            $nombreFam = (string)($fam['nombreFamiliaDirecta'] ?? '(Sin familia)');
-            if ($idFam <= 0) {
-                $idFam = 0;
-                $nombreFam = '(Sin familia)';
-            }
-
-            $key = $idN2 . ':' . $idFam;
-            if (!isset($seriesFamiliaDirecta[$key])) {
-                $seriesFamiliaDirecta[$key] = [
-                    'idArticulo' => $idFam,
-                    'articulo_name' => $nombreFam,
-                    'idN2' => $idN2,
-                    'nombreN2' => $nombreN2,
-                    'meses' => [],
-                ];
-            }
-
-            foreach (($item['meses'] ?? []) as $ym => $m) {
-                if (!isset($seriesFamiliaDirecta[$key]['meses'][$ym])) {
-                    $seriesFamiliaDirecta[$key]['meses'][$ym] = [
-                        'ym' => $ym,
-                        'recepciones' => 0,
-                        'unidades_total' => 0.0,
-                        '_coste_x_unidades' => 0.0,
-                    ];
-                }
-
-                $u = (float)($m['unidades_total'] ?? 0);
-                $c = $m['coste_promedio'];
-                $seriesFamiliaDirecta[$key]['meses'][$ym]['recepciones'] = max(
-                    (int)$seriesFamiliaDirecta[$key]['meses'][$ym]['recepciones'],
-                    (int)($m['recepciones'] ?? 0)
-                );
-                $seriesFamiliaDirecta[$key]['meses'][$ym]['unidades_total'] += $u;
-                if ($c !== null) {
-                    $seriesFamiliaDirecta[$key]['meses'][$ym]['_coste_x_unidades'] += ((float)$c * $u);
-                }
-            }
-        }
-
-        foreach ($seriesFamiliaDirecta as &$g) {
-            foreach ($g['meses'] as &$m) {
-                $u = (float)$m['unidades_total'];
-                $m['coste_promedio'] = $u > 0 ? (float)$m['_coste_x_unidades'] / $u : null;
-                unset($m['_coste_x_unidades']);
-            }
-            unset($m);
-        }
-        unset($g);
-
-        $filasFamiliaDirecta = $this->construirResultadosFluctuacion(
-            $seriesFamiliaDirecta,
-            $mesesRango,
-            $minRecepciones,
-            $minMeses
-        );
-
-        $subfamilias = [];
-        foreach ($filasSubfamilia as $sf) {
-            $sid = (int)($sf['idArticulo'] ?? 0);
-            $subfamilias[$sid] = [
-                'idN2' => $sid,
-                'nombreN2' => (string)($sf['articulo_name'] ?? '(Sin subfamilia)'),
-                'meses' => $sf['meses'] ?? [],
-                'familias_hijas' => [],
-            ];
-        }
-
-        foreach ($filasFamiliaDirecta as $ff) {
-            $nombreFam = (string)($ff['articulo_name'] ?? '(Sin familia)');
-            $sid = null;
-            foreach ($seriesFamiliaDirecta as $raw) {
-                if (
-                    (int)$raw['idArticulo'] === (int)($ff['idArticulo'] ?? 0)
-                    && (string)$raw['articulo_name'] === $nombreFam
-                ) {
-                    $sid = (int)($raw['idN2'] ?? 0);
-                    break;
-                }
-            }
-            if ($sid === null) {
-                continue;
-            }
-            if (!isset($subfamilias[$sid])) {
-                $subfamilias[$sid] = [
-                    'idN2' => $sid,
-                    'nombreN2' => '(Sin subfamilia)',
-                    'meses' => [],
-                    'familias_hijas' => [],
-                ];
-            }
-            $subfamilias[$sid]['familias_hijas'][] = [
-                'idFamilia' => (int)($ff['idArticulo'] ?? 0),
-                'familiaNombre' => $nombreFam,
-                'meses' => $ff['meses'] ?? [],
-            ];
-        }
-
-        foreach ($subfamilias as &$sf) {
-            usort($sf['familias_hijas'], static fn($a, $b) => strcmp($a['familiaNombre'], $b['familiaNombre']));
-        }
-        unset($sf);
-
-        $out = array_values($subfamilias);
-        usort($out, static fn($a, $b) => strcmp($a['nombreN2'], $b['nombreN2']));
-        return $out;
-    }
-
-    /** @return array<int,array{idN1:int,nombreN1:string,idN2:int,nombreN2:string,idFamiliaDirecta:int,nombreFamiliaDirecta:string}> */
-    private function obtenerMapaFamiliasPorArticulo(array $idsArticulo): array
+    /**
+     * @param int[] $idsArticulo
+     * @param int[] $filtroIdFamilias  Si no vacío, restringe el mapa a estas familias (para opcion 4 con N2+)
+     * @return array<int,array{idN1:int,nombreN1:string,idN2:int,nombreN2:string,idFamiliaDirecta:int,nombreFamiliaDirecta:string}>
+     */
+    private function obtenerMapaFamiliasPorArticulo(array $idsArticulo, array $filtroIdFamilias = []): array
     {
         if (empty($idsArticulo)) {
             return [];
         }
 
         $idsStr = implode(',', array_map('intval', $idsArticulo));
+        $filtroFam = '';
+        if (!empty($filtroIdFamilias)) {
+            $filtroFamStr = implode(',', array_map('intval', $filtroIdFamilias));
+            $filtroFam = "AND af.idFamilia IN ($filtroFamStr)";
+        }
         $sql = "
             SELECT
                 af.idArticulo,
@@ -564,7 +472,7 @@ class CosteFluctuacionCalculator
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE af.idArticulo IN ($idsStr)
+            WHERE af.idArticulo IN ($idsStr) $filtroFam
             GROUP BY af.idArticulo
         ";
 

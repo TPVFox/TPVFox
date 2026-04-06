@@ -148,36 +148,36 @@ $CInformes = new ClaseInformes();
                                 <td><strong>Fluctuacion de coste mensual</strong></td>
                                 <td>Tendencia de coste promedio por mes, con agregacion por articulo/familia/subfamilia</td>
                                 <td>
-                                    <div class="row" style="margin:0;">
-                                        <div class="col-sm-5" style="padding-left:0;">
-                                            <label style="font-size:11px; margin-bottom:2px;">Agrupar</label>
-                                            <select id="opcion7" class="form-control input-sm">
-                                                <option value="articulo" selected>Articulo</option>
-                                                <option value="familia">Familia</option>
-                                                <option value="subfamilia">Subfamilia</option>
-                                            </select>
+                                    <select id="opcion7" onchange="_onOpcionChange(7)" class="form-control input-sm" style="margin-bottom:6px;">
+                                        <option value="1">Solo familias</option>
+                                        <option value="2">Familias y subfamilias</option>
+                                        <option value="3" selected>Familias, subfamilias y articulos</option>
+                                        <option value="4">Seleccion de familias</option>
+                                    </select>
+                                    <div id="panelFamilias7" style="display:none; margin-bottom:6px;">
+                                        <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamiliasCosteFluctuacion()">
+                                            <span class="glyphicon glyphicon-list"></span> Elegir familias
+                                        </button>
+                                        <button type="button" class="btn btn-link btn-xs" onclick="limpiarFamiliasCosteFluctuacion()">Limpiar</button>
+                                        <div id="cfTagsFamilias" style="margin-top:4px;">
+                                            <span class="text-muted">Sin filtro de familias</span>
                                         </div>
-                                        <div class="col-sm-3">
+                                        <input type="hidden" id="familiasSel7" value="">
+                                    </div>
+                                    <div class="row" style="margin:0;">
+                                        <div class="col-sm-4" style="padding-left:0;">
                                             <label style="font-size:11px; margin-bottom:2px;">Min rec/mes</label>
                                             <input type="number" min="1" step="1" id="cfMinRecepciones" class="form-control input-sm" value="3">
                                         </div>
-                                        <div class="col-sm-4" style="padding-right:0;">
+                                        <div class="col-sm-4">
                                             <label style="font-size:11px; margin-bottom:2px;">Min meses</label>
                                             <input type="number" min="1" step="1" id="cfMinMeses" class="form-control input-sm" value="3">
                                         </div>
-                                    </div>
-                                    <div style="margin-top:6px;">
-                                        <label style="font-weight: normal; font-size:12px; margin-right:10px;">
-                                            <input type="checkbox" id="cfIncluirEspecial" value="1"> incluir proveedor Especial
-                                        </label>
-                                        <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamiliasCosteFluctuacion()">
-                                            <span class="glyphicon glyphicon-list"></span> Filtrar familias
-                                        </button>
-                                        <button type="button" class="btn btn-link btn-xs" onclick="limpiarFamiliasCosteFluctuacion()">Limpiar</button>
-                                        <input type="hidden" id="cfFamiliasSel" value="">
-                                    </div>
-                                    <div id="cfTagsFamilias" style="margin-top:4px;">
-                                        <span class="text-muted">Sin filtro de familias</span>
+                                        <div class="col-sm-4" style="padding-right:0; padding-top:18px;">
+                                            <label style="font-weight:normal; font-size:12px;">
+                                                <input type="checkbox" id="cfIncluirEspecial" value="1"> Prov. Especial
+                                            </label>
+                                        </div>
                                     </div>
                                 </td>
                                 <td></td>

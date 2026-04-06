@@ -1201,9 +1201,13 @@ class PosstockQueryRepository
         string $wi,
         int    $min_u,
         int    $dias_post = 14,
-        float  $multiplicador_cadencia = 3.0
+        float  $multiplicador_cadencia = 3.0,
+        int    $umbral_caducidad = 24
     ): array {
-        $c3a_floor_dias = max(3, (int)ceil($multiplicador_cadencia));
+        $c3a_floor_dias  = max(3, (int)ceil($multiplicador_cadencia));
+        $fi_m_ts         = $fi_m . ' 00:00:00';
+        $ff_m_next       = "DATE_ADD('$ff_m', INTERVAL 1 DAY)";
+        $fi_s_ts         = $fi_s . ' 00:00:00';
         $sql = "
             SELECT ent.idArticulo,
                    MAX(sal.fecha)              AS ultima_venta,
@@ -1216,15 +1220,15 @@ class PosstockQueryRepository
                    ent.cantidad_devuelta
             FROM (
                 SELECT l.idArticulo,
-                       COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END)        AS n_entradas,
-                       SUM(CASE WHEN l.nunidades > 0 THEN l.nunidades ELSE 0 END)         AS cantidad_recibida,
-                       MIN(CASE WHEN l.nunidades > 0 THEN DATE(c.Fecha) END)          AS fecha_primera_entrada,
-                       COUNT(DISTINCT CASE WHEN l.nunidades < 0 THEN c.id END)        AS n_devoluciones,
-                       SUM(CASE WHEN l.nunidades < 0 THEN ABS(l.nunidades) ELSE 0 END)   AS cantidad_devuelta
+                       COUNT(DISTINCT CASE WHEN l.nunidades > 0 THEN c.id END)           AS n_entradas,
+                       SUM(CASE WHEN l.nunidades > 0 THEN l.nunidades ELSE 0 END)        AS cantidad_recibida,
+                       MAX(CASE WHEN l.nunidades > 0 THEN DATE(c.Fecha) END)             AS fecha_primera_entrada,
+                       COUNT(DISTINCT CASE WHEN l.nunidades < 0 THEN c.id END)           AS n_devoluciones,
+                       SUM(CASE WHEN l.nunidades < 0 THEN ABS(l.nunidades) ELSE 0 END)  AS cantidad_devuelta
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fi_m' AND '$ff_m'
+                WHERE c.Fecha >= '$fi_m_ts' AND c.Fecha < $ff_m_next
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
                   $wf $wi
@@ -1235,14 +1239,14 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN '$fi_s' AND '$ff_m'
+                WHERE c.Fecha >= '$fi_s_ts' AND c.Fecha < $ff_m_next
                   AND c.estado      = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 UNION ALL
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN '$fi_s' AND '$ff_m'
+                WHERE c.Fecha >= '$fi_s_ts' AND c.Fecha < $ff_m_next
                   AND c.estado      IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
             ) AS sal ON sal.idArticulo = ent.idArticulo
@@ -1250,16 +1254,16 @@ class PosstockQueryRepository
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
-                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
-                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
+                WHERE c.Fecha >= $ff_m_next
+                  AND c.Fecha < DATE_ADD('$ff_m', INTERVAL $dias_post + 1 DAY)
                   AND c.estado      = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 UNION ALL
                 SELECT l.idArticulo, DATE(c.Fecha) AS fecha
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
-                WHERE DATE(c.Fecha) BETWEEN DATE_ADD('$ff_m', INTERVAL 1 DAY)
-                                        AND DATE_ADD('$ff_m', INTERVAL $dias_post DAY)
+                WHERE c.Fecha >= $ff_m_next
+                  AND c.Fecha < DATE_ADD('$ff_m', INTERVAL $dias_post + 1 DAY)
                   AND c.estado      IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
             ) AS sal_post ON sal_post.idArticulo = ent.idArticulo
@@ -1267,6 +1271,7 @@ class PosstockQueryRepository
             HAVING MAX(sal.fecha) IS NULL
                 OR DATEDIFF('$ff_m', MAX(sal.fecha)) / 7.0 >= $min_u
                 OR DATEDIFF('$ff_m', MAX(sal.fecha)) >= $c3a_floor_dias
+                OR DATEDIFF('$ff_m', ent.fecha_primera_entrada) / 7.0 >= $umbral_caducidad
         ";
         $sentencia = $this->db->query($sql);
         if (!$sentencia) return ['error' => $this->db->error];

@@ -46,7 +46,7 @@ if (count($familias) > 0) {
             }
         }
 
-        $estiloOculto = ($nivel > 1) ? 'style="display:none;"' : '';
+        $estiloOculto = '';
         $claseNivel   = 'nivel-' . $nivel;
         $claseCursor  = $tieneHijos
             ? 'style="cursor:pointer;" onclick="toggleHijosDirectosCat(this)"'

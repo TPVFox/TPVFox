@@ -103,7 +103,7 @@ function _renderTagsFamilias() {
 
 function _renderTagsFamiliasCF() {
     const ids = Object.keys(_familiasSelCF);
-    const hidden = document.getElementById("cfFamiliasSel");
+    const hidden = document.getElementById("familiasSel7");
     const contenedor = document.getElementById("cfTagsFamilias");
     if (!contenedor) return;
 
@@ -308,38 +308,14 @@ function AbrirModalLoading(fecha_inicial, fecha_final, opcion, familias) {
                 if (familias)
                     url += "&familias=" + encodeURIComponent(familias);
 
-                // Informe 7: fluct. coste mensual se renderiza en informes.php
-                // con sus parámetros específicos.
+                // Informe 7: parámetros adicionales de fluctuación de coste
                 if (String(checkID[0]) === "7") {
-                    const minRecepciones = parseInt(
-                        document.getElementById("cfMinRecepciones")?.value ||
-                            "3",
-                        10,
-                    );
-                    const minMeses = parseInt(
-                        document.getElementById("cfMinMeses")?.value || "3",
-                        10,
-                    );
-                    const incluirEspecial = document.getElementById(
-                        "cfIncluirEspecial",
-                    )?.checked
-                        ? 1
-                        : 0;
-                    const familiasCf =
-                        document.getElementById("cfFamiliasSel")?.value || "";
-
-                    url +=
-                        "&min_recepciones=" +
-                        encodeURIComponent(Math.max(1, minRecepciones || 1));
-                    url +=
-                        "&min_meses=" +
-                        encodeURIComponent(Math.max(1, minMeses || 1));
-                    url +=
-                        "&incluir_proveedor_especial=" +
-                        encodeURIComponent(incluirEspecial);
-                    if (familiasCf) {
-                        url += "&familias=" + encodeURIComponent(familiasCf);
-                    }
+                    const minRec = Math.max(1, parseInt(document.getElementById("cfMinRecepciones")?.value || "3", 10) || 1);
+                    const minMes = Math.max(1, parseInt(document.getElementById("cfMinMeses")?.value || "3", 10) || 1);
+                    const incEsp = document.getElementById("cfIncluirEspecial")?.checked ? 1 : 0;
+                    url += "&min_recepciones=" + encodeURIComponent(minRec);
+                    url += "&min_meses=" + encodeURIComponent(minMes);
+                    url += "&incluir_proveedor_especial=" + encodeURIComponent(incEsp);
                 }
                 window.open(url, "_blank");
             }, 5000);
@@ -398,34 +374,19 @@ function ejecutarInformeCosteFluctuacion() {
     const hoy = new Date();
     const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
 
-    // Si solo se indica una fecha, completar automáticamente el año completo
-    // para facilitar consultas históricas (p.ej. 2025).
     if (!fechaInicio && fechaFinal) {
-        const yearFinal = fechaFinal.slice(0, 4);
-        fechaInicio = `${yearFinal}-01-01`;
+        fechaInicio = `${fechaFinal.slice(0, 4)}-01-01`;
     }
     if (fechaInicio && !fechaFinal) {
-        const yearInicio = fechaInicio.slice(0, 4);
-        if (yearInicio === String(hoy.getFullYear())) {
-            fechaFinal = hoyStr;
-        } else {
-            fechaFinal = `${yearInicio}-12-31`;
-        }
+        const y = fechaInicio.slice(0, 4);
+        fechaFinal = y === String(hoy.getFullYear()) ? hoyStr : `${y}-12-31`;
     }
-
-    if (!fechaFinal) {
-        fechaFinal = hoyStr;
-    }
-    if (!fechaInicio) {
-        fechaInicio = `${hoy.getFullYear()}-01-01`;
-    }
+    if (!fechaFinal) fechaFinal = hoyStr;
+    if (!fechaInicio) fechaInicio = `${hoy.getFullYear()}-01-01`;
 
     const inicioDate = new Date(`${fechaInicio}T00:00:00`);
-    const finalDate = new Date(`${fechaFinal}T00:00:00`);
-    if (
-        Number.isNaN(inicioDate.getTime()) ||
-        Number.isNaN(finalDate.getTime())
-    ) {
+    const finalDate  = new Date(`${fechaFinal}T00:00:00`);
+    if (Number.isNaN(inicioDate.getTime()) || Number.isNaN(finalDate.getTime())) {
         alert("Fechas no validas. Revisa el rango indicado.");
         return;
     }
@@ -434,20 +395,14 @@ function ejecutarInformeCosteFluctuacion() {
         return;
     }
 
-    const minRecepciones = parseInt(
-        document.getElementById("cfMinRecepciones")?.value || "3",
-        10,
-    );
-    const minMeses = parseInt(
-        document.getElementById("cfMinMeses")?.value || "3",
-        10,
-    );
-    const incluirEspecial = document.getElementById("cfIncluirEspecial")
-        ?.checked
-        ? 1
-        : 0;
-    const agrupacion =
-        document.getElementById("cfAgrupacion")?.value || "articulo";
+    const opcion7 = parseInt(document.getElementById("opcion7")?.value || "3", 10);
+    // opcion 1=Solo familias, 2=Familias+subfamilias, 3=Fam+sub+arts, 4=Seleccion familias
+    const agrupacion = opcion7 === 3 ? "articulo" : "familia";
+
+    const minRecepciones = parseInt(document.getElementById("cfMinRecepciones")?.value || "3", 10);
+    const minMeses       = parseInt(document.getElementById("cfMinMeses")?.value || "3", 10);
+    const incluirEspecial = document.getElementById("cfIncluirEspecial")?.checked ? 1 : 0;
+    const familias = opcion7 === 4 ? (document.getElementById("familiasSel7")?.value || "") : "";
 
     const payload = {
         pulsado: "getCosteFluctuacionData",
@@ -456,7 +411,7 @@ function ejecutarInformeCosteFluctuacion() {
         min_recepciones: Math.max(1, minRecepciones || 1),
         min_meses: Math.max(1, minMeses || 1),
         incluir_proveedor_especial: incluirEspecial,
-        familias: document.getElementById("cfFamiliasSel")?.value || "",
+        familias: familias,
         agrupacion: agrupacion,
     };
 
@@ -466,98 +421,159 @@ function ejecutarInformeCosteFluctuacion() {
         type: "post",
         success: function (response) {
             let res = {};
-            try {
-                res = JSON.parse(response);
-            } catch (e) {
+            try { res = JSON.parse(response); } catch (e) {
                 alert("Respuesta no valida del servidor.");
                 return;
             }
 
-            if (res.error) {
-                alert(res.error);
-                return;
-            }
+            if (res.error) { alert(res.error); return; }
 
-            const data = res.coste_fluctuacion || {};
-            const resumen = data.resumen || {};
-            const filas = data.articulos || [];
+            const data       = res.coste_fluctuacion || {};
+            const resumen    = data.resumen || {};
             const mesesRango = resumen.meses_rango || [];
 
             const resumenEl = document.getElementById("cfResumen");
-            const tabla = document.getElementById("cfTablaResultados");
-            const tbody = document.getElementById("cfTablaBody");
-            const headRow = document.getElementById("cfTablaHeadRow");
+            const tabla     = document.getElementById("cfTablaResultados");
+            const tbody     = document.getElementById("cfTablaBody");
+            const headRow   = document.getElementById("cfTablaHeadRow");
 
             if (!resumenEl || !tabla || !tbody || !headRow) return;
 
+            const opcionLabels = { 1: "Solo familias", 2: "Familias y subfamilias", 3: "Familias, subfamilias y articulos", 4: "Seleccion de familias" };
             resumenEl.style.display = "";
             resumenEl.innerHTML =
                 `<strong>Periodo:</strong> ${fechaInicio} a ${fechaFinal}` +
-                ` &nbsp; | &nbsp; ` +
-                `<strong>Evaluados:</strong> ${resumen.articulos_total_evaluados || 0}` +
-                ` &nbsp; | &nbsp; <strong>Con fluctuacion:</strong> ${resumen.articulos_con_fluctuacion || 0}` +
-                ` &nbsp; | &nbsp; <strong>Meses en rango:</strong> ${(resumen.meses_rango || []).length}` +
-                ` &nbsp; | &nbsp; <strong>Familias filtro:</strong> ${data.filtros?.familias_count ?? 0}` +
-                ` &nbsp; | &nbsp; <strong>Agrupacion:</strong> ${data.filtros?.agrupacion ?? "articulo"}` +
+                ` &nbsp;|&nbsp; <strong>Vista:</strong> ${opcionLabels[opcion7] || ""}` +
+                ` &nbsp;|&nbsp; <strong>Con fluctuacion:</strong> ${resumen.articulos_con_fluctuacion || 0}` +
+                ` &nbsp;|&nbsp; <strong>Meses en rango:</strong> ${mesesRango.length}` +
+                (opcion7 === 4 ? ` &nbsp;|&nbsp; <strong>Familias filtro:</strong> ${data.filtros?.familias_count ?? 0}` : "") +
                 "<br><small><strong>Leyenda:</strong> '-' sin compras en el mes. " +
                 "Valor en cursiva: mes con recepciones por debajo del minimo.</small>";
 
-            if (!filas.length) {
-                tabla.style.display = "none";
-                tbody.innerHTML = "";
-                resumenEl.className = "alert alert-warning";
-                resumenEl.innerHTML +=
-                    " &nbsp; | &nbsp; No hay articulos que cumplan los filtros.";
+            // Construir cabecera de meses (igual para todas las opciones)
+            let headHtml = "<th>Nombre</th>";
+            mesesRango.forEach(function (ym) { headHtml += `<th>${_fmtYm(ym)}</th>`; });
+            headRow.innerHTML = headHtml;
+
+            // ── Helper: renderizar celdas de meses de una fila ──────────────
+            function _celdaMeses(mesesArr) {
+                const map = {};
+                (mesesArr || []).forEach(function (m) { map[m.ym] = m; });
+                let h = "";
+                mesesRango.forEach(function (ym) {
+                    const m = map[ym];
+                    if (!m || m.coste_promedio === null) { h += "<td>-</td>"; return; }
+                    const val = _fmtNum(m.coste_promedio, 4);
+                    if (m.cumple_min_recepciones) {
+                        h += `<td>${val}</td>`;
+                    } else {
+                        h += `<td title="Recepciones por debajo del minimo"><em>${val}</em></td>`;
+                    }
+                });
+                return h;
+            }
+
+            // ── Opciones 1 y 4: tabla plana de familias ──────────────────────
+            if (opcion7 === 1 || opcion7 === 4) {
+                const filas = data.articulos || [];
+                if (!filas.length) {
+                    tabla.style.display = "none"; tbody.innerHTML = "";
+                    resumenEl.className = "alert alert-warning";
+                    resumenEl.innerHTML += " &nbsp;|&nbsp; No hay familias que cumplan los filtros.";
+                    return;
+                }
+                resumenEl.className = "alert alert-info";
+                tabla.style.display = "";
+                let html = "";
+                filas.forEach(function (f) {
+                    html += `<tr><td><strong>${_escapeHtml(f.articulo_name || "")}</strong></td>${_celdaMeses(f.meses)}</tr>`;
+                });
+                tbody.innerHTML = html;
                 return;
             }
 
+            // ── Opcion 2: familias expandibles con subfamilias ────────────────
+            if (opcion7 === 2) {
+                const familiasList = data.familias || [];
+                if (!familiasList.length) {
+                    tabla.style.display = "none"; tbody.innerHTML = "";
+                    resumenEl.className = "alert alert-warning";
+                    resumenEl.innerHTML += " &nbsp;|&nbsp; No hay familias que cumplan los filtros.";
+                    return;
+                }
+                resumenEl.className = "alert alert-info";
+                tabla.style.display = "";
+                let html = "";
+                familiasList.forEach(function (fam, fi) {
+                    const gid = "cfg2f" + fi;
+                    const hasSub = (fam.subfamilias || []).length > 0;
+                    const togBtn = hasSub
+                        ? `<a href="#" onclick="event.preventDefault(); _cfToggleGroup('${gid}')" style="margin-right:4px; color:#555;" title="Expandir/Colapsar">` +
+                          `<span id="${gid}ico" class="glyphicon glyphicon-chevron-right" style="font-size:10px;"></span></a>`
+                        : "";
+                    html += `<tr style="background:#f5f5f5; font-weight:bold;">` +
+                        `<td>${togBtn}${_escapeHtml(fam.nombreN1 || "")}</td>${_celdaMeses(fam.meses)}</tr>`;
+                    (fam.subfamilias || []).forEach(function (sf) {
+                        html += `<tr class="${gid}" style="display:none;">` +
+                            `<td style="padding-left:20px;">${_escapeHtml(sf.nombreN2 || "")}</td>${_celdaMeses(sf.meses)}</tr>`;
+                    });
+                });
+                tbody.innerHTML = html;
+                return;
+            }
+
+            // ── Opcion 3: Familias > Subfamilias > Articulos (jerarquico) ────
+            const filas = data.articulos || [];
+            if (!filas.length) {
+                tabla.style.display = "none"; tbody.innerHTML = "";
+                resumenEl.className = "alert alert-warning";
+                resumenEl.innerHTML += " &nbsp;|&nbsp; No hay articulos que cumplan los filtros.";
+                return;
+            }
             resumenEl.className = "alert alert-info";
             tabla.style.display = "";
 
-            let headHtml = "";
-            headHtml += "<th>ID</th>";
-            if ((data.filtros?.agrupacion || "articulo") === "familia") {
-                headHtml += "<th>Familia</th>";
-            } else if (
-                (data.filtros?.agrupacion || "articulo") === "subfamilia"
-            ) {
-                headHtml += "<th>Subfamilia</th>";
-            } else {
-                headHtml += "<th>Producto</th>";
-            }
-            mesesRango.forEach(function (ym) {
-                const label = _fmtYm(ym);
-                headHtml += `<th>${label}</th>`;
+            // Agrupar client-side: familia > subfamilia > artículos
+            const byFam = {};
+            filas.forEach(function (a) {
+                const fid   = a.idN1 || 0;
+                const fname = a.nombreN1 || "(Sin familia)";
+                const sfid  = a.idN2 || 0;
+                const sfname = a.nombreN2 || "(Sin subfamilia)";
+                if (!byFam[fid]) byFam[fid] = { nombre: fname, subs: {} };
+                if (!byFam[fid].subs[sfid]) byFam[fid].subs[sfid] = { nombre: sfname, arts: [] };
+                byFam[fid].subs[sfid].arts.push(a);
             });
-            headRow.innerHTML = headHtml;
+
+            // Ordenar familias y subfamilias por nombre
+            const famKeys = Object.keys(byFam).sort(function (a, b) {
+                return byFam[a].nombre.localeCompare(byFam[b].nombre);
+            });
 
             let html = "";
-            filas.forEach(function (a) {
-                const mesesArticulo = {};
-                (a.meses || []).forEach(function (m) {
-                    mesesArticulo[m.ym] = m;
+            famKeys.forEach(function (fid, fi) {
+                const fam  = byFam[fid];
+                const gidF = "cfg3f" + fi;
+                html += `<tr style="background:#e8e8e8; font-weight:bold;">` +
+                    `<td><a href="#" onclick="event.preventDefault(); _cfToggleGroup('${gidF}')" style="margin-right:4px; color:#555;">` +
+                    `<span id="${gidF}ico" class="glyphicon glyphicon-chevron-right" style="font-size:10px;"></span></a>` +
+                    `${_escapeHtml(fam.nombre)}</td>${mesesRango.map(() => "<td></td>").join("")}</tr>`;
+
+                const sfKeys = Object.keys(fam.subs).sort(function (a, b) {
+                    return fam.subs[a].nombre.localeCompare(fam.subs[b].nombre);
                 });
-
-                html += "<tr>";
-                html += `<td>${a.idArticulo}</td>`;
-                html += `<td>${_escapeHtml(a.articulo_name || "")}</td>`;
-
-                mesesRango.forEach(function (ym) {
-                    const m = mesesArticulo[ym];
-                    if (!m || m.coste_promedio === null) {
-                        html += "<td>-</td>";
-                        return;
-                    }
-
-                    const coste = _fmtNum(m.coste_promedio, 4);
-                    if (m.cumple_min_recepciones) {
-                        html += `<td>${coste}</td>`;
-                    } else {
-                        html += `<td title="Recepciones del mes por debajo del minimo"><em>${coste}</em></td>`;
-                    }
+                sfKeys.forEach(function (sfid, si) {
+                    const sf   = fam.subs[sfid];
+                    const gidS = `cfg3f${fi}s${si}`;
+                    html += `<tr class="${gidF}" style="display:none; background:#f7f7f7;">` +
+                        `<td style="padding-left:14px;"><a href="#" onclick="event.preventDefault(); _cfToggleGroup('${gidS}')" style="margin-right:4px; color:#888;">` +
+                        `<span id="${gidS}ico" class="glyphicon glyphicon-chevron-right" style="font-size:10px;"></span></a>` +
+                        `<em>${_escapeHtml(sf.nombre)}</em></td>${mesesRango.map(() => "<td></td>").join("")}</tr>`;
+                    sf.arts.forEach(function (a) {
+                        html += `<tr class="${gidF} ${gidS}" style="display:none;">` +
+                            `<td style="padding-left:28px;">${_escapeHtml(a.articulo_name || "")}</td>${_celdaMeses(a.meses)}</tr>`;
+                    });
                 });
-
-                html += "</tr>";
             });
             tbody.innerHTML = html;
         },
@@ -566,6 +582,18 @@ function ejecutarInformeCosteFluctuacion() {
             alert("No se pudo calcular el informe de fluctuacion.");
         },
     });
+}
+
+/** Expande/colapsa filas de un grupo en la tabla de fluctuacion */
+function _cfToggleGroup(gid) {
+    const filas = document.querySelectorAll(`#cfTablaBody tr.${gid}`);
+    const ico   = document.getElementById(gid + "ico");
+    const expand = ico && ico.classList.contains("glyphicon-chevron-right");
+    filas.forEach(function (tr) { tr.style.display = expand ? "" : "none"; });
+    if (ico) {
+        ico.classList.toggle("glyphicon-chevron-right", !expand);
+        ico.classList.toggle("glyphicon-chevron-down", expand);
+    }
 }
 
 window.metodoClick = metodoClick;
@@ -580,6 +608,8 @@ window.abrirCatalogoFamiliasCosteFluctuacion =
     abrirCatalogoFamiliasCosteFluctuacion;
 window._eliminarFamiliaCosteFluctuacion = _eliminarFamiliaCosteFluctuacion;
 window.limpiarFamiliasCosteFluctuacion = limpiarFamiliasCosteFluctuacion;
+window.ejecutarInformeCosteFluctuacion = ejecutarInformeCosteFluctuacion;
+window._cfToggleGroup = _cfToggleGroup;
 
 export {
     _familiasSel,
@@ -596,4 +626,6 @@ export {
     AbrirModalLoading,
     abrirCatalogoFamiliasCosteFluctuacion,
     limpiarFamiliasCosteFluctuacion,
+    ejecutarInformeCosteFluctuacion,
+    _cfToggleGroup,
 };

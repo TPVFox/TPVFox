@@ -345,61 +345,135 @@ function renderTablaPosstock(array $filas, array $cfg): string
             }
 
             // ── C3a ───────────────────────────────────────────────────────────────
-        } elseif ($tipo === 'Caída de rotación') {
-            $avgCad      = (float)($f['avg_cadencia_dias'] ?? 0);
-            $semVal      = (float)($f['semanas_desde_ultima_venta'] ?? 0);
-            $diasSV      = $semVal > 0 ? (int)round($semVal * 7) : null;
+        } elseif ($tipo === 'Caducidad teórica') {
+            $semAlmacen  = (float)($f['semanas_en_almacen'] ?? 0);
+            $diasAlmacen = $semAlmacen > 0 ? (int)round($semAlmacen * 7) : null;
+            $avgCad      = isset($f['avg_cadencia_dias']) && $f['avg_cadencia_dias'] !== null ? (float)$f['avg_cadencia_dias'] : null;
+            $caidaRot    = !empty($f['caida_rotacion']);
             $desdeRep    = !empty($f['desde_reposicion']);
+            $nEnt        = (int)($f['n_entradas'] ?? 1);
+            $qtyRec      = isset($f['cantidad_recibida']) && $f['cantidad_recibida'] !== null ? (float)$f['cantidad_recibida'] : null;
             $stkRaw      = isset($f['stock_actual']) && $f['stock_actual'] !== null ? (float)$f['stock_actual'] : null;
             $stkStr      = $stkRaw !== null ? (($stkRaw == (int)$stkRaw) ? (string)(int)$stkRaw : number_format($stkRaw, 2, '.', '')) : '—';
-            $esFast      = $avgCad > 0 && $avgCad <= 7 && !$desdeRep;
-            $sev         = $f['severidad'] ?? '';
+            $esAltaRot   = $avgCad !== null && $avgCad <= 7.0;
 
-            if ($esFast) {
-                $badgeC3a = $sev === 'ALTA'
-                    ? '<span class="label label-danger" title="Alta rotación y más del doble del umbral sin venta: riesgo de caducidad o merma">Riesgo caducidad</span>'
-                    : '<span class="label label-warning" title="Artículo de alta rotación por encima del umbral dinámico sin venta">Riesgo caducidad</span>';
+            // ── L1: Badges ──
+            // Badge principal: caducidad teórica (siempre presente)
+            if ($caidaRot && $esAltaRot) {
+                $badgePrincipal = '<span class="label label-danger" title="Stock en almacén ' . $semAlmacen . ' sem. en artículo de alta rotación que ha dejado de venderse — revisión urgente del estado del producto">Caducidad urgente</span>';
+            } elseif ($caidaRot) {
+                $badgePrincipal = '<span class="label label-danger" title="Stock en almacén ' . $semAlmacen . ' sem. y caída de ventas confirmada — posible producto deteriorado o referencia sustituida">Caducidad + caída</span>';
             } else {
-                $badgeC3a = $sev === 'ALTA'
-                    ? '<span class="label label-danger" title="Más del doble del umbral dinámico sin venta: rotación caída drásticamente">Caída severa</span>'
-                    : '<span class="label label-warning" title="Por encima del umbral dinámico de rotación">Rotación caída</span>';
+                $badgePrincipal = '<span class="label label-warning" title="Stock en almacén ' . $semAlmacen . ' sem. sin evidencia suficiente de demanda previa — verificar estado del producto">Inmovilizado ' . (int)$semAlmacen . ' sem.</span>';
             }
 
-            $refFechaStr = $desdeRep
-                ? 'Desde recep.: ' . $fmtF($f['fecha_primera_entrada'] ?? null)
-                : 'Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null);
+            // Badge secundario: caída de rotación confirmada
+            $badgeCaida = '';
+            if ($caidaRot) {
+                $cadTip = $avgCad !== null
+                    ? 'Cadencia habitual: cada ' . number_format($avgCad, 1, '.', '') . ' días. Lleva ' . $diasAlmacen . ' días sin venta desde la última recepción.'
+                    : 'El artículo tenía ventas regulares que se han interrumpido.';
+                $badgeCaida = ' <span class="label label-warning" title="' . htmlspecialchars($cadTip) . '">Caída ventas</span>';
+            }
 
-            if ($diasSV !== null && $diasSV > 0) {
-                $sinVentaStr = '<strong>' . $diasSV . ' d</strong> sin venta';
-                if ($avgCad > 0) {
-                    $sinVentaStr .= ' <small class="text-muted">(normal ' . number_format($avgCad, 1, '.', '') . ' d)</small>';
+            // Badge reposición sin ventas (cuando la última entrada fue posterior a la última venta)
+            $badgeRep = '';
+            if ($desdeRep && $f['ultima_venta'] !== null) {
+                $badgeRep = ' <span class="label label-default" title="Se repuso stock tras agotarse pero el nuevo lote no ha tenido ninguna venta">Repuesto sin salida</span>';
+            }
+
+            $detalle = $badgePrincipal . $badgeCaida . $badgeRep;
+
+            // ── L2: Información principal (accionable) ──
+            $entradaStr = $diasAlmacen !== null
+                ? '<strong>' . $diasAlmacen . ' d</strong> en almacén'
+                : '<strong>—</strong>';
+            $entradaStr .= ' | Últ. recep.: <strong>' . $fmtF($f['fecha_primera_entrada'] ?? null) . '</strong>';
+            $stockStr = ' | Stock: <strong>' . $stkStr . '</strong>';
+            if ($qtyRec !== null) {
+                $qtyStr = ($qtyRec == (int)$qtyRec) ? (string)(int)$qtyRec : number_format($qtyRec, 2, '.', '');
+                $stockStr .= ' <small class="text-muted">(recibido ' . $qtyStr . ')</small>';
+            }
+
+            $detalle .= '<br>' . $entradaStr . $stockStr;
+
+            // ── L3: Información complementaria ──
+            $linea3 = '';
+            if ($f['ultima_venta'] !== null) {
+                $_refC3a = $ffMov && $ffMov < date('Y-m-d') ? $ffMov : date('Y-m-d');
+                $diasSinVenta = (new DateTime($f['ultima_venta']))->diff(new DateTime($_refC3a))->days;
+                $linea3 .= 'Últ. venta: ' . $fmtF($f['ultima_venta'])
+                    . ' <small class="text-muted">(' . $diasSinVenta . ' d sin venta)</small>';
+                if ($avgCad !== null) {
+                    $linea3 .= ' <small class="text-muted">(cadencia normal: cada ' . number_format($avgCad, 1, '.', '') . ' d)</small>';
                 }
             } else {
-                $sinVentaStr = '<strong>—</strong>';
+                $linea3 .= '<span title="Este artículo no tiene ninguna venta registrada en el historial">Sin ventas en historial</span>';
             }
-
-            // L1: badges
-            $detalle = $badgeC3a;
-            // L2: dato operativo principal
-            $detalle .= '<br>' . $sinVentaStr
-                . ' | Stock: <strong>' . $stkStr . '</strong>';
-            // L3: contexto complementario
-            $linea3C3a = $refFechaStr;
             $costeC3a = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
             if ($costeC3a !== null) {
-                $linea3C3a .= ' | <span title="Valor estimado del stock en riesgo de caducidad o deterioro: stock × precio medio de compra">Coste est.: <strong>~'
+                $linea3 .= ' | <span title="Valor estimado del stock inmovilizado en riesgo: stock × precio medio de compra">Coste est.: <strong>~'
                     . number_format($costeC3a, 0, ',', '.') . ' €</strong></span>';
             }
             if (!empty($f['prov_habitual_nombre'])) {
-                $linea3C3a .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
+                $linea3 .= ' | <span title="Proveedor principal del artículo en el año en curso">Prov.: '
                     . htmlspecialchars($f['prov_habitual_nombre']) . '</span>';
                 if (!empty($f['prov_ultimo_nombre']) && empty($f['prov_es_mismo'])) {
-                    $linea3C3a .= ' | <span title="Proveedor del último albarán recibido ('
+                    $linea3 .= ' | <span title="Proveedor del último albarán recibido ('
                         . htmlspecialchars($f['prov_ultima_fecha'] ?? '') . ')">Último: '
                         . htmlspecialchars($f['prov_ultimo_nombre']) . '</span>';
                 }
             }
-            $detalle .= '<br><small class="text-muted">' . $linea3C3a . '</small>';
+
+            if ($mostrarTecnico) {
+                $umbralCad  = $cfg['umbral_caducidad_semanas'] ?? 24;
+                $multCad    = $cfg['c3a_multiplicador_cadencia'] ?? 3.0;
+                $nVentas    = (int)($f['n_ventas_historico'] ?? 0);
+                $umbralEfec = $avgCad !== null ? round($avgCad * $multCad, 1) : null;
+                $tecC3a  = 'sem. en almacén: ' . $semAlmacen . ' ≥ umbral ' . $umbralCad;
+                $tecC3a .= ' | n_ventas_hist: ' . $nVentas;
+                if ($avgCad !== null) {
+                    $tecC3a .= ' | cadencia: ' . number_format($avgCad, 1, '.', '') . ' d';
+                    $tecC3a .= ' | umbral_caída: ' . $umbralEfec . ' d (×' . $multCad . ')';
+                    if ($caidaRot) {
+                        $tecC3a .= ' | caída confirmada (dias_sin_venta ≥ umbral)';
+                    } else {
+                        $tecC3a .= ' | caída NO confirmada';
+                    }
+                }
+                $tecC3a .= ' | n_entradas: ' . $nEnt;
+                $linea3 .= '<br><span class="text-info">' . htmlspecialchars($tecC3a) . '</span>';
+            }
+
+            $detalle .= '<br><small class="text-muted">' . $linea3 . '</small>';
+
+            // ── Posible causa enriquecida ──
+            $causaTexto = $f['posible_causa'] ?? '';
+            // Separar razón (primera parte) de acción recomendada (segunda parte tras '—')
+            $partesCausa = explode(' — ', $causaTexto, 2);
+            $razonC3a  = $partesCausa[0] ?? $causaTexto;
+            $accionC3a = $partesCausa[1] ?? null;
+
+            $posibleCausaHtml = htmlspecialchars($razonC3a);
+            if ($accionC3a !== null) {
+                $posibleCausaHtml .= '<br><small class="text-muted">→ ' . htmlspecialchars($accionC3a) . '</small>';
+            }
+            if ($mostrarTecnico) {
+                $umbralCadTec = $cfg['umbral_caducidad_semanas'] ?? 24;
+                $multTec      = $cfg['c3a_multiplicador_cadencia'] ?? 3.0;
+                $nVentasTec   = (int)($f['n_ventas_historico'] ?? 0);
+                $tecCausa  = 'Activación: semanas_en_almacen (' . $semAlmacen . ') ≥ umbral_caducidad (' . $umbralCadTec . ' sem.)';
+                if ($caidaRot && $avgCad !== null) {
+                    $umbEfTec = round($avgCad * $multTec, 1);
+                    $tecCausa .= ' · Caída: dias_sin_venta ≥ cadencia (' . number_format($avgCad, 1) . ' d) × mult (' . $multTec . ') = ' . $umbEfTec . ' d';
+                } elseif ($avgCad !== null) {
+                    $umbEfTec = round($avgCad * $multTec, 1);
+                    $tecCausa .= ' · Caída no confirmada: n_ventas=' . $nVentasTec . ($nVentasTec < 3 ? ' (<3 → cadencia no fiable)' : ' · dias_sin_venta < ' . $umbEfTec . ' d');
+                } else {
+                    $tecCausa .= ' · Sin cadencia (n_ventas_hist=' . $nVentasTec . ')';
+                }
+                $posibleCausaHtml .= '<br><small class="text-muted text-info">' . htmlspecialchars($tecCausa) . '</small>';
+            }
 
             // ── C5 ────────────────────────────────────────────────────────────────
         } elseif ($tipo === 'Venta Cero (Posible Rotura Física)') {
@@ -1399,10 +1473,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
             case 'Desajuste Puntual de Stock':
                 $tipoLabel = 'Descuadre temporal';
                 break;
-            case 'Caída de rotación':
-                $avgCadTipo = (float)($f['avg_cadencia_dias'] ?? 0);
-                $tipoLabel = ($avgCadTipo > 0 && $avgCadTipo <= 7 && empty($f['desde_reposicion']))
-                    ? 'Riesgo caducidad' : 'Rotación caída';
+            case 'Caducidad teórica':
+                $tipoLabel = !empty($f['caida_rotacion']) ? 'Caducidad+caída' : 'Caducidad teórica';
                 break;
             case 'Entrada con stock alto':
                 $c2CatTL = $f['c2_categoria'] ?? '';

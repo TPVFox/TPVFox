@@ -19,15 +19,19 @@ class PosstockC3Detector
     // Algoritmos internos (públicos para testabilidad directa)
 
     /**
-     * Determina la severidad C3a a partir del ratio de caída de rotación.
+     * Determina la severidad C3a.
      *
-     * @param float $ratio_a  (semanas_c3a * 7) / umbral_efectivo_dias
+     * La severidad base es MEDIA (caducidad teórica sin historial de ventas fiable).
+     * Sube a ALTA si el artículo tenía ventas regulares y las ha perdido (caída de rotación
+     * confirmada): la hipótesis de caducidad física no registrada es más sólida.
+     *
+     * @param bool $caida_rotacion  true si hay caída de rotación confirmada
      *
      * @return string 'ALTA' | 'MEDIA'
      */
-    public function calcularSeveridadC3a(float $ratio_a): string
+    public function calcularSeveridadC3a(bool $caida_rotacion): string
     {
-        return $ratio_a >= 2.0 ? 'ALTA' : 'MEDIA';
+        return $caida_rotacion ? 'ALTA' : 'MEDIA';
     }
 
     /**
@@ -74,9 +78,10 @@ class PosstockC3Detector
         int    $umbral_sin_rotacion,
         array  $familias_incluir,
         array  $familias_excluir,
-        array  $ids_filter           = [],
-        int    $dias_post            = 14,
-        float  $multiplicador_cadencia = 3.0
+        array  $ids_filter              = [],
+        int    $dias_post               = 14,
+        float  $multiplicador_cadencia  = 3.0,
+        bool   $incluir_stock_negativo  = false
     ): array {
         $fechaInicioMovimientos = $this->db->real_escape_string($fi_mov);
         $fechaFinMovimientos    = $this->db->real_escape_string($ff_mov);
@@ -93,7 +98,8 @@ class PosstockC3Detector
             $filtroArticulosSql,
             $umbralMinimoSemanas,
             $dias_post,
-            $multiplicador_cadencia
+            $multiplicador_cadencia,
+            $umbral_caducidad
         );
         if (isset($filasArticulos['error'])) return $filasArticulos;
 
@@ -109,9 +115,14 @@ class PosstockC3Detector
             }
         }
 
+        // Si el período aún no ha terminado, usar hoy como referencia para evitar inflar semanas.
+        $hoy = new DateTime('today');
         $fechaFinPeriodo = new DateTime($ff_mov);
-        // Días totales del historial de ventas consultado (fi_stock → ff_mov)
-        $periodoDias = (new DateTime($fi_stock))->diff(new DateTime($ff_mov))->days + 1;
+        if ($fechaFinPeriodo > $hoy) {
+            $fechaFinPeriodo = $hoy;
+        }
+        // Días totales del historial de ventas consultado (fi_stock → referencia efectiva)
+        $periodoDias = (new DateTime($fi_stock))->diff($fechaFinPeriodo)->days + 1;
         $incidencias = [];
 
         foreach ($filasArticulos as $filaArticulo) {
@@ -131,83 +142,77 @@ class PosstockC3Detector
                 $semanasSinRotacion = null;
             }
 
-            // C3a: caída de rotación (umbral dinámico: avg_cadencia × multiplicador)
-            $numeroVentasHistorico = (int)$filaArticulo['n_ventas_historico'];
-            $cadenciaMediaDias     = $numeroVentasHistorico > 0
-                ? round($periodoDias / $numeroVentasHistorico, 1)
-                : null;
-            $umbralEfectivoDias = $cadenciaMediaDias !== null
-                ? $cadenciaMediaDias * $multiplicador_cadencia
-                : PHP_INT_MAX;
-
-            // Referente de "días sin venta": si el pedido llegó DESPUÉS de la última venta
-            // (el artículo se agotó y se repuso), contar desde fecha_primera_entrada.
-            $desdeReposicion = $fechaPrimeraEntrada !== null
-                && $ultimaVenta !== null
-                && strcmp($fechaPrimeraEntrada, $ultimaVenta) > 0;
-            $fechaReferenciaC3a = $desdeReposicion ? $fechaPrimeraEntrada : $ultimaVenta;
-            $semanasC3a = $fechaReferenciaC3a !== null
-                ? (new DateTime($fechaReferenciaC3a))->diff($fechaFinPeriodo)->days / 7.0
+            // C3a: caducidad teórica — stock > 0 y el lote lleva demasiado tiempo en almacén.
+            // La caída de rotación histórica actúa como modificador de severidad (MEDIA → ALTA),
+            // no como condición de activación.
+            $semanas_desde_entrada = $fechaPrimeraEntrada !== null
+                ? (new DateTime($fechaPrimeraEntrada))->diff($fechaFinPeriodo)->days / 7.0
                 : null;
 
-            // Stock > 0 requerido + n_ventas_historico >= 3 para cadencia fiable
-            $cumpleC3a = $semanasC3a !== null
-                && $numeroVentasHistorico >= 3
-                && ($stockActual === null || $stockActual > 0)
-                && ($semanasC3a * 7) >= $umbralEfectivoDias;
+            $stockOk = $stockActual === null
+                || $stockActual > 0
+                || ($incluir_stock_negativo && $stockActual < 0);
+            $cumpleC3a = $semanas_desde_entrada !== null
+                && $stockOk
+                && $semanas_desde_entrada >= $umbral_caducidad;
+
             if ($cumpleC3a) {
-                $ratioC3a   = ($semanasC3a * 7) / max(1, $umbralEfectivoDias);
-                $severidad  = $this->calcularSeveridadC3a($ratioC3a);
-                $semanasRedondeadasC3a = round($semanasC3a, 1);
-                $esAltaRotacion        = $cadenciaMediaDias !== null && $cadenciaMediaDias <= 7.0;
-                if ($desdeReposicion) {
-                    if ($esAltaRotacion) {
-                        if ($ratioC3a <= 1.5) {
-                            $causa = "Recibido sin venta desde la última recepción — verificar ubicación en sala, EAN y precio";
-                        } elseif ($ratioC3a <= 2.5) {
-                            $causa = "Nuevo pedido sin rotación en artículo de alta rotación — posible merma no registrada o problema de EAN";
-                        } else {
-                            $causa = "Nuevo stock paralizado desde la recepción — revisión urgente: exposición, estado del producto y precio";
-                        }
-                    } else {
-                        if ($ratioC3a <= 1.5) {
-                            $causa = "Repuesto tras agotamiento sin rotación posterior — verificar si hay demanda activa antes del próximo pedido";
-                        } elseif ($ratioC3a <= 2.5) {
-                            $causa = "Artículo repuesto pero sin demanda activa — posible artículo estacional o referencia sustituida";
-                        } else {
-                            $causa = "Nuevo stock sin movimiento desde la recepción — valorar devolución al proveedor o liquidación";
-                        }
-                    }
-                } elseif ($esAltaRotacion) {
-                    if ($ratioC3a <= 1.5) {
-                        $causa = "Artículo de alta rotación con caída reciente — verificar ubicación en sala, EAN y precio";
-                    } elseif ($ratioC3a <= 2.5) {
-                        $causa = "Alta rotación interrumpida — posible merma no registrada, problema de EAN o artículo agotado en lineal";
-                    } else {
-                        $causa = "Artículo de alta rotación sin ventas desde hace {$semanasRedondeadasC3a} sem. — revisión urgente de exposición y estado del producto";
-                    }
+                // Calcular caída de rotación como modificador de severidad
+                $numeroVentasHistorico = (int)$filaArticulo['n_ventas_historico'];
+                $cadenciaMediaDias     = $numeroVentasHistorico > 0
+                    ? round($periodoDias / $numeroVentasHistorico, 1)
+                    : null;
+                $umbralEfectivoDias = $cadenciaMediaDias !== null
+                    ? $cadenciaMediaDias * $multiplicador_cadencia
+                    : PHP_INT_MAX;
+
+                $desdeReposicion = $fechaPrimeraEntrada !== null
+                    && $ultimaVenta !== null
+                    && strcmp($fechaPrimeraEntrada, $ultimaVenta) > 0;
+
+                // Para caída de rotación siempre se mide desde la última venta real:
+                // lo que importa es cuánto tiempo lleva el artículo sin venderse,
+                // independientemente de si fue repuesto después.
+                $semanasDesdeUltimaVenta = $ultimaVenta !== null
+                    ? (new DateTime($ultimaVenta))->diff($fechaFinPeriodo)->days / 7.0
+                    : null;
+
+                $caida_rotacion = $semanasDesdeUltimaVenta !== null
+                    && $numeroVentasHistorico >= 3
+                    && ($semanasDesdeUltimaVenta * 7) >= $umbralEfectivoDias;
+
+                $severidad = $this->calcularSeveridadC3a($caida_rotacion);
+
+                $semanasRedondeadasEntrada = round($semanas_desde_entrada, 1);
+                $esAltaRotacion            = $cadenciaMediaDias !== null && $cadenciaMediaDias <= 7.0;
+
+                if ($caida_rotacion && $esAltaRotacion) {
+                    $causa = "Stock inmovilizado {$semanasRedondeadasEntrada} sem. en artículo de alta rotación — revisar estado del producto, EAN y exposición en sala";
+                } elseif ($caida_rotacion) {
+                    $causa = "Stock inmovilizado {$semanasRedondeadasEntrada} sem. con caída de ventas confirmada — posible caducidad, referencia sustituida o falta de demanda";
+                } elseif ($ultimaVenta === null) {
+                    $causa = "Stock en almacén {$semanasRedondeadasEntrada} sem. sin ninguna venta registrada — verificar si las ventas se registran bajo otra referencia";
+                } elseif ($numeroVentasHistorico < 3) {
+                    $causa = "Stock en almacén {$semanasRedondeadasEntrada} sem. con historial de ventas insuficiente para valorar la demanda";
                 } else {
-                    if ($ratioC3a <= 1.5) {
-                        $causa = "Posible artículo estacional — revisar ventas en el mismo periodo del año anterior";
-                    } elseif ($ratioC3a <= 2.5) {
-                        $causa = "Posible referencia sustituida — verificar si hay artículo similar activo con rotación";
-                    } else {
-                        $causa = "Sin demanda desde hace {$semanasRedondeadasC3a} sem. — valorar liquidación o baja de referencia";
-                    }
+                    $causa = "Stock en almacén {$semanasRedondeadasEntrada} sem. — revisar estado del producto y si hay demanda activa";
                 }
+
                 $incidencias[] = [
-                    'idArticulo'                 => $idArticulo,
-                    'tipo'                       => 'Caída de rotación',
-                    'severidad'                  => $severidad,
-                    'stock_actual'               => $stockActual,
-                    'ultima_venta'               => $ultimaVenta,
-                    'fecha_primera_entrada'      => $fechaPrimeraEntrada,
-                    'desde_reposicion'           => $desdeReposicion,
-                    'semanas_desde_ultima_venta' => $semanasRedondeadasC3a,
-                    'avg_cadencia_dias'          => $cadenciaMediaDias,
-                    'n_entradas'                 => $numeroEntradas,
-                    'cantidad_recibida'          => $cantidadRecibida,
-                    'posible_causa'              => $causa,
+                    'idArticulo'              => $idArticulo,
+                    'tipo'                    => 'Caducidad teórica',
+                    'severidad'               => $severidad,
+                    'stock_actual'            => $stockActual,
+                    'ultima_venta'            => $ultimaVenta,
+                    'fecha_primera_entrada'   => $fechaPrimeraEntrada,
+                    'desde_reposicion'        => $desdeReposicion,
+                    'semanas_en_almacen'      => $semanasRedondeadasEntrada,
+                    'caida_rotacion'          => $caida_rotacion,
+                    'avg_cadencia_dias'       => $cadenciaMediaDias,
+                    'n_entradas'              => $numeroEntradas,
+                    'cantidad_recibida'       => $cantidadRecibida,
+                    'n_ventas_historico'      => $numeroVentasHistorico,
+                    'posible_causa'           => $causa,
                 ];
             }
 
@@ -282,6 +287,29 @@ class PosstockC3Detector
                 ];
             }
         }
+
+        // Enriquecer C3a y C3b con proveedor habitual y coste estimado del stock inmovilizado
+        if (!empty($incidencias)) {
+            $idsC3csv   = implode(',', array_unique(array_map(fn($inc) => (int)$inc['idArticulo'], $incidencias)));
+            $prov_map   = $this->repo->queryProveedorArticulos($idsC3csv, $fechaInicioStock, $fechaFinMovimientos);
+            $precio_map = $this->repo->queryPrecioMedioCompra($idsC3csv, $fechaInicioStock, $fechaFinMovimientos);
+            foreach ($incidencias as &$inc) {
+                $prov = $prov_map[$inc['idArticulo']] ?? null;
+                $inc['prov_habitual_nombre'] = $prov['prov_habitual_nombre'] ?? null;
+                $inc['prov_habitual_n']      = $prov['prov_habitual_n']      ?? null;
+                $inc['prov_ultimo_nombre']   = $prov['prov_ultimo_nombre']   ?? null;
+                $inc['prov_ultima_fecha']    = $prov['prov_ultima_fecha']    ?? null;
+                $inc['prov_es_mismo']        = $prov['prov_es_mismo']        ?? null;
+                $precio = $precio_map[$inc['idArticulo']] ?? null;
+                $inc['precio_medio_compra'] = $precio;
+                $stockInc = $inc['stock_actual'] ?? null;
+                $inc['coste_estimado'] = ($precio !== null && $stockInc !== null && $stockInc > 0)
+                    ? round($stockInc * $precio, 2)
+                    : null;
+            }
+            unset($inc);
+        }
+
         return $incidencias;
     }
 }

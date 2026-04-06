@@ -76,20 +76,24 @@ class ClaseInformes extends TFModelo
             } else {
                 $datos = $ret['articulos'] ?? [];
             }
-            $parametros['resumen_global'] = $ret['resumen'] ?? null;
-            $parametros['filtros_fluctuacion'] = $ret['filtros'] ?? null;
+            $parametros['resumen_global']       = $ret['resumen'] ?? null;
+            $parametros['filtros_fluctuacion']  = $ret['filtros'] ?? null;
+            // Para opcion 3/4 (agrupacion=articulo), los agregados familia/subfamilia
+            // se pasan aparte para mostrar % de referencia en las filas de cabecera.
+            $parametros['familias_agregadas']   = $ret['familias'] ?? [];
         } else {
             $datos = [];
         }
 
         $cabecera = array(
-            'id'             => $id,
-            'titulo_informe' => $this->informes[$id]['Titulo'],
-            'Fecha_Inicio'   => $parametros['Finicio'],
-            'Fecha_Final'    => $parametros['Ffinal'],
-            'opcion'         => $parametros['opcion'],
-            'resumen_global' => $parametros['resumen_global'] ?? null,
+            'id'                  => $id,
+            'titulo_informe'      => $this->informes[$id]['Titulo'],
+            'Fecha_Inicio'        => $parametros['Finicio'],
+            'Fecha_Final'         => $parametros['Ffinal'],
+            'opcion'              => $parametros['opcion'],
+            'resumen_global'      => $parametros['resumen_global'] ?? null,
             'filtros_fluctuacion' => $parametros['filtros_fluctuacion'] ?? null,
+            'familias_agregadas'  => $parametros['familias_agregadas'] ?? [],
         );
 
         return array(
@@ -678,7 +682,23 @@ class ClaseInformes extends TFModelo
     public function FluctuacionCosteMensual($parametros = array())
     {
         $calc = new CosteFluctuacionCalculator($this->conexionBDTPV());
-        $agrupacion = $parametros['opcion'] ?? ($parametros['agrupacion'] ?? 'articulo');
+        // opcion: 1=Solo familias, 2=Familias+subfamilias, 3=Fam+sub+arts, 4=Seleccion familias
+        // opcion 3 y 4 → agrupacion=articulo (opcion 4 igual pero con filtro de familias)
+        // opcion 1 y 2 → agrupacion=familia
+        $opcionNum = (int)($parametros['opcion'] ?? 3);
+        $agrupacion = ($opcionNum === 1 || $opcionNum === 2) ? 'familia' : 'articulo';
+
+        // Opcion 4: jerarquía virtual igual que en beneficios.
+        // Si la familia seleccionada es N1 → muestra subfamilias agrupadas por ella.
+        // Si es N2 o inferior → la familia actúa como N1 virtual y sus hijos directos como N2.
+        $virtualHierarchy = null;
+        if ($opcionNum === 4) {
+            $ids = array_values(array_filter(array_map('intval', explode(',', $parametros['familias'] ?? ''))));
+            if (!empty($ids)) {
+                $fop4 = InformesFiltros::buildFiltroOp4($this->conexionBDTPV(), $ids);
+                $virtualHierarchy = $fop4['virtualHierarchy']; // null si todos son N1
+            }
+        }
 
         return $calc->calcular([
             'fecha_inicio' => $parametros['Finicio'] ?? date('Y-01-01'),
@@ -688,6 +708,7 @@ class ClaseInformes extends TFModelo
             'incluir_proveedor_especial' => (int)($parametros['incluir_proveedor_especial'] ?? 0),
             'familias' => (string)($parametros['familias'] ?? ''),
             'agrupacion' => (string)$agrupacion,
+            'virtualHierarchy' => $virtualHierarchy,
         ]);
     }
 

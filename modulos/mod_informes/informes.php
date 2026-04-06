@@ -375,240 +375,215 @@ $datosInforme = $DatosInforme['datos'];
             <?php elseif ($cabecera['id'] == 7): ?>
                 <!-- ── INFORME 7: Fluctuacion de coste mensual ─────────────── -->
                 <?php
-                $filtrosFluct = $cabecera['filtros_fluctuacion'] ?? [];
-                $resumenFluct = $cabecera['resumen_global'] ?? [];
-                $mesesRango = $resumenFluct['meses_rango'] ?? [];
+                $filtrosFluct    = $cabecera['filtros_fluctuacion'] ?? [];
+                $resumenFluct    = $cabecera['resumen_global'] ?? [];
+                $mesesRango      = $resumenFluct['meses_rango'] ?? [];
                 $agrupacionFluct = $filtrosFluct['agrupacion'] ?? 'articulo';
-                $labelEntidad = $agrupacionFluct === 'familia'
-                    ? 'Familia'
-                    : ($agrupacionFluct === 'subfamilia' ? 'Subfamilia' : 'Producto');
+                $opcionFluct     = (int)($cabecera['opcion'] ?? 3);
+                $opcionLabels    = [1 => 'Solo familias', 2 => 'Familias y subfamilias', 3 => 'Familias, subfamilias y articulos', 4 => 'Seleccion de familias'];
+
+                // Índices de agregados familia/subfamilia para opcion 3/4
+                $famAgr = [];
+                $sfAgr  = [];
+                foreach (($cabecera['familias_agregadas'] ?? []) as $fa) {
+                    $famAgr[(int)$fa['idN1']] = $fa;
+                    foreach (($fa['subfamilias'] ?? []) as $sa) {
+                        $sfAgr[(int)$sa['idN2']] = $sa;
+                    }
+                }
 
                 $fmtYm = static function (string $ym): string {
                     if (strpos($ym, '-') === false) return $ym;
                     [$y, $m] = explode('-', $ym, 2);
-                    $nombres = [
-                        '01' => 'ene',
-                        '02' => 'feb',
-                        '03' => 'mar',
-                        '04' => 'abr',
-                        '05' => 'may',
-                        '06' => 'jun',
-                        '07' => 'jul',
-                        '08' => 'ago',
-                        '09' => 'sep',
-                        '10' => 'oct',
-                        '11' => 'nov',
-                        '12' => 'dic',
-                    ];
-                    $mes = $nombres[$m] ?? $m;
-                    return $mes . '-' . substr($y, -2);
+                    $nombres = ['01'=>'ene','02'=>'feb','03'=>'mar','04'=>'abr','05'=>'may','06'=>'jun',
+                                '07'=>'jul','08'=>'ago','09'=>'sep','10'=>'oct','11'=>'nov','12'=>'dic'];
+                    return ($nombres[$m] ?? $m) . '-' . substr($y, -2);
+                };
+
+                // Render para familias/subfamilias: % de desviación respecto al promedio anual propio.
+                // Verde = mes más barato, Rojo = más caro. Normalizado → comparable entre tamaños.
+                $renderPct = static function (array $mesesArr, array $mesesRango): string {
+                    $map = [];
+                    foreach ($mesesArr as $m) { $map[$m['ym']] = $m; }
+                    $html = '';
+                    foreach ($mesesRango as $ym) {
+                        $m = $map[$ym] ?? null;
+                        if ($m === null || ($m['desviacion_pct'] ?? null) === null) {
+                            $html .= '<td style="color:#ccc; text-align:center;">—</td>';
+                            continue;
+                        }
+                        $pct    = (float)$m['desviacion_pct'];
+                        $label  = ($pct >= 0 ? '+' : '') . number_format($pct, 1) . '%';
+                        $color  = $pct < -0.5 ? '#27ae60' : ($pct > 0.5 ? '#c0392b' : '#888');
+                        $fiable = !empty($m['cumple_min_recepciones']);
+                        $title  = $fiable ? '' : ' title="Recepciones por debajo del mínimo"';
+                        $inner  = $fiable ? $label : "<em>$label</em>";
+                        $html  .= "<td style=\"text-align:center; color:$color;\"$title>$inner</td>";
+                    }
+                    return $html;
+                };
+
+                // Render para artículos: precio real en €/mes. El operario entiende directamente cuándo comprar.
+                $renderEuros = static function (array $mesesArr, array $mesesRango): string {
+                    $map = [];
+                    foreach ($mesesArr as $m) { $map[$m['ym']] = $m; }
+                    $html = '';
+                    foreach ($mesesRango as $ym) {
+                        $m = $map[$ym] ?? null;
+                        if ($m === null || $m['coste_promedio'] === null) {
+                            $html .= '<td style="color:#ccc; text-align:right;">—</td>';
+                            continue;
+                        }
+                        $val    = number_format((float)$m['coste_promedio'], 4);
+                        $fiable = !empty($m['cumple_min_recepciones']);
+                        $title  = $fiable ? '' : ' title="Recepciones por debajo del mínimo"';
+                        $inner  = $fiable ? $val : "<em>$val</em>";
+                        $html  .= "<td style=\"text-align:right;\"$title>$inner</td>";
+                    }
+                    return $html;
                 };
                 ?>
                 <div class="col-md-12">
                     <div class="alert alert-info">
                         <strong>Periodo:</strong> <?php echo htmlspecialchars($cabecera['Fecha_Inicio']); ?> a <?php echo htmlspecialchars($cabecera['Fecha_Final']); ?>
-                        &nbsp; | &nbsp;
-                        <strong>Evaluados:</strong> <?php echo (int)($resumenFluct['articulos_total_evaluados'] ?? 0); ?>
-                        &nbsp; | &nbsp;
+                        &nbsp;|&nbsp;
+                        <strong>Vista:</strong> <?php echo htmlspecialchars($opcionLabels[$opcionFluct] ?? ''); ?>
+                        &nbsp;|&nbsp;
                         <strong>Con fluctuacion:</strong> <?php echo (int)($resumenFluct['articulos_con_fluctuacion'] ?? 0); ?>
-                        &nbsp; | &nbsp;
+                        &nbsp;|&nbsp;
                         <strong>Meses en rango:</strong> <?php echo count($mesesRango); ?>
-                        &nbsp; | &nbsp;
-                        <strong>Familias filtro:</strong> <?php echo (int)($filtrosFluct['familias_count'] ?? 0); ?>
-                        &nbsp; | &nbsp;
-                        <strong>Agrupacion:</strong> <?php echo htmlspecialchars((string)$agrupacionFluct); ?>
+                        <?php if ((int)($filtrosFluct['familias_count'] ?? 0) > 0): ?>
+                            &nbsp;|&nbsp; <strong>Familias filtro:</strong> <?php echo (int)$filtrosFluct['familias_count']; ?>
+                        <?php endif; ?>
                         <br>
-                        <small><strong>Leyenda:</strong> '-' sin compras en el mes. Valor en cursiva: mes con recepciones por debajo del minimo.</small>
+                        <small><strong>Leyenda:</strong>
+                            <?php if ($opcionFluct === 1 || $opcionFluct === 2): ?>
+                                Vista familia/subfamilia: % desviación respecto al promedio anual propio &mdash;
+                                <span style="color:#27ae60;">Verde = mes más barato</span> &nbsp;|&nbsp;
+                                <span style="color:#c0392b;">Rojo = mes más caro</span>
+                            <?php else: ?>
+                                Vista artículo: precio de compra real (€) por mes &mdash; columna "Promedio €" = media anual del artículo
+                            <?php endif; ?>
+                            &nbsp;|&nbsp; <span style="color:#ccc;">—</span> = sin compras válidas
+                            &nbsp;|&nbsp; <em>Cursiva</em> = recepciones por debajo del mínimo (dato menos fiable)
+                        </small>
                     </div>
 
-                    <?php if ($agrupacionFluct === 'familia'): ?>
-                        <table class="table table-bordered table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>FAMILIA / SUBFAMILIA</th>
-                                    <th>ID</th>
-                                    <?php foreach ($mesesRango as $ym): ?>
-                                        <th><?php echo $fmtYm((string)$ym); ?></th>
-                                    <?php endforeach; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (count($datosInforme) === 0): ?>
-                                    <tr>
-                                        <td colspan="<?php echo 2 + count($mesesRango); ?>" class="text-center text-muted">No hay datos para el rango y filtros seleccionados.</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($datosInforme as $familia): ?>
-                                        <?php
-                                        $mapFamMes = [];
-                                        foreach (($familia['meses'] ?? []) as $m) {
-                                            $mapFamMes[$m['ym']] = $m;
-                                        }
-                                        ?>
-                                        <tr style="background:#d0d8e4;">
-                                            <td style="font-weight:700;"><?php echo htmlspecialchars((string)($familia['nombreN1'] ?? 'Sin familia')); ?></td>
-                                            <td style="font-weight:700;"><?php echo (int)($familia['idN1'] ?? 0); ?></td>
-                                            <?php foreach ($mesesRango as $ym): ?>
-                                                <?php $m = $mapFamMes[$ym] ?? null; ?>
-                                                <?php if ($m === null || $m['coste_promedio'] === null): ?>
-                                                    <td>-</td>
-                                                <?php else: ?>
-                                                    <?php $costeFmt = number_format((float)$m['coste_promedio'], 4); ?>
-                                                    <?php if (!empty($m['cumple_min_recepciones'])): ?>
-                                                        <td><strong><?php echo $costeFmt; ?></strong></td>
-                                                    <?php else: ?>
-                                                        <td title="Recepciones del mes por debajo del minimo"><strong><em><?php echo $costeFmt; ?></em></strong></td>
-                                                    <?php endif; ?>
-                                                <?php endif; ?>
-                                            <?php endforeach; ?>
-                                        </tr>
+                    <?php if (count($datosInforme) === 0): ?>
+                        <div class="alert alert-warning">No hay datos con fluctuacion real para el rango y filtros seleccionados.</div>
 
-                                        <?php foreach (($familia['subfamilias'] ?? []) as $sf): ?>
-                                            <?php
-                                            $mapSfMes = [];
-                                            foreach (($sf['meses'] ?? []) as $m) {
-                                                $mapSfMes[$m['ym']] = $m;
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td style="padding-left:24px;"><?php echo htmlspecialchars((string)($sf['nombreN2'] ?? 'Sin subfamilia')); ?></td>
-                                                <td><?php echo (int)($sf['idN2'] ?? 0); ?></td>
-                                                <?php foreach ($mesesRango as $ym): ?>
-                                                    <?php $m = $mapSfMes[$ym] ?? null; ?>
-                                                    <?php if ($m === null || $m['coste_promedio'] === null): ?>
-                                                        <td>-</td>
-                                                    <?php else: ?>
-                                                        <?php $costeFmt = number_format((float)$m['coste_promedio'], 4); ?>
-                                                        <?php if (!empty($m['cumple_min_recepciones'])): ?>
-                                                            <td><?php echo $costeFmt; ?></td>
-                                                        <?php else: ?>
-                                                            <td title="Recepciones del mes por debajo del minimo"><em><?php echo $costeFmt; ?></em></td>
-                                                        <?php endif; ?>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    <?php elseif ($agrupacionFluct === 'subfamilia'): ?>
-                        <table class="table table-bordered table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>SUBFAMILIA / FAMILIA HIJA</th>
-                                    <th>ID</th>
-                                    <?php foreach ($mesesRango as $ym): ?>
-                                        <th><?php echo $fmtYm((string)$ym); ?></th>
-                                    <?php endforeach; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (count($datosInforme) === 0): ?>
-                                    <tr>
-                                        <td colspan="<?php echo 2 + count($mesesRango); ?>" class="text-center text-muted">No hay datos para el rango y filtros seleccionados.</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($datosInforme as $subfamilia): ?>
-                                        <?php
-                                        $mapSfMes = [];
-                                        foreach (($subfamilia['meses'] ?? []) as $m) {
-                                            $mapSfMes[$m['ym']] = $m;
-                                        }
-                                        ?>
-                                        <tr style="background:#eef1f5;">
-                                            <td style="font-weight:700;"><?php echo htmlspecialchars((string)($subfamilia['nombreN2'] ?? 'Sin subfamilia')); ?></td>
-                                            <td style="font-weight:700;"><?php echo (int)($subfamilia['idN2'] ?? 0); ?></td>
-                                            <?php foreach ($mesesRango as $ym): ?>
-                                                <?php $m = $mapSfMes[$ym] ?? null; ?>
-                                                <?php if ($m === null || $m['coste_promedio'] === null): ?>
-                                                    <td>-</td>
-                                                <?php else: ?>
-                                                    <?php $costeFmt = number_format((float)$m['coste_promedio'], 4); ?>
-                                                    <?php if (!empty($m['cumple_min_recepciones'])): ?>
-                                                        <td><strong><?php echo $costeFmt; ?></strong></td>
-                                                    <?php else: ?>
-                                                        <td title="Recepciones del mes por debajo del minimo"><strong><em><?php echo $costeFmt; ?></em></strong></td>
-                                                    <?php endif; ?>
-                                                <?php endif; ?>
-                                            <?php endforeach; ?>
-                                        </tr>
-
-                                        <?php foreach (($subfamilia['familias_hijas'] ?? []) as $fh): ?>
-                                            <?php
-                                            $mapFamMes = [];
-                                            foreach (($fh['meses'] ?? []) as $m) {
-                                                $mapFamMes[$m['ym']] = $m;
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td style="padding-left:24px;"><?php echo htmlspecialchars((string)($fh['familiaNombre'] ?? 'Sin familia')); ?></td>
-                                                <td><?php echo (int)($fh['idFamilia'] ?? 0); ?></td>
-                                                <?php foreach ($mesesRango as $ym): ?>
-                                                    <?php $m = $mapFamMes[$ym] ?? null; ?>
-                                                    <?php if ($m === null || $m['coste_promedio'] === null): ?>
-                                                        <td>-</td>
-                                                    <?php else: ?>
-                                                        <?php $costeFmt = number_format((float)$m['coste_promedio'], 4); ?>
-                                                        <?php if (!empty($m['cumple_min_recepciones'])): ?>
-                                                            <td><?php echo $costeFmt; ?></td>
-                                                        <?php else: ?>
-                                                            <td title="Recepciones del mes por debajo del minimo"><em><?php echo $costeFmt; ?></em></td>
-                                                        <?php endif; ?>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    <?php else: ?>
+                    <?php elseif ($opcionFluct === 1): ?>
+                        <!-- Opcion 1: Solo familias — % desviación + promedio anual de referencia -->
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th><?php echo $labelEntidad; ?></th>
-                                        <?php foreach ($mesesRango as $ym): ?>
-                                            <th><?php echo $fmtYm((string)$ym); ?></th>
-                                        <?php endforeach; ?>
+                        <table class="table table-bordered table-hover table-condensed" style="font-size:12px;">
+                            <thead><tr>
+                                <th>Familia</th>
+                                <th style="text-align:right;" title="Coste promedio anual ponderado">Promedio €</th>
+                                <?php foreach ($mesesRango as $ym): ?><th style="text-align:center;"><?php echo $fmtYm((string)$ym); ?></th><?php endforeach; ?>
+                            </tr></thead>
+                            <tbody>
+                                <?php foreach ($datosInforme as $fam): ?>
+                                    <tr style="background:#eef1f5;">
+                                        <td style="font-weight:700;"><?php echo htmlspecialchars((string)($fam['nombreN1'] ?? $fam['articulo_name'] ?? '')); ?></td>
+                                        <td style="text-align:right; color:#555;"><?php echo number_format((float)($fam['coste_media'] ?? 0), 4); ?></td>
+                                        <?php echo $renderPct($fam['meses'] ?? [], $mesesRango); ?>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (count($datosInforme) === 0): ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        </div>
+
+                    <?php elseif ($opcionFluct === 2): ?>
+                        <!-- Opcion 2: Familias y subfamilias — % desviación + promedio anual de referencia -->
+                        <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-condensed" style="font-size:12px;">
+                            <thead><tr>
+                                <th>Familia / Subfamilia</th>
+                                <th style="text-align:right;" title="Coste promedio anual ponderado">Promedio €</th>
+                                <?php foreach ($mesesRango as $ym): ?><th style="text-align:center;"><?php echo $fmtYm((string)$ym); ?></th><?php endforeach; ?>
+                            </tr></thead>
+                            <tbody>
+                                <?php foreach ($datosInforme as $fam): ?>
+                                    <tr style="background:#d0d8e4;">
+                                        <td style="font-weight:700;"><?php echo htmlspecialchars((string)($fam['nombreN1'] ?? $fam['articulo_name'] ?? '')); ?></td>
+                                        <td style="text-align:right; color:#555; font-weight:700;"><?php echo number_format((float)($fam['coste_media'] ?? 0), 4); ?></td>
+                                        <?php echo $renderPct($fam['meses'] ?? [], $mesesRango); ?>
+                                    </tr>
+                                    <?php foreach (($fam['subfamilias'] ?? []) as $sf): ?>
                                         <tr>
-                                            <td colspan="<?php echo 2 + count($mesesRango); ?>" class="text-center text-muted">No hay datos para el rango y filtros seleccionados.</td>
+                                            <td style="padding-left:24px;"><?php echo htmlspecialchars((string)($sf['nombreN2'] ?? '')); ?></td>
+                                            <td style="text-align:right; color:#555;"><?php echo number_format((float)($sf['coste_media'] ?? 0), 4); ?></td>
+                                            <?php echo $renderPct($sf['meses'] ?? [], $mesesRango); ?>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($datosInforme as $fila): ?>
-                                            <?php
-                                            $mapMeses = [];
-                                            foreach (($fila['meses'] ?? []) as $m) {
-                                                $mapMeses[$m['ym']] = $m;
-                                            }
-                                            ?>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        </div>
+
+                    <?php else: ?>
+                        <!-- Opcion 3 / 4: Familias > Subfamilias > Articulos -->
+                        <!-- Familia/subfamilia: % desviación agregada (referencia). Artículo: precio real €/mes -->
+                        <?php
+                        $byFam = [];
+                        foreach ($datosInforme as $art) {
+                            $fid    = (int)($art['idN1'] ?? 0);
+                            $fname  = (string)($art['nombreN1'] ?? '(Sin familia)');
+                            $sfid   = (int)($art['idN2'] ?? 0);
+                            $sfname = (string)($art['nombreN2'] ?? '(Sin subfamilia)');
+                            if (!isset($byFam[$fid])) {
+                                $byFam[$fid] = ['id' => $fid, 'nombre' => $fname, 'subs' => []];
+                            }
+                            if (!isset($byFam[$fid]['subs'][$sfid])) {
+                                $byFam[$fid]['subs'][$sfid] = ['id' => $sfid, 'nombre' => $sfname, 'arts' => []];
+                            }
+                            $byFam[$fid]['subs'][$sfid]['arts'][] = $art;
+                        }
+                        uasort($byFam, static fn($a, $b) => strcmp($a['nombre'], $b['nombre']));
+                        $nMeses = count($mesesRango);
+                        ?>
+                        <div class="table-responsive">
+                        <table class="table table-bordered table-condensed" style="font-size:12px;">
+                            <thead><tr>
+                                <th>Familia / Subfamilia / Articulo</th>
+                                <th style="text-align:right;" title="Promedio anual ponderado">Promedio €</th>
+                                <?php foreach ($mesesRango as $ym): ?>
+                                    <th style="text-align:center;"><?php echo $fmtYm((string)$ym); ?></th>
+                                <?php endforeach; ?>
+                            </tr></thead>
+                            <tbody>
+                                <?php foreach ($byFam as $fam):
+                                    uasort($fam['subs'], static fn($a, $b) => strcmp($a['nombre'], $b['nombre']));
+                                    $famData = $famAgr[$fam['id']] ?? null;
+                                ?>
+                                    <tr style="background:#d0d8e4; font-weight:700;">
+                                        <td><?php echo htmlspecialchars($fam['nombre']); ?></td>
+                                        <td style="text-align:right; color:#555;">
+                                            <?php echo $famData ? number_format((float)$famData['coste_media'], 4) : ''; ?>
+                                        </td>
+                                        <?php echo $famData ? $renderPct($famData['meses'] ?? [], $mesesRango) : str_repeat('<td></td>', $nMeses); ?>
+                                    </tr>
+                                    <?php foreach ($fam['subs'] as $sf):
+                                        $sfData = $sfAgr[$sf['id']] ?? null;
+                                    ?>
+                                        <tr style="background:#eef1f5;">
+                                            <td style="padding-left:20px;"><em><?php echo htmlspecialchars($sf['nombre']); ?></em></td>
+                                            <td style="text-align:right; color:#555;">
+                                                <?php echo $sfData ? number_format((float)$sfData['coste_media'], 4) : ''; ?>
+                                            </td>
+                                            <?php echo $sfData ? $renderPct($sfData['meses'] ?? [], $mesesRango) : str_repeat('<td></td>', $nMeses); ?>
+                                        </tr>
+                                        <?php foreach ($sf['arts'] as $art): ?>
                                             <tr>
-                                                <td><?php echo (int)($fila['idArticulo'] ?? 0); ?></td>
-                                                <td><?php echo htmlspecialchars((string)($fila['articulo_name'] ?? '')); ?></td>
-                                                <?php foreach ($mesesRango as $ym): ?>
-                                                    <?php $m = $mapMeses[$ym] ?? null; ?>
-                                                    <?php if ($m === null || $m['coste_promedio'] === null): ?>
-                                                        <td>-</td>
-                                                    <?php else: ?>
-                                                        <?php $costeFmt = number_format((float)$m['coste_promedio'], 4); ?>
-                                                        <?php if (!empty($m['cumple_min_recepciones'])): ?>
-                                                            <td><?php echo $costeFmt; ?></td>
-                                                        <?php else: ?>
-                                                            <td title="Recepciones del mes por debajo del minimo"><em><?php echo $costeFmt; ?></em></td>
-                                                        <?php endif; ?>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
+                                                <td style="padding-left:40px;"><?php echo htmlspecialchars((string)($art['articulo_name'] ?? '')); ?></td>
+                                                <td style="text-align:right; color:#555;"><?php echo number_format((float)($art['coste_media'] ?? 0), 4); ?></td>
+                                                <?php echo $renderEuros($art['meses'] ?? [], $mesesRango); ?>
                                             </tr>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                    <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -1093,6 +1068,7 @@ $datosInforme = $DatosInforme['datos'];
                                     <th>MERMA</th>
                                     <th>BENEFICIO REAL</th>
                                     <th>MARGEN %</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1175,6 +1151,9 @@ $datosInforme = $DatosInforme['datos'];
                                         <?php foreach ($sf['articulos'] as $art):
                                             $cls = $art['margen_pct'] < 10 ? 'danger'
                                                 : ($art['margen_pct'] < 25 ? 'warning' : 'success');
+                                            $_idArt = (int)$art['idArticulo'];
+                                            $_fi    = urlencode($cabecera['Fecha_Inicio']);
+                                            $_ff    = urlencode($cabecera['Fecha_Final']);
                                         ?>
                                             <tr>
                                                 <td style="padding-left:32px;"><?php echo htmlspecialchars($art['articulo_name']); ?></td>
@@ -1196,6 +1175,15 @@ $datosInforme = $DatosInforme['datos'];
                                                         <?php echo number_format($art['margen_pct'], 1); ?>%
                                                     </span>
                                                 </td>
+                                                <td style="white-space:nowrap;">
+                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/DetalleMayor.php?idArticulo=' . $_idArt . '&fecha_inicial=' . $_fi . '&fecha_final=' . $_ff; ?>" target="_blank" title="Ver listado mayor del artículo en el período">
+                                                        <i class="glyphicon glyphicon-list-alt"></i> Mayor
+                                                    </a>
+                                                    &nbsp;
+                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/producto.php?id=' . $_idArt; ?>" target="_blank" title="Ver ficha del artículo">
+                                                        <i class="glyphicon glyphicon-tag"></i> Ficha
+                                                    </a>
+                                                </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php endforeach; ?>
@@ -1209,6 +1197,7 @@ $datosInforme = $DatosInforme['datos'];
                                     <td><?php echo $totMerma > 0 ? '<strong class="text-danger">' . number_format($totMerma, 2) . '</strong>' : '—'; ?></td>
                                     <td><strong><?php echo number_format($totBenef, 2); ?></strong></td>
                                     <td><strong><?php echo number_format($margenTotal, 1); ?>%</strong></td>
+                                    <td></td>
                                 </tr>
                             </tfoot>
                         </table>

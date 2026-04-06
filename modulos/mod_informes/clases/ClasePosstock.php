@@ -430,13 +430,14 @@ class ClasePosstock
                 $familias_excluir,
                 $ids_filter,
                 $c3b_dias_post,
-                $c3a_multiplicador
+                $c3a_multiplicador,
+                $c5_incluir_stock_negativo
             );
             if (isset($c3['error'])) return $c3;
             // Filtrar sub-casos si no se piden ambos
             if (!isset($casos_set['caso3a']) || !isset($casos_set['caso3b'])) {
                 $tipos_c3 = [];
-                if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Caída de rotación';
+                if (isset($casos_set['caso3a'])) $tipos_c3[] = 'Caducidad teórica';
                 if (isset($casos_set['caso3b'])) $tipos_c3[] = 'Entrada sin rotación previa';
                 $c3 = array_values(array_filter($c3, fn($incidencia) => in_array($incidencia['tipo'], $tipos_c3, true)));
             }
@@ -667,7 +668,7 @@ class ClasePosstock
             'Venta Cero (Posible Rotura Física)' => 1,  // C5
             'Agotamiento Estimado'               => 2,  // C6a MEDIA (BN, stock suficiente)
             'Punto de Pedido'                    => 2,  // C6b MEDIA (mismo nivel que C6a)
-            'Riesgo de caducidad teórica'        => 3,  // C3a
+            'Caducidad teórica'                  => 3,  // C3a
             'Entrada no registrada'              => 4,  // C7b
             'Merma acumulada'                    => 4,  // C7a
             'Merma backstaging'                  => 4,  // C9
