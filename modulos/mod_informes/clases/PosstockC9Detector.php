@@ -279,6 +279,10 @@ class PosstockC9Detector
             for ($j = 1; $j <= $k; $j++) {
                 $prev = $t - $j;
                 if ($prev < 0) break;
+                // No redistribuir hacia lotes con déficit propio: un lote deficitario
+                // no tiene stock excedente que absorber. Si se redistribuyera, el déficit
+                // del lote destino inflaría su merma_bloqueada cuando se procese.
+                if (in_array($prev, $lotes_deficit, true)) continue;
                 // Restricción temporal: bloquear si la distancia total al lote candidato
                 // supera el umbral estadístico local de continuidad
                 $dist         = (int)((strtotime($lotes[$t]['fecha_ini']) - strtotime($lotes[$prev]['fecha_ini'])) / 86400);
