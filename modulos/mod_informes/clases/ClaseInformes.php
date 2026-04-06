@@ -3,6 +3,7 @@ include_once $URLCom . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/modulos/mod_proveedor/clases/ClaseProveedor.php';
 include_once __DIR__ . '/InformesFiltros.php';
 include_once __DIR__ . '/BeneficioCalculator.php';
+include_once __DIR__ . '/CosteFluctuacionCalculator.php';
 class ClaseInformes extends TFModelo
 {
     public $informes = array(
@@ -38,6 +39,14 @@ class ClaseInformes extends TFModelo
                 '2' => 'Familias y subfamilias',
                 '3' => 'Familias, subfamilias y productos',
             )
+        ),
+        '7' => array(
+            'Titulo' => 'Fluctuacion de coste mensual',
+            'opciones' => array(
+                'articulo' => 'Articulo',
+                'familia' => 'Familia',
+                'subfamilia' => 'Subfamilia',
+            )
         )
     );
     public function ObtenerdatosInforme()
@@ -57,6 +66,18 @@ class ClaseInformes extends TFModelo
             $ret   = $this->BeneficioFamilias($parametros);
             $datos = $ret['familias'];
             $parametros['resumen_global'] = $ret['resumen'];
+        } elseif ($id == 7) {
+            $ret = $this->FluctuacionCosteMensual($parametros);
+            $agr = $ret['filtros']['agrupacion'] ?? 'articulo';
+            if ($agr === 'familia') {
+                $datos = $ret['familias'] ?? [];
+            } elseif ($agr === 'subfamilia') {
+                $datos = $ret['subfamilias'] ?? [];
+            } else {
+                $datos = $ret['articulos'] ?? [];
+            }
+            $parametros['resumen_global'] = $ret['resumen'] ?? null;
+            $parametros['filtros_fluctuacion'] = $ret['filtros'] ?? null;
         } else {
             $datos = [];
         }
@@ -67,7 +88,8 @@ class ClaseInformes extends TFModelo
             'Fecha_Inicio'   => $parametros['Finicio'],
             'Fecha_Final'    => $parametros['Ffinal'],
             'opcion'         => $parametros['opcion'],
-            'resumen_global' => $parametros['resumen_global'] ?? null
+            'resumen_global' => $parametros['resumen_global'] ?? null,
+            'filtros_fluctuacion' => $parametros['filtros_fluctuacion'] ?? null,
         );
 
         return array(
@@ -99,14 +121,15 @@ class ClaseInformes extends TFModelo
 
         $fechaInicial = $db->real_escape_string($parametros['Finicio']);
         $fechaFinal   = $db->real_escape_string($parametros['Ffinal']);
+        $filtroFechaAlbprot = $this->buildFiltroRangoFechaSQL('Fecha', $fechaInicial, $fechaFinal);
         $idsStr       = implode(',', array_map('intval', $ids));
 
-            // Consulta masiva de cabeceras de albarán para evitar consultas por proveedor.
+        // Consulta masiva de cabeceras de albarán para evitar consultas por proveedor.
         $sentenciaAlbaranes = $db->query("
             SELECT id AS idalbpro, idProveedor
             FROM albprot
             WHERE idProveedor IN ($idsStr)
-              AND Fecha BETWEEN '$fechaInicial' AND '$fechaFinal'
+                            AND $filtroFechaAlbprot
         ");
         $albIdsByProveedor = [];
         $allAlbIds         = [];
@@ -275,6 +298,7 @@ class ClaseInformes extends TFModelo
         $db       = $this->conexionBDTPV();
         $fechaInicio = $db->real_escape_string($parametros['Finicio']);
         $fechaFinal  = $db->real_escape_string($parametros['Ffinal']);
+        $filtroFechaAlbprot = $this->buildFiltroRangoFechaSQL('a.Fecha', $fechaInicio, $fechaFinal);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -311,7 +335,7 @@ class ClaseInformes extends TFModelo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE a.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaAlbprot
               AND l.estadoLinea <> 'Eliminado'
               $filtroN1
             GROUP BY vj.idN1, vj.idN2, l.idArticulo, l.costeSiva $groupByFamId
@@ -445,6 +469,7 @@ class ClaseInformes extends TFModelo
         $db       = $this->conexionBDTPV();
         $fechaInicio = $db->real_escape_string($parametros['Finicio']);
         $fechaFinal  = $db->real_escape_string($parametros['Ffinal']);
+        $filtroFechaVentas = $this->buildFiltroRangoFechaSQL('h.Fecha', $fechaInicio, $fechaFinal);
 
         $filtroN1         = '';
         $virtualHierarchy = null;
@@ -486,7 +511,7 @@ class ClaseInformes extends TFModelo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Guardado', 'Procesado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -515,7 +540,7 @@ class ClaseInformes extends TFModelo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Cobrado', 'Cerrado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -648,5 +673,26 @@ class ClaseInformes extends TFModelo
     public function BeneficioFamilias($parametros = array())
     {
         return (new BeneficioCalculator($this->conexionBDTPV()))->calcular($parametros);
+    }
+
+    public function FluctuacionCosteMensual($parametros = array())
+    {
+        $calc = new CosteFluctuacionCalculator($this->conexionBDTPV());
+        $agrupacion = $parametros['opcion'] ?? ($parametros['agrupacion'] ?? 'articulo');
+
+        return $calc->calcular([
+            'fecha_inicio' => $parametros['Finicio'] ?? date('Y-01-01'),
+            'fecha_final' => $parametros['Ffinal'] ?? date('Y-m-d'),
+            'min_recepciones' => (int)($parametros['min_recepciones'] ?? 3),
+            'min_meses' => (int)($parametros['min_meses'] ?? 3),
+            'incluir_proveedor_especial' => (int)($parametros['incluir_proveedor_especial'] ?? 0),
+            'familias' => (string)($parametros['familias'] ?? ''),
+            'agrupacion' => (string)$agrupacion,
+        ]);
+    }
+
+    private function buildFiltroRangoFechaSQL(string $campoFecha, string $fechaInicio, string $fechaFinal): string
+    {
+        return "{$campoFecha} >= '{$fechaInicio}' AND {$campoFecha} < DATE_ADD('{$fechaFinal}', INTERVAL 1 DAY)";
     }
 }

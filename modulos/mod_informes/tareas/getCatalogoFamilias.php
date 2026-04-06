@@ -49,7 +49,7 @@ if (count($familias) > 0) {
         $estiloOculto = ($nivel > 1) ? 'style="display:none;"' : '';
         $claseNivel   = 'nivel-' . $nivel;
         $claseCursor  = $tieneHijos
-            ? 'style="cursor:pointer;" onclick="toggleHijosDirectosCat(\'' . $rutaLimpia . '\', this)"'
+            ? 'style="cursor:pointer;" onclick="toggleHijosDirectosCat(this)"'
             : '';
 
         $respuesta['html'] .= '<tr class="FilaFamilia ' . $claseNivel . '" data-ruta="' . $rutaLimpia . '" ' . $estiloOculto . '>';
@@ -76,8 +76,8 @@ if (count($familias) > 0) {
         $respuesta['html'] .= '<td>
             <button class="btn btn-primary btn-sm btn-block"
                     onclick="event.stopPropagation(); agregarFamiliaInforme('
-                    . $familia['idFamilia'] . ', \''
-                    . addslashes($familia['familiaNombre']) . '\')">
+            . $familia['idFamilia'] . ', \''
+            . addslashes($familia['familiaNombre']) . '\')">
                 <span class="glyphicon glyphicon-plus"></span> Añadir
             </button>
         </td>';

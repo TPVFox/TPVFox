@@ -13,7 +13,8 @@ class BeneficioCalculator
 
     public function calcular(array $parametros): array
     {
-        // El coste de referencia es ultimoCoste en tiempo de ejecución, no coste histórico.
+        // El coste se estima desde compras reales (período e histórico) para evitar
+        // depender de campos acumulados potencialmente desfasados.
 
         [
             'fechaInicio'       => $fechaInicio,
@@ -23,19 +24,24 @@ class BeneficioCalculator
             'needsIdFamilia'    => $needsIdFamilia,
         ] = $this->prepararContextoInicial($parametros);
 
+        $filtroFechaCompras = $this->buildFiltroRangoFechaSQL('ap.Fecha', $fechaInicio, $fechaFinal);
+        $filtroFechaVentas = $this->buildFiltroRangoFechaSQL('h.Fecha', $fechaInicio, $fechaFinal);
+        $fechaFinalExclusiva = $this->siguienteDia($fechaFinal);
+
         // Coste medio ponderado de compra en el período por artículo (excluye proveedores Especial).
         // Si no hubo compra en el período se usa ultimoCoste como fallback (ver COALESCE en el UNION).
-        // Solo líneas con nunidades > 0 (excluye devoluciones/abonos que distorsionan el PMP).
+        // La cantidad de compra puede venir en nunidades o en ncant según el origen del albarán.
         $sqlCoste = "
             SELECT lp.idArticulo,
-                   SUM(lp.costeSiva * lp.nunidades) / SUM(lp.nunidades) AS coste_periodo
+                   SUM(lp.costeSiva * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))
+                   / NULLIF(SUM(COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0)), 0) AS coste_periodo
             FROM albprolinea lp
             JOIN albprot ap ON ap.id = lp.idalbpro
             JOIN proveedores pv ON pv.idProveedor = ap.idProveedor
-            WHERE ap.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
-              AND ap.estado IN ('Guardado', 'Procesado', 'Facturado')
+                        WHERE $filtroFechaCompras
+              AND ap.estado IN ('Guardado', 'Procesado', 'Facturado', 'Exportado', 'Importado')
               AND lp.estadoLinea <> 'Eliminado'
-              AND lp.nunidades > 0
+              AND COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0) > 0
               AND pv.estado != 'Especial'
             GROUP BY lp.idArticulo
         ";
@@ -43,6 +49,28 @@ class BeneficioCalculator
         $costePeriodo = [];
         while ($filaCoste = $sentenciaCoste->fetch_assoc()) {
             $costePeriodo[(int)$filaCoste['idArticulo']] = (float)$filaCoste['coste_periodo'];
+        }
+
+        // Fallback histórico: mismo cálculo de PMP pero con todo el histórico hasta fechaFinal.
+        // Se usa cuando el artículo no tiene compras en el período analizado.
+        $sqlCosteHistorico = "
+            SELECT lp.idArticulo,
+                   SUM(lp.costeSiva * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))
+                   / NULLIF(SUM(COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0)), 0) AS coste_historico
+            FROM albprolinea lp
+            JOIN albprot ap ON ap.id = lp.idalbpro
+            JOIN proveedores pv ON pv.idProveedor = ap.idProveedor
+                        WHERE ap.Fecha < '$fechaFinalExclusiva'
+              AND ap.estado IN ('Guardado', 'Procesado', 'Facturado', 'Exportado', 'Importado')
+              AND lp.estadoLinea <> 'Eliminado'
+              AND COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0) > 0
+              AND pv.estado != 'Especial'
+            GROUP BY lp.idArticulo
+        ";
+        $sentenciaCosteHistorico = $this->db->query($sqlCosteHistorico);
+        $costeHistorico = [];
+        while ($filaCosteHistorico = $sentenciaCosteHistorico->fetch_assoc()) {
+            $costeHistorico[(int)$filaCosteHistorico['idArticulo']] = (float)$filaCosteHistorico['coste_historico'];
         }
 
         // Mermas declaradas: albaranes de clientes Especial en el período.
@@ -75,7 +103,7 @@ class BeneficioCalculator
             JOIN albclit h ON h.id = l.idalbcli
             JOIN clientes cl ON cl.idClientes = h.idCliente
             $mermaFamiliaJoin
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Guardado', 'Procesado')
               AND l.estadoLinea = 'Activo'
               AND cl.estado = 'Especial'
@@ -104,6 +132,7 @@ class BeneficioCalculator
                 MAX(ar.tipo)                                                 AS tipo,
                 l.precioCiva / (1 + l.iva / 100)                            AS pvpSiva,
                 MAX(ar.ultimoCoste)                                          AS ultimoCoste,
+                MAX(ar.costepromedio)                                        AS costePromedioArticulo,
                 SUM(l.nunidades)                                             AS totalUnidades,
                 SUM(l.precioCiva / (1 + l.iva / 100) * l.nunidades)         AS totalVenta,
                 COUNT(DISTINCT l.idalbcli)                                   AS num_documentos
@@ -116,7 +145,7 @@ class BeneficioCalculator
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Guardado', 'Procesado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -135,6 +164,7 @@ class BeneficioCalculator
                 MAX(ar.tipo)                                                 AS tipo,
                 l.precioCiva / (1 + l.iva / 100)                            AS pvpSiva,
                 MAX(ar.ultimoCoste)                                          AS ultimoCoste,
+                MAX(ar.costepromedio)                                        AS costePromedioArticulo,
                 SUM(l.nunidades)                                             AS totalUnidades,
                 SUM(l.precioCiva / (1 + l.iva / 100) * l.nunidades)         AS totalVenta,
                 COUNT(DISTINCT l.idticketst)                                 AS num_documentos
@@ -147,7 +177,7 @@ class BeneficioCalculator
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
             LEFT JOIN vw_jerarquias_familias n1 ON n1.idFamilia = vj.idN1
             LEFT JOIN vw_jerarquias_familias n2 ON n2.idFamilia = vj.idN2
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Cobrado', 'Cerrado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -169,8 +199,21 @@ class BeneficioCalculator
                 $this->resolverJerarquiaFila($fila, $virtualHierarchy);
 
             $idArt    = (int)$fila['idArticulo'];
-            // Coste medio ponderado del período si hubo compra; si no, ultimoCoste actual
-            $costeUsar = $costePeriodo[$idArt] ?? (float)$fila['ultimoCoste'];
+            // Prioridad de coste:
+            // 1) Coste medio del período (compras reales dentro del rango)
+            // 2) Coste medio histórico hasta fechaFinal (compras reales acumuladas)
+            // 3) costepromedio del artículo (fallback heredado)
+            // 4) ultimoCoste como último recurso
+            $costePromedioArticulo = (float)($fila['costePromedioArticulo'] ?? 0);
+            if (isset($costePeriodo[$idArt])) {
+                $costeUsar = $costePeriodo[$idArt];
+            } elseif (isset($costeHistorico[$idArt])) {
+                $costeUsar = $costeHistorico[$idArt];
+            } elseif ($costePromedioArticulo > 0) {
+                $costeUsar = $costePromedioArticulo;
+            } else {
+                $costeUsar = (float)$fila['ultimoCoste'];
+            }
             $totalVenta       = (float)$fila['totalVenta'];
             $totalCoste       = $costeUsar * (float)$fila['totalUnidades'];
 
@@ -307,13 +350,22 @@ class BeneficioCalculator
         $gtMermaSinVentas = 0;
         foreach ($mermasPorArticulo as $idArt => $uds) {
             if (isset($articulosConVentas[$idArt])) continue;
-            // Obtener nombre y ultimoCoste
+            // Obtener nombre, coste promedio y ultimoCoste
             $sentenciaArticulo = $this->db->query(
-                "SELECT articulo_name, ultimoCoste FROM articulos WHERE idArticulo = $idArt LIMIT 1"
+                "SELECT articulo_name, costepromedio, ultimoCoste FROM articulos WHERE idArticulo = $idArt LIMIT 1"
             );
             if (!$sentenciaArticulo || $sentenciaArticulo->num_rows === 0) continue;
             $filaArticulo = $sentenciaArticulo->fetch_assoc();
-            $costeArt = $costePeriodo[$idArt] ?? (float)$filaArticulo['ultimoCoste'];
+            $costePromedioArticulo = (float)($filaArticulo['costepromedio'] ?? 0);
+            if (isset($costePeriodo[$idArt])) {
+                $costeArt = $costePeriodo[$idArt];
+            } elseif (isset($costeHistorico[$idArt])) {
+                $costeArt = $costeHistorico[$idArt];
+            } elseif ($costePromedioArticulo > 0) {
+                $costeArt = $costePromedioArticulo;
+            } else {
+                $costeArt = (float)$filaArticulo['ultimoCoste'];
+            }
             $valor = $uds * $costeArt;
             $gtMermaSinVentas += $valor;
             $mermaSinVentas[] = [
@@ -349,15 +401,15 @@ class BeneficioCalculator
         // Compras globales (sin JOIN de familia — fuente canónica sin duplicados cuando no se filtra)
         $sqlFlujoComprasGlobal = "
             SELECT
-                SUM(lp.costeSiva * lp.nunidades)                        AS compras_siva,
-                SUM(lp.costeSiva * (1 + ar.iva/100) * lp.nunidades)    AS compras_civa
+                SUM(lp.costeSiva * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))                        AS compras_siva,
+                SUM(lp.costeSiva * (1 + ar.iva/100) * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))    AS compras_civa
             FROM albprolinea lp
             JOIN albprot ap     ON ap.id           = lp.idalbpro
             JOIN proveedores pv ON pv.idProveedor  = ap.idProveedor
             JOIN articulos ar   ON ar.idArticulo   = lp.idArticulo
             $filtroFlujoGlobalJoinC
-            WHERE ap.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
-              AND ap.estado IN ('Guardado','Procesado','Facturado')
+            WHERE $filtroFechaCompras
+                            AND ap.estado IN ('Guardado','Procesado','Facturado','Exportado','Importado')
               AND lp.estadoLinea <> 'Eliminado'
               AND pv.estado != 'Especial'
               $filtroFlujoGlobalWhereC
@@ -371,16 +423,16 @@ class BeneficioCalculator
         $sqlFlujoCompras = "
             SELECT
                 $flujoGroupByKey AS flujo_key,
-                SUM(lp.costeSiva * lp.nunidades)                        AS compras_siva,
-                SUM(lp.costeSiva * (1 + ar.iva/100) * lp.nunidades)    AS compras_civa
+                SUM(lp.costeSiva * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))                        AS compras_siva,
+                SUM(lp.costeSiva * (1 + ar.iva/100) * COALESCE(NULLIF(lp.nunidades, 0), lp.ncant, 0))    AS compras_civa
             FROM albprolinea lp
             JOIN albprot ap        ON ap.id          = lp.idalbpro
             JOIN proveedores pv    ON pv.idProveedor = ap.idProveedor
             JOIN articulos ar      ON ar.idArticulo  = lp.idArticulo
             LEFT JOIN articulosFamilias af  ON af.idArticulo = lp.idArticulo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
-            WHERE ap.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
-              AND ap.estado IN ('Guardado','Procesado','Facturado')
+            WHERE $filtroFechaCompras
+                            AND ap.estado IN ('Guardado','Procesado','Facturado','Exportado','Importado')
               AND lp.estadoLinea <> 'Eliminado'
               AND pv.estado != 'Especial'
               $filtroFlujoN1Where
@@ -398,7 +450,7 @@ class BeneficioCalculator
             JOIN albclit h ON h.id = l.idalbcli
             LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
             $filtroFlujoGlobalJoinV
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Guardado','Procesado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -411,7 +463,7 @@ class BeneficioCalculator
             JOIN ticketst h ON h.id = l.idticketst
             LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
             $filtroFlujoGlobalJoinV
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Cobrado','Cerrado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -435,7 +487,7 @@ class BeneficioCalculator
             LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
             LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Guardado','Procesado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -450,7 +502,7 @@ class BeneficioCalculator
             LEFT JOIN clientes cl ON cl.idClientes = h.idCliente
             LEFT JOIN articulosFamilias af ON af.idArticulo = l.idArticulo
             LEFT JOIN vw_jerarquias_familias vj ON vj.idFamilia = af.idFamilia
-            WHERE h.Fecha BETWEEN '$fechaInicio' AND '$fechaFinal'
+                        WHERE $filtroFechaVentas
               AND h.estado IN ('Cobrado','Cerrado')
               AND l.estadoLinea = 'Activo'
               AND (h.idCliente = 0 OR cl.estado != 'Especial')
@@ -479,7 +531,7 @@ class BeneficioCalculator
             $sentenciaVentas = $this->db->query("
                 SELECT idArticulo, SUM(delta) AS neto
                 FROM (
-                    SELECT l.idArticulo,  l.nunidades AS delta
+                    SELECT l.idArticulo,  COALESCE(NULLIF(l.nunidades, 0), l.ncant, 0) AS delta
                     FROM albprolinea l
                     JOIN albprot c ON c.id = l.idalbpro
                     WHERE DATE(c.Fecha) BETWEEN '$inicioAnio' AND '$hasta'
@@ -712,6 +764,20 @@ class BeneficioCalculator
         }
 
         return $acumulado;
+    }
+
+    private function buildFiltroRangoFechaSQL(string $campoFecha, string $fechaInicio, string $fechaFinal): string
+    {
+        return "{$campoFecha} >= '{$fechaInicio}' AND {$campoFecha} < DATE_ADD('{$fechaFinal}', INTERVAL 1 DAY)";
+    }
+
+    private function siguienteDia(string $fecha): string
+    {
+        $timestamp = strtotime($fecha);
+        if ($timestamp === false) {
+            return $fecha;
+        }
+        return date('Y-m-d', strtotime('+1 day', $timestamp));
     }
 
     private function resolverKeyN1Flujo(mixed $rawKey, ?array $virtualHierarchy): int|string

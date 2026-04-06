@@ -67,6 +67,9 @@ switch ($pulsado) {
     case 'getOpcionesPeriodo':
         include_once $URLCom . '/modulos/mod_informes/tareas/getOpcionesPeriodo.php';
         break;
+    case 'getCosteFluctuacionData':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getCosteFluctuacionData.php';
+        break;
     case 'getVistaBarraPeriodos':
         include_once $URLCom . '/modulos/mod_informes/tareas/getVistaBarraPeriodos.php';
         break;
