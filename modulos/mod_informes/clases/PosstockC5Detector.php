@@ -50,6 +50,7 @@ class PosstockC5Detector
             'sd_dias'               => round($sd, 1),
             'umbral_dias'           => round($umbral, 1),
             'posible_causa'         => 'Hueco en lineal o merma no registrada',
+            'modelo_usado'          => 'Binomial',
         ];
         $incidencias = [];
         for ($i = 1; $i < $n; $i++) {
@@ -291,9 +292,11 @@ class PosstockC5Detector
             fn($inc) => isset($inc['fecha_inicio_rotura']) && $inc['fecha_inicio_rotura'] >= $fi_mov
         ));
 
-        // Añadir nombres
+        // Añadir nombres, proveedor y coste estimado
         if (!empty($incidencias)) {
             $idsIncidenciasCsv = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
+
+            // Nombres
             $resultadoConsulta = $this->db->query(
                 "SELECT idArticulo, articulo_name FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
             );
@@ -303,8 +306,33 @@ class PosstockC5Detector
                     $nombres[(int)$filaNombre['idArticulo']] = $filaNombre['articulo_name'];
                 }
             }
+
+            // Proveedor habitual y último en el año natural del período
+            $fi_anio = $this->db->real_escape_string(date('Y-01-01', strtotime($fi_mov)));
+            $provData = $this->repo->queryProveedorArticulos($idsIncidenciasCsv, $fi_anio, $fechaFinMovimientos);
+
+            // Precio medio de venta (para coste estimado de la rotura)
+            $preciosVenta = $this->repo->queryPrecioMedioVentaC5(
+                $idsIncidenciasCsv,
+                $this->db->real_escape_string($fi_stats),
+                $fechaFinEstadistica
+            );
+
             foreach ($incidencias as &$inc) {
-                $inc['nombre'] = $nombres[$inc['idArticulo']] ?? '';
+                $id = $inc['idArticulo'];
+                $inc['nombre'] = $nombres[$id] ?? '';
+
+                // Proveedor
+                if (isset($provData[$id])) {
+                    $inc += $provData[$id];   // prov_habitual_nombre, prov_ultimo_nombre, etc.
+                }
+
+                // Coste estimado: (días_rotura / cadencia_media) × precio_medio_venta
+                $precio = $preciosVenta[$id] ?? 0.0;
+                $avg    = (float)($inc['avg_dias_entre_ventas'] ?? 0);
+                if ($precio > 0 && $avg > 0) {
+                    $inc['coste_estimado'] = round(($inc['dias_rotura'] / $avg) * $precio, 2);
+                }
             }
             unset($inc);
         }

@@ -431,7 +431,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit   c ON c.id = l.idalbcli
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                WHERE c.Fecha >= '$fechaInicioEsc' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'
                   $where_fam
@@ -442,7 +442,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst  c ON c.id = l.idticketst
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                WHERE c.Fecha >= '$fechaInicioEsc' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                   $where_fam
@@ -474,7 +474,7 @@ class PosstockQueryRepository
                 FROM albclilinea l
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                  AND c.Fecha >= '$fechaInicioEsc' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado IN ('Guardado','Procesado')
                   AND l.estadoLinea = 'Activo'" : '';
 
@@ -485,7 +485,7 @@ class PosstockQueryRepository
                 FROM ticketslinea l
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.idArticulo IN ($ids_str)
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
+                  AND c.Fecha >= '$fechaInicioEsc' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
                   AND c.estado = 'Cerrado'
                   AND l.estadoLinea = 'Activo'
                 $union_albcli
@@ -496,6 +496,36 @@ class PosstockQueryRepository
         $result = [];
         while ($fila = $sentencia->fetch_assoc()) {
             $result[(int)$fila['idArticulo']] = $fila['primera_venta_post'];
+        }
+        return $result;
+    }
+
+    /**
+     * C5 — Precio medio de venta por artículo (importe neto medio por línea de ticket).
+     * Usado para estimar el coste económico de la rotura.
+     *
+     * @return array  [idArticulo => precio_medio_venta]
+     */
+    public function queryPrecioMedioVentaC5(string $ids_str, string $fi, string $ff): array
+    {
+        if (empty($ids_str)) return [];
+        $sentencia = $this->db->query("
+            SELECT l.idArticulo,
+                   SUM(ABS(l.nunidades) * l.precioCiva / (1 + l.iva / 100))
+                   / NULLIF(SUM(ABS(l.nunidades)), 0) AS precio_medio
+            FROM ticketslinea l
+            INNER JOIN ticketst t ON t.id = l.idticketst
+            WHERE l.idArticulo IN ($ids_str)
+              AND t.Fecha >= '$fi' AND t.Fecha < DATE_ADD('$ff', INTERVAL 1 DAY)
+              AND t.estado = 'Cerrado'
+              AND l.estadoLinea = 'Activo'
+              AND l.precioCiva > 0
+            GROUP BY l.idArticulo
+        ");
+        if (!$sentencia) return [];
+        $result = [];
+        while ($fila = $sentencia->fetch_assoc()) {
+            $result[(int)$fila['idArticulo']] = (float)$fila['precio_medio'];
         }
         return $result;
     }

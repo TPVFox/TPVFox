@@ -415,47 +415,116 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $badgeRK = !empty($f['rk'])
                 ? ' <span class="label label-warning" title="Rotura confirmada significativa (≥ cadencia media)">RK</span>'
                 : '';
-            $badgeEstado = isset($f['fecha_fin_rotura']) && $f['fecha_fin_rotura']
-                ? '<span class="label label-success">Recuperada ' . $fmtF($f['fecha_fin_rotura']) . '</span>'
-                : '<span class="label label-warning">En curso</span>';
+            if (!empty($f['fecha_fin_rotura'])) {
+                // Badge de display con data-nofiltro: muestra la fecha exacta pero no genera
+                // un botón de filtro por fecha (evita N botones con "Recuperada DD/MM").
+                $badgeEstado = '<span class="label label-success" data-nofiltro="1">'
+                    . 'Recuperada ' . $fmtF($f['fecha_fin_rotura']) . '</span>';
+                // Ventanas temporales para filtro (acumulativas: ≤3d también lleva ≤7d, ≤14d, ≤30d).
+                // Los spans ocultos llevan la clase "label" para ser capturados por el regex de data-badges,
+                // pero no son visibles en la tabla.
+                $diasDesdeRec = (int)floor((time() - strtotime($f['fecha_fin_rotura'])) / 86400);
+                foreach ([3, 7, 14, 30] as $_ventC5) {
+                    if ($diasDesdeRec <= $_ventC5) {
+                        $badgeEstado .= '<span class="label" style="display:none">' . $_ventC5 . ' d</span>';
+                    }
+                }
+            } else {
+                $badgeEstado = '<span class="label label-warning">En curso</span>';
+            }
 
             $diasRoturaStr = isset($f['dias_rotura'])
                 ? '<strong>' . $f['dias_rotura'] . ' d</strong>'
                 : '<strong>—</strong>';
 
-            $avgC5 = (float)($f['avg_dias_entre_ventas'] ?? 0);
+            $avgC5    = (float)($f['avg_dias_entre_ventas'] ?? 0);
+            $enCursoC5 = empty($f['fecha_fin_rotura']);
             $c5mCfg = [
-                'GammaReg' => ['lbl' => 'Γ', 'cls' => 'label-success',  'comp' => 'Alta rotación, patrón muy regular',     'tip' => 'Gamma — alta rotación con intervalos regulares. Umbral = cuantil Gamma ajustado a los gaps.'],
-                'Gamma'    => ['lbl' => 'Γ', 'cls' => 'label-default',  'comp' => 'Rotación moderada, gaps ajustados a Gamma', 'tip' => 'Gamma — ajuste directo a la distribución de gaps histórica. Umbral = cuantil de probabilidad.'],
-                'Normal'   => ['lbl' => 'N', 'cls' => 'label-default',  'comp' => 'Intervalos muy uniformes (aproximación Normal)', 'tip' => 'Normal — gaps prácticamente constantes (varianza ≈ 0). Umbral = media + 3σ.'],
-                'BN'       => ['lbl' => 'BN', 'cls' => 'label-info',     'comp' => 'Demanda en rachas o lotes',               'tip' => 'Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra.'],
+                'GammaReg' => ['lbl' => 'Γ',   'cls' => 'label-success', 'comp' => 'Alta rotación, patrón muy regular',         'tip' => 'Gamma — alta rotación con intervalos regulares. Umbral = cuantil Gamma ajustado a los gaps.'],
+                'Gamma'    => ['lbl' => 'Γ',   'cls' => 'label-default', 'comp' => 'Rotación moderada, gaps ajustados a Gamma', 'tip' => 'Gamma — ajuste directo a la distribución de gaps histórica. Umbral = cuantil de probabilidad.'],
+                'Normal'   => ['lbl' => 'N',   'cls' => 'label-default', 'comp' => 'Intervalos muy uniformes (σ ≈ 0, Normal)',  'tip' => 'Normal — gaps prácticamente constantes (varianza ≈ 0). Umbral = media + 3σ.'],
+                'BN'       => ['lbl' => 'BN',  'cls' => 'label-info',    'comp' => 'Demanda en rachas o lotes',                 'tip' => 'Binomial Negativa — sobredispersión detectada (ventas agrupadas por periodos). Umbral ajustado a la variabilidad extra.'],
+                'Binomial' => ['lbl' => 'σ',   'cls' => 'label-default', 'comp' => 'Umbral clásico media + n·σ',               'tip' => 'Binomial (media + n·σ) — sin hipótesis distribucional. Umbral = avg + sigma_mult × sd.'],
                 'Poisson'  => $avgC5 > 0 && $avgC5 < 4
                     ? ['lbl' => 'Poi', 'cls' => 'label-primary', 'comp' => 'Alta rotación, gaps ~ exponencial',   'tip' => 'Poisson — alta rotación con dispersión normal. Umbral: gap > −ln(p)/λ.']
                     : ['lbl' => 'Poi', 'cls' => 'label-default', 'comp' => 'Demanda esporádica, baja frecuencia', 'tip' => 'Poisson — artículo de venta poco frecuente. Umbral conservador para eventos raros.'],
             ];
-            $modelo   = $f['modelo_usado'] ?? 'Poisson';
-            $c5m      = $c5mCfg[$modelo] ?? $c5mCfg['Poisson'];
+            $modelo   = $f['modelo_usado'] ?? 'Binomial';
+            $c5m      = $c5mCfg[$modelo] ?? $c5mCfg['Binomial'];
             $badgeMod = ' <span class="label ' . $c5m['cls'] . '" title="' . htmlspecialchars($c5m['tip']) . '">' . $c5m['lbl'] . '</span>';
             $sdStr    = (isset($f['sd_dias']) && $f['sd_dias'] !== null) ? ' σ=' . $f['sd_dias'] . ' d' : '';
+
+            // Ratio de la rotura respecto a la cadencia habitual
+            $diasR5  = (int)($f['dias_rotura'] ?? 0);
+            $ratioC5 = ($avgC5 > 0 && $diasR5 > 0) ? round($diasR5 / $avgC5, 1) : 0.0;
+
+            // ── Posible causa: razón específica + acción + (técnico: modelo) ──────
+            $stockStr5 = isset($f['stock_actual']) ? number_format((float)$f['stock_actual'], 2, ',', '.') : '—';
+            $fechaFinStr5 = $fmtF($f['fecha_fin_rotura'] ?? null);
+
+            if (!empty($f['ko'])) {
+                $razonC5  = 'Stock en 0 con rotura activa — inventario en descubierto ('
+                    . $diasR5 . ' d sin venta, stock: ' . $stockStr5 . ')';
+                $accionC5 = 'Verificar stock físico urgente y lanzar pedido al proveedor · Si el sistema no refleja el agotamiento, ajustar el inventario';
+            } elseif (!empty($f['cr']) && $enCursoC5) {
+                $razonC5  = 'Rotura confirmada prolongada en curso — '
+                    . $diasR5 . ' d sin venta'
+                    . ($ratioC5 > 0 ? ', ' . $ratioC5 . '× la cadencia habitual (' . $avgC5 . ' d)' : '');
+                $accionC5 = 'Verificar presencia física en lineal y almacén · Si hubo merma o retirada, registrarla para corregir el stock';
+            } elseif (!empty($f['cr'])) {
+                $razonC5  = 'Hueco prolongado cerrado — '
+                    . $diasR5 . ' d sin venta, recuperado el ' . $fechaFinStr5
+                    . ($ratioC5 > 0 ? ' (' . $ratioC5 . '× la cadencia)' : '');
+                $accionC5 = 'Revisar si quedó merma sin registrar durante el período · Investigar si hubo causa operativa (retirada, caducidad, incidencia de calidad)';
+            } elseif (!empty($f['rk']) && $enCursoC5) {
+                $razonC5  = 'Rotura significativa activa — '
+                    . $diasR5 . ' d sin venta (cadencia habitual: ' . ($avgC5 ?: '—') . ' d)';
+                $accionC5 = 'Comprobar disponibilidad en lineal · Si agotado físicamente, gestionar reposición';
+            } elseif (!empty($f['rk'])) {
+                $razonC5  = 'Brecha significativa cerrada — '
+                    . $diasR5 . ' d sin venta, recuperado el ' . $fechaFinStr5;
+                $accionC5 = 'Verificar si hubo agotamiento real o fue coincidencia puntual · Sin acción urgente si la rotación es ahora normal';
+            } elseif ($enCursoC5) {
+                $razonC5  = 'Interrupción de ventas activa — '
+                    . $diasR5 . ' d sin venta desde ' . $fmtF($f['fecha_inicio_rotura'] ?? null);
+                $accionC5 = 'Verificar disponibilidad del artículo en el punto de venta';
+            } else {
+                $razonC5  = 'Interrupción leve cerrada — '
+                    . $diasR5 . ' d sin venta, recuperado el ' . $fechaFinStr5;
+                $accionC5 = 'Sin acción urgente · Verificar si el patrón se repite o es estacional';
+            }
+
+            $posibleCausaHtml  = htmlspecialchars($razonC5);
+            $posibleCausaHtml .= '<br><small class="text-muted">' . htmlspecialchars($accionC5) . '</small>';
+            if ($mostrarTecnico) {
+                $tecC5 = $c5m['lbl'] . ' ' . htmlspecialchars($c5m['comp'])
+                    . ($sdStr ? ' ·' . $sdStr : '')
+                    . ' · umbral ' . ($f['umbral_dias'] ?? '—') . ' d'
+                    . ($ratioC5 > 0 ? ' · ratio ' . $ratioC5 . '×' : '');
+                $posibleCausaHtml .= '<br><small class="text-muted text-info">' . $tecC5 . '</small>';
+            }
 
             // L1: badges de diagnóstico
             $detalle = $badgeStockNoFiable . $badgeKO . $badgeCR . $badgeRK . ' ' . $badgeEstado;
             if ($mostrarTecnico) {
                 $detalle .= ' ' . $badgeMod;
             }
-            // L2: dato operativo principal
-            $detalle .= '<br>' . $diasRoturaStr
-                . ' | Desde: ' . $fmtF($f['fecha_inicio_rotura'] ?? null)
-                . ' | Últ. venta: ' . $fmtF($f['ultima_venta'] ?? null);
-            // L3: contexto complementario
-            $linea3C5 = 'Cadencia: ' . (isset($f['avg_dias_entre_ventas']) ? $f['avg_dias_entre_ventas'] . ' d' : '—')
+            // L2: dato operativo principal — accionable y autoexplicativo
+            $detalle .= '<br>' . $diasRoturaStr . ' sin venta'
+                . ' | <span title="Primer día sin venta tras superar la cadencia habitual del artículo">rotura desde ' . $fmtF($f['fecha_inicio_rotura'] ?? null) . '</span>'
+                . ' | última venta: ' . $fmtF($f['ultima_venta'] ?? null);
+            // L3: info complementaria del artículo (sin diagnóstico — eso va en Posible causa)
+            $linea3C5 = 'Cadencia: ' . ($avgC5 > 0 ? $avgC5 . ' d' : '—')
                 . ' (umbral ' . (isset($f['umbral_dias']) ? $f['umbral_dias'] . ' d' : '—') . ')';
             if ($mostrarTecnico) {
                 $linea3C5 .= $sdStr . ' · ' . htmlspecialchars($c5m['comp']);
+                if ($ratioC5 > 0) {
+                    $linea3C5 .= ' · ratio ' . $ratioC5 . '×';
+                }
             }
             $costeC5 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
             if ($costeC5 !== null) {
-                $linea3C5 .= ' | <span title="Valor estimado de la rotura: ventas perdidas estimadas × precio medio de venta">Coste est.: <strong>~'
+                $linea3C5 .= ' | <span title="Ventas perdidas estimadas × precio medio de venta del artículo">Impacto est.: <strong>~'
                     . number_format($costeC5, 0, ',', '.') . ' €</strong></span>';
             }
             if (!empty($f['prov_habitual_nombre'])) {
