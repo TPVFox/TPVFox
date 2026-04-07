@@ -95,6 +95,18 @@ foreach ($filas as $f) {
         $detalle = 'Stock en periodo: ' . (isset($f['stock_actual'])
             ? number_format((float)$f['stock_actual'], 2, '.', '')
             : '-');
+    } elseif (in_array($f['tipo'], ['Agotamiento Estimado', 'Punto de Pedido'], true)) {
+        $stock   = isset($f['stock_actual'])    ? (float)$f['stock_actual']    : 0.0;
+        $rop     = isset($f['rop'])             ? (float)$f['rop']             : 0.0;
+        $ss      = isset($f['stock_seguridad']) ? (float)$f['stock_seguridad'] : 0.0;
+        $pedir   = max(0, (int)ceil($rop - $stock));
+        $detalle = 'Stock: '        . number_format($stock, 2, '.', '')
+            . ' | ROP: '           . number_format($rop,   2, '.', '')
+            . ' | SS: '            . number_format($ss,    2, '.', '')
+            . ' | Dias aut.: '     . number_format((float)($f['dias_autonomia'] ?? 0), 1, '.', '')
+            . ' | LT: '            . ($f['lead_time_dias'] ?? '-') . ' d'
+            . ' | A pedir: '       . $pedir
+            . ' | Modelo: '        . ($f['modelo_usado'] ?? '-');
     }
 
     fputcsv($out, [
