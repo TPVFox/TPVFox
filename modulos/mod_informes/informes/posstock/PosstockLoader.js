@@ -206,10 +206,10 @@ function _posstockRenderLote(filas, periodo, offset) {
                 $("#posstockSpinner").hide();
                 _posstockResetAgruparProv();
                 if (filas.length > 0) {
-                    $("#posstockBtnExportar, #posstockBtnImprimir").show();
+                    $("#posstockBtnExportar, #posstockBtnImprimir, #posstockBtnConteo").show();
                     _posstockIniciarFiltroBadges();
                 } else {
-                    $("#posstockBtnExportar, #posstockBtnImprimir").hide();
+                    $("#posstockBtnExportar, #posstockBtnImprimir, #posstockBtnConteo").hide();
                 }
             }
         },

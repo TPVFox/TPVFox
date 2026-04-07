@@ -145,11 +145,99 @@ function imprimirPOSStockPDF() {
     });
 }
 
-window.exportarPOSStockCSV = exportarPOSStockCSV;
-window.imprimirPOSStockPDF = imprimirPOSStockPDF;
+// ── Generar hoja de conteo físico desde POSStock ──────────────────────────────
+//
+// Envía los IDs de los artículos visibles (o todos si no hay filtro de badge)
+// al generador de PDF de conteo. Abre un modal ligero para elegir modo (normal/ciega).
+
+function imprimirConteoPosstockPDF(modo) {
+    var filas = window._posstockFilasVisibles;
+    if (!filas || !filas.length) {
+        _posstockMostrarError("No hay artículos visibles para generar la hoja de conteo.");
+        return;
+    }
+
+    var ids = filas
+        .map(function (tr) { return tr.getAttribute("data-idarticulo") || ""; })
+        .filter(Boolean)
+        // Deduplicar: un artículo puede aparecer en varios casos
+        .filter(function (id, idx, arr) { return arr.indexOf(id) === idx; });
+
+    if (!ids.length) {
+        _posstockMostrarError("No se pudieron obtener los IDs de los artículos.");
+        return;
+    }
+
+    var btn = document.getElementById("posstockBtnConteo");
+    if (btn) { btn.disabled = true; btn.textContent = "Generando…"; }
+
+    $.ajax({
+        url:  "tareas.php",
+        type: "POST",
+        data: {
+            pulsado:       "imprimirInventarioConteoPDF",
+            ids_articulos: ids.join(","),
+            solo_activos:  "0",   // los IDs ya vienen de POSStock, no filtrar por estado
+            modo:          modo || "normal",
+        },
+        success: function (response) {
+            var resultado = JSON.parse(response);
+            if (resultado.error) {
+                _posstockMostrarError("Error al generar hoja de conteo: " + resultado.error);
+            } else {
+                window.open(resultado.url, "_blank");
+            }
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al generar la hoja de conteo.");
+        },
+        complete: function () {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="glyphicon glyphicon-list-alt"></i> Conteo';
+            }
+        },
+    });
+}
+
+// Muestra un mini-dropdown para elegir modo antes de generar
+function _posstockAbrirModoConteo(event) {
+    event.stopPropagation();
+    var existing = document.getElementById("_posstockModoConteoMenu");
+    if (existing) { existing.remove(); return; }
+
+    var btn  = document.getElementById("posstockBtnConteo");
+    var rect = btn.getBoundingClientRect();
+
+    var menu = document.createElement("div");
+    menu.id  = "_posstockModoConteoMenu";
+    menu.style.cssText = "position:fixed;z-index:9999;background:#fff;border:1px solid #ccc;"
+        + "border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.2);min-width:160px;"
+        + "top:" + (rect.bottom + 4) + "px;left:" + rect.left + "px;";
+    menu.innerHTML =
+        '<a style="display:block;padding:8px 14px;cursor:pointer;font-size:13px;" '
+        + 'onclick="imprimirConteoPosstockPDF(\'normal\');document.getElementById(\'_posstockModoConteoMenu\').remove();">'
+        + 'Normal (con stock)</a>'
+        + '<a style="display:block;padding:8px 14px;cursor:pointer;font-size:13px;border-top:1px solid #eee;" '
+        + 'onclick="imprimirConteoPosstockPDF(\'ciega\');document.getElementById(\'_posstockModoConteoMenu\').remove();">'
+        + 'Ciega (sin stock para operario)</a>';
+
+    document.body.appendChild(menu);
+    document.addEventListener("click", function _cerrar() {
+        var m = document.getElementById("_posstockModoConteoMenu");
+        if (m) m.remove();
+        document.removeEventListener("click", _cerrar);
+    });
+}
+
+window.exportarPOSStockCSV          = exportarPOSStockCSV;
+window.imprimirPOSStockPDF          = imprimirPOSStockPDF;
+window.imprimirConteoPosstockPDF    = imprimirConteoPosstockPDF;
+window._posstockAbrirModoConteo     = _posstockAbrirModoConteo;
 
 export {
     _posstockGetArticulosFiltrados,
     exportarPOSStockCSV,
     imprimirPOSStockPDF,
+    imprimirConteoPosstockPDF,
 };

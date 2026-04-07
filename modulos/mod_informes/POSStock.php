@@ -141,6 +141,11 @@ foreach ($tiposParaChks as $ti) {
                             onclick="imprimirPOSStockPDF()">
                             <i class="glyphicon glyphicon-print"></i> Imprimir PDF
                         </button>
+                        <button id="posstockBtnConteo" type="button"
+                            class="btn btn-default btn-sm" style="display:none;"
+                            onclick="_posstockAbrirModoConteo(event)">
+                            <i class="glyphicon glyphicon-list-alt"></i> Conteo
+                        </button>
                     </div>
                 </div>
             </div>

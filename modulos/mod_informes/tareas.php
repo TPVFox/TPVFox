@@ -55,6 +55,12 @@ switch ($pulsado) {
     case 'imprimirPOSStockPDF':
         include_once $URLCom . '/modulos/mod_informes/tareas/imprimirPOSStockPDF.php';
         break;
+    case 'getArticulosConteoData':
+        include_once $URLCom . '/modulos/mod_informes/tareas/getArticulosConteoData.php';
+        break;
+    case 'imprimirInventarioConteoPDF':
+        include_once $URLCom . '/modulos/mod_informes/tareas/imprimirInventarioConteoPDF.php';
+        break;
     case 'getInfoPeriodos':
         include_once $URLCom . '/modulos/mod_informes/tareas/getInfoPeriodos.php';
         break;
