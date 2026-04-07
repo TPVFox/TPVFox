@@ -615,13 +615,26 @@ $datosInforme = $DatosInforme['datos'];
                     $query['global'] = 1;
                     return $HostNombre . '/modulos/mod_informes/tareas/' . $script . '?' . http_build_query($query);
                 };
+                $urlExportCSV = $HostNombre . '/modulos/mod_informes/tareas/exportarBeneficioCompletoCSV.php?' . http_build_query($baseParamsAtipicos);
+                $urlExportPDF = $HostNombre . '/modulos/mod_informes/tareas/imprimirBeneficioCompletoPDF.php?' . http_build_query($baseParamsAtipicos);
                 ?>
                 <div class="col-md-12">
+                    <div style="margin-bottom:10px; text-align:right;">
+                        <a class="btn btn-sm btn-default" target="_blank"
+                            href="<?php echo htmlspecialchars($urlExportCSV, ENT_QUOTES, 'UTF-8'); ?>"
+                            title="Exportar informe completo a CSV">
+                            <span class="glyphicon glyphicon-download-alt"></span> Exportar CSV
+                        </a>
+                        <a class="btn btn-sm btn-primary" target="_blank"
+                            href="<?php echo htmlspecialchars($urlExportPDF, ENT_QUOTES, 'UTF-8'); ?>"
+                            title="Exportar informe completo a PDF">
+                            <span class="glyphicon glyphicon-print"></span> Exportar PDF
+                        </a>
+                    </div>
                     <div class="alert alert-info">
                         <strong>Nota:</strong> Si un artículo está asignado a varias familias aparece en cada una de ellas. Los subtotales por familia son correctos entre sí, pero el <strong>total global puede estar inflado</strong> si existen artículos compartidos entre familias.
                     </div>
-                    <div class="alert alert-success">
-                        <strong>Atipicos:</strong> cada familia incluye botones para exportar PDF/CSV con productos cuyo margen esta fuera de la media de su subfamilia +/- 3SD y todos los productos con margen negativo.
+                    <div class="alert alert-success" style="margin-bottom:6px;">
                         <span style="float:right; margin-left:8px;">
                             <a class="btn btn-xs btn-default" target="_blank"
                                 href="<?php echo htmlspecialchars($buildUrlAtipicosGlobal('csv'), ENT_QUOTES, 'UTF-8'); ?>"
@@ -629,7 +642,13 @@ $datosInforme = $DatosInforme['datos'];
                             <a class="btn btn-xs btn-primary" target="_blank"
                                 href="<?php echo htmlspecialchars($buildUrlAtipicosGlobal('pdf'), ENT_QUOTES, 'UTF-8'); ?>"
                                 title="Descargar PDF global de atipicos">PDF global</a>
+                            <button type="button" class="btn btn-xs btn-success" id="btnToggleAtipicos"
+                                onclick="var v=document.querySelectorAll('.btn-atipicos-familia');var oculto=v.length>0&&v[0].style.display==='none';v.forEach(function(el){el.style.display=oculto?'':' none';});this.innerHTML=oculto?'&#x25B2; Ocultar at&iacute;picos por familia':'&#x25BC; Mostrar at&iacute;picos por familia';"
+                                title="Mostrar u ocultar los botones de atipicos en cada familia">
+                                &#x25BC; Mostrar atípicos por familia
+                            </button>
                         </span>
+                        <strong>Atipicos:</strong> productos con margen fuera de media &plusmn;3SD o negativo.
                     </div>
                     <div class="alert alert-warning">
                         <strong>Coste:</strong> Se usa el <strong>coste medio ponderado de compra del período</strong> para cada artículo. Si no hubo compra en el período se usa el <em>ultimoCoste</em> actual como aproximación. El coste con <span class="label label-default">*</span> indica fallback a coste actual.
@@ -867,13 +886,13 @@ $datosInforme = $DatosInforme['datos'];
                                     <tr>
                                         <td>
                                             <strong><?php echo htmlspecialchars($familia['nombreN1']); ?></strong>
-                                            <span style="float:right; margin-left:8px;">
+                                            <span class="btn-atipicos-familia" style="float:right; margin-left:8px; display:none;">
                                                 <a class="btn btn-xs btn-default" target="_blank"
                                                     href="<?php echo htmlspecialchars($buildUrlAtipicos('csv', $familia['idN1']), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    title="Descargar CSV de atipicos de esta familia">CSV atipicos</a>
+                                                    title="Descargar CSV de atipicos de esta familia">CSV atípicos</a>
                                                 <a class="btn btn-xs btn-primary" target="_blank"
                                                     href="<?php echo htmlspecialchars($buildUrlAtipicos('pdf', $familia['idN1']), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    title="Descargar PDF de atipicos de esta familia">PDF atipicos</a>
+                                                    title="Descargar PDF de atipicos de esta familia">PDF atípicos</a>
                                             </span>
                                             <?php if ($flFam): ?>
                                                 <?php
@@ -969,13 +988,13 @@ $datosInforme = $DatosInforme['datos'];
                                     <tr style="background:#e8ecf0;">
                                         <td colspan="7">
                                             <strong><?php echo htmlspecialchars($familia['nombreN1']); ?></strong>
-                                            <span style="float:right; margin-left:8px;">
+                                            <span class="btn-atipicos-familia" style="float:right; margin-left:8px; display:none;">
                                                 <a class="btn btn-xs btn-default" target="_blank"
                                                     href="<?php echo htmlspecialchars($buildUrlAtipicos('csv', $familia['idN1']), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    title="Descargar CSV de atipicos de esta familia">CSV atipicos</a>
+                                                    title="Descargar CSV de atipicos de esta familia">CSV atípicos</a>
                                                 <a class="btn btn-xs btn-primary" target="_blank"
                                                     href="<?php echo htmlspecialchars($buildUrlAtipicos('pdf', $familia['idN1']), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    title="Descargar PDF de atipicos de esta familia">PDF atipicos</a>
+                                                    title="Descargar PDF de atipicos de esta familia">PDF atípicos</a>
                                             </span>
                                             &nbsp;<span class="label label-default"><?php echo $familia['num_referencias']; ?> ref.</span>
                                             &nbsp;Venta: <strong><?php echo number_format($familia['totalVenta'], 2); ?></strong> €
@@ -1175,13 +1194,12 @@ $datosInforme = $DatosInforme['datos'];
                                                         <?php echo number_format($art['margen_pct'], 1); ?>%
                                                     </span>
                                                 </td>
-                                                <td style="white-space:nowrap;">
-                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/DetalleMayor.php?idArticulo=' . $_idArt . '&fecha_inicial=' . $_fi . '&fecha_final=' . $_ff; ?>" target="_blank" title="Ver listado mayor del artículo en el período">
-                                                        <i class="glyphicon glyphicon-list-alt"></i> Mayor
+                                                <td style="white-space:nowrap; text-align:center;">
+                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/DetalleMayor.php?idArticulo=' . $_idArt . '&fecha_inicial=' . $_fi . '&fecha_final=' . $_ff; ?>" target="_blank" class="btn btn-xs btn-default" title="Ver listado mayor del artículo en el período">
+                                                        <span class="glyphicon glyphicon-list-alt"></span>
                                                     </a>
-                                                    &nbsp;
-                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/producto.php?id=' . $_idArt; ?>" target="_blank" title="Ver ficha del artículo">
-                                                        <i class="glyphicon glyphicon-tag"></i> Ficha
+                                                    <a href="<?php echo $HostNombre . '/modulos/mod_producto/producto.php?id=' . $_idArt; ?>" target="_blank" class="btn btn-xs btn-default" title="Ver ficha del artículo">
+                                                        <span class="glyphicon glyphicon-tag"></span>
                                                     </a>
                                                 </td>
                                             </tr>

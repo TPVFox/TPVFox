@@ -148,13 +148,13 @@ $CInformes = new ClaseInformes();
                                 <td><strong>Fluctuacion de coste mensual</strong></td>
                                 <td>Tendencia de coste promedio por mes, con agregacion por articulo/familia/subfamilia</td>
                                 <td>
-                                    <select id="opcion7" onchange="_onOpcionChange(7)" class="form-control input-sm" style="margin-bottom:6px;">
+                                    <select id="opcion7" onchange="_onOpcionChange(7)">
                                         <option value="1">Solo familias</option>
                                         <option value="2">Familias y subfamilias</option>
                                         <option value="3" selected>Familias, subfamilias y articulos</option>
                                         <option value="4">Seleccion de familias</option>
                                     </select>
-                                    <div id="panelFamilias7" style="display:none; margin-bottom:6px;">
+                                    <div id="panelFamilias7" style="display:none; margin-top:6px;">
                                         <button type="button" class="btn btn-default btn-xs" onclick="abrirCatalogoFamiliasCosteFluctuacion()">
                                             <span class="glyphicon glyphicon-list"></span> Elegir familias
                                         </button>
@@ -164,20 +164,18 @@ $CInformes = new ClaseInformes();
                                         </div>
                                         <input type="hidden" id="familiasSel7" value="">
                                     </div>
-                                    <div class="row" style="margin:0;">
-                                        <div class="col-sm-4" style="padding-left:0;">
-                                            <label style="font-size:11px; margin-bottom:2px;">Min rec/mes</label>
-                                            <input type="number" min="1" step="1" id="cfMinRecepciones" class="form-control input-sm" value="3">
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <label style="font-size:11px; margin-bottom:2px;">Min meses</label>
-                                            <input type="number" min="1" step="1" id="cfMinMeses" class="form-control input-sm" value="3">
-                                        </div>
-                                        <div class="col-sm-4" style="padding-right:0; padding-top:18px;">
-                                            <label style="font-weight:normal; font-size:12px;">
-                                                <input type="checkbox" id="cfIncluirEspecial" value="1"> Prov. Especial
-                                            </label>
-                                        </div>
+                                    <div style="margin-top:6px;">
+                                        <label style="font-weight:normal; font-size:12px; margin-right:10px;">
+                                            Min rec/mes:
+                                            <input type="number" min="1" step="1" id="cfMinRecepciones" value="3" style="width:50px; display:inline-block;">
+                                        </label>
+                                        <label style="font-weight:normal; font-size:12px; margin-right:10px;">
+                                            Min meses:
+                                            <input type="number" min="1" step="1" id="cfMinMeses" value="3" style="width:50px; display:inline-block;">
+                                        </label>
+                                        <label style="font-weight:normal; font-size:12px;">
+                                            <input type="checkbox" id="cfIncluirEspecial" value="1"> Prov. Especial
+                                        </label>
                                     </div>
                                 </td>
                                 <td></td>
