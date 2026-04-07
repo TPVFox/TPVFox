@@ -72,7 +72,8 @@ foreach ($filas as $f) {
     $bg = $zebra[$i % 2];
     $i++;
 
-    $detalle = '';
+    $detalle        = '';
+    $detalle_es_html = false;
     if ($f['tipo'] === 'Stock Negativo') {
         $detalle = 'Stock: ' . (isset($f['stock_actual'])
             ? number_format((float)$f['stock_actual'], 2, ',', '')
@@ -110,18 +111,21 @@ foreach ($filas as $f) {
         $rop     = isset($f['rop'])             ? (float)$f['rop']             : 0.0;
         $ss      = isset($f['stock_seguridad']) ? (float)$f['stock_seguridad'] : 0.0;
         $pedir   = max(0, (int)ceil($rop - $stock));
-        $detalle = 'Stock: '         . number_format($stock, 2, ',', '')
-            . ' · ROP: '            . number_format($rop,   2, ',', '')
-            . ' · SS: '             . number_format($ss,    2, ',', '')
-            . ' · Aut: '            . number_format((float)($f['dias_autonomia'] ?? 0), 1, ',', '') . ' d'
-            . ' · LT: '             . ($f['lead_time_dias'] ?? '—') . ' d'
-            . ' · <b>Pedir: '       . $pedir . '</b>'
-            . ' · ' . ($f['modelo_usado'] ?? '');
+        // $detalle se construye como HTML directo (no pasa por htmlspecialchars)
+        $detalle = 'Stock: '    . number_format($stock, 2, ',', '')
+            . ' &middot; ROP: ' . number_format($rop,   2, ',', '')
+            . ' &middot; SS: '  . number_format($ss,    2, ',', '')
+            . ' &middot; Aut: ' . number_format((float)($f['dias_autonomia'] ?? 0), 1, ',', '') . ' d'
+            . ' &middot; LT: '  . (int)($f['lead_time_dias'] ?? 0) . ' d'
+            . ' &middot; <b>Pedir: ' . $pedir . '</b>'
+            . ' &middot; '      . htmlspecialchars((string)($f['modelo_usado'] ?? ''));
+        $detalle_es_html = true;
     }
 
     $sev       = $f['severidad'] ?? 'BAJA';
     $sev_bg    = $sev_cfg[$sev]['bg']    ?? '#888888';
     $sev_label = $sev_cfg[$sev]['label'] ?? $sev;
+    $detalle_html = ($detalle_es_html ?? false) ? $detalle : htmlspecialchars($detalle);
 
     // nobr="true" evita que TCPDF parta la fila entre páginas
     $filas_html .= '<tr nobr="true" bgcolor="' . $bg . '">'
@@ -131,7 +135,7 @@ foreach ($filas as $f) {
         . '<td align="center" width="9%" bgcolor="' . $sev_bg . '">'
             . '<font color="#ffffff"><b>' . $sev_label . '</b></font>'
         . '</td>'
-        . '<td width="20%">'                  . htmlspecialchars($detalle)                . '</td>'
+        . '<td width="20%">'                  . $detalle_html                             . '</td>'
         . '<td width="15%">'
             . '<font color="#555555">'        . htmlspecialchars($f['posible_causa'] ?? '') . '</font>'
         . '</td>'
