@@ -245,6 +245,7 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
         'fecha_fin_movimientos'    => $fin->format('Y-m-d'),
         'fecha_inicio_stock'       => $fi_stock_dt->format('Y-m-d'),
         'fecha_fin_stock'          => $fecha_fin_stock_dt->format('Y-m-d'),
+        'fecha_inicio_periodo'     => $inicio->format('Y-m-d'),
         'label_movimientos'        => $label_mov,
         'label_stock'              => $label_stock,
         'total_periodos'           => $total_periodos,

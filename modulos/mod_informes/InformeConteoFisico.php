@@ -103,6 +103,47 @@ if ($ClasePermisos->getAccion('ejecutar') == 0) {
                 </div>
             </div>
 
+            <!-- ── Panel hoja rápida de conteo ──────────────────────────── -->
+            <div class="col-md-4" style="margin-top:0;">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <strong><span class="glyphicon glyphicon-th-list"></span> Hoja r&aacute;pida de conteo</strong>
+                        <small class="pull-right" style="padding-top:2px;">Una l&iacute;nea por art&iacute;culo</small>
+                    </div>
+                    <div class="panel-body">
+                        <p style="font-size:12px; margin-top:0;">
+                            Usa los mismos filtros del panel izquierdo.<br>
+                            Genera una tabla compacta: ID &middot; nombre &middot; stock &middot; casilla de conteo.
+                            Ideal para contar junto a un pedido.
+                        </p>
+
+                        <div class="checkbox" style="margin-top:0;">
+                            <label style="font-size:12px;">
+                                <input type="checkbox" id="hrMostrarStock" checked>
+                                Mostrar stock sistema
+                                <small class="text-muted">(desmarcar = conteo ciego)</small>
+                            </label>
+                        </div>
+
+                        <button type="button" class="btn btn-info btn-block"
+                                id="hrBtnGenerar" onclick="hrGenerarPDF()">
+                            <span class="glyphicon glyphicon-print"></span>
+                            Generar hoja r&aacute;pida (PDF)
+                        </button>
+
+                        <div id="hrMensaje" style="margin-top:8px;"></div>
+
+                        <div id="hrResultadoPDF" style="display:none; margin-top:8px;">
+                            <a id="hrEnlacePDF" href="#" target="_blank"
+                               class="btn btn-success btn-block btn-sm">
+                                <span class="glyphicon glyphicon-download-alt"></span>
+                                Abrir hoja r&aacute;pida
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ── Panel de vista previa / resultado ─────────────────────── -->
             <div class="col-md-8">
                 <div class="panel panel-default">
@@ -304,6 +345,59 @@ if ($ClasePermisos->getAccion('ejecutar') == 0) {
         }).always(function() {
             $btn.prop('disabled', false).html('<span class="glyphicon glyphicon-print"></span> Generar hoja de conteo (PDF)');
         });
+    }
+
+    function hrGenerarPDF() {
+        var idsArticulos = $('#cfIdsArticulos').val().trim();
+        var familiasSel  = $('#cfFamiliasSel').val().trim();
+        var soloActivos  = $('#cfSoloActivos').is(':checked') ? '1' : '0';
+        var titulo       = $('#cfTitulo').val().trim();
+        var mostrarStock = $('#hrMostrarStock').is(':checked') ? '1' : '0';
+
+        if (!idsArticulos && !familiasSel) {
+            hrMensaje('warning', 'Selecciona una familia o introduce IDs de artículos en el panel izquierdo.');
+            return;
+        }
+
+        var $btn = $('#hrBtnGenerar');
+        $btn.prop('disabled', true).html('<span class="glyphicon glyphicon-refresh"></span> Generando...');
+        $('#hrResultadoPDF').hide();
+        hrMensaje('', '');
+
+        var data = {
+            pulsado:       'imprimirHojaRapidaConteoPDF',
+            solo_activos:  soloActivos,
+            titulo:        titulo,
+            mostrar_stock: mostrarStock
+        };
+
+        if (idsArticulos) {
+            data.ids_articulos = idsArticulos;
+        } else {
+            data.id_familia = cfFamiliasSeleccionadas[0].id;
+        }
+
+        $.post('<?php echo $HostNombre; ?>/modulos/mod_informes/tareas.php', data, function(resp) {
+            if (resp.error) {
+                hrMensaje('danger', resp.error);
+            } else if (resp.url) {
+                $('#hrEnlacePDF').attr('href', resp.url);
+                $('#hrResultadoPDF').show();
+                hrMensaje('success', resp.total + ' artículo(s) en la hoja rápida.');
+            }
+        }, 'json').fail(function() {
+            hrMensaje('danger', 'Error de comunicación con el servidor.');
+        }).always(function() {
+            $btn.prop('disabled', false).html('<span class="glyphicon glyphicon-print"></span> Generar hoja rápida (PDF)');
+        });
+    }
+
+    function hrMensaje(tipo, texto) {
+        var $m = $('#hrMensaje');
+        if (!texto) { $m.html(''); return; }
+        $m.html('<div class="alert alert-' + tipo + ' alert-dismissible" style="font-size:12px;">'
+            + '<button type="button" class="close" data-dismiss="alert">&times;</button>'
+            + texto + '</div>');
     }
 
     function cfMensaje(tipo, texto) {

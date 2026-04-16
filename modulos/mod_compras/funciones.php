@@ -224,6 +224,7 @@ function recalculoTotales($productos, $campo_estado = 'estado')
     $desglose = array();
     $subivas = 0;
     $subtotal = 0;
+    // PASO A: acumular bases exactas sin redondear en cada iteración
     foreach ($productos as $product) {
         // Comprobamos que producto es un objeto
         if (gettype($product) !== 'object') {
@@ -232,27 +233,24 @@ function recalculoTotales($productos, $campo_estado = 'estado')
         }
         // Si la linea esta eliminada, no se pone.
         if ($product->$campo_estado === 'Activo') {
-            $b = $product->iva / 100;
-            if (!isset($product->importe)) {
-                // Por comtabilidad con versiones anterires.
-                $importe = $product->ncant * $product->ultimoCoste;
-            } else {
-                $importe = $product->importe;
-            }
-            if (isset($desglose[$product->iva])) {
-                $desglose[$product->iva]['base'] = number_format($desglose[$product->iva]['base'] + $importe, 2, '.', '');
-                $desglose[$product->iva]['iva'] = number_format($desglose[$product->iva]['iva'] + ($importe * $b), 2, '.', '');
-            } else {
-                $desglose[$product->iva]['base'] = number_format((float)$importe, 2, '.', '');
-                $desglose[$product->iva]['iva'] = number_format((float)$importe * $b, 2, '.', '');
-            }
-            $desglose[$product->iva]['BaseYiva'] = number_format((float)$desglose[$product->iva]['base'] + $desglose[$product->iva]['iva'], 2, '.', '');
+            $iva     = $product->iva;
+            $importe = isset($product->importe)
+                ? (float)$product->importe
+                : (float)$product->ncant * (float)$product->ultimoCoste;
+            $desglose[$iva]['base_raw'] = ($desglose[$iva]['base_raw'] ?? 0.0) + $importe;
         }
     }
-    foreach ($desglose as $tipoIva => $des) {
-        $subivas = $subivas + $desglose[$tipoIva]['iva'];
-        $subtotal = $subtotal + $desglose[$tipoIva]['BaseYiva'];
+    // PASO B: calcular IVA una sola vez por tipo sobre la base total acumulada
+    foreach ($desglose as $tipoIva => &$des) {
+        $base        = $des['base_raw'];
+        $iva_importe = $base * ($tipoIva / 100);
+        $des['base']     = number_format($base,                2, '.', '');
+        $des['iva']      = number_format($iva_importe,         2, '.', '');
+        $des['BaseYiva'] = number_format($base + $iva_importe, 2, '.', '');
+        $subivas  += $iva_importe;
+        $subtotal += ($base + $iva_importe);
     }
+    unset($des);
     $respuesta['desglose'] = $desglose;
     $respuesta['subivas'] = number_format($subivas, 2, '.', '');
     $respuesta['total'] = number_format($subtotal, 2, '.', '');

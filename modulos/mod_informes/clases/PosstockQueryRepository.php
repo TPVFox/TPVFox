@@ -1197,6 +1197,7 @@ class PosstockQueryRepository
         string $fi_m,
         string $ff_m,
         string $fi_s,
+        string $fi_periodo,
         string $wf,
         string $wi,
         int    $min_u,
@@ -1205,9 +1206,9 @@ class PosstockQueryRepository
         int    $umbral_caducidad = 24
     ): array {
         $c3a_floor_dias  = max(3, (int)ceil($multiplicador_cadencia));
-        $fi_m_ts         = $fi_m . ' 00:00:00';
         $ff_m_next       = "DATE_ADD('$ff_m', INTERVAL 1 DAY)";
         $fi_s_ts         = $fi_s . ' 00:00:00';
+        $fi_periodo_ts   = $fi_periodo . ' 00:00:00';
         $sql = "
             SELECT ent.idArticulo,
                    MAX(sal.fecha)              AS ultima_venta,
@@ -1228,7 +1229,7 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
-                WHERE c.Fecha >= '$fi_m_ts' AND c.Fecha < $ff_m_next
+                WHERE c.Fecha >= '$fi_periodo_ts' AND c.Fecha < $ff_m_next
                   AND c.estado      IN ('Guardado','Facturado')
                   AND l.estadoLinea = 'Activo'
                   $wf $wi

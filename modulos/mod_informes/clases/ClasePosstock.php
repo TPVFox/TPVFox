@@ -294,10 +294,11 @@ class ClasePosstock
     {
         $paramsDto = PosstockParamsDTO::fromArray($params);
 
-        $fi_mov   = $paramsDto->fecha_inicio_movimientos;
-        $ff_mov   = $paramsDto->fecha_fin_movimientos;
-        $fi_stock = $paramsDto->fecha_inicio_stock;
-        $ff_stock = $paramsDto->fecha_fin_stock;
+        $fi_mov      = $paramsDto->fecha_inicio_movimientos;
+        $ff_mov      = $paramsDto->fecha_fin_movimientos;
+        $fi_stock    = $paramsDto->fecha_inicio_stock;
+        $ff_stock    = $paramsDto->fecha_fin_stock;
+        $fi_periodo  = $paramsDto->fecha_inicio_periodo;
         // Ventana estadística ampliada para semana/quincena/mes (±1 periodo)
         $fi_stats = $paramsDto->fecha_inicio_stats;
         $ff_stats = $paramsDto->fecha_fin_stats;
@@ -424,6 +425,7 @@ class ClasePosstock
                 $fi_mov,
                 $ff_mov,
                 $fi_stock,
+                $fi_periodo,
                 $umbral_caducidad,
                 $umbral_sin_rotacion,
                 $familias_incluir,

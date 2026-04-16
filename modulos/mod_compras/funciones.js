@@ -1328,13 +1328,11 @@ function ObjProducto(datos)
         this.nfila = datos.nfila;
     }
     this.ultimoCoste = datos.coste;
-    var importe = parseFloat(this.ultimoCoste) * this.nunidades;
-    this.importe = importe.toFixed(2);
+    this.importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);
     this.getCoste = function(nuevoCoste){
         // Metodo para cambiar Coste y ademas importe del producto.
         this.ultimoCoste = datos.ultimoCoste;
-        importe = parseFloat(this.ultimoCoste) * this.nunidades;
-        this.importe = importe.toFixed(2);
+        this.importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);
     }
 }
 

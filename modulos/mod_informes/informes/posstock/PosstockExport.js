@@ -220,7 +220,10 @@ function _posstockAbrirModoConteo(event) {
         + 'Normal (con stock)</a>'
         + '<a style="display:block;padding:8px 14px;cursor:pointer;font-size:13px;border-top:1px solid #eee;" '
         + 'onclick="imprimirConteoPosstockPDF(\'ciega\');document.getElementById(\'_posstockModoConteoMenu\').remove();">'
-        + 'Ciega (sin stock para operario)</a>';
+        + 'Ciega (sin stock para operario)</a>'
+        + '<a style="display:block;padding:8px 14px;cursor:pointer;font-size:13px;border-top:2px solid #337ab7;color:#337ab7;" '
+        + 'onclick="imprimirHojaRapidaPosstockPDF();document.getElementById(\'_posstockModoConteoMenu\').remove();">'
+        + '<i class="glyphicon glyphicon-th-list"></i> Hoja r\u00e1pida (l\u00ednea a l\u00ednea)</a>';
 
     document.body.appendChild(menu);
     document.addEventListener("click", function _cerrar() {
@@ -230,14 +233,67 @@ function _posstockAbrirModoConteo(event) {
     });
 }
 
-window.exportarPOSStockCSV          = exportarPOSStockCSV;
-window.imprimirPOSStockPDF          = imprimirPOSStockPDF;
-window.imprimirConteoPosstockPDF    = imprimirConteoPosstockPDF;
-window._posstockAbrirModoConteo     = _posstockAbrirModoConteo;
+// ── Hoja rápida de conteo desde POSStock ─────────────────────────────────────
+
+function imprimirHojaRapidaPosstockPDF() {
+    var filas = window._posstockFilasVisibles;
+    if (!filas || !filas.length) {
+        _posstockMostrarError("No hay artículos visibles para generar la hoja rápida.");
+        return;
+    }
+
+    var ids = filas
+        .map(function (tr) { return tr.getAttribute("data-idarticulo") || ""; })
+        .filter(Boolean)
+        .filter(function (id, idx, arr) { return arr.indexOf(id) === idx; });
+
+    if (!ids.length) {
+        _posstockMostrarError("No se pudieron obtener los IDs de los artículos.");
+        return;
+    }
+
+    var btn = document.getElementById("posstockBtnConteo");
+    if (btn) { btn.disabled = true; btn.textContent = "Generando…"; }
+
+    $.ajax({
+        url:  "tareas.php",
+        type: "POST",
+        data: {
+            pulsado:       "imprimirHojaRapidaConteoPDF",
+            ids_articulos: ids.join(","),
+            solo_activos:  "0",
+            mostrar_stock: "1",
+        },
+        success: function (response) {
+            var resultado = JSON.parse(response);
+            if (resultado.error) {
+                _posstockMostrarError("Error al generar hoja rápida: " + resultado.error);
+            } else {
+                window.open(resultado.url, "_blank");
+            }
+        },
+        error: function () {
+            _posstockMostrarError("Error de comunicación al generar la hoja rápida.");
+        },
+        complete: function () {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="glyphicon glyphicon-list-alt"></i> Conteo';
+            }
+        },
+    });
+}
+
+window.exportarPOSStockCSV              = exportarPOSStockCSV;
+window.imprimirPOSStockPDF              = imprimirPOSStockPDF;
+window.imprimirConteoPosstockPDF        = imprimirConteoPosstockPDF;
+window._posstockAbrirModoConteo         = _posstockAbrirModoConteo;
+window.imprimirHojaRapidaPosstockPDF    = imprimirHojaRapidaPosstockPDF;
 
 export {
     _posstockGetArticulosFiltrados,
     exportarPOSStockCSV,
     imprimirPOSStockPDF,
     imprimirConteoPosstockPDF,
+    imprimirHojaRapidaPosstockPDF,
 };

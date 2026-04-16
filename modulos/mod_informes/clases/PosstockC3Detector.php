@@ -74,6 +74,7 @@ class PosstockC3Detector
         string $fi_mov,
         string $ff_mov,
         string $fi_stock,
+        string $fi_periodo,
         int    $umbral_caducidad,
         int    $umbral_sin_rotacion,
         array  $familias_incluir,
@@ -86,6 +87,7 @@ class PosstockC3Detector
         $fechaInicioMovimientos = $this->db->real_escape_string($fi_mov);
         $fechaFinMovimientos    = $this->db->real_escape_string($ff_mov);
         $fechaInicioStock       = $this->db->real_escape_string($fi_stock);
+        $fechaInicioPeriodo     = $this->db->real_escape_string($fi_periodo);
         $filtroFamiliasSql      = $this->repo->familiaWhere($familias_incluir, $familias_excluir);
         $filtroArticulosSql     = $this->repo->idsWhere($ids_filter);
         $umbralMinimoSemanas    = min($umbral_caducidad, $umbral_sin_rotacion);
@@ -94,6 +96,7 @@ class PosstockC3Detector
             $fechaInicioMovimientos,
             $fechaFinMovimientos,
             $fechaInicioStock,
+            $fechaInicioPeriodo,
             $filtroFamiliasSql,
             $filtroArticulosSql,
             $umbralMinimoSemanas,
