@@ -145,6 +145,73 @@ try {
             include $URLCom . '/modulos/mod_producto/tareas/obtenerCostesProveedor.php';
             break;
 
+        case 'eliminarProductos':
+            $idTiendaWeb         = $_POST['idTiendaWeb'] ?? 0;
+            $productos           = $CSeleccion->getIds();
+            $productosEliminados   = [];
+            $productosNoEliminados = [];
+            $NCArticulo = new ClaseProductos($BDTpv);
+            foreach ($productos as $idProducto) {
+                $NCArticulo->GetProducto($idProducto);
+                $datosProducto = $NCArticulo->ArrayPropiedades();
+                $datos = [
+                    'nombre'         => $datosProducto['articulo_name'],
+                    'id'             => $idProducto,
+                    'comprobaciones' => '',
+                ];
+                if ($datosProducto['estado'] == 'Baja') {
+                    $comprobacionesEliminar = $NCArticulo->ComprobarEliminar($idProducto, $idTiendaWeb);
+                    if ($comprobacionesEliminar['bandera'] == 1) {
+                        $datos['comprobaciones'] = $comprobacionesEliminar['resultado'];
+                        $productosNoEliminados[] = $datos;
+                    } else {
+                        $productosEliminados[] = $datos;
+                        $CSeleccion->quitar($idProducto);
+                    }
+                    if (isset($comprobacionesEliminar['resultado']['error'])) {
+                        $respuesta['errores'] = [
+                            'datos'    => $datos,
+                            'consulta' => $comprobacionesEliminar['consulta'],
+                        ];
+                    }
+                } else {
+                    $datos['comprobaciones'] = [['mensaje' => 'Revisa estado producto, tiene que estar: baja']];
+                    $productosNoEliminados[] = $datos;
+                }
+            }
+            $respuesta['NoEliminados'] = $productosNoEliminados;
+            $respuesta['Eliminados']   = $productosEliminados;
+            $html  = '<h4>Productos Eliminados</h4><table>';
+            if (empty($productosEliminados)) {
+                $html .= '<tr><td>Productos eliminados: 0</td></tr>';
+            } else {
+                $html .= '<tr><th>id</th><th>nombre</th></tr>';
+                foreach ($productosEliminados as $p) {
+                    $html .= '<tr><td>' . (int)$p['id'] . '</td><td>' . htmlspecialchars($p['nombre']) . '</td></tr>';
+                }
+            }
+            $html .= '</table>';
+            if (!empty($productosNoEliminados)) {
+                $html .= '<h4>Productos NO Eliminados</h4><table>';
+                $html .= '<tr><th>id - nombre</th><th>motivo</th></tr>';
+                foreach ($productosNoEliminados as $p) {
+                    $html .= '<tr><td>' . (int)$p['id'] . ' - ' . htmlspecialchars($p['nombre']) . '</td><td><ul>';
+                    foreach ((array)$p['comprobaciones'] as $c) {
+                        $html .= '<li>' . htmlspecialchars($c['mensaje']) . '</li>';
+                    }
+                    $html .= '</ul></td></tr>';
+                }
+                $html .= '</table>';
+            }
+            $respuesta['html'] = $html;
+            $respuesta['ok']   = true;
+            break;
+
+        case 'comprobarReferencia':
+            $NCArticulo = new ClaseProductos($BDTpv);
+            $respuesta  = $NCArticulo->buscarReferenciaProductoTienda($_POST['referencia']);
+            break;
+
         case 'eliminarReferenciaTienda':
             $NCArticulo = new ClaseProductos($BDTpv);
             $respuesta  = $NCArticulo->EliminarCruceTienda($_POST['idCruce']);
@@ -206,8 +273,8 @@ try {
             break;
 
         case 'limpiar':
-            $CSeleccion->limpiar();
-            $respuesta['ok']    = true;
+            $ok = $CSeleccion->limpiar();
+            $respuesta['ok']    = $ok;
             $respuesta['total'] = 0;
             break;
 
