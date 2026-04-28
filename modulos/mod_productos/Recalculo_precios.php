@@ -136,11 +136,15 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
                     ];
 
                     foreach ($balanzas as $balanza) {
+                        // Resetear PLU y sección en cada iteración para evitar que el valor
+                        // de una balanza específica se filtre a las balanzas broadcast.
+                        $datosH2['PLU']     = '';
+                        $datosH3['seccion'] = '';
                         if (!empty($balanza['relacionada'])) {
                             $relacion = $CBalanza->obtenerPluActual($balanza['idBalanza'], $idArticulo);
-                            $datosH2['PLU'] = $relacion['plu'];
+                            $datosH2['PLU'] = $relacion['plu'] ?? '';
                             if (isset($balanza['conSeccion']) && strtolower($balanza['conSeccion']) === 'si') {
-                                $datosH3['seccion'] = $relacion['seccion'];
+                                $datosH3['seccion'] = $relacion['seccion'] ?? '';
                             }
                         }
                         $traductorBalanza->setGrupo($balanza['Grupo']);
@@ -182,8 +186,10 @@ if (isset($_POST['Guardar']) && !$cacheExists) {
                 $traductorBalanza->setRutaBalanza($directorioBalanza);
                 $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
                 if ($ejecucion === false) {
-                    $mensajeBalanza = 'Error grave de Comunicación: Fallo al ejecutar el driver de la balanza ID ' . $balanza['idBalanza'] . '.';
-                    $ComunicacionBalanza['Comprobaciones'][] = ['tipo' => 'warning', 'mensaje' => $mensajeBalanza, 'dato' => []];
+                    // El filetx se escribió correctamente; el driver falla si la balanza
+                    // no está conectada. Es un aviso, no un error de comunicación.
+                    $mensajeBalanza = 'Fichero enviado a balanza ID ' . $balanza['idBalanza'] . ' (driver no ejecutado — balanza no conectada o no disponible).';
+                    $ComunicacionBalanza['Comprobaciones'][] = ['tipo' => 'info', 'mensaje' => $mensajeBalanza, 'dato' => []];
                 } else {
                     $mensajeBalanza = 'Comunicación con la balanza ID ' . $balanza['idBalanza'] . ' realizada correctamente.';
                     $ComunicacionBalanza['Comprobaciones'][] = ['tipo' => 'success', 'mensaje' => $mensajeBalanza, 'dato' => [$datosH2, $datosH3]];

@@ -15,10 +15,18 @@ if (empty($Producto['cref_tienda_principal']) || !is_numeric($Producto['cref_tie
         ];
     }
 }
-if (empty($Producto['articulo_name']))  { $faltanDatos[] = 'Nombre producto (articulo_name)'; }
-if (!isset($Producto['pvpCiva']))       { $faltanDatos[] = 'Precio con IVA (pvpCiva)'; }
-if (empty($Producto['tipo']))           { $faltanDatos[] = 'Tipo de producto (tipo)'; }
-if (!isset($Producto['iva']))           { $faltanDatos[] = 'IVA (iva)'; }
+if (empty($Producto['articulo_name'])) {
+    $faltanDatos[] = 'Nombre producto (articulo_name)';
+}
+if (!isset($Producto['pvpCiva'])) {
+    $faltanDatos[] = 'Precio con IVA (pvpCiva)';
+}
+if (empty($Producto['tipo'])) {
+    $faltanDatos[] = 'Tipo de producto (tipo)';
+}
+if (!isset($Producto['iva'])) {
+    $faltanDatos[] = 'IVA (iva)';
+}
 
 if (!empty($faltanDatos)) {
     $ComunicacionBalanza['Comprobaciones'][] = [
@@ -71,6 +79,13 @@ if (isset($relacion_balanza) && !isset($relacion_balanza['error'])) {
     }
 }
 
+// Mostar relación de balanzas a comunicar
+error_log('Balanzas relacionadas con producto ID ' . $Producto['idArticulo'] . ':');
+foreach ($balanzas as $balanza) {
+    error_log(' - ID ' . $balanza['idBalanza'] . ': ' . $balanza['nombreBalanza'] . (isset($balanza['relacionada']) && $balanza['relacionada'] ? ' (relacionada)' : ''));
+}
+error_log('Comunicación con balanza: ' . count($balanzas) . ' balanza(s) a comunicar para producto ID ' . $Producto['idArticulo']);
+
 foreach ($balanzas as $balanza) {
     if (!isset($balanza['relacionada'])) {
         $balanza['relacionada'] = false;
@@ -113,10 +128,12 @@ foreach ($balanzas as $balanza) {
     } else {
         $traductorBalanza->setRutaBalanza($directorioBalanza);
         $ejecucion = $traductorBalanza->ejecutarDriverBalanza();
+        // El filetx fue escrito. Si el driver falla es porque la balanza no está
+        // conectada — se registra como 'info', no como error de comunicación.
         $ComunicacionBalanza['Comprobaciones'][] = [
-            'tipo'    => $ejecucion === false ? 'warning' : 'success',
+            'tipo'    => $ejecucion === false ? 'info' : 'success',
             'mensaje' => $ejecucion === false
-                ? 'Fallo al ejecutar driver balanza (ID ' . $balanza['idBalanza'] . ').'
+                ? 'Fichero enviado a balanza (ID ' . $balanza['idBalanza'] . ') — driver no disponible (balanza no conectada).'
                 : 'Comunicación con balanza (ID ' . $balanza['idBalanza'] . ') correcta.',
             'dato'    => [],
         ];

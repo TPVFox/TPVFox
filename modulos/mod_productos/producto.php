@@ -67,8 +67,10 @@ $valor_actualizado  = 0.00;
 if (isset($albaranes_ultimo) || isset($proveedores_costes['coste_ultimo'])) {
     $actualizado = false;
 
-    if (isset($albaranes_ultimo) &&
-        number_format($albaranes_ultimo, 2) != number_format($Producto['ultimoCoste'], 2)) {
+    if (
+        isset($albaranes_ultimo) &&
+        number_format($albaranes_ultimo, 2) != number_format($Producto['ultimoCoste'], 2)
+    ) {
         $Producto['comprobaciones'][] = [
             'tipo'    => 'warning',
             'mensaje' => 'Coste actualizado desde último albarán. Antes: ' . $Producto['ultimoCoste'] . ' → ' . $albaranes_ultimo,
@@ -78,8 +80,10 @@ if (isset($albaranes_ultimo) || isset($proveedores_costes['coste_ultimo'])) {
         $actualizado = true;
     }
 
-    if (isset($proveedores_costes['coste_ultimo']) && $actualizado &&
-        number_format($proveedores_costes['coste_ultimo'], 2) != number_format($Producto['ultimoCoste'], 2)) {
+    if (
+        isset($proveedores_costes['coste_ultimo']) && $actualizado &&
+        number_format($proveedores_costes['coste_ultimo'], 2) != number_format($Producto['ultimoCoste'], 2)
+    ) {
         $Producto['comprobaciones'][] = [
             'tipo'    => 'warning',
             'mensaje' => 'El proveedor tiene tarifa distinta al coste actual: ' . $proveedores_costes['coste_ultimo'],
@@ -87,8 +91,10 @@ if (isset($albaranes_ultimo) || isset($proveedores_costes['coste_ultimo'])) {
         ];
     }
 
-    if (isset($proveedores_costes['coste_ultimo']) && !$actualizado &&
-        number_format($proveedores_costes['coste_ultimo'], 2) != number_format($Producto['ultimoCoste'], 2)) {
+    if (
+        isset($proveedores_costes['coste_ultimo']) && !$actualizado &&
+        number_format($proveedores_costes['coste_ultimo'], 2) != number_format($Producto['ultimoCoste'], 2)
+    ) {
         $Producto['comprobaciones'][] = [
             'tipo'    => 'warning',
             'mensaje' => 'Coste actualizado desde proveedor. Antes: ' . $Producto['ultimoCoste'] . ' → ' . $proveedores_costes['coste_ultimo'],
@@ -131,16 +137,17 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false && $ClasePermisos->getM
     }
 }
 
-// --- Comunicacion con balanza (solo si precio cambio) ---
-$ComunicacionBalanza = ['Comprobaciones' => []];
-if ($precioNuevo && $Producto['tipo'] === 'peso') {
-    include __DIR__ . '/tareas/comunicarBalanza.php';
-}
 
 // --- Tablas HTML de paneles ---
 $relacion_balanza = [];
 if ($ClasePermisos->getModulo('mod_balanza') == 1) {
     $relacion_balanza = $CTArticulos->obtenerTeclaBalanzas($id);
+}
+
+// --- Comunicacion con balanza (solo si precio cambio) ---
+$ComunicacionBalanza = ['Comprobaciones' => []];
+if ($precioNuevo && $Producto['tipo'] === 'peso') {
+    include __DIR__ . '/tareas/comunicarBalanza.php';
 }
 
 if ($id == 0) {
