@@ -494,6 +494,7 @@ function modalSelectEstadoAlbaranes()
         'Exportado'  => 'Exportado',
         'Importado'  => 'Importado',
         'Facturado'  => 'Facturado',
+        'Validado'  => 'Validado', // Este estado sirve para validar albaranes sin necesidad de facturarlos, sirve para usar los albaranes Guardados como albaranes en proceso.
     ];
 
     $options = '<option value="">Seleccione un estado</option>';
