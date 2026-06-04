@@ -15,7 +15,7 @@ class Articulos
 	public function consulta($sql)
 	{
 		$db = $this->db;
-		$smt = $db->query($sql);
+        $smt = $db->query($sql);
 		if ($smt) {
 			$respuesta = $smt;
 		} else {
@@ -83,8 +83,12 @@ class Articulos
 	public function modificarCosteProveedorArticulo($datos)
 	{
 		$db = $this->db;
-		$sql = 'UPDATE articulosProveedores SET coste=' . $datos['coste']
-			. ',  fechaActualizacion="' . $datos['fecha'] . '" WHERE idArticulo='
+        $coste = $datos['coste'];
+        if (empty($datos['coste'])) {
+            $antes=0; // coste vacío
+        }
+		$sql = 'UPDATE articulosProveedores SET coste="' . $coste
+			. '",  fechaActualizacion="' . $datos['fecha'] . '" WHERE idArticulo='
 			. $datos['idArticulo'] . ' and idProveedor=' . $datos['idProveedor'];
 		$smt = $this->consulta($sql);
 		if (gettype($smt) === 'array') {
@@ -97,10 +101,13 @@ class Articulos
 	public function addHistorico($datos)
 	{
 		$db = $this->db;
-		$antes = $datos['antes'];
+        $antes = $datos['antes'];
+        if (empty($datos['antes'])) {
+            $antes=0; // coste vacío
+        }
 		$sql = 'INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc,
-		Dedonde, Tipo, estado, idUsuario) VALUES (' . $datos['idArticulo'] . ' , ' . $datos['antes'] . ' , ' . $datos['nuevo']
-			. ', NOW() , ' . $datos['numDoc'] . ', ' . "'" . $datos['dedonde'] . "'" . ', '
+		Dedonde, Tipo, estado, idUsuario) VALUES (' . $datos['idArticulo'] . ' , ' .  "'" .$antes. "'" . ' , ' . "'" . $datos['nuevo']
+			. "'" . ', NOW() , ' . $datos['numDoc'] . ', ' . "'" . $datos['dedonde'] . "'" . ', '
 			. "'" . $datos['tipo'] . "'" . ' , ' . "'" . $datos['estado'] . "'" . ', ' . $datos['idUsuario'] . ')';
 		$smt = $this->consulta($sql);
 		if (gettype($smt) === 'array') {
@@ -109,6 +116,7 @@ class Articulos
 			return $respuesta;
 		}
 	}
+
 	public function historicoCompras($numDoc, $Dedonde, $tipo)
 	{
 		$db = $this->db;
