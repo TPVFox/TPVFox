@@ -58,8 +58,9 @@ function guardarConfigPosstock() {
             if (resultado.c3a_multiplicador !== undefined)
                 window.POSSTOCK_C3A_MULTIPLICADOR = resultado.c3a_multiplicador;
             if (resultado.c6b_dias_historico !== undefined)
-                window.POSSTOCK_C6B_DIAS_HISTORICO =
-                    resultado.c6b_dias_historico;
+                window.POSSTOCK_C6B_DIAS_HISTORICO = resultado.c6b_dias_historico;
+            if (resultado.c6b_cobertura_max_mult !== undefined)
+                window.POSSTOCK_C6B_COBERTURA_MAX_MULT = resultado.c6b_cobertura_max_mult;
             if (resultado.mostrar_tecnico !== undefined)
                 window.POSSTOCK_MOSTRAR_TECNICO = resultado.mostrar_tecnico;
             if (resultado.ventana_dias !== undefined)

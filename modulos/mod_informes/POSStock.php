@@ -19,7 +19,8 @@ $ventana_dias         = (int)(string)$posstock_cfg->ventana_dias;
 $c3b_dias_post        = (int)(string)$posstock_cfg->c3b_dias_post_periodo ?: 14;
 $c3a_multiplicador    = max(2.0, min(6.0, (float)(string)($posstock_cfg->c3a_multiplicador_cadencia ?: '3.0')));
 $c3a_umbral_caducidad = max(1, (int)(string)($posstock_cfg->umbral_semanas_desde_ultima_venta ?: '24'));
-$c6b_dias_historico   = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_historico ?: '90')));
+$c6b_dias_historico      = max(30, min(365, (int)(string)($posstock_cfg->c6b_dias_historico ?: '90')));
+$c6b_cobertura_max_mult  = max(1.0, min(5.0, (float)(string)($posstock_cfg->c6b_cobertura_max_mult ?: '2')));
 $mostrar_tecnico      = (string)$posstock_cfg->posstock_mostrar_tecnico === '1';
 $incluir_stock_inactivo = ((string)$posstock_cfg->incluir_stock_inactivo === '1');
 
@@ -242,6 +243,7 @@ foreach ($tiposParaChks as $ti) {
         var POSSTOCK_C3A_MULTIPLICADOR = <?php echo $c3a_multiplicador; ?>;
         var POSSTOCK_C3A_UMBRAL_CADUCIDAD = <?php echo $c3a_umbral_caducidad; ?>;
         var POSSTOCK_C6B_DIAS_HISTORICO = <?php echo (int)$c6b_dias_historico; ?>;
+        var POSSTOCK_C6B_COBERTURA_MAX_MULT = <?php echo $c6b_cobertura_max_mult; ?>;
         var POSSTOCK_MOSTRAR_TECNICO = <?php echo $mostrar_tecnico ? 'true' : 'false'; ?>;
         var POSSTOCK_INCLUIR_STOCK_INACTIVO = <?php echo $incluir_stock_inactivo ? 'true' : 'false'; ?>;
 
@@ -249,9 +251,9 @@ foreach ($tiposParaChks as $ti) {
         var posstockPeriodoActivo = null;
     </script>
 
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js?v=0431-89" type="module"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js?v=0431-171" type="module"></script>
     <?php
-    echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
+    echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js?v=0431-171"></script>';
     ?>
 
 </body>

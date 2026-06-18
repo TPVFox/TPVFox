@@ -76,6 +76,14 @@ if (
     $mapa['inputC6bDiasHistorico'] = '90';
 }
 if (
+    !isset($mapa['inputC6bCoberturaMaxMult'])
+    || !is_numeric($mapa['inputC6bCoberturaMaxMult'])
+    || floatval($mapa['inputC6bCoberturaMaxMult']) < 1.0
+    || floatval($mapa['inputC6bCoberturaMaxMult']) > 5.0
+) {
+    $mapa['inputC6bCoberturaMaxMult'] = '2';
+}
+if (
     !isset($mapa['inputUmbralReconstituirRop'])
     || !is_numeric($mapa['inputUmbralReconstituirRop'])
     || floatval($mapa['inputUmbralReconstituirRop']) < 3.0
@@ -326,6 +334,7 @@ if (!empty($errores)) {
     $posstock->incluir_albcli_ventas             = $incluir_albcli_ventas;
     $posstock->c6_lead_time_defecto              = intval($mapa['inputC6LeadTimeDefecto']);
     $posstock->c6b_dias_historico                = intval($mapa['inputC6bDiasHistorico']);
+    $posstock->c6b_cobertura_max_mult            = floatval($mapa['inputC6bCoberturaMaxMult']);
     $posstock->umbral_reconstituir_rop           = floatval($mapa['inputUmbralReconstituirRop']);
     $posstock->umbral_stock_negativo             = floatval($mapa['inputUmbralStockNegativo']);
     $posstock->c3b_dias_post_periodo             = intval($mapa['inputC3bDiasPost']);
@@ -369,6 +378,7 @@ if (!empty($errores)) {
         $respuesta['c3b_dias_post']           = (int)$mapa['inputC3bDiasPost'];
         $respuesta['c3a_multiplicador']       = (float)$mapa['inputC3aMultiplicadorCadencia'];
         $respuesta['c6b_dias_historico']      = (int)$mapa['inputC6bDiasHistorico'];
+        $respuesta['c6b_cobertura_max_mult']  = (float)$mapa['inputC6bCoberturaMaxMult'];
         $respuesta['mostrar_tecnico']         = (isset($mapa['inputMostrarTecnico']) && $mapa['inputMostrarTecnico'] === '1');
     } else {
         $respuesta['error'] = 'No se pudo guardar el fichero de configuración.';

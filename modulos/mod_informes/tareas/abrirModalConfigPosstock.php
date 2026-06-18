@@ -208,10 +208,11 @@ function abrirModalConfigPosstock($posstock)
     $html .= '</div>';
 
     // --- BLOQUE 4: CASO 6 — LEAD TIME ---
-    $lead_defecto_actual    = (string)$posstock->c6_lead_time_defecto    ?: '14';
-    $c6b_dias_hist_actual   = (string)$posstock->c6b_dias_historico      ?: '90';
-    $umbral_rec_rop_actual  = (string)$posstock->umbral_reconstituir_rop ?: '10';
-    $umbral_stock_neg_actual = (string)$posstock->umbral_stock_negativo  ?: '2';
+    $lead_defecto_actual      = (string)$posstock->c6_lead_time_defecto      ?: '14';
+    $c6b_dias_hist_actual     = (string)$posstock->c6b_dias_historico        ?: '90';
+    $c6b_cob_max_mult_actual  = (string)$posstock->c6b_cobertura_max_mult    ?: '2';
+    $umbral_rec_rop_actual    = (string)$posstock->umbral_reconstituir_rop   ?: '10';
+    $umbral_stock_neg_actual  = (string)$posstock->umbral_stock_negativo     ?: '2';
 
     $html .= '<div class="panel panel-default">';
     $html .= '  <div class="panel-heading small text-uppercase fw-bold"><i class="glyphicon glyphicon-shopping-cart"></i> Punto de pedido (C6a / C6b)</div>';
@@ -231,6 +232,17 @@ function abrirModalConfigPosstock($posstock)
     $html .= '        <div class="input-group input-group-sm">';
     $html .= '          <input type="number" step="1" min="30" max="365" class="form-control text-right" name="inputC6bDiasHistorico" value="' . htmlspecialchars($c6b_dias_hist_actual) . '" required>';
     $html .= '          <span class="input-group-addon">días</span>';
+    $html .= '        </div>';
+    $html .= '      </div>';
+
+    $html .= '    </div>';
+    $html .= '    <div class="row" style="margin-top:10px;">';
+
+    $html .= '      <div class="col-xs-12 col-sm-5">';
+    $html .= '        <label class="control-label small" title="Cuando la cobertura tras el pedido supera este múltiplo del Lead Time, se muestra una cantidad de referencia conservadora calculada para cubrir exactamente N×LT días. Valor por defecto: 2. Rango: 1–5.">Cobertura máx. referencia C6 <small class="text-muted">(múltiplo del LT)</small></label>';
+    $html .= '        <div class="input-group input-group-sm">';
+    $html .= '          <input type="number" step="0.5" min="1" max="5" class="form-control text-right" name="inputC6bCoberturaMaxMult" value="' . htmlspecialchars($c6b_cob_max_mult_actual) . '" required>';
+    $html .= '          <span class="input-group-addon">× LT</span>';
     $html .= '        </div>';
     $html .= '      </div>';
 

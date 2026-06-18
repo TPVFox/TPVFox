@@ -22,6 +22,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
     $fiStock        = $cfg['fecha_inicio_stock']    ?? '';
     $anio           = (int)($cfg['anio']             ?? date('Y'));
     $c6bDias        = (int)($cfg['c6b_dias_historico'] ?? 90);
+    $c6CobMaxMult   = max(1.0, (float)($cfg['c6b_cobertura_max_mult'] ?? 2.0));
     $mostrarTecnico = !empty($cfg['mostrar_tecnico']);
 
     $fiInicio = $anio . '-01-01';
@@ -37,7 +38,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
         'BAJA'    => '<span class="label label-info">Baja</span>',
     ];
 
-    $html  = '<style>#posstockTabla .label{margin-right:3px;margin-bottom:3px;display:inline-block;}</style>'
+    $html  = '<style>#posstockTabla .label{margin-right:3px;margin-bottom:3px;display:inline-block;}'
+        . '#posstockTabla tr.articulo-compra-activa td{background-color:#f3f9f3;}</style>'
         . '<table class="table table-condensed table-hover table-bordered" id="posstockTabla">';
     $html .= '<thead><tr>'
         . '<th>Artículo</th>'
@@ -1447,6 +1449,14 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . ' | ROP: ' . number_format($ropC6, 2, '.', '') . ' ' . $unidad;
             if ($diasTrasPedido !== null) {
                 $linea3C6 .= ' | Cobertura tras pedido: <strong>' . $diasTrasPedido . ' d</strong>';
+                $ltC6 = (int)($f['lead_time_dias'] ?? 0);
+                if ($ltC6 > 0 && $diasTrasPedido > (int)round($c6CobMaxMult * $ltC6)) {
+                    $qCons = (int)ceil($dC6 * $c6CobMaxMult * $ltC6 - $stockCalc);
+                    if ($qCons > 0 && $qCons < $qRecomendada) {
+                        $linea3C6 .= ' <span class="text-muted">(Pedir ~' . $qCons . ' ' . $unidad
+                            . ' para ajustarse al LT)</span>';
+                    }
+                }
             }
             $costeC6 = isset($f['coste_estimado']) && $f['coste_estimado'] !== null ? (float)$f['coste_estimado'] : null;
             if ($costeC6 !== null) {
@@ -1545,7 +1555,10 @@ function renderTablaPosstock(array $filas, array $cfg): string
         $provNombre  = htmlspecialchars($f['prov_habitual_nombre'] ?? '');
         $coste_any   = $f['coste_estimado'] ?? $f['coste_estimado_merma'] ?? null;
         $costeData   = $coste_any !== null ? (float)$coste_any : 0;
-        $html .= '<tr data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
+        $trClass = (!empty($f['articulo_estado']) && $f['articulo_estado'] === 'Activo')
+            ? ' class="articulo-compra-activa"'
+            : '';
+        $html .= '<tr' . $trClass . ' data-tipo="' . htmlspecialchars($tipo) . '" data-badges="' . htmlspecialchars($dataBadges) . '"'
             . ' data-orden="' . $ordenClave . '" data-prov="' . $provNombre . '" data-coste="' . $costeData . '"'
             . ' data-idarticulo="' . (int)($f['idArticulo'] ?? 0) . '">'
             . '<td>' . (int)($f['idArticulo'] ?? 0) . '</td>'

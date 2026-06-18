@@ -32,6 +32,7 @@ $cfg = [
     'anio'                     => (int)($_POST['anio']                 ?? date('Y')),
     'c3b_dias_post'            => (int)($_POST['c3b_dias_post']        ?? 14),
     'c6b_dias_historico'       => (int)($_POST['c6b_dias_historico']   ?? 90),
+    'c6b_cobertura_max_mult'   => max(1.0, min(5.0, (float)($_POST['c6b_cobertura_max_mult'] ?? 2.0))),
     'umbral_caducidad_semanas' => (int)($_POST['c3a_umbral_caducidad'] ?? 24),
     'c3a_multiplicador_cadencia' => (float)($_POST['c3a_multiplicador_cadencia'] ?? 3.0),
     'mostrar_tecnico'          => !empty($_POST['mostrar_tecnico']),

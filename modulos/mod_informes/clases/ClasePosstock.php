@@ -527,16 +527,11 @@ class ClasePosstock
             // que en 90 días solo registran 10-15 días con venta.
             $min_ventas_c6b = (int)($params['min_ventas_c6b'] ?? max(5, min(20, (int)round($c6b_dias * 0.15))));
             // Resolver IDs para C6b directamente, sin filtro de estado en articulosProveedores.
-            // No se reutiliza ids_proveedor_filter (que sí filtra estado='Activo') ni se delega
-            // en getIncidenciasBatch, ya que esa resolución ocurre antes de llegar aquí.
-            // IDs activos del proveedor (estado='Activo'): para marcar proveedor_es_principal en cada incidencia.
-            $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
+            // Un artículo con cualquier estado en articulosProveedores puede seguir en stock y vendiendo.
             if (!empty($proveedores_incluir)) {
                 $idsProvC6bCsv = implode(',', array_map('intval', $proveedores_incluir));
                 $filasC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProvC6bCsv);
                 $ids_c6b  = isset($filasC6b['error']) ? $ids_proveedor_filter : array_column($filasC6b, 'idArticulo');
-                // ids_proveedor_filter ya contiene solo estado='Activo' (resuelto al inicio de getIncidencias)
-                $ids_activos_c6b = array_flip($ids_proveedor_filter ?: []);
             } else {
                 $ids_c6b = $ids_proveedor_filter;  // sin filtro de proveedor: comportamiento normal
             }
@@ -563,9 +558,12 @@ class ClasePosstock
                 $umbral_stock_neg
             );
             if (isset($c6b['error'])) return $c6b;
-            // Marcar si el proveedor seleccionado es el proveedor principal (estado='Activo') de cada artículo
+            // Marcar si el proveedor seleccionado es el proveedor principal del artículo
+            // según articulos.idProveedor (no el estado en articulosProveedores).
+            $proveedoresSet = array_flip(array_map('strval', $proveedores_incluir ?: []));
             foreach ($c6b as &$incidenciaC6b) {
-                $incidenciaC6b['proveedor_es_principal'] = isset($ids_activos_c6b[$incidenciaC6b['idArticulo']]);
+                $idProvArticulo = (string)($incidenciaC6b['articulo_idProveedor'] ?? '');
+                $incidenciaC6b['proveedor_es_principal'] = isset($proveedoresSet[$idProvArticulo]);
             }
             unset($incidenciaC6b);
             $incidencias = array_merge($incidencias, $c6b);

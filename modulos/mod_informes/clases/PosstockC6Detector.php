@@ -161,10 +161,8 @@ class PosstockC6Detector
         $ff_efectivo  = min($ff_stats_ts, time());
         $periodo_dias = max(1, (int)round(($ff_efectivo - strtotime($fi_stats)) / 86400) + 1);
 
-        // Granularidad de sub-ventanas
-        if ($periodo_dias < 40)       $chunk_days = 1;
-        elseif ($periodo_dias <= 130) $chunk_days = 5;
-        else                          $chunk_days = 10;
+        // Granularidad de sub-ventanas siempre 1 día (para cálculo de varianza y sobredispersión)
+        $chunk_days = 1;
 
         $fi_period_ts = $ff_stats_ts - ($periodo_dias - 1) * 86400;
 
@@ -395,17 +393,24 @@ class PosstockC6Detector
         if (!empty($incidencias)) {
             $idsIncidenciasCsv = implode(',', array_unique(array_column($incidencias, 'idArticulo')));
             $resultadoConsulta = $this->db->query(
-                "SELECT idArticulo, articulo_name, tipo FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
+                "SELECT idArticulo, articulo_name, tipo, idProveedor, estado FROM articulos WHERE idArticulo IN ($idsIncidenciasCsv)"
             );
             $meta = [];
             if ($resultadoConsulta) {
                 while ($filaMeta = $resultadoConsulta->fetch_assoc()) {
-                    $meta[(int)$filaMeta['idArticulo']] = ['nombre' => $filaMeta['articulo_name'], 'tipo' => $filaMeta['tipo']];
+                    $meta[(int)$filaMeta['idArticulo']] = [
+                        'nombre'      => $filaMeta['articulo_name'],
+                        'tipo'        => $filaMeta['tipo'],
+                        'idProveedor' => $filaMeta['idProveedor'],
+                        'estado'      => $filaMeta['estado'],
+                    ];
                 }
             }
             foreach ($incidencias as &$inc) {
-                $inc['nombre']        = $meta[$inc['idArticulo']]['nombre'] ?? '';
-                $inc['tipo_articulo'] = $meta[$inc['idArticulo']]['tipo']   ?? 'unidad';
+                $inc['nombre']               = $meta[$inc['idArticulo']]['nombre']      ?? '';
+                $inc['tipo_articulo']        = $meta[$inc['idArticulo']]['tipo']        ?? 'unidad';
+                $inc['articulo_idProveedor'] = $meta[$inc['idArticulo']]['idProveedor'] ?? null;
+                $inc['articulo_estado']      = $meta[$inc['idArticulo']]['estado']      ?? null;
             }
             unset($inc);
         }

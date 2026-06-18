@@ -173,6 +173,7 @@ function _posstockRenderLote(filas, periodo, offset) {
             anio: window.posstockAnioActivo || new Date().getFullYear(),
             c3b_dias_post: window.POSSTOCK_C3B_DIAS_POST || 14,
             c6b_dias_historico: window.POSSTOCK_C6B_DIAS_HISTORICO || 90,
+            c6b_cobertura_max_mult: window.POSSTOCK_C6B_COBERTURA_MAX_MULT || 2.0,
             c3a_umbral_caducidad: window.POSSTOCK_C3A_UMBRAL_CADUCIDAD || 24,
             c3a_multiplicador_cadencia: window.POSSTOCK_C3A_MULTIPLICADOR || 3.0,
             mostrar_tecnico: window.POSSTOCK_MOSTRAR_TECNICO ? 1 : 0,
