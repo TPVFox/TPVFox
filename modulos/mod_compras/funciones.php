@@ -211,51 +211,6 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda, $dedonde
     return $html;
 }
 
-function recalculoTotales($productos, $campo_estado = 'estado')
-{
-    // === Funcion ya creada en claseCompras =====
-    // Pendiente cambiarlo en facturas para eliminarlo.
-
-    // @ Objetivo recalcular los totales y desglose del ticket
-    // @ Parametro:
-    //  $productos (array) de objetos.
-    //  $campo_estado -> (string) por compatibilidad de versiones anteriores
-    $respuesta = array();
-    $desglose = array();
-    $subivas = 0;
-    $subtotal = 0;
-    // PASO A: acumular bases exactas sin redondear en cada iteración
-    foreach ($productos as $product) {
-        // Comprobamos que producto es un objeto
-        if (gettype($product) !== 'object') {
-            // Por compatibilidad con versiones anteriores
-            $product = (object)$product;
-        }
-        // Si la linea esta eliminada, no se pone.
-        if ($product->$campo_estado === 'Activo') {
-            $iva     = $product->iva;
-            $importe = isset($product->importe)
-                ? (float)$product->importe
-                : (float)$product->ncant * (float)$product->ultimoCoste;
-            $desglose[$iva]['base_raw'] = ($desglose[$iva]['base_raw'] ?? 0.0) + $importe;
-        }
-    }
-    // PASO B: calcular IVA una sola vez por tipo sobre la base total acumulada
-    foreach ($desglose as $tipoIva => &$des) {
-        $base        = $des['base_raw'];
-        $iva_importe = $base * ($tipoIva / 100);
-        $des['base']     = number_format($base,                2, '.', '');
-        $des['iva']      = number_format($iva_importe,         2, '.', '');
-        $des['BaseYiva'] = number_format($base + $iva_importe, 2, '.', '');
-        $subivas  += $iva_importe;
-        $subtotal += ($base + $iva_importe);
-    }
-    unset($des);
-    $respuesta['desglose'] = $desglose;
-    $respuesta['subivas'] = number_format($subivas, 2, '.', '');
-    $respuesta['total'] = number_format($subtotal, 2, '.', '');
-    return $respuesta;
-}
 
 function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
 {
@@ -699,6 +654,8 @@ function htmlTotales($Datostotales)
             $totalBase = $totalBase + $basesYivas['base'];
             $totaliva = $totaliva + $basesYivas['iva'];
         }
+        // Fila "Totales": suma de los valores redondeados por tipo mostrados arriba.
+        // Puede diferir del TOTAL en ±0,01€ por redondeo — es el comportamiento estándar.
         $htmlIvas['html'] .= '<tr>'
             . '<td> Totales </td>'
             . '<td>' . number_format($totalBase, 2) . '</td>'
@@ -709,7 +666,7 @@ function htmlTotales($Datostotales)
             . '<td>            <h3>TOTAL</h3></td>
                        <td colspan="2">
                     <div class="totalImporte" style="font-size: 3em;">'
-            . (isset($Datostotales['total']) ? number_format($Datostotales['total'], 2, '.', '') : '')
+            . (isset($Datostotales['total']) ? number_format((float)$Datostotales['total'], 2, '.', '') : '')
             . '</div>'
             . '</td>'
             . '</tr>';

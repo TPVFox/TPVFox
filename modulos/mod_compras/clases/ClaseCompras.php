@@ -126,20 +126,22 @@ class ClaseCompras
                 $desglose[$iva]['base_raw'] = ($desglose[$iva]['base_raw'] ?? 0.0) + $importe;
             }
         }
-        // PASO B: calcular IVA una sola vez por tipo sobre la base total acumulada
+        // PASO B: calcular IVA una sola vez por tipo y redondear.
+        // Se acumulan los valores YA redondeados para que base + IVA = TOTAL
+        // sea exactamente lo que se muestra en pantalla (enfoque B).
         foreach ($desglose as $tipoIva => &$des) {
             $base        = $des['base_raw'];
             $iva_importe = $base * ($tipoIva / 100);
             $des['base']     = number_format($base,                2, '.', '');
             $des['iva']      = number_format($iva_importe,         2, '.', '');
             $des['BaseYiva'] = number_format($base + $iva_importe, 2, '.', '');
-            $subivas  += $iva_importe;
-            $subtotal += ($base + $iva_importe);
+            $subivas  += (float)$des['iva'];
+            $subtotal += (float)$des['base'] + (float)$des['iva'];
         }
         unset($des);
         $respuesta['desglose'] = $desglose;
         $respuesta['subivas'] = number_format($subivas, 2, '.', '');
-        $respuesta['total'] = number_format($subtotal, 2, '.', '');
+        $respuesta['total']   = number_format($subtotal, 2, '.', '');
         return $respuesta;
     }
 

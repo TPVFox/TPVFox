@@ -74,10 +74,10 @@ if (count($ListadoFacturas) == 0) {
 
 <head>
     <?php include_once $URLCom . '/head.php'; ?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js"></script>
-    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
-    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/funciones.js?v=1.3.1.171"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_compras/js/AccionesDirectas.js?v=1.3.1.171"></script>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js?v=1.3.1.171"></script>
+    <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js?v=1.3.1.171"></script>
 </head>
 
 <body>
@@ -246,7 +246,7 @@ if (count($ListadoFacturas) == 0) {
         </div>
     </div>
     <?php // Incluimos paginas modales
-    echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js"></script>';
+    echo '<script src="' . $HostNombre . '/plugins/modal/func_modal.js?v=1.3.1.171"></script>';
     include $RutaServidor . '/' . $HostNombre . '/plugins/modal/ventanaModal.php';
     ?>
 </body>

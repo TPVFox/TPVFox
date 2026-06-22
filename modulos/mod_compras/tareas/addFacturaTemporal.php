@@ -105,7 +105,7 @@ if ($idFactura > 0 && count($errores) === 0) {
     }
 }
 if (isset($productos) && count($errores) === 0) {
-    $CalculoTotales = recalculoTotales($productos);
+    $CalculoTotales = $CFac->recalculoTotales($productos);
     $total = round($CalculoTotales['total'], 2);
     $respuesta['total'] = round($CalculoTotales['total'], 2);
     $respuesta['totales'] = $CalculoTotales;

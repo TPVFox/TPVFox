@@ -104,7 +104,7 @@ if ($dedonde == "albaran") {
 $date = date_create($datos['Fecha']);
 $datosProveedor = $CProveedores->buscarProveedorId($datos['idProveedor']);
 $productosDEF = modificarArrayProductos($productosAdjuntos);
-$Datostotales = recalculoTotales($productosDEF);
+$Datostotales = $clase->recalculoTotales($productosDEF);
 $fecha = "";
 if (isset($date)) {
     $fecha = date_format($date, 'd-m-Y');

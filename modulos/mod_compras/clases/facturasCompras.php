@@ -678,7 +678,7 @@ class FacturasCompras extends ClaseCompras
             // ======            Montamos productos y hacemos recalculo de totales         ======= //
             if (isset($datosFactura['Productos'])) {
                 $productos_para_recalculo = json_decode($datosFactura['Productos']);
-                $CalculoTotales = recalculoTotales($productos_para_recalculo);
+                $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
                 $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
             } else {
                 array_push(

@@ -101,7 +101,7 @@ class AlbaranesCompras extends ClaseCompras
     {
         //@ Objetivo:
         // Modificar los totales del albarán temporal
-        $sql = 'UPDATE albproltemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
+        $sql = 'UPDATE albproltemporales set total="' . $total . '" , total_ivas="' . $totalivas . '" where id=' . $res;
         $smt = parent::consulta($sql);
         if (gettype($smt) === 'array') {
             return $smt;
@@ -288,7 +288,7 @@ class AlbaranesCompras extends ClaseCompras
                     //~ }
                     $values[] = '(' . $id . ', ' . $numAlbaran . ' , ' . $prod['idArticulo'] . ', ' . "'" . $prod['cref'] . "'" . ', "'
                         . $codBarras . '", "' . $prod['cdetalle'] . '", "' . $prod['ncant'] . '" , "' . $prod['nunidades'] . '", "'
-                        . floatval($prod['ultimoCoste']) . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
+                        . number_format((float)$prod['ultimoCoste'], 4, '.', '') . '" , ' . $prod['iva'] . ', ' . $i . ', "' . $prod['estado'] . '" , ' . "'"
                         . $refProveedor . "'" . ', ' . $idPed . ')';
 
 
@@ -745,7 +745,7 @@ class AlbaranesCompras extends ClaseCompras
                 $productos_para_recalculo = json_decode($datosAlbaran['Productos']);
                 if (count($productos_para_recalculo) > 0) {
                     $CalculoTotales = $this->recalculoTotales($productos_para_recalculo);
-                    $total_siniva = $CalculoTotales['total'] - $CalculoTotales['subivas'];
+                    $total_siniva = round((float)$CalculoTotales['total'] - (float)$CalculoTotales['subivas'], 2);
                 } else {
                     // Hay $datosAlbaran['Productos'], pero no tiene productos.
                     array_push(

@@ -1327,7 +1327,8 @@ function ObjProducto(datos)
     } else {
         this.nfila = datos.nfila;
     }
-    this.ultimoCoste = datos.coste;
+    var costeNorm = String(datos.coste != null ? datos.coste : '').replace(',', '.');
+    this.ultimoCoste = (costeNorm !== '' && !isNaN(parseFloat(costeNorm))) ? costeNorm : '0';
     this.importe = parseFloat(this.ultimoCoste) * parseFloat(this.nunidades);
     this.getCoste = function(nuevoCoste){
         // Metodo para cambiar Coste y ademas importe del producto.
