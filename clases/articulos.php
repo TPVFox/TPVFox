@@ -102,8 +102,8 @@ class Articulos
 	{
 		$db = $this->db;
         $antes = $datos['antes'];
-        if (empty($datos['antes'])) {
-            $antes=0; // coste vacío
+        if (!is_numeric($datos['antes'])) {
+            $antes=0; // coste vacío o no numérico
         }
 		$sql = 'INSERT INTO historico_precios (idArticulo, Antes, Nuevo, Fecha_Creacion , NumDoc,
 		Dedonde, Tipo, estado, idUsuario) VALUES (' . $datos['idArticulo'] . ' , ' .  "'" .$antes. "'" . ' , ' . "'" . $datos['nuevo']

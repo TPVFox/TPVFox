@@ -18,3 +18,6 @@ logs/
 # Ignorar carpetas de empresas dentro /estatico/
 estatico/carpintero/
 estatico/*/
+
+# Enlace local al repositorio SGC privado (Gitea Myolos/TPVFox-Vanilla) — nunca público
+quality
