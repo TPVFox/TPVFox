@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../clases/DB.php';
 include_once './../../inicial.php';
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/clases/FormasPago.php';
@@ -110,10 +111,12 @@ function BuscarProductos($id_input, $campoAbuscar, $idcaja, $busqueda, $BDTpv, $
             . ' ON a.idArticulo = ac.idArticulo '
             . '  LEFT JOIN `articulosTiendas` '
             . ' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores
-            as p on a.idArticulo=p.`idArticulo` and p.idProveedor=' . $idProveedor . ' WHERE '
+            as p on a.idArticulo=p.`idArticulo` and p.idProveedor= ? WHERE '
+            // TODO: revisar - $buscar es un fragmento WHERE ya ensamblado (LIKE/=) con
+            // valores de usuario; parametrizar sus valores requiere refactor de $likes/$whereIdentico.
             . $buscar . ' group by  a.idArticulo LIMIT 0 , 30 ';
         $resultado['sql'][] = $sql;
-        $res = $BDTpv->query($sql);
+        $res = (new DB($BDTpv))->pquery($sql, array($idProveedor));
         if ($i === 0) {
             // Es la primera busqueda ( es decir puede ser la identico, no volvemos a buscar. )
             if (isset($res->num_rows) && $res->num_rows > 0) {
@@ -585,13 +588,13 @@ function modificarArrayAdjunto($adjuntos, $BDTpv, $dedonde)
     foreach ($adjuntos as $adjunto) {
         if ($dedonde == "albaran") {
             $res['NumAdjunto'] = $adjunto['numPedido'];
-            $datosAdjunto = $BDTpv->query('SELECT * FROM pedprot WHERE id= ' . $adjunto['idPedido']);
+            $datosAdjunto = (new DB($BDTpv))->pquery('SELECT * FROM pedprot WHERE id= ?', array($adjunto['idPedido']));
         } else {
             $res['NumAdjunto'] = $adjunto['numAlbaran'];
-            $datosAdjunto = $BDTpv->query('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
+            $datosAdjunto = (new DB($BDTpv))->pquery('SELECT a.Su_numero, a.Numalbpro , a.Fecha , a.total,
             a.id , a.FechaVencimiento, a.idProveedor , a.formaPago , sum(b.totalbase) as
             totalSiva FROM albprot as a INNER JOIN albproIva as b on a.
-            `id`=b.idalbpro where a.Numalbpro=' . $adjunto['idAlbaran'] . ' GROUP by a.id ');
+            `id`=b.idalbpro where a.Numalbpro= ? GROUP by a.id ', array($adjunto['idAlbaran']));
         }
 
         while ($fila = $datosAdjunto->fetch_assoc()) {

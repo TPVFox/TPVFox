@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 // Clase base para modulo de compras.
 if (!isset($URLCom) || empty($URLCom)) {
     $URLCom = dirname(dirname(dirname(__DIR__)));
@@ -17,13 +18,19 @@ class ClaseCompras
 
 
 
-    public function consulta($sql)
+    public function consulta($sql, $params = [])
     {
-        // Realizamos la consulta.
+        // Realizamos la consulta a traves de la capa DB parametrizada.
         $db = $this->db;
-        $smt = $db->query($sql);
-        if ($smt) {
+        $smt = (new DB($db))->pquery($sql, $params);
+        // TODO: revisar - pquery() devuelve get_result(): un mysqli_result en los
+        // SELECT y false en los INSERT/UPDATE/DELETE correctos. Distinguimos el
+        // exito de escritura (false + errno 0) del fallo real (errno != 0) para
+        // conservar el contrato previo (query() devolvia true en escrituras).
+        if ($smt !== false) {
             $respuesta = $smt;
+        } elseif ($db->errno === 0) {
+            $respuesta = true;
         } else {
             $respuesta = array();
             $respuesta['consulta'] = $sql;
@@ -46,7 +53,9 @@ class ClaseCompras
     {
         //Función para sumar los ivas de un pedido
         $db = $this->db;
-        $smt = $db->query('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase ' . $from_where);
+        // TODO: revisar - $from_where llega ya montado por el llamador (tabla + where + valor);
+        // no es ligable con ? sin refactorizar la firma de este metodo y sus llamadores.
+        $smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase ' . $from_where);
         if ($result = $smt->fetch_assoc()) {
             $sumaIvasBases = $result;
         }
