@@ -3,6 +3,7 @@
 
 <head>
 	<?php
+	require_once __DIR__ . '/../../clases/DB.php';
 	include_once("./../../inicial.php");
 	include_once $URLCom . '/head.php';
 	include_once $URLCom . '/controllers/Controladores.php';
@@ -60,9 +61,9 @@
 				$datosPrincipales = json_decode($datosIncidencia['datos']);
 
 				if (isset($datosPrincipales->usuarioSelec)) {
-					$sql = 'select * from usuarios where id=' . $datosPrincipales->usuarioSelec;
+					$sql = 'select * from usuarios where id=?';
 
-					$smt = $BDTpv->query($sql);
+					$smt = (new DB($BDTpv))->pquery($sql, array($datosPrincipales->usuarioSelec));
 					if ($result = $smt->fetch_assoc()) {
 						$usuarioSelect = $result;
 					}

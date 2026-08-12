@@ -1,15 +1,20 @@
 <?php
 
+require_once __DIR__ . '/../../../clases/DB.php';
+
 class Modulo_etiquetado
 {
-	public function consulta($sql)
+	public function consulta($sql, $params = array())
 	{
 		// Realizamos la consulta.
 		// Esta consulta no tiene sentido teniendo la del padre...
 
 		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
+		// pquery() sirve para SELECT (devuelve mysqli_result) y para DML (devuelve
+		// false); usamos errno para distinguir exito de error, ya que un DML
+		// correcto tambien devuelve false.
+		$smt = (new DB($db))->pquery($sql, $params);
+		if ($db->errno === 0) {
 			return $smt;
 		} else {
 			$respuesta = array();
@@ -46,10 +51,8 @@ class Modulo_etiquetado
 			}
 			$sql = 'INSERT INTO `modulo_etiquetado_temporal`(`num_lote`, `tipo`,
              `fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`,
-             `productos`, `idUsuario`) VALUES(' . $datos['idReal'] . ', ' . $datos['tipo'] . ', "' . $datos['fechaEnv'] . '",
-             "' . $datos['fechaCad'] . '", ' . $datos['idProducto'] . ', ' . $numAlb . ', "' . $datos['estado'] . '"
-             ,' . "'" . $PrepProductos . "'" . ', ' . $datos['idUsuario'] . ')';
-			$smt = $this->consulta($sql);
+             `productos`, `idUsuario`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)';
+			$smt = $this->consulta($sql, array($datos['idReal'], $datos['tipo'], $datos['fechaEnv'], $datos['fechaCad'], $datos['idProducto'], $numAlb, $datos['estado'], $UnicoCampoProductos, $datos['idUsuario']));
 			if (gettype($smt) === 'array') {
 				$respuesta['error'] = $smt['error'];
 				$respuesta['consulta'] = $smt['consulta'];
@@ -78,11 +81,11 @@ class Modulo_etiquetado
 		$UnicoCampoProductos = json_encode($datos['productos']);
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		$sql = 'UPDATE `modulo_etiquetado_temporal` SET
-		`num_lote`=' . $datos['idReal'] . ',`tipo`=' . $datos['tipo'] . ',`fecha_env`="' . $datos['fechaEnv'] . '"
-		,`fecha_cad`="' . $datos['fechaCad'] . '",`idArticulo`=' . $datos['idProducto'] . ',`numAlb`=' . $numAlb . '
-		,`estado`="' . $datos['estado'] . '",`productos`=' . "'" . $PrepProductos . "'" . '
-		,`idUsuario`=' . $datos['idUsuario'] . ' WHERE id=' . $idTemporal;
-		$smt = $this->consulta($sql);
+		`num_lote`=?,`tipo`=?,`fecha_env`=?
+		,`fecha_cad`=?,`idArticulo`=?,`numAlb`=?
+		,`estado`=?,`productos`=?
+		,`idUsuario`=? WHERE id=?';
+		$smt = $this->consulta($sql, array($datos['idReal'], $datos['tipo'], $datos['fechaEnv'], $datos['fechaCad'], $datos['idProducto'], $numAlb, $datos['estado'], $UnicoCampoProductos, $datos['idUsuario'], $idTemporal));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -95,6 +98,7 @@ class Modulo_etiquetado
 		//@OBjetivo:
 		//LIstar todas las etiquetas guardadas
 		$db = $this->db;
+		// TODO: revisar - $limite es un fragmento LIMIT concatenado; no se liga con ? (regla 4). Validar el origen del valor a mano.
 		$sql = 'SELECT a.num_lote, a.id , a.fecha_env, a.fecha_cad, a.estado, b.articulo_name , a.productos from modulo_etiquetado as a
 		inner join articulos as b on a.idArticulo=b.idArticulo  ' . $limite;
 		$smt = $this->consulta($sql);
@@ -139,8 +143,8 @@ class Modulo_etiquetado
 		$db = $this->db;
 		$sql = 'select a.*, b.articulo_name FROM modulo_etiquetado_temporal
 		 as a inner join articulos as b on a.idArticulo=b.idArticulo
-		  where a.id=' . $idTemporal;
-		$smt = $this->consulta($sql);
+		  where a.id=?';
+		$smt = $this->consulta($sql, array($idTemporal));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -157,8 +161,8 @@ class Modulo_etiquetado
 		//Objetivo:
 		//eliminar un temporal determinado
 		$db = $this->db;
-		$sql = 'DELETE FROM `modulo_etiquetado_temporal` WHERE id=' . $idTemporal;
-		$smt = $this->consulta($sql);
+		$sql = 'DELETE FROM `modulo_etiquetado_temporal` WHERE id=?';
+		$smt = $this->consulta($sql, array($idTemporal));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -175,17 +179,17 @@ class Modulo_etiquetado
 		$PrepProductos = $db->real_escape_string($UnicoCampoProductos);
 		if ($datos['idReal'] > 0) {
 			$sql = 'UPDATE `modulo_etiquetado` SET
-			`tipo`="' . $datos['tipo'] . '",`fecha_env`="' . $datos['fecha_env'] . '",`fecha_cad`="' . $datos['fecha_cad'] . '",
-			`idArticulo`=' . $datos['idArticulo'] . ',`numAlb`=' . $datos['numAlb'] . ',`estado`="' . $datos['estado'] . '",
-			`productos`=' . "'" . $PrepProductos . "'" . ',`idUsuario`=' . $datos['idUsuario'] . ' where id=' . $datos['idReal'];
+			`tipo`=?,`fecha_env`=?,`fecha_cad`=?,
+			`idArticulo`=?,`numAlb`=?,`estado`=?,
+			`productos`=?,`idUsuario`=? where id=?';
+			$params = array($datos['tipo'], $datos['fecha_env'], $datos['fecha_cad'], $datos['idArticulo'], $datos['numAlb'], $datos['estado'], $UnicoCampoProductos, $datos['idUsuario'], $datos['idReal']);
 		} else {
 			$sql = 'INSERT INTO `modulo_etiquetado`(`tipo`,
 			`fecha_env`, `fecha_cad`, `idArticulo`, `numAlb`, `estado`,
-			`productos`, `idUsuario`) VALUES ("' . $datos['tipo'] . '", "' . $datos['fecha_env'] . '",
-			"' . $datos['fecha_cad'] . '", ' . $datos['idArticulo'] . ', ' . $datos['numAlb'] . ',
-			"' . $datos['estado'] . '", ' . "'" . $PrepProductos . "'" . ', ' . $datos['idUsuario'] . ')';
+			`productos`, `idUsuario`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+			$params = array($datos['tipo'], $datos['fecha_env'], $datos['fecha_cad'], $datos['idArticulo'], $datos['numAlb'], $datos['estado'], $UnicoCampoProductos, $datos['idUsuario']);
 		}
-		$smt = $this->consulta($sql);
+		$smt = $this->consulta($sql, $params);
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -193,8 +197,8 @@ class Modulo_etiquetado
 		} else {
 			$id = $db->insert_id;
 			if ($datos['idReal'] == 0) {
-				$sql = 'UPDATE modulo_etiquetado SET num_lote=' . $id . ' WHERE id=' . $id;
-				$smt = $this->consulta($sql);
+				$sql = 'UPDATE modulo_etiquetado SET num_lote=? WHERE id=?';
+				$smt = $this->consulta($sql, array($id, $id));
 				if (gettype($smt) === 'array') {
 					$respuesta['error'] = $smt['error'];
 					$respuesta['consulta'] = $smt['consulta'];
@@ -211,8 +215,8 @@ class Modulo_etiquetado
 		$db = $this->db;
 		$sql = 'select a.*, b.articulo_name FROM modulo_etiquetado
 		 as a inner join articulos as b on a.idArticulo=b.idArticulo
-		  where a.id=' . $idLote;
-		$smt = $this->consulta($sql);
+		  where a.id=?';
+		$smt = $this->consulta($sql, array($idLote));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -229,8 +233,8 @@ class Modulo_etiquetado
 		//Objetivo:
 		//MOdificar el estado de un lote real
 		$db = $this->db;
-		$sql = 'UPDATE modulo_etiquetado SET estado="' . $estado . '" where id=' . $id;
-		$smt = $this->consulta($sql);
+		$sql = 'UPDATE modulo_etiquetado SET estado=? where id=?';
+		$smt = $this->consulta($sql, array($estado, $id));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];

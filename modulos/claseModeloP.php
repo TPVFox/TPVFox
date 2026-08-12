@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../clases/DB.php';
+
 /*
  * @Copyright 2018, Alagoro Software.
  * @licencia   GNU General Public License version 2 or later; see LICENSE.txt
@@ -65,7 +67,7 @@ class ModeloP
         // Realizamos la consulta.
         $error = 0;
         $respuesta = false;
-        $smt = $db->query($sql);
+        $smt = (new DB($db))->pquery($sql);
         if ($smt) {
             $respuesta = $smt->fetch_all(MYSQLI_ASSOC);
             // (!$datos)||count($datos)==1?$datos[0]:$datos;
@@ -88,7 +90,7 @@ class ModeloP
     {
         $db = self::getDbo();
 
-        $respuesta = $db->query($sql);
+        $respuesta = (new DB($db))->execute($sql);
 
         ModeloP::setResult($sql, ($respuesta ? 0 : $db->error));
 
