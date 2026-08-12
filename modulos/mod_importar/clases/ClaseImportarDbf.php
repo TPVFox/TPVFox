@@ -86,7 +86,7 @@ class ImportarDbf extends TFModelo
 
             $this->campos = $respuesta['datos'];
             $strSql = implode(",", $strCampos);
-            $sql = 'CREATE TABLE modulo_importar_' . $nombreTabla . ' (' . $strSql . ')';
+            $sql = 'CREATE TABLE modulo_importar_' . preg_replace('/[^A-Za-z0-9_]/', '', $nombreTabla) . ' (' . $strSql . ')';
             $respuesta = parent::consultaDML($sql);
             if ($respuesta === false) {
                 $respuesta = parent::getFallo();
@@ -107,7 +107,7 @@ class ImportarDbf extends TFModelo
         // @ Devuelve.
         // $error = 1 si es un error, 0 si fue correcto.
         // $datos 0 $errores
-        $instruccion = 'python ' . $URLCom . '/lib/py/leerEstrucDbf2.py 2>&1 -f ' . $fichero;
+        $instruccion = 'python ' . $URLCom . '/lib/py/leerEstrucDbf2.py 2>&1 -f ' . escapeshellarg($fichero);
         $resultado = array();
         $output = array();
 
@@ -174,7 +174,7 @@ class ImportarDbf extends TFModelo
         // tratamos array $output para obtener los datos y los ponemos a nuestro gusto $resultado;
         $resultado = array();
         $output = array();
-        $instruccion = 'python ' . $URLCom . '/lib/py/leerDbf1.py 2>&1 -f ' . $fichero;
+        $instruccion = 'python ' . $URLCom . '/lib/py/leerDbf1.py 2>&1 -f ' . escapeshellarg($fichero);
         exec($instruccion, $output, $entero);
         // Recuerda que $output es un array de todas las lineas obtenidad en .py
         // tambien recuerad que si el $entero es distinto de 0 , es que hubo un error en la respuesta de  .py

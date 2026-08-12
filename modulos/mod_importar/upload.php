@@ -93,6 +93,13 @@ foreach ($errores as $error) {
 //~ echo '<pre>';
 //~ print_r($errores);
 //~ echo '</pre>';
+// Solo se admiten ficheros .dbf: evita subir un .php (webshell) u otro ejecutable.
+$extension = strtolower(pathinfo($_FILES['fichero']['name'] ?? '', PATHINFO_EXTENSION));
+if ($sum_errores === 0 && $extension !== 'dbf') {
+    $sum_errores = 1;
+    $errores['extension_no_valida']['indice'] = 1;
+    $mensajes[] = 'Tipo de fichero no permitido: solo se admiten .dbf';
+}
 if ($sum_errores === 0) {
     $estado = 'Error'; // Por defecto indico que el estado es error.
     if (move_uploaded_file($_FILES['fichero']['tmp_name'], $fichero_subido)) {
