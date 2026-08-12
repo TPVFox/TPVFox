@@ -1,0 +1,19 @@
+{
+    "name": "tpvfox/tpvfox",
+    "description": "TPVFox - gestión de tienda / TPV",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tpvfox\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

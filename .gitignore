@@ -18,3 +18,8 @@ logs/
 # Ignorar carpetas de empresas dentro /estatico/
 estatico/carpintero/
 estatico/*/
+
+# tests / composer
+vendor/
+.phpunit.cache/
+.phpunit.result.cache
