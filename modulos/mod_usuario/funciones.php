@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../clases/DB.php';
 // Funciones para vista Recambio unico.
 function obtenerUsuarios($BDTpv)
 {
@@ -6,7 +7,7 @@ function obtenerUsuarios($BDTpv)
 
 	$usuarios = array();
 	$consulta = "Select * from usuarios";
-	$ResUsuarios = $BDTpv->query($consulta);
+	$ResUsuarios = (new DB($BDTpv))->pquery($consulta);
 	$usuarios['NItems'] = $ResUsuarios->num_rows;
 	$i = 0;
 
@@ -27,9 +28,10 @@ function obtenerUsuarios($BDTpv)
 function verSelec($BDTpv, $idUser, $tabla)
 {
 	// Obtener datos de un id de usuario.
-	$where = 'u.id = ' . $idUser . ' and i.idUsuario =' . $idUser;
+	$where = 'u.id = ? and i.idUsuario = ?';
 	$consulta = 'SELECT u.*,i.numticket,i.tempticket FROM ' . $tabla . ' as u, indices as i WHERE ' . $where;
-	$unaOpc = $BDTpv->query($consulta);
+	// $tabla es identificador (nombre de tabla), no un valor: no se liga con ?
+	$unaOpc = (new DB($BDTpv))->pquery($consulta, array($idUser, $idUser));
 	if (mysqli_error($BDTpv)) {
 		$fila['error'] = 'Error en la consultar' . $BDTpv->errno;
 	} else {
@@ -59,22 +61,22 @@ function insertarUsuario($datos, $BDTpv, $idTienda, $tabla)
 	$estado = $datos['estado'];
 
 	//comprobar que username NO EXISTE al crear un nuevo usuario
-	$buscarUsuario = 'SELECT * FROM usuarios WHERE username= "' . $username . '"';
-	$res = $BDTpv->query($buscarUsuario);
+	$buscarUsuario = 'SELECT * FROM usuarios WHERE username = ?';
+	$res = (new DB($BDTpv))->pquery($buscarUsuario, array($username));
 	$numUser = mysqli_num_rows($res); //num usuarios que existen con ese nombre
 	if (($numUser === 1) || ($username === '')) {
 		// Si entro es porque existe ya el usuario o no mando nombre usuario
 		$resultado['error'] = 'error';
 		$resultado['sql'] = $buscarUsuario;
 	} else {
-		$consulta = 'INSERT INTO ' . $tabla . '( username, password, fecha, group_id, estado, nombre ) VALUES ("'
-			. $username . '" , "' . $passwrd . '" , "' . $fecha . '" , ' . $grupoid . ' , "' . $estado . '" , "' . $nombreEmpleado . '")';
-		if ($BDTpv->query($consulta) === true) {
+		$consulta = 'INSERT INTO ' . $tabla . '( username, password, fecha, group_id, estado, nombre ) VALUES (?, ?, ?, ?, ?, ?)';
+		$afectadasUsuario = (new DB($BDTpv))->execute($consulta, array($username, $passwrd, $fecha, $grupoid, $estado, $nombreEmpleado));
+		if ($afectadasUsuario > 0) {
 			$resultado['id'] = $BDTpv->insert_id;
 			// Entonces inserto en indice.
 			// Ahora creamos las claves indices de este usuario para esta tienda.
-			$InsertSlq = 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES (' . $idTienda . ',' . $resultado['id'] . ',0,0)';
-			if ($BDTpv->query($InsertSlq) !== true) {
+			$InsertSlq = 'INSERT INTO `indices`(`idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES (?, ?, 0, 0)';
+			if ((new DB($BDTpv))->execute($InsertSlq, array($idTienda, $resultado['id'])) < 1) {
 				// Quiere decir que hubo error en insertar en indice
 				$resultado['error'] = 'Error en Insert en indice -1 Numero error' . $BDTpv->errno;
 				$resultado['consulta'] = $InsertSlq;
@@ -112,14 +114,15 @@ function modificarUsuario($datos, $BDTpv, $tabla)
 
 	if ($datos['password'] === 'password') { //username NO se podra MODIFICAR
 		//no actualizar contraseña, actualizamos 3 campos : estado, nombre y grupo id.
-		$sql = 'UPDATE ' . $tabla . ' SET group_id =' . $grupoid . ' , estado = "'
-			. $estado . '" , nombre ="' . $nombre . '" WHERE id=' . $idUsuario;
+		$sql = 'UPDATE ' . $tabla . ' SET group_id = ? , estado = ? , nombre = ? WHERE id = ?';
+		$params = array($grupoid, $estado, $nombre, $idUsuario);
 	} else { //actualimos 4 campos, password, username, estado, nombre y grupo id.
-		$sql = 'UPDATE ' . $tabla . ' SET group_id =' . $grupoid . ' , estado = "'
-			. $estado . '" , password ="' . $passwrd . '" , nombre ="' . $nombre . '" WHERE id=' . $idUsuario;
+		$sql = 'UPDATE ' . $tabla . ' SET group_id = ? , estado = ? , password = ? , nombre = ? WHERE id = ?';
+		$params = array($grupoid, $estado, $passwrd, $nombre, $idUsuario);
 	}
 
-	$consulta = $BDTpv->query($sql);
+	// $tabla es identificador (nombre de tabla), no un valor: no se liga con ?
+	$consulta = (new DB($BDTpv))->execute($sql, $params);
 
 	//$resultado['consulta'] =$sql;
 	$resultado['consulta'] = $consulta;
