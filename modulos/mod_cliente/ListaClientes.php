@@ -183,15 +183,15 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 									}
 									?>
 								</td>
-								<td><?php echo $cliente['idClientes']; ?></td>
-								<td><?php echo $cliente['Nombre']; ?></td>
-								<td><?php echo $cliente['razonsocial']; ?></td>
-								<td><?php echo $cliente['nif']; ?></td>
-								<td><?php echo $cliente['telefono']; ?></td>
-								<td><?php echo $cliente['movil']; ?></td>
+								<td><?php echo e($cliente['idClientes']); ?></td>
+								<td><?php echo e($cliente['Nombre']); ?></td>
+								<td><?php echo e($cliente['razonsocial']); ?></td>
+								<td><?php echo e($cliente['nif']); ?></td>
+								<td><?php echo e($cliente['telefono']); ?></td>
+								<td><?php echo e($cliente['movil']); ?></td>
 
-								<td><?php echo $email; ?></td>
-								<td><?php echo $cliente['estado']; ?></td>
+								<td><?php echo e($email); ?></td>
+								<td><?php echo e($cliente['estado']); ?></td>
 								<?php
 								$linkImprimir = '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" ' . "onclick='imprimirFicha(" . $cliente['idClientes'] . ")'></a>";
 								?>
