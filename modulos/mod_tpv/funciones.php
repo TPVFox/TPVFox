@@ -336,16 +336,18 @@ function grabarTicketsTemporales($BDTpv, $productos, $cabecera, $total)
         $resultado['fechaInicial'] = $fecha;
 
         // Insertamos el nuevo tickettemporal
-        $SQL = 'INSERT INTO `ticketstemporales`(`numticket`,`estadoTicket`, `idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `Productos`) VALUES (' . $numTicket . ',"' . $resultado['estadoTicket'] . '",' . $idTienda . ',' . $idUsuario . ',"' . $fecha . '",' . $idCliente . ',' . $total . ',"' . $PrepProductos . '")';
-        $BDTpv->query($SQL);
+        // Con sentencia preparada se liga el valor sin escapar (evita doble escape);
+        // se pasa $UnicoCampoProductos en lugar de $PrepProductos (real_escape_string).
+        $SQL = 'INSERT INTO `ticketstemporales`(`numticket`,`estadoTicket`, `idTienda`, `idUsuario`, `fechaInicio`, `idClientes`, `total`, `Productos`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        (new DB($BDTpv))->execute($SQL, array($numTicket, $resultado['estadoTicket'], $idTienda, $idUsuario, $fecha, $idCliente, $total, $UnicoCampoProductos));
         $resultado['consulta'][] = $SQL;
         if (mysqli_error($BDTpv)) {
             $resultado['error'][] = $BDTpv->error_list;
         }
     } else {
         // Si NO es Nuevo entonces se hace UPDATE
-        $SQL = 'UPDATE `ticketstemporales` SET `idClientes`=' . $idCliente . ',`fechaFinal`="' . $fecha . '",`total`=' . $total . ',`Productos`=' . "'" . $PrepProductos . "'" . ' WHERE `idTienda`=' . $idTienda . ' and `idUsuario`=' . $idUsuario . ' and numticket =' . $numTicket;
-        $BDTpv->query($SQL);
+        $SQL = 'UPDATE `ticketstemporales` SET `idClientes`= ?,`fechaFinal`= ?,`total`= ?,`Productos`= ? WHERE `idTienda`= ? and `idUsuario`= ? and numticket = ?';
+        (new DB($BDTpv))->execute($SQL, array($idCliente, $fecha, $total, $UnicoCampoProductos, $idTienda, $idUsuario, $numTicket));
         if ($cabecera['estadoTicket'] != 'Abierto') {
             // Quiere decir que no es el actual...
             // aun no las tengo todas conmigo.. para decir esto.
@@ -404,14 +406,14 @@ function ControlEstadoTicketsAbierto($BDTpv, $idUsuario, $idTienda)
     // por lo cual lo pasamos a abierto.
     $respuesta = array();
     // Montamos consulta
-    $sql = 'UPDATE `ticketstemporales` SET `estadoTicket` = "Abierto" WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario . ' AND estadoTicket ="Actual"';
-    $BDTpv->query($sql);
+    $sql = 'UPDATE `ticketstemporales` SET `estadoTicket` = "Abierto" WHERE `idTienda` = ? AND `idUsuario` = ? AND estadoTicket ="Actual"';
+    $num_afectados = (new DB($BDTpv))->execute($sql, array($idTienda, $idUsuario));
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
         $resultado['error'] = $BDTpv->error_list;
     }
     // Si fue correcto comprobamos a cuantos afectos, que sería los tickets abiertos.
-    $respuesta['num_afectados'] = $BDTpv->affected_rows;
+    $respuesta['num_afectados'] = $num_afectados;
     return $respuesta;
 }
 
@@ -422,10 +424,10 @@ function ObtenerUnTicketTemporal($BDTpv, $idTienda, $idUsuario, $numero_ticket)
     // Hay que tener en cuenta que todos los productos del tickets esta en un campo unico, en un array JSON
     $respuesta = array();
     $productos = array();
-    $Sql = 'SELECT t.`id` , t.`numticket` , t.`estadoTicket` , t.`idTienda` , t.`idUsuario` , t.`fechaInicio` , t.`fechaFinal` , t.`idClientes` , t.`total` , c.`Nombre` , c.`razonsocial`,t.`Productos` FROM `ticketstemporales` AS t LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idClientes` WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario . ' AND `numticket` =' . $numero_ticket;
+    $Sql = 'SELECT t.`id` , t.`numticket` , t.`estadoTicket` , t.`idTienda` , t.`idUsuario` , t.`fechaInicio` , t.`fechaFinal` , t.`idClientes` , t.`total` , c.`Nombre` , c.`razonsocial`,t.`Productos` FROM `ticketstemporales` AS t LEFT JOIN `clientes` AS c ON c.`idClientes` = t.`idClientes` WHERE `idTienda` = ? AND `idUsuario` = ? AND `numticket` = ?';
 
 
-    if ($resp = $BDTpv->query($Sql)) {
+    if ($resp = (new DB($BDTpv))->pquery($Sql, array($idTienda, $idUsuario, $numero_ticket))) {
         // Quiere decir que hay resultados.
         $respuesta['Numero_rows'] = $resp->num_rows;
         if ($respuesta['Numero_rows'] === 1) {
@@ -572,8 +574,10 @@ function ObtenerNumIndices($BDTpv, $campo, $idUsuario, $idTienda, $incrementar =
     //   $idTienda  ->(int);
     //   $incrementar ---> booleano ( lo utilizamos para indicar a la funcion que incremente el numeros de ticket en el registro y campo indicado.
     // Hay que tener en cuenta que tenemos un registro por Usuario y Tienda para llevar un control numeros ticket.
-    $sql = 'SELECT ' . $campo . ' FROM `indices` WHERE `idTienda` =' . $idTienda . ' AND `idUsuario` =' . $idUsuario;
-    $resp = $BDTpv->query($sql);
+    // $campo es un identificador (columna): no se puede ligar con ?; se valida contra lista blanca.
+    $campoValido = DB::identWhitelist($campo, array('tempticket', 'numticket'));
+    $sql = 'SELECT ' . $campoValido . ' FROM `indices` WHERE `idTienda` = ? AND `idUsuario` = ?';
+    $resp = (new DB($BDTpv))->pquery($sql, array($idTienda, $idUsuario));
 
     $row = $resp->fetch_array(MYSQLI_NUM);
     if (count($row) === 1) {
@@ -587,8 +591,8 @@ function ObtenerNumIndices($BDTpv, $campo, $idUsuario, $idTienda, $incrementar =
     if ($incrementar === true) {
         // Si trae parametro $incrementar , se añade uno al valor actual del campo indicado.
         $numTicket = $numTicket + 1;
-        $sql = "UPDATE `indices` SET " . $campo . " =" . $numTicket . " WHERE `idTienda` =" . $idTienda . " AND `idUsuario` =" . $idUsuario;
-        $BDTpv->query($sql);
+        $sql = 'UPDATE `indices` SET ' . $campoValido . ' = ? WHERE `idTienda` = ? AND `idUsuario` = ?';
+        (new DB($BDTpv))->execute($sql, array($numTicket, $idTienda, $idUsuario));
         if (mysqli_error($BDTpv)) {
             $numTicket = -2;
             error_log('No se pudo grabar en indices, algo salio mal en mod_tpv/funciones.php en funcion grabarTicketTemporal');
@@ -652,10 +656,9 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose)
     // Preparamos SQl para Consulta en tickest
     $SqlTicket = 'INSERT INTO `ticketst`(`Numticket`, `Numtempticket`, `Fecha`'
         . ', `idUsuario`, `idTienda`, `idCliente`, `estado`, `formaPago`'
-        . ', `entregado`, `total`) VALUES (' . $numticket . ',' . $cabecera['numTickTemporal']
-        . ',"' . $fecha . '",' . $cabecera['idUsuario'] . ',' . $cabecera['idTienda'] . ',' . $cabecera['idCliente'] . ',"' . $estado . '","' . $cabecera['formaPago'] . '","' . $cabecera['entregado'] . '","' . $cabecera['total'] . '")';
+        . ', `entregado`, `total`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     // Ejecutamos consulta para obtener el id ( autoincremental) que el que va enlazar los tickets
-    $BDTpv->query($SqlTicket);
+    (new DB($BDTpv))->execute($SqlTicket, array($numticket, $cabecera['numTickTemporal'], $fecha, $cabecera['idUsuario'], $cabecera['idTienda'], $cabecera['idCliente'], $estado, $cabecera['formaPago'], $cabecera['entregado'], $cabecera['total']));
     $numIdTicketT = $BDTpv->insert_id;
     if (mysqli_error($BDTpv)) {
         $resultado['error'][]['tipo'] = 'danger';
@@ -668,55 +671,84 @@ function grabarTicketCobrado($BDTpv, $productos, $cabecera, $desglose)
 
     // Preparamos SQl para Consulta para ticketLinea
     // Aquí va ser insert de varios registros , la cantidad productos que tenga el ticket
+    // Inserción multi-fila: se genera un grupo de placeholders (?, ...) por fila
+    // y se acumulan los valores en un array de parámetros en el mismo orden.
     $valor = array();
+    $paramsLinea = array();
     $articulosStock = [];
     foreach ($productos as $producto) {
         $cantidad = (float) $producto->unidad;
         // De momento esto lo dejamos igual pero lo deberíamos controlar con $CONF_campoPeso
         $unidad = $cantidad; // En el momento que se gestione hay que cambiar la tabla.
-        $valor[] = '(' . $numIdTicketT . ',' . $numticket . ',' . $producto->id . ',"' . $producto->cref . '","' . $producto->ccodebar . '","'
-            . $producto->cdetalle . '",' . $cantidad . ',' . $unidad . ','
-            . $producto->pvpconiva . ',' . $producto->ctipoiva . ',' . $producto->nfila . ',"' . $producto->estado . '")';
+        $valor[] = '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $paramsLinea[] = $numIdTicketT;
+        $paramsLinea[] = $numticket;
+        $paramsLinea[] = $producto->id;
+        $paramsLinea[] = $producto->cref;
+        $paramsLinea[] = $producto->ccodebar;
+        $paramsLinea[] = $producto->cdetalle;
+        $paramsLinea[] = $cantidad;
+        $paramsLinea[] = $unidad;
+        $paramsLinea[] = $producto->pvpconiva;
+        $paramsLinea[] = $producto->ctipoiva;
+        $paramsLinea[] = $producto->nfila;
+        $paramsLinea[] = $producto->estado;
         if ($producto->estado == 'Activo') {
             $articulosStock[] = ['idArticulo' => $producto->id, 'idTienda' => $cabecera['idTienda'], 'nunidades' => $cantidad];
         }
     }
     $valores = implode(',', $valor);
-    $SqlTickets[] = 'INSERT INTO `ticketslinea`(`idticketst`,`Numticket`, `idArticulo`'
-        . ', `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`'
-        . ', `iva`,nfila,estadoLinea) VALUES ' . $valores;
+    $SqlTickets[] = array(
+        'sql' => 'INSERT INTO `ticketslinea`(`idticketst`,`Numticket`, `idArticulo`'
+            . ', `cref`, `ccodbar`, `cdetalle`, `ncant`, `nunidades`, `precioCiva`'
+            . ', `iva`,nfila,estadoLinea) VALUES ' . $valores,
+        'params' => $paramsLinea,
+    );
 
 
     // Preparamos SQl para Consulta para ticketstiva
     if (count($desglose) > 0) {
         // En tickets con valor 0 , no hay datos desglose..
         $iva = array();
+        $paramsIva = array();
         foreach ($desglose as $index => $valor) {
-            $iva[] = '(' . $numIdTicketT . ',' . $numticket . ',"' . $index . '","' . $valor['iva'] . '","' . $valor['base'] . '")';
+            $iva[] = '(?, ?, ?, ?, ?)';
+            $paramsIva[] = $numIdTicketT;
+            $paramsIva[] = $numticket;
+            $paramsIva[] = $index;
+            $paramsIva[] = $valor['iva'];
+            $paramsIva[] = $valor['base'];
             // $valor['iva'] -> Es el importe del iva.
         }
         $ivas = implode(',', $iva);
         if ($ivas != '') {
-            $SqlTickets[] = 'INSERT INTO `ticketstIva`(`idticketst`,`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES ' . $ivas;
+            $SqlTickets[] = array(
+                'sql' => 'INSERT INTO `ticketstIva`(`idticketst`,`Numticket`, `iva`, `importeIva`,`totalbase`) VALUES ' . $ivas,
+                'params' => $paramsIva,
+            );
         }
     }
     // Preparamos SQL para cambiar estado de ticket temporal.
-    $SqlTickets[] = 'UPDATE `ticketstemporales` SET `fechaFinal`="' . $fecha . '",`estadoTicket`=' . "'" . $estado . "'" . ' WHERE `idTienda`=' . $cabecera['idTienda'] . ' and `idUsuario`=' . $cabecera['idUsuario'] . ' and numticket =' . $cabecera['numTickTemporal'];
+    $SqlTickets[] = array(
+        'sql' => 'UPDATE `ticketstemporales` SET `fechaFinal`= ?,`estadoTicket`= ? WHERE `idTienda`= ? and `idUsuario`= ? and numticket = ?',
+        'params' => array($fecha, $estado, $cabecera['idTienda'], $cabecera['idUsuario'], $cabecera['numTickTemporal']),
+    );
 
     // Ejecutamos las cuatro consultas.
-    foreach ($SqlTickets as $key => $sql) {
-        $BDTpv->query($sql);
+    $dbl = new DB($BDTpv);
+    foreach ($SqlTickets as $key => $consulta) {
+        $afectados = $dbl->execute($consulta['sql'], $consulta['params']);
         if (mysqli_error($BDTpv)) {
             $resultado['error'][$key]['tipo'] = 'danger';
-            $resultado['error'][$key]['mensaje'] = 'Consulta:' . $sql;
+            $resultado['error'][$key]['mensaje'] = 'Consulta:' . $consulta['sql'];
             $resultado['error'][$key]['datos'] = json_encode($BDTpv->error_list);
             // Registro igualmente en log, de momento...
-            error_log(' Rotura en funcion grabarTicketCobrado()-> Consulta:' . $sql);
+            error_log(' Rotura en funcion grabarTicketCobrado()-> Consulta:' . $consulta['sql']);
             error_log(json_encode($BDTpv->error_list));
         } else {
             // Enviamos datos que cuantos registros fueron añadidos o modificados por cada consulta..
             // aunque no lo utilizamos.
-            $resultado['num_filas_consulta'][$key] = $BDTpv->affected_rows;
+            $resultado['num_filas_consulta'][$key] = $afectados;
         }
     }
     foreach ($articulosStock as $articuloStock) {
@@ -764,7 +796,7 @@ function ivas($BDTpv)
 {
     //recojo array de ivas
     $sql = 'SELECT `iva` AS iva FROM `ticketstIva` GROUP by iva';
-    $resp = $BDTpv->query($sql);
+    $resp = (new DB($BDTpv))->pquery($sql);
     $resultado = array();
     if ($resp->num_rows > 0) {
         $i = 0;
@@ -784,8 +816,8 @@ function DatosTiendaID($BDTpv, $idTienda)
     // Esta funcion pienso que no debería ser necesaria, pero no encontre otra forma pasar los datos ahora.
     $resultado = array();
     $sql = 'SELECT idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado '
-        . ' FROM tiendas WHERE idTienda = ' . $idTienda;
-    $res = $BDTpv->query($sql);
+        . ' FROM tiendas WHERE idTienda = ?';
+    $res = (new DB($BDTpv))->pquery($sql, array($idTienda));
     //compruebo error en consulta
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
@@ -807,12 +839,14 @@ function ObtenerRefWebProductos($BDTpv, $productos, $idWeb)
     $resultado = array();
     $wheres = array();
     foreach ($productos as $producto) {
-        $wheres[] = $producto['idArticulo'];
+        $wheres[] = (int) $producto['idArticulo']; // castea a int para el IN (...) seguro
     }
     $where = '(' . implode(',', $wheres) . ')';
 
-    $consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` =' . $idWeb . ' AND idArticulo IN ' . $where;
-    $res = $BDTpv->query($consulta);
+    // TODO: revisar - la lista IN (...) se construye con ids casteados a int (no ligables con ?);
+    // el resto de valores (idTienda) va parametrizado.
+    $consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` = ? AND idArticulo IN ' . $where;
+    $res = (new DB($BDTpv))->pquery($consulta, array($idWeb));
     if (mysqli_error($BDTpv)) {
         $resultado['error'] = ' Error en la consulta';
         $resultado['consulta'] = $consulta;
@@ -836,8 +870,8 @@ function ObtenerEnvioIdTickets($BDTpv, $idTicketst)
     // @Objetivo :
     // Es obtener si se envio el stock de ese ticket
     $resultado = array();
-    $sql = 'SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`=' . $idTicketst;
-    $Consulta_envio_stock = $BDTpv->query($sql);
+    $sql = 'SELECT * FROM `importar_virtuemart_tickets` WHERE `idTicketst`= ?';
+    $Consulta_envio_stock = (new DB($BDTpv))->pquery($sql, array($idTicketst));
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
         $resultado['error'] = $BDTpv->error_list;
@@ -883,8 +917,8 @@ function htmlFechaNueva($tickets)
 
 function BuscarTienda($BDTpv, $idWeb)
 {
-    $consulta = 'SELECT * FROM tiendas WHERE  idTienda =' . $idWeb;
-    $unaOpc = $BDTpv->query($consulta);
+    $consulta = 'SELECT * FROM tiendas WHERE  idTienda = ?';
+    $unaOpc = (new DB($BDTpv))->pquery($consulta, array($idWeb));
     if (mysqli_error($BDTpv)) {
         $fila = $unaOpc;
     } else {
@@ -903,10 +937,13 @@ function baseIva($BDTpv, $idticketst)
     //Agrupamos por iva, para obtener sumIva, sumBase
     //se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
     //seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
+    // TODO: revisar - $idticketst puede venir como lista de ids separados por comas (no ligable
+    // con ?); se sanea a enteros con intval antes de construir el IN (...).
+    $idsLimpios = implode(',', array_map('intval', explode(',', (string) $idticketst)));
     $sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
         . ' FROM `ticketstIva` '
-        . ' WHERE `idticketst` IN (' . $idticketst . ') GROUP BY `iva`';
-    $resp = $BDTpv->query($sql);
+        . ' WHERE `idticketst` IN (' . $idsLimpios . ') GROUP BY `iva`';
+    $resp = (new DB($BDTpv))->pquery($sql);
     $resultado = array();
     if ($resp->num_rows > 0) {
         $i = 0;
@@ -931,41 +968,47 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla, $dedonde)
     //  $tabla--> tabla donde buscar.
     // Campos que vamos a Buscar: 'Nombre','razonsocial','nif','telefono','movil'
     $resultado = array();
+    // $tabla es un identificador (nombre de tabla): no se puede ligar con ?; se valida.
+    $tablaValida = DB::ident($tabla);
+    $params = array();
     // Separamos la busqueda en varias palabras
     if ($dedonde == "Linea_tpv" || $dedonde == "Linea_cobrados") {
-        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE idClientes=' . $busqueda;
+        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tablaValida . ' WHERE idClientes= ?';
+        $params[] = $busqueda;
     } else {
         $palabras = explode(' ', $busqueda);
-        $likes = array();
+        $likesNombre = array();
+        $likesRazon = array();
+        $patrones = array();
         $num = 'KO';
         foreach ($palabras as $key => $palabra) {
             //  Identificamos si hay numeros o palabras
             if (is_numeric($palabra) == false) {
                 // Montamos consulta por palabras de varias palabras, en nombre o razon social
-                $likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
+                $likesNombre[] = 'Nombre LIKE ?';
+                $likesRazon[] = 'razonsocial LIKE ?';
+                $patrones[] = '%' . $palabra . '%';
             } else {
                 $num = 'OK';
             }
         }
-        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tabla . ' WHERE ';
-        $whereNombre = '';
-        if (count($likes) > 0) {
+        $sql = 'SELECT idClientes, nombre, razonsocial, nif,estado  FROM ' . $tablaValida . ' WHERE ';
+        if (count($likesNombre) > 0) {
             // Si no hay palabras ya no buscamos por nombre
-            $whereNombre = '(' . implode(' and ', $likes) . ')';
-            $sql .= $whereNombre . ' OR ';
-            // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
-            $sql .= str_replace('Nombre', 'razonsocial', $whereNombre);
+            // Bloque Nombre OR bloque razonsocial; cada bloque usa el mismo patrón por palabra.
+            $sql .= '(' . implode(' and ', $likesNombre) . ') OR (' . implode(' and ', $likesRazon) . ')';
+            $params = array_merge($params, $patrones, $patrones);
         } else {
             if ($num == 'OK') {
                 // Quiere decir que debemos buscar en los campos telefono.
-                if ($whereNombre !== '') {
-                    $sql .= ' OR ';
-                }
-                $sql .= '( nif LIKE "%' . $busqueda . '%" OR telefono LIKE "%' . $busqueda . '%" OR movil LIKE "%' . $busqueda . '%")';
+                $sql .= '( nif LIKE ? OR telefono LIKE ? OR movil LIKE ?)';
+                $params[] = '%' . $busqueda . '%';
+                $params[] = '%' . $busqueda . '%';
+                $params[] = '%' . $busqueda . '%';
             }
         }
     }
-    $res = $BDTpv->query($sql);
+    $res = (new DB($BDTpv))->pquery($sql, $params);
     //~ error_log($sql);
     //compruebo error en consulta
     if (mysqli_error($BDTpv)) {
@@ -1048,10 +1091,9 @@ function RegistrarRestaStock($BDTpv, $id, $estado, $datos)
     // @ Objetivo:
     // Registrar aquellos tickets que hemos ya descontado stock en la web.
     $resultado = array();
-    $sql = 'INSERT INTO `importar_virtuemart_tickets`(idTicketst, Fecha, estado, respuesta) VALUES (' . $id . ',now(),"' . $estado
-        . '","Registros cambiados ' . $datos['row_afectados'] . '")';
+    $sql = 'INSERT INTO `importar_virtuemart_tickets`(idTicketst, Fecha, estado, respuesta) VALUES (?, now(), ?, ?)';
 
-    $BDTpv->query($sql);
+    (new DB($BDTpv))->execute($sql, array($id, $estado, 'Registros cambiados ' . $datos['row_afectados']));
     if (mysqli_error($BDTpv)) {
         $resultado['consulta'] = $sql;
         $resultado['error'] = $BDTpv->error_list;

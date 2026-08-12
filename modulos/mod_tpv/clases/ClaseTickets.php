@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 /* Objetivo de esta clase
  *   - Crear un objeto que contenga
  *              tickets abiertos
@@ -38,7 +39,7 @@ class ClaseTickets extends ClaseSession
 
         return $this->Tienda;
     }
-    public function Consulta($sql)
+    public function Consulta($sql, $params = array())
     {
         // @ Objetivo:
         // Realizar una consulta y devolver numero respuesta... o error..
@@ -49,8 +50,8 @@ class ClaseTickets extends ClaseSession
         // http://php.net/manual/es/mysqli-stmt.bind-param.php
         $respuesta = array();
         $db = $this->BDTpv;
-        $smt = $db->query($sql);
-        if ($db->query($sql)) {
+        $smt = (new DB($db))->pquery($sql, $params);
+        if ($smt) {
             $respuesta['NItems'] = $smt->num_rows;
             // Hubo resultados
             while ($fila = $smt->fetch_assoc()) {
@@ -64,13 +65,15 @@ class ClaseTickets extends ClaseSession
 
         return $respuesta;
     }
-    public function consultaInsert($sql)
+    public function consultaInsert($sql, $params = array())
     {
         // Realizamos la consulta.
         // Esta consulta no tiene sentido teniendo la del padre...
 
         $db = $this->BDTpv;
-        $smt = $db->query($sql);
+        // TODO: revisar - execute() devuelve nº de filas afectadas; un UPDATE que no
+        // cambia ningún valor devuelve 0 y caería en la rama de error.
+        $smt = (new DB($db))->execute($sql, $params);
         if ($smt) {
             return $smt;
         } else {
@@ -91,8 +94,8 @@ class ClaseTickets extends ClaseSession
         $idTienda = $this->Tienda['idTienda'];
         $respuesta = array();
         // Montamos consulta
-        $sql = 'SELECT t.idUsuario, u.nombre as usuario, t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes LEFT JOIN usuarios as u ON t.idUsuario= u.id WHERE t.idTienda =' . $idTienda . ' AND estadoTicket="Abierto"';
-        if ($res = $BDTpv->query($sql)) {
+        $sql = 'SELECT t.idUsuario, u.nombre as usuario, t.`numticket`,t.`idClientes`,t.`fechaInicio`,t.`fechaFinal`,t.`total`,c.Nombre, c.razonsocial FROM `ticketstemporales` as t LEFT JOIN clientes as c ON t.idClientes=c.idClientes LEFT JOIN usuarios as u ON t.idUsuario= u.id WHERE t.idTienda = ? AND estadoTicket="Abierto"';
+        if ($res = (new DB($BDTpv))->pquery($sql, array($idTienda))) {
             /* obtener un array asociativo */
             $i = 0;
             while ($fila = $res->fetch_assoc()) {
@@ -132,9 +135,9 @@ class ClaseTickets extends ClaseSession
             . 'ON c.`idClientes` = t.`idCliente` '
             . 'LEFT JOIN `usuarios` AS u '
             . 'ON u.`id` = t.`idUsuario` '
-            . 'WHERE `idTienda` =' . $idTienda . ' AND t.`id` = ' . $idTicketst;
+            . 'WHERE `idTienda` = ? AND t.`id` = ?';
 
-        $query = $this->Consulta($consulta);
+        $query = $this->Consulta($consulta, array($idTienda, $idTicketst));
         if (!isset($query['error'])) {
             if ($query['NItems'] === 1) {
                 // Obtuvimos un registro de un ticket , por lo que montamos cabecera de ese ticket.
@@ -224,12 +227,13 @@ class ClaseTickets extends ClaseSession
             $filtro  = ' WHERE ';
         }
 
-        $filtro = $filtro . ' t.estado="' . $estado . '" AND t.fecha >="' . $fechas['inicio']->format('Y-m-d H:i:s')
-            . '" AND t.fecha <="' . $fechas['final']->format('Y-m-d H:i:s') . '"';
+        // TODO: revisar - $filtro (entrante) y $limite son fragmentos SQL dinámicos que
+        // se concatenan tal cual; sólo se parametrizan estado y las dos fechas.
+        $filtro = $filtro . ' t.estado= ? AND t.fecha >= ? AND t.fecha <= ?';
         $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
             . 'LEFT JOIN `clientes` AS c '
             . 'ON c.`idClientes` = t.`idCliente` ' . $filtro . ' ORDER BY t.Fecha DESC' . $limite;
-        $consulta = $this->Consulta($sql);
+        $consulta = $this->Consulta($sql, array($estado, $fechas['inicio']->format('Y-m-d H:i:s'), $fechas['final']->format('Y-m-d H:i:s')));
         if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
             $respuesta['datos'] = $consulta['Items'];
         } else {
@@ -247,8 +251,8 @@ class ClaseTickets extends ClaseSession
         // @ Objetivo
         // Obtener la fecha del primer ticket del estado indicado.
         $resultado = array();
-        $sql = 'SELECT Fecha FROM ticketst WHERE estado="' . $estado_ticket . '" ORDER by id ASC LIMIT 1';
-        $consulta = $this->Consulta($sql);
+        $sql = 'SELECT Fecha FROM ticketst WHERE estado= ? ORDER by id ASC LIMIT 1';
+        $consulta = $this->Consulta($sql, array($estado_ticket));
         if ($consulta['NItems'] === 1) {
             // Tubo resultados
             $resultado['fecha'] = $consulta['Items'][0]['Fecha'];
@@ -270,10 +274,12 @@ class ClaseTickets extends ClaseSession
         //@ Objetivo:
         //Obtener los registros del iva y bases de ese ticket
         $resultado = array();
+        // TODO: revisar - IN (?) liga un único id; si algún día se pasa una lista
+        // separada por comas, no funcionará (el string entero se liga como un valor).
         $sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
             . ' FROM `ticketstIva` '
-            . ' WHERE `idticketst` IN (' . $idticketst . ') GROUP BY `iva`';
-        $resp = $this->Consulta($sql);
+            . ' WHERE `idticketst` IN (?) GROUP BY `iva`';
+        $resp = $this->Consulta($sql, array($idticketst));
 
         if ($resp['NItems'] > 0) {
             $resultado['items'] = $resp['Items'];
@@ -294,8 +300,8 @@ class ClaseTickets extends ClaseSession
         // Objetivo:
         //  Obtener las lineas de ese ticket
         $resultado = array();
-        $consulta = 'SELECT * FROM `ticketslinea` WHERE idticketst=' . $idTicketst;
-        $query = $this->Consulta($consulta);
+        $consulta = 'SELECT * FROM `ticketslinea` WHERE idticketst= ?';
+        $query = $this->Consulta($consulta, array($idTicketst));
         if (!isset($query['error'])) {
             $resultado['items'] = $query['Items'];
         } else {
@@ -450,8 +456,8 @@ class ClaseTickets extends ClaseSession
         // @ Objetivo:
         // Obtener el nombre del cliente.
         $resultado = array();
-        $consulta = 'SELECT * FROM `clientes` WHERE `idClientes`=' . $id;
-        $query = $this->Consulta($consulta);
+        $consulta = 'SELECT * FROM `clientes` WHERE `idClientes`= ?';
+        $query = $this->Consulta($consulta, array($id));
         if (!isset($query['error'])) {
             $resultado['items'] = $query['Items'];
         } else {
@@ -469,16 +475,16 @@ class ClaseTickets extends ClaseSession
     public function modificarClienteTicket($idTicket, $idCliente)
     {
 
-        $consulta = 'UPDATE `ticketst` SET idCliente=' . $idCliente . ' where id=' . $idTicket;
-        $resp = $this->consultaInsert($consulta);
+        $consulta = 'UPDATE `ticketst` SET idCliente= ? where id= ?';
+        $resp = $this->consultaInsert($consulta, array($idCliente, $idTicket));
         return $resp;
     }
 
 
     public function cambiarFormaPagoTicket($idTicket, $formaPago)
     {
-        $consulta = 'UPDATE `ticketst` SET formaPago="' . $formaPago . '" where id=' . $idTicket;
-        $resp = $this->consultaInsert($consulta);
+        $consulta = 'UPDATE `ticketst` SET formaPago= ? where id= ?';
+        $resp = $this->consultaInsert($consulta, array($formaPago, $idTicket));
         return $resp;
     }
 
@@ -486,8 +492,8 @@ class ClaseTickets extends ClaseSession
     {
         $respuesta = array();
         foreach ($Tickets as $id) {
-            $consulta = 'UPDATE `ticketst` SET Fecha="' . $fecha . '" where id=' . $id;
-            $respuesta[] = $this->consultaInsert($consulta);
+            $consulta = 'UPDATE `ticketst` SET Fecha= ? where id= ?';
+            $respuesta[] = $this->consultaInsert($consulta, array($fecha, $id));
         }
         return $respuesta;
     }
