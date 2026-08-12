@@ -5,6 +5,7 @@
 $rutaCompleta = $RutaServidor . $HostNombre;
 include($rutaCompleta . '/clases/ClaseConexion.php');
 include_once('ClasePermisos.php');
+require_once __DIR__ . '/DB.php';
 class ClaseSession extends ClaseConexion
 {
 	public $BDTpv; 					// (object) Conexion a BD tpv.
@@ -153,8 +154,8 @@ class ClaseSession extends ClaseConexion
 			if ($this->verificarPassword($pwd, $pwdBD['password'] ?? '', (int) ($pwdBD['id'] ?? 0))) {
 				// Quiere decir que usuario y password son correcto.
 				// Comprobamos si tiene registro indice el usuario.
-				$sql = 'SELECT * FROM indices WHERE idUsuario="' . $pwdBD['id'] . '"';
-				$res = $BDTpv->query($sql);
+				$sql = 'SELECT * FROM indices WHERE idUsuario=?';
+				$res = (new DB($BDTpv))->pquery($sql, array($pwdBD['id']));
 				if (mysqli_error($BDTpv)) {
 					$this->SetComprobaciones(
 						array(
@@ -205,7 +206,7 @@ class ClaseSession extends ClaseConexion
 	{
 		$resultado = array();
 		$sql = 'SELECT tipoTienda,idTienda,razonsocial,telefono,direccion,NombreComercial,nif,ano,estado FROM tiendas WHERE estado="Activo"';
-		$res = $BDTpv->query($sql);
+		$res = (new DB($BDTpv))->pquery($sql);
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)) {
 			$this->SetComprobaciones(
