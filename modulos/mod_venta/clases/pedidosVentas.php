@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once $URLCom . '/modulos/mod_venta/clases/ClaseVentas.php';
 class PedidosVentas extends ClaseVentas
 {
@@ -441,8 +442,8 @@ class PedidosVentas extends ClaseVentas
 		//@Objetivo:
 		//Suma importe iva y totoal base de todos los registro de un pedido determinado
 		$db = $this->db;
-		$smt = $db->query('select sum(importeIva ) as importeIva , sum(totalbase)
-		as  totalbase from pedcliIva where Numpedcli =' . $numPedido);
+		$smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase)
+		as  totalbase from pedcliIva where Numpedcli = ?', array($numPedido));
 		if ($result = $smt->fetch_assoc()) {
 			$pedido = $result;
 		}

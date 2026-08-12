@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once $URLCom . '/modulos/mod_venta/clases/ClaseVentas.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseArticulosStocks.php';
 
@@ -339,12 +340,15 @@ class AlbaranesVentas extends ClaseVentas
         return $albaran;
     }
 
-    public function consulta($sql)
+    public function consulta($sql, $params = [])
     {
         $db = $this->db;
-        $smt = $db->query($sql);
+        $smt = (new DB($db))->pquery($sql, $params);
         if ($smt) {
             return $smt;
+        } elseif ($db->error === '') {
+            // INSERT/UPDATE/DELETE con exito: get_result() devuelve false sin error.
+            return true;
         } else {
             $respuesta = array();
             $respuesta['consulta'] = $sql;
@@ -549,8 +553,8 @@ class AlbaranesVentas extends ClaseVentas
         //@Objetivo:
         //Mostrar la suma de los impirtes ivas y total base   de un albaran real
         $db = $this->db;
-        $smt = $db->query('select sum(importeIva ) as importeIva , sum(totalbase)
-         as  totalbase from albcliIva where  Numalbcli  =' . $numAlbaran);
+        $smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase)
+         as  totalbase from albcliIva where  Numalbcli  = ?', array($numAlbaran));
         if ($result = $smt->fetch_assoc()) {
             $albaran = $result;
         }
