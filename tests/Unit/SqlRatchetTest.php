@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 final class SqlRatchetTest extends TestCase
 {
     /** Máximo de `->query(` crudos admitidos. Solo debe DECRECER. */
-    private const BASELINE = 116;
+    private const BASELINE = 109;
 
     public function test_no_aumentan_las_consultas_crudas(): void
     {
