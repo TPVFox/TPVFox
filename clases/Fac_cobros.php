@@ -1,4 +1,6 @@
 <?php
+
+require_once __DIR__ . '/DB.php';
 class Fac_cobro
 {
 	private  $id;
@@ -15,10 +17,9 @@ class Fac_cobro
 		$this->num_rows = $respuesta->fetch_object()->num_reg;
 		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
 	}
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
+		$smt = (new DB($this->db))->pquery($sql, $params);
 		return $smt;
 	}
 }
