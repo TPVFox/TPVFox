@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../clases/DB.php';
 function htmlLineaFamilias($item, $idProducto, $familia = '')
 {
     // @Objetivo:
@@ -1035,8 +1036,8 @@ function selectFamilias($padre = 0, $espacio, $array_familias, $conexion, $desce
     // [ NOTA]
     // Esta funcion no debería hacer la consulta, debería utilizarse la Clase familia.
 
-    $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre=' . $padre . ' ORDER BY idFamilia ASC';
-    $res = $conexion->query($sql);
+    $sql = 'select idFamilia, familiaNombre, familiaPadre  FROM familias where familiaPadre=? ORDER BY idFamilia ASC';
+    $res = (new DB($conexion))->pquery($sql, array($padre));
     if ($padre > 0) {
         $espacio .= '-';
         $descendente++;
