@@ -52,7 +52,7 @@ function insertarUsuario($datos, $BDTpv, $idTienda, $tabla)
 	$username = $datos['username'];  //conseguir todos los nombres de la tabla, recorrerlos y comprobar q no existe
 	$nombreEmpleado = $datos['nombreEmpleado'];
 	$fecha = $datos['fecha'];
-	$passwrd = md5($datos['password']); //encripto psw para crear
+	$passwrd = password_hash($datos['password'], PASSWORD_DEFAULT); //hash seguro (bcrypt)
 
 	$idUsuario = $datos['idUsuario'];
 	$grupoid = $datos['grupo'];
@@ -103,7 +103,7 @@ function modificarUsuario($datos, $BDTpv, $tabla)
 	$nombre = $datos['nombreEmpleado'];
 	$fecha = $datos['fecha'];		//NO SE MODIFICA es la de alta
 
-	$passwrd = md5($datos['password']); //encripto psw para crear
+	$passwrd = password_hash($datos['password'], PASSWORD_DEFAULT); //hash seguro (bcrypt)
 
 	$idUsuario = $datos['idUsuario']; //NO SE MODIFICA autonumerica
 	$grupoid = $datos['grupo'];

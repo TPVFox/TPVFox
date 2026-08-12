@@ -10,6 +10,8 @@
 
 $pulsado = $_POST['pulsado'];
 include_once("./../../inicial.php");
+require_once $URLCom . '/clases/auth_guard.php';
+tpvfox_require_auth(); // Cierra el bypass: exige sesion valida en el endpoint AJAX.
 $rutaCompleta = $RutaServidor . $HostNombre;
 include_once($rutaCompleta . '/clases/ClaseSession.php');
 $CSession =  new ClaseSession();
