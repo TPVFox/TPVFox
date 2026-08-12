@@ -105,8 +105,11 @@ class ModeloP
         $respuesta = false;
         $updateStr = [];
         if (is_array($datos)) {
+            $db = self::getDbo();
             foreach ($datos as $key => $value) {
-                $updateStr[] = $key . ' = \'' . $value . '\'';
+                // Escapar el valor: una comilla en $value no debe poder cerrar
+                // el literal e inyectar SQL (SQLi).
+                $updateStr[] = $key . ' = \'' . $db->real_escape_string((string) $value) . '\'';
             }
         } else {
             $updateStr[] = $datos;
@@ -159,8 +162,10 @@ class ModeloP
         $respuesta = false;
         $updateSet = [];
         if (is_array($datos)) {
+            $db = self::getDbo();
             foreach ($datos as $key => $value) {
-                $updateSet[] = $key . ' = \'' . $value . '\'';
+                // Escapar el valor para evitar SQLi (ver _insert).
+                $updateSet[] = $key . ' = \'' . $db->real_escape_string((string) $value) . '\'';
             }
         } else {
             $updateSet[] = $datos;

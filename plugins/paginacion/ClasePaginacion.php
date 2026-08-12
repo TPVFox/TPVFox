@@ -440,6 +440,12 @@ class PluginClasePaginacion
 				$direccion = strtoupper($partes[1]);
 				$this->SetDireccionOrd($direccion);
 			}
+			// El campo de ordenación no se puede parametrizar (es un identificador),
+			// así que se restringe a un nombre de columna (con prefijo de tabla
+			// opcional). Cualquier otra cosa se descarta para evitar SQLi.
+			if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $campo)) {
+				return;
+			}
 			$this->filtroOrd .= ' ORDER BY ' . $campo . ' ' . $direccion;
 		}
 	}
