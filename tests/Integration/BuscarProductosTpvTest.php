@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tpvfox\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,19 +16,21 @@ use PHPUnit\Framework\TestCase;
  *
  * La función vive en un fichero con includes de efectos colaterales; se extrae
  * aislada con tpvfox_load_function.
+ *
+ * Proceso aislado: `BuscarProductos` es un nombre de función GLOBAL compartido
+ * con las variantes de mod_venta (5 args) y mod_compras (6 args); sin aislar, la
+ * primera que cargue gana y las demás llamarían a la función equivocada.
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class BuscarProductosTpvTest extends TestCase
 {
     private \mysqli $conn;
 
-    public static function setUpBeforeClass(): void
+    protected function setUp(): void
     {
         require_once TPVFOX_ROOT . '/clases/DB.php';
         \tpvfox_load_function('modulos/mod_tpv/funciones.php', 'BuscarProductos');
-    }
-
-    protected function setUp(): void
-    {
         $this->conn = \tpvfox_test_mysqli();
         $this->conn->begin_transaction();
         $this->conn->query(
