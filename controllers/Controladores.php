@@ -2,6 +2,7 @@
 /*	 Es crear un controlador de consultas comunes para varios modulos.
  * */
 
+require_once __DIR__ . '/../clases/DB.php';
 
 class ControladorComun
 {
@@ -20,10 +21,10 @@ class ControladorComun
 		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
 		*/
 		$fila = array();
-		$consulta = 'SHOW TABLE STATUS WHERE `name`="' . $tabla . '"';
-		$Queryinfo = $Bd->query($consulta);
-		// Hay que tener en cuenta que no produce ningún error...
-		$Ntablas = $Bd->affected_rows;
+		$consulta = 'SHOW TABLE STATUS WHERE `name`=?';
+		$Queryinfo = (new DB($Bd))->pquery($consulta, array($tabla));
+		// Con sentencias preparadas el conteo del SELECT/SHOW se toma de num_rows.
+		$Ntablas = $Queryinfo ? $Queryinfo->num_rows : 0;
 		if ($Ntablas == 0) {
 			$fila['error'] = 'Error tabla no encontrada - ' . $tabla;
 		} else {
@@ -31,9 +32,9 @@ class ControladorComun
 		}
 		if (!isset($fila['error'])) {
 			$campos = array();
-			$sqlShow = 'SHOW COLUMNS FROM ' . $tabla;
+			$sqlShow = 'SHOW COLUMNS FROM ' . DB::ident($tabla);
 			$fila['consulta_campos'] = $sqlShow;
-			if ($res = $Bd->query($sqlShow)) {
+			if ($res = (new DB($Bd))->pquery($sqlShow)) {
 				while ($dato_campo = $res->fetch_row()) {
 					if ($tipo_campo === 'si') {
 						// Obtenemos nombre campo y tipo de campo.
@@ -66,7 +67,7 @@ class ControladorComun
 		return $htmlError;
 	}
 
-	public function contarRegistro($BD, $nombretabla, $whereC = '')
+	public function contarRegistro($BD, $nombretabla, $whereC = '', $params = array())
 	{
 		/* Esta funcio esta repetida en Consultas de modulo de importar
 		 * por lo que deberíamos eliminarla de consultas
@@ -75,9 +76,9 @@ class ControladorComun
 		 * */
 		// Funcion para contar registros de una tabla.
 		$array = array();
-		$consulta = "SELECT * FROM " . $nombretabla . ' ' . $whereC;
-		$consultaContador = $BD->query($consulta);
-		if ($BD->query($consulta)) {
+		$consulta = "SELECT * FROM " . DB::ident($nombretabla) . ' ' . $whereC;
+		$consultaContador = (new DB($BD))->pquery($consulta, $params);
+		if ($consultaContador) {
 			$array['NItems'] = $consultaContador->num_rows;
 		} else {
 			// Quiere decir que hubo error en la consulta.
@@ -136,16 +137,17 @@ class ControladorComun
 	}
 
 
-	public function consultaRegistro($BD, $nombretabla, $whereC = '')
+	public function consultaRegistro($BD, $nombretabla, $whereC = '', $params = array())
 	{
 		/* Objetivo:
 		 * Crear una consulta que obtenga todos los campos de la tabla filtrado.
 		 * */
 		// Funcion para contar registros de una tabla.
 		$array = array();
-		$consulta = "SELECT * FROM " . $nombretabla . ' ' . $whereC;
-		$resultadoConsulta = $BD->query($consulta);
-		if ($BD->query($consulta)) {
+		$consulta = "SELECT * FROM " . DB::ident($nombretabla) . ' ' . $whereC;
+		$resultadoConsulta = (new DB($BD))->pquery($consulta, $params);
+		$array['NItems'] = 0;
+		if ($resultadoConsulta) {
 			$array['NItems'] = $resultadoConsulta->num_rows;
 		} else {
 			// Quiere decir que hubo error en la consulta.
@@ -226,17 +228,14 @@ class ControladorComun
 		unset($configuracion['tipo_configuracion']); // Elimino para no meterlo como parametro en campo
 		if ($tipo_configuracion === 'Usuario') {
 			// Existe registro por lo que hacemos udate.
-			$Set_conf = " SET configuracion=" .
-				"'" . json_encode($configuracion) . "',fecha= NOW() WHERE idusuario=" . $idUsuario . " AND nombre_modulo='" . $nombre_modulo . "'";
-			$Sql = 'UPDATE `modulos_configuracion` ' . $Set_conf;
+			$Sql = 'UPDATE `modulos_configuracion` SET configuracion=?, fecha=NOW() WHERE idusuario=? AND nombre_modulo=?';
+			$params = array(json_encode($configuracion), $idUsuario, $nombre_modulo);
 		} else {
 			// No existe registro por lo que creamos registro.
-			$values = "VALUES ('" . $idUsuario . "','" . $nombre_modulo . "','" . json_encode($configuracion) . "',NOW())";
-			$Sql = 'INSERT INTO `modulos_configuracion`(`idusuario`, `nombre_modulo`, `configuracion`, `fecha`) ' . $values;
+			$Sql = 'INSERT INTO `modulos_configuracion`(`idusuario`, `nombre_modulo`, `configuracion`, `fecha`) VALUES (?, ?, ?, NOW())';
+			$params = array($idUsuario, $nombre_modulo, json_encode($configuracion));
 		}
-		if ($BDTpv->query($Sql)) {
-			$respuesta['affectado'] = $BDTpv->affected_rows;
-		}
+		$respuesta['affectado'] = (new DB($BDTpv))->execute($Sql, $params);
 		$respuesta['Sql'] = $Sql;
 
 		return $respuesta;
@@ -275,8 +274,8 @@ class ControladorComun
 		// Objetivo :
 		// Obtener la configuracion si la hay de un modulo en cuestion.
 		$BDTpv = $this->BDTpv;
-		$where_conf = ' WHERE idusuario=' . $idUsuario . ' AND nombre_modulo="' . $nombre_modulo . '"';
-		$respuesta = $this->consultaRegistro($BDTpv, 'modulos_configuracion', $where_conf);
+		$where_conf = ' WHERE idusuario=? AND nombre_modulo=?';
+		$respuesta = $this->consultaRegistro($BDTpv, 'modulos_configuracion', $where_conf, array($idUsuario, $nombre_modulo));
 		return $respuesta;
 	}
 
