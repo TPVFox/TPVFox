@@ -406,14 +406,14 @@ class AlbaranesCompras extends ClaseCompras
         return $respuesta;
     }
 
-    public function CuentaTodosAlbaranesLimite($limite = '')
+    public function CuentaTodosAlbaranesLimite($limite = '', $params = [])
     {
         //@Objetivo:
         //Contamos todos los albaranes de la tabla principal pero con un límite para la paginación
         $respuesta = array();
         $sql = 'SELECT COUNT(a.id) AS contador from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  '  . ($limite ?: '');
-        $smt = parent::consulta($sql);
+        $smt = parent::consulta($sql, $params);
 
         $result = $smt->fetch_assoc();
 
@@ -424,7 +424,7 @@ class AlbaranesCompras extends ClaseCompras
         return $respuesta;
     }
 
-    public function TodosAlbaranesLimite($limite)
+    public function TodosAlbaranesLimite($limite, $params = [])
     {
         //@Objetivo:
         //Obtenemos todos los datos principales de los albaranes de la tabla principal pero con un límite para la paginación
@@ -433,7 +433,7 @@ class AlbaranesCompras extends ClaseCompras
         a.estado, a.idProveedor from `albprot` as a LEFT JOIN proveedores as b on
         a.idProveedor =b.idProveedor  ' . $limite;
         error_log($sql);
-        $smt = parent::consulta($sql);
+        $smt = parent::consulta($sql, $params);
         if (gettype($smt) === 'array') {
             $respuesta = $smt;
         } else {

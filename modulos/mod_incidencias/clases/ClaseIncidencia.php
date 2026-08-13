@@ -27,7 +27,7 @@ class ClaseIncidencia
 	{
 		return $this->num_incidencia;
 	}
-	public function todasIncidenciasLimite($limite)
+	public function todasIncidenciasLimite($limite, $params = [])
 	{
 		//@Objetivo :
 		//Listar todas las incidencias con el límite del páginado
@@ -40,7 +40,7 @@ class ClaseIncidencia
 		 from modulo_incidencia as a INNER JOIN usuarios as b
 		 on a.id_usuario=b.id  where a.id in  (select max(id)
 		 from modulo_incidencia GROUP by num_incidencia) ' . $limite;
-		$smt = $this->consulta($sql);
+		$smt = $this->consulta($sql, $params);
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $sql;

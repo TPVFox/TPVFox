@@ -30,12 +30,12 @@ class ClaseCliente extends TFModelo
         'email'         => '',
         'formasVenci'   => '{"vencimiento":"0","formapago":"0"}'
     );
-    public function obtenerClientes($filtro = '')
+    public function obtenerClientes($filtro = '', $params = [])
     {
         // Function para obtener clientes y listarlos
 
         $sql = "Select * from clientes " . $filtro; //.$filtroFinal.$rango;
-        $clientes = $this->consulta($sql);
+        $clientes = $this->consulta($sql, $params);
         if (!isset($clientes['datos'])) {
             $clientes['datos'] = array(); // mandamos array vacio.
         };
@@ -43,9 +43,9 @@ class ClaseCliente extends TFModelo
         return $clientes['datos'];
     }
 
-    public function contarRegistros($filtro = '')
+    public function contarRegistros($filtro = '', $params = [])
     {
-        $clientes = $this->obtenerClientes($filtro);
+        $clientes = $this->obtenerClientes($filtro, $params);
         return count($clientes);
     }
 

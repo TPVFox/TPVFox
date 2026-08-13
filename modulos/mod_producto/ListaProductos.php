@@ -82,18 +82,19 @@
     $NPaginado->SetCamposControler($campos);
     // --- Ahora contamos registro que hay para es filtro --- //
     $filtro = $NPaginado->GetFiltroWhere();
+    $filtroParams = $NPaginado->GetFiltroParams();
     $CantidadRegistros = 0;
     if (trim($filtro)!== '') {
         // Solo contamos si tenemos filtro.
         if ($filtro_estado !== ''){
             $filtro = $filtro.' AND '.$filtro_estado;
         }
-        $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],compact("filtro")));
+        $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'],array('filtro' => $filtro, 'params' => $filtroParams)));
     } else {
         if ($filtro_estado !== ''){
             // Si filtramos por estado.
             $filtro = 'WHERE '.$filtro_estado;
-            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro")));
+            $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], array('filtro' => $filtro, 'params' => $filtroParams)));
         } else {
             $CantidadRegistros = $CTArticulos->GetNumRows();
         }
@@ -112,15 +113,17 @@
         if ($configuracion['filtro']->valor === 'Si') {
             if ($prod_seleccion['NItems'] > 0) {
                 $botonSeleccion=1;
+                // Los ids de la selección se castean a int (no ligables por ? en IN).
+                $idsSeleccion = implode(',', array_map('intval', $prod_seleccion['Items']));
                 if (trim($filtro) !== '') {
-                    $filtro .= ' AND (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
+                    $filtro .= ' AND (a.idArticulo IN (' . $idsSeleccion . '))';
                 } else {
-                    $filtro = ' WHERE (a.idArticulo IN (' . implode(',', $prod_seleccion['Items']) . '))';
+                    $filtro = ' WHERE (a.idArticulo IN (' . $idsSeleccion . '))';
                 }
             }
         }
         $limite = $NPaginado->GetLimitConsulta();
-        $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact("filtro","limite"));
+        $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], array('filtro' => $filtro, 'limite' => $limite, 'params' => $filtroParams));
     }
 
     if (isset($productos['error'])){

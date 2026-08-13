@@ -19,10 +19,10 @@ class Modelo extends ModeloP
 
     protected $tabla;
 
-    protected function consulta($sql)
+    protected function consulta($sql, $params = [])
     {
         // Realizamos la consulta.
-        $smt = parent::consulta($sql);
+        $smt = parent::consulta($sql, $params);
         $respuesta = [];
         $respuesta['consulta'] = $this->getSQLConsulta();
         if ($smt) {
@@ -35,10 +35,10 @@ class Modelo extends ModeloP
         return $respuesta;
     }
 
-    protected function consultaDML($sql)
+    protected function consultaDML($sql, $params = [])
     {
         // Realizamos la consulta.
-        $smt = parent::consultaDML($sql);
+        $smt = parent::consultaDML($sql, $params);
         $respuesta = [];
         $respuesta['consulta'] = $sql;
 

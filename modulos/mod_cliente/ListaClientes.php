@@ -12,8 +12,9 @@ $campoFiltro = 'requiere_factura';
 $NPaginado->SetCamposControler($campos);
 $NPaginado->SetCampoFiltro($campoFiltro);
 $filtro = $NPaginado->GetFiltroWhere('OR');
+$filtroParams = $NPaginado->GetFiltroParams();
 // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
-$NPaginado->SetCantidadRegistros($Cliente->contarRegistros($filtro));
+$NPaginado->SetCantidadRegistros($Cliente->contarRegistros($filtro, $filtroParams));
 $estadosRequierefactura = array(
 	'0' => 'No requiere factura',
 	'1' => 'Requiere factura'
@@ -22,7 +23,7 @@ $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginadoç
 $htmlBuscar = $NPaginado->htmlBuscar();
 $htmlFiltrar = $NPaginado->htmlFiltrar($estadosRequierefactura, 'Filtrar por requiere factura: ', 'Boolean');
 // Obtenemos clientes con filtro busqueda y la pagina que estamos.
-$clientes = $Cliente->obtenerClientes($filtro . $NPaginado->GetLimitConsulta());
+$clientes = $Cliente->obtenerClientes($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 // Fechas para montar contenido MODAL de descuentos tickets.
 $fecha = date_create(date('Y-m-01'));
 date_sub($fecha, date_interval_create_from_date_string('1 month'));
@@ -110,7 +111,7 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 			<div class="col-md-10">
 				<p>
 					-Clientes encontrados BD local filtrados:
-					<?php echo $Cliente->contarRegistros($filtro); ?>
+					<?php echo $Cliente->contarRegistros($filtro, $filtroParams); ?>
 				</p>
 				<?php 	// Mostramos paginacion
 				echo $htmlPG;

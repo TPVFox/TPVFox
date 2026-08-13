@@ -15,12 +15,13 @@
     $campos = array('razonsocial', 'nombrecomercial', 'nif');
     $NPaginado->SetCamposControler($campos);
     $filtro = $NPaginado->GetFiltroWhere('OR');
+    $filtroParams = $NPaginado->GetFiltroParams();
 
     // --- Ahora contamos registro que hay para es filtro y enviamos clase paginado --- //
-    $NPaginado->SetCantidadRegistros($CProveedor->contarRegistros($filtro));
+    $NPaginado->SetCantidadRegistros($CProveedor->contarRegistros($filtro, $filtroParams));
     $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
 
-    $proveedores =  $CProveedor->obtenerProveedores($filtro . $NPaginado->GetLimitConsulta());
+    $proveedores =  $CProveedor->obtenerProveedores($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 
     ?>
     <script>
@@ -74,7 +75,7 @@
             <div class="col-md-10">
                 <p>
                     -Proveedores encontrados BD local filtrados:
-                    <?php echo $CProveedor->contarRegistros($filtro); ?>
+                    <?php echo $CProveedor->contarRegistros($filtro, $filtroParams); ?>
                 </p>
                 <?php   // Mostramos paginacion
                 echo $htmlPG;

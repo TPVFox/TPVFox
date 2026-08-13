@@ -26,10 +26,11 @@
 	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro = $NPaginado->GetFiltroWhere();
+	$filtroParams = $NPaginado->GetFiltroParams();
 	$CantidadRegistros = 0;
 	if ($NPaginado->GetFiltroWhere() !== '') {
 		// Contar con  filtro..
-		$CantidadRegistros = count($CIncidencia->todasIncidenciasLimite($NPaginado->GetFiltroWhere()));
+		$CantidadRegistros = count($CIncidencia->todasIncidenciasLimite($NPaginado->GetFiltroWhere(), $filtroParams));
 	} else {
 		// Obtengo num_registros sin filtro.
 		$CantidadRegistros = $CIncidencia->GetNumRows();
@@ -46,7 +47,7 @@
 	$configuracion = json_decode(json_encode($configuracion), true);
 	$configuracion = $configuracion['incidencias'];
 
-	$incidenciasFiltro = $CIncidencia->todasIncidenciasLimite($filtro . $NPaginado->GetLimitConsulta());
+	$incidenciasFiltro = $CIncidencia->todasIncidenciasLimite($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 	if (isset($incidenciasFiltro['error'])) {
 		$errores[1] = array(
 			'tipo' => 'Danger!',

@@ -6,6 +6,7 @@
 class ControladorComun
 {
 	private $BDTpv; // Conexion Base Datos
+	public $constructorParams = array(); // Valores ligados (?) del último ConstructorLike().
 
 
 	public function InfoTabla($Bd, $tabla, $tipo_campo = 'si')
@@ -106,21 +107,32 @@ class ControladorComun
 		$string  = str_replace($buscar, $sustituir, trim($a_buscar));
 		$palabras = explode(' ', $string);
 		$likes = array();
+		$params = array();
 		// La palabras queremos descartar , la ponemos en mayusculas
 		foreach ($palabras as $palabra) {
 			if (trim($palabra) !== '' && strlen(trim($palabra))) {
-				// Entra si la palabra tiene mas 3 caracteres.
-				// Aplicamos filtro de palabras descartadas
-
 				foreach ($campos as $campo) {
-					$likes[] =  $campo . ' LIKE "%' . $palabra . '%" ';
+					// $campo es un IDENTIFICADOR (columna, opcional con tabla): se
+					// valida (no ligable con ?); el valor de búsqueda va ligado con ?.
+					if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $campo)) {
+						continue;
+					}
+					$likes[] =  $campo . ' LIKE ?';
+					$params[] = '%' . $palabra . '%';
 				}
 			}
 		}
 		// Montamos busqueda con el operador indicado o el por defecto
+		$this->constructorParams = $params;
 		$operador = ' ' . $operador . ' ';
 		$busqueda = implode($operador, $likes);
 		return $busqueda;
+	}
+
+	public function GetConstructorParams()
+	{
+		// Valores ligados (?) del último ConstructorLike(). Llamar justo después.
+		return $this->constructorParams;
 	}
 
 

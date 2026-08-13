@@ -224,13 +224,13 @@ class PedidosVentas extends ClaseVentas
 		return $pedido;
 	}
 
-	public function TodosPedidosFiltro($filtro)
+	public function TodosPedidosFiltro($filtro, $params = [])
 	{
 		//@Objetivo: Todos los pedidos guardados pero ultilizando el filtro
 		$db = $this->db;
 		$sql = 'SELECT a.id , a.Numpedcli, a.Fecha, b.Nombre, a.total, a.estado
 		FROM `pedclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes ' . $filtro;
-		$smt = parent::consulta($sql);
+		$smt = parent::consulta($sql, $params);
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];

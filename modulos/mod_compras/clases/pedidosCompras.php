@@ -424,13 +424,13 @@ class PedidosCompras extends ClaseCompras
         return $respuesta;
     }
 
-    public function TodosPedidosLimite($limite = '')
+    public function TodosPedidosLimite($limite = '', $params = [])
     {
         //MUestra todos los pedidos dependiendo del límite que tengamos en listado pedidos
         $sql = 'SELECT a.id , a.Numpedpro , a.Fecha, b.nombrecomercial, b.email,
 		a.total, a.estado FROM `pedprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor   ' . $limite;
-        $smt = parent::consulta($sql);
+        $smt = parent::consulta($sql, $params);
         $pedidosPrincipal = array();
         if (gettype($smt) === 'array') {
             $respuesta = array(

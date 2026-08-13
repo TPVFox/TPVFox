@@ -60,14 +60,14 @@ class ModeloP
         ModeloP::$resultado['error'] = $code;
     }
 
-    protected static function _consulta($sql)
+    protected static function _consulta($sql, $params = [])
     {
         $db = self::getDbo();
 
         // Realizamos la consulta.
         $error = 0;
         $respuesta = false;
-        $smt = (new DB($db))->pquery($sql);
+        $smt = (new DB($db))->pquery($sql, $params);
         if ($smt) {
             $respuesta = $smt->fetch_all(MYSQLI_ASSOC);
             // (!$datos)||count($datos)==1?$datos[0]:$datos;
@@ -78,28 +78,28 @@ class ModeloP
         return $respuesta;
     }
 
-    protected function consulta($sql)
+    protected function consulta($sql, $params = [])
     {
         //Para compatibilidad con desarrollo anterior
-        return ModeloP::_consulta($sql);
+        return ModeloP::_consulta($sql, $params);
     }
 
     //devuelve 0 se es correcto y un código de error si hubo error
     // el mensaje y la consulta se obtienen con funciones: getSQLConsulta y getErrorConsulta.
-    protected static function _consultaDML($sql)
+    protected static function _consultaDML($sql, $params = [])
     {
         $db = self::getDbo();
 
-        $respuesta = (new DB($db))->execute($sql);
+        $respuesta = (new DB($db))->execute($sql, $params);
 
         ModeloP::setResult($sql, ($respuesta ? 0 : $db->error));
 
         return $respuesta;
     }
 
-    protected function consultaDML($sql)
+    protected function consultaDML($sql, $params = [])
     {
-        return ModeloP::_consultaDML($sql);
+        return ModeloP::_consultaDML($sql, $params);
     }
 
     protected static function _insert($tabla, $datos, $soloSQL = false)

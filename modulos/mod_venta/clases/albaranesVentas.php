@@ -251,14 +251,14 @@ class AlbaranesVentas extends ClaseVentas
         return $albaran;
     }
 
-    public function TodosAlbaranesFiltro($filtro)
+    public function TodosAlbaranesFiltro($filtro, $params = [])
     {
         //@Objetivo:
         //Mostrar algunos datos de todos los albaranes reales con un filtro
         $db = $this->db;
         $sql = 'SELECT a.id , a.Numalbcli , a.Fecha , b.Nombre, a.total,
          a.estado, a.idCliente FROM `albclit` as a LEFT JOIN clientes as b on a.idCliente=b.idClientes  ' . $filtro;
-        $smt = $this->consulta($sql);
+        $smt = $this->consulta($sql, $params);
         if (gettype($smt) === 'array') {
             $respuesta['error'] = $smt['error'];
             $respuesta['consulta'] = $smt['consulta'];

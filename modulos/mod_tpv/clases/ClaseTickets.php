@@ -191,7 +191,7 @@ class ClaseTickets extends ClaseSession
         return $resultado;
     }
 
-    public function obtenerTickets($estado, $fechas = array(), $filtro = '', $limite = '')
+    public function obtenerTickets($estado, $fechas = array(), $filtro = '', $limite = '', $filtroParams = array())
     {
         // @ Objetivo:
         // Es obtener listado de los tickets en un intervalo de fechas de en un estado determinado. (Cerrado o Cobrado)
@@ -228,15 +228,15 @@ class ClaseTickets extends ClaseSession
         }
 
         // estado y fechas van ligados con ?. $filtro y $limite provienen del
-        // plugin de paginación (PluginClasePaginacion): el filtro de búsqueda se
-        // sanea en ConstructorLike (quita comillas/paréntesis) y el LIMIT/OFFSET
-        // es numérico (GetLimitConsulta). Parametrizar del todo el buscador exige
-        // refactorizar ese plugin compartido (pendiente, fuera de este alcance).
+        // plugin de paginación: el WHERE de búsqueda ya trae ? y sus valores
+        // llegan en $filtroParams; el LIMIT/OFFSET es numérico. Los ? del filtro
+        // van PRIMERO en el SQL (WHERE), luego estado y fechas -> ese es el orden
+        // del array de params que se liga.
         $filtro = $filtro . ' t.estado= ? AND t.fecha >= ? AND t.fecha <= ?';
         $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
             . 'LEFT JOIN `clientes` AS c '
             . 'ON c.`idClientes` = t.`idCliente` ' . $filtro . ' ORDER BY t.Fecha DESC' . $limite;
-        $consulta = $this->Consulta($sql, array($estado, $fechas['inicio']->format('Y-m-d H:i:s'), $fechas['final']->format('Y-m-d H:i:s')));
+        $consulta = $this->Consulta($sql, array_merge($filtroParams, array($estado, $fechas['inicio']->format('Y-m-d H:i:s'), $fechas['final']->format('Y-m-d H:i:s'))));
         if (isset($consulta['NItems']) && $consulta['NItems'] > 0) {
             $respuesta['datos'] = $consulta['Items'];
         } else {
