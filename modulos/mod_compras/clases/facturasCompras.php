@@ -81,8 +81,8 @@ class FacturasCompras extends ClaseCompras
     {
         //@Objetivo:
         //Sumar los resultado de importe iva y total base de una factura determinada
-        $from_where = 'from facproIva where Numfacpro =' . $numFactura;
-        $factura = parent::sumarIvaBases($from_where);
+        $from_where = 'from facproIva where Numfacpro = ?';
+        $factura = parent::sumarIvaBases($from_where, array($numFactura));
 
         return $factura;
     }

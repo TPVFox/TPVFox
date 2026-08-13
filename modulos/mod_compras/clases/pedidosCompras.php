@@ -498,8 +498,8 @@ class PedidosCompras extends ClaseCompras
     public function sumarIva($idpedpro)
     {
         //Función para sumar los ivas de un pedido
-        $from_where = 'from pedproIva where idpedpro =' . $idpedpro;
-        $pedido = parent::sumarIvaBases($from_where);
+        $from_where = 'from pedproIva where idpedpro = ?';
+        $pedido = parent::sumarIvaBases($from_where, array($idpedpro));
         return $pedido;
     }
 

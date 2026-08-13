@@ -35,13 +35,13 @@ class ClaseVentas
     {
         $this->db = $conexion;
     }
-    public function sumarIvaBases($from_where)
+    public function sumarIvaBases($from_where, $params = [])
     {
         //Función para sumar los ivas de un pedido
         $db = $this->db;
-        // TODO: revisar: $from_where es un fragmento SQL (from+where) construido por el llamante,
-        // no un valor ligable con ?. Los llamantes deberian pasar valores parametrizados.
-        $smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase ' . $from_where);
+        // $from_where trae FROM + WHERE con placeholders (?); los valores llegan
+        // ya parametrizados en $params (los llamantes no concatenan valores).
+        $smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase) as  totalbase ' . $from_where, $params);
         if ($result = $smt->fetch_assoc()) {
             $sumaIvasBases = $result;
         }
