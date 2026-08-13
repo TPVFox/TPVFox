@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Guard anti-regresión ("ratchet") de la migración a la capa de datos segura.
  *
- * Cuenta las llamadas crudas `->query(` que quedan en modulos/, clases/ y
- * controllers/ (SQL a mano, potencialmente inyectable). El número NO puede crecer: el código nuevo
+ * Cuenta las llamadas crudas `->query(` que quedan en modulos/, clases/,
+ * controllers/ y plugins/ (SQL a mano, potencialmente inyectable). El número NO puede crecer: el código nuevo
  * debe usar la clase DB (parametrizada), y cada módulo migrado BAJA el contador.
  *
  * Al migrar y reducir el número real, actualiza BASELINE hacia abajo para que
@@ -25,7 +25,7 @@ final class SqlRatchetTest extends TestCase
     {
         $raiz = TPVFOX_ROOT;
         $total = 0;
-        foreach (['modulos', 'clases', 'controllers'] as $dir) {
+        foreach (['modulos', 'clases', 'controllers', 'plugins'] as $dir) {
             $it = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($raiz . '/' . $dir, \FilesystemIterator::SKIP_DOTS)
             );
