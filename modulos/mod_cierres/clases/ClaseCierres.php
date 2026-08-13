@@ -171,7 +171,9 @@ class ClaseCierres extends ClaseConexion
                 // Ahora comprobamos si nos viene un filtro, si es así debemos quitarle WHERE, ya que nuestra consulta ya tiene WHERE
                 // lo y la sustituimos por AND
                 $filtro =  str_replace('WHERE', 'AND', $filtro);
-                // TODO: revisar - $filtro es un fragmento SQL crudo que llega como argumento; no es ligable con ? aquí.
+                // $filtro proviene del plugin de paginación (búsqueda saneada en
+                // ConstructorLike + LIMIT numérico). Los valores propios (rango,
+                // tienda, usuario) ya van ligados en $paramsTickets.
                 $sqlTickets .= ' ' . $filtro;
             }
             // Obtenemos los ticket para ese usuario y ese cierre.

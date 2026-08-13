@@ -61,8 +61,10 @@ class FacturasCompras extends ClaseCompras
         //@Objetivo:
         //Mostrar los datos principales de una factura con un límite de registros
         $db = $this->db;
-        // TODO: revisar - $limite es un fragmento LIMIT concatenado (identificador/clausula),
-        // no ligable con ?; debe validarse a mano en el llamador.
+        // $limite trae el filtro de búsqueda + LIMIT del plugin de paginación
+        // (PluginClasePaginacion): búsqueda saneada en ConstructorLike y LIMIT
+        // numérico. Parametrizar del todo el buscador exige refactorizar ese
+        // plugin compartido (pendiente, fuera de este alcance).
         $sql = 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado, a.idProveedor FROM `facprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor ' . $limite;

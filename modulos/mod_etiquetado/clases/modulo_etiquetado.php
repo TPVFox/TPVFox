@@ -98,7 +98,10 @@ class Modulo_etiquetado
 		//@OBjetivo:
 		//LIstar todas las etiquetas guardadas
 		$db = $this->db;
-		// TODO: revisar - $limite es un fragmento LIMIT concatenado; no se liga con ? (regla 4). Validar el origen del valor a mano.
+		// $limite trae el filtro de búsqueda + LIMIT del plugin de paginación
+		// (PluginClasePaginacion): búsqueda saneada en ConstructorLike y LIMIT
+		// numérico. Parametrizar del todo el buscador exige refactorizar ese
+		// plugin compartido (pendiente, fuera de este alcance).
 		$sql = 'SELECT a.num_lote, a.id , a.fecha_env, a.fecha_cad, a.estado, b.articulo_name , a.productos from modulo_etiquetado as a
 		inner join articulos as b on a.idArticulo=b.idArticulo  ' . $limite;
 		$smt = $this->consulta($sql);
