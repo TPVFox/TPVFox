@@ -1234,7 +1234,7 @@ class ClaseProductos extends ClaseTablaArticulos
                 }
                 if ($datos['optRefWeb'] == '2') {
                     // La segunda es grabar tambien en tienda principal
-                    // TODO: revisar - el original concatenaba una segunda sentencia con `;` en una sola
+                    // Nota: el original concatenaba una segunda sentencia con `;` en una sola
                     // llamada a query() (mysqli->query no ejecuta multi-statement); se separa en dos execute().
                     $sql = 'UPDATE `articulosTiendas` SET `crefTienda`=? where idTienda=? and idArticulo=?';
                     $smt = $capa->execute($sql, array($datos['tiendaPrincipal'], $datos['tiendaWeb'], $datos['id']));
@@ -1307,7 +1307,7 @@ class ClaseProductos extends ClaseTablaArticulos
             }
             if ($datos['optRefWeb'] == '2') {
                 // La segunda es grabar tambien en tienda principal
-                // TODO: revisar - el original concatenaba una segunda sentencia con `;` en una sola
+                // Nota: el original concatenaba una segunda sentencia con `;` en una sola
                 // llamada a query() (mysqli->query no ejecuta multi-statement); se separa en dos execute().
                 $sql = 'INSERT INTO `articulosTiendas`(`idArticulo`, `idTienda`, `crefTienda`,
                         `idVirtuemart`, `estado`) VALUES (?, ?, ?, ?, ?)';
@@ -1362,7 +1362,7 @@ class ClaseProductos extends ClaseTablaArticulos
 
     public function modificarVariosEstados($estado, $productos)
     {
-        // TODO: revisar - $productos es una lista de ids ya construida para IN (...); no es ligable
+        // Nota: $productos es una lista de ids ya construida para IN (...); no es ligable
         // trivialmente por ?, se sanea a enteros. El valor $estado sí va parametrizado.
         $idsProductos = implode(',', array_map('intval', explode(',', $productos)));
         $sql = 'UPDATE articulos SET estado=? WHERE idArticulo IN (' . $idsProductos . ')';
