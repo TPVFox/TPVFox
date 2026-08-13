@@ -6,16 +6,20 @@ include_once $URLCom . '/modulos/mod_cierres/clases/ClaseCierres.php';
 $CCierres = new ClaseCierres;
 $Civas = new iva($BDTpv);
 //LLega mediente get las dos fechas
+$filtro = '';
+$filtroParams = array();
 if (isset($_GET['fecha1']) & isset($_GET['fecha2'])) {
 	$fecha1 = $_GET['fecha1'];
 	$fecha2 = $_GET['fecha2'];
-	$filtro = ' FechaCierre between "' . $fecha1 . '" AND "' . $fecha2 . '"';
+	// Fechas ligadas como parámetros (no se concatenan en el SQL).
+	$filtro = ' FechaCierre between ? AND ?';
+	$filtroParams = array($fecha1, $fecha2);
 }
 $total        = 0;
 $num_cierres  = 0;
 $fecha_dmY = 'd-m-Y';
 //Obterer los cierres entre dos fechas
-$cierres = $CCierres->obtenerCierres($filtro);
+$cierres = $CCierres->obtenerCierres($filtro, '', $filtroParams);
 foreach ($cierres as $cierre) {
 	// almacenamos en una variable el total de los cierres seleccionados
 	$total += $cierre['Total'];
@@ -85,7 +89,7 @@ $rutaVolver = '../mod_cierres/ListaCierres.php';
 						<?php
 						foreach ($ivas  as $iva) {
 							//$consultaResIva=sumDatosIva($BDTpv, $iva['iva']);
-							$consultaResIva = sumDatosIva($BDTpv, $iva['iva'], $filtro);
+							$consultaResIva = sumDatosIva($BDTpv, $iva['iva'], $filtro, $filtroParams);
 							if ($consultaResIva['base']) {
 								$importeBase = $consultaResIva['base'];
 								if ($consultaResIva['iva']) {
