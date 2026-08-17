@@ -1,9 +1,16 @@
 -- TPVFox — Base de datos completa
 -- Versión: 0.4.2.84
--- Generado: 2026-04-02
+-- Generado: 2026-08-17
 --
 -- Este fichero es la evolución de tpvfox_V_0_3-1.sql con todos los
 -- parches aplicados hasta install_update_v0.4.2.84.sql incluido.
+--
+-- Regenerado el 2026-08-17 desde una base desplegada con
+-- `mysqldump --no-data --skip-dump-date --routines --triggers --events`.
+-- La versión no cambia: no se ha aplicado ningún parche de esquema
+-- posterior a v0.4.2.84. Lo que se corrige es el contenido — la versión
+-- anterior de este fichero declaraba 3 claves foráneas frente a las 94
+-- realmente aplicadas, al no haber incorporado nunca restricciones_v1.sql.
 --
 -- Historial de cambios incorporados:
 --   v0.3.0      descuentos_tickets, columnas clientes
@@ -25,62 +32,54 @@
 --   v0.4.2.60   dispositivos: añade estado 'automatico', media, sd,
 --               temp_min, temp_max
 --   v0.4.2.84   (incluido en parche 4.2.60)
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+--
+-- Restricciones de integridad:
+--   restricciones_v1.sql (2024-05-07)  91 claves foráneas, aplicadas en las
+--               bases desplegadas y ausentes de este fichero hasta su
+--               regeneración. Con las 3 originales suman las 94 actuales.
+--   restricciones_v2.sql               2 claves foráneas NO aplicadas:
+--               requieren cambios de código previos. No incluidas aquí.
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Base de datos: `tpvfox_provincial`
+-- Table structure for table `acumulado_compras`
 --
 
--- --------------------------------------------------------
--- TABLAS
--- --------------------------------------------------------
-
---
--- Tabla `acumulado_compras`  [nueva en v0.4.0.0]
---
-
+DROP TABLE IF EXISTS `acumulado_compras`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acumulado_compras` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `year` smallint(4) UNSIGNED NOT NULL,
-  `month` tinyint(2) UNSIGNED NOT NULL,
+  `year` smallint(4) unsigned NOT NULL,
+  `month` tinyint(2) unsigned NOT NULL,
   `idArticulo` int(11) NOT NULL,
   `cantidad` decimal(17,6) NOT NULL,
   `costemedio` double NOT NULL,
   `update_at` date NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `year_month_articulo` (`year`,`month`,`idArticulo`),
+  KEY `articulo` (`idArticulo`),
   CONSTRAINT `articulo` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Tabla `albclifac`
---
-
-CREATE TABLE `albclifac` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idFactura` int(11) DEFAULT NULL,
-  `numFactura` int(11) DEFAULT NULL,
-  `idAlbaran` int(11) DEFAULT NULL,
-  `numAlbaran` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albcliIva`
+-- Table structure for table `albcliIva`
 --
 
+DROP TABLE IF EXISTS `albcliIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albcliIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idalbcli` int(11) NOT NULL,
@@ -88,15 +87,40 @@ CREATE TABLE `albcliIva` (
   `iva` int(11) DEFAULT NULL,
   `importeIva` decimal(17,2) DEFAULT NULL,
   `totalbase` decimal(17,2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `albcliiva_idalbcli_foreign` (`idalbcli`),
+  CONSTRAINT `albcliiva_idalbcli_foreign` FOREIGN KEY (`idalbcli`) REFERENCES `albclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2240 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albclilinea`
+-- Table structure for table `albclifac`
 --
 
+DROP TABLE IF EXISTS `albclifac`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `albclifac` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idFactura` int(11) DEFAULT NULL,
+  `numFactura` int(11) DEFAULT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `albclifac_idalbaran_foreign` (`idAlbaran`),
+  KEY `albclifac_idfactura_foreign` (`idFactura`),
+  CONSTRAINT `albclifac_idalbaran_foreign` FOREIGN KEY (`idAlbaran`) REFERENCES `albclit` (`id`),
+  CONSTRAINT `albclifac_idfactura_foreign` FOREIGN KEY (`idFactura`) REFERENCES `facclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=714 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `albclilinea`
+--
+
+DROP TABLE IF EXISTS `albclilinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albclilinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idalbcli` int(11) NOT NULL,
@@ -113,15 +137,21 @@ CREATE TABLE `albclilinea` (
   `estadoLinea` varchar(12) DEFAULT NULL,
   `NumpedCli` int(100) DEFAULT NULL,
   `pvpSiva` decimal(17,6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `albclilinea_ibfk_1` (`idalbcli`),
+  KEY `albclilinea_idarticulo_foreign` (`idArticulo`),
+  CONSTRAINT `albclilinea_ibfk_1` FOREIGN KEY (`idalbcli`) REFERENCES `albclit` (`id`),
+  CONSTRAINT `albclilinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=11210 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albcliltemporales`  [reestructurada en v0.3.1.5]
+-- Table structure for table `albcliltemporales`
 --
 
+DROP TABLE IF EXISTS `albcliltemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albcliltemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numalbcli` int(11) DEFAULT NULL,
@@ -135,14 +165,16 @@ CREATE TABLE `albcliltemporales` (
   `Productos` mediumblob DEFAULT NULL,
   `Pedidos` varbinary(5000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=1582 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albclit`
+-- Table structure for table `albclit`
 --
 
+DROP TABLE IF EXISTS `albclit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albclit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numalbcli` int(11) DEFAULT NULL,
@@ -155,30 +187,23 @@ CREATE TABLE `albclit` (
   `formaPago` varchar(12) DEFAULT NULL,
   `entregado` decimal(17,2) DEFAULT NULL,
   `total` decimal(17,2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Tabla `albprofac`
---
-
-CREATE TABLE `albprofac` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idFactura` int(11) DEFAULT NULL,
-  `numFactura` int(11) DEFAULT NULL,
-  `idAlbaran` int(11) DEFAULT NULL,
-  `numAlbaran` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `albclit_idcliente_foreign` (`idCliente`),
+  KEY `albclit_idtienda_foreign` (`idTienda`),
+  KEY `albclit_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `albclit_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `albclit_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `albclit_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=827 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albproIva`
+-- Table structure for table `albproIva`
 --
 
+DROP TABLE IF EXISTS `albproIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albproIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idalbpro` int(11) NOT NULL,
@@ -186,15 +211,40 @@ CREATE TABLE `albproIva` (
   `iva` int(11) DEFAULT NULL,
   `importeIva` decimal(17,2) DEFAULT NULL,
   `totalbase` decimal(17,2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `albproiva_idalbpro_foreign` (`idalbpro`),
+  CONSTRAINT `albproiva_idalbpro_foreign` FOREIGN KEY (`idalbpro`) REFERENCES `albprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9093 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albprolinea`
+-- Table structure for table `albprofac`
 --
 
+DROP TABLE IF EXISTS `albprofac`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `albprofac` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idFactura` int(11) DEFAULT NULL,
+  `numFactura` int(11) DEFAULT NULL,
+  `idAlbaran` int(11) DEFAULT NULL,
+  `numAlbaran` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `albprofac_idalbaran_foreign` (`idAlbaran`),
+  KEY `albprofac_idfactura_foreign` (`idFactura`),
+  CONSTRAINT `albprofac_idalbaran_foreign` FOREIGN KEY (`idAlbaran`) REFERENCES `albprot` (`id`),
+  CONSTRAINT `albprofac_idfactura_foreign` FOREIGN KEY (`idFactura`) REFERENCES `facprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5752 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `albprolinea`
+--
+
+DROP TABLE IF EXISTS `albprolinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albprolinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idalbpro` int(11) NOT NULL,
@@ -211,15 +261,21 @@ CREATE TABLE `albprolinea` (
   `estadoLinea` varchar(12) DEFAULT NULL,
   `ref_prov` varchar(24) NOT NULL,
   `idpedpro` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `albprolinea_ibfk_1` (`idalbpro`),
+  KEY `albprolinea_idarticulo_foreign` (`idArticulo`),
+  CONSTRAINT `albprolinea_ibfk_1` FOREIGN KEY (`idalbpro`) REFERENCES `albprot` (`id`),
+  CONSTRAINT `albprolinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=85254 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albproltemporales`
+-- Table structure for table `albproltemporales`
 --
 
+DROP TABLE IF EXISTS `albproltemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albproltemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numalbpro` int(11) DEFAULT NULL,
@@ -236,14 +292,16 @@ CREATE TABLE `albproltemporales` (
   `Productos` mediumblob DEFAULT NULL,
   `Pedidos` varbinary(5000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=7123 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `albprot`
+-- Table structure for table `albprot`
 --
 
+DROP TABLE IF EXISTS `albprot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `albprot` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numalbpro` int(11) DEFAULT NULL,
@@ -262,36 +320,40 @@ CREATE TABLE `albprot` (
   `fechaModificacion` datetime DEFAULT NULL,
   `modify_by` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=4711 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulos`
+-- Table structure for table `articulos`
 --
 
+DROP TABLE IF EXISTS `articulos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulos` (
   `idArticulo` int(11) NOT NULL AUTO_INCREMENT,
   `iva` decimal(4,2) DEFAULT NULL,
-  `idProveedor` varchar(6) CHARACTER SET utf8 DEFAULT NULL,
-  `articulo_name` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `idProveedor` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `articulo_name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `beneficio` decimal(5,2) DEFAULT NULL,
   `costepromedio` decimal(17,6) DEFAULT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `estado` varchar(12) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `fecha_creado` datetime NOT NULL,
   `fecha_modificado` datetime DEFAULT NULL,
   `ultimoCoste` float NOT NULL,
-  `tipo` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`idArticulo`),
   KEY `idProveedor` (`idProveedor`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=13882 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosClientes`
+-- Table structure for table `articulosClientes`
 --
 
+DROP TABLE IF EXISTS `articulosClientes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosClientes` (
   `idArticulo` int(11) NOT NULL,
   `idClientes` int(11) NOT NULL,
@@ -300,27 +362,33 @@ CREATE TABLE `articulosClientes` (
   `fechaActualizacion` datetime NOT NULL,
   `estado` varchar(12) NOT NULL,
   PRIMARY KEY (`idArticulo`,`idClientes`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosCodigoBarras`
+-- Table structure for table `articulosCodigoBarras`
 --
 
+DROP TABLE IF EXISTS `articulosCodigoBarras`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosCodigoBarras` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
   `codBarras` varchar(18) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `articulosCodigoBarras_ibfk_1` (`idArticulo`),
+  CONSTRAINT `articulosCodigoBarras_ibfk_1` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=10459 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosFamilias`
+-- Table structure for table `articulosFamilias`
 --
 
+DROP TABLE IF EXISTS `articulosFamilias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosFamilias` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
@@ -329,15 +397,18 @@ CREATE TABLE `articulosFamilias` (
   UNIQUE KEY `idArticulo` (`idArticulo`,`idFamilia`) USING BTREE,
   UNIQUE KEY `idArticulo_2` (`idArticulo`,`idFamilia`),
   KEY `fk_categoriaFamilias` (`idFamilia`),
-  KEY `fk_articulos` (`idArticulo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  KEY `fk_articulos` (`idArticulo`),
+  CONSTRAINT `articulosFamilias_ibfk_1` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=9695 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosPrecios`
+-- Table structure for table `articulosPrecios`
 --
 
+DROP TABLE IF EXISTS `articulosPrecios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosPrecios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
@@ -345,15 +416,18 @@ CREATE TABLE `articulosPrecios` (
   `pvpSiva` decimal(17,6) NOT NULL,
   `idTienda` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idArticulo` (`idArticulo`,`idTienda`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  KEY `idArticulo` (`idArticulo`,`idTienda`) USING BTREE,
+  CONSTRAINT `articulosPrecios_ibfk_1` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`)
+) ENGINE=InnoDB AUTO_INCREMENT=8530 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosProveedores`
+-- Table structure for table `articulosProveedores`
 --
 
+DROP TABLE IF EXISTS `articulosProveedores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosProveedores` (
   `idArticulo` int(11) NOT NULL,
   `idProveedor` int(11) NOT NULL,
@@ -361,15 +435,20 @@ CREATE TABLE `articulosProveedores` (
   `coste` decimal(17,6) NOT NULL,
   `fechaActualizacion` date NOT NULL,
   `estado` varchar(12) NOT NULL,
-  PRIMARY KEY (`idArticulo`,`idProveedor`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`idArticulo`,`idProveedor`),
+  KEY `articulosproveedores_idproveedor_foreign` (`idProveedor`),
+  CONSTRAINT `articulosproveedores_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `articulosproveedores_idproveedor_foreign` FOREIGN KEY (`idProveedor`) REFERENCES `proveedores` (`idProveedor`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosStocks`
+-- Table structure for table `articulosStocks`
 --
 
+DROP TABLE IF EXISTS `articulosStocks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosStocks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
@@ -380,15 +459,21 @@ CREATE TABLE `articulosStocks` (
   `fecha_modificado` datetime NOT NULL DEFAULT current_timestamp(),
   `fechaRegularizacion` datetime DEFAULT NULL,
   `usuarioRegularizacion` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `articulosstocks_idarticulo_foreign` (`idArticulo`),
+  KEY `articulosstocks_idtienda_foreign` (`idTienda`),
+  CONSTRAINT `articulosstocks_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `articulosstocks_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`)
+) ENGINE=InnoDB AUTO_INCREMENT=22007 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `articulosTiendas`  [v0.3.1.1: fechaModificacion]
+-- Table structure for table `articulosTiendas`
 --
 
+DROP TABLE IF EXISTS `articulosTiendas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `articulosTiendas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
@@ -399,15 +484,19 @@ CREATE TABLE `articulosTiendas` (
   `fechaModificacion` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idTienda` (`idTienda`),
-  KEY `idTienda_idArticulo` (`idArticulo`,`idTienda`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  KEY `idTienda_idArticulo` (`idArticulo`,`idTienda`) USING BTREE,
+  CONSTRAINT `articulostiendas_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `articulostiendas_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`)
+) ENGINE=InnoDB AUTO_INCREMENT=14108 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `cierres`
+-- Table structure for table `cierres`
 --
 
+DROP TABLE IF EXISTS `cierres`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cierres` (
   `idCierre` int(11) NOT NULL AUTO_INCREMENT,
   `FechaCierre` date NOT NULL,
@@ -417,15 +506,21 @@ CREATE TABLE `cierres` (
   `FechaFinal` datetime NOT NULL,
   `FechaCreacion` datetime NOT NULL,
   `Total` decimal(17,4) NOT NULL,
-  PRIMARY KEY (`idCierre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`idCierre`),
+  KEY `cierres_idtienda_foreign` (`idTienda`),
+  KEY `cierres_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `cierres_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `cierres_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `cierres_ivas`
+-- Table structure for table `cierres_ivas`
 --
 
+DROP TABLE IF EXISTS `cierres_ivas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cierres_ivas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idCierre` int(11) NOT NULL,
@@ -433,15 +528,21 @@ CREATE TABLE `cierres_ivas` (
   `tipo_iva` int(11) NOT NULL,
   `importe_base` decimal(17,4) NOT NULL,
   `importe_iva` decimal(17,4) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `cierres_ivas_idcierre_foreign` (`idCierre`),
+  KEY `cierres_ivas_idtienda_foreign` (`idTienda`),
+  CONSTRAINT `cierres_ivas_idcierre_foreign` FOREIGN KEY (`idCierre`) REFERENCES `cierres` (`idCierre`),
+  CONSTRAINT `cierres_ivas_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`)
+) ENGINE=InnoDB AUTO_INCREMENT=587 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `cierres_usuariosFormasPago`
+-- Table structure for table `cierres_usuariosFormasPago`
 --
 
+DROP TABLE IF EXISTS `cierres_usuariosFormasPago`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cierres_usuariosFormasPago` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idCierre` int(11) NOT NULL,
@@ -449,15 +550,23 @@ CREATE TABLE `cierres_usuariosFormasPago` (
   `idUsuario` int(11) NOT NULL,
   `FormasPago` varchar(100) NOT NULL,
   `importe` decimal(17,4) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `cierres_usuariosformaspago_idcierre_foreign` (`idCierre`),
+  KEY `cierres_usuariosformaspago_idtienda_foreign` (`idTienda`),
+  KEY `cierres_usuariosformaspago_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `cierres_usuariosformaspago_idcierre_foreign` FOREIGN KEY (`idCierre`) REFERENCES `cierres` (`idCierre`),
+  CONSTRAINT `cierres_usuariosformaspago_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `cierres_usuariosformaspago_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=925 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `cierres_usuarios_tickets`
+-- Table structure for table `cierres_usuarios_tickets`
 --
 
+DROP TABLE IF EXISTS `cierres_usuarios_tickets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cierres_usuarios_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idCierre` int(11) NOT NULL,
@@ -466,48 +575,51 @@ CREATE TABLE `cierres_usuarios_tickets` (
   `Importe` decimal(17,4) NOT NULL,
   `Num_ticket_inicial` int(11) NOT NULL,
   `Num_ticket_final` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `cierres_usuarios_tickets_idcierre_foreign` (`idCierre`),
+  KEY `cierres_usuarios_tickets_idtienda_foreign` (`idTienda`),
+  KEY `cierres_usuarios_tickets_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `cierres_usuarios_tickets_idcierre_foreign` FOREIGN KEY (`idCierre`) REFERENCES `cierres` (`idCierre`),
+  CONSTRAINT `cierres_usuarios_tickets_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `cierres_usuarios_tickets_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=514 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `clientes`  [v0.3.0: descuento_ticket, requiere_factura, recargo_equivalencia; fecha_creado default]
+-- Table structure for table `clientes`
 --
 
+DROP TABLE IF EXISTS `clientes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `clientes` (
   `idClientes` int(11) NOT NULL AUTO_INCREMENT,
-  `Nombre` varchar(100) CHARACTER SET utf8 NOT NULL,
-  `razonsocial` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `nif` varchar(10) CHARACTER SET utf8 DEFAULT NULL,
-  `direccion` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+  `Nombre` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `razonsocial` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `nif` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `direccion` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `codpostal` varchar(32) DEFAULT NULL,
   `telefono` varchar(11) DEFAULT NULL,
   `movil` varchar(11) DEFAULT NULL,
   `fax` varchar(11) DEFAULT NULL,
-  `email` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `estado` varchar(12) CHARACTER SET utf8 NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `estado` varchar(12) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `formasVenci` varchar(250) DEFAULT NULL,
   `fecha_creado` datetime NOT NULL DEFAULT current_timestamp(),
   `descuento_ticket` decimal(5,2) NOT NULL DEFAULT 3.00,
   `requiere_factura` tinyint(1) NOT NULL DEFAULT 0,
   `recargo_equivalencia` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`idClientes`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2;
+) ENGINE=InnoDB AUTO_INCREMENT=919 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Datos iniciales `clientes`
+-- Table structure for table `descuentos_tickets`
 --
 
-INSERT INTO `clientes` (`idClientes`, `Nombre`, `razonsocial`, `nif`, `direccion`, `codpostal`, `telefono`, `movil`, `fax`, `email`, `estado`, `formasVenci`, `fecha_creado`, `descuento_ticket`, `requiere_factura`, `recargo_equivalencia`) VALUES
-(1, 'Sin identificar', 'Sin identificar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'activo', NULL, '2022-12-10 21:20:29', '3.00', 0, 0);
-
--- --------------------------------------------------------
-
---
--- Tabla `descuentos_tickets`  [v0.3.0]
---
-
+DROP TABLE IF EXISTS `descuentos_tickets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `descuentos_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idCliente` int(11) NOT NULL,
@@ -522,30 +634,40 @@ CREATE TABLE `descuentos_tickets` (
   `fechaCreacion` datetime NOT NULL DEFAULT current_timestamp(),
   `estado` varchar(12) NOT NULL DEFAULT 'Pendiente',
   PRIMARY KEY (`id`),
-  KEY `cliente` (`idCliente`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  KEY `cliente` (`idCliente`),
+  KEY `descuentos_tickets_idticket_foreign` (`idTicket`),
+  KEY `descuentos_tickets_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `descuentos_tickets_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `descuentos_tickets_idticket_foreign` FOREIGN KEY (`idTicket`) REFERENCES `ticketst` (`id`),
+  CONSTRAINT `descuentos_tickets_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17420 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `diario_cron`  [nueva en v0.4.0.0]
+-- Table structure for table `diario_cron`
 --
 
+DROP TABLE IF EXISTS `diario_cron`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `diario_cron` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion` varchar(150) NOT NULL,
   `ejecucion` timestamp NOT NULL DEFAULT current_timestamp(),
   `tarea_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `diario_cron_tarea` (`tarea_id`),
   CONSTRAINT `diario_cron_tarea` FOREIGN KEY (`tarea_id`) REFERENCES `tareas_cron` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `dispositivos`  [nueva en v0.4.1.0; ampliada en v0.4.2.60]
+-- Table structure for table `dispositivos`
 --
 
+DROP TABLE IF EXISTS `dispositivos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dispositivos` (
   `idDispositivo` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -556,14 +678,60 @@ CREATE TABLE `dispositivos` (
   `temp_min` decimal(5,2) DEFAULT NULL,
   `temp_max` decimal(5,2) DEFAULT NULL,
   PRIMARY KEY (`idDispositivo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `faccliIva`
+-- Table structure for table `facProCobros`
 --
 
+DROP TABLE IF EXISTS `facProCobros`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `facProCobros` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idFactura` int(11) NOT NULL,
+  `idFormasPago` int(11) NOT NULL,
+  `FechaPago` date NOT NULL,
+  `importe` float NOT NULL,
+  `Referencia` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `facprocobros_idfactura_foreign` (`idFactura`),
+  KEY `facprocobros_idformaspago_foreign` (`idFormasPago`),
+  CONSTRAINT `facprocobros_idfactura_foreign` FOREIGN KEY (`idFactura`) REFERENCES `facprot` (`id`),
+  CONSTRAINT `facprocobros_idformaspago_foreign` FOREIGN KEY (`idFormasPago`) REFERENCES `formasPago` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fac_cobros`
+--
+
+DROP TABLE IF EXISTS `fac_cobros`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fac_cobros` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idFactura` int(11) NOT NULL,
+  `idFormasPago` int(11) NOT NULL,
+  `FechaPago` date NOT NULL,
+  `importe` float NOT NULL,
+  `Referencia` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fac_cobros_idfactura_foreign` (`idFactura`),
+  KEY `fac_cobros_idformaspago_foreign` (`idFormasPago`),
+  CONSTRAINT `fac_cobros_idfactura_foreign` FOREIGN KEY (`idFactura`) REFERENCES `facclit` (`id`),
+  CONSTRAINT `fac_cobros_idformaspago_foreign` FOREIGN KEY (`idFormasPago`) REFERENCES `formasPago` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `faccliIva`
+--
+
+DROP TABLE IF EXISTS `faccliIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `faccliIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idfaccli` int(11) NOT NULL,
@@ -571,15 +739,19 @@ CREATE TABLE `faccliIva` (
   `iva` int(11) DEFAULT NULL,
   `importeIva` decimal(17,2) DEFAULT NULL,
   `totalbase` decimal(17,2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `faccliiva_idfaccli_foreign` (`idfaccli`),
+  CONSTRAINT `faccliiva_idfaccli_foreign` FOREIGN KEY (`idfaccli`) REFERENCES `facclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=424 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facclilinea`
+-- Table structure for table `facclilinea`
 --
 
+DROP TABLE IF EXISTS `facclilinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facclilinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idfaccli` int(11) NOT NULL,
@@ -596,15 +768,21 @@ CREATE TABLE `facclilinea` (
   `estadoLinea` varchar(12) DEFAULT NULL,
   `NumalbCli` int(100) DEFAULT NULL,
   `pvpSiva` decimal(17,6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `facclilinea_idarticulo_foreign` (`idArticulo`),
+  KEY `facclilinea_idfaccli_foreign` (`idfaccli`),
+  CONSTRAINT `facclilinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `facclilinea_idfaccli_foreign` FOREIGN KEY (`idfaccli`) REFERENCES `facclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4070 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `faccliltemporales`  [reestructurada en v0.3.1.5]
+-- Table structure for table `faccliltemporales`
 --
 
+DROP TABLE IF EXISTS `faccliltemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `faccliltemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numfaccli` int(11) DEFAULT NULL,
@@ -619,14 +797,16 @@ CREATE TABLE `faccliltemporales` (
   `Productos` mediumblob DEFAULT NULL,
   `Albaranes` varbinary(50000) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=274 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facclit`  [v0.3.1.5: sin formaPago]
+-- Table structure for table `facclit`
 --
 
+DROP TABLE IF EXISTS `facclit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facclit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numfaccli` int(11) DEFAULT NULL,
@@ -640,31 +820,23 @@ CREATE TABLE `facclit` (
   `fechaCreacion` datetime DEFAULT NULL,
   `fechaVencimiento` datetime DEFAULT NULL,
   `fechaModificacion` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Tabla `facProCobros`
---
-
-CREATE TABLE `facProCobros` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idFactura` int(11) NOT NULL,
-  `idFormasPago` int(11) NOT NULL,
-  `FechaPago` date NOT NULL,
-  `importe` float NOT NULL,
-  `Referencia` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `facclit_idcliente_foreign` (`idCliente`),
+  KEY `facclit_idtienda_foreign` (`idTienda`),
+  KEY `facclit_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `facclit_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `facclit_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `facclit_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facproIva`
+-- Table structure for table `facproIva`
 --
 
+DROP TABLE IF EXISTS `facproIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facproIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idfacpro` int(11) NOT NULL,
@@ -672,15 +844,19 @@ CREATE TABLE `facproIva` (
   `iva` int(11) DEFAULT NULL,
   `importeIva` decimal(17,2) DEFAULT NULL,
   `totalbase` decimal(17,2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `facproiva_idfacpro_foreign` (`idfacpro`),
+  CONSTRAINT `facproiva_idfacpro_foreign` FOREIGN KEY (`idfacpro`) REFERENCES `facprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1619 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facprolinea`
+-- Table structure for table `facprolinea`
 --
 
+DROP TABLE IF EXISTS `facprolinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facprolinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idfacpro` int(11) NOT NULL,
@@ -697,15 +873,21 @@ CREATE TABLE `facprolinea` (
   `estadoLinea` varchar(12) DEFAULT NULL,
   `ref_prov` varchar(250) DEFAULT NULL,
   `idalbpro` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `facprolinea_idarticulo_foreign` (`idArticulo`),
+  KEY `facprolinea_idfacpro_foreign` (`idfacpro`),
+  CONSTRAINT `facprolinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `facprolinea_idfacpro_foreign` FOREIGN KEY (`idfacpro`) REFERENCES `facprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38288 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facproltemporales`
+-- Table structure for table `facproltemporales`
 --
 
+DROP TABLE IF EXISTS `facproltemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facproltemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `numfacpro` int(11) DEFAULT NULL,
@@ -723,14 +905,16 @@ CREATE TABLE `facproltemporales` (
   `Su_num_factura` varchar(20) DEFAULT NULL,
   `FacCobros` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=1187 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `facprot`
+-- Table structure for table `facprot`
 --
 
+DROP TABLE IF EXISTS `facprot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `facprot` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numfacpro` int(11) DEFAULT NULL,
@@ -748,31 +932,23 @@ CREATE TABLE `facprot` (
   `FechaVencimiento` date DEFAULT NULL,
   `fechaModificacion` datetime DEFAULT NULL,
   `modify_by` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Tabla `fac_cobros`
---
-
-CREATE TABLE `fac_cobros` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idFactura` int(11) NOT NULL,
-  `idFormasPago` int(11) NOT NULL,
-  `FechaPago` date NOT NULL,
-  `importe` float NOT NULL,
-  `Referencia` varchar(25) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `facprot_idproveedor_foreign` (`idProveedor`),
+  KEY `facprot_idtienda_foreign` (`idTienda`),
+  KEY `facprot_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `facprot_idproveedor_foreign` FOREIGN KEY (`idProveedor`) REFERENCES `proveedores` (`idProveedor`),
+  CONSTRAINT `facprot_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `facprot_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=900 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `familias`
+-- Table structure for table `familias`
 --
 
+DROP TABLE IF EXISTS `familias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `familias` (
   `idFamilia` int(11) NOT NULL AUTO_INCREMENT,
   `familiaNombre` varchar(100) NOT NULL DEFAULT '',
@@ -780,47 +956,50 @@ CREATE TABLE `familias` (
   `beneficiomedio` decimal(5,2) DEFAULT NULL,
   `mostrar_tpv` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`idFamilia`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=467 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `familiasTienda`  [v0.3.5.25_8: añade PK auto_increment]
+-- Table structure for table `familiasTienda`
 --
 
+DROP TABLE IF EXISTS `familiasTienda`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `familiasTienda` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idFamilia` int(11) NOT NULL,
   `idTienda` int(11) NOT NULL,
   `idFamilia_tienda` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `familiastienda_idfamilia_foreign` (`idFamilia`),
+  KEY `familiastienda_idtienda_foreign` (`idTienda`),
+  CONSTRAINT `familiastienda_idfamilia_foreign` FOREIGN KEY (`idFamilia`) REFERENCES `familias` (`idFamilia`),
+  CONSTRAINT `familiastienda_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`)
+) ENGINE=InnoDB AUTO_INCREMENT=466 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `formasPago`
+-- Table structure for table `formasPago`
 --
 
+DROP TABLE IF EXISTS `formasPago`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `formasPago` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion` varchar(25) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6;
-
-INSERT INTO `formasPago` (`id`, `descripcion`) VALUES
-(1, 'Efectivo'),
-(2, 'Tarjeta'),
-(3, 'Recibo bancario'),
-(4, 'Transferencia bancaria'),
-(5, 'Talón');
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `historico_precios`
+-- Table structure for table `historico_precios`
 --
 
+DROP TABLE IF EXISTS `historico_precios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `historico_precios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(10) NOT NULL,
@@ -832,15 +1011,21 @@ CREATE TABLE `historico_precios` (
   `Tipo` varchar(50) NOT NULL,
   `idUsuario` int(5) DEFAULT NULL,
   `estado` varchar(60) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `historico_precios_idarticulo_foreign` (`idArticulo`),
+  KEY `historico_precios_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `historico_precios_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `historico_precios_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9044 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `importar_virtuemart_tickets`
+-- Table structure for table `importar_virtuemart_tickets`
 --
 
+DROP TABLE IF EXISTS `importar_virtuemart_tickets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `importar_virtuemart_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idTicketst` int(11) NOT NULL,
@@ -848,14 +1033,16 @@ CREATE TABLE `importar_virtuemart_tickets` (
   `estado` varchar(12) NOT NULL,
   `respuesta` varchar(250) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `indices`
+-- Table structure for table `indices`
 --
 
+DROP TABLE IF EXISTS `indices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `indices` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idTienda` int(11) NOT NULL,
@@ -863,37 +1050,32 @@ CREATE TABLE `indices` (
   `numticket` int(11) NOT NULL,
   `tempticket` int(11) NOT NULL COMMENT 'Es el numero con guardo temporal ticket',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=2;
-
-INSERT INTO `indices` (`id`, `idTienda`, `idUsuario`, `numticket`, `tempticket`) VALUES
-(1, 1, 1, 1, 1);
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `iva`
+-- Table structure for table `iva`
 --
 
+DROP TABLE IF EXISTS `iva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `iva` (
   `idIva` int(11) NOT NULL AUTO_INCREMENT,
   `descripcionIva` varchar(25) DEFAULT NULL,
   `iva` decimal(4,2) DEFAULT NULL,
   `recargo` decimal(4,2) DEFAULT NULL,
   PRIMARY KEY (`idIva`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=5;
-
-INSERT INTO `iva` (`idIva`, `descripcionIva`, `iva`, `recargo`) VALUES
-(1, 'I.V.A. al cero', '0.00', '0.00'),
-(2, 'Super Reducido', '4.00', '0.50'),
-(3, 'Reducido', '10.00', '1.00'),
-(4, 'General', '21.00', '4.00');
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `migraciones`
+-- Table structure for table `migraciones`
 --
 
+DROP TABLE IF EXISTS `migraciones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `migraciones` (
   `version` bigint(20) NOT NULL,
   `migration_name` varchar(100) DEFAULT NULL,
@@ -901,47 +1083,36 @@ CREATE TABLE `migraciones` (
   `end_time` timestamp NULL DEFAULT NULL,
   `breakpoint` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Tabla `modulos_configuracion`
---
-
-CREATE TABLE `modulos_configuracion` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idusuario` int(11) NOT NULL,
-  `nombre_modulo` varchar(50) NOT NULL,
-  `configuracion` longtext NOT NULL,
-  `fecha` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_balanza`  [v0.4.0.30: conTecla→conSeccion, Grupo, Dirección, IP, soloPLUS]
+-- Table structure for table `modulo_balanza`
 --
 
+DROP TABLE IF EXISTS `modulo_balanza`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_balanza` (
   `idBalanza` int(11) NOT NULL AUTO_INCREMENT,
   `nombreBalanza` varchar(100) NOT NULL,
   `modelo` varchar(100) NOT NULL,
   `conSeccion` varchar(3) NOT NULL,
-  `Grupo` tinyint(3) UNSIGNED NOT NULL,
-  `Dirección` tinyint(3) UNSIGNED NOT NULL,
+  `Grupo` tinyint(3) unsigned NOT NULL,
+  `Dirección` tinyint(3) unsigned NOT NULL,
   `IP` varchar(45) NOT NULL,
   `soloPLUS` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`idBalanza`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_balanza_plus`  [v0.4.0.30: tecla→seccion]
+-- Table structure for table `modulo_balanza_plus`
 --
 
+DROP TABLE IF EXISTS `modulo_balanza_plus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_balanza_plus` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idBalanza` int(11) NOT NULL,
@@ -949,14 +1120,16 @@ CREATE TABLE `modulo_balanza_plus` (
   `seccion` int(100) NOT NULL,
   `idArticulo` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=386 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_etiquetado`
+-- Table structure for table `modulo_etiquetado`
 --
 
+DROP TABLE IF EXISTS `modulo_etiquetado`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_etiquetado` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num_lote` int(11) DEFAULT NULL,
@@ -969,14 +1142,16 @@ CREATE TABLE `modulo_etiquetado` (
   `productos` mediumblob NOT NULL,
   `idUsuario` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_etiquetado_temporal`
+-- Table structure for table `modulo_etiquetado_temporal`
 --
 
+DROP TABLE IF EXISTS `modulo_etiquetado_temporal`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_etiquetado_temporal` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num_lote` int(11) NOT NULL,
@@ -989,14 +1164,16 @@ CREATE TABLE `modulo_etiquetado_temporal` (
   `productos` mediumblob NOT NULL,
   `idUsuario` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=1082 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_importar_registro`
+-- Table structure for table `modulo_importar_registro`
 --
 
+DROP TABLE IF EXISTS `modulo_importar_registro`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_importar_registro` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(250) NOT NULL,
@@ -1010,14 +1187,16 @@ CREATE TABLE `modulo_importar_registro` (
   `errores` int(11) NOT NULL DEFAULT 0,
   `campos` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `modulo_incidencia`
+-- Table structure for table `modulo_incidencia`
 --
 
+DROP TABLE IF EXISTS `modulo_incidencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `modulo_incidencia` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num_incidencia` int(11) NOT NULL,
@@ -1028,29 +1207,54 @@ CREATE TABLE `modulo_incidencia` (
   `datos` varbinary(10000) NOT NULL,
   `estado` varchar(12) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedcliAlb`
+-- Table structure for table `modulos_configuracion`
 --
 
+DROP TABLE IF EXISTS `modulos_configuracion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `modulos_configuracion` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idusuario` int(11) NOT NULL,
+  `nombre_modulo` varchar(50) NOT NULL,
+  `configuracion` longtext NOT NULL,
+  `fecha` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pedcliAlb`
+--
+
+DROP TABLE IF EXISTS `pedcliAlb`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedcliAlb` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idAlbaran` int(11) DEFAULT NULL,
   `numAlbaran` int(11) DEFAULT NULL,
   `idPedido` int(11) DEFAULT NULL,
   `numPedido` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedclialb_idalbaran_foreign` (`idAlbaran`),
+  KEY `pedclialb_idpedido_foreign` (`idPedido`),
+  CONSTRAINT `pedclialb_idalbaran_foreign` FOREIGN KEY (`idAlbaran`) REFERENCES `albclit` (`id`),
+  CONSTRAINT `pedclialb_idpedido_foreign` FOREIGN KEY (`idPedido`) REFERENCES `pedclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedcliIva`
+-- Table structure for table `pedcliIva`
 --
 
+DROP TABLE IF EXISTS `pedcliIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedcliIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idpedcli` int(11) NOT NULL,
@@ -1058,15 +1262,19 @@ CREATE TABLE `pedcliIva` (
   `iva` int(11) NOT NULL,
   `importeIva` decimal(17,2) NOT NULL,
   `totalbase` decimal(17,2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedcliiva_idpedcli_foreign` (`idpedcli`),
+  CONSTRAINT `pedcliiva_idpedcli_foreign` FOREIGN KEY (`idpedcli`) REFERENCES `pedclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedclilinea`
+-- Table structure for table `pedclilinea`
 --
 
+DROP TABLE IF EXISTS `pedclilinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedclilinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idpedcli` int(11) NOT NULL,
@@ -1082,15 +1290,21 @@ CREATE TABLE `pedclilinea` (
   `nfila` int(11) NOT NULL,
   `estadoLinea` varchar(12) NOT NULL,
   `pvpSiva` decimal(17,6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedclilinea_idarticulo_foreign` (`idArticulo`),
+  KEY `pedclilinea_idpedcli_foreign` (`idpedcli`),
+  CONSTRAINT `pedclilinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `pedclilinea_idpedcli_foreign` FOREIGN KEY (`idpedcli`) REFERENCES `pedclit` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedcliltemporales`  [reestructurada en v0.3.1.5; FK eliminada en v0.3.9.0_1]
+-- Table structure for table `pedcliltemporales`
 --
 
+DROP TABLE IF EXISTS `pedcliltemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedcliltemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idTienda` int(11) DEFAULT NULL,
@@ -1102,15 +1316,23 @@ CREATE TABLE `pedcliltemporales` (
   `total_ivas` varchar(250) DEFAULT NULL,
   `Productos` mediumblob DEFAULT NULL,
   `Numpedcli` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedcliltemporales_idcliente_foreign` (`idCliente`),
+  KEY `pedcliltemporales_idtienda_foreign` (`idTienda`),
+  KEY `pedcliltemporales_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `pedcliltemporales_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `pedcliltemporales_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `pedcliltemporales_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=199 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedclit`  [v0.3.1.5: FechaPedido→Fecha]
+-- Table structure for table `pedclit`
 --
 
+DROP TABLE IF EXISTS `pedclit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedclit` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numpedcli` int(11) DEFAULT NULL,
@@ -1125,30 +1347,44 @@ CREATE TABLE `pedclit` (
   `total` decimal(17,2) DEFAULT NULL,
   `fechaCreacion` datetime DEFAULT NULL,
   `fechaModificacion` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedclit_idcliente_foreign` (`idCliente`),
+  KEY `pedclit_idtienda_foreign` (`idTienda`),
+  KEY `pedclit_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `pedclit_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `pedclit_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `pedclit_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedproAlb`
+-- Table structure for table `pedproAlb`
 --
 
+DROP TABLE IF EXISTS `pedproAlb`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedproAlb` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idAlbaran` int(11) DEFAULT NULL,
   `numAlbaran` int(11) DEFAULT NULL,
   `idPedido` int(11) DEFAULT NULL,
   `numPedido` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedproalb_idalbaran_foreign` (`idAlbaran`),
+  KEY `pedproalb_idpedido_foreign` (`idPedido`),
+  CONSTRAINT `pedproalb_idalbaran_foreign` FOREIGN KEY (`idAlbaran`) REFERENCES `albprot` (`id`),
+  CONSTRAINT `pedproalb_idpedido_foreign` FOREIGN KEY (`idPedido`) REFERENCES `pedprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedproIva`
+-- Table structure for table `pedproIva`
 --
 
+DROP TABLE IF EXISTS `pedproIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedproIva` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idpedpro` int(11) NOT NULL,
@@ -1156,15 +1392,19 @@ CREATE TABLE `pedproIva` (
   `iva` int(11) NOT NULL,
   `importeIva` decimal(17,2) NOT NULL,
   `totalbase` decimal(17,2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedproiva_idpedpro_foreign` (`idpedpro`),
+  CONSTRAINT `pedproiva_idpedpro_foreign` FOREIGN KEY (`idpedpro`) REFERENCES `pedprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2082 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedprolinea`
+-- Table structure for table `pedprolinea`
 --
 
+DROP TABLE IF EXISTS `pedprolinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedprolinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idpedpro` int(11) NOT NULL,
@@ -1180,15 +1420,21 @@ CREATE TABLE `pedprolinea` (
   `iva` decimal(4,2) NOT NULL,
   `nfila` int(11) NOT NULL,
   `estadoLinea` varchar(12) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedprolinea_idarticulo_foreign` (`idArticulo`),
+  KEY `pedprolinea_idpedpro_foreign` (`idpedpro`),
+  CONSTRAINT `pedprolinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `pedprolinea_idpedpro_foreign` FOREIGN KEY (`idpedpro`) REFERENCES `pedprot` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14499 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedprot`
+-- Table structure for table `pedprot`
 --
 
+DROP TABLE IF EXISTS `pedprot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedprot` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numpedpro` int(11) DEFAULT NULL,
@@ -1205,15 +1451,23 @@ CREATE TABLE `pedprot` (
   `fechaCreacion` datetime DEFAULT NULL,
   `fechaModificacion` datetime DEFAULT NULL,
   `modify_by` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedprot_idproveedor_foreign` (`idProveedor`),
+  KEY `pedprot_idtienda_foreign` (`idTienda`),
+  KEY `pedprot_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `pedprot_idproveedor_foreign` FOREIGN KEY (`idProveedor`) REFERENCES `proveedores` (`idProveedor`),
+  CONSTRAINT `pedprot_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `pedprot_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=883 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `pedprotemporales`
+-- Table structure for table `pedprotemporales`
 --
 
+DROP TABLE IF EXISTS `pedprotemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pedprotemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `estadoPedPro` varchar(12) DEFAULT NULL,
@@ -1227,15 +1481,25 @@ CREATE TABLE `pedprotemporales` (
   `total_ivas` varchar(250) DEFAULT NULL,
   `Productos` mediumblob DEFAULT NULL,
   `idPedpro` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `pedprotemporales_idpedpro_foreign` (`idPedpro`),
+  KEY `pedprotemporales_idproveedor_foreign` (`idProveedor`),
+  KEY `pedprotemporales_idtienda_foreign` (`idTienda`),
+  KEY `pedprotemporales_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `pedprotemporales_idpedpro_foreign` FOREIGN KEY (`idPedpro`) REFERENCES `pedprot` (`id`),
+  CONSTRAINT `pedprotemporales_idproveedor_foreign` FOREIGN KEY (`idProveedor`) REFERENCES `proveedores` (`idProveedor`),
+  CONSTRAINT `pedprotemporales_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `pedprotemporales_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10767 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `permisos`
+-- Table structure for table `permisos`
 --
 
+DROP TABLE IF EXISTS `permisos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `permisos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idUsuario` int(11) NOT NULL,
@@ -1244,14 +1508,16 @@ CREATE TABLE `permisos` (
   `accion` varchar(50) DEFAULT NULL,
   `permiso` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=8640 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `proveedores`  [v0.4.1.36: registro_sanitario]
+-- Table structure for table `proveedores`
 --
 
+DROP TABLE IF EXISTS `proveedores`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `proveedores` (
   `idProveedor` int(11) NOT NULL AUTO_INCREMENT,
   `nombrecomercial` varchar(100) DEFAULT NULL,
@@ -1267,14 +1533,16 @@ CREATE TABLE `proveedores` (
   `registro_sanitario` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`idProveedor`),
   FULLTEXT KEY `nombrecomercial` (`nombrecomercial`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=191 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `stocksRegularizacion`
+-- Table structure for table `stocksRegularizacion`
 --
 
+DROP TABLE IF EXISTS `stocksRegularizacion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `stocksRegularizacion` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idArticulo` int(11) NOT NULL,
@@ -1285,19 +1553,29 @@ CREATE TABLE `stocksRegularizacion` (
   `stockFinal` decimal(17,6) NOT NULL,
   `stockOperacion` int(1) NOT NULL DEFAULT 1,
   `idUsuario` int(11) NOT NULL,
-  `idAlbaran` int(11) NOT NULL DEFAULT 0,
+  `idAlbaran` int(11) DEFAULT NULL,
   `estado` int(11) NOT NULL DEFAULT 1,
   `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `stocksregularizacion_idalbaran_foreign` (`idAlbaran`),
+  KEY `stocksregularizacion_idarticulo_foreign` (`idArticulo`),
+  KEY `stocksregularizacion_idtienda_foreign` (`idTienda`),
+  KEY `stocksregularizacion_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `stocksregularizacion_idalbaran_foreign` FOREIGN KEY (`idAlbaran`) REFERENCES `albclit` (`id`),
+  CONSTRAINT `stocksregularizacion_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `stocksregularizacion_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `stocksregularizacion_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `tareas_cron`  [nueva en v0.4.0.0]
+-- Table structure for table `tareas_cron`
 --
 
+DROP TABLE IF EXISTS `tareas_cron`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tareas_cron` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,
@@ -1308,14 +1586,16 @@ CREATE TABLE `tareas_cron` (
   `ultima_ejecucion` datetime DEFAULT NULL,
   `estado` int(2) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `temperaturas`  [nueva en v0.4.1.0]
+-- Table structure for table `temperaturas`
 --
 
+DROP TABLE IF EXISTS `temperaturas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `temperaturas` (
   `idTemperatura` int(11) NOT NULL AUTO_INCREMENT,
   `idDispositivo` int(11) NOT NULL,
@@ -1323,15 +1603,18 @@ CREATE TABLE `temperaturas` (
   `fechaRegistro` datetime DEFAULT current_timestamp(),
   `idUsuario` int(11) DEFAULT NULL,
   PRIMARY KEY (`idTemperatura`),
+  KEY `idDispositivo` (`idDispositivo`),
   CONSTRAINT `temperaturas_ibfk_1` FOREIGN KEY (`idDispositivo`) REFERENCES `dispositivos` (`idDispositivo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=495 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `ticketslinea`
+-- Table structure for table `ticketslinea`
 --
 
+DROP TABLE IF EXISTS `ticketslinea`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ticketslinea` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `idticketst` int(11) NOT NULL,
@@ -1346,15 +1629,21 @@ CREATE TABLE `ticketslinea` (
   `iva` decimal(4,2) NOT NULL,
   `nfila` int(11) NOT NULL,
   `estadoLinea` varchar(12) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `ticketslinea_idarticulo_foreign` (`idArticulo`),
+  KEY `ticketslinea_idticketst_foreign` (`idticketst`),
+  CONSTRAINT `ticketslinea_idarticulo_foreign` FOREIGN KEY (`idArticulo`) REFERENCES `articulos` (`idArticulo`),
+  CONSTRAINT `ticketslinea_idticketst_foreign` FOREIGN KEY (`idticketst`) REFERENCES `ticketst` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=222077 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `ticketst`
+-- Table structure for table `ticketst`
 --
 
+DROP TABLE IF EXISTS `ticketst`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ticketst` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `Numticket` int(11) NOT NULL,
@@ -1367,15 +1656,43 @@ CREATE TABLE `ticketst` (
   `formaPago` varchar(12) NOT NULL,
   `entregado` decimal(17,2) NOT NULL,
   `total` decimal(17,2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `ticketst_idcliente_foreign` (`idCliente`),
+  KEY `ticketst_idtienda_foreign` (`idTienda`),
+  KEY `ticketst_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `ticketst_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `ticketst_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `ticketst_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=59220 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `ticketstemporales`
+-- Table structure for table `ticketstIva`
 --
 
+DROP TABLE IF EXISTS `ticketstIva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticketstIva` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idticketst` int(11) NOT NULL,
+  `Numticket` int(11) NOT NULL,
+  `iva` int(11) NOT NULL,
+  `importeIva` decimal(17,2) NOT NULL,
+  `totalbase` decimal(17,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ticketstiva_idticketst_foreign` (`idticketst`),
+  CONSTRAINT `ticketstiva_idticketst_foreign` FOREIGN KEY (`idticketst`) REFERENCES `ticketst` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=101655 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticketstemporales`
+--
+
+DROP TABLE IF EXISTS `ticketstemporales`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ticketstemporales` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `numticket` int(11) NOT NULL,
@@ -1387,31 +1704,23 @@ CREATE TABLE `ticketstemporales` (
   `idClientes` int(11) NOT NULL,
   `total` decimal(17,6) NOT NULL,
   `Productos` mediumblob DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Tabla `ticketstIva`
---
-
-CREATE TABLE `ticketstIva` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idticketst` int(11) NOT NULL,
-  `Numticket` int(11) NOT NULL,
-  `iva` int(11) NOT NULL,
-  `importeIva` decimal(17,2) NOT NULL,
-  `totalbase` decimal(17,2) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`id`),
+  KEY `ticketstemporales_idclientes_foreign` (`idClientes`),
+  KEY `ticketstemporales_idtienda_foreign` (`idTienda`),
+  KEY `ticketstemporales_idusuario_foreign` (`idUsuario`),
+  CONSTRAINT `ticketstemporales_idclientes_foreign` FOREIGN KEY (`idClientes`) REFERENCES `clientes` (`idClientes`),
+  CONSTRAINT `ticketstemporales_idtienda_foreign` FOREIGN KEY (`idTienda`) REFERENCES `tiendas` (`idTienda`),
+  CONSTRAINT `ticketstemporales_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=59220 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `tiendas`  [v0.3.1.0: servidor_email JSON; v0.3.1.51: LONGTEXT]
+-- Table structure for table `tiendas`
 --
 
+DROP TABLE IF EXISTS `tiendas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tiendas` (
   `idTienda` int(2) NOT NULL AUTO_INCREMENT,
   `tipoTienda` varchar(10) NOT NULL,
@@ -1426,37 +1735,31 @@ CREATE TABLE `tiendas` (
   `key_api` varchar(30) DEFAULT NULL,
   `servidor_email` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`idTienda`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=2;
-
-INSERT INTO `tiendas` (`idTienda`, `tipoTienda`, `razonsocial`, `nif`, `telefono`, `estado`, `NombreComercial`, `direccion`, `ano`, `dominio`, `key_api`, `servidor_email`) VALUES
-(1, 'principal', 'Soluciones informaticas Vigo SL', 'B999666999', '886112370', 'Activo', 'Soluciones Vigo', 'Emilia pardo Bazan 52- bajo', '2022', NULL, NULL, 'tuservidor.emailtuyo.com');
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `tiposVencimiento`
+-- Table structure for table `tiposVencimiento`
 --
 
+DROP TABLE IF EXISTS `tiposVencimiento`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tiposVencimiento` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `descripcion` varchar(20) NOT NULL,
   `dias` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6;
-
-INSERT INTO `tiposVencimiento` (`id`, `descripcion`, `dias`) VALUES
-(1, 'Contado', 0),
-(2, 'Semanal', 7),
-(3, 'Quincenal', 15),
-(4, 'Mensual', 30),
-(5, 'Semestral', 181);
-
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Tabla `usuarios`
+-- Table structure for table `usuarios`
 --
 
+DROP TABLE IF EXISTS `usuarios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1466,163 +1769,186 @@ CREATE TABLE `usuarios` (
   `estado` varchar(12) NOT NULL COMMENT 'estado',
   `nombre` varchar(150) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2;
-
-INSERT INTO `usuarios` (`id`, `username`, `password`, `fecha`, `group_id`, `estado`, `nombre`) VALUES
-(1, 'admin', '21232f297a57a5a743894a0e4a801fc3', '2022-12-10', 9, 'activo', 'admin');
-
--- --------------------------------------------------------
--- VISTAS  [nuevas en v0.4.2.0]
--- --------------------------------------------------------
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Vista `vw_jerarquias_familias`
+-- Temporary table structure for view `vw_jerarquias_familias`
 --
 
-CREATE OR REPLACE VIEW vw_jerarquias_familias AS
-WITH RECURSIVE ArbolFamilias AS (
-    SELECT
-        idFamilia,
-        familiaNombre,
-        familiaPadre,
-        1 AS nivel,
-        idFamilia AS idN1,
-        CAST(NULL AS UNSIGNED) AS idN2,
-        CAST(familiaNombre AS CHAR(500)) AS ruta
-    FROM familias
-    WHERE familiaPadre = 0 OR familiaPadre IS NULL
-
-    UNION ALL
-
-    SELECT
-        f.idFamilia,
-        f.familiaNombre,
-        f.familiaPadre,
-        af.nivel + 1,
-        af.idN1,
-        CASE
-            WHEN af.nivel = 1 THEN f.idFamilia
-            ELSE af.idN2
-        END,
-        CONCAT(af.ruta, ' > ', f.familiaNombre)
-    FROM familias f
-    INNER JOIN ArbolFamilias af ON f.familiaPadre = af.idFamilia
-)
-SELECT
-    idFamilia,
-    nivel,
-    familiaNombre,
-    idN1,
-    idN2,
-    familiaPadre,
-    ruta
-FROM ArbolFamilias
-ORDER BY ruta;
+DROP TABLE IF EXISTS `vw_jerarquias_familias`;
+/*!50001 DROP VIEW IF EXISTS `vw_jerarquias_familias`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8mb4;
+/*!50001 CREATE VIEW `vw_jerarquias_familias` AS SELECT
+ 1 AS `idFamilia`,
+  1 AS `nivel`,
+  1 AS `familiaNombre`,
+  1 AS `idN1`,
+  1 AS `idN2`,
+  1 AS `familiaPadre`,
+  1 AS `ruta` */;
+SET character_set_client = @saved_cs_client;
 
 --
--- Vista `vw_resumenClientesFacturas`
+-- Temporary table structure for view `vw_resumenClientesFacturas`
 --
 
-CREATE OR REPLACE VIEW vw_resumenClientesFacturas AS
-SELECT
-    c.idClientes AS idCliente,
-    c.nif,
-    f.ejercicio,
-    SUM(CASE WHEN f.trimestre = 1 THEN f.totalFactura ELSE 0 END) AS q1,
-    SUM(CASE WHEN f.trimestre = 1 THEN f.totalIva    ELSE 0 END) AS q1Iva,
-    SUM(CASE WHEN f.trimestre = 2 THEN f.totalFactura ELSE 0 END) AS q2,
-    SUM(CASE WHEN f.trimestre = 2 THEN f.totalIva    ELSE 0 END) AS q2Iva,
-    SUM(CASE WHEN f.trimestre = 3 THEN f.totalFactura ELSE 0 END) AS q3,
-    SUM(CASE WHEN f.trimestre = 3 THEN f.totalIva    ELSE 0 END) AS q3Iva,
-    SUM(CASE WHEN f.trimestre = 4 THEN f.totalFactura ELSE 0 END) AS q4,
-    SUM(CASE WHEN f.trimestre = 4 THEN f.totalIva    ELSE 0 END) AS q4Iva,
-    SUM(f.totalIva)      AS totalIva,
-    SUM(f.totalFactura)  AS total
-FROM (
-    SELECT
-        fac.idCliente,
-        YEAR(fac.Fecha)    AS ejercicio,
-        QUARTER(fac.Fecha) AS trimestre,
-        fac.total          AS totalFactura,
-        SUM(fiva.importeIva) AS totalIva
-    FROM facclit fac
-    JOIN faccliIva fiva ON fiva.idfaccli = fac.id
-    WHERE fac.estado <> 'Sin Guardar'
-    GROUP BY fac.id
-) f
-JOIN clientes c ON c.idClientes = f.idCliente
-GROUP BY c.idClientes, c.nif, f.ejercicio;
+DROP TABLE IF EXISTS `vw_resumenClientesFacturas`;
+/*!50001 DROP VIEW IF EXISTS `vw_resumenClientesFacturas`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8mb4;
+/*!50001 CREATE VIEW `vw_resumenClientesFacturas` AS SELECT
+ 1 AS `idCliente`,
+  1 AS `nif`,
+  1 AS `ejercicio`,
+  1 AS `q1`,
+  1 AS `q1Iva`,
+  1 AS `q2`,
+  1 AS `q2Iva`,
+  1 AS `q3`,
+  1 AS `q3Iva`,
+  1 AS `q4`,
+  1 AS `q4Iva`,
+  1 AS `totalIva`,
+  1 AS `total` */;
+SET character_set_client = @saved_cs_client;
 
 --
--- Vista `vw_resumenClientesTickets`
+-- Temporary table structure for view `vw_resumenClientesTickets`
 --
 
-CREATE OR REPLACE VIEW vw_resumenClientesTickets AS
-SELECT
-    c.idClientes AS idCliente,
-    c.nif,
-    t.ejercicio,
-    SUM(CASE WHEN t.trimestre = 1 THEN t.totalTicket ELSE 0 END) AS q1,
-    SUM(CASE WHEN t.trimestre = 1 THEN t.totalIva    ELSE 0 END) AS q1Iva,
-    SUM(CASE WHEN t.trimestre = 2 THEN t.totalTicket ELSE 0 END) AS q2,
-    SUM(CASE WHEN t.trimestre = 2 THEN t.totalIva    ELSE 0 END) AS q2Iva,
-    SUM(CASE WHEN t.trimestre = 3 THEN t.totalTicket ELSE 0 END) AS q3,
-    SUM(CASE WHEN t.trimestre = 3 THEN t.totalIva    ELSE 0 END) AS q3Iva,
-    SUM(CASE WHEN t.trimestre = 4 THEN t.totalTicket ELSE 0 END) AS q4,
-    SUM(CASE WHEN t.trimestre = 4 THEN t.totalIva    ELSE 0 END) AS q4Iva,
-    SUM(t.totalIva)     AS totalIva,
-    SUM(t.totalTicket)  AS total
-FROM (
-    SELECT
-        tick.idCliente,
-        YEAR(tick.Fecha)    AS ejercicio,
-        QUARTER(tick.Fecha) AS trimestre,
-        tick.total          AS totalTicket,
-        SUM(tiva.importeIva) AS totalIva
-    FROM ticketst tick
-    JOIN ticketstIva tiva ON tiva.idticketst = tick.id
-    WHERE tick.estado = 'Cerrado'
-    GROUP BY tick.id
-) t
-JOIN clientes c ON c.idClientes = t.idCliente
-GROUP BY c.idClientes, c.nif, t.ejercicio;
+DROP TABLE IF EXISTS `vw_resumenClientesTickets`;
+/*!50001 DROP VIEW IF EXISTS `vw_resumenClientesTickets`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8mb4;
+/*!50001 CREATE VIEW `vw_resumenClientesTickets` AS SELECT
+ 1 AS `idCliente`,
+  1 AS `nif`,
+  1 AS `ejercicio`,
+  1 AS `q1`,
+  1 AS `q1Iva`,
+  1 AS `q2`,
+  1 AS `q2Iva`,
+  1 AS `q3`,
+  1 AS `q3Iva`,
+  1 AS `q4`,
+  1 AS `q4Iva`,
+  1 AS `total`,
+  1 AS `totalIva` */;
+SET character_set_client = @saved_cs_client;
 
 --
--- Vista `vw_resumenProveedoresFacturas`
+-- Temporary table structure for view `vw_resumenProveedoresFacturas`
 --
 
-CREATE OR REPLACE VIEW vw_resumenProveedoresFacturas AS
-SELECT
-    p.idProveedor,
-    p.nif,
-    f.ejercicio,
-    SUM(CASE WHEN f.trimestre = 1 THEN f.totalFactura ELSE 0 END) AS q1,
-    SUM(CASE WHEN f.trimestre = 1 THEN f.totalIva    ELSE 0 END) AS q1Iva,
-    SUM(CASE WHEN f.trimestre = 2 THEN f.totalFactura ELSE 0 END) AS q2,
-    SUM(CASE WHEN f.trimestre = 2 THEN f.totalIva    ELSE 0 END) AS q2Iva,
-    SUM(CASE WHEN f.trimestre = 3 THEN f.totalFactura ELSE 0 END) AS q3,
-    SUM(CASE WHEN f.trimestre = 3 THEN f.totalIva    ELSE 0 END) AS q3Iva,
-    SUM(CASE WHEN f.trimestre = 4 THEN f.totalFactura ELSE 0 END) AS q4,
-    SUM(CASE WHEN f.trimestre = 4 THEN f.totalIva    ELSE 0 END) AS q4Iva,
-    SUM(f.totalIva)     AS totalIva,
-    SUM(f.totalFactura) AS total
-FROM (
-    SELECT
-        fac.idProveedor,
-        YEAR(fac.Fecha)    AS ejercicio,
-        QUARTER(fac.Fecha) AS trimestre,
-        fac.total          AS totalFactura,
-        SUM(fiva.importeIva) AS totalIva
-    FROM facprot fac
-    JOIN facproIva fiva ON fiva.idfacpro = fac.id
-    WHERE fac.estado <> 'Sin Guardar'
-    GROUP BY fac.id
-) f
-JOIN proveedores p ON p.idProveedor = f.idProveedor
-GROUP BY p.idProveedor, p.nif, f.ejercicio;
+DROP TABLE IF EXISTS `vw_resumenProveedoresFacturas`;
+/*!50001 DROP VIEW IF EXISTS `vw_resumenProveedoresFacturas`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8mb4;
+/*!50001 CREATE VIEW `vw_resumenProveedoresFacturas` AS SELECT
+ 1 AS `idProveedor`,
+  1 AS `nif`,
+  1 AS `ejercicio`,
+  1 AS `q1`,
+  1 AS `q1Iva`,
+  1 AS `q2`,
+  1 AS `q2Iva`,
+  1 AS `q3`,
+  1 AS `q3Iva`,
+  1 AS `q4`,
+  1 AS `q4Iva`,
+  1 AS `total`,
+  1 AS `totalIva` */;
+SET character_set_client = @saved_cs_client;
 
-COMMIT;
+--
+-- Dumping events for database 'tpvfox'
+--
 
+--
+-- Dumping routines for database 'tpvfox'
+--
+
+--
+-- Final view structure for view `vw_jerarquias_familias`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_jerarquias_familias`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb3 */;
+/*!50001 SET character_set_results     = utf8mb3 */;
+/*!50001 SET collation_connection      = utf8mb3_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_jerarquias_familias` AS with recursive ArbolFamilias as (select `familias`.`idFamilia` AS `idFamilia`,`familias`.`familiaNombre` AS `familiaNombre`,`familias`.`familiaPadre` AS `familiaPadre`,1 AS `nivel`,`familias`.`idFamilia` AS `idN1`,cast(NULL as unsigned) AS `idN2`,cast(`familias`.`familiaNombre` as char(500) charset utf8mb3) AS `ruta` from `familias` where `familias`.`familiaPadre` = 0 or `familias`.`familiaPadre` is null union all select `f`.`idFamilia` AS `idFamilia`,`f`.`familiaNombre` AS `familiaNombre`,`f`.`familiaPadre` AS `familiaPadre`,`af`.`nivel` + 1 AS `af.nivel + 1`,`af`.`idN1` AS `idN1`,case when `af`.`nivel` = 1 then `f`.`idFamilia` else `af`.`idN2` end,concat(`af`.`ruta`,' > ',`f`.`familiaNombre`) AS `CONCAT(af.ruta, ' > ', f.familiaNombre)` from (`familias` `f` join `ArbolFamilias` `af` on(`f`.`familiaPadre` = `af`.`idFamilia`)))select `ArbolFamilias`.`idFamilia` AS `idFamilia`,`ArbolFamilias`.`nivel` AS `nivel`,`ArbolFamilias`.`familiaNombre` AS `familiaNombre`,`ArbolFamilias`.`idN1` AS `idN1`,`ArbolFamilias`.`idN2` AS `idN2`,`ArbolFamilias`.`familiaPadre` AS `familiaPadre`,`ArbolFamilias`.`ruta` AS `ruta` from `ArbolFamilias` order by `ArbolFamilias`.`ruta` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vw_resumenClientesFacturas`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_resumenClientesFacturas`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_resumenClientesFacturas` AS select 1 AS `idCliente`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `totalIva`,1 AS `total` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vw_resumenClientesTickets`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_resumenClientesTickets`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_resumenClientesTickets` AS select 1 AS `idCliente`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `total`,1 AS `totalIva` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vw_resumenProveedoresFacturas`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_resumenProveedoresFacturas`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_resumenProveedoresFacturas` AS select 1 AS `idProveedor`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `total`,1 AS `totalIva` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed
