@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW vw_resumenClientesFacturas AS
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenClientesFacturas AS
 SELECT
     c.idClientes AS idCliente,
     c.nif,
@@ -28,7 +28,7 @@ FROM (
 JOIN clientes c ON c.idClientes = f.idCliente
 GROUP BY c.idClientes, c.nif, f.ejercicio;
 
-CREATE OR REPLACE VIEW vw_resumenClientesTickets AS
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenClientesTickets AS
 SELECT
     c.idClientes AS idCliente,
     c.nif,
@@ -58,7 +58,7 @@ FROM (
 JOIN clientes c ON c.idClientes = t.idCliente
 GROUP BY c.idClientes, c.nif, t.ejercicio;
 
-CREATE OR REPLACE VIEW vw_resumenProveedoresFacturas AS
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenProveedoresFacturas AS
 SELECT
     p.idProveedor,
     p.nif,

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW vw_jerarquias_familias AS
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_jerarquias_familias AS
 WITH RECURSIVE ArbolFamilias AS (
     -- 1. CASO BASE: Nivel 1 (Los Departamentos)
     SELECT
