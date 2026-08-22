@@ -1878,12 +1878,51 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb3 */;
-/*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8mb3_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `vw_jerarquias_familias` AS with recursive ArbolFamilias as (select `familias`.`idFamilia` AS `idFamilia`,`familias`.`familiaNombre` AS `familiaNombre`,`familias`.`familiaPadre` AS `familiaPadre`,1 AS `nivel`,`familias`.`idFamilia` AS `idN1`,cast(NULL as unsigned) AS `idN2`,cast(`familias`.`familiaNombre` as char(500) charset utf8mb3) AS `ruta` from `familias` where `familias`.`familiaPadre` = 0 or `familias`.`familiaPadre` is null union all select `f`.`idFamilia` AS `idFamilia`,`f`.`familiaNombre` AS `familiaNombre`,`f`.`familiaPadre` AS `familiaPadre`,`af`.`nivel` + 1 AS `af.nivel + 1`,`af`.`idN1` AS `idN1`,case when `af`.`nivel` = 1 then `f`.`idFamilia` else `af`.`idN2` end,concat(`af`.`ruta`,' > ',`f`.`familiaNombre`) AS `CONCAT(af.ruta, ' > ', f.familiaNombre)` from (`familias` `f` join `ArbolFamilias` `af` on(`f`.`familiaPadre` = `af`.`idFamilia`)))select `ArbolFamilias`.`idFamilia` AS `idFamilia`,`ArbolFamilias`.`nivel` AS `nivel`,`ArbolFamilias`.`familiaNombre` AS `familiaNombre`,`ArbolFamilias`.`idN1` AS `idN1`,`ArbolFamilias`.`idN2` AS `idN2`,`ArbolFamilias`.`familiaPadre` AS `familiaPadre`,`ArbolFamilias`.`ruta` AS `ruta` from `ArbolFamilias` order by `ArbolFamilias`.`ruta` */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_general_ci */;
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_jerarquias_familias AS
+WITH RECURSIVE ArbolFamilias AS (
+    -- 1. CASO BASE: Nivel 1 (Los Departamentos)
+    SELECT
+        idFamilia,
+        familiaNombre,
+        familiaPadre,
+        1 AS nivel,
+        idFamilia AS idN1,          -- Ella misma es su N1
+        CAST(NULL AS UNSIGNED) AS idN2, -- No tiene N2 aún
+        CAST(familiaNombre AS CHAR(500)) AS ruta
+    FROM familias
+    WHERE familiaPadre = 0 OR familiaPadre IS NULL
+
+    UNION ALL
+
+    -- 2. CASO RECURSIVO: Niveles 2, 3, 4...
+    SELECT
+        f.idFamilia,
+        f.familiaNombre,
+        f.familiaPadre,
+        af.nivel + 1,
+        af.idN1,                    -- Hereda el N1 del padre siempre
+        CASE
+            WHEN af.nivel = 1 THEN f.idFamilia -- Si el padre es N1, ella es el N2
+            ELSE af.idN2                       -- Si no, hereda el N2 que ya traía el padre
+        END,
+        CONCAT(af.ruta, ' > ', f.familiaNombre)
+    FROM familias f
+    INNER JOIN ArbolFamilias af ON f.familiaPadre = af.idFamilia
+)
+-- 3. RESULTADO FINAL DE LA VISTA
+SELECT
+    idFamilia,
+    nivel,
+    familiaNombre,
+    idN1,
+    idN2,
+    familiaPadre,
+    ruta
+FROM ArbolFamilias
+ORDER BY ruta;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1899,9 +1938,35 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `vw_resumenClientesFacturas` AS select 1 AS `idCliente`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `totalIva`,1 AS `total` */;
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenClientesFacturas AS
+SELECT
+    c.idClientes AS idCliente,
+    c.nif,
+    f.ejercicio,
+    SUM(CASE WHEN f.trimestre = 1 THEN f.totalFactura ELSE 0 END) AS q1,
+    SUM(CASE WHEN f.trimestre = 1 THEN f.totalIva ELSE 0 END) AS q1Iva,
+    SUM(CASE WHEN f.trimestre = 2 THEN f.totalFactura ELSE 0 END) AS q2,
+    SUM(CASE WHEN f.trimestre = 2 THEN f.totalIva ELSE 0 END) AS q2Iva,
+    SUM(CASE WHEN f.trimestre = 3 THEN f.totalFactura ELSE 0 END) AS q3,
+    SUM(CASE WHEN f.trimestre = 3 THEN f.totalIva ELSE 0 END) AS q3Iva,
+    SUM(CASE WHEN f.trimestre = 4 THEN f.totalFactura ELSE 0 END) AS q4,
+    SUM(CASE WHEN f.trimestre = 4 THEN f.totalIva ELSE 0 END) AS q4Iva,
+    SUM(f.totalIva) AS totalIva,
+    SUM(f.totalFactura) AS total
+FROM (
+    SELECT
+        fac.idCliente,
+        YEAR(fac.Fecha) AS ejercicio,
+        QUARTER(fac.Fecha) AS trimestre,
+        fac.total AS totalFactura,
+        SUM(fiva.importeIva) AS totalIva
+    FROM facclit fac
+    JOIN faccliIva fiva ON fiva.idfaccli = fac.id
+    WHERE fac.estado <> 'Sin Guardar'
+    GROUP BY fac.id -- Agrupamos por ID de factura para obtener su IVA total
+) f
+JOIN clientes c ON c.idClientes = f.idCliente
+GROUP BY c.idClientes, c.nif, f.ejercicio;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1917,9 +1982,35 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `vw_resumenClientesTickets` AS select 1 AS `idCliente`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `total`,1 AS `totalIva` */;
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenClientesTickets AS
+SELECT
+    c.idClientes AS idCliente,
+    c.nif,
+    t.ejercicio,
+    SUM(CASE WHEN t.trimestre = 1 THEN t.totalTicket ELSE 0 END) AS q1,
+    SUM(CASE WHEN t.trimestre = 1 THEN t.totalIva ELSE 0 END) AS q1Iva,
+    SUM(CASE WHEN t.trimestre = 2 THEN t.totalTicket ELSE 0 END) AS q2,
+    SUM(CASE WHEN t.trimestre = 2 THEN t.totalIva ELSE 0 END) AS q2Iva,
+    SUM(CASE WHEN t.trimestre = 3 THEN t.totalTicket ELSE 0 END) AS q3,
+    SUM(CASE WHEN t.trimestre = 3 THEN t.totalIva ELSE 0 END) AS q3Iva,
+    SUM(CASE WHEN t.trimestre = 4 THEN t.totalTicket ELSE 0 END) AS q4,
+    SUM(CASE WHEN t.trimestre = 4 THEN t.totalIva ELSE 0 END) AS q4Iva,
+    SUM(t.totalIva) AS totalIva,
+    SUM(t.totalTicket) AS total
+FROM (
+    SELECT
+        tick.idCliente,
+        YEAR(tick.Fecha) AS ejercicio,
+        QUARTER(tick.Fecha) AS trimestre,
+        tick.total AS totalTicket,
+        SUM(tiva.importeIva) AS totalIva
+    FROM ticketst tick
+    JOIN ticketstIva tiva ON tiva.idticketst = tick.id
+    WHERE tick.estado = 'Cerrado'
+    GROUP BY tick.id
+) t
+JOIN clientes c ON c.idClientes = t.idCliente
+GROUP BY c.idClientes, c.nif, t.ejercicio;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1935,9 +2026,38 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = utf8mb4 */;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`tpvfox`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `vw_resumenProveedoresFacturas` AS select 1 AS `idProveedor`,1 AS `nif`,1 AS `ejercicio`,1 AS `q1`,1 AS `q1Iva`,1 AS `q2`,1 AS `q2Iva`,1 AS `q3`,1 AS `q3Iva`,1 AS `q4`,1 AS `q4Iva`,1 AS `total`,1 AS `totalIva` */;
+CREATE OR REPLACE SQL SECURITY INVOKER VIEW vw_resumenProveedoresFacturas AS
+SELECT
+    p.idProveedor,
+    p.nif,
+    f.ejercicio,
+    -- Agregación por trimestres
+    SUM(CASE WHEN f.trimestre = 1 THEN f.totalFactura ELSE 0 END) AS q1,
+    SUM(CASE WHEN f.trimestre = 1 THEN f.totalIva ELSE 0 END) AS q1Iva,
+    SUM(CASE WHEN f.trimestre = 2 THEN f.totalFactura ELSE 0 END) AS q2,
+    SUM(CASE WHEN f.trimestre = 2 THEN f.totalIva ELSE 0 END) AS q2Iva,
+    SUM(CASE WHEN f.trimestre = 3 THEN f.totalFactura ELSE 0 END) AS q3,
+    SUM(CASE WHEN f.trimestre = 3 THEN f.totalIva ELSE 0 END) AS q3Iva,
+    SUM(CASE WHEN f.trimestre = 4 THEN f.totalFactura ELSE 0 END) AS q4,
+    SUM(CASE WHEN f.trimestre = 4 THEN f.totalIva ELSE 0 END) AS q4Iva,
+    -- Totales anuales
+    SUM(f.totalIva) AS totalIva,
+    SUM(f.totalFactura) AS total
+FROM (
+    -- Subconsulta para calcular el IVA por factura primero
+    SELECT
+        fac.idProveedor,
+        YEAR(fac.Fecha) AS ejercicio,
+        QUARTER(fac.Fecha) AS trimestre,
+        fac.total AS totalFactura,
+        SUM(fiva.importeIva) AS totalIva
+    FROM facprot fac
+    JOIN facproIva fiva ON fiva.idfacpro = fac.id
+    WHERE fac.estado <> 'Sin Guardar'
+    GROUP BY fac.id -- Agrupamos por ID de factura para tener el IVA total de cada una
+) f
+JOIN proveedores p ON p.idProveedor = f.idProveedor
+GROUP BY p.idProveedor, p.nif, f.ejercicio;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
