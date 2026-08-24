@@ -1,6 +1,7 @@
 <?php
 
 include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
+include_once $URLCom . '/controllers/parametros.php';
 
 // @ Objetivo
 // Fijar ejercicio y tienda desde la sesión activa, comprobar que el esquema y los
@@ -9,4 +10,179 @@ include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
 // con el motivo; nunca deja pasar un resultado vacío.
 class ClaseComprobacionContexto extends TFModelo
 {
+    // Vista y tablas de las que depende la lectura, además del catálogo.
+    private $objetosDelEsquemaRequeridos = array(
+        'vw_jerarquias_familias',
+        'articulos',
+        'albprot',
+        'albprolinea',
+        'ticketst',
+        'ticketslinea',
+        'albclit',
+        'albclilinea',
+    );
+
+    // Umbrales y ventana de la sección posstock de mod_informes/parametros.xml.
+    private $parametrosDeCriterioRequeridos = array(
+        'ventana_dias',
+        'umbral_sobrestock',
+    );
+
+    private $rutaParametrosInformes = '/modulos/mod_informes/parametros.xml';
+    private $rutaParametrosModulo = '/modulos/mod_reorganizacion/parametros.xml';
+    private $rutaProveedorCierre = 'configuracion/cierre_stock_anual/ajustes_globales/proveedor';
+    private $rutaFamiliasExcluidas = 'configuracion/cierre_stock_anual/familias_excluidas';
+
+    public function __construct(
+        $objetosDelEsquemaRequeridos = null,
+        $parametrosDeCriterioRequeridos = null,
+        $rutaProveedorCierre = null,
+        $rutaFamiliasExcluidas = null
+    ) {
+        // @ Objetivo
+        // Admitir, solo para comprobación, listas o rutas distintas de las que exige el
+        // criterio real: así se puede probar que la ausencia de cualquiera de ellas
+        // detiene la ejecución sin tocar la instalación real.
+        // @ Parametros
+        //      $objetosDelEsquemaRequeridos -> array, opcional. Sin él, exige el real.
+        //      $parametrosDeCriterioRequeridos -> array, opcional. Sin él, exige el real.
+        //      $rutaProveedorCierre -> string, opcional. Sin ella, exige la real.
+        //      $rutaFamiliasExcluidas -> string, opcional. Sin ella, exige la real.
+        if ($objetosDelEsquemaRequeridos !== null) {
+            $this->objetosDelEsquemaRequeridos = $objetosDelEsquemaRequeridos;
+        }
+        if ($parametrosDeCriterioRequeridos !== null) {
+            $this->parametrosDeCriterioRequeridos = $parametrosDeCriterioRequeridos;
+        }
+        if ($rutaProveedorCierre !== null) {
+            $this->rutaProveedorCierre = $rutaProveedorCierre;
+        }
+        if ($rutaFamiliasExcluidas !== null) {
+            $this->rutaFamiliasExcluidas = $rutaFamiliasExcluidas;
+        }
+    }
+
+    public function abrir()
+    {
+        // @ Objetivo
+        // Recorrer sesión, esquema, parámetros y apertura del bloque de lectura, en
+        // ese orden.
+        // @ Devolvemos
+        //      array ['ok' => true, 'ano' => .., 'idTienda' => ..] si todo está listo.
+        //      array ['ok' => false, 'motivo' => ..] en la primera comprobación que falle.
+        $sesion = $this->deLaSesion();
+        if ($sesion === null) {
+            return $this->parada('No hay ejercicio ni tienda establecidos en la sesión');
+        }
+
+        $objetoAusente = $this->objetoDelEsquemaAusente();
+        if ($objetoAusente !== null) {
+            return $this->parada('Falta en el esquema: ' . $objetoAusente);
+        }
+
+        $parametroAusente = $this->parametroDeCriterioAusente();
+        if ($parametroAusente !== null) {
+            return $this->parada('Falta el parámetro: ' . $parametroAusente);
+        }
+
+        if (!$this->abrirBloqueDeLectura()) {
+            return $this->parada('El motor no admite el bloque de lectura de solo lectura');
+        }
+
+        return array(
+            'ok' => true,
+            'ano' => $sesion['ano'],
+            'idTienda' => $sesion['idTienda'],
+        );
+    }
+
+    public function cerrar()
+    {
+        // @ Objetivo
+        // Cerrar el bloque de lectura abierto por abrir(). Ninguna ejecución lo deja
+        // pendiente.
+        $this->conexionBDTPV()->query('COMMIT');
+    }
+
+    private function deLaSesion()
+    {
+        // @ Objetivo
+        // Tomar ejercicio y tienda de la sesión activa, sin derivarlos de ningún otro
+        // sitio.
+        // @ Devolvemos
+        //      array ['ano' => .., 'idTienda' => ..] o null si no están establecidos.
+        if (!isset($_SESSION['tiendaTpv']['ano']) || !isset($_SESSION['tiendaTpv']['idTienda'])) {
+            return null;
+        }
+
+        return array(
+            'ano' => $_SESSION['tiendaTpv']['ano'],
+            'idTienda' => $_SESSION['tiendaTpv']['idTienda'],
+        );
+    }
+
+    private function objetoDelEsquemaAusente()
+    {
+        // @ Objetivo
+        // Comprobar que existen la vista y las tablas de las que depende la lectura.
+        // @ Devolvemos
+        //      string con el nombre del primer objeto que falte, o null si están todos.
+        $db = $this->conexionBDTPV();
+        foreach ($this->objetosDelEsquemaRequeridos as $objeto) {
+            $resultado = $db->query("SHOW TABLES LIKE '" . $objeto . "'");
+            if ($resultado === false || $resultado->num_rows === 0) {
+                return $objeto;
+            }
+        }
+
+        return null;
+    }
+
+    private function parametroDeCriterioAusente()
+    {
+        // @ Objetivo
+        // Comprobar que están presentes los parámetros de los que depende el criterio:
+        // umbrales y ventana de mod_informes/parametros.xml, proveedor de cierre y
+        // familias excluidas de mod_reorganizacion/parametros.xml.
+        // @ Devolvemos
+        //      string con la ruta del primer parámetro que falte, o null si están todos.
+        global $URLCom;
+
+        $informes = new ClaseParametros($URLCom . $this->rutaParametrosInformes);
+        $posstock = $informes->getNode('configuracion/posstock');
+        foreach ($this->parametrosDeCriterioRequeridos as $parametro) {
+            if ($posstock === null || !isset($posstock->$parametro) || (string) $posstock->$parametro === '') {
+                return 'posstock/' . $parametro;
+            }
+        }
+
+        $modulo = new ClaseParametros($URLCom . $this->rutaParametrosModulo);
+        if ($modulo->getNode($this->rutaProveedorCierre) === null) {
+            return 'cierre_stock_anual/ajustes_globales/proveedor';
+        }
+        if ($modulo->getNode($this->rutaFamiliasExcluidas) === null) {
+            return 'cierre_stock_anual/familias_excluidas';
+        }
+
+        return null;
+    }
+
+    private function abrirBloqueDeLectura()
+    {
+        // @ Objetivo
+        // Abrir el bloque de lectura en una transacción de solo lectura. Si el motor
+        // no la admite, la apertura misma es la comprobación de que no la sostiene.
+        // @ Devolvemos
+        //      bool true si se abrió, false si no.
+        try {
+            return $this->conexionBDTPV()->query('START TRANSACTION READ ONLY') !== false;
+        } catch (mysqli_sql_exception $motorNoLoAdmite) {
+            return false;
+        }
+    }
+
+    private function parada($motivo)
+    {
+        return array('ok' => false, 'motivo' => $motivo);
+    }
 }
