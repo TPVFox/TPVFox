@@ -6,7 +6,7 @@
 // seguro, no seguro, dudoso o no comparable— con el marcado de existencia negativa,
 // que no se absorbe en el estado. No lee la base: opera sobre lo que ya le llega
 // compuesto.
-class ClaseComprobacionClasificacion
+class ClaseComprobacionStockClasificacion
 {
     public function clasificar($filas)
     {

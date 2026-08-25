@@ -10,7 +10,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 //
 // No lee la base: las líneas de cada origen se las pide a la clase de consulta, y
 // qué significa cada una —qué suma, qué resta y qué abre lote— lo decide aquí.
-class ClaseComprobacionMinimo
+class ClaseComprobacionStockMinimo
 {
     private $consulta = null;
 
@@ -20,8 +20,8 @@ class ClaseComprobacionMinimo
         // Para cada fila admitida, leer sus movimientos del ejercicio anterior, formar
         // los lotes y determinar el stock justificado con su margen y condiciones.
         // @ Parametros
-        //      $filas -> array de filas emparejadas (ClaseComprobacionAdmision::admitir()).
-        //      $contextoOperacion -> array, la salida de ClaseComprobacionContexto::abrir()
+        //      $filas -> array de filas emparejadas (ClaseComprobacionStockAdmision::admitir()).
+        //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir()
         //          en este ejercicio (el anterior): fija tienda y el borde del calendario.
         //      $proveedorTraspaso -> int, el proveedor que declara el fichero admitido:
         //          sus albaranes son los dos traspasos y quedan fuera de la ventana, sin

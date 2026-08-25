@@ -10,7 +10,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 //
 // No lee la base: todo lo que necesita se lo pide a la clase de consulta, y lo que
 // hace con lo leído es la decisión.
-class ClaseComprobacionExtraccion
+class ClaseComprobacionStockExtraccion
 {
     private $consulta = null;
 
@@ -20,7 +20,7 @@ class ClaseComprobacionExtraccion
         // Recorrer el catálogo completo, componer su trayectoria de existencias y
         // devolver el estado solo de los productos cuya trayectoria alcanzó negativo.
         // @ Parametros
-        //      $contextoOperacion -> array, la salida de ClaseComprobacionContexto::abrir().
+        //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir().
         //      $modoEstricto -> bool, opcional. Trunca a cero el saldo de partida.
         //      $fechaCorte -> string 'AAAA-MM-DD', opcional. Por defecto, hoy.
         // @ Devolvemos

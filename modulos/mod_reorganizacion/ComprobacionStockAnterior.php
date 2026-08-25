@@ -25,21 +25,21 @@ if ($ClasePermisos->getAccion('admitir') == 0) {
                 <h2>Comprobación de existencias — ejercicio anterior</h2>
             </div>
             <div class="col-md-12">
-                <form id="formAdmitirComprobacion" enctype="multipart/form-data">
+                <form id="formAdmitirComprobacionStock" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="ficheroComprobacion">Fichero de intercambio (XML) del ejercicio vigente</label>
-                        <input class="form-control" type="file" id="ficheroComprobacion" name="ficheroComprobacion" accept=".xml" required>
+                        <label for="ficheroComprobacionStock">Fichero de intercambio (XML) del ejercicio vigente</label>
+                        <input class="form-control" type="file" id="ficheroComprobacionStock" name="ficheroComprobacionStock" accept=".xml" required>
                     </div>
-                    <button type="button" class="btn btn-primary" id="btnComprobacionAnteriorAdmitir">Admitir</button>
+                    <button type="button" class="btn btn-primary" id="btnComprobacionStockAnteriorAdmitir">Admitir</button>
                 </form>
 
                 <?php if ($ClasePermisos->getAccion('exportar') == 1) : ?>
-                    <button id="btnComprobacionAnteriorExportar" type="button" class="btn btn-default" disabled>
+                    <button id="btnComprobacionStockAnteriorExportar" type="button" class="btn btn-default" disabled>
                         <span class="glyphicon glyphicon-download-alt"></span> Descargar informe final
                     </button>
                 <?php endif; ?>
 
-                <div id="areaComprobacionAnterior"></div>
+                <div id="areaComprobacionStockAnterior"></div>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@ if ($ClasePermisos->getAccion('admitir') == 0) {
 
 <script type="text/javascript">
     $(function() {
-        $('#btnComprobacionAnteriorAdmitir').on('click', admitirComprobacionAnterior);
-        $('#btnComprobacionAnteriorExportar').on('click', exportarInformeComprobacionAnterior);
+        $('#btnComprobacionStockAnteriorAdmitir').on('click', admitirComprobacionStockAnterior);
+        $('#btnComprobacionStockAnteriorExportar').on('click', exportarInformeComprobacionStockAnterior);
     });
 </script>

@@ -361,18 +361,18 @@ function normalizarProductos($idsProductos)
     return array_values($idsProductosUnicos);
 }
 
-function htmlTablaComprobacionVigente($composicion)
+function htmlTablaComprobacionStockVigente($composicion)
 {
     // @ Objetivo:
     // Montar la tabla de resultados de la comprobación del ejercicio vigente: la
     // misma composición que, si el operador la descarga, también alimenta el
     // fichero de intercambio.
     // @ parametros:
-    //      $composicion -> array, la salida de ClaseComprobacionEmision::componer().
+    //      $composicion -> array, la salida de ClaseComprobacionStockEmision::componer().
     $html = '<p>' . count($composicion['filas']) . ' producto(s) con existencia negativa en algún punto del ejercicio.</p>';
-    $html .= '<table class="table table-bordered table-hover" id="tablaComprobacionVigente">';
+    $html .= '<table class="table table-bordered table-hover" id="tablaComprobacionStockVigente">';
     $html .= '<thead><tr>'
-        . '<th><input type="checkbox" id="chkComprobacionVigenteTodos" checked></th>'
+        . '<th><input type="checkbox" id="chkComprobacionStockVigenteTodos" checked></th>'
         . '<th>Artículo</th>'
         . '<th>Saldo al corte</th>'
         . '<th>Mínimo alcanzado</th>'
@@ -383,7 +383,7 @@ function htmlTablaComprobacionVigente($composicion)
         . '</tr></thead><tbody>';
     foreach ($composicion['filas'] as $fila) {
         $html .= '<tr>'
-            . '<td><input type="checkbox" class="chkComprobacionVigenteArticulo" value="' . (int) $fila['idArticulo'] . '" checked></td>'
+            . '<td><input type="checkbox" class="chkComprobacionStockVigenteArticulo" value="' . (int) $fila['idArticulo'] . '" checked></td>'
             . '<td>' . (int) $fila['idArticulo'] . '</td>'
             . '<td>' . htmlspecialchars((string) $fila['saldoAlCorte']) . '</td>'
             . '<td>' . htmlspecialchars((string) $fila['minimoAlcanzado']) . '</td>'

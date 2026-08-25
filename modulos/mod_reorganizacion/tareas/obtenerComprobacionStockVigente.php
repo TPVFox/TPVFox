@@ -7,18 +7,18 @@
 
 $modoEstricto = isset($_POST['modoEstricto']) && $_POST['modoEstricto'] === '1';
 
-$contextoClase = new ClaseComprobacionContexto();
+$contextoClase = new ClaseComprobacionStockContexto();
 $apertura = $contextoClase->abrir();
 
 if (!$apertura['ok']) {
     $respuesta = array('ok' => false, 'motivo' => $apertura['motivo']);
 } else {
-    $extraccion = new ClaseComprobacionExtraccion();
+    $extraccion = new ClaseComprobacionStockExtraccion();
     $estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
     $contextoClase->cerrar();
 
-    $emision = new ClaseComprobacionEmision();
+    $emision = new ClaseComprobacionStockEmision();
     $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto);
 
-    $respuesta = array('ok' => true, 'html' => htmlTablaComprobacionVigente($composicion));
+    $respuesta = array('ok' => true, 'html' => htmlTablaComprobacionStockVigente($composicion));
 }

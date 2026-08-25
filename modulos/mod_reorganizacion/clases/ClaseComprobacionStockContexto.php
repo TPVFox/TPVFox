@@ -12,7 +12,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 // No lee la base: qué objetos del esquema hacen falta y en qué orden se comprueban
 // se decide aquí; si cada uno está presente, y la apertura misma, lo resuelve la
 // clase de consulta.
-class ClaseComprobacionContexto
+class ClaseComprobacionStockContexto
 {
     private $consulta = null;
 

@@ -32,12 +32,12 @@ include_once '../mod_producto/clases/ClaseArticulosStocks.php';
 include_once 'funciones.php';
 
 // Comprobación de existencias en el cambio de año.
-include_once './clases/ClaseComprobacionContexto.php';
-include_once './clases/ClaseComprobacionExtraccion.php';
-include_once './clases/ClaseComprobacionEmision.php';
-include_once './clases/ClaseComprobacionAdmision.php';
-include_once './clases/ClaseComprobacionMinimo.php';
-include_once './clases/ClaseComprobacionClasificacion.php';
+include_once './clases/ClaseComprobacionStockContexto.php';
+include_once './clases/ClaseComprobacionStockExtraccion.php';
+include_once './clases/ClaseComprobacionStockEmision.php';
+include_once './clases/ClaseComprobacionStockAdmision.php';
+include_once './clases/ClaseComprobacionStockMinimo.php';
+include_once './clases/ClaseComprobacionStockClasificacion.php';
 
 switch ($pulsado) {
 
@@ -377,23 +377,23 @@ switch ($pulsado) {
         break;
 
     // Comprobación de existencias — ejercicio vigente.
-    case 'obtenerComprobacionVigente':
-        include_once 'tareas/obtenerComprobacionVigente.php';
+    case 'obtenerComprobacionStockVigente':
+        include_once 'tareas/obtenerComprobacionStockVigente.php';
         echo json_encode($respuesta);
         break;
-    case 'exportarComprobacionXML':
+    case 'exportarComprobacionStockXML':
         // El fichero include emite cabeceras HTTP + XML y llama a exit(), por lo
         // que no llega a haber ningún json_encode que ejecutar aquí.
-        include_once 'tareas/exportarComprobacionXML.php';
+        include_once 'tareas/exportarComprobacionStockXML.php';
         break;
 
     // Comprobación de existencias — ejercicio anterior.
-    case 'admitirComprobacion':
+    case 'admitirComprobacionStock':
         // El fichero include hace su propio json_encode y exit().
-        include_once 'tareas/admitirComprobacion.php';
+        include_once 'tareas/admitirComprobacionStock.php';
         break;
-    case 'exportarInformeComprobacion':
+    case 'exportarInformeComprobacionStock':
         // El fichero include emite cabeceras HTTP + CSV y llama a exit().
-        include_once 'tareas/exportarInformeComprobacion.php';
+        include_once 'tareas/exportarInformeComprobacionStock.php';
         break;
 }

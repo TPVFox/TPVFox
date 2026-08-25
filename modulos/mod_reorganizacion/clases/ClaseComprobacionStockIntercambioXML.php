@@ -5,7 +5,7 @@
 // contenido que viaja dentro del fichero. La misma conversión sirve para emitir y
 // para admitir: el resumen se recalcula igual en los dos sentidos porque se compone
 // desde los mismos campos, en el mismo orden, nunca desde el marcado XML en bruto.
-class ClaseComprobacionIntercambioXML
+class ClaseComprobacionStockIntercambioXML
 {
     public static function arrayToSimpleXML($composicion)
     {

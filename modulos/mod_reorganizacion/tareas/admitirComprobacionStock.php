@@ -9,17 +9,17 @@
 header('Content-Type: application/json');
 
 try {
-    $contextoClase = new ClaseComprobacionContexto();
+    $contextoClase = new ClaseComprobacionStockContexto();
     $apertura = $contextoClase->abrir();
     if (!$apertura['ok']) {
         echo json_encode(array('ok' => false, 'message' => $apertura['motivo']));
         exit;
     }
 
-    $io = ClaseIOXML::desdeSubida('ficheroComprobacion', null, $RutaServidor . $rutatmp . '/');
+    $io = ClaseIOXML::desdeSubida('ficheroComprobacionStock', null, $RutaServidor . $rutatmp . '/');
     $rutaSubida = $io->getRutaArchivo();
 
-    $admision = new ClaseComprobacionAdmision();
+    $admision = new ClaseComprobacionStockAdmision();
     $admitido = $admision->admitir($rutaSubida, $apertura);
     $contextoClase->cerrar();
     unlink($rutaSubida);
@@ -29,13 +29,13 @@ try {
         exit;
     }
 
-    $minimo = new ClaseComprobacionMinimo();
+    $minimo = new ClaseComprobacionStockMinimo();
     $conMinimo = $minimo->calcular($admitido['filas'], $apertura, $admitido['contexto']['proveedorCierre']);
 
-    $clasificacion = new ClaseComprobacionClasificacion();
+    $clasificacion = new ClaseComprobacionStockClasificacion();
     $clasificado = $clasificacion->clasificar($conMinimo);
 
-    $emision = new ClaseComprobacionEmision();
+    $emision = new ClaseComprobacionStockEmision();
     $composicion = $emision->componer($clasificado, $apertura, false, null, $admitido['contexto']);
 
     echo json_encode(array('ok' => true, 'composicion' => $composicion));

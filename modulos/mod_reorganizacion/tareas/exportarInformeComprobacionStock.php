@@ -13,7 +13,7 @@ if (!is_array($composicion) || !isset($composicion['filas'], $composicion['conte
 }
 
 $rutaTemporal = $RutaServidor . $rutatmp . '/informe_comprobacion_' . uniqid('', true) . '.csv';
-$emision = new ClaseComprobacionEmision();
+$emision = new ClaseComprobacionStockEmision();
 $emision->emitirInforme($composicion, $rutaTemporal);
 
 $contenido = file_get_contents($rutaTemporal);

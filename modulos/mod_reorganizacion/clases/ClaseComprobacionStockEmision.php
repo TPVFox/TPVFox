@@ -1,7 +1,7 @@
 <?php
 
 include_once $URLCom . '/clases/ClaseIOXML.php';
-include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionIntercambioXML.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockIntercambioXML.php';
 
 // @ Objetivo
 // Componer una sola vez el resultado de cada ejecución —la del ejercicio vigente y
@@ -9,9 +9,9 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 // a partir de esa única composición la vista, el fichero de intercambio con el otro
 // ejercicio y, en el anterior, el informe final. Ninguna salida repite la consulta
 // ni recompone nada por su cuenta. No lee la base: recibe lo ya compuesto.
-class ClaseComprobacionEmision
+class ClaseComprobacionStockEmision
 {
-    private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_intercambio_v1.xsd';
+    private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_stock_intercambio_v1.xsd';
 
     public function componer($estadoProducto, $contextoOperacion, $modoTrayectoria, $filtro = null, $contextoVigente = null)
     {
@@ -22,9 +22,9 @@ class ClaseComprobacionEmision
         // composición alimenta también el informe final: por eso lleva el contexto
         // del vigente cuando se aporta, en vez de que el informe vaya a buscarlo aparte.
         // @ Parametros
-        //      $estadoProducto -> array, la salida de ClaseComprobacionExtraccion::extraer()
-        //          en el vigente, o de ClaseComprobacionClasificacion::clasificar() en el anterior.
-        //      $contextoOperacion -> array, la salida de ClaseComprobacionContexto::abrir().
+        //      $estadoProducto -> array, la salida de ClaseComprobacionStockExtraccion::extraer()
+        //          en el vigente, o de ClaseComprobacionStockClasificacion::clasificar() en el anterior.
+        //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir().
         //      $modoTrayectoria -> bool, si el saldo de partida se truncó a cero al extraer.
         //      $filtro -> array de int (idArticulo), opcional. Si se aporta, resuelve el
         //          subconjunto antes de componer.
@@ -55,7 +55,7 @@ class ClaseComprobacionEmision
         //      bool true si se guardó.
         global $RutaServidor, $HostNombre;
 
-        $xml = ClaseComprobacionIntercambioXML::arrayToSimpleXML($composicion);
+        $xml = ClaseComprobacionStockIntercambioXML::arrayToSimpleXML($composicion);
         $io = new ClaseIOXML($rutaDestino, $RutaServidor . $HostNombre . $this->rutaXSD);
         return $io->guardar($xml);
     }

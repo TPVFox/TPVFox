@@ -1,7 +1,7 @@
 <?php
 
 include_once $URLCom . '/clases/ClaseIOXML.php';
-include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionIntercambioXML.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockIntercambioXML.php';
 include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
 
 // @ Objetivo
@@ -11,9 +11,9 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 // una fila falla, esa fila queda marcada y el resto sigue.
 //
 // No lee la base: el catálogo con el que empareja se lo pide a la clase de consulta.
-class ClaseComprobacionAdmision
+class ClaseComprobacionStockAdmision
 {
-    private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_intercambio_v1.xsd';
+    private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_stock_intercambio_v1.xsd';
     private $consulta = null;
 
     public function admitir($rutaFichero, $contextoOperacion)
@@ -26,7 +26,7 @@ class ClaseComprobacionAdmision
         // este ejercicio.
         // @ Parametros
         //      $rutaFichero -> string, ruta del servidor al fichero de intercambio.
-        //      $contextoOperacion -> array, la salida de ClaseComprobacionContexto::abrir()
+        //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir()
         //          en este ejercicio (el anterior).
         // @ Devolvemos
         //      array ['ok' => false, 'motivo' => ..] en el primer fallo.
@@ -40,7 +40,7 @@ class ClaseComprobacionAdmision
             return $this->rechazo('El fichero no valida contra el esquema: ' . $error->getMessage());
         }
 
-        $datos = ClaseComprobacionIntercambioXML::simpleXMLToArray($xml);
+        $datos = ClaseComprobacionStockIntercambioXML::simpleXMLToArray($xml);
 
         if ($datos['resumenDeclarado'] !== $datos['resumenRecalculado']) {
             return $this->rechazo('El resumen de contenido no coincide con lo declarado');

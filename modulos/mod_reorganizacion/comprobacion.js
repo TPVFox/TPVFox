@@ -4,7 +4,7 @@
  * despliegue, pero sí en el mismo repositorio, así que comparten este fichero.
  */
 
-function ajaxComprobacion(parametros, callback) {
+function ajaxComprobacionStock(parametros, callback) {
   $.ajax({
     data: parametros,
     url: "./tareas.php",
@@ -16,7 +16,7 @@ function ajaxComprobacion(parametros, callback) {
   });
 }
 
-function campoOcultoComprobacion(form, nombre, valor) {
+function campoOcultoComprobacionStock(form, nombre, valor) {
   var input = document.createElement("input");
   input.type = "hidden";
   input.name = nombre;
@@ -24,7 +24,7 @@ function campoOcultoComprobacion(form, nombre, valor) {
   form.appendChild(input);
 }
 
-function enviarFormularioComprobacion(campos) {
+function enviarFormularioComprobacionStock(campos) {
   var form = document.createElement("form");
   form.method = "POST";
   form.action = "tareas.php";
@@ -32,10 +32,10 @@ function enviarFormularioComprobacion(campos) {
     var valor = campos[nombre];
     if (Array.isArray(valor)) {
       valor.forEach(function (elemento) {
-        campoOcultoComprobacion(form, nombre, elemento);
+        campoOcultoComprobacionStock(form, nombre, elemento);
       });
     } else {
-      campoOcultoComprobacion(form, nombre, valor);
+      campoOcultoComprobacionStock(form, nombre, valor);
     }
   });
   document.body.appendChild(form);
@@ -47,48 +47,48 @@ function enviarFormularioComprobacion(campos) {
 // Ejercicio vigente
 // ---------------------------------------------------------------------------
 
-function cargarComprobacionVigente() {
-  var modoEstricto = $("#chkComprobacionVigenteModoEstricto").is(":checked") ? "1" : "0";
-  $("#btnComprobacionVigenteExportar").prop("disabled", true);
-  $("#areaComprobacionVigente").html("Cargando…");
+function cargarComprobacionStockVigente() {
+  var modoEstricto = $("#chkComprobacionStockVigenteModoEstricto").is(":checked") ? "1" : "0";
+  $("#btnComprobacionStockVigenteExportar").prop("disabled", true);
+  $("#areaComprobacionStockVigente").html("Cargando…");
 
-  ajaxComprobacion({ pulsado: "obtenerComprobacionVigente", modoEstricto: modoEstricto }, function (respuesta) {
+  ajaxComprobacionStock({ pulsado: "obtenerComprobacionStockVigente", modoEstricto: modoEstricto }, function (respuesta) {
     var obj = JSON.parse(respuesta);
     if (!obj.ok) {
-      $("#areaComprobacionVigente").html('<div class="alert alert-danger">' + obj.motivo + "</div>");
+      $("#areaComprobacionStockVigente").html('<div class="alert alert-danger">' + obj.motivo + "</div>");
       return;
     }
-    $("#areaComprobacionVigente").html(obj.html);
-    $("#btnComprobacionVigenteExportar").prop("disabled", false);
-    $("#chkComprobacionVigenteTodos").on("change", function () {
-      $(".chkComprobacionVigenteArticulo").prop("checked", $(this).is(":checked"));
+    $("#areaComprobacionStockVigente").html(obj.html);
+    $("#btnComprobacionStockVigenteExportar").prop("disabled", false);
+    $("#chkComprobacionStockVigenteTodos").on("change", function () {
+      $(".chkComprobacionStockVigenteArticulo").prop("checked", $(this).is(":checked"));
     });
   });
 }
 
-function exportarComprobacionVigenteXML() {
-  var modoEstricto = $("#chkComprobacionVigenteModoEstricto").is(":checked") ? "1" : "0";
-  var totalArticulos = $(".chkComprobacionVigenteArticulo").length;
-  var seleccionados = $(".chkComprobacionVigenteArticulo:checked")
+function exportarComprobacionStockVigenteXML() {
+  var modoEstricto = $("#chkComprobacionStockVigenteModoEstricto").is(":checked") ? "1" : "0";
+  var totalArticulos = $(".chkComprobacionStockVigenteArticulo").length;
+  var seleccionados = $(".chkComprobacionStockVigenteArticulo:checked")
     .map(function () {
       return $(this).val();
     })
     .get();
 
-  var campos = { pulsado: "exportarComprobacionXML", modoEstricto: modoEstricto };
+  var campos = { pulsado: "exportarComprobacionStockXML", modoEstricto: modoEstricto };
   // Si están todos seleccionados no se declara filtro: el conjunto emitido es el completo.
   if (seleccionados.length > 0 && seleccionados.length < totalArticulos) {
     campos["filtro[]"] = seleccionados;
   }
 
-  enviarFormularioComprobacion(campos);
+  enviarFormularioComprobacionStock(campos);
 }
 
 // ---------------------------------------------------------------------------
 // Ejercicio anterior
 // ---------------------------------------------------------------------------
 
-var comprobacionAnteriorComposicion = null;
+var comprobacionStockAnteriorComposicion = null;
 
 var ETIQUETAS_ESTADO_COMPROBACION = {
   seguro: "Seguro",
@@ -97,13 +97,13 @@ var ETIQUETAS_ESTADO_COMPROBACION = {
   no_comparable: "No comparable",
 };
 
-function admitirComprobacionAnterior() {
-  var form = document.getElementById("formAdmitirComprobacion");
+function admitirComprobacionStockAnterior() {
+  var form = document.getElementById("formAdmitirComprobacionStock");
   var formData = new FormData(form);
-  formData.append("pulsado", "admitirComprobacion");
+  formData.append("pulsado", "admitirComprobacionStock");
 
-  $("#areaComprobacionAnterior").html("Comprobando…");
-  $("#btnComprobacionAnteriorExportar").prop("disabled", true);
+  $("#areaComprobacionStockAnterior").html("Comprobando…");
+  $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
 
   $.ajax({
     url: "tareas.php",
@@ -114,20 +114,20 @@ function admitirComprobacionAnterior() {
     dataType: "json",
     success: function (resultado) {
       if (!resultado.ok) {
-        $("#areaComprobacionAnterior").html('<div class="alert alert-danger">' + resultado.message + "</div>");
+        $("#areaComprobacionStockAnterior").html('<div class="alert alert-danger">' + resultado.message + "</div>");
         return;
       }
-      comprobacionAnteriorComposicion = resultado.composicion;
-      $("#areaComprobacionAnterior").html(htmlTablaComprobacionAnterior(comprobacionAnteriorComposicion));
-      $("#btnComprobacionAnteriorExportar").prop("disabled", false);
+      comprobacionStockAnteriorComposicion = resultado.composicion;
+      $("#areaComprobacionStockAnterior").html(htmlTablaComprobacionStockAnterior(comprobacionStockAnteriorComposicion));
+      $("#btnComprobacionStockAnteriorExportar").prop("disabled", false);
     },
     error: function () {
-      $("#areaComprobacionAnterior").html('<div class="alert alert-danger">Error al comunicar con el servidor.</div>');
+      $("#areaComprobacionStockAnterior").html('<div class="alert alert-danger">Error al comunicar con el servidor.</div>');
     },
   });
 }
 
-function htmlTablaComprobacionAnterior(composicion) {
+function htmlTablaComprobacionStockAnterior(composicion) {
   // La clasificación se pinta en el mismo orden en que llegó, sin ordenar por
   // gravedad, y cada estado siempre va acompañado de los dos números que lo
   // justifican: nunca se etiqueta como error.
@@ -165,12 +165,12 @@ function htmlTablaComprobacionAnterior(composicion) {
   return html;
 }
 
-function exportarInformeComprobacionAnterior() {
-  if (!comprobacionAnteriorComposicion) {
+function exportarInformeComprobacionStockAnterior() {
+  if (!comprobacionStockAnteriorComposicion) {
     return;
   }
-  enviarFormularioComprobacion({
-    pulsado: "exportarInformeComprobacion",
-    composicion: JSON.stringify(comprobacionAnteriorComposicion),
+  enviarFormularioComprobacionStock({
+    pulsado: "exportarInformeComprobacionStock",
+    composicion: JSON.stringify(comprobacionStockAnteriorComposicion),
   });
 }

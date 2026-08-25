@@ -27,18 +27,18 @@ if ($ClasePermisos->getAccion('ver') == 0) {
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" id="chkComprobacionVigenteModoEstricto">
+                        <input type="checkbox" id="chkComprobacionStockVigenteModoEstricto">
                         Modo estricto (trunca a cero el saldo de apertura de cada producto)
                     </label>
                 </div>
 
                 <?php if ($ClasePermisos->getAccion('exportar') == 1) : ?>
-                    <button id="btnComprobacionVigenteExportar" type="button" class="btn btn-default" disabled>
+                    <button id="btnComprobacionStockVigenteExportar" type="button" class="btn btn-default" disabled>
                         <span class="glyphicon glyphicon-download-alt"></span> Descargar fichero de intercambio
                     </button>
                 <?php endif; ?>
 
-                <div id="areaComprobacionVigente">Cargando…</div>
+                <div id="areaComprobacionStockVigente">Cargando…</div>
             </div>
         </div>
     </div>
@@ -48,8 +48,8 @@ if ($ClasePermisos->getAccion('ver') == 0) {
 
 <script type="text/javascript">
     $(function() {
-        cargarComprobacionVigente();
-        $('#chkComprobacionVigenteModoEstricto').on('change', cargarComprobacionVigente);
-        $('#btnComprobacionVigenteExportar').on('click', exportarComprobacionVigenteXML);
+        cargarComprobacionStockVigente();
+        $('#chkComprobacionStockVigenteModoEstricto').on('change', cargarComprobacionStockVigente);
+        $('#btnComprobacionStockVigenteExportar').on('click', exportarComprobacionStockVigenteXML);
     });
 </script>

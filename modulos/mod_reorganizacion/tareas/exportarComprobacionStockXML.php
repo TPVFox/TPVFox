@@ -12,7 +12,7 @@ if (!empty($_POST['filtro'])) {
     $filtro = array_map('intval', (array) $_POST['filtro']);
 }
 
-$contextoClase = new ClaseComprobacionContexto();
+$contextoClase = new ClaseComprobacionStockContexto();
 $apertura = $contextoClase->abrir();
 if (!$apertura['ok']) {
     http_response_code(400);
@@ -20,11 +20,11 @@ if (!$apertura['ok']) {
     exit;
 }
 
-$extraccion = new ClaseComprobacionExtraccion();
+$extraccion = new ClaseComprobacionStockExtraccion();
 $estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
 $contextoClase->cerrar();
 
-$emision = new ClaseComprobacionEmision();
+$emision = new ClaseComprobacionStockEmision();
 $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto, $filtro);
 
 $rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) . '.xml';
