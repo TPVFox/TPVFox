@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+    <xs:element name="ComprobacionIntercambio">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Meta">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Version" type="xs:string"/>
+                            <xs:element name="Tipo" type="xs:string" fixed="COMPROBACION_EXISTENCIAS"/>
+                            <xs:element name="FechaExportacion" type="xs:dateTime"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Origen">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Ejercicio" type="xs:string"/>
+                            <xs:element name="IdTienda" type="xs:integer"/>
+                            <xs:element name="Momento" type="xs:dateTime"/>
+                            <xs:element name="Autor" type="xs:integer"/>
+                            <xs:element name="Traspaso">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="IdProveedor" type="xs:integer"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Criterio">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="VentanaDias" type="xs:integer"/>
+                            <xs:element name="UmbralSobrestock" type="xs:decimal"/>
+                            <xs:element name="ModoTrayectoria" type="ModoTrayectoria"/>
+                            <xs:element name="Filtro" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Articulo" type="xs:integer" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Filas">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Fila" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="IdArticulo" type="xs:integer"/>
+                                        <xs:element name="SaldoAlCorte" type="xs:decimal"/>
+                                        <xs:element name="MinimoAlcanzado" type="xs:decimal"/>
+                                        <xs:element name="Marcado" type="xs:boolean"/>
+                                        <xs:element name="TipoIncidencia" type="TipoIncidencia" minOccurs="0"/>
+                                        <xs:element name="CondicionesConocidas" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="Condicion" type="CondicionConocida" maxOccurs="unbounded"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="Resumen">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="SHA256" type="ResumenSHA256"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+
+            <xs:attribute name="idOrigen" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="ModoTrayectoria">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="normal"/>
+            <xs:enumeration value="estricto"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TipoIncidencia">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="C1a"/>
+            <xs:enumeration value="C1b"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="CondicionConocida">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="familia_excluida"/>
+            <xs:enumeration value="nunca_incluido_en_cierre"/>
+            <xs:enumeration value="periodo_no_consolidado"/>
+            <xs:enumeration value="regularizacion_en_periodo"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ResumenSHA256">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-f]{64}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

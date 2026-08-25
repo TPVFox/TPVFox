@@ -94,6 +94,7 @@ class ClaseComprobacionContexto extends TFModelo
             'ano' => $sesion['ano'],
             'idTienda' => $sesion['idTienda'],
             'ventanaDias' => $parametros['valores']['ventanaDias'],
+            'umbralSobrestock' => $parametros['valores']['umbralSobrestock'],
             'proveedorCierre' => $parametros['valores']['proveedorCierre'],
             'familiasExcluidas' => $parametros['valores']['familiasExcluidas'],
         );
@@ -147,7 +148,7 @@ class ClaseComprobacionContexto extends TFModelo
         // Comprobar que están presentes los parámetros de los que depende el criterio:
         // umbrales y ventana de mod_informes/parametros.xml, proveedor de cierre y
         // familias excluidas de mod_reorganizacion/parametros.xml. Si lo están, extraer
-        // sus valores: son los que FS-001, FS-003 y FS-004 exigen como parte del
+        // sus valores: son los que necesitan los componentes que operan con el
         // contexto de operación, y así no vuelven a leer los mismos ficheros.
         // @ Devolvemos
         //      array ['ausente' => string] con la ruta del primero que falte.
@@ -185,6 +186,7 @@ class ClaseComprobacionContexto extends TFModelo
             'ausente' => null,
             'valores' => array(
                 'ventanaDias' => (int) (string) $posstock->ventana_dias,
+                'umbralSobrestock' => (float) (string) $posstock->umbral_sobrestock,
                 'proveedorCierre' => isset($atributosProveedor['id']) ? (int) $atributosProveedor['id'] : null,
                 'familiasExcluidas' => $familiasExcluidas,
             ),
