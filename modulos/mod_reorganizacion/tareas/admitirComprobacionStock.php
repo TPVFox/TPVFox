@@ -2,9 +2,10 @@
 
 // @ Objetivo
 // Admitir el fichero de intercambio subido, calcular el stock mínimo justificado,
-// clasificar cada producto y devolver la composición resultante: la pantalla la
-// pinta y, si el operador la descarga, viaja de vuelta tal cual para el informe
-// final, sin estado en servidor entre los dos pasos.
+// clasificar cada producto y devolver la composición resultante, ya pintada. La
+// tabla se monta aquí, en servidor; la composición viaja junto a ella porque, si
+// el operador descarga el informe, vuelve tal cual y no hay estado en servidor
+// entre los dos pasos.
 
 header('Content-Type: application/json');
 
@@ -12,7 +13,7 @@ try {
     $contextoClase = new ClaseComprobacionStockContexto();
     $apertura = $contextoClase->abrir();
     if (!$apertura['ok']) {
-        echo json_encode(array('ok' => false, 'message' => $apertura['motivo']));
+        echo json_encode(array('ok' => false, 'html' => htmlAlertaComprobacionStock($apertura['motivo'])));
         exit;
     }
 
@@ -25,7 +26,7 @@ try {
     unlink($rutaSubida);
 
     if (!$admitido['ok']) {
-        echo json_encode(array('ok' => false, 'message' => $admitido['motivo']));
+        echo json_encode(array('ok' => false, 'html' => htmlAlertaComprobacionStock($admitido['motivo'])));
         exit;
     }
 
@@ -38,9 +39,13 @@ try {
     $emision = new ClaseComprobacionStockEmision();
     $composicion = $emision->componer($clasificado, $apertura, false, null, $admitido['contexto']);
 
-    echo json_encode(array('ok' => true, 'composicion' => $composicion));
+    echo json_encode(array(
+        'ok' => true,
+        'html' => htmlTablaComprobacionStock($composicion, 'anterior'),
+        'composicion' => $composicion,
+    ));
     exit;
 } catch (Throwable $error) {
-    echo json_encode(array('ok' => false, 'message' => $error->getMessage()));
+    echo json_encode(array('ok' => false, 'html' => htmlAlertaComprobacionStock($error->getMessage())));
     exit;
 }

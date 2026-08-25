@@ -2,6 +2,9 @@
  * Comprobación de existencias en el cambio de año — pantallas del ejercicio vigente
  * y del ejercicio anterior. Las dos pantallas no conviven nunca en el mismo
  * despliegue, pero sí en el mismo repositorio, así que comparten este fichero.
+ *
+ * Aquí no se compone pantalla: la tabla llega montada desde el servidor y este
+ * fichero solo pide, inserta y descarga.
  */
 
 function ajaxComprobacionStock(parametros, callback) {
@@ -54,11 +57,10 @@ function cargarComprobacionStockVigente() {
 
   ajaxComprobacionStock({ pulsado: "obtenerComprobacionStockVigente", modoEstricto: modoEstricto }, function (respuesta) {
     var obj = JSON.parse(respuesta);
+    $("#areaComprobacionStockVigente").html(obj.html);
     if (!obj.ok) {
-      $("#areaComprobacionStockVigente").html('<div class="alert alert-danger">' + obj.motivo + "</div>");
       return;
     }
-    $("#areaComprobacionStockVigente").html(obj.html);
     $("#btnComprobacionStockVigenteExportar").prop("disabled", false);
     $("#chkComprobacionStockVigenteTodos").on("change", function () {
       $(".chkComprobacionStockVigenteArticulo").prop("checked", $(this).is(":checked"));
@@ -90,13 +92,6 @@ function exportarComprobacionStockVigenteXML() {
 
 var comprobacionStockAnteriorComposicion = null;
 
-var ETIQUETAS_ESTADO_COMPROBACION = {
-  seguro: "Seguro",
-  no_seguro: "No seguro",
-  dudoso: "Dudoso",
-  no_comparable: "No comparable",
-};
-
 function admitirComprobacionStockAnterior() {
   var form = document.getElementById("formAdmitirComprobacionStock");
   var formData = new FormData(form);
@@ -113,56 +108,20 @@ function admitirComprobacionStockAnterior() {
     contentType: false,
     dataType: "json",
     success: function (resultado) {
+      // Lo que se pinta llega montado, sea la tabla o el aviso de que no se pudo.
+      // La composición viaja aparte porque es lo que el informe final necesita de
+      // vuelta, no lo que se muestra.
+      $("#areaComprobacionStockAnterior").html(resultado.html);
       if (!resultado.ok) {
-        $("#areaComprobacionStockAnterior").html('<div class="alert alert-danger">' + resultado.message + "</div>");
         return;
       }
       comprobacionStockAnteriorComposicion = resultado.composicion;
-      $("#areaComprobacionStockAnterior").html(htmlTablaComprobacionStockAnterior(comprobacionStockAnteriorComposicion));
       $("#btnComprobacionStockAnteriorExportar").prop("disabled", false);
     },
     error: function () {
-      $("#areaComprobacionStockAnterior").html('<div class="alert alert-danger">Error al comunicar con el servidor.</div>');
+      $("#areaComprobacionStockAnterior").text("Error al comunicar con el servidor.");
     },
   });
-}
-
-function htmlTablaComprobacionStockAnterior(composicion) {
-  // La clasificación se pinta en el mismo orden en que llegó, sin ordenar por
-  // gravedad, y cada estado siempre va acompañado de los dos números que lo
-  // justifican: nunca se etiqueta como error.
-  var html = "<p>" + composicion.filas.length + " producto(s) admitido(s).</p>";
-  html += '<table class="table table-bordered table-hover">';
-  html +=
-    "<thead><tr>" +
-    "<th>Artículo</th><th>Estado</th><th>Marcado</th><th>Condiciones conocidas</th>" +
-    "<th>Existencia exigida</th><th>Stock justificado</th>" +
-    "</tr></thead><tbody>";
-  composicion.filas.forEach(function (fila) {
-    html +=
-      "<tr>" +
-      "<td>" +
-      fila.idArticulo +
-      "</td>" +
-      '<td><span class="label label-default">' +
-      (ETIQUETAS_ESTADO_COMPROBACION[fila.estado] || fila.estado) +
-      "</span></td>" +
-      "<td>" +
-      (fila.marcado ? "Sí" : "No") +
-      "</td>" +
-      "<td>" +
-      (fila.condicionesConocidas.join(", ") || "—") +
-      "</td>" +
-      "<td>" +
-      fila.existenciaExigida +
-      "</td>" +
-      "<td>" +
-      (fila.stockJustificado !== null ? fila.stockJustificado : "—") +
-      "</td>" +
-      "</tr>";
-  });
-  html += "</tbody></table>";
-  return html;
 }
 
 function exportarInformeComprobacionStockAnterior() {

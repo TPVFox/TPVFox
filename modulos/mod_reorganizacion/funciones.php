@@ -361,40 +361,32 @@ function normalizarProductos($idsProductos)
     return array_values($idsProductosUnicos);
 }
 
-function htmlTablaComprobacionStockVigente($composicion)
+function htmlAlertaComprobacionStock($mensaje)
 {
-    // @ Objetivo:
-    // Montar la tabla de resultados de la comprobación del ejercicio vigente: la
-    // misma composición que, si el operador la descarga, también alimenta el
-    // fichero de intercambio.
-    // @ parametros:
+    // @ Objetivo
+    // Dar el aviso de que la comprobación no se pudo hacer, ya montado. Se compone
+    // aquí y no en el navegador porque el motivo puede venir de un fichero que sube
+    // el operador, y ahí tiene que escaparse antes de llegar a la pantalla.
+    // @ Parametros
+    //      $mensaje -> string, el motivo tal cual lo da quien no pudo continuar.
+    // @ Devolvemos
+    //      string, el aviso montado.
+    return '<div class="alert alert-danger">' . htmlspecialchars($mensaje) . '</div>';
+}
+
+function htmlTablaComprobacionStock($composicion, $rama)
+{
+    // @ Objetivo
+    // Dar la tabla de resultados de la comprobación a quien la pida. La plantilla
+    // es la misma para los dos ejercicios y devuelve lo que monta; esta función
+    // solo la localiza, para que las tareas no dependan de dónde esté ni de desde
+    // qué directorio se las llame.
+    // @ Parametros
     //      $composicion -> array, la salida de ClaseComprobacionStockEmision::componer().
-    $html = '<p>' . count($composicion['filas']) . ' producto(s) con existencia negativa en algún punto del ejercicio.</p>';
-    $html .= '<table class="table table-bordered table-hover" id="tablaComprobacionStockVigente">';
-    $html .= '<thead><tr>'
-        . '<th><input type="checkbox" id="chkComprobacionStockVigenteTodos" checked></th>'
-        . '<th>Artículo</th>'
-        . '<th>Saldo al corte</th>'
-        . '<th>Mínimo alcanzado</th>'
-        . '<th>Saldo de apertura</th>'
-        . '<th>Marcado</th>'
-        . '<th>Incidencia</th>'
-        . '<th>Condiciones conocidas</th>'
-        . '</tr></thead><tbody>';
-    foreach ($composicion['filas'] as $fila) {
-        $html .= '<tr>'
-            . '<td><input type="checkbox" class="chkComprobacionStockVigenteArticulo" value="' . (int) $fila['idArticulo'] . '" checked></td>'
-            . '<td>' . (int) $fila['idArticulo'] . '</td>'
-            . '<td>' . htmlspecialchars((string) $fila['saldoAlCorte']) . '</td>'
-            . '<td>' . htmlspecialchars((string) $fila['minimoAlcanzado']) . '</td>'
-            . '<td>' . htmlspecialchars((string) $fila['saldoDeApertura']) . '</td>'
-            . '<td>' . ($fila['marcado'] ? 'Sí' : 'No') . '</td>'
-            . '<td>' . htmlspecialchars($fila['tipoIncidencia'] !== null ? $fila['tipoIncidencia'] : '—') . '</td>'
-            . '<td>' . htmlspecialchars(implode(', ', $fila['condicionesConocidas'])) . '</td>'
-            . '</tr>';
-    }
-    $html .= '</tbody></table>';
-    return $html;
+    //      $rama -> string, 'vigente' o 'anterior'.
+    // @ Devolvemos
+    //      string, la tabla montada.
+    return include __DIR__ . '/template/view_comprobacion_stock.php';
 }
 
 function generarAlbaranesConLimite(array $productos, string $identificador, int $limite, int $idProveedor, string $serieAlbaranCierre)
