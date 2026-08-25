@@ -1,15 +1,21 @@
 <?php
 
-include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/controllers/parametros.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
 
 // @ Objetivo
 // Fijar ejercicio y tienda desde la sesión activa, comprobar que el esquema y los
 // parámetros de los que depende el cálculo están presentes, y abrir el bloque de
 // solo lectura que envuelve toda la ejecución. Si algo falta, detiene la ejecución
 // con el motivo; nunca deja pasar un resultado vacío.
-class ClaseComprobacionContexto extends TFModelo
+//
+// No lee la base: qué objetos del esquema hacen falta y en qué orden se comprueban
+// se decide aquí; si cada uno está presente, y la apertura misma, lo resuelve la
+// clase de consulta.
+class ClaseComprobacionContexto
 {
+    private $consulta = null;
+
     // Vista y tablas de las que depende la lectura, además del catálogo.
     private $objetosDelEsquemaRequeridos = array(
         'vw_jerarquias_familias',
@@ -85,7 +91,7 @@ class ClaseComprobacionContexto extends TFModelo
             return $this->parada('Falta el parámetro: ' . $parametros['ausente']);
         }
 
-        if (!$this->abrirBloqueDeLectura()) {
+        if (!$this->consulta()->abrirBloqueDeLectura()) {
             return $this->parada('El motor no admite el bloque de lectura de solo lectura');
         }
 
@@ -105,7 +111,7 @@ class ClaseComprobacionContexto extends TFModelo
         // @ Objetivo
         // Cerrar el bloque de lectura abierto por abrir(). Ninguna ejecución lo deja
         // pendiente.
-        $this->conexionBDTPV()->query('COMMIT');
+        $this->consulta()->cerrarBloqueDeLectura();
     }
 
     private function deLaSesion()
@@ -131,10 +137,9 @@ class ClaseComprobacionContexto extends TFModelo
         // Comprobar que existen la vista y las tablas de las que depende la lectura.
         // @ Devolvemos
         //      string con el nombre del primer objeto que falte, o null si están todos.
-        $db = $this->conexionBDTPV();
+        $consulta = $this->consulta();
         foreach ($this->objetosDelEsquemaRequeridos as $objeto) {
-            $resultado = $db->query("SHOW TABLES LIKE '" . $objeto . "'");
-            if ($resultado === false || $resultado->num_rows === 0) {
+            if (!$consulta->existeObjetoDeEsquema($objeto)) {
                 return $objeto;
             }
         }
@@ -193,18 +198,17 @@ class ClaseComprobacionContexto extends TFModelo
         );
     }
 
-    private function abrirBloqueDeLectura()
+    private function consulta()
     {
         // @ Objetivo
-        // Abrir el bloque de lectura en una transacción de solo lectura. Si el motor
-        // no la admite, la apertura misma es la comprobación de que no la sostiene.
+        // La clase de consulta del módulo, una sola vez por instancia: abrir() y
+        // cerrar() han de operar sobre el mismo bloque de lectura.
         // @ Devolvemos
-        //      bool true si se abrió, false si no.
-        try {
-            return $this->conexionBDTPV()->query('START TRANSACTION READ ONLY') !== false;
-        } catch (mysqli_sql_exception $motorNoLoAdmite) {
-            return false;
+        //      ClaseComprobacionStockConsulta.
+        if ($this->consulta === null) {
+            $this->consulta = new ClaseComprobacionStockConsulta();
         }
+        return $this->consulta;
     }
 
     private function parada($motivo)

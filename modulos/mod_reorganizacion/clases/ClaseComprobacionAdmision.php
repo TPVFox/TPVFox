@@ -1,17 +1,20 @@
 <?php
 
-include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
 include_once $URLCom . '/clases/ClaseIOXML.php';
 include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionIntercambioXML.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
 
 // @ Objetivo
 // Admitir el resultado que llega del otro ejercicio: validar su origen e integridad,
 // y emparejar cada fila con el catálogo por la misma identidad con la que se
 // reconoce el traspaso. Si el fichero entero no es válido lo rechaza entero; si solo
 // una fila falla, esa fila queda marcada y el resto sigue.
-class ClaseComprobacionAdmision extends TFModelo
+//
+// No lee la base: el catálogo con el que empareja se lo pide a la clase de consulta.
+class ClaseComprobacionAdmision
 {
     private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_intercambio_v1.xsd';
+    private $consulta = null;
 
     public function admitir($rutaFichero, $contextoOperacion)
     {
@@ -50,7 +53,7 @@ class ClaseComprobacionAdmision extends TFModelo
             return $this->rechazo('El fichero no corresponde a este ejercicio y tienda');
         }
 
-        $catalogo = $this->catalogoDe($this->idsDelFichero($datos['filas']));
+        $catalogo = $this->consulta()->catalogoDe($this->idsDelFichero($datos['filas']));
         $filas = $this->emparejar($datos['filas'], $catalogo);
 
         return array('ok' => true, 'filas' => $filas, 'contexto' => $datos['contexto']);
@@ -91,27 +94,16 @@ class ClaseComprobacionAdmision extends TFModelo
         return $ids;
     }
 
-    private function catalogoDe($ids)
+    private function consulta()
     {
         // @ Objetivo
-        // De los idArticulo que trae el fichero, cuáles existen en el catálogo de
-        // este ejercicio.
+        // La clase de consulta del módulo, una sola vez por instancia.
         // @ Devolvemos
-        //      array de filas ['idArticulo' => int].
-        if (empty($ids)) {
-            return array();
+        //      ClaseComprobacionStockConsulta.
+        if ($this->consulta === null) {
+            $this->consulta = new ClaseComprobacionStockConsulta();
         }
-
-        $idsCsv = implode(',', array_map('intval', $ids));
-        $filas = $this->consulta("SELECT idArticulo FROM articulos WHERE idArticulo IN ($idsCsv)")['datos'];
-
-        $resultado = array();
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $resultado[] = array('idArticulo' => (int) $fila['idArticulo']);
-            }
-        }
-        return $resultado;
+        return $this->consulta;
     }
 
     private function rechazo($motivo)

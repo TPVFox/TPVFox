@@ -1,8 +1,6 @@
 <?php
 
-include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
-include_once $URLCom . '/modulos/mod_informes/clases/PosstockQueryRepository.php';
-include_once $URLCom . '/modulos/mod_informes/clases/PosstockC1Detector.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
 
 // @ Objetivo
 // Componer, para todo el catálogo, la trayectoria de existencias del producto en el
@@ -10,11 +8,12 @@ include_once $URLCom . '/modulos/mod_informes/clases/PosstockC1Detector.php';
 // negativas y le aporta el saldo de partida ya calculado, y adjunta el marcado y las
 // condiciones conocidas sin depender de que el detector haya emitido incidencia.
 //
-// Es la única clase del módulo que instancia el repositorio y el detector del
-// informe de existencias negativas: el resto del módulo recibe de ella estructuras
-// propias y no nombra ningún tipo suyo.
-class ClaseComprobacionExtraccion extends TFModelo
+// No lee la base: todo lo que necesita se lo pide a la clase de consulta, y lo que
+// hace con lo leído es la decisión.
+class ClaseComprobacionExtraccion
 {
+    private $consulta = null;
+
     public function extraer($contextoOperacion, $modoEstricto = false, $fechaCorte = null)
     {
         // @ Objetivo
@@ -33,47 +32,31 @@ class ClaseComprobacionExtraccion extends TFModelo
         $fiMov = $ano . '-01-02';
         $ffMov = ($fechaCorte !== null) ? $fechaCorte : date('Y-m-d');
 
-        $repo = new PosstockQueryRepository($this->conexionBDTPV());
+        $consulta = $this->consulta();
 
-        $catalogoIds = array();
-        foreach ($repo->queryArticulosFisicos('') as $fila) {
-            $catalogoIds[] = (int) $fila['idArticulo'];
-        }
-
-        $stockBaseCache = array();
-        if (!empty($catalogoIds)) {
-            $idsCsv = implode(',', $catalogoIds);
-            foreach ($repo->queryStockBase($fiStock, $ffStock, $idsCsv) as $fila) {
-                $stockBaseCache[(int) $fila['idArticulo']] = array(
-                    'saldo_acumulado' => (float) $fila['saldo_acumulado'],
-                    'ultima_compra' => $fila['ultima_compra'],
-                    'ultima_venta' => $fila['ultima_venta'],
-                );
-            }
-        }
-
-        $movimientos = $repo->queryMovimientosPeriodo($fiMov, $ffMov, '', '');
+        $catalogoIds = $consulta->catalogoFisico();
+        $stockBaseCache = $consulta->stockBase($fiStock, $ffStock, $catalogoIds);
+        $movimientos = $consulta->movimientosDelPeriodo($fiMov, $ffMov);
 
         $trayectorias = $this->componerTrayectoria($catalogoIds, $stockBaseCache, $movimientos, $modoEstricto);
-
-        $idsNegativos = array();
-        foreach ($trayectorias as $id => $trayectoria) {
-            if ($trayectoria['minimoAlcanzado'] < 0) {
-                $idsNegativos[] = $id;
-            }
-        }
+        $idsNegativos = $this->conTrayectoriaEnNegativo($trayectorias);
 
         if (empty($idsNegativos)) {
             return array();
         }
 
-        $detector = new PosstockC1Detector($this->conexionBDTPV(), $repo);
-        $incidencias = $detector->detectar($fiMov, $ffMov, $fiStock, $ffStock, array(), array(), array(), $stockBaseCache);
-        $tipoPorArticulo = $this->mapearIncidencias($incidencias);
+        $tipoPorArticulo = $this->mapearIncidencias(
+            $consulta->incidenciasC1($fiMov, $ffMov, $fiStock, $ffStock, $stockBaseCache)
+        );
 
-        $familiaExcluidaDe = $this->familiasExcluidasDe($idsNegativos, $repo, $contextoOperacion['familiasExcluidas']);
-        $nuncaIncluidoEnCierre = $this->nuncaIncluidosEnElCierre($idsNegativos);
-        $conRegularizacion = $this->conRegularizacionEnElPeriodo($idsNegativos, $fiMov, $ffMov);
+        $familiaExcluidaDe = array_flip(
+            $consulta->deFamiliasExcluidas($idsNegativos, $contextoOperacion['familiasExcluidas'])
+        );
+        $nuncaIncluidoEnCierre = array_flip($this->nuncaIncluidosEnElCierre(
+            $idsNegativos,
+            $consulta->conStockPositivoEnElCierre($idsNegativos)
+        ));
+        $conRegularizacion = array_flip($consulta->conRegularizacionEntre($idsNegativos, $fiMov, $ffMov));
         $ventanaDias = (int) $contextoOperacion['ventanaDias'];
 
         $resultado = array();
@@ -187,87 +170,51 @@ class ClaseComprobacionExtraccion extends TFModelo
         return $resultado;
     }
 
-    private function familiasExcluidasDe($ids, $repo, $familiasExcluidasConfig)
+    public function conTrayectoriaEnNegativo($trayectorias)
     {
         // @ Objetivo
-        // De los productos indicados, cuáles pertenecen a una familia excluida del
-        // cierre (incluidas sus subfamilias).
+        // De todas las trayectorias compuestas, cuáles alcanzaron valor negativo en
+        // algún momento del periodo. Es el conjunto que se examina y el que viaja al
+        // ejercicio anterior: la trayectoria se compone sobre el catálogo entero, pero
+        // solo estos salen.
+        // @ Parametros
+        //      $trayectorias -> array [idArticulo => ['minimoAlcanzado' => float, ..]],
+        //          la salida de componerTrayectoria().
         // @ Devolvemos
-        //      array [idArticulo => true] de los que pertenecen a alguna.
-        if (empty($familiasExcluidasConfig)) {
-            return array();
-        }
-
-        $idsExpandido = $repo->expandirFamilias($familiasExcluidasConfig);
-        if ($idsExpandido === '') {
-            return array();
-        }
-
-        $idsCsv = implode(',', array_map('intval', $ids));
-        $sql = "SELECT DISTINCT idArticulo FROM articulosFamilias "
-            . "WHERE idArticulo IN ($idsCsv) AND idFamilia IN ($idsExpandido)";
-
-        $resultado = array();
-        $filas = $this->consulta($sql)['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $resultado[(int) $fila['idArticulo']] = true;
+        //      array de int, idArticulo.
+        $ids = array();
+        foreach ($trayectorias as $id => $trayectoria) {
+            if ($trayectoria['minimoAlcanzado'] < 0) {
+                $ids[] = $id;
             }
         }
-        return $resultado;
+        return $ids;
     }
 
-    private function nuncaIncluidosEnElCierre($ids)
+    public function nuncaIncluidosEnElCierre($ids, $conStockPositivo)
     {
         // @ Objetivo
         // De los productos indicados, cuáles no cumplen el criterio de selección del
-        // propio cierre: stockOn > 0 en idTienda = 1.
+        // propio cierre. El cierre toma los que tienen existencias positivas; los que
+        // no aparecen entre ellos son los que nunca habría tomado.
+        // @ Parametros
+        //      $ids -> array de int, los productos examinados.
+        //      $conStockPositivo -> array de int, los que el cierre sí habría tomado
+        //          (ClaseComprobacionStockConsulta::conStockPositivoEnElCierre()).
         // @ Devolvemos
-        //      array [idArticulo => true] de los que el cierre nunca habría tomado.
-        $idsCsv = implode(',', array_map('intval', $ids));
-        $sql = "SELECT idArticulo FROM articulosStocks "
-            . "WHERE idArticulo IN ($idsCsv) AND idTienda = 1 AND stockOn > 0";
-
-        $incluidos = array();
-        $filas = $this->consulta($sql)['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $incluidos[(int) $fila['idArticulo']] = true;
-            }
-        }
+        //      array de int, idArticulo de los que el cierre nunca habría tomado.
+        $incluidos = array_flip($conStockPositivo);
 
         $resultado = array();
         foreach ($ids as $id) {
             if (!isset($incluidos[$id])) {
-                $resultado[$id] = true;
+                $resultado[] = $id;
             }
         }
         return $resultado;
     }
 
-    private function conRegularizacionEnElPeriodo($ids, $fiMov, $ffMov)
-    {
-        // @ Objetivo
-        // De los productos indicados, cuáles tienen una regularización activa fechada
-        // dentro del periodo de movimientos.
-        // @ Devolvemos
-        //      array [idArticulo => true] de los que tienen alguna.
-        $idsCsv = implode(',', array_map('intval', $ids));
-        $sql = "SELECT DISTINCT idArticulo FROM stocksRegularizacion "
-            . "WHERE idArticulo IN ($idsCsv) AND estado = 1 "
-            . "AND fechaRegularizacion BETWEEN '$fiMov 00:00:00' AND '$ffMov 23:59:59'";
-
-        $resultado = array();
-        $filas = $this->consulta($sql)['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $resultado[(int) $fila['idArticulo']] = true;
-            }
-        }
-        return $resultado;
-    }
-
-    private function periodoNoConsolidado($fechaMinimo, $ventanaDias, $fechaCorte)
+    public function periodoNoConsolidado($fechaMinimo, $ventanaDias, $fechaCorte)
     {
         // @ Objetivo
         // Si el mínimo de la trayectoria cae dentro de la ventana de consolidación
@@ -281,5 +228,17 @@ class ClaseComprobacionExtraccion extends TFModelo
 
         $limite = date('Y-m-d', strtotime($fechaCorte . " -{$ventanaDias} days"));
         return $fechaMinimo >= $limite;
+    }
+
+    private function consulta()
+    {
+        // @ Objetivo
+        // La clase de consulta del módulo, una sola vez por instancia.
+        // @ Devolvemos
+        //      ClaseComprobacionStockConsulta.
+        if ($this->consulta === null) {
+            $this->consulta = new ClaseComprobacionStockConsulta();
+        }
+        return $this->consulta;
     }
 }

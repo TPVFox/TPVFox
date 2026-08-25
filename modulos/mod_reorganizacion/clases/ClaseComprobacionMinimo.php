@@ -1,14 +1,19 @@
 <?php
 
-include_once $RutaServidor . $HostNombre . '/clases/ClaseTFModelo.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
 
 // @ Objetivo
 // Reconstruir los movimientos del ejercicio anterior para el producto admitido y
 // determinar el stock mínimo justificado por esos movimientos, con su margen. Si el
 // histórico no permite establecerlo, lo marca como incompleto sin alterar el cálculo
 // del resto de productos.
-class ClaseComprobacionMinimo extends TFModelo
+//
+// No lee la base: las líneas de cada origen se las pide a la clase de consulta, y
+// qué significa cada una —qué suma, qué resta y qué abre lote— lo decide aquí.
+class ClaseComprobacionMinimo
 {
+    private $consulta = null;
+
     public function calcular($filas, $contextoOperacion, $proveedorTraspaso)
     {
         // @ Objetivo
@@ -24,10 +29,22 @@ class ClaseComprobacionMinimo extends TFModelo
         // @ Devolvemos
         //      array de filas con 'stockJustificado', 'margen' y 'condicionesConocidas'
         //      (ampliado) añadidos.
+        $consulta = $this->consulta();
+        $ano = (int) $contextoOperacion['ano'];
+        $idTienda = (int) $contextoOperacion['idTienda'];
+        $desde = $ano . '-01-01';
+        $hasta = $ano . '-12-31';
+
         $resultado = array();
         foreach ($filas as $fila) {
-            $movimientos = $this->movimientosDe($fila['idArticulo'], $contextoOperacion, $proveedorTraspaso);
-            $tipoArticulo = $this->tipoDe($fila['idArticulo']);
+            $idArticulo = (int) $fila['idArticulo'];
+
+            $movimientos = $this->componerMovimientos(
+                $consulta->lineasDeAlbaranDeProveedor($idTienda, $idArticulo, $desde, $hasta, $proveedorTraspaso),
+                $consulta->lineasDeTicket($idTienda, $idArticulo, $desde, $hasta),
+                $consulta->lineasDeAlbaranDeCliente($idTienda, $idArticulo, $desde, $hasta)
+            );
+            $tipoArticulo = $this->tipoSupuesto($consulta->tipoDeArticulo($idArticulo));
             $justificado = $this->justificar($movimientos, $tipoArticulo);
 
             $fila['stockJustificado'] = $justificado['stockJustificado'];
@@ -36,6 +53,64 @@ class ClaseComprobacionMinimo extends TFModelo
             $resultado[] = $fila;
         }
         return $resultado;
+    }
+
+    public function componerMovimientos($lineasDeProveedor, $lineasDeTicket, $lineasDeCliente)
+    {
+        // @ Objetivo
+        // Reunir los tres orígenes en una sola lista de movimientos, poniendo a cada
+        // línea el signo con el que afecta a las existencias y la clase de movimiento
+        // que es. Una línea de albarán de proveedor entra tal cual: en positivo es una
+        // recepción y abre lote; en negativo es una devolución al proveedor, resta por
+        // su propio signo y no abre lote. Ticket y albarán de cliente son salidas y
+        // restan siempre.
+        // @ Parametros
+        //      $lineasDeProveedor, $lineasDeTicket, $lineasDeCliente -> array de filas
+        //          ['fecha','nunidades'], cada una de su origen.
+        // @ Devolvemos
+        //      array de ['fecha', 'delta', 'tipo'], sin ordenar.
+        $movimientos = array();
+
+        foreach ($lineasDeProveedor as $linea) {
+            $movimientos[] = array(
+                'fecha' => $linea['fecha'],
+                'delta' => $linea['nunidades'],
+                'tipo' => $linea['nunidades'] >= 0 ? 'recepcion' : 'devolucion',
+            );
+        }
+
+        foreach ($lineasDeTicket as $linea) {
+            $movimientos[] = array(
+                'fecha' => $linea['fecha'],
+                'delta' => -1 * $linea['nunidades'],
+                'tipo' => 'venta',
+            );
+        }
+
+        foreach ($lineasDeCliente as $linea) {
+            $movimientos[] = array(
+                'fecha' => $linea['fecha'],
+                'delta' => -1 * $linea['nunidades'],
+                'tipo' => 'salida_cliente',
+            );
+        }
+
+        return $movimientos;
+    }
+
+    public function tipoSupuesto($tipoDelCatalogo)
+    {
+        // @ Objetivo
+        // Cómo se mide el producto. Si el catálogo no lo dice, se supone que se mide
+        // por unidades: es el caso general, y el que no aplica margen.
+        // @ Parametros
+        //      $tipoDelCatalogo -> string o null, lo que devuelve el catálogo.
+        // @ Devolvemos
+        //      string.
+        if ($tipoDelCatalogo === null) {
+            return 'unidad';
+        }
+        return $tipoDelCatalogo;
     }
 
     public function justificar($movimientos, $tipoArticulo)
@@ -127,94 +202,16 @@ class ClaseComprobacionMinimo extends TFModelo
         return max(0.5, 0.010 * $ventasContadas);
     }
 
-    private function movimientosDe($idArticulo, $contextoOperacion, $proveedorTraspaso)
+    private function consulta()
     {
         // @ Objetivo
-        // Los tres orígenes de movimientos de PCP-TPX §4.6 sobre el producto, en el
-        // ejercicio anterior y su tienda, sin los albaranes del proveedor de traspaso.
+        // La clase de consulta del módulo, una sola vez por instancia: el cálculo
+        // recorre producto a producto y no abre una lectura nueva en cada vuelta.
         // @ Devolvemos
-        //      array de ['fecha','delta','tipo'].
-        $ano = (int) $contextoOperacion['ano'];
-        $idTienda = (int) $contextoOperacion['idTienda'];
-        $idArticulo = (int) $idArticulo;
-        $proveedorTraspaso = (int) $proveedorTraspaso;
-        $fi = $ano . '-01-01';
-        $ff = $ano . '-12-31';
-
-        $movimientos = array();
-
-        $filas = $this->consulta("
-            SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
-            FROM albprolinea l
-            INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
-              AND l.estadoLinea = 'Activo'
-              AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-              AND c.idProveedor <> $proveedorTraspaso
-        ")['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $nunidades = (float) $fila['nunidades'];
-                $movimientos[] = array(
-                    'fecha' => $fila['fecha'],
-                    'delta' => $nunidades,
-                    'tipo' => $nunidades >= 0 ? 'recepcion' : 'devolucion',
-                );
-            }
+        //      ClaseComprobacionStockConsulta.
+        if ($this->consulta === null) {
+            $this->consulta = new ClaseComprobacionStockConsulta();
         }
-
-        $filas = $this->consulta("
-            SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
-            FROM ticketslinea l
-            INNER JOIN ticketst c ON c.id = l.idticketst
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
-              AND l.estadoLinea = 'Activo'
-              AND c.estado = 'Cerrado'
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-        ")['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $movimientos[] = array(
-                    'fecha' => $fila['fecha'],
-                    'delta' => -1 * (float) $fila['nunidades'],
-                    'tipo' => 'venta',
-                );
-            }
-        }
-
-        $filas = $this->consulta("
-            SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
-            FROM albclilinea l
-            INNER JOIN albclit c ON c.id = l.idalbcli
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
-              AND l.estadoLinea = 'Activo'
-              AND c.estado IN ('Guardado', 'Procesado')
-              AND DATE(c.Fecha) BETWEEN '$fi' AND '$ff'
-        ")['datos'];
-        if (is_array($filas)) {
-            foreach ($filas as $fila) {
-                $movimientos[] = array(
-                    'fecha' => $fila['fecha'],
-                    'delta' => -1 * (float) $fila['nunidades'],
-                    'tipo' => 'salida_cliente',
-                );
-            }
-        }
-
-        return $movimientos;
-    }
-
-    private function tipoDe($idArticulo)
-    {
-        $idArticulo = (int) $idArticulo;
-        $filas = $this->consulta("SELECT tipo FROM articulos WHERE idArticulo = $idArticulo")['datos'];
-        if (is_array($filas) && count($filas) > 0) {
-            return (string) $filas[0]['tipo'];
-        }
-        return 'unidad';
+        return $this->consulta;
     }
 }
