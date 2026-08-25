@@ -81,6 +81,7 @@ class ClaseComprobacionIntercambioXML
                 'idArticulo' => (int) $fila->IdArticulo,
                 'saldoAlCorte' => (float) $fila->SaldoAlCorte,
                 'minimoAlcanzado' => (float) $fila->MinimoAlcanzado,
+                'saldoDeApertura' => (float) $fila->SaldoDeApertura,
                 'marcado' => (string) $fila->Marcado === 'true',
                 'tipoIncidencia' => isset($fila->TipoIncidencia) ? (string) $fila->TipoIncidencia : null,
                 'condicionesConocidas' => $condiciones,
@@ -126,6 +127,7 @@ class ClaseComprobacionIntercambioXML
             $nodoFila->addChild('IdArticulo', $fila['idArticulo']);
             $nodoFila->addChild('SaldoAlCorte', $fila['saldoAlCorte']);
             $nodoFila->addChild('MinimoAlcanzado', $fila['minimoAlcanzado']);
+            $nodoFila->addChild('SaldoDeApertura', $fila['saldoDeApertura']);
             $nodoFila->addChild('Marcado', $fila['marcado'] ? 'true' : 'false');
 
             if (!empty($fila['tipoIncidencia'])) {
@@ -165,6 +167,7 @@ class ClaseComprobacionIntercambioXML
                 $fila['idArticulo'],
                 $fila['saldoAlCorte'],
                 $fila['minimoAlcanzado'],
+                $fila['saldoDeApertura'],
                 $fila['marcado'] ? '1' : '0',
                 (string) $fila['tipoIncidencia'],
                 implode(',', $fila['condicionesConocidas']),

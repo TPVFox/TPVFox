@@ -25,8 +25,8 @@ class ClaseComprobacionExtraccion extends TFModelo
         //      $modoEstricto -> bool, opcional. Trunca a cero el saldo de partida.
         //      $fechaCorte -> string 'AAAA-MM-DD', opcional. Por defecto, hoy.
         // @ Devolvemos
-        //      array de filas: idArticulo, saldoAlCorte, minimoAlcanzado, marcado,
-        //      tipoIncidencia (o null) y condicionesConocidas.
+        //      array de filas: idArticulo, saldoAlCorte, minimoAlcanzado,
+        //      saldoDeApertura, marcado, tipoIncidencia (o null) y condicionesConocidas.
         $ano = (int) $contextoOperacion['ano'];
         $fiStock = ($ano - 1) . '-12-31';
         $ffStock = $ano . '-01-01';
@@ -97,6 +97,7 @@ class ClaseComprobacionExtraccion extends TFModelo
                 'idArticulo' => $id,
                 'saldoAlCorte' => $trayectoria['saldoAlCorte'],
                 'minimoAlcanzado' => $trayectoria['minimoAlcanzado'],
+                'saldoDeApertura' => $trayectoria['saldoDeApertura'],
                 'marcado' => $trayectoria['saldoAlCorte'] < 0,
                 'tipoIncidencia' => isset($tipoPorArticulo[$id]) ? $tipoPorArticulo[$id] : null,
                 'condicionesConocidas' => $condiciones,
@@ -118,7 +119,7 @@ class ClaseComprobacionExtraccion extends TFModelo
         //      $movimientos -> array de filas ['tipo_movimiento','idArticulo','nunidades','fecha'].
         //      $modoEstricto -> bool. Si es true, el saldo de partida se trunca a cero.
         // @ Devolvemos
-        //      array [idArticulo => ['saldoAlCorte','minimoAlcanzado','fechaMinimo']].
+        //      array [idArticulo => ['saldoAlCorte','minimoAlcanzado','saldoDeApertura','fechaMinimo']].
         $deltasPorDia = array();
         foreach ($movimientos as $fila) {
             $id = (int) $fila['idArticulo'];
@@ -141,6 +142,7 @@ class ClaseComprobacionExtraccion extends TFModelo
                 $trayectorias[$id] = array(
                     'saldoAlCorte' => $saldoPartida,
                     'minimoAlcanzado' => $saldoPartida,
+                    'saldoDeApertura' => $saldoPartida,
                     'fechaMinimo' => null,
                 );
                 continue;
@@ -163,6 +165,7 @@ class ClaseComprobacionExtraccion extends TFModelo
             $trayectorias[$id] = array(
                 'saldoAlCorte' => $saldoPartida + $acumulado,
                 'minimoAlcanzado' => $saldoPartida + $minimo,
+                'saldoDeApertura' => $saldoPartida,
                 'fechaMinimo' => $fechaMinimo,
             );
         }

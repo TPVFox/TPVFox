@@ -60,6 +60,7 @@
                                         <xs:element name="IdArticulo" type="xs:integer"/>
                                         <xs:element name="SaldoAlCorte" type="xs:decimal"/>
                                         <xs:element name="MinimoAlcanzado" type="xs:decimal"/>
+                                        <xs:element name="SaldoDeApertura" type="xs:decimal"/>
                                         <xs:element name="Marcado" type="xs:boolean"/>
                                         <xs:element name="TipoIncidencia" type="TipoIncidencia" minOccurs="0"/>
                                         <xs:element name="CondicionesConocidas" minOccurs="0">
