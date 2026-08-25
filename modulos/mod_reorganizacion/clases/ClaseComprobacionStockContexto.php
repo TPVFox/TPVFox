@@ -16,10 +16,17 @@ class ClaseComprobacionStockContexto
 {
     private $consulta = null;
 
-    // Vista y tablas de las que depende la lectura, además del catálogo.
+    // Cada vista y cada tabla que la ejecución llega a leer, por consulta propia o
+    // a través del componente de existencias negativas que consume. Una que falte y
+    // no esté aquí no detiene nada: deja llegar la ejecución hasta la consulta que la
+    // necesita.
     private $objetosDelEsquemaRequeridos = array(
         'vw_jerarquias_familias',
         'articulos',
+        'articulosFamilias',
+        'articulosStocks',
+        'stocksRegularizacion',
+        'proveedores',
         'albprot',
         'albprolinea',
         'ticketst',
@@ -28,10 +35,16 @@ class ClaseComprobacionStockContexto
         'albclilinea',
     );
 
-    // Umbrales y ventana de la sección posstock de mod_informes/parametros.xml.
+    // Ventana y umbrales de la sección posstock de mod_informes/parametros.xml. Los
+    // cuatro que empiezan por c1_ gobiernan la detección de existencias negativas: si
+    // no se le pasan, el componente que la resuelve aplica el valor por defecto de su
+    // firma y el resultado depende de un número que nadie fijó ni declara.
     private $parametrosDeCriterioRequeridos = array(
         'ventana_dias',
-        'umbral_sobrestock',
+        'c1_umbral_fraccionado',
+        'c1_umbral_magnitud',
+        'c1_umbral_por_venta',
+        'c1_timing_ventana_dias',
     );
 
     private $rutaParametrosInformes = '/modulos/mod_informes/parametros.xml';
@@ -100,7 +113,10 @@ class ClaseComprobacionStockContexto
             'ano' => $sesion['ano'],
             'idTienda' => $sesion['idTienda'],
             'ventanaDias' => $parametros['valores']['ventanaDias'],
-            'umbralSobrestock' => $parametros['valores']['umbralSobrestock'],
+            'umbralFraccionado' => $parametros['valores']['umbralFraccionado'],
+            'umbralMagnitud' => $parametros['valores']['umbralMagnitud'],
+            'umbralPorVenta' => $parametros['valores']['umbralPorVenta'],
+            'timingVentanaDias' => $parametros['valores']['timingVentanaDias'],
             'proveedorCierre' => $parametros['valores']['proveedorCierre'],
             'familiasExcluidas' => $parametros['valores']['familiasExcluidas'],
         );
@@ -151,7 +167,7 @@ class ClaseComprobacionStockContexto
     {
         // @ Objetivo
         // Comprobar que están presentes los parámetros de los que depende el criterio:
-        // umbrales y ventana de mod_informes/parametros.xml, proveedor de cierre y
+        // ventana y umbrales de mod_informes/parametros.xml, proveedor de cierre y
         // familias excluidas de mod_reorganizacion/parametros.xml. Si lo están, extraer
         // sus valores: son los que necesitan los componentes que operan con el
         // contexto de operación, y así no vuelven a leer los mismos ficheros.
@@ -191,7 +207,10 @@ class ClaseComprobacionStockContexto
             'ausente' => null,
             'valores' => array(
                 'ventanaDias' => (int) (string) $posstock->ventana_dias,
-                'umbralSobrestock' => (float) (string) $posstock->umbral_sobrestock,
+                'umbralFraccionado' => (float) (string) $posstock->c1_umbral_fraccionado,
+                'umbralMagnitud' => (float) (string) $posstock->c1_umbral_magnitud,
+                'umbralPorVenta' => (float) (string) $posstock->c1_umbral_por_venta,
+                'timingVentanaDias' => (int) (string) $posstock->c1_timing_ventana_dias,
                 'proveedorCierre' => isset($atributosProveedor['id']) ? (int) $atributosProveedor['id'] : null,
                 'familiasExcluidas' => $familiasExcluidas,
             ),

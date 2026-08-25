@@ -57,7 +57,10 @@ class ClaseComprobacionStockIntercambioXML
             'autor' => (int) $origen->Autor,
             'proveedorCierre' => (int) $origen->Traspaso->IdProveedor,
             'ventanaDias' => (int) $criterio->VentanaDias,
-            'umbralSobrestock' => (float) $criterio->UmbralSobrestock,
+            'umbralFraccionado' => (float) $criterio->UmbralFraccionado,
+            'umbralMagnitud' => (float) $criterio->UmbralMagnitud,
+            'umbralPorVenta' => (float) $criterio->UmbralPorVenta,
+            'timingVentanaDias' => (int) $criterio->TimingVentanaDias,
             'modoTrayectoria' => (string) $criterio->ModoTrayectoria,
             'filtro' => array(),
         );
@@ -109,7 +112,10 @@ class ClaseComprobacionStockIntercambioXML
     private static function anadirCriterio($nodo, $contexto)
     {
         $nodo->addChild('VentanaDias', $contexto['ventanaDias']);
-        $nodo->addChild('UmbralSobrestock', $contexto['umbralSobrestock']);
+        $nodo->addChild('UmbralFraccionado', $contexto['umbralFraccionado']);
+        $nodo->addChild('UmbralMagnitud', $contexto['umbralMagnitud']);
+        $nodo->addChild('UmbralPorVenta', $contexto['umbralPorVenta']);
+        $nodo->addChild('TimingVentanaDias', $contexto['timingVentanaDias']);
         $nodo->addChild('ModoTrayectoria', $contexto['modoTrayectoria']);
 
         if (!empty($contexto['filtro'])) {
@@ -157,7 +163,10 @@ class ClaseComprobacionStockIntercambioXML
             $contexto['idTienda'],
             $contexto['proveedorCierre'],
             $contexto['ventanaDias'],
-            $contexto['umbralSobrestock'],
+            $contexto['umbralFraccionado'],
+            $contexto['umbralMagnitud'],
+            $contexto['umbralPorVenta'],
+            $contexto['timingVentanaDias'],
             $contexto['modoTrayectoria'],
             implode(',', $contexto['filtro']),
         );

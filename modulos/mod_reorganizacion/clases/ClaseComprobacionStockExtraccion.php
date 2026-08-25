@@ -9,7 +9,9 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 // condiciones conocidas sin depender de que el detector haya emitido incidencia.
 //
 // No lee la base: todo lo que necesita se lo pide a la clase de consulta, y lo que
-// hace con lo leído es la decisión.
+// hace con lo leído es la decisión. Sus propias lecturas van seguidas y terminan
+// cerrando el bloque de solo lectura; el cruce al detector queda después, porque
+// dentro del bloque no puede ejecutarse.
 class ClaseComprobacionStockExtraccion
 {
     private $consulta = null;
@@ -42,12 +44,9 @@ class ClaseComprobacionStockExtraccion
         $idsNegativos = $this->conTrayectoriaEnNegativo($trayectorias);
 
         if (empty($idsNegativos)) {
+            $consulta->cerrarBloqueDeLectura();
             return array();
         }
-
-        $tipoPorArticulo = $this->mapearIncidencias(
-            $consulta->incidenciasC1($fiMov, $ffMov, $fiStock, $ffStock, $stockBaseCache)
-        );
 
         $familiaExcluidaDe = array_flip(
             $consulta->deFamiliasExcluidas($idsNegativos, $contextoOperacion['familiasExcluidas'])
@@ -57,6 +56,17 @@ class ClaseComprobacionStockExtraccion
             $consulta->conStockPositivoEnElCierre($idsNegativos)
         ));
         $conRegularizacion = array_flip($consulta->conRegularizacionEntre($idsNegativos, $fiMov, $ffMov));
+
+        // Aquí termina todo lo que este módulo lee, y con ello el bloque de solo
+        // lectura. Lo que queda cruza al componente de existencias negativas, que crea
+        // una tabla temporal para acotar la ventana de recepción y no puede hacerlo
+        // dentro del bloque.
+        $consulta->cerrarBloqueDeLectura();
+
+        $tipoPorArticulo = $this->mapearIncidencias(
+            $consulta->incidenciasC1($fiMov, $ffMov, $fiStock, $ffStock, $stockBaseCache, $contextoOperacion)
+        );
+
         $ventanaDias = (int) $contextoOperacion['ventanaDias'];
 
         $resultado = array();

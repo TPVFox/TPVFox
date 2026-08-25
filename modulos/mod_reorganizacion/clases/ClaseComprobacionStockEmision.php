@@ -92,7 +92,10 @@ class ClaseComprobacionStockEmision
             'Momento;' . $contexto['momento'],
             'Autor;' . $contexto['autor'],
             'VentanaDias;' . $contexto['ventanaDias'],
-            'UmbralSobrestock;' . $contexto['umbralSobrestock'],
+            'UmbralFraccionado;' . $contexto['umbralFraccionado'],
+            'UmbralMagnitud;' . $contexto['umbralMagnitud'],
+            'UmbralPorVenta;' . $contexto['umbralPorVenta'],
+            'TimingVentanaDias;' . $contexto['timingVentanaDias'],
             'ModoTrayectoria;' . $contexto['modoTrayectoria'],
         );
         return implode("\n", $lineas) . "\n";
@@ -141,7 +144,10 @@ class ClaseComprobacionStockEmision
             'autor' => isset($_SESSION['usuarioTpv']['id']) ? (int) $_SESSION['usuarioTpv']['id'] : null,
             'proveedorCierre' => $contextoOperacion['proveedorCierre'],
             'ventanaDias' => $contextoOperacion['ventanaDias'],
-            'umbralSobrestock' => $contextoOperacion['umbralSobrestock'],
+            'umbralFraccionado' => $contextoOperacion['umbralFraccionado'],
+            'umbralMagnitud' => $contextoOperacion['umbralMagnitud'],
+            'umbralPorVenta' => $contextoOperacion['umbralPorVenta'],
+            'timingVentanaDias' => $contextoOperacion['timingVentanaDias'],
             'modoTrayectoria' => $modoTrayectoria ? 'estricto' : 'normal',
             'filtro' => ($filtro !== null) ? $filtro : array(),
         );

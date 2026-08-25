@@ -25,6 +25,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
     private $repositorio = null;
     private $detector = null;
 
+    // Si es este módulo quien tiene el bloque de lectura abierto. Es estático porque
+    // la conexión que lo sostiene también lo es: el bloque pertenece a la conexión y
+    // no a la instancia, y por eso quien lo abre y quien lo cierra pueden ser dos.
+    private static $bloqueAbierto = false;
+
     // El ejercicio vigente: catálogo, trayectoria e incidencias
 
     public function catalogoFisico()
@@ -81,17 +86,28 @@ class ClaseComprobacionStockConsulta extends TFModelo
         return $this->repositorio()->queryMovimientosPeriodo($fechaInicio, $fechaFin, '', '');
     }
 
-    public function incidenciasC1($fiMovimientos, $ffMovimientos, $fiStock, $ffStock, $stockBase)
+    public function incidenciasC1($fiMovimientos, $ffMovimientos, $fiStock, $ffStock, $stockBase, $umbrales)
     {
         // @ Objetivo
         // Las incidencias que el detector de existencias negativas emite sobre el
-        // periodo, con el saldo de partida ya calculado para que no lo rehaga. Sin
-        // filtros de familia, de artículo ni de tienda: el conjunto lo decide quien
-        // llama, no el detector.
+        // periodo, con el saldo de partida ya calculado para que no lo rehaga y con
+        // los umbrales del criterio, que se le pasan siempre. Sin filtros de familia,
+        // de artículo ni de tienda: el conjunto lo decide quien llama, no el detector.
+        //
+        // Los cuatro umbrales no son opcionales: el detector los lleva con valor por
+        // defecto en su firma, de modo que omitirlos haría depender el resultado de un
+        // número que nadie fijó y que lo emitido declararía después como criterio.
+        //
+        // Este método cruza al componente que resuelve la detección, y ese componente
+        // crea una tabla temporal para acotar la ventana de recepción. Por eso se
+        // llama con el bloque de solo lectura ya cerrado: dentro de él, el motor
+        // rechaza esa creación.
         // @ Parametros
         //      $fiMovimientos, $ffMovimientos -> string 'AAAA-MM-DD', el periodo.
         //      $fiStock, $ffStock -> string 'AAAA-MM-DD', el borde del ejercicio.
         //      $stockBase -> array, la salida de stockBase().
+        //      $umbrales -> array con umbralFraccionado, umbralMagnitud, umbralPorVenta
+        //                   y timingVentanaDias, tal como los da el contexto de operación.
         // @ Devolvemos
         //      array de incidencias del detector, sin tocar.
         return $this->detector()->detectar(
@@ -102,7 +118,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
             array(),
             array(),
             array(),
-            $stockBase
+            $stockBase,
+            (float) $umbrales['umbralFraccionado'],
+            (float) $umbrales['umbralMagnitud'],
+            (float) $umbrales['umbralPorVenta'],
+            (int) $umbrales['timingVentanaDias']
         );
     }
 
@@ -318,17 +338,31 @@ class ClaseComprobacionStockConsulta extends TFModelo
         // @ Devolvemos
         //      bool, true si se abrió.
         try {
-            return $this->conexionBDTPV()->query('START TRANSACTION READ ONLY') !== false;
+            if ($this->conexionBDTPV()->query('START TRANSACTION READ ONLY') === false) {
+                return false;
+            }
         } catch (mysqli_sql_exception $motorNoLoAdmite) {
             return false;
         }
+
+        self::$bloqueAbierto = true;
+        return true;
     }
 
     public function cerrarBloqueDeLectura()
     {
         // @ Objetivo
-        // Cerrar el bloque de lectura abierto por abrirBloqueDeLectura().
+        // Cerrar el bloque de lectura, si es este módulo quien lo abrió. Se llama más
+        // de una vez a propósito —la extracción lo cierra en cuanto deja de leer, y la
+        // acción vuelve a cerrarlo como garantía— y solo la primera hace algo. Fuera de
+        // una ejecución real puede haber además una transacción ajena en curso, y
+        // confirmarla no es cosa de aquí.
+        if (!self::$bloqueAbierto) {
+            return;
+        }
+
         $this->conexionBDTPV()->query('COMMIT');
+        self::$bloqueAbierto = false;
     }
 
     // Apoyo interno

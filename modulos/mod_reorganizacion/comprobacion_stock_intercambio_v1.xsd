@@ -38,7 +38,10 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="VentanaDias" type="xs:integer"/>
-                            <xs:element name="UmbralSobrestock" type="xs:decimal"/>
+                            <xs:element name="UmbralFraccionado" type="xs:decimal"/>
+                            <xs:element name="UmbralMagnitud" type="xs:decimal"/>
+                            <xs:element name="UmbralPorVenta" type="xs:decimal"/>
+                            <xs:element name="TimingVentanaDias" type="xs:integer"/>
                             <xs:element name="ModoTrayectoria" type="ModoTrayectoria"/>
                             <xs:element name="Filtro" minOccurs="0">
                                 <xs:complexType>

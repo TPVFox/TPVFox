@@ -22,16 +22,19 @@ try {
 
     $admision = new ClaseComprobacionStockAdmision();
     $admitido = $admision->admitir($rutaSubida, $apertura);
-    $contextoClase->cerrar();
     unlink($rutaSubida);
 
     if (!$admitido['ok']) {
+        $contextoClase->cerrar();
         echo json_encode(array('ok' => false, 'html' => htmlAlertaComprobacionStock($admitido['motivo'])));
         exit;
     }
 
+    // La reconstrucción del mínimo es la última lectura de esta rama, y va dentro del
+    // bloque de solo lectura como el resto: cerrarlo antes lo dejaría fuera del límite.
     $minimo = new ClaseComprobacionStockMinimo();
     $conMinimo = $minimo->calcular($admitido['filas'], $apertura, $admitido['contexto']['proveedorCierre']);
+    $contextoClase->cerrar();
 
     $clasificacion = new ClaseComprobacionStockClasificacion();
     $clasificado = $clasificacion->clasificar($conMinimo);
