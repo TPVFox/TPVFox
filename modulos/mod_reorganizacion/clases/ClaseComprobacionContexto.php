@@ -80,9 +80,9 @@ class ClaseComprobacionContexto extends TFModelo
             return $this->parada('Falta en el esquema: ' . $objetoAusente);
         }
 
-        $parametroAusente = $this->parametroDeCriterioAusente();
-        if ($parametroAusente !== null) {
-            return $this->parada('Falta el parámetro: ' . $parametroAusente);
+        $parametros = $this->parametrosDeCriterio();
+        if ($parametros['ausente'] !== null) {
+            return $this->parada('Falta el parámetro: ' . $parametros['ausente']);
         }
 
         if (!$this->abrirBloqueDeLectura()) {
@@ -93,6 +93,9 @@ class ClaseComprobacionContexto extends TFModelo
             'ok' => true,
             'ano' => $sesion['ano'],
             'idTienda' => $sesion['idTienda'],
+            'ventanaDias' => $parametros['valores']['ventanaDias'],
+            'proveedorCierre' => $parametros['valores']['proveedorCierre'],
+            'familiasExcluidas' => $parametros['valores']['familiasExcluidas'],
         );
     }
 
@@ -138,33 +141,54 @@ class ClaseComprobacionContexto extends TFModelo
         return null;
     }
 
-    private function parametroDeCriterioAusente()
+    private function parametrosDeCriterio()
     {
         // @ Objetivo
         // Comprobar que están presentes los parámetros de los que depende el criterio:
         // umbrales y ventana de mod_informes/parametros.xml, proveedor de cierre y
-        // familias excluidas de mod_reorganizacion/parametros.xml.
+        // familias excluidas de mod_reorganizacion/parametros.xml. Si lo están, extraer
+        // sus valores: son los que FS-001, FS-003 y FS-004 exigen como parte del
+        // contexto de operación, y así no vuelven a leer los mismos ficheros.
         // @ Devolvemos
-        //      string con la ruta del primer parámetro que falte, o null si están todos.
+        //      array ['ausente' => string] con la ruta del primero que falte.
+        //      array ['ausente' => null, 'valores' => [...]] si están todos.
         global $URLCom;
 
         $informes = new ClaseParametros($URLCom . $this->rutaParametrosInformes);
         $posstock = $informes->getNode('configuracion/posstock');
         foreach ($this->parametrosDeCriterioRequeridos as $parametro) {
             if ($posstock === null || !isset($posstock->$parametro) || (string) $posstock->$parametro === '') {
-                return 'posstock/' . $parametro;
+                return array('ausente' => 'posstock/' . $parametro);
             }
         }
 
         $modulo = new ClaseParametros($URLCom . $this->rutaParametrosModulo);
-        if ($modulo->getNode($this->rutaProveedorCierre) === null) {
-            return 'cierre_stock_anual/ajustes_globales/proveedor';
+        $nodoProveedor = $modulo->getNode($this->rutaProveedorCierre);
+        if ($nodoProveedor === null) {
+            return array('ausente' => 'cierre_stock_anual/ajustes_globales/proveedor');
         }
-        if ($modulo->getNode($this->rutaFamiliasExcluidas) === null) {
-            return 'cierre_stock_anual/familias_excluidas';
+        $nodoFamilias = $modulo->getNode($this->rutaFamiliasExcluidas);
+        if ($nodoFamilias === null) {
+            return array('ausente' => 'cierre_stock_anual/familias_excluidas');
         }
 
-        return null;
+        $atributosProveedor = $nodoProveedor->attributes();
+        $familiasExcluidas = array();
+        foreach ($nodoFamilias->familia as $familia) {
+            $atributosFamilia = $familia->attributes();
+            if (isset($atributosFamilia['id'])) {
+                $familiasExcluidas[] = (int) $atributosFamilia['id'];
+            }
+        }
+
+        return array(
+            'ausente' => null,
+            'valores' => array(
+                'ventanaDias' => (int) (string) $posstock->ventana_dias,
+                'proveedorCierre' => isset($atributosProveedor['id']) ? (int) $atributosProveedor['id'] : null,
+                'familiasExcluidas' => $familiasExcluidas,
+            ),
+        );
     }
 
     private function abrirBloqueDeLectura()
