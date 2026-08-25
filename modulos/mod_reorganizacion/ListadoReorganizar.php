@@ -90,6 +90,24 @@
                                 </td>
                             </tr>
                         <?php } ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vista' => 'ComprobacionVigente.php')) == 1) { ?>
+                            <!-- Comprobación de existencias, ejercicio vigente -->
+                            <tr>
+                                <td><a class="btn" href="ComprobacionVigente.php">
+                                        <span class="glyphicon glyphicon-search"> </span>Comprobar existencias</a></td>
+                                <td>Comprobar productos con existencia negativa en el ejercicio vigente y generar el fichero de intercambio</td>
+                                <td></td>
+                            </tr>
+                        <?php } ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('admitir', array('modulo' => 'mod_reorganizacion', 'vista' => 'ComprobacionAnterior.php')) == 1) { ?>
+                            <!-- Comprobación de existencias, ejercicio anterior -->
+                            <tr>
+                                <td><a class="btn" href="ComprobacionAnterior.php">
+                                        <span class="glyphicon glyphicon-import"> </span>Admitir comprobación</a></td>
+                                <td>Admitir el fichero de intercambio del ejercicio vigente y clasificar el resultado en el ejercicio anterior</td>
+                                <td></td>
+                            </tr>
+                        <?php } ?>
 
                         <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
                             // Solo mostramos si hay web conectada a tienda principal.

@@ -6,4 +6,12 @@
         <accion nombre="subir_stock_web" descripcion="Subir el stock a la web" permiso="0"></accion>
         <accion nombre="reorganizar" descripcion="Reorganizar permisos usuarios" permiso="0"></accion>
     </vista>
+    <vista nombre="ComprobacionVigente.php" descripcion="Comprobación de existencias, ejercicio vigente" permiso="0">
+        <accion nombre="ver" descripcion="Ver la comprobación del ejercicio vigente" permiso="0"></accion>
+        <accion nombre="exportar" descripcion="Descargar el fichero de intercambio" permiso="0"></accion>
+    </vista>
+    <vista nombre="ComprobacionAnterior.php" descripcion="Comprobación de existencias, ejercicio anterior" permiso="0">
+        <accion nombre="admitir" descripcion="Admitir el fichero de intercambio del vigente" permiso="0"></accion>
+        <accion nombre="exportar" descripcion="Descargar el informe final" permiso="0"></accion>
+    </vista>
 </modulo>

@@ -361,6 +361,42 @@ function normalizarProductos($idsProductos)
     return array_values($idsProductosUnicos);
 }
 
+function htmlTablaComprobacionVigente($composicion)
+{
+    // @ Objetivo:
+    // Montar la tabla de resultados de la comprobación del ejercicio vigente: la
+    // misma composición que, si el operador la descarga, también alimenta el
+    // fichero de intercambio.
+    // @ parametros:
+    //      $composicion -> array, la salida de ClaseComprobacionEmision::componer().
+    $html = '<p>' . count($composicion['filas']) . ' producto(s) con existencia negativa en algún punto del ejercicio.</p>';
+    $html .= '<table class="table table-bordered table-hover" id="tablaComprobacionVigente">';
+    $html .= '<thead><tr>'
+        . '<th><input type="checkbox" id="chkComprobacionVigenteTodos" checked></th>'
+        . '<th>Artículo</th>'
+        . '<th>Saldo al corte</th>'
+        . '<th>Mínimo alcanzado</th>'
+        . '<th>Saldo de apertura</th>'
+        . '<th>Marcado</th>'
+        . '<th>Incidencia</th>'
+        . '<th>Condiciones conocidas</th>'
+        . '</tr></thead><tbody>';
+    foreach ($composicion['filas'] as $fila) {
+        $html .= '<tr>'
+            . '<td><input type="checkbox" class="chkComprobacionVigenteArticulo" value="' . (int) $fila['idArticulo'] . '" checked></td>'
+            . '<td>' . (int) $fila['idArticulo'] . '</td>'
+            . '<td>' . htmlspecialchars((string) $fila['saldoAlCorte']) . '</td>'
+            . '<td>' . htmlspecialchars((string) $fila['minimoAlcanzado']) . '</td>'
+            . '<td>' . htmlspecialchars((string) $fila['saldoDeApertura']) . '</td>'
+            . '<td>' . ($fila['marcado'] ? 'Sí' : 'No') . '</td>'
+            . '<td>' . htmlspecialchars($fila['tipoIncidencia'] !== null ? $fila['tipoIncidencia'] : '—') . '</td>'
+            . '<td>' . htmlspecialchars(implode(', ', $fila['condicionesConocidas'])) . '</td>'
+            . '</tr>';
+    }
+    $html .= '</tbody></table>';
+    return $html;
+}
+
 function generarAlbaranesConLimite(array $productos, string $identificador, int $limite, int $idProveedor, string $serieAlbaranCierre)
 {
     $total = count($productos);

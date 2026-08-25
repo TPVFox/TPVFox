@@ -99,8 +99,8 @@
 
     <xs:simpleType name="TipoIncidencia">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="C1a"/>
-            <xs:enumeration value="C1b"/>
+            <xs:enumeration value="Inventario en negativo"/>
+            <xs:enumeration value="Desajuste Puntual de Stock"/>
         </xs:restriction>
     </xs:simpleType>
 
