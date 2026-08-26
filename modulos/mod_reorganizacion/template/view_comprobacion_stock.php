@@ -6,6 +6,15 @@
 // rama declara las suyas aquí abajo como dato —campo, título y formato—, nunca
 // como código de pintado propio. Ninguna decisión de cálculo vive aquí: todo lo
 // que aparece lo trae ya resuelto la composición.
+//
+// La tabla nunca sale sola: encima va con qué se calculó lo que muestra. Quien
+// mira esta pantalla decide sobre ella —qué productos marca y se lleva—, y esa
+// decisión depende de umbrales y de un momento que no están en ninguna celda.
+//
+// Y una columna puede no ser de esta comprobación: hay datos que llegan de otro
+// informe, calculados con su propio criterio. Esos se pintan distintos y se
+// explican debajo, porque presentarlos como propios los convertiría en una
+// conclusión de aquí que nadie ha sacado.
 // @ Parametros
 //      $composicion -> array, la salida de ClaseComprobacionStockEmision::componer().
 //      $rama -> string, 'vigente' o 'anterior'.
@@ -23,7 +32,8 @@ $especificaciones = array(
             array('campo' => 'minimoAlcanzado',      'titulo' => 'Mínimo alcanzado',      'formato' => 'texto'),
             array('campo' => 'saldoDeApertura',      'titulo' => 'Saldo de apertura',     'formato' => 'texto'),
             array('campo' => 'marcado',              'titulo' => 'Marcado',               'formato' => 'booleano'),
-            array('campo' => 'tipoIncidencia',       'titulo' => 'Incidencia',            'formato' => 'opcional'),
+            array('campo' => 'tipoIncidencia',       'titulo' => 'Incidencia',            'formato' => 'ajena',
+                  'procedencia' => 'Lo señala el informe de incidencias de existencias, que lo calcula con su propio criterio de movimiento. No es una conclusión de esta comprobación, y puede no coincidir con los números de su misma fila.'),
             array('campo' => 'condicionesConocidas', 'titulo' => 'Condiciones conocidas', 'formato' => 'lista'),
         ),
     ),
@@ -56,8 +66,32 @@ $etiquetasEstado = array(
 
 $columnas = $especificaciones[$rama]['columnas'];
 $sufijo = ucfirst($rama);
+$contexto = $composicion['contexto'];
 
-$html = '<p>' . htmlspecialchars(sprintf($especificaciones[$rama]['preambulo'], count($composicion['filas']))) . '</p>';
+// Con qué se calculó lo que se ve. Va arriba y no al pie porque se lee antes de
+// decidir, no después: el momento importa porque entre esta pantalla y la descarga
+// la base sigue recibiendo movimientos, y los umbrales porque no aparecen en
+// ninguna celda.
+$camposContexto = array(
+    'Ejercicio' => $contexto['ano'],
+    'Tienda' => $contexto['idTienda'],
+    'Calculado el' => $contexto['momento'],
+    'Trayectoria' => $contexto['modoTrayectoria'],
+    'Ventana de consolidación' => $contexto['ventanaDias'] . ' día(s)',
+    'Ventana de registro tardío' => $contexto['timingVentanaDias'] . ' día(s)',
+    'Umbral de fraccionado' => $contexto['umbralFraccionado'],
+    'Umbral de magnitud' => $contexto['umbralMagnitud'],
+    'Umbral por venta' => $contexto['umbralPorVenta'],
+);
+
+$html = '<ul class="list-inline small text-muted" id="contextoComprobacionStock' . $sufijo . '">';
+foreach ($camposContexto as $etiqueta => $valor) {
+    $html .= '<li><strong>' . htmlspecialchars($etiqueta) . ':</strong> '
+        . htmlspecialchars((string) $valor) . '</li>';
+}
+$html .= '</ul>';
+
+$html .= '<p>' . htmlspecialchars(sprintf($especificaciones[$rama]['preambulo'], count($composicion['filas']))) . '</p>';
 $html .= '<table class="table table-bordered table-hover" id="tablaComprobacionStock' . $sufijo . '">';
 
 $html .= '<thead><tr>';
@@ -65,7 +99,11 @@ foreach ($columnas as $columna) {
     if ($columna['formato'] === 'seleccion') {
         $html .= '<th><input type="checkbox" id="chkComprobacionStock' . $sufijo . 'Todos" checked></th>';
     } else {
-        $html .= '<th>' . htmlspecialchars($columna['titulo']) . '</th>';
+        // La marca de la cabecera es lo que hace visible que la columna no es de
+        // aquí sin depender de que nadie pase el ratón por encima.
+        $html .= '<th>' . htmlspecialchars($columna['titulo'])
+            . (isset($columna['procedencia']) ? ' <sup>*</sup>' : '')
+            . '</th>';
     }
 }
 $html .= '</tr></thead><tbody>';
@@ -97,6 +135,14 @@ foreach ($composicion['filas'] as $fila) {
             case 'opcional':
                 $celda = htmlspecialchars($valor !== null ? (string) $valor : '—');
                 break;
+            case 'ajena':
+                // Distinta de la etiqueta propia a propósito: si se pintaran igual,
+                // el lector no tendría cómo saber cuál de las dos sostiene esta
+                // comprobación y cuál viene resuelta de otro sitio.
+                $celda = ($valor !== null && $valor !== '')
+                    ? '<span class="label label-info">' . htmlspecialchars((string) $valor) . '</span>'
+                    : '—';
+                break;
             default:
                 $celda = htmlspecialchars((string) $valor);
         }
@@ -106,5 +152,13 @@ foreach ($composicion['filas'] as $fila) {
 }
 
 $html .= '</tbody></table>';
+
+foreach ($columnas as $columna) {
+    if (isset($columna['procedencia'])) {
+        $html .= '<p class="small text-muted"><sup>*</sup> <strong>'
+            . htmlspecialchars($columna['titulo']) . ':</strong> '
+            . htmlspecialchars($columna['procedencia']) . '</p>';
+    }
+}
 
 return $html;
