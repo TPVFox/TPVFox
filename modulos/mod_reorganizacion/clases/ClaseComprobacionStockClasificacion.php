@@ -1,5 +1,7 @@
 <?php
 
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockCantidad.php';
+
 // @ Objetivo
 // Aplicar la regla ordenada que compara la existencia exigida por los movimientos
 // con el stock mínimo justificado y su margen, y componer el estado del producto —
@@ -25,7 +27,9 @@ class ClaseComprobacionStockClasificacion
         //      marcado que ya traía la fila no se toca.
         $resultado = array();
         foreach ($filas as $fila) {
-            $existenciaExigida = abs($fila['minimoAlcanzado']) + $fila['saldoDeApertura'];
+            $existenciaExigida = ClaseComprobacionStockCantidad::normalizar(
+                abs($fila['minimoAlcanzado']) + $fila['saldoDeApertura']
+            );
 
             $fila['existenciaExigida'] = $existenciaExigida;
             $fila['estado'] = $this->estadoDe($fila, $existenciaExigida);

@@ -1,6 +1,7 @@
 <?php
 
 include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockCantidad.php';
 
 // @ Objetivo
 // Reconstruir los movimientos del ejercicio anterior para el producto admitido y
@@ -142,7 +143,7 @@ class ClaseComprobacionStockMinimo
             if ($lote['balance'] < 0) {
                 break;
             }
-            $stockJustificado += $lote['balance'];
+            $stockJustificado = ClaseComprobacionStockCantidad::normalizar($stockJustificado + $lote['balance']);
             $ventasContadas += $lote['ventas'];
         }
 
@@ -182,7 +183,13 @@ class ClaseComprobacionStockMinimo
                 continue;
             }
 
-            $loteActual['balance'] += $movimiento['delta'];
+            // En la precisión en que la cantidad existe, porque el balance del lote se
+            // compara después con cero para decidir dónde se corta el recorrido: un lote
+            // que se cancela exactamente daría negativo por residuo y cortaría antes de
+            // tiempo, dejando fuera lotes que sí justifican existencia.
+            $loteActual['balance'] = ClaseComprobacionStockCantidad::normalizar(
+                $loteActual['balance'] + $movimiento['delta']
+            );
             if ($movimiento['tipo'] === 'venta') {
                 $loteActual['ventas']++;
             }

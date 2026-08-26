@@ -1,6 +1,7 @@
 <?php
 
 include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockCantidad.php';
 
 // @ Objetivo
 // Componer, para todo el catálogo, la trayectoria de existencias del producto en el
@@ -136,6 +137,7 @@ class ClaseComprobacionStockExtraccion
         $trayectorias = array();
         foreach ($catalogoIds as $id) {
             $saldoPartida = $modoEstricto ? 0.0 : (isset($stockBaseCache[$id]['saldo_acumulado']) ? (float) $stockBaseCache[$id]['saldo_acumulado'] : 0.0);
+            $saldoPartida = ClaseComprobacionStockCantidad::normalizar($saldoPartida);
 
             if (!isset($deltasPorDia[$id])) {
                 $trayectorias[$id] = array(
@@ -156,11 +158,15 @@ class ClaseComprobacionStockExtraccion
             // solo recibe mercancía daría un mínimo por encima de su propia apertura y
             // se quedaría sin examinar. La fecha queda en nulo mientras la curva no baje
             // de donde empezó: entonces no hay ningún movimiento que explique el mínimo.
+            // El acumulado se deja en la precisión en que la cantidad existe después de
+            // cada día, y no solo al final: el mínimo se decide comparando aquí dentro, y
+            // un acumulado con residuo daría por rebasado el mínimo en un día en que la
+            // curva no bajó, dejando además fechado un mínimo que no ocurrió.
             $acumulado = 0.0;
             $minimo = 0.0;
             $fechaMinimo = null;
             foreach ($dias as $fecha => $delta) {
-                $acumulado += $delta;
+                $acumulado = ClaseComprobacionStockCantidad::normalizar($acumulado + $delta);
                 if ($acumulado < $minimo) {
                     $minimo = $acumulado;
                     $fechaMinimo = $fecha;
@@ -168,8 +174,8 @@ class ClaseComprobacionStockExtraccion
             }
 
             $trayectorias[$id] = array(
-                'saldoAlCorte' => $saldoPartida + $acumulado,
-                'minimoAlcanzado' => $saldoPartida + $minimo,
+                'saldoAlCorte' => ClaseComprobacionStockCantidad::normalizar($saldoPartida + $acumulado),
+                'minimoAlcanzado' => ClaseComprobacionStockCantidad::normalizar($saldoPartida + $minimo),
                 'saldoDeApertura' => $saldoPartida,
                 'fechaMinimo' => $fechaMinimo,
             );

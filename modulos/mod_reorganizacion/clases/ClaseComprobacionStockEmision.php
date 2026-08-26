@@ -2,6 +2,7 @@
 
 include_once $URLCom . '/clases/ClaseIOXML.php';
 include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockIntercambioXML.php';
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockCantidad.php';
 
 // @ Objetivo
 // Componer una sola vez el resultado de cada ejecución —la del ejercicio vigente y
@@ -265,8 +266,8 @@ class ClaseComprobacionStockEmision
                 $fila['estado'],
                 $fila['marcado'] ? '1' : '0',
                 implode(',', $fila['condicionesConocidas']),
-                $fila['existenciaExigida'],
-                ($fila['stockJustificado'] !== null) ? $fila['stockJustificado'] : '',
+                ClaseComprobacionStockCantidad::comoTexto($fila['existenciaExigida']),
+                ($fila['stockJustificado'] !== null) ? ClaseComprobacionStockCantidad::comoTexto($fila['stockJustificado']) : '',
             ));
         }
         return implode("\n", $lineas) . "\n";

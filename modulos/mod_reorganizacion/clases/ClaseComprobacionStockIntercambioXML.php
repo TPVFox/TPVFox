@@ -1,5 +1,7 @@
 <?php
 
+include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockCantidad.php';
+
 // @ Objetivo
 // Convertir la composición del resultado a XML y de vuelta, y calcular el resumen de
 // contenido que viaja dentro del fichero. La misma conversión sirve para emitir y
@@ -162,9 +164,12 @@ class ClaseComprobacionStockIntercambioXML
         foreach ($filas as $fila) {
             $nodoFila = $nodo->addChild('Fila');
             $nodoFila->addChild('IdArticulo', $fila['idArticulo']);
-            $nodoFila->addChild('SaldoAlCorte', $fila['saldoAlCorte']);
-            $nodoFila->addChild('MinimoAlcanzado', $fila['minimoAlcanzado']);
-            $nodoFila->addChild('SaldoDeApertura', $fila['saldoDeApertura']);
+            // Como número decimal y nunca en notación científica: el lenguaje pasa a
+            // exponente por debajo de una cienmilésima, y el esquema no admite «1.0E-6»
+            // aunque una millonésima sí sea una cantidad legítima.
+            $nodoFila->addChild('SaldoAlCorte', ClaseComprobacionStockCantidad::comoTexto($fila['saldoAlCorte']));
+            $nodoFila->addChild('MinimoAlcanzado', ClaseComprobacionStockCantidad::comoTexto($fila['minimoAlcanzado']));
+            $nodoFila->addChild('SaldoDeApertura', ClaseComprobacionStockCantidad::comoTexto($fila['saldoDeApertura']));
             $nodoFila->addChild('Marcado', $fila['marcado'] ? 'true' : 'false');
 
             if (!empty($fila['tipoIncidencia'])) {
@@ -218,9 +223,9 @@ class ClaseComprobacionStockIntercambioXML
         foreach ($filas as $fila) {
             $partes[] = implode('|', array(
                 $fila['idArticulo'],
-                $fila['saldoAlCorte'],
-                $fila['minimoAlcanzado'],
-                $fila['saldoDeApertura'],
+                ClaseComprobacionStockCantidad::comoTexto($fila['saldoAlCorte']),
+                ClaseComprobacionStockCantidad::comoTexto($fila['minimoAlcanzado']),
+                ClaseComprobacionStockCantidad::comoTexto($fila['saldoDeApertura']),
                 $fila['marcado'] ? '1' : '0',
                 (string) $fila['tipoIncidencia'],
                 implode(',', $fila['condicionesConocidas']),
