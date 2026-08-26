@@ -9,7 +9,7 @@
                 <xs:element name="Meta">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="Version" type="xs:string"/>
+                            <xs:element name="Version" type="VersionFormato"/>
                             <xs:element name="Tipo" type="xs:string" fixed="COMPROBACION_EXISTENCIAS"/>
                             <xs:element name="FechaExportacion" type="xs:dateTime"/>
                         </xs:sequence>
@@ -92,6 +92,17 @@
             <xs:attribute name="idOrigen" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
+
+    <!--
+        Las versiones del formato que este esquema admite. Un fichero que declare
+        otra no llega a leerse: se rechaza aquí y no en el código que lo consume,
+        que es donde el fichero lo lee todo dando por hecho que es de esta versión.
+    -->
+    <xs:simpleType name="VersionFormato">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="ModoTrayectoria">
         <xs:restriction base="xs:string">

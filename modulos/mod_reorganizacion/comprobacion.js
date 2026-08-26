@@ -70,20 +70,26 @@ function cargarComprobacionStockVigente() {
 
 function exportarComprobacionStockVigenteXML() {
   var modoEstricto = $("#chkComprobacionStockVigenteModoEstricto").is(":checked") ? "1" : "0";
-  var totalArticulos = $(".chkComprobacionStockVigenteArticulo").length;
   var seleccionados = $(".chkComprobacionStockVigenteArticulo:checked")
     .map(function () {
       return $(this).val();
     })
     .get();
 
-  var campos = { pulsado: "exportarComprobacionStockXML", modoEstricto: modoEstricto };
-  // Si están todos seleccionados no se declara filtro: el conjunto emitido es el completo.
-  if (seleccionados.length > 0 && seleccionados.length < totalArticulos) {
-    campos["filtro[]"] = seleccionados;
-  }
-
-  enviarFormularioComprobacionStock(campos);
+  // La selección viaja unida en un solo campo, y aparte cuántos identificadores se
+  // envían para que el servidor cuente los que le llegan y compare. Un campo por
+  // producto quedaría acotado por cuántos campos admite el motor al leer la
+  // petición, y por encima de ese límite descarta el resto sin decirlo.
+  //
+  // Aquí no se decide nada sobre el conjunto: ni si está vacío, ni si es completo.
+  // Eso lo resuelve quien conoce el conjunto de verdad, que es el servidor al
+  // componerlo; lo de aquí es solo lo que hay marcado en pantalla.
+  enviarFormularioComprobacionStock({
+    pulsado: "exportarComprobacionStockXML",
+    modoEstricto: modoEstricto,
+    filtro: seleccionados.join(","),
+    filtroDeclarado: seleccionados.length,
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -4,12 +4,22 @@
 // Descargar el fichero de intercambio del ejercicio vigente. Recalcula desde el
 // contexto de operación: no depende de ningún estado que haya dejado una petición
 // anterior, igual que la propia pantalla.
+//
+// El conjunto seleccionado llega en un solo campo con su recuento declarado aparte,
+// y lo primero que se hace es comprobar que llegó entero: no se abre la base ni se
+// compone nada de una petición que no ha llegado completa.
 
 $modoEstricto = isset($_POST['modoEstricto']) && $_POST['modoEstricto'] === '1';
 
-$filtro = null;
-if (!empty($_POST['filtro'])) {
-    $filtro = array_map('intval', (array) $_POST['filtro']);
+$emision = new ClaseComprobacionStockEmision();
+$pedido = $emision->conjuntoPedido(
+    isset($_POST['filtro']) ? $_POST['filtro'] : null,
+    isset($_POST['filtroDeclarado']) ? $_POST['filtroDeclarado'] : null
+);
+if (!$pedido['ok']) {
+    http_response_code(400);
+    echo $pedido['motivo'];
+    exit;
 }
 
 $contextoClase = new ClaseComprobacionStockContexto();
@@ -24,13 +34,17 @@ $extraccion = new ClaseComprobacionStockExtraccion();
 $estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
 $contextoClase->cerrar();
 
-$emision = new ClaseComprobacionStockEmision();
+// Si lo pedido es el conjunto entero no hay subconjunto que declarar; lo decide
+// quien conoce el conjunto de verdad, que es esta ejecución al acabar de componerlo.
+$filtro = $emision->filtroDeclarable($estadoProducto, $pedido['ids']);
 $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto, $filtro);
 
 $rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) . '.xml';
-if (!$emision->emitir($composicion, $rutaTemporal)) {
+try {
+    $emision->emitir($composicion, $rutaTemporal);
+} catch (Throwable $error) {
     http_response_code(500);
-    echo 'No se pudo generar el fichero de intercambio';
+    echo 'No se pudo generar el fichero de intercambio: ' . $error->getMessage();
     exit;
 }
 

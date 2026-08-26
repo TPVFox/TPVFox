@@ -42,6 +42,79 @@ class ClaseComprobacionStockEmision
         );
     }
 
+    public function conjuntoPedido($crudo, $declarados)
+    {
+        // @ Objetivo
+        // Reconstruir el conjunto que se pidió emitir desde el campo único en que
+        // viaja, y comprobar que llegó entero: quien lo envía declara cuántos
+        // identificadores manda, y aquí se cuentan los que han llegado.
+        //
+        // El contraste es la garantía, no el camino: un conjunto que llega a medias
+        // compone, valida y se resume exactamente igual de bien que el completo, de
+        // modo que sin comparar el recuento nada distinguiría después «llegó todo»
+        // de «llegó lo que cupo». Comparándolo, cualquier recorte por el camino
+        // —venga de donde venga— detiene la emisión en vez de encogerla.
+        // @ Parametros
+        //      $crudo -> string|null, los identificadores separados por coma.
+        //      $declarados -> int|string|null, cuántos dice haber enviado quien pide.
+        // @ Devolvemos
+        //      array ['ok' => false, 'motivo' => ..] o ['ok' => true, 'ids' => [...]].
+        if ($declarados === null || $declarados === '') {
+            return array('ok' => false, 'motivo' => 'La selección de productos no llegó al servidor');
+        }
+
+        $declarados = (int) $declarados;
+        if ($declarados === 0) {
+            return array('ok' => false, 'motivo' => 'No hay ningún producto seleccionado: no se emite nada');
+        }
+
+        $ids = array();
+        foreach (explode(',', (string) $crudo) as $trozo) {
+            $trozo = trim($trozo);
+            if ($trozo !== '') {
+                $ids[] = (int) $trozo;
+            }
+        }
+
+        if (count($ids) !== $declarados) {
+            return array('ok' => false, 'motivo' => 'La selección no llegó entera: se enviaron '
+                . $declarados . ' productos y llegaron ' . count($ids) . '. No se emite nada');
+        }
+
+        return array('ok' => true, 'ids' => $ids);
+    }
+
+    public function filtroDeclarable($estadoProducto, $pedidos)
+    {
+        // @ Objetivo
+        // Decidir si lo pedido delimita un subconjunto de lo compuesto. Solo cuando
+        // lo pedido y lo compuesto son el mismo conjunto no hay subconjunto que
+        // declarar: entonces el fichero sale sin bloque de filtro, y esa ausencia es
+        // la declaración de que el conjunto emitido es completo.
+        //
+        // Cualquier otra diferencia se declara tal como se pidió, falte alguno de los
+        // compuestos o sobre alguno que no está entre ellos. Las dos son información
+        // sobre lo que se buscaba, y el fichero es el único sitio donde puede quedar.
+        // La comparación se hace contra lo que esta ejecución acaba de componer, que
+        // es el único conjunto del que aquí se sabe algo.
+        // @ Parametros
+        //      $estadoProducto -> array, el conjunto completo ya compuesto.
+        //      $pedidos -> array de int (idArticulo).
+        // @ Devolvemos
+        //      array de int con lo pedido, o null si no hay subconjunto que declarar.
+        $compuestos = array();
+        foreach ($estadoProducto as $fila) {
+            $compuestos[(int) $fila['idArticulo']] = true;
+        }
+
+        $pedidosPorId = array_flip(array_map('intval', $pedidos));
+
+        $mismoConjunto = count($pedidosPorId) === count($compuestos)
+            && count(array_diff_key($compuestos, $pedidosPorId)) === 0;
+
+        return $mismoConjunto ? null : $pedidos;
+    }
+
     public function emitir($composicion, $rutaDestino)
     {
         // @ Objetivo
@@ -52,7 +125,9 @@ class ClaseComprobacionStockEmision
         //      $composicion -> array, la salida de componer().
         //      $rutaDestino -> string, ruta del servidor donde guardar el XML.
         // @ Devolvemos
-        //      bool true si se guardó.
+        //      bool true si se guardó. No devuelve false nunca: el único desenlace
+        //      distinto es la excepción, de modo que quien llama ha de capturarla
+        //      para que el motivo llegue a constar en algún sitio.
         global $RutaServidor, $HostNombre;
 
         $xml = ClaseComprobacionStockIntercambioXML::arrayToSimpleXML($composicion);
