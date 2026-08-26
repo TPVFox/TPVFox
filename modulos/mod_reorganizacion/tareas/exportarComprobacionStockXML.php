@@ -43,8 +43,10 @@ $rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) .
 try {
     $emision->emitir($composicion, $rutaTemporal);
 } catch (Throwable $error) {
+    // Sin el mensaje del motor: nombra rutas del servidor y el esquema, y quien pide la
+    // descarga no puede hacer nada con ellos.
     http_response_code(500);
-    echo 'No se pudo generar el fichero de intercambio: ' . $error->getMessage();
+    echo 'No se pudo generar el fichero de intercambio. Inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.';
     exit;
 }
 

@@ -22,14 +22,31 @@ try {
         $emision = new ClaseComprobacionStockEmision();
         $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto);
 
-        $respuesta = array('ok' => true, 'html' => htmlTablaComprobacionStock($composicion, 'vigente'));
+        // El aviso de volumen viaja con la tabla y no con la descarga: cuando el
+        // operador pide el fichero, la respuesta es el fichero y ya no queda dónde
+        // decirle que no va a caber al otro lado.
+        $aviso = $emision->avisoDeVolumen(
+            count($composicion['filas']),
+            ini_get('upload_max_filesize'),
+            ini_get('post_max_size')
+        );
+
+        $respuesta = array(
+            'ok' => true,
+            'html' => ($aviso !== null ? htmlAvisoComprobacionStock($aviso) : '')
+                . htmlTablaComprobacionStock($composicion, 'vigente'),
+        );
     }
 } catch (Throwable $error) {
     // Un fallo inesperado tiene que llegar como aviso, no como respuesta rota: una
     // pantalla vacía se leería como que no hay nada que revisar. Y el bloque de lectura
     // no se queda abierto por haber fallado a mitad.
+    // No se reproduce el mensaje del motor: nombra rutas del servidor y la consulta que
+    // falló, y no dice nada que quien mira la pantalla pueda usar.
     if (isset($contextoClase)) {
         $contextoClase->cerrar();
     }
-    $respuesta = array('ok' => false, 'html' => htmlAlertaComprobacionStock($error->getMessage()));
+    $respuesta = array('ok' => false, 'html' => htmlAlertaComprobacionStock(
+        'No se pudo obtener el resultado del ejercicio. Inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.'
+    ));
 }

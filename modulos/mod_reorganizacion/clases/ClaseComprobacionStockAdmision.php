@@ -16,6 +16,49 @@ class ClaseComprobacionStockAdmision
     private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_stock_intercambio_v1.xsd';
     private $consulta = null;
 
+    public function subidaAdmisible($subida, $limiteDelMotor)
+    {
+        // @ Objetivo
+        // Decidir si llegó un fichero con el que se pueda seguir, y con qué motivo si
+        // no llegó. Es la primera rama del flujo y ocurre antes de establecer el
+        // contexto: comprobar que hay algo con lo que trabajar no necesita ni la
+        // sesión, ni el esquema, ni los parámetros, ni abrir el bloque de lectura.
+        //
+        // Que llegue o no llegue tiene cuatro causas distintas y quien las junta en
+        // una sola deja al operador sin saber qué hacer: no es lo mismo no haber
+        // elegido fichero que haber elegido uno que el servidor no acepta por tamaño.
+        // La segunda se acompaña del límite, porque sin la cifra el aviso no dice
+        // nada que se pueda usar.
+        //
+        // Queda fuera de su alcance el caso en que la petición entera excede lo que
+        // el servidor admite: entonces no llega ningún campo, esta acción no se
+        // ejecuta y no hay nada aquí que pueda notarlo.
+        // @ Parametros
+        //      $subida -> array del fichero recibido, o null si no llegó el campo.
+        //      $limiteDelMotor -> string, el tamaño máximo por fichero que admite el
+        //          servidor, tal como lo declara, para nombrarlo en el motivo.
+        // @ Devolvemos
+        //      array ['ok' => true] o ['ok' => false, 'motivo' => ..].
+        if (!is_array($subida) || !isset($subida['error'])) {
+            return $this->rechazo('No llegó ningún fichero: elija el fichero de intercambio del ejercicio vigente');
+        }
+
+        switch ($subida['error']) {
+            case UPLOAD_ERR_OK:
+                return array('ok' => true);
+            case UPLOAD_ERR_NO_FILE:
+                return $this->rechazo('No se eligió ningún fichero');
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                return $this->rechazo('El fichero excede el tamaño que admite este servidor, que es de '
+                    . $limiteDelMotor . ' por fichero');
+            case UPLOAD_ERR_PARTIAL:
+                return $this->rechazo('El fichero llegó incompleto: vuelva a intentarlo');
+        }
+
+        return $this->rechazo('El servidor no pudo recibir el fichero');
+    }
+
     public function admitir($rutaFichero, $contextoOperacion)
     {
         // @ Objetivo

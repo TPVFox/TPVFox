@@ -13,6 +13,86 @@ class ClaseComprobacionStockEmision
 {
     private $rutaXSD = '/modulos/mod_reorganizacion/comprobacion_stock_intercambio_v1.xsd';
 
+    // Lo que ocupa una fila del fichero de intercambio en el peor caso: la que lleva
+    // incidencia y condiciones, con identificadores de seis cifras. Medido sobre la
+    // propia serialización —una fila sin nada ocupa menos de la mitad—, y redondeado
+    // hacia arriba a propósito: una estimación que se quede corta avisaría de que cabe
+    // algo que después no cabe, que es peor que no avisar.
+    const BYTES_POR_FILA = 380;
+
+    public function avisoDeVolumen($numeroDeFilas, $limiteDeSubida, $limiteDePeticion)
+    {
+        // @ Objetivo
+        // Avisar, cuando se compone el resultado del ejercicio vigente, de que un
+        // fichero con todos estos productos no cabría por la subida del otro extremo,
+        // y decir en partes de cuántos hay que emitirlo.
+        //
+        // Se comprueba aquí y no al emitir porque al emitir ya no hay dónde decirlo:
+        // la respuesta de la descarga es el fichero. Aquí, en cambio, el operador
+        // todavía no ha elegido nada y el filtro sigue siendo el remedio disponible.
+        //
+        // Se mide contra el conjunto completo, que es el mayor que se puede pedir: si
+        // el completo cabe, ninguna selección deja de caber y no hay nada que decir.
+        // @ Parametros
+        //      $numeroDeFilas -> int, los productos que la composición contiene.
+        //      $limiteDeSubida -> string, lo que el servidor admite por fichero.
+        //      $limiteDePeticion -> string, lo que admite por petición entera. El que
+        //          manda es el menor de los dos: un fichero que cabe por sí mismo no
+        //          entra si la petición que lo lleva no cabe.
+        // @ Devolvemos
+        //      string con el aviso, o null si el conjunto completo cabe.
+        $limite = min($this->bytesDelLimite($limiteDeSubida), $this->bytesDelLimite($limiteDePeticion));
+        if ($limite <= 0) {
+            return null;
+        }
+
+        $estimado = $numeroDeFilas * self::BYTES_POR_FILA;
+        if ($estimado <= $limite) {
+            return null;
+        }
+
+        $porParte = (int) floor($limite / self::BYTES_POR_FILA);
+
+        return 'Un fichero con los ' . number_format($numeroDeFilas, 0, ',', '.')
+            . ' productos ocuparía en torno a ' . $this->enMegas($estimado)
+            . ', y este servidor admite ' . $this->enMegas($limite)
+            . '. Seleccione productos para emitirlo por partes de hasta '
+            . number_format($porParte, 0, ',', '.') . '.';
+    }
+
+    public function bytesDelLimite($declarado)
+    {
+        // @ Objetivo
+        // Traducir a bytes un límite tal como lo declara el servidor, que lo abrevia
+        // con un sufijo de unidad: «2M» son dos megas, «1024M» mil veinticuatro.
+        // @ Parametros
+        //      $declarado -> string.
+        // @ Devolvemos
+        //      int, los bytes, o 0 si no se declara ninguno.
+        $declarado = trim((string) $declarado);
+        if ($declarado === '') {
+            return 0;
+        }
+
+        $bytes = (int) $declarado;
+        switch (strtolower(substr($declarado, -1))) {
+            case 'g':
+                $bytes *= 1024;
+                // Sin break: cada unidad se apoya en la anterior.
+            case 'm':
+                $bytes *= 1024;
+            case 'k':
+                $bytes *= 1024;
+        }
+
+        return $bytes;
+    }
+
+    private function enMegas($bytes)
+    {
+        return number_format($bytes / 1048576, 1, ',', '.') . ' MB';
+    }
+
     public function componer($estadoProducto, $contextoOperacion, $modoTrayectoria, $filtro = null, $contextoVigente = null)
     {
         // @ Objetivo

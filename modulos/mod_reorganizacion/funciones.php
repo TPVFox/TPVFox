@@ -361,6 +361,20 @@ function normalizarProductos($idsProductos)
     return array_values($idsProductosUnicos);
 }
 
+function htmlAvisoComprobacionStock($mensaje)
+{
+    // @ Objetivo
+    // Dar una advertencia que no impide seguir, ya montada. Se distingue del aviso de
+    // que algo no se pudo hacer porque lo que anuncia no es un fallo: el resultado que
+    // acompaña es correcto y completo, y lo que se advierte es una consecuencia que
+    // aparecerá más tarde si no se hace nada.
+    // @ Parametros
+    //      $mensaje -> string, la advertencia.
+    // @ Devolvemos
+    //      string, la advertencia montada.
+    return '<div class="alert alert-warning">' . htmlspecialchars($mensaje) . '</div>';
+}
+
 function htmlAlertaComprobacionStock($mensaje)
 {
     // @ Objetivo
