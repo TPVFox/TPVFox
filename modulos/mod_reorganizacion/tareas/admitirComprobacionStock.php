@@ -72,6 +72,8 @@ try {
     // servidor, el esquema o la consulta que falló: es que no dice nada que quien
     // admite pueda usar, porque el fichero no lo escribió él. Lo único cierto que se
     // le puede decir es que el fichero puede estar bien y que el fallo fue de aquí.
+    // Queda registrado, que es donde sí sirve.
+    registrarFalloComprobacionStock('admitirComprobacionStock', $error);
     $respuesta = array('ok' => false, 'html' => htmlAlertaComprobacionStock(
         'No se pudo completar la comprobación. El fichero puede ser correcto: inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.'
     ));

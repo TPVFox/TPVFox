@@ -42,7 +42,8 @@ try {
     // pantalla vacía se leería como que no hay nada que revisar. Y el bloque de lectura
     // no se queda abierto por haber fallado a mitad.
     // No se reproduce el mensaje del motor: nombra rutas del servidor y la consulta que
-    // falló, y no dice nada que quien mira la pantalla pueda usar.
+    // falló, y no dice nada que quien mira la pantalla pueda usar. Queda registrado.
+    registrarFalloComprobacionStock('obtenerComprobacionStockVigente', $error);
     if (isset($contextoClase)) {
         $contextoClase->cerrar();
     }

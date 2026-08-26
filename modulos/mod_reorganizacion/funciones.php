@@ -361,6 +361,25 @@ function normalizarProductos($idsProductos)
     return array_values($idsProductosUnicos);
 }
 
+function registrarFalloComprobacionStock($accion, Throwable $error)
+{
+    // @ Objetivo
+    // Dejar constancia recuperable de un fallo que no es un rechazo. Lo que se
+    // muestra en pantalla es un texto fijo, porque el mensaje del motor nombra rutas
+    // del servidor y consultas y quien opera no puede hacer nada con él; pero quien
+    // mantiene el sistema sí, y sin esto un fallo no dejaría ningún rastro que seguir.
+    //
+    // Escribe donde el servidor ya escribe sus errores: el módulo no elige destino ni
+    // abre un registro propio.
+    // @ Parametros
+    //      $accion -> string, cuál de las acciones del módulo falló.
+    //      $error -> Throwable, tal cual se capturó.
+    error_log(
+        'mod_reorganizacion/' . $accion . ': ' . get_class($error) . ' — ' . $error->getMessage()
+        . ' [' . $error->getFile() . ':' . $error->getLine() . ']'
+    );
+}
+
 function htmlAvisoComprobacionStock($mensaje)
 {
     // @ Objetivo

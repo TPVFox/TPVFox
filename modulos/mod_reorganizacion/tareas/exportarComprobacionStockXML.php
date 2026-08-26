@@ -44,7 +44,9 @@ try {
     $emision->emitir($composicion, $rutaTemporal);
 } catch (Throwable $error) {
     // Sin el mensaje del motor: nombra rutas del servidor y el esquema, y quien pide la
-    // descarga no puede hacer nada con ellos.
+    // descarga no puede hacer nada con ellos. Pero queda registrado, porque quien
+    // mantiene el sistema sí, y un fallo sin rastro no se puede diagnosticar.
+    registrarFalloComprobacionStock('exportarComprobacionStockXML', $error);
     http_response_code(500);
     echo 'No se pudo generar el fichero de intercambio. Inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.';
     exit;
