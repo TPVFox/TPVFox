@@ -33,6 +33,12 @@ class ClaseComprobacionStockExtraccion
         $ffStock = $ano . '-01-01';
         $fiMov = $ano . '-01-02';
         $ffMov = ($fechaCorte !== null) ? $fechaCorte : date('Y-m-d');
+        // La regularización no es uno de los tres movimientos, así que el reparto entre
+        // saldo de partida y recorrido no la alcanza: ninguna de las dos mitades la
+        // absorbe. Por eso su periodo es el del ejercicio entero y arranca un día antes
+        // que el recorrido; contándola desde el 2, una regularización del primer día del
+        // año no la vería nadie.
+        $fiEjercicio = $ano . '-01-01';
 
         $consulta = $this->consulta();
 
@@ -55,7 +61,7 @@ class ClaseComprobacionStockExtraccion
             $idsNegativos,
             $consulta->conStockPositivoEnElCierre($idsNegativos)
         ));
-        $conRegularizacion = array_flip($consulta->conRegularizacionEntre($idsNegativos, $fiMov, $ffMov));
+        $conRegularizacion = array_flip($consulta->conRegularizacionEntre($idsNegativos, $fiEjercicio, $ffMov));
 
         // Aquí termina todo lo que este módulo lee, y con ello el bloque de solo
         // lectura. Lo que queda cruza al componente de existencias negativas, que crea
@@ -177,6 +183,13 @@ class ClaseComprobacionStockExtraccion
         // @ Objetivo
         // Quedarse solo con artículo y tipo de incidencia. severidad,
         // fraccionado_es_causa y posible_causa se descartan aquí.
+        //
+        // El tipo es el hallazgo del componente que se cruza, no una conclusión de este
+        // módulo: lo compone con su propia definición de movimiento —dos estados de
+        // albarán de proveedor donde aquí se admiten cuatro, y un mínimo que arranca en
+        // el primer movimiento y no en el punto de partida—, de modo que puede no
+        // coincidir con los extremos que la fila lleva. Por eso viaja como lo que es y
+        // nunca decide quién se examina: eso lo decide la trayectoria de aquí.
         // @ Devolvemos
         //      array [idArticulo => tipo].
         $resultado = array();

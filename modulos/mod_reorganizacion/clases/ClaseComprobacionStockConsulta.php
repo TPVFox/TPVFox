@@ -205,6 +205,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
         // @ Objetivo
         // De los productos indicados, cuáles cumplen el criterio de selección del
         // propio cierre: stockOn > 0 en la tienda principal.
+        //
+        // La tienda es siempre la 1, y no la tienda en que se opera: lo que se pregunta
+        // es a quién habría tomado el cierre, y el cierre selecciona por la principal.
+        // Un producto con existencias en otra tienda y ninguna en la principal es
+        // exactamente un producto que el cierre no habría tomado.
         // @ Parametros
         //      $ids -> array de int.
         // @ Devolvemos
@@ -227,7 +232,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
     {
         // @ Objetivo
         // De los productos indicados, cuáles tienen una regularización activa fechada
-        // dentro del periodo.
+        // dentro del periodo. Solo eso: ni la fecha ni la cantidad salen de aquí, porque
+        // lo que el producto lleva es que la regularización consta, no cuánto movió.
+        //
+        // No acota por tienda, igual que el recorrido del periodo: una regularización
+        // registrada en cualquier tienda explica la misma divergencia.
         // @ Parametros
         //      $ids -> array de int.
         //      $desde, $hasta -> string 'AAAA-MM-DD'; el periodo se toma por días
