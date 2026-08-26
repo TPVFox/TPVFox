@@ -77,13 +77,62 @@ class ClaseComprobacionStockConsulta extends TFModelo
     {
         // @ Objetivo
         // Los movimientos de todo el catálogo entre las dos fechas, sin filtro de
-        // familia ni de artículo. Se entregan tal como los da el repositorio: la
-        // trayectoria los recorre con esa misma forma.
+        // familia ni de artículo, agrupados por clase de movimiento, artículo y día.
+        // Es la otra mitad de la misma trayectoria que arranca el saldo de partida, y
+        // cuenta exactamente lo mismo que él: los cuatro estados de albarán de proveedor
+        // que valen como recepción, el ticket cerrado y el albarán de cliente guardado o
+        // procesado. Contarlos de otro modo en un tramo y no en el otro haría bajar la
+        // curva por una entrada que sí existe.
+        //
+        // Tampoco acota por tienda, por la misma razón: ni el saldo de partida ni la
+        // detección que se cruza después la acotan, y hacerlo solo aquí volvería a
+        // dejar los dos tramos con alcances distintos.
+        //
+        // Las unidades salen sin signo: cuál suma y cuál resta lo decide quien compone
+        // la trayectoria, a partir de la clase de movimiento.
+        //
+        // El proveedor del traspaso no se excluye. Este periodo arranca el 2 de enero y
+        // los dos albaranes del cambio de año están en el borde, de modo que ya quedan
+        // fuera por fecha; excluirlo además borraría las compras corrientes a ese mismo
+        // proveedor, que sí son movimiento del ejercicio.
         // @ Parametros
         //      $fechaInicio, $fechaFin -> string 'AAAA-MM-DD'.
         // @ Devolvemos
         //      array de filas ['tipo_movimiento', 'idArticulo', 'nunidades', 'fecha'].
-        return $this->repositorio()->queryMovimientosPeriodo($fechaInicio, $fechaFin, '', '');
+        return $this->filasDe("
+            SELECT tipo_movimiento, idArticulo, SUM(nunidades) AS nunidades, fecha
+            FROM (
+                SELECT 'entrada_proveedor' AS tipo_movimiento, l.idArticulo,
+                       l.nunidades, DATE(c.Fecha) AS fecha
+                FROM albprolinea l
+                INNER JOIN albprot c ON c.id = l.idalbpro
+                WHERE l.estadoLinea = 'Activo'
+                  AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+
+                UNION ALL
+
+                SELECT 'salida_ticket' AS tipo_movimiento, l.idArticulo,
+                       l.nunidades, DATE(c.Fecha) AS fecha
+                FROM ticketslinea l
+                INNER JOIN ticketst c ON c.id = l.idticketst
+                WHERE l.estadoLinea = 'Activo'
+                  AND c.estado = 'Cerrado'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+
+                UNION ALL
+
+                SELECT 'salida_albcli' AS tipo_movimiento, l.idArticulo,
+                       l.nunidades, DATE(c.Fecha) AS fecha
+                FROM albclilinea l
+                INNER JOIN albclit c ON c.id = l.idalbcli
+                WHERE l.estadoLinea = 'Activo'
+                  AND c.estado IN ('Guardado', 'Procesado')
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+            ) AS movimientos
+            GROUP BY tipo_movimiento, idArticulo, fecha
+            ORDER BY idArticulo, fecha
+        ");
     }
 
     public function incidenciasC1($fiMovimientos, $ffMovimientos, $fiStock, $ffStock, $stockBase, $umbrales)

@@ -144,12 +144,18 @@ class ClaseComprobacionStockExtraccion
             $dias = $deltasPorDia[$id];
             ksort($dias);
 
+            // El mínimo arranca en cero, que es el recorrido antes del primer
+            // movimiento: el punto de partida forma parte de la trayectoria. Arrancando
+            // en el primer movimiento, un producto que abre el ejercicio en negativo y
+            // solo recibe mercancía daría un mínimo por encima de su propia apertura y
+            // se quedaría sin examinar. La fecha queda en nulo mientras la curva no baje
+            // de donde empezó: entonces no hay ningún movimiento que explique el mínimo.
             $acumulado = 0.0;
-            $minimo = null;
+            $minimo = 0.0;
             $fechaMinimo = null;
             foreach ($dias as $fecha => $delta) {
                 $acumulado += $delta;
-                if ($minimo === null || $acumulado < $minimo) {
+                if ($acumulado < $minimo) {
                     $minimo = $acumulado;
                     $fechaMinimo = $fecha;
                 }
