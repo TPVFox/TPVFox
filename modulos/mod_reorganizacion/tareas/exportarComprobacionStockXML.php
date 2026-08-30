@@ -23,30 +23,40 @@ if (!$pedido['ok']) {
 }
 
 $contextoClase = new ClaseComprobacionStockContexto();
-$apertura = $contextoClase->abrir();
-if (!$apertura['ok']) {
-    http_response_code(400);
-    echo $apertura['motivo'];
-    exit;
-}
+$rutaTemporal = null;
 
-$extraccion = new ClaseComprobacionStockExtraccion();
-$estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
-$contextoClase->cerrar();
-
-// Si lo pedido es el conjunto entero no hay subconjunto que declarar; lo decide
-// quien conoce el conjunto de verdad, que es esta ejecución al acabar de componerlo.
-$filtro = $emision->filtroDeclarable($estadoProducto, $pedido['ids']);
-$composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto, $filtro);
-
-$rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) . '.xml';
+// El camino entero va protegido, y no solo la escritura del fichero: leer la base y
+// componer el resultado también pueden fallar, y ahí el aviso del motor nombra rutas
+// del servidor y la consulta. Además, un fallo a mitad de la lectura dejaría el bloque
+// de solo lectura abierto, que es lo que el cierre garantizado evita.
 try {
+    $apertura = $contextoClase->abrir();
+    if (!$apertura['ok']) {
+        http_response_code(400);
+        echo $apertura['motivo'];
+        exit;
+    }
+
+    $extraccion = new ClaseComprobacionStockExtraccion();
+    $estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
+    $contextoClase->cerrar();
+
+    // Si lo pedido es el conjunto entero no hay subconjunto que declarar; lo decide
+    // quien conoce el conjunto de verdad, que es esta ejecución al acabar de componerlo.
+    $filtro = $emision->filtroDeclarable($estadoProducto, $pedido['ids']);
+    $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto, $filtro);
+
+    $rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) . '.xml';
     $emision->emitir($composicion, $rutaTemporal);
 } catch (Throwable $error) {
     // Sin el mensaje del motor: nombra rutas del servidor y el esquema, y quien pide la
     // descarga no puede hacer nada con ellos. Pero queda registrado, porque quien
     // mantiene el sistema sí, y un fallo sin rastro no se puede diagnosticar.
     registrarFalloComprobacionStock('exportarComprobacionStockXML', $error);
+    $contextoClase->cerrar();
+    if ($rutaTemporal !== null && file_exists($rutaTemporal)) {
+        unlink($rutaTemporal);
+    }
     http_response_code(500);
     echo 'No se pudo generar el fichero de intercambio. Inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.';
     exit;

@@ -34,7 +34,20 @@ if (!$admisible['ok']) {
 // El informe se compone en memoria y se entrega. No pasa por fichero temporal: esa
 // escritura puede fallar sin que la descarga se entere, y entonces se entregaría un
 // documento vacío con nombre de informe.
-$contenido = $emision->contenidoDelInforme($composicion);
+//
+// Componer también puede fallar, y sin esta protección el aviso del lenguaje saldría
+// en el cuerpo de la descarga: nombraría el fichero del servidor y la línea, y lo que
+// se archivaría es eso. Que salga o no salga no puede depender de cómo esté
+// configurado el servidor.
+try {
+    $contenido = $emision->contenidoDelInforme($composicion);
+} catch (Throwable $error) {
+    registrarFalloComprobacionStock('exportarInformeComprobacionStock', $error);
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'No se pudo generar el informe. Inténtelo de nuevo y, si vuelve a ocurrir, avise de la incidencia.';
+    exit;
+}
 
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="informe_comprobacion_' . (int) $composicion['contexto']['ano'] . '.csv"');

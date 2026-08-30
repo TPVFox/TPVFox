@@ -67,6 +67,14 @@ class ClaseComprobacionStockAdmision
         // primer fallo rechaza el fichero entero y detiene la ejecución antes de
         // calcular nada. Superadas las tres, empareja cada fila con el catálogo de
         // este ejercicio.
+        //
+        // Rechazar y no poder terminar son dos desenlaces distintos, y aquí es donde
+        // se distinguen: rechazar dice que el material no vale y que hay que traer
+        // otro; no poder terminar dice que el material puede estar bien y que quien
+        // falló fue el sistema. Quién de los dos ocurrió no se deduce del tipo de
+        // error que devuelve el componente que lee el fichero —señala con el mismo
+        // aviso que falta el esquema del servidor y que el fichero está corrupto—,
+        // sino de lo que se haya comprobado antes de llamarlo.
         // @ Parametros
         //      $rutaFichero -> string, ruta del servidor al fichero de intercambio.
         //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir()
@@ -74,13 +82,50 @@ class ClaseComprobacionStockAdmision
         // @ Devolvemos
         //      array ['ok' => false, 'motivo' => ..] en el primer fallo.
         //      array ['ok' => true, 'filas' => [...], 'contexto' => [...]] si se admite.
+        // @ Lanza
+        //      RuntimeException si el esquema no está donde tiene que estar: eso no es
+        //      culpa de quien sube el fichero y no puede anunciarse como un rechazo.
         global $RutaServidor, $HostNombre;
 
+        $rutaEsquema = $RutaServidor . $HostNombre . $this->rutaXSD;
+
+        // Lo primero es el esquema, y se comprueba aquí porque su ausencia es lo único
+        // de este tramo que no depende del fichero recibido. Sin esta comprobación,
+        // un servidor mal instalado le diría a quien admite que su fichero no vale.
+        if (!is_readable($rutaEsquema)) {
+            throw new RuntimeException('El esquema del formato de intercambio no está disponible en el servidor');
+        }
+
+        // Y lo segundo, que el fichero sea siquiera un documento: es el rechazo más
+        // corriente de todos —un fichero truncado, uno de otro tipo, uno que se copió
+        // a medias— y se comprueba aquí porque, dejándoselo al componente, llega como
+        // un error del lenguaje y se anunciaría como un fallo del sistema.
+        // El buffer de avisos se vacía antes de leer: es del proceso y no de esta
+        // lectura, y arrastrar lo que dejó otra haría que el registro del rechazo
+        // nombrara un motivo que no es el suyo.
+        $avisosInternos = libxml_use_internal_errors(true);
+        libxml_clear_errors();
+        $documento = simplexml_load_file($rutaFichero);
+        $avisos = libxml_get_errors();
+        libxml_clear_errors();
+        libxml_use_internal_errors($avisosInternos);
+
+        if ($documento === false) {
+            $this->registrarDetalleDelRechazo($rutaFichero, $avisos);
+            return $this->rechazo('El fichero no es un documento de intercambio legible: compruebe que es el que descargó del ejercicio vigente y vuelva a intentarlo');
+        }
+
+        // Comprobadas las dos, lo único que el componente puede reprochar ya es el
+        // contenido del fichero, así que cualquier cosa que lance es un rechazo. Lo
+        // que dijo no sale a pantalla —nombra la ruta del esquema en el servidor y no
+        // es accionable para quien admite—, pero queda registrado: sin él, un rechazo
+        // por esquema es la única salida del módulo que no deja rastro de su motivo.
         try {
-            $io = new ClaseIOXML($rutaFichero, $RutaServidor . $HostNombre . $this->rutaXSD);
+            $io = new ClaseIOXML($rutaFichero, $rutaEsquema);
             $xml = $io->cargar();
-        } catch (Exception $error) {
-            return $this->rechazo('El fichero no valida contra el esquema: ' . $error->getMessage());
+        } catch (Throwable $error) {
+            $this->registrarDetalleDelRechazo($rutaFichero, $error);
+            return $this->rechazo('El fichero no cumple el formato de intercambio de este sistema: use el que emite el ejercicio vigente, sin editarlo');
         }
 
         $datos = ClaseComprobacionStockIntercambioXML::simpleXMLToArray($xml);
@@ -152,5 +197,32 @@ class ClaseComprobacionStockAdmision
     private function rechazo($motivo)
     {
         return array('ok' => false, 'motivo' => $motivo);
+    }
+
+    private function registrarDetalleDelRechazo($rutaFichero, $detalle)
+    {
+        // @ Objetivo
+        // Dejar constancia de por qué se rechazó un fichero. Lo que se muestra es el
+        // motivo que este sistema establece; el detalle de quien lo leyó nombra la
+        // ruta del esquema en el servidor y el elemento que falló, que no le sirven a
+        // quien admite pero sí a quien mantiene el sistema. Sin esto, un rechazo por
+        // formato sería la única salida del módulo sin rastro de su causa.
+        //
+        // Escribe donde el servidor ya escribe sus errores: el módulo no elige destino
+        // ni abre un registro propio.
+        // @ Parametros
+        //      $rutaFichero -> string, el fichero rechazado.
+        //      $detalle -> Throwable, o array de errores de la lectura del documento.
+        if (is_array($detalle)) {
+            $texto = '';
+            foreach ($detalle as $aviso) {
+                $texto .= trim($aviso->message) . '; ';
+            }
+        } else {
+            $texto = get_class($detalle) . ' — ' . $detalle->getMessage();
+        }
+
+        error_log('mod_reorganizacion/admitirComprobacionStock: fichero rechazado ('
+            . basename($rutaFichero) . '): ' . $texto);
     }
 }
