@@ -21,29 +21,40 @@ class ClaseComprobacionStockMinimo
         // Para cada fila admitida, leer sus movimientos del ejercicio anterior, formar
         // los lotes y determinar el stock justificado con su margen y condiciones.
         // @ Parametros
-        //      $filas -> array de filas emparejadas (ClaseComprobacionStockAdmision::admitir()).
+        //      $filas -> array de filas emparejadas (ClaseComprobacionStockAdmision::admitir()),
+        //          cada una con su marca 'comparable'.
         //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir()
-        //          en este ejercicio (el anterior): fija tienda y el borde del calendario.
+        //          en este ejercicio (el anterior): fija el borde del calendario.
         //      $proveedorTraspaso -> int, el proveedor que declara el fichero admitido:
-        //          sus albaranes son los dos traspasos y quedan fuera de la ventana, sin
-        //          volver a leer la configuración local de este despliegue.
+        //          sus albaranes de frontera son los dos traspasos y quedan fuera de la
+        //          ventana, sin volver a leer la configuración local de este despliegue.
         // @ Devolvemos
         //      array de filas con 'stockJustificado', 'margen' y 'condicionesConocidas'
         //      (ampliado) añadidos.
         $consulta = $this->consulta();
         $ano = (int) $contextoOperacion['ano'];
-        $idTienda = (int) $contextoOperacion['idTienda'];
         $desde = $ano . '-01-01';
         $hasta = $ano . '-12-31';
 
         $resultado = array();
         foreach ($filas as $fila) {
+            // Un producto que no está en el catálogo de este ejercicio no tiene nada que
+            // reconstruir: no hay histórico incompleto que declarar, porque lo que le
+            // ocurre es que aquí no existe, y colgarle esa condición pondría en el informe
+            // un hallazgo sobre un producto del que no hay hallazgo ninguno.
+            if (!$fila['comparable']) {
+                $fila['stockJustificado'] = null;
+                $fila['margen'] = 0.0;
+                $resultado[] = $fila;
+                continue;
+            }
+
             $idArticulo = (int) $fila['idArticulo'];
 
             $movimientos = $this->componerMovimientos(
-                $consulta->lineasDeAlbaranDeProveedor($idTienda, $idArticulo, $desde, $hasta, $proveedorTraspaso),
-                $consulta->lineasDeTicket($idTienda, $idArticulo, $desde, $hasta),
-                $consulta->lineasDeAlbaranDeCliente($idTienda, $idArticulo, $desde, $hasta)
+                $consulta->lineasDeAlbaranDeProveedor($idArticulo, $desde, $hasta, $proveedorTraspaso),
+                $consulta->lineasDeTicket($idArticulo, $desde, $hasta),
+                $consulta->lineasDeAlbaranDeCliente($idArticulo, $desde, $hasta)
             );
             $tipoArticulo = $this->tipoSupuesto($consulta->tipoDeArticulo($idArticulo));
             $justificado = $this->justificar($movimientos, $tipoArticulo);
@@ -137,19 +148,24 @@ class ClaseComprobacionStockMinimo
             );
         }
 
+        // Si el ancla es el lote más reciente, no queda nada posterior y el mínimo sale
+        // cero. No es el cero que la falta de histórico produciría: aquí hay lotes y se
+        // han recorrido, y lo que dicen es que ni el último tramo se sostiene solo. Cero
+        // es entonces una restricción establecida —el registro no justifica ninguna
+        // existencia— y no una ausencia de base, así que se emite como cantidad.
         $stockJustificado = 0.0;
-        $ventasContadas = 0;
+        $salidasContadas = 0;
         foreach (array_reverse($lotes) as $lote) {
             if ($lote['balance'] < 0) {
                 break;
             }
             $stockJustificado = ClaseComprobacionStockCantidad::normalizar($stockJustificado + $lote['balance']);
-            $ventasContadas += $lote['ventas'];
+            $salidasContadas += $lote['salidas'];
         }
 
         return array(
             'stockJustificado' => $stockJustificado,
-            'margen' => $this->margen($tipoArticulo, $ventasContadas),
+            'margen' => $this->margen($tipoArticulo, $salidasContadas),
             'condicionesConocidas' => array(),
         );
     }
@@ -162,11 +178,23 @@ class ClaseComprobacionStockMinimo
         // proveedor no abre lote: se suma al balance del lote en curso, igual que una
         // venta. Los movimientos anteriores a la primera recepción no entran en ningún
         // lote: no hay recepción que los delimite.
+        //
+        // Los movimientos se fechan por día, sin hora, de modo que coincidir en el
+        // mismo día es lo corriente y hay que decidirlo: dentro de un día la recepción
+        // va primero, y lo que salió ese día pertenece al lote que la recepción abre.
+        // Es lo coherente con que el lote empiece en la recepción inclusive; dejarlo al
+        // orden en que se leyeron los tres orígenes haría que el resultado dependiera de
+        // en qué orden se concatenan.
         // @ Devolvemos
-        //      array de ['balance' => float, 'ventas' => int], en orden cronológico.
+        //      array de ['balance' => float, 'salidas' => int], en orden cronológico.
         $ordenados = $movimientos;
         usort($ordenados, function ($a, $b) {
-            return strcmp($a['fecha'], $b['fecha']);
+            $porFecha = strcmp($a['fecha'], $b['fecha']);
+            if ($porFecha !== 0) {
+                return $porFecha;
+            }
+            $primeroLaRecepcion = ($a['tipo'] === 'recepcion' ? 0 : 1) - ($b['tipo'] === 'recepcion' ? 0 : 1);
+            return $primeroLaRecepcion;
         });
 
         $lotes = array();
@@ -176,7 +204,7 @@ class ClaseComprobacionStockMinimo
                 if ($loteActual !== null) {
                     $lotes[] = $loteActual;
                 }
-                $loteActual = array('balance' => 0.0, 'ventas' => 0);
+                $loteActual = array('balance' => 0.0, 'salidas' => 0);
             }
 
             if ($loteActual === null) {
@@ -190,8 +218,12 @@ class ClaseComprobacionStockMinimo
             $loteActual['balance'] = ClaseComprobacionStockCantidad::normalizar(
                 $loteActual['balance'] + $movimiento['delta']
             );
-            if ($movimiento['tipo'] === 'venta') {
-                $loteActual['ventas']++;
+            // Cuenta toda salida al cliente, por ticket o por albarán: lo que el margen
+            // acota es la imprecisión que cada pesada acumula, y una salida por albarán
+            // se pesa igual que una de ticket. Cuenta líneas y no documentos por lo
+            // mismo: dos líneas del mismo producto en un ticket son dos pesadas.
+            if ($movimiento['tipo'] === 'venta' || $movimiento['tipo'] === 'salida_cliente') {
+                $loteActual['salidas']++;
             }
         }
         if ($loteActual !== null) {
@@ -201,12 +233,15 @@ class ClaseComprobacionStockMinimo
         return $lotes;
     }
 
-    private function margen($tipoArticulo, $ventasContadas)
+    private function margen($tipoArticulo, $salidasContadas)
     {
+        // Solo el producto que se registra por peso acumula imprecisión de pesaje, y
+        // solo cuentan las salidas de los lotes contados: las anteriores al ancla no
+        // sostienen el resultado y ensancharían el margen sin motivo.
         if ($tipoArticulo !== 'peso') {
             return 0.0;
         }
-        return max(0.5, 0.010 * $ventasContadas);
+        return max(0.5, 0.010 * $salidasContadas);
     }
 
     private function consulta()

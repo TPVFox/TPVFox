@@ -280,77 +280,83 @@ class ClaseComprobacionStockConsulta extends TFModelo
         return $resultado;
     }
 
-    public function lineasDeAlbaranDeProveedor($idTienda, $idArticulo, $desde, $hasta, $idProveedorExcluido)
+    // Las tres lecturas de movimiento del ejercicio anterior. Ninguna acota por
+    // tienda, y es deliberado: lo que se reconstruye aquí se compara después contra
+    // la existencia exigida del ejercicio vigente, que no acota ni puede acotar. Si
+    // solo acotara uno de los dos lados, la resta entre ambos no significaría nada en
+    // un despliegue con más de una tienda con existencias.
+
+    public function lineasDeAlbaranDeProveedor($idArticulo, $desde, $hasta, $idProveedorTraspaso)
     {
         // @ Objetivo
         // Las líneas activas de albarán de proveedor del producto en el periodo,
-        // dejando fuera las del proveedor indicado: sus albaranes son los dos
-        // traspasos entre ejercicios y no son movimiento del negocio.
+        // dejando fuera los dos albaranes de frontera: los del proveedor de traspaso
+        // fechados en el primer y el último día del ejercicio, que son el cambio de
+        // año y no movimiento del negocio. Las compras corrientes a ese mismo
+        // proveedor durante el año sí lo son, y se quedan: excluirlo entero borraría
+        // recepciones que abren lote.
         // @ Parametros
-        //      $idTienda, $idArticulo -> int.
-        //      $desde, $hasta -> string 'AAAA-MM-DD'.
-        //      $idProveedorExcluido -> int, el proveedor de traspaso.
+        //      $idArticulo -> int.
+        //      $desde, $hasta -> string 'AAAA-MM-DD', los dos bordes del ejercicio.
+        //      $idProveedorTraspaso -> int, el proveedor que declara el fichero admitido.
         // @ Devolvemos
         //      array de filas ['fecha' => string, 'nunidades' => float].
-        $idTienda = (int) $idTienda;
         $idArticulo = (int) $idArticulo;
-        $idProveedorExcluido = (int) $idProveedorExcluido;
+        $idProveedorTraspaso = (int) $idProveedorTraspaso;
 
         return $this->lineasDe("
             SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
             FROM albprolinea l
             INNER JOIN albprot c ON c.id = l.idalbpro
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
+            WHERE l.idArticulo = $idArticulo
               AND l.estadoLinea = 'Activo'
               AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
               AND DATE(c.Fecha) BETWEEN '$desde' AND '$hasta'
-              AND c.idProveedor <> $idProveedorExcluido
+              AND NOT (
+                    c.idProveedor = $idProveedorTraspaso
+                AND DATE(c.Fecha) IN ('$desde', '$hasta')
+              )
         ");
     }
 
-    public function lineasDeTicket($idTienda, $idArticulo, $desde, $hasta)
+    public function lineasDeTicket($idArticulo, $desde, $hasta)
     {
         // @ Objetivo
         // Las líneas activas de ticket cerrado del producto en el periodo.
         // @ Parametros
-        //      $idTienda, $idArticulo -> int.
+        //      $idArticulo -> int.
         //      $desde, $hasta -> string 'AAAA-MM-DD'.
         // @ Devolvemos
         //      array de filas ['fecha' => string, 'nunidades' => float].
-        $idTienda = (int) $idTienda;
         $idArticulo = (int) $idArticulo;
 
         return $this->lineasDe("
             SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
             FROM ticketslinea l
             INNER JOIN ticketst c ON c.id = l.idticketst
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
+            WHERE l.idArticulo = $idArticulo
               AND l.estadoLinea = 'Activo'
               AND c.estado = 'Cerrado'
               AND DATE(c.Fecha) BETWEEN '$desde' AND '$hasta'
         ");
     }
 
-    public function lineasDeAlbaranDeCliente($idTienda, $idArticulo, $desde, $hasta)
+    public function lineasDeAlbaranDeCliente($idArticulo, $desde, $hasta)
     {
         // @ Objetivo
         // Las líneas activas de albarán de cliente del producto en el periodo.
         // @ Parametros
-        //      $idTienda, $idArticulo -> int.
+        //      $idArticulo -> int.
         //      $desde, $hasta -> string 'AAAA-MM-DD'.
         // @ Devolvemos
         //      array de filas ['fecha' => string, 'nunidades' => float].
-        $idTienda = (int) $idTienda;
         $idArticulo = (int) $idArticulo;
 
         return $this->lineasDe("
             SELECT DATE(c.Fecha) AS fecha, l.nunidades AS nunidades
             FROM albclilinea l
             INNER JOIN albclit c ON c.id = l.idalbcli
-            WHERE c.idTienda = $idTienda
-              AND l.idArticulo = $idArticulo
+            WHERE l.idArticulo = $idArticulo
               AND l.estadoLinea = 'Activo'
               AND c.estado IN ('Guardado', 'Procesado')
               AND DATE(c.Fecha) BETWEEN '$desde' AND '$hasta'
