@@ -60,10 +60,14 @@ try {
             $emision = new ClaseComprobacionStockEmision();
             $composicion = $emision->componer($clasificado, $apertura, false, null, $admitido['contexto']);
 
+            // El resumen sale con la composición y vuelve con ella. Es lo único que
+            // permitirá saber, en la petición siguiente, si lo que llega es esto
+            // mismo: entre las dos no hay nada en servidor que lo recuerde.
             $respuesta = array(
                 'ok' => true,
                 'html' => htmlTablaComprobacionStock($composicion, 'anterior'),
                 'composicion' => $composicion,
+                'resumen' => $emision->resumenDeComposicion($composicion),
             );
         }
     }

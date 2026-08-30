@@ -97,6 +97,7 @@ function exportarComprobacionStockVigenteXML() {
 // ---------------------------------------------------------------------------
 
 var comprobacionStockAnteriorComposicion = null;
+var comprobacionStockAnteriorResumen = null;
 
 function admitirComprobacionStockAnterior() {
   var form = document.getElementById("formAdmitirComprobacionStock");
@@ -116,12 +117,15 @@ function admitirComprobacionStockAnterior() {
     success: function (resultado) {
       // Lo que se pinta llega montado, sea la tabla o el aviso de que no se pudo.
       // La composición viaja aparte porque es lo que el informe final necesita de
-      // vuelta, no lo que se muestra.
+      // vuelta, no lo que se muestra. Con ella viene su resumen, que se guarda tal
+      // como llega y se devuelve tal cual: aquí no se recalcula nada, porque un
+      // resumen que calculara quien lo devuelve no comprobaría nada.
       $("#areaComprobacionStockAnterior").html(resultado.html);
       if (!resultado.ok) {
         return;
       }
       comprobacionStockAnteriorComposicion = resultado.composicion;
+      comprobacionStockAnteriorResumen = resultado.resumen;
       $("#btnComprobacionStockAnteriorExportar").prop("disabled", false);
     },
     error: function () {
@@ -137,5 +141,6 @@ function exportarInformeComprobacionStockAnterior() {
   enviarFormularioComprobacionStock({
     pulsado: "exportarInformeComprobacionStock",
     composicion: JSON.stringify(comprobacionStockAnteriorComposicion),
+    resumen: comprobacionStockAnteriorResumen,
   });
 }

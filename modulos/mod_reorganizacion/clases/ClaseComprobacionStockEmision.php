@@ -123,6 +123,164 @@ class ClaseComprobacionStockEmision
         );
     }
 
+    public function resumenDeComposicion($composicion)
+    {
+        // @ Objetivo
+        // Resumir en SHA-256 todo lo que una composición contiene —sus dos contextos
+        // y todos los campos de todas sus filas—, en orden canónico fijo, para que
+        // quien la reciba de vuelta pueda comprobar que es la misma que salió.
+        //
+        // El resumen se calcula sobre los valores ya normalizados y no sobre el texto
+        // con que viajan: la ida y vuelta por el navegador no conserva el tipo de un
+        // número —una cantidad entera sale como decimal y vuelve como entero— y un
+        // resumen sobre el texto crudo no casaría nunca aunque no se hubiera tocado
+        // nada. Y cubre todos los campos, no una parte: un campo que la composición
+        // lleva y el resumen no mira es un campo que puede volver cambiado sin que
+        // nada lo delate.
+        // @ Parametros
+        //      $composicion -> array, la salida de componer().
+        // @ Devolvemos
+        //      string, 64 caracteres hexadecimales.
+        $partes = array($this->parteDeContexto($composicion['contexto']));
+        $partes[] = ($composicion['contextoVigente'] === null)
+            ? 'sin-contexto-vigente'
+            : $this->parteDeContexto($composicion['contextoVigente']);
+
+        foreach ($composicion['filas'] as $fila) {
+            $partes[] = implode('|', array(
+                $fila['idArticulo'],
+                $this->comoTextoOVacio($fila['saldoAlCorte']),
+                $this->comoTextoOVacio($fila['minimoAlcanzado']),
+                $this->comoTextoOVacio($fila['saldoDeApertura']),
+                $fila['marcado'] ? '1' : '0',
+                (string) $fila['tipoIncidencia'],
+                implode(',', $fila['condicionesConocidas']),
+                implode(',', $fila['condicionesDelVigente']),
+                $fila['comparable'] ? '1' : '0',
+                $this->comoTextoOVacio($fila['stockJustificado']),
+                $this->comoTextoOVacio($fila['margen']),
+                $this->comoTextoOVacio($fila['existenciaExigida']),
+                $fila['estado'],
+            ));
+        }
+
+        return hash('sha256', implode(';', $partes));
+    }
+
+    public function composicionAdmisible($composicion, $resumenDeclarado)
+    {
+        // @ Objetivo
+        // Decidir si una composición que vuelve de fuera es la que este sistema
+        // compuso. Vale para el único camino en que una composición sale de la
+        // aplicación y regresa: la que se pinta tras admitir el fichero y vuelve
+        // para que se escriba el informe final.
+        //
+        // Se comprueba antes de escribir nada. El informe final es un documento que
+        // se archiva y que nadie vuelve a contrastar con nada, así que lo que se
+        // escriba con lo que llegue queda como el resultado de esta comprobación
+        // para siempre: es el último punto en que la diferencia entre «lo que se
+        // calculó» y «lo que llegó» todavía se puede ver.
+        //
+        // Los dos desenlaces malos se separan porque piden cosas distintas: lo que
+        // no llegó entero se vuelve a pedir, y lo que llegó cambiado no.
+        // @ Parametros
+        //      $composicion -> array|null, lo recibido ya decodificado.
+        //      $resumenDeclarado -> string|null, el resumen que salió con ella.
+        // @ Devolvemos
+        //      array ['ok' => false, 'motivo' => ..] o ['ok' => true].
+        if (!is_array($composicion) || $resumenDeclarado === null || $resumenDeclarado === '') {
+            return array('ok' => false, 'motivo' => 'El resultado no llegó al servidor. '
+                . 'Vuelva a admitir el fichero antes de descargar el informe');
+        }
+
+        if (!$this->tieneFormaDeComposicion($composicion)) {
+            return array('ok' => false, 'motivo' => 'El resultado llegó incompleto: no se emite el informe. '
+                . 'Vuelva a admitir el fichero antes de descargar el informe');
+        }
+
+        if (!hash_equals($this->resumenDeComposicion($composicion), (string) $resumenDeclarado)) {
+            return array('ok' => false, 'motivo' => 'El resultado que ha llegado no es el que se calculó al admitir el fichero: '
+                . 'no se emite el informe');
+        }
+
+        return array('ok' => true);
+    }
+
+    private function tieneFormaDeComposicion($composicion)
+    {
+        // Comprobar la forma antes que el resumen no es una segunda barrera: es que
+        // el resumen se calcula leyendo estos campos, y calcularlo sobre algo que no
+        // los tiene detiene la ejecución con un fallo del motor en vez de con el
+        // motivo que el operador necesita leer.
+        if (!isset($composicion['filas'], $composicion['contexto'], $composicion['contextoVigente'])
+            || !is_array($composicion['filas'])
+        ) {
+            return false;
+        }
+
+        $deContexto = array('ano', 'idTienda', 'momento', 'autor', 'proveedorCierre', 'ventanaDias',
+            'umbralFraccionado', 'umbralMagnitud', 'umbralPorVenta', 'timingVentanaDias',
+            'modoTrayectoria', 'filtro');
+        foreach (array($composicion['contexto'], $composicion['contextoVigente']) as $contexto) {
+            if (!is_array($contexto)) {
+                return false;
+            }
+            foreach ($deContexto as $campo) {
+                if (!array_key_exists($campo, $contexto)) {
+                    return false;
+                }
+            }
+            if (!is_array($contexto['filtro'])) {
+                return false;
+            }
+        }
+
+        $deFila = array('idArticulo', 'saldoAlCorte', 'minimoAlcanzado', 'saldoDeApertura', 'marcado',
+            'tipoIncidencia', 'condicionesConocidas', 'condicionesDelVigente', 'comparable',
+            'stockJustificado', 'margen', 'existenciaExigida', 'estado');
+        foreach ($composicion['filas'] as $fila) {
+            if (!is_array($fila)) {
+                return false;
+            }
+            foreach ($deFila as $campo) {
+                if (!array_key_exists($campo, $fila)) {
+                    return false;
+                }
+            }
+            if (!is_array($fila['condicionesConocidas']) || !is_array($fila['condicionesDelVigente'])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function parteDeContexto($contexto)
+    {
+        return implode('|', array(
+            $contexto['ano'],
+            $contexto['idTienda'],
+            $contexto['momento'],
+            (int) $contexto['autor'],
+            $contexto['proveedorCierre'],
+            $contexto['ventanaDias'],
+            $contexto['umbralFraccionado'],
+            $contexto['umbralMagnitud'],
+            $contexto['umbralPorVenta'],
+            $contexto['timingVentanaDias'],
+            $contexto['modoTrayectoria'],
+            implode(',', $contexto['filtro']),
+        ));
+    }
+
+    private function comoTextoOVacio($valor)
+    {
+        // Una cantidad ausente y una cantidad de cero son cosas distintas, y el
+        // resumen tiene que distinguirlas: un producto sin nada que reconstruir no
+        // puede resumir igual que uno cuyo mínimo justificado es cero.
+        return ($valor === null) ? '' : ClaseComprobacionStockCantidad::comoTexto($valor);
+    }
+
     public function conjuntoPedido($crudo, $declarados)
     {
         // @ Objetivo
@@ -216,43 +374,64 @@ class ClaseComprobacionStockEmision
         return $io->guardar($xml);
     }
 
-    public function emitirInforme($composicion, $rutaDestino)
+    public function contenidoDelInforme($composicion)
     {
         // @ Objetivo
-        // Escribir el informe final del ejercicio anterior: texto separado por punto y
+        // Componer el informe final del ejercicio anterior: texto separado por punto y
         // coma con BOM UTF-8, con los dos contextos de cálculo en filas de cabecera
         // —el de esta emisión y el que trajo el fichero del vigente— y una fila por
         // producto con su estado, su marcado, sus condiciones y los dos números que
         // lo sostienen. Sin ramas: no valida ni transforma, solo escribe lo que ya
         // trae la composición.
+        //
+        // Devuelve el texto en vez de un fichero porque quien lo pide lo entrega tal
+        // cual en la respuesta de la descarga: pasar por un fichero temporal añadía
+        // una escritura que puede fallar sin que la descarga se entere, y entregar
+        // entonces un documento vacío con nombre de informe.
         // @ Parametros
         //      $composicion -> array, la salida de componer() con $contextoVigente aportado.
-        //      $rutaDestino -> string, ruta del servidor donde guardar el informe.
         // @ Devolvemos
-        //      bool true si se guardó.
-        $contenido = $this->bloqueContexto('Anterior', $composicion['contexto'])
+        //      string, el informe entero.
+        return "\xEF\xBB\xBF"
+            . $this->bloqueContexto('Anterior', $composicion['contexto'])
             . "\n"
             . $this->bloqueContexto('Vigente', $composicion['contextoVigente'])
             . "\n"
             . $this->bloqueFilas($composicion['filas']);
+    }
 
-        return file_put_contents($rutaDestino, "\xEF\xBB\xBF" . $contenido) !== false;
+    public function emitirInforme($composicion, $rutaDestino)
+    {
+        // @ Objetivo
+        // Guardar en fichero el informe que compone contenidoDelInforme().
+        // @ Devolvemos
+        //      bool true si se guardó.
+        return file_put_contents($rutaDestino, $this->contenidoDelInforme($composicion)) !== false;
     }
 
     private function bloqueContexto($etiqueta, $contexto)
     {
+        // El bloque lleva el contexto de cálculo entero, no una selección de sus
+        // campos. Dos que parecen accesorios no lo son en un documento que se guarda:
+        // el proveedor del traspaso es lo que fija qué movimientos quedaron fuera de
+        // la reconstrucción, y sin él dos informes del mismo ejercicio no son
+        // comparables; y el conjunto pedido es lo único que distingue un informe de
+        // todos los productos de uno de unos cuantos. Sin esa línea, un resultado
+        // parcial se archiva como si fuera completo.
         $lineas = array(
             'Contexto;' . $etiqueta,
             'Ejercicio;' . $contexto['ano'],
             'Tienda;' . $contexto['idTienda'],
             'Momento;' . $contexto['momento'],
             'Autor;' . $contexto['autor'],
+            'ProveedorCierre;' . $contexto['proveedorCierre'],
             'VentanaDias;' . $contexto['ventanaDias'],
             'UmbralFraccionado;' . $contexto['umbralFraccionado'],
             'UmbralMagnitud;' . $contexto['umbralMagnitud'],
             'UmbralPorVenta;' . $contexto['umbralPorVenta'],
             'TimingVentanaDias;' . $contexto['timingVentanaDias'],
             'ModoTrayectoria;' . $contexto['modoTrayectoria'],
+            'ConjuntoPedido;' . (empty($contexto['filtro']) ? 'completo' : implode(',', $contexto['filtro'])),
         );
         return implode("\n", $lineas) . "\n";
     }
@@ -262,13 +441,18 @@ class ClaseComprobacionStockEmision
         // La columna se nombra por lo que la cantidad es: el mínimo que basta para
         // explicar los movimientos reconstruidos. Llamarla stock la convierte en un
         // recuento, y este informe se lee para decidir si se corrigen existencias.
-        $lineas = array('IdArticulo;Estado;Marcado;Condiciones;ExistenciaExigida;MinimoNecesarioJustificado');
+        //
+        // Y las condiciones van en dos columnas porque son de dos ejercicios y se
+        // marcaron con umbrales distintos. En una sola, «periodo no consolidado» no
+        // dice de qué periodo habla.
+        $lineas = array('IdArticulo;Estado;Marcado;CondicionesDeEsteEjercicio;CondicionesDelVigente;ExistenciaExigida;MinimoNecesarioJustificado');
         foreach ($filas as $fila) {
             $lineas[] = implode(';', array(
                 $fila['idArticulo'],
                 $fila['estado'],
                 $fila['marcado'] ? '1' : '0',
                 implode(',', $fila['condicionesConocidas']),
+                implode(',', $fila['condicionesDelVigente']),
                 ClaseComprobacionStockCantidad::comoTexto($fila['existenciaExigida']),
                 ($fila['stockJustificado'] !== null) ? ClaseComprobacionStockCantidad::comoTexto($fila['stockJustificado']) : '',
             ));

@@ -29,8 +29,15 @@ class ClaseComprobacionStockMinimo
         //          sus albaranes de frontera son los dos traspasos y quedan fuera de la
         //          ventana, sin volver a leer la configuración local de este despliegue.
         // @ Devolvemos
-        //      array de filas con 'stockJustificado', 'margen' y 'condicionesConocidas'
-        //      (ampliado) añadidos.
+        //      array de filas con 'stockJustificado', 'margen' y 'condicionesDelVigente'
+        //      añadidos. Las condiciones que traía la fila pasan a ese campo nuevo y
+        //      'condicionesConocidas' se queda con las que produce esta reconstrucción.
+        //
+        // Las dos no se juntan. Las que llegan en el fichero se marcaron en el otro
+        // ejercicio y con los umbrales de allí; las de aquí, con los de aquí. Una lista
+        // única deja al lector delante de «periodo no consolidado» sin poder saber de
+        // qué periodo habla, y quien lee esta salida está decidiendo si corrige
+        // existencias de este ejercicio.
         $consulta = $this->consulta();
         $ano = (int) $contextoOperacion['ano'];
         $desde = $ano . '-01-01';
@@ -45,6 +52,8 @@ class ClaseComprobacionStockMinimo
             if (!$fila['comparable']) {
                 $fila['stockJustificado'] = null;
                 $fila['margen'] = 0.0;
+                $fila['condicionesDelVigente'] = $fila['condicionesConocidas'];
+                $fila['condicionesConocidas'] = array();
                 $resultado[] = $fila;
                 continue;
             }
@@ -61,7 +70,8 @@ class ClaseComprobacionStockMinimo
 
             $fila['stockJustificado'] = $justificado['stockJustificado'];
             $fila['margen'] = $justificado['margen'];
-            $fila['condicionesConocidas'] = array_merge($fila['condicionesConocidas'], $justificado['condicionesConocidas']);
+            $fila['condicionesDelVigente'] = $fila['condicionesConocidas'];
+            $fila['condicionesConocidas'] = $justificado['condicionesConocidas'];
             $resultado[] = $fila;
         }
         return $resultado;
