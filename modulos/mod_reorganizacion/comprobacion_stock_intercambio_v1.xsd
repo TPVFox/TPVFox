@@ -37,6 +37,7 @@
                 <xs:element name="Criterio">
                     <xs:complexType>
                         <xs:sequence>
+                            <xs:element name="FechaCorte" type="xs:date"/>
                             <xs:element name="VentanaDias" type="xs:integer"/>
                             <xs:element name="UmbralFraccionado" type="xs:decimal"/>
                             <xs:element name="UmbralMagnitud" type="xs:decimal"/>
@@ -97,10 +98,15 @@
         Las versiones del formato que este esquema admite. Un fichero que declare
         otra no llega a leerse: se rechaza aquí y no en el código que lo consume,
         que es donde el fichero lo lee todo dando por hecho que es de esta versión.
+
+        La versión sube con el contenido y no con el nombre del fichero. La 1.1
+        añade la fecha de corte, y por eso la 1.0 deja de admitirse: un fichero suyo
+        no la trae, y admitirlo sería leer como vacío el dato que dice hasta dónde
+        llegan las existencias que declara.
     -->
     <xs:simpleType name="VersionFormato">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="1.0"/>
+            <xs:enumeration value="1.1"/>
         </xs:restriction>
     </xs:simpleType>
 

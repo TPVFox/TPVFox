@@ -9,7 +9,7 @@ include_once $RutaServidor . $HostNombre . '/modulos/mod_reorganizacion/clases/C
 // desde los mismos campos, en el mismo orden, nunca desde el marcado XML en bruto.
 class ClaseComprobacionStockIntercambioXML
 {
-    const VERSION_FORMATO = '1.0';
+    const VERSION_FORMATO = '1.1';
     const TIPO_FORMATO = 'COMPROBACION_EXISTENCIAS';
 
     public static function arrayToSimpleXML($composicion)
@@ -73,6 +73,7 @@ class ClaseComprobacionStockIntercambioXML
             'momento' => (string) $origen->Momento,
             'autor' => (int) $origen->Autor,
             'proveedorCierre' => (int) $origen->Traspaso->IdProveedor,
+            'fechaCorte' => (string) $criterio->FechaCorte,
             'ventanaDias' => (int) $criterio->VentanaDias,
             'umbralFraccionado' => (float) $criterio->UmbralFraccionado,
             'umbralMagnitud' => (float) $criterio->UmbralMagnitud,
@@ -144,6 +145,10 @@ class ClaseComprobacionStockIntercambioXML
 
     private static function anadirCriterio($nodo, $contexto)
     {
+        // La fecha hasta la que se leyó va delante de la ventana porque es desde ella
+        // desde donde la ventana se cuenta hacia atrás: separadas, ninguna de las dos
+        // dice qué periodo quedó sin consolidar.
+        $nodo->addChild('FechaCorte', $contexto['fechaCorte']);
         $nodo->addChild('VentanaDias', $contexto['ventanaDias']);
         $nodo->addChild('UmbralFraccionado', $contexto['umbralFraccionado']);
         $nodo->addChild('UmbralMagnitud', $contexto['umbralMagnitud']);
@@ -211,6 +216,7 @@ class ClaseComprobacionStockIntercambioXML
             $contexto['momento'],
             (int) $contexto['autor'],
             $contexto['proveedorCierre'],
+            $contexto['fechaCorte'],
             $contexto['ventanaDias'],
             $contexto['umbralFraccionado'],
             $contexto['umbralMagnitud'],

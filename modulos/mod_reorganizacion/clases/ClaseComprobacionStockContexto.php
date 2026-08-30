@@ -87,7 +87,9 @@ class ClaseComprobacionStockContexto
         // Recorrer sesión, esquema, parámetros y apertura del bloque de lectura, en
         // ese orden.
         // @ Devolvemos
-        //      array ['ok' => true, 'ano' => .., 'idTienda' => ..] si todo está listo.
+        //      array ['ok' => true, 'ano' => .., 'idTienda' => ..] si todo está listo,
+        //          con el momento y la fecha de corte de esta ejecución y los valores
+        //          del criterio, para que nadie vuelva a leer las mismas fuentes.
         //      array ['ok' => false, 'motivo' => ..] en la primera comprobación que falle.
         $sesion = $this->deLaSesion();
         if ($sesion === null) {
@@ -108,10 +110,20 @@ class ClaseComprobacionStockContexto
             return $this->parada('El motor no admite el bloque de lectura de solo lectura');
         }
 
+        // El reloj se lee una sola vez, y aquí, que es donde la ejecución empieza. De
+        // esa lectura salen las dos cosas que dependen de él: el momento que identifica
+        // lo emitido, y la fecha hasta la que se lee, que acota los movimientos y desde
+        // la que se cuenta hacia atrás la ventana de consolidación. Leyendo el reloj en
+        // dos sitios, una ejecución larga puede cruzar la medianoche y declarar un
+        // momento de un día sobre datos de otro.
+        $instante = time();
+
         return array(
             'ok' => true,
             'ano' => $sesion['ano'],
             'idTienda' => $sesion['idTienda'],
+            'momento' => date('c', $instante),
+            'fechaCorte' => date('Y-m-d', $instante),
             'ventanaDias' => $parametros['valores']['ventanaDias'],
             'umbralFraccionado' => $parametros['valores']['umbralFraccionado'],
             'umbralMagnitud' => $parametros['valores']['umbralMagnitud'],

@@ -103,6 +103,10 @@ $camposContexto = array(
     'Tienda' => $contexto['idTienda'],
     'Calculado el' => $contexto['momento'],
     'Autor' => $contexto['autor'],
+    // Cuándo se hizo y hasta dónde llegan los datos son dos cosas distintas, y la
+    // segunda es la que dice si un producto salió sin marcar por estar dentro de la
+    // ventana de consolidación o por estar en orden.
+    'Existencias hasta el' => $contexto['fechaCorte'],
     'Trayectoria' => $contexto['modoTrayectoria'],
     'Ventana de consolidación' => $contexto['ventanaDias'] . ' día(s)',
     'Ventana de registro tardío' => $contexto['timingVentanaDias'] . ' día(s)',
@@ -116,8 +120,8 @@ $camposContexto = array(
 // tienda ya los comprobó la admisión; el momento y el autor no los puede comprobar
 // nadie desde dentro, porque el sistema no guarda qué fichero admitió antes. Dos
 // emisiones del mismo ejercicio y la misma tienda llevan lo mismo salvo esos dos
-// campos, así que enseñarlos es todo el control que hay contra clasificar sobre un
-// resultado ya sustituido.
+// campos y la fecha hasta la que se leyó, así que enseñarlos es todo el control que
+// hay contra clasificar sobre un resultado ya sustituido.
 $hayContextoVigente = ($rama === 'anterior' && !empty($composicion['contextoVigente']));
 
 $html = $listaDeContexto(
@@ -136,6 +140,7 @@ if ($hayContextoVigente) {
             'Tienda' => $contextoVigente['idTienda'],
             'Emitido el' => $contextoVigente['momento'],
             'Autor' => $contextoVigente['autor'],
+            'Existencias hasta el' => $contextoVigente['fechaCorte'],
             'Trayectoria' => $contextoVigente['modoTrayectoria'],
             'Ventana de consolidación' => $contextoVigente['ventanaDias'] . ' día(s)',
             'Ventana de registro tardío' => $contextoVigente['timingVentanaDias'] . ' día(s)',

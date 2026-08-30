@@ -218,9 +218,9 @@ class ClaseComprobacionStockEmision
             return false;
         }
 
-        $deContexto = array('ano', 'idTienda', 'momento', 'autor', 'proveedorCierre', 'ventanaDias',
-            'umbralFraccionado', 'umbralMagnitud', 'umbralPorVenta', 'timingVentanaDias',
-            'modoTrayectoria', 'filtro');
+        $deContexto = array('ano', 'idTienda', 'momento', 'autor', 'proveedorCierre', 'fechaCorte',
+            'ventanaDias', 'umbralFraccionado', 'umbralMagnitud', 'umbralPorVenta',
+            'timingVentanaDias', 'modoTrayectoria', 'filtro');
         foreach (array($composicion['contexto'], $composicion['contextoVigente']) as $contexto) {
             if (!is_array($contexto)) {
                 return false;
@@ -263,6 +263,7 @@ class ClaseComprobacionStockEmision
             $contexto['momento'],
             (int) $contexto['autor'],
             $contexto['proveedorCierre'],
+            $contexto['fechaCorte'],
             $contexto['ventanaDias'],
             $contexto['umbralFraccionado'],
             $contexto['umbralMagnitud'],
@@ -412,12 +413,14 @@ class ClaseComprobacionStockEmision
     private function bloqueContexto($etiqueta, $contexto)
     {
         // El bloque lleva el contexto de cálculo entero, no una selección de sus
-        // campos. Dos que parecen accesorios no lo son en un documento que se guarda:
+        // campos. Tres que parecen accesorios no lo son en un documento que se guarda:
         // el proveedor del traspaso es lo que fija qué movimientos quedaron fuera de
         // la reconstrucción, y sin él dos informes del mismo ejercicio no son
-        // comparables; y el conjunto pedido es lo único que distingue un informe de
-        // todos los productos de uno de unos cuantos. Sin esa línea, un resultado
-        // parcial se archiva como si fuera completo.
+        // comparables; el conjunto pedido es lo único que distingue un informe de
+        // todos los productos de uno de unos cuantos, y sin esa línea un resultado
+        // parcial se archiva como si fuera completo; y la fecha de corte es hasta
+        // dónde llegan los datos del ejercicio vigente, que sigue recibiendo
+        // movimientos después de emitir.
         $lineas = array(
             'Contexto;' . $etiqueta,
             'Ejercicio;' . $contexto['ano'],
@@ -425,6 +428,7 @@ class ClaseComprobacionStockEmision
             'Momento;' . $contexto['momento'],
             'Autor;' . $contexto['autor'],
             'ProveedorCierre;' . $contexto['proveedorCierre'],
+            'FechaCorte;' . $contexto['fechaCorte'],
             'VentanaDias;' . $contexto['ventanaDias'],
             'UmbralFraccionado;' . $contexto['umbralFraccionado'],
             'UmbralMagnitud;' . $contexto['umbralMagnitud'],
@@ -476,16 +480,18 @@ class ClaseComprobacionStockEmision
     {
         // @ Objetivo
         // Componer el contexto de cálculo: copia por valor de lo que ya
-        // resolvió el contexto de operación, el modo con que se ejecutó, el filtro
-        // resuelto y el momento y autor de esta ejecución.
+        // resolvió el contexto de operación —momento y fecha de corte incluidos, que
+        // salen de una sola lectura del reloj hecha allí—, el modo con que se ejecutó,
+        // el filtro resuelto y el autor de esta ejecución.
         // @ Devolvemos
         //      array con los campos del contexto de cálculo.
         return array(
             'ano' => $contextoOperacion['ano'],
             'idTienda' => $contextoOperacion['idTienda'],
-            'momento' => date('c'),
+            'momento' => $contextoOperacion['momento'],
             'autor' => isset($_SESSION['usuarioTpv']['id']) ? (int) $_SESSION['usuarioTpv']['id'] : null,
             'proveedorCierre' => $contextoOperacion['proveedorCierre'],
+            'fechaCorte' => $contextoOperacion['fechaCorte'],
             'ventanaDias' => $contextoOperacion['ventanaDias'],
             'umbralFraccionado' => $contextoOperacion['umbralFraccionado'],
             'umbralMagnitud' => $contextoOperacion['umbralMagnitud'],

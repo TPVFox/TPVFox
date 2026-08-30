@@ -17,7 +17,7 @@ class ClaseComprobacionStockExtraccion
 {
     private $consulta = null;
 
-    public function extraer($contextoOperacion, $modoEstricto = false, $fechaCorte = null)
+    public function extraer($contextoOperacion, $modoEstricto = false)
     {
         // @ Objetivo
         // Recorrer el catálogo completo, componer su trayectoria de existencias y
@@ -25,7 +25,6 @@ class ClaseComprobacionStockExtraccion
         // @ Parametros
         //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir().
         //      $modoEstricto -> bool, opcional. Trunca a cero el saldo de partida.
-        //      $fechaCorte -> string 'AAAA-MM-DD', opcional. Por defecto, hoy.
         // @ Devolvemos
         //      array de filas: idArticulo, saldoAlCorte, minimoAlcanzado,
         //      saldoDeApertura, marcado, tipoIncidencia (o null) y condicionesConocidas.
@@ -33,7 +32,10 @@ class ClaseComprobacionStockExtraccion
         $fiStock = ($ano - 1) . '-12-31';
         $ffStock = $ano . '-01-01';
         $fiMov = $ano . '-01-02';
-        $ffMov = ($fechaCorte !== null) ? $fechaCorte : date('Y-m-d');
+        // La fecha hasta la que se lee viene del contexto y no del reloj: es un dato
+        // del criterio —cambia qué movimientos entran y qué productos se marcan como
+        // periodo no consolidado— y lo emitido tiene que poder declararla.
+        $ffMov = $contextoOperacion['fechaCorte'];
         // La regularización no es uno de los tres movimientos, así que el reparto entre
         // saldo de partida y recorrido no la alcanza: ninguna de las dos mitades la
         // absorbe. Por eso su periodo es el del ejercicio entero y arranca un día antes
