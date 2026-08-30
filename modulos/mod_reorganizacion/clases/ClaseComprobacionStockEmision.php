@@ -259,7 +259,10 @@ class ClaseComprobacionStockEmision
 
     private function bloqueFilas($filas)
     {
-        $lineas = array('IdArticulo;Estado;Marcado;Condiciones;ExistenciaExigida;StockJustificado');
+        // La columna se nombra por lo que la cantidad es: el mínimo que basta para
+        // explicar los movimientos reconstruidos. Llamarla stock la convierte en un
+        // recuento, y este informe se lee para decidir si se corrigen existencias.
+        $lineas = array('IdArticulo;Estado;Marcado;Condiciones;ExistenciaExigida;MinimoNecesarioJustificado');
         foreach ($filas as $fila) {
             $lineas[] = implode(';', array(
                 $fila['idArticulo'],
