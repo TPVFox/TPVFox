@@ -929,6 +929,7 @@ function recalculoTotales($productos)
 	}
 
 	foreach ($desglose as $tipoIva => $basesYivas) {
+		$desglose[$tipoIva]['base']     = number_format(round($basesYivas['base'], 2), 2, '.', '');
 		$desglose[$tipoIva]['iva']      = number_format(round($basesYivas['iva'], 2), 2, '.', '');
 		$desglose[$tipoIva]['BaseYiva'] = number_format(round($basesYivas['BaseYiva'], 2), 2, '.', '');
 		$subivas += $desglose[$tipoIva]['iva'];
