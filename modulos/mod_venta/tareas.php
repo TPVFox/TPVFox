@@ -140,13 +140,13 @@ switch ($pulsado) {
 		$idDocumento    = $_POST['idModificar'];
 		$estado         = $_POST['estado'];
 		$respuesta      = array();
-		if ($dedonde = 'pedido') {
+		if ($dedonde == 'pedido') {
 			$modEstado = $Cpedido->ModificarEstadoPedido($idDocumento, $estado);
 		}
-		if ($dedonde = 'factura') {
+		if ($dedonde == 'factura') {
 			$modEstado = $CFac->modificarEstado($idDocumento, $estado);
 		}
-		if ($dedonde = 'albaran') {
+		if ($dedonde == 'albaran') {
 			$modEstado = $CalbAl->ModificarEstadoAlbaran($idDocumento, $estado);
 		}
 		if (isset($modEstado['error'])) {
