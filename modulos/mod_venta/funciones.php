@@ -337,7 +337,7 @@ function htmlLineaProductos($producto, $dedonde, $accion = 'ver')
 	// Valores calculados
 	$importe = $producto['pvpSiva'] * $producto['nunidades'];
 	$importe = number_format($importe, 2);
-	$cant = number_format($producto['nunidades'], 2);
+	$cant = number_format($producto['nunidades'], 2, '.', '');
 	$btnELiminar_Retornar = '';
 	$estadoInput = 'disabled';
 	$classtr = ' ';
@@ -466,10 +466,10 @@ function htmlListadoProductos($productos, $id_input, $campoAbuscar, $busqueda, $
 		foreach ($productos as $producto) {
 			// Ahora comprobamos si tiene precio en tarifa.
 			if ($producto['pvpCivaCLI'] !== null) {
-				$pvpCiva = number_format($producto['pvpCivaCLI'], 2);
+				$pvpCiva = number_format($producto['pvpCivaCLI'], 2, '.', '');
 				$pvptachado = '<strike>' . number_format($producto['pvpCiva'], 2) . '</strike>';
 			} else {
-				$pvpCiva = number_format($producto['pvpCiva'], 2);
+				$pvpCiva = number_format($producto['pvpCiva'], 2, '.', '');
 				$pvptachado = '';
 			}
 			$datos = 	"'" . $id_input . "'," .
@@ -487,7 +487,7 @@ function htmlListadoProductos($productos, $id_input, $campoAbuscar, $busqueda, $
 				. '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
 				. '<td>' . htmlspecialchars($producto['crefTienda'], ENT_QUOTES) . '</td>'
 				. '<td>' . htmlspecialchars($producto['articulo_name'], ENT_QUOTES) . '</td>'
-				. '<td>' . number_format($pvpCiva, 2) . '</td>'
+				. '<td>' . $pvpCiva . '</td>'
 				. '<td>' . $pvptachado . '</td>';
 
 			$resultado['html'] .= '</tr>';
@@ -657,19 +657,19 @@ function modificarArrayProductos($productos)
 		$product['cdetalle'] = $producto['cdetalle'];
 		$product['precioCiva'] = $producto['precioCiva'];
 		if (isset($producto['pvpSiva'])) {
-			$sinIva = number_format($producto['pvpSiva'], 2);
+			$sinIva = number_format($producto['pvpSiva'], 2, '.', '');
 		} else {
 			$iva = $producto['iva'] / 100;
 			$op1 = $producto['precioCiva'] * $iva;
 			$sinIva = $producto['precioCiva'] - $op1;
-			$sinIva = number_format($sinIva, 2);
+			$sinIva = number_format($sinIva, 2, '.', '');
 		}
 		$product['pvpSiva'] = $sinIva;
 		$product['iva'] = $producto['iva'];
 		$product['ccodbar'] = $producto['ccodbar'];
 		$product['nfila'] = $producto['nfila'];
 		$product['estadoLinea'] = $producto['estadoLinea'];
-		$product['ncant'] = number_format($producto['ncant'], 0);
+		$product['ncant'] = $producto['ncant'];
 		$product['nunidades'] = $producto['nunidades'];
 		if (isset($producto['NumalbCli'])) {
 			$product['NumalbCli'] = $producto['NumalbCli'];
