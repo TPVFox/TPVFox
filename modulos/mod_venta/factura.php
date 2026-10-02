@@ -179,6 +179,10 @@ if ($idCliente > 0) {
     $datosCliente = $Ccliente->getCliente($idCliente);
     if (isset($datosCliente['datos'])) {
         $datosCliente  = $datosCliente['datos']['0'];
+        // Un cliente sin forma de vencimiento recibe la misma por defecto que una factura nueva.
+        if (empty($datosCliente['formasVenci'])) {
+            $datosCliente['formasVenci'] = '{"vencimiento":"0"}';
+        }
         // Como en tabla en clientes idCliente es idCLientes (algo que está muy mal.. :-) lo tenemos crear.
         $idCliente = $datosCliente['idClientes'];
         // Obtenemos tipo de vencimiento.
