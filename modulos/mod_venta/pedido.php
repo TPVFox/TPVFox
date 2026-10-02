@@ -349,8 +349,8 @@ $html_accion = '<span>' . $a . '</span>';
 
 <head>
     <?php include $URLCom . '/head.php'; ?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/funciones.js?v=<?php echo filemtime(__DIR__ . '/funciones.js'); ?>"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_venta/js/AccionesDirectas.js?v=<?php echo filemtime(__DIR__ . '/js/AccionesDirectas.js'); ?>"></script>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
