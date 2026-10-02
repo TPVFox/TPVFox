@@ -29,12 +29,17 @@ class PedidosVentas extends ClaseVentas
 		$respuesta = array();
 		$errores = array();
 		$db = $this->db;
+		// La traza del pedido: cuando se creo y cuando se guardo por ultima vez. Quien llama
+		// decide la de creacion —la del pedido que ya existia, si lo habia—; sin ella, es ahora.
+		$fechaCreacion = isset($datos['fechaCreacion']) ? $datos['fechaCreacion'] : date('Y-m-d H:i:s');
+		$fechaModificacion = isset($datos['fechaModificacion']) ? $datos['fechaModificacion'] : date('Y-m-d H:i:s');
 		if ($idPedido > 0) {
 			$sql = 'INSERT INTO pedclit (id, Numpedcli , Numtemp_pedcli,
-			Fecha, idTienda, idUsuario, idCliente, estado, total)
+			Fecha, idTienda, idUsuario, idCliente, estado, total, fechaCreacion, fechaModificacion)
 			 VALUES (' . $idPedido . ' , ' . $idPedido . ' , ' . $datos['Numtemp_pedcli'] . ' , "'
 				. $datos['Fecha'] . '", ' . $datos['idTienda'] . ', ' . $datos['idUsuario'] . ', '
-				. $datos['idCliente'] . ' , "' . $datos['estado'] . '", ' . $datos['total'] . ')';
+				. $datos['idCliente'] . ' , "' . $datos['estado'] . '", ' . $datos['total']
+				. ', "' . $fechaCreacion . '", "' . $fechaModificacion . '")';
 			$smt = parent::consulta($sql);
 			if (gettype($smt) === 'array') {
 				$errores['0']['error'] = $smt['error'];
@@ -44,10 +49,10 @@ class PedidosVentas extends ClaseVentas
 			}
 		} else {
 			$sql = 'INSERT INTO pedclit (Numtemp_pedcli, Fecha,
-			 idTienda, idUsuario, idCliente, estado, total) VALUES ('
+			 idTienda, idUsuario, idCliente, estado, total, fechaCreacion, fechaModificacion) VALUES ('
 				. $datos['Numtemp_pedcli'] . ' , "' . $datos['Fecha'] . '", ' . $datos['idTienda']
 				. ', ' . $datos['idUsuario'] . ', ' . $datos['idCliente'] . ' , "' . $datos['estado']
-				. '", ' . $datos['total'] . ')';
+				. '", ' . $datos['total'] . ', "' . $fechaCreacion . '", "' . $fechaModificacion . '")';
 			$smt = parent::consulta($sql);
 			if (gettype($smt) === 'array') {
 				$errores['1']['error'] = $smt['error'];

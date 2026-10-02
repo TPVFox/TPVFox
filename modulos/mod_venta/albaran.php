@@ -198,11 +198,14 @@ if (isset($_POST['Guardar'])) {
                     'La fecha que envia POST no es correcta.Fecha:' . $_POST['fecha']
                 );
             }
+            // Quien creo el documento y cuando no cambian al volver a guardarlo: se toman del que
+            // ya existe. Guardar es borrar y reescribir, de modo que hay que llevarlos a mano.
+            $creador = !empty($datosAlbaran_guardada['idUsuario']) ? $datosAlbaran_guardada['idUsuario'] : $Usuario['id'];
             $datos = array(
                 'Numtemp_albcli' => $idTemporal,
                 'Fecha' => $fecha_post,
                 'idTienda' => $Tienda['idTienda'],
-                'idUsuario' => $Usuario['id'],
+                'idUsuario' => $creador,
                 'idCliente' => $idCliente,
                 'estado' => "Guardado",
                 'total' => $Datostotales['total'],
