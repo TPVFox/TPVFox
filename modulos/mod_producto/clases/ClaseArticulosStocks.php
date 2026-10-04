@@ -114,7 +114,6 @@ class alArticulosStocks extends ModeloP
 
     private static function _actualizarStock($idarticulostock, $nunidades, $operador)
     {
-        $stockon = self::leerStockXId($idarticulostock);
         if ($operador === K_STOCKARTICULO_REGULARIZA) {
             return alArticulosStocks::_update(alArticulosStocks::$tabla, [
                 'stockOn' => $nunidades,
@@ -122,17 +121,26 @@ class alArticulosStocks extends ModeloP
                 'usuarioRegularizacion' => 0
             ], ['id =' . $idarticulostock]);
         } else {
-            return alArticulosStocks::_update(alArticulosStocks::$tabla, [
-                'stockOn' => $stockon + ($nunidades * $operador),
-                'fechaRegularizacion' => date(FORMATO_FECHA_MYSQL),
-                'usuarioRegularizacion' => 0
-            ], ['id =' . $idarticulostock]);
+            // El motor suma el movimiento sobre el saldo vigente: si otra operación movió el
+            // artículo entretanto, su movimiento no se pierde.
+            return alArticulosStocks::_update(
+                alArticulosStocks::$tabla,
+                'stockOn = stockOn + (' . ((float) $nunidades * $operador) . '), '
+                . "fechaRegularizacion = '" . date(FORMATO_FECHA_MYSQL) . "', usuarioRegularizacion = 0",
+                ['id =' . $idarticulostock]
+            );
         }
     }
 
     public static function actualizarStock($idArticulo, $idTienda, $nunidades, $operador)
     {
         $resultado = false;
+        if (!is_numeric($nunidades)) {
+            // Una cantidad que no es un número no se aplica: se rechaza antes de tocar la ficha.
+            error_log('actualizarStock: cantidad no numérica ' . var_export($nunidades, true)
+                . ' para el artículo ' . $idArticulo . ' en la tienda ' . $idTienda);
+            return $resultado;
+        }
         if ($articulostock = self::existe($idArticulo, $idTienda)) {
             $resultado = self::_actualizarStock(self::getIdbyArticulo($idArticulo, $idTienda), $nunidades, $operador);
         } else {
