@@ -95,7 +95,13 @@ class AlbaranesVentas extends ClaseVentas
                     $errores['3']['consulta'] = $smt['consulta'];
                     break;
                 }
-                $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_RESTA);
+                // La salida de stock va por la conexión del albarán, para que entre en su transacción.
+                $anterior = ModeloP::usarConexion($this->db);
+                try {
+                    $stock->actualizarStock($prod['idArticulo'], $datos['idTienda'], $prod['ncant'], K_STOCKARTICULO_RESTA);
+                } finally {
+                    ModeloP::usarConexion($anterior);
+                }
                 $i++;
             }
         }
@@ -401,7 +407,13 @@ class AlbaranesVentas extends ClaseVentas
                 $idArticulo = $linea['idArticulo'];
                 $idTienda = $albaran['idTienda'];
                 $cantidad = $linea['ncant'];
-                $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_SUMA);
+                // La reposición va por la conexión del albarán, para que entre en su transacción.
+                $anterior = ModeloP::usarConexion($this->db);
+                try {
+                    $stock->actualizarStock($idArticulo, $idTienda, $cantidad, K_STOCKARTICULO_SUMA);
+                } finally {
+                    ModeloP::usarConexion($anterior);
+                }
             }
         }
 

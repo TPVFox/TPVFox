@@ -52,6 +52,19 @@ class ModeloP
         return self::$db;
     }
 
+    /*
+     * Método usarConexion()
+     * Fija la conexión que devolverá getDbo() a partir de ahora y devuelve la que tenía.
+     * Sirve para que una escritura salga por la conexión de quien la pide —y entre en su
+     * transacción, si la tiene abierta—; quien la llama devuelve después la anterior.
+     */
+    public static function usarConexion(?mysqli $db): ?mysqli
+    {
+        $anterior = self::$db;
+        self::$db = $db;
+        return $anterior;
+    }
+
     protected static function setResult($sql, $code)
     {
         ModeloP::$resultado['consulta'] = $sql;
