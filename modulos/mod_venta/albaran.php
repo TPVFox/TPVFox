@@ -214,41 +214,59 @@ if (isset($_POST['Guardar'])) {
                 'pedidos' => $datosAlbaran['Pedidos']
             );
 
-            if (count($errores) == 0) {
-                if ($datosAlbaran['Numalbcli'] > 0) {
-                    $idAlbaran = $datosAlbaran['Numalbcli'];
-                    $eliminarTablasPrincipal = $CalbAl->eliminarAlbaranTablas($idAlbaran);
-                    if (isset($eliminarTablasPrincipal['error'])) {
-                        $errores[] = $CalbAl->montarAdvertencia(
-                            'danger',
-                            'ERROR EN LA BASE DE DATOS AL BORRAR albaran!' . '<br/> Consulta:' . $eliminarTablasPrincipal['consulta']
-                                . '<br/>Error:' . $eliminarTablasPrincipal['error'] . '<br/>'
-                        );
+            // El guardado es borrar el albarán anterior, reescribirlo y borrar el documento en curso:
+            // se completa entero o no deja rastro.
+            $BDTpv->begin_transaction();
+            try {
+                if (count($errores) == 0) {
+                    if ($datosAlbaran['Numalbcli'] > 0) {
+                        $idAlbaran = $datosAlbaran['Numalbcli'];
+                        $eliminarTablasPrincipal = $CalbAl->eliminarAlbaranTablas($idAlbaran);
+                        if (isset($eliminarTablasPrincipal['error'])) {
+                            $errores[] = $CalbAl->montarAdvertencia(
+                                'danger',
+                                'ERROR EN LA BASE DE DATOS AL BORRAR albaran!' . '<br/> Consulta:' . $eliminarTablasPrincipal['consulta']
+                                    . '<br/>Error:' . $eliminarTablasPrincipal['error'] . '<br/>'
+                            );
+                        }
                     }
                 }
-            }
-            if (count($errores) == 0) {
-                $addNuevo = $CalbAl->AddAlbaranGuardado($datos, $idAlbaran);
-                if (isset($addNuevo['errores'])) {
-                    foreach ($addNuevo['errores'] as $error) {
-                        $errores[] = $CalbAl->montarAdvertencia(
-                            'Danger!',
-                            'Error al añadir Albaran y guardarla.<br/>'
-                                . 'Error:' . $error['error'] . '<br/>'
-                                . 'Consulta:' . $error['consulta'] . '<br/>'
-                        );
+                if (count($errores) == 0) {
+                    $addNuevo = $CalbAl->AddAlbaranGuardado($datos, $idAlbaran);
+                    if (isset($addNuevo['errores'])) {
+                        foreach ($addNuevo['errores'] as $error) {
+                            $errores[] = $CalbAl->montarAdvertencia(
+                                'Danger!',
+                                'Error al añadir Albaran y guardarla.<br/>'
+                                    . 'Error:' . $error['error'] . '<br/>'
+                                    . 'Consulta:' . $error['consulta'] . '<br/>'
+                            );
+                        }
+                    } else {
+                        $eliminarTemporal = $CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
+                        if (isset($eliminarTemporal['error'])) {
+                            $errores[] = $CalbAl->montarAdvertencia(
+                                'danger',
+                                'Error al eliminar temporal:' . $idTemporal
+                                    . 'Error: ' . $eliminarTemporal['error'] . '<br/>'
+                                    . 'Consulta:' . $eliminarTemporal['consulta'] . '<br/>'
+                            );
+                        }
                     }
+                }
+                if (count($errores) == 0) {
+                    $BDTpv->commit();
                 } else {
-                    $eliminarTemporal = $CalbAl->EliminarRegistroTemporal($idTemporal, $idAlbaran);
-                    if (isset($eliminarTemporal['error'])) {
-                        $errores[] = $CalbAl->montarAdvertencia(
-                            'danger',
-                            'Error al eliminar temporal:' . $idTemporal
-                                . 'Error: ' . $eliminarTemporal['error'] . '<br/>'
-                                . 'Consulta:' . $eliminarTemporal['consulta'] . '<br/>'
-                        );
-                    }
+                    $BDTpv->rollback();
                 }
+            } catch (\Throwable $e) {
+                // Se deshace todo y el error sigue su camino: la misma página y la misma línea de log.
+                try {
+                    $BDTpv->rollback();
+                } catch (\Throwable $alDeshacer) {
+                    error_log('No se pudo deshacer el guardado: ' . $alDeshacer->getMessage());
+                }
+                throw $e;
             }
             if (count($errores) == 0) {
                 //  Redireccionamos a listado facturas una vez guardado correctamente.

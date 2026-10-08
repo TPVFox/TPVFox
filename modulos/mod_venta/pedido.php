@@ -211,41 +211,59 @@ if (isset($_POST['Guardar'])) {
                 'fechaModificacion' => $ahora,
             );
 
-            if (count($errores) == 0) {
-                if ($datosPedido['Numpedcli'] > 0) {
-                    $idPedido = $datosPedido['Numpedcli'];
-                    $eliminarTablasPrincipal = $Cpedido->eliminarPedidoTablas($idPedido);
-                    if (isset($eliminarTablasPrincipal['error'])) {
-                        $errores[] = $Cpedido->montarAdvertencia(
-                            'danger',
-                            'ERROR EN LA BASE DE DATOS AL BORRAR pedido!' . '<br/> Consulta:' . $eliminarTablasPrincipal['consulta']
-                                . '<br/>Error:' . $eliminarTablasPrincipal['error'] . '<br/>'
-                        );
+            // El guardado es borrar el pedido anterior, reescribirlo y borrar el documento en curso:
+            // se completa entero o no deja rastro.
+            $BDTpv->begin_transaction();
+            try {
+                if (count($errores) == 0) {
+                    if ($datosPedido['Numpedcli'] > 0) {
+                        $idPedido = $datosPedido['Numpedcli'];
+                        $eliminarTablasPrincipal = $Cpedido->eliminarPedidoTablas($idPedido);
+                        if (isset($eliminarTablasPrincipal['error'])) {
+                            $errores[] = $Cpedido->montarAdvertencia(
+                                'danger',
+                                'ERROR EN LA BASE DE DATOS AL BORRAR pedido!' . '<br/> Consulta:' . $eliminarTablasPrincipal['consulta']
+                                    . '<br/>Error:' . $eliminarTablasPrincipal['error'] . '<br/>'
+                            );
+                        }
                     }
                 }
-            }
-            if (count($errores) == 0) {
-                $addNuevo = $Cpedido->AddPedidoGuardado($datos, $idPedido);
-                if (isset($addNuevo['errores'])) {
-                    foreach ($addNuevo['errores'] as $error) {
-                        $errores[] = $Cpedido->montarAdvertencia(
-                            'Danger!',
-                            'Error al añadir Pedido y guardarla.<br/>'
-                                . 'Error:' . $error['error'] . '<br/>'
-                                . 'Consulta:' . $error['consulta'] . '<br/>'
-                        );
+                if (count($errores) == 0) {
+                    $addNuevo = $Cpedido->AddPedidoGuardado($datos, $idPedido);
+                    if (isset($addNuevo['errores'])) {
+                        foreach ($addNuevo['errores'] as $error) {
+                            $errores[] = $Cpedido->montarAdvertencia(
+                                'Danger!',
+                                'Error al añadir Pedido y guardarla.<br/>'
+                                    . 'Error:' . $error['error'] . '<br/>'
+                                    . 'Consulta:' . $error['consulta'] . '<br/>'
+                            );
+                        }
+                    } else {
+                        $eliminarTemporal = $Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
+                        if (isset($eliminarTemporal['error'])) {
+                            $errores[] = $Cpedido->montarAdvertencia(
+                                'danger',
+                                'Error al eliminar temporal:' . $idTemporal
+                                    . 'Error: ' . $eliminarTemporal['error'] . '<br/>'
+                                    . 'Consulta:' . $eliminarTemporal['consulta'] . '<br/>'
+                            );
+                        }
                     }
+                }
+                if (count($errores) == 0) {
+                    $BDTpv->commit();
                 } else {
-                    $eliminarTemporal = $Cpedido->EliminarRegistroTemporal($idTemporal, $idPedido);
-                    if (isset($eliminarTemporal['error'])) {
-                        $errores[] = $Cpedido->montarAdvertencia(
-                            'danger',
-                            'Error al eliminar temporal:' . $idTemporal
-                                . 'Error: ' . $eliminarTemporal['error'] . '<br/>'
-                                . 'Consulta:' . $eliminarTemporal['consulta'] . '<br/>'
-                        );
-                    }
+                    $BDTpv->rollback();
                 }
+            } catch (\Throwable $e) {
+                // Se deshace todo y el error sigue su camino: la misma página y la misma línea de log.
+                try {
+                    $BDTpv->rollback();
+                } catch (\Throwable $alDeshacer) {
+                    error_log('No se pudo deshacer el guardado: ' . $alDeshacer->getMessage());
+                }
+                throw $e;
             }
             if (count($errores) == 0) {
                 //  Redireccionamos a listado facturas una vez guardado correctamente.
