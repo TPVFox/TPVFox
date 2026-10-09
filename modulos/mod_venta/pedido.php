@@ -22,6 +22,8 @@ $pedidos  = array();
 $dedonde = "pedido";
 $empleado   = $Usuario; // Por defecto ponemos el usuario
 $errores    = array();
+// Un guardado que fallo y se deshizo entero: se avisa, y el documento sigue como estaba.
+$guardadoDeshecho = false;
 $parametros = $ClasesParametros->getRoot();
 $inciden = "";
 foreach ($parametros->cajas_input->caja_input as $caja) {
@@ -257,18 +259,25 @@ if (isset($_POST['Guardar'])) {
                     $BDTpv->rollback();
                 }
             } catch (\Throwable $e) {
-                // Se deshace todo y el error sigue su camino: la misma página y la misma línea de log.
+                // Primero se apunta el fallo entero, con su traza; después se deshace y se avisa.
+                $momento = date('Y-m-d H:i:s');
+                error_log('Guardado de pedido deshecho (' . $momento . '): ' . $e);
                 try {
                     $BDTpv->rollback();
                 } catch (\Throwable $alDeshacer) {
                     error_log('No se pudo deshacer el guardado: ' . $alDeshacer->getMessage());
                 }
-                throw $e;
+                $guardadoDeshecho = true;
+                $errores[] = $Cpedido->montarAdvertencia(
+                    'danger',
+                    'No se ha podido guardar el pedido. No se ha cambiado nada y tu trabajo sigue en esta pantalla.<br/>'
+                        . 'Vuelve a pulsar Guardar. Si se repite, avisa al administrador e indícale esta hora: ' . $momento
+                );
             }
             if (count($errores) == 0) {
                 //  Redireccionamos a listado facturas una vez guardado correctamente.
                 header('Location: pedidosListado.php');
-            } else {
+            } elseif (!$guardadoDeshecho) {
                 // Si hay error es una de las 3 consultas que hace para eliminar datos de la factura de varias tablas.
                 // devuelve un array con error y consulta. Entonces hay que ver cual elimino o no .
 
@@ -322,8 +331,8 @@ if ($idTemporal > 0) {
 
 
 // ---  Controlamos cuando poner solo lectura o display none los campos --- //
-if (count($errores) > 0) {
-    // No permito modificar si hubo algun error.
+if (count($errores) > 0 && !$guardadoDeshecho) {
+    // No permito modificar si hubo algun error. Tras un guardado deshecho si: no se ha escrito nada.
     $accion = 'ver';
 }
 $display = '';
@@ -438,8 +447,8 @@ $html_accion = '<span>' . $a . '</span>';
             foreach ($errores as $error) {
                 echo '<div class="alert alert-' . $error['tipo'] . '">'
                     . '<strong>' . $error['tipo'] . ' </strong> <br/>' . $error['mensaje'] . '</div>';
-                // Controlamos si hay un danger, no permito cancelar.
-                if ($error['tipo'] == 'danger') {
+                // Controlamos si hay un danger, no permito cancelar. Tras un guardado deshecho si.
+                if ($error['tipo'] == 'danger' && !$guardadoDeshecho) {
                     $display_btn_guardar_cancelar = 'style="display:none"';
                 }
             }
