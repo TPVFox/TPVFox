@@ -125,7 +125,7 @@ if ($idPedido > 0) {
     } else {
         if (count($existe_doc_procesado) > 0) {
             // Si hay resultado y el estado no es Procesado, algo esta mal fijo.
-            $errores[] = $CalbAl->montarAdvertencia(
+            $errores[] = $Cpedido->montarAdvertencia(
                 'danger',
                 'El estado pedido es <strong> "' . $estado . '"</strong> cuando debería ser PROCESADO ya que tiene un numero Albaran.'
             );
