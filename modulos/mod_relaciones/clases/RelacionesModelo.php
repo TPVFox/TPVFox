@@ -25,6 +25,124 @@ class RelacionesModelo extends TFModelo
         'relacionesLineas' => array('id', 'idRelacion', 'idArticulo', 'sentido', 'cantidad', 'unidad', 'estado'),
     );
 
+    // Cuántas operaciones del módulo hay en curso dentro de la transacción abierta, y si
+    // alguna ha fallado. Son estáticas porque la conexión también lo es: la transacción
+    // pertenece a la conexión, no a la instancia que la abrió.
+    private static $operacionesAbiertas = 0;
+    private static $algunaFallo = false;
+
+    protected function consultaPreparada($sql, $valores = array())
+    {
+        // @ Objetivo
+        // Ejecutar una sentencia con sus valores aparte: ningún valor recibido forma parte
+        // del texto de la sentencia. Toda lectura y toda escritura del módulo pasa por aquí.
+        // @ Parametros
+        //      $sql -> (string) la sentencia, con un ? por cada valor.
+        //      $valores -> (array) los valores, en el orden de los ?.
+        // @ Devolvemos
+        //      array con ['datos']: las filas, si la sentencia devuelve filas; y si no,
+        //          ['afectadas'] y ['idInsertado'].
+        //      o con ['error'] y ['consulta'] si falló. El fallo no se lanza ni se imprime:
+        //          se devuelve, y su rastro queda en el registro del servidor.
+        try {
+            $conexion = $this->conexionBDTPV();
+            $sentencia = $conexion->prepare($sql);
+            if ($sentencia === false) {
+                throw new \RuntimeException($conexion->error);
+            }
+            if (count($valores) > 0) {
+                $tipos = '';
+                foreach ($valores as $valor) {
+                    $tipos .= is_int($valor) ? 'i' : (is_float($valor) ? 'd' : 's');
+                }
+                $sentencia->bind_param($tipos, ...$valores);
+            }
+            if ($sentencia->execute() === false) {
+                throw new \RuntimeException($sentencia->error);
+            }
+            $resultado = $sentencia->get_result();
+            if ($resultado === false) {
+                $datos = array('afectadas' => $sentencia->affected_rows, 'idInsertado' => $sentencia->insert_id);
+            } else {
+                $datos = $resultado->fetch_all(MYSQLI_ASSOC);
+            }
+            $sentencia->close();
+        } catch (\Throwable $e) {
+            return $this->fallo('Error en la base de datos: ' . $e->getMessage(), $sql, $e);
+        }
+
+        return array('datos' => $datos);
+    }
+
+    protected function enTransaccion(callable $pasos)
+    {
+        // @ Objetivo
+        // Ejecutar una escritura de varios pasos de modo que quede entera o no quede.
+        // Una operación puede llamar a otra que también usa este método: solo la más
+        // externa abre la transacción y decide si se confirma; las de dentro se suman a
+        // ella. Si cualquiera falla, lanzando o devolviendo ['error'], se deshace todo.
+        // @ Parametros
+        //      $pasos -> función sin argumentos que ejecuta los pasos y devuelve su respuesta.
+        // @ Devolvemos
+        //      La respuesta de $pasos, o un array con ['error'] si algo falló.
+        $externa = (self::$operacionesAbiertas === 0);
+        try {
+            $conexion = $this->conexionBDTPV();
+            if ($externa) {
+                self::$algunaFallo = false;
+                $conexion->begin_transaction();
+            }
+        } catch (\Throwable $e) {
+            return $this->fallo('No se pudo iniciar la escritura.', '', $e);
+        }
+
+        self::$operacionesAbiertas++;
+        try {
+            $respuesta = $pasos();
+        } catch (\Throwable $e) {
+            $respuesta = $this->fallo('La escritura no se pudo completar.', '', $e);
+        }
+        self::$operacionesAbiertas--;
+
+        if (isset($respuesta['error'])) {
+            self::$algunaFallo = true;
+        }
+        if (!$externa) {
+            return $respuesta;
+        }
+
+        try {
+            if (self::$algunaFallo) {
+                $conexion->rollback();
+                if (!isset($respuesta['error'])) {
+                    $respuesta = $this->fallo('La escritura no se pudo completar: falló uno de sus pasos.', '');
+                }
+            } else {
+                $conexion->commit();
+            }
+        } catch (\Throwable $e) {
+            $respuesta = $this->fallo('La escritura no se pudo confirmar.', '', $e);
+        }
+
+        return $respuesta;
+    }
+
+    private function fallo($mensaje, $sql, $causa = null)
+    {
+        // @ Objetivo
+        // Componer la respuesta de un fallo y apuntar su rastro en el registro del servidor.
+        // @ Devolvemos
+        //      array con ['error'] (advertencia con su tipo) y ['consulta'].
+        if ($causa !== null) {
+            error_log('Relaciones: ' . $mensaje . ' ' . $causa);
+        }
+
+        return array(
+            'error' => $this->montarAdvertencia('danger', $mensaje),
+            'consulta' => $sql,
+        );
+    }
+
     public function estadoEstructura()
     {
         // @ Objetivo
