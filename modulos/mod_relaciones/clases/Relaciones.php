@@ -2,6 +2,7 @@
 
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesModelo.php';
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesTipos.php';
+include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesFormas.php';
 
 // @ Objetivo
 // Las operaciones sobre las relaciones entre productos. Una relación tiene versiones y
@@ -218,6 +219,265 @@ class Relaciones extends RelacionesModelo
         }
 
         return $this->terminarEscritura($respuesta);
+    }
+
+    public function activarBorrador($idBorrador, $idUsuario, $origenAjuste = null)
+    {
+        // @ Objetivo
+        // Poner a regir un borrador. Pasa la admisión, se deduce qué clase de cambio es
+        // comparándolo con la versión que rige, recibe su número de versión y sustituye a
+        // la anterior, todo en una sola escritura.
+        // @ Parametros
+        //      $idBorrador -> (int) id de la fila del borrador.
+        //      $idUsuario -> (int) usuario de sesión: queda como autor de la versión.
+        //      $origenAjuste -> (string) de dónde sale un ajuste de cantidades.
+        // @ Devolvemos
+        //      ['datos'] con id, numRelacion, version y tipoCambio, o ['error'].
+        $motivo = '';
+        $borrador = null;
+        $activa = null;
+        $lineasBorrador = array();
+        $lineasActiva = array();
+        $tipoCambio = '';
+        $version = '';
+
+        // El borrador y la versión que rige, con sus líneas
+        if ($idUsuario <= 0) {
+            $motivo = 'Hace falta un usuario identificado para activar una relación.';
+        } else {
+            $sql = "SELECT id, numRelacion, idTipo, nombre, descripcion, diasViabilidad FROM relaciones"
+                . " WHERE id = ? AND estado = 'Borrador'";
+            $leido = $this->consultaPreparada($sql, array($idBorrador));
+            if (isset($leido['error']) || count($leido['datos']) === 0) {
+                $motivo = 'Solo se puede activar un borrador.';
+            } else {
+                $borrador = $leido['datos'][0];
+            }
+        }
+        if ($motivo === '') {
+            $sql = "SELECT id, version, nombre, descripcion, diasViabilidad FROM relaciones"
+                . " WHERE numRelacion = ? AND estado = 'Activo'";
+            $leido = $this->consultaPreparada($sql, array($borrador['numRelacion']));
+            $lineasBorrador = $this->lineasDe($borrador['id']);
+            if (isset($leido['error']) || $lineasBorrador === null) {
+                $motivo = 'No se pudo leer la relación.';
+            } elseif (count($leido['datos']) > 0) {
+                $activa = $leido['datos'][0];
+                $lineasActiva = $this->lineasDe($activa['id']);
+                if ($lineasActiva === null) {
+                    $motivo = 'No se pudo leer la relación.';
+                }
+            }
+        }
+
+        // La admisión
+        if ($motivo === '') {
+            $tipos = new RelacionesTipos();
+            $tipo = $tipos->leerTipo($borrador['idTipo']);
+            $formas = new RelacionesFormas();
+            $admision = $formas->admitir(isset($tipo['datos']) ? $tipo['datos'] : null, $lineasBorrador, $activa === null);
+            if (isset($admision['error'])) {
+                $motivo = $admision['error']['mensaje'];
+            }
+        }
+
+        // Qué clase de cambio es y qué versión le corresponde
+        if ($motivo === '') {
+            if ($activa === null) {
+                $tipoCambio = 'alta';
+                $version = '1.0';
+            } else {
+                $tipoCambio = $this->tipoDeCambio($activa, $lineasActiva, $borrador, $lineasBorrador);
+                $partes = explode('.', $activa['version']);
+                if ($tipoCambio === '') {
+                    $motivo = 'El borrador no cambia nada respecto a la versión que rige.';
+                } elseif ($tipoCambio === 'composicion') {
+                    $version = ($partes[0] + 1) . '.0';
+                } else {
+                    $version = $partes[0] . '.' . ($partes[1] + 1);
+                }
+                if ($tipoCambio === 'proporciones' && trim((string) $origenAjuste) === '') {
+                    $motivo = 'Un ajuste de cantidades tiene que decir de qué origen sale.';
+                }
+            }
+        }
+
+        // Lo que solo se comprueba cuando cambian los productos
+        if ($motivo === '' && ($tipoCambio === 'alta' || $tipoCambio === 'composicion')) {
+            $motivo = $this->motivoPorCatalogo($borrador, $lineasBorrador, $lineasActiva);
+        }
+
+        if ($motivo !== '') {
+            $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
+        } else {
+            $this->iniciarEscritura();
+            $respuesta = array('datos' => array());
+
+            if ($activa !== null) {
+                $sql = "UPDATE relaciones SET estado = 'Sustituido' WHERE id = ? AND estado = 'Activo'";
+                $respuesta = $this->consultaPreparada($sql, array($activa['id']));
+                if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente.'));
+                }
+            }
+            if (!isset($respuesta['error'])) {
+                $sql = "UPDATE relaciones SET version = ?, tipoCambio = ?, origenAjuste = ?, idUsuario = ?,"
+                    . " fechaCreacion = ?, estado = 'Activo' WHERE id = ? AND estado = 'Borrador'";
+                $valores = array(
+                    $version,
+                    $tipoCambio,
+                    $tipoCambio === 'proporciones' ? $origenAjuste : null,
+                    $idUsuario,
+                    date('Y-m-d H:i:s'),
+                    $borrador['id'],
+                );
+                $respuesta = $this->consultaPreparada($sql, $valores);
+                if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'El borrador ya no se puede activar.'));
+                }
+            }
+            if (!isset($respuesta['error'])) {
+                $respuesta = array('datos' => array(
+                    'id' => (int) $borrador['id'],
+                    'numRelacion' => (int) $borrador['numRelacion'],
+                    'version' => $version,
+                    'tipoCambio' => $tipoCambio,
+                ));
+            }
+            $respuesta = $this->terminarEscritura($respuesta);
+        }
+
+        return $respuesta;
+    }
+
+    public function tipoDeCambio($datosQueRigen, $lineasQueRigen, $datosNuevos, $lineasNuevas)
+    {
+        // @ Objetivo
+        // Deducir qué clase de cambio hay entre la versión que rige y la nueva. Lo decide el
+        // sistema, no quien pide el cambio. Solo cuentan las líneas activas.
+        // @ Devolvemos
+        //      (string) 'composicion' si cambian los productos o su sentido; si no,
+        //      'proporciones' si cambian cantidades o unidades; si no, 'datos' si cambian
+        //      el nombre, la descripción o la vida útil; y '' si no cambia nada.
+        $cambio = '';
+
+        if ($this->paresDe($lineasQueRigen) !== $this->paresDe($lineasNuevas)) {
+            $cambio = 'composicion';
+        }
+
+        if ($cambio === '') {
+            $cantidadesQueRigen = array();
+            foreach ($lineasQueRigen as $linea) {
+                if ($linea['estado'] === 'Activo') {
+                    $cantidadesQueRigen[$linea['idArticulo']] = $linea;
+                }
+            }
+            foreach ($lineasNuevas as $linea) {
+                if ($linea['estado'] === 'Activo') {
+                    $anterior = $cantidadesQueRigen[$linea['idArticulo']];
+                    $otraCantidad = abs((float) $anterior['cantidad'] - (float) $linea['cantidad']) > 0.0000001;
+                    $otraUnidad = (string) $anterior['unidad'] !== (string) $linea['unidad'];
+                    if ($otraCantidad || $otraUnidad) {
+                        $cambio = 'proporciones';
+                    }
+                }
+            }
+        }
+
+        if ($cambio === '') {
+            foreach (array('nombre', 'descripcion', 'diasViabilidad') as $campo) {
+                if ((string) $datosQueRigen[$campo] !== (string) $datosNuevos[$campo]) {
+                    $cambio = 'datos';
+                }
+            }
+        }
+
+        return $cambio;
+    }
+
+    private function paresDe($lineas)
+    {
+        // @ Objetivo
+        // La composición de una versión: sus productos activos, cada uno con su sentido.
+        // @ Devolvemos
+        //      (array) textos 'idArticulo|sentido', ordenados para poder compararlos.
+        $pares = array();
+        foreach ($lineas as $linea) {
+            if ($linea['estado'] === 'Activo') {
+                $pares[] = $linea['idArticulo'] . '|' . $linea['sentido'];
+            }
+        }
+        sort($pares);
+
+        return $pares;
+    }
+
+    private function lineasDe($idRelacion)
+    {
+        // @ Objetivo
+        // Leer las líneas de una versión.
+        // @ Devolvemos
+        //      (array) las líneas, o null si no se pudieron leer.
+        $sql = 'SELECT idArticulo, sentido, cantidad, unidad, estado FROM relacionesLineas WHERE idRelacion = ? ORDER BY id';
+        $leido = $this->consultaPreparada($sql, array($idRelacion));
+        $lineas = null;
+        if (!isset($leido['error'])) {
+            $lineas = $leido['datos'];
+        }
+
+        return $lineas;
+    }
+
+    private function motivoPorCatalogo($borrador, $lineasBorrador, $lineasActiva)
+    {
+        // @ Objetivo
+        // Las dos comprobaciones que se hacen cuando cambian los productos: que ninguno de
+        // los que se incorporan esté de baja, y que no haya ya otra relación vigente del
+        // mismo tipo con los mismos productos y sentidos.
+        // @ Devolvemos
+        //      (string) el motivo del rechazo, o '' si se admite.
+        $motivo = '';
+
+        $articulosQueYaEstaban = array();
+        foreach ($lineasActiva as $linea) {
+            if ($linea['estado'] === 'Activo') {
+                $articulosQueYaEstaban[] = $linea['idArticulo'];
+            }
+        }
+        foreach ($lineasBorrador as $linea) {
+            if ($motivo === '' && $linea['estado'] === 'Activo' && !in_array($linea['idArticulo'], $articulosQueYaEstaban)) {
+                $sql = 'SELECT estado FROM articulos WHERE idArticulo = ?';
+                $articulo = $this->consultaPreparada($sql, array($linea['idArticulo']));
+                if (isset($articulo['error']) || count($articulo['datos']) === 0) {
+                    $motivo = 'Uno de los productos no existe en el catálogo.';
+                } elseif ($articulo['datos'][0]['estado'] === 'Baja') {
+                    $motivo = 'Uno de los productos que se incorporan está de baja en el catálogo.';
+                }
+            }
+        }
+
+        if ($motivo === '') {
+            $sql = "SELECT r.id, l.idArticulo, l.sentido, l.estado FROM relaciones r"
+                . " JOIN relacionesLineas l ON l.idRelacion = r.id"
+                . " WHERE r.estado = 'Activo' AND r.idTipo = ? AND r.numRelacion <> ?";
+            $otras = $this->consultaPreparada($sql, array($borrador['idTipo'], $borrador['numRelacion']));
+            if (isset($otras['error'])) {
+                $motivo = 'No se pudo comprobar si la relación ya existe.';
+            } else {
+                $lineasPorRelacion = array();
+                foreach ($otras['datos'] as $linea) {
+                    $lineasPorRelacion[$linea['id']][] = $linea;
+                }
+                $paresDelBorrador = $this->paresDe($lineasBorrador);
+                foreach ($lineasPorRelacion as $lineasDeOtra) {
+                    if ($this->paresDe($lineasDeOtra) === $paresDelBorrador) {
+                        $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos.';
+                    }
+                }
+            }
+        }
+
+        return $motivo;
     }
 
     private function insertarBorrador($numRelacion, $idTipo, $datos, $idUsuario)
