@@ -500,6 +500,115 @@ class Relaciones extends RelacionesModelo
         return $respuesta;
     }
 
+    public function listado($buscar, $nombreTipo, $orden, $pagina, $filasPorPagina)
+    {
+        // @ Objetivo
+        // Una página del listado de relaciones que rigen: solo se leen las filas de esa
+        // página. Rige lo mismo que en vigentes(): la versión en estado Activo y sus líneas activas.
+        // @ Parametros
+        //      $buscar -> (string) palabras; cada una tiene que estar en el nombre de la relación
+        //                 o en el de alguno de sus productos. '' no busca.
+        //      $nombreTipo -> (string) nombre del tipo de relación. '' no filtra.
+        //      $orden -> (string) 'numRelacion:ASC', 'numRelacion:DESC', 'fecha:ASC' o 'fecha:DESC'.
+        //                Cualquier otro valor ordena por número de relación.
+        //      $pagina -> (int) página pedida. Si ya no existe se devuelve la última que hay.
+        //      $filasPorPagina -> (int)
+        // @ Devolvemos
+        //      ['datos'] con 'total' (relaciones que casan), 'pagina' (la devuelta) y 'filas',
+        //      cada una con numRelacion, relacion, tipo, version, fecha y numProductos. O ['error'].
+        $condicion = "r.estado = 'Activo'";
+        $valores = array();
+        if ($nombreTipo !== '') {
+            $condicion .= ' AND t.nombre = ?';
+            $valores[] = $nombreTipo;
+        }
+        foreach (explode(' ', $buscar) as $palabra) {
+            if ($palabra !== '') {
+                // % y _ se buscan como texto, no como comodines.
+                $patron = '%' . addcslashes($palabra, '%_\\') . '%';
+                $condicion .= ' AND (r.nombre LIKE ? OR EXISTS (SELECT 1 FROM relacionesLineas lb'
+                    . ' JOIN articulos ab ON ab.idArticulo = lb.idArticulo'
+                    . " WHERE lb.idRelacion = r.id AND lb.estado = 'Activo' AND ab.articulo_name LIKE ?))";
+                $valores[] = $patron;
+                $valores[] = $patron;
+            }
+        }
+        $ordenes = array(
+            'numRelacion:ASC' => 'r.numRelacion ASC',
+            'numRelacion:DESC' => 'r.numRelacion DESC',
+            'fecha:ASC' => 'r.fechaCreacion ASC, r.numRelacion ASC',
+            'fecha:DESC' => 'r.fechaCreacion DESC, r.numRelacion DESC',
+        );
+        $ordenarPor = $ordenes['numRelacion:ASC'];
+        if (isset($ordenes[$orden])) {
+            $ordenarPor = $ordenes[$orden];
+        }
+        $filasPorPagina = (int) $filasPorPagina;
+        $pagina = (int) $pagina;
+
+        $desdeDonde = ' FROM relaciones r JOIN relacionesTipos t ON t.id = r.idTipo WHERE ' . $condicion;
+        $respuesta = $this->consultaPreparada('SELECT COUNT(*) AS total' . $desdeDonde, $valores);
+
+        if (!isset($respuesta['error'])) {
+            $total = (int) $respuesta['datos'][0]['total'];
+            $ultimaPagina = (int) ceil($total / $filasPorPagina);
+            if ($pagina > $ultimaPagina) {
+                $pagina = $ultimaPagina;
+            }
+            if ($pagina < 1) {
+                $pagina = 1;
+            }
+
+            $sql = 'SELECT r.id, r.numRelacion, r.nombre, t.nombre AS tipo, t.forma, r.version, r.fechaCreacion AS fecha'
+                . $desdeDonde
+                . ' ORDER BY ' . $ordenarPor
+                . ' LIMIT ' . $filasPorPagina . ' OFFSET ' . (($pagina - 1) * $filasPorPagina);
+            $respuesta = $this->consultaPreparada($sql, $valores);
+        }
+        if (!isset($respuesta['error'])) {
+            $filas = array();
+            $posicion = array();
+            foreach ($respuesta['datos'] as $fila) {
+                $posicion[$fila['id']] = count($filas);
+                $filas[] = array(
+                    'numRelacion' => (int) $fila['numRelacion'],
+                    'relacion' => (string) $fila['nombre'],
+                    'tipo' => $fila['tipo'],
+                    'version' => $fila['version'],
+                    'fecha' => $fila['fecha'],
+                    'numProductos' => 0,
+                    // Si la relación no tiene nombre, se llama como el producto que está solo en su lado.
+                    'ladoQueDaNombre' => $fila['forma'] === 'N:1' ? 'salida' : 'entrada',
+                );
+            }
+            if (count($filas) > 0) {
+                // Las líneas se leen solo para las relaciones de la página.
+                $sql = 'SELECT l.idRelacion, l.sentido, a.articulo_name AS articulo FROM relacionesLineas l'
+                    . ' JOIN articulos a ON a.idArticulo = l.idArticulo'
+                    . " WHERE l.estado = 'Activo' AND l.idRelacion IN (" . implode(', ', array_fill(0, count($posicion), '?')) . ')'
+                    . ' ORDER BY l.id';
+                $respuesta = $this->consultaPreparada($sql, array_keys($posicion));
+            }
+        }
+        if (!isset($respuesta['error'])) {
+            if (count($filas) > 0) {
+                foreach ($respuesta['datos'] as $linea) {
+                    $cual = $posicion[$linea['idRelacion']];
+                    $filas[$cual]['numProductos']++;
+                    if ($filas[$cual]['relacion'] === '' && $linea['sentido'] === $filas[$cual]['ladoQueDaNombre']) {
+                        $filas[$cual]['relacion'] = $linea['articulo'];
+                    }
+                }
+            }
+            foreach ($filas as $cual => $fila) {
+                unset($filas[$cual]['ladoQueDaNombre']);
+            }
+            $respuesta = array('datos' => array('total' => $total, 'pagina' => $pagina, 'filas' => $filas));
+        }
+
+        return $respuesta;
+    }
+
     public function estadoEnFecha($numRelacion, $fecha)
     {
         // @ Objetivo

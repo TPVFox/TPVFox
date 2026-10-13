@@ -11,17 +11,20 @@
 	include_once $URLCom . '/modulos/mod_configuracion/clases/ClaseFormasPago.php';
 	include_once $URLCom . '/modulos/mod_configuracion/clases/ClaseVencimiento.php';
 	include_once $URLCom . '/modulos/mod_configuracion/funciones.php';
+	include_once $URLCom . '/modulos/mod_configuracion/funcionesTiposRelacion.php';
 	$iva = new ClaseIva($BDTpv);
 	$formas = new ClaseFormasPago($BDTpv);
 	$Vencimiento = new ClaseVencimiento($BDTpv);
 	$todosIvas = $iva->cargarDatos();
 	$todosFormas = $formas->cargarDatos();
 	$todosVencimiento = $Vencimiento->cargarDatos();
+	$bloqueTipos = datosBloqueTiposRelacion();
 
 
 
 	?>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_configuracion/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_configuracion/tiposRelacion.js?v=<?php echo filemtime(__DIR__ . '/tiposRelacion.js'); ?>"></script>
 	<script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
 </head>
 
@@ -112,6 +115,53 @@
 						?>
 					</tbody>
 				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center" id="bloqueTiposRelacion">
+				<h4>Tipos de relación
+					<?php
+					if ($bloqueTipos['aviso'] === '' && permisoTipoRelacion($ClasePermisos, 'crear_tipo_relacion')) {
+						echo '<a class="glyphicon glyphicon-plus" id="btnTipoRelacionNuevo" onclick="abrirModalTipoRelacion(0)"></a>';
+					}
+					?>
+				</h4>
+				<?php
+				if ($bloqueTipos['aviso'] !== '') {
+					echo '<div class="alert alert-warning">' . htmlspecialchars($bloqueTipos['aviso']) . '</div>';
+				} elseif (count($bloqueTipos['tipos']) === 0) {
+					echo '<div class="alert alert-info">Todavía no hay ningún tipo de relación.</div>';
+				} else {
+				?>
+					<table class="table table-condensed" id="tablaTiposRelacion">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Nombre</th>
+								<th>Forma</th>
+								<th>Cantidad</th>
+								<th>Estado</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ($bloqueTipos['tipos'] as $tipo) {
+								echo '<tr>';
+								echo '<td>' . (int) $tipo['id'] . '</td>';
+								echo '<td>' . htmlspecialchars($tipo['nombre']) . '</td>';
+								echo '<td>' . htmlspecialchars(nombreDeLaForma($tipo['forma'])) . '</td>';
+								echo '<td>' . ($tipo['llevaCantidad'] == 1 ? 'Sí' : 'No') . '</td>';
+								echo '<td>' . htmlspecialchars($tipo['estado']) . '</td>';
+								echo '<td><a class="glyphicon glyphicon-pencil" onclick="abrirModalTipoRelacion(' . (int) $tipo['id'] . ')"></a></td>';
+								echo '</tr>';
+							}
+							?>
+						</tbody>
+					</table>
+				<?php
+				}
+				?>
 			</div>
 		</div>
 	</div>

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <modulo nombre="mod_configuracion" descripcion="Configuracion" permiso="0">
-        <vista nombre="tablasPrincipales.php" descripcion="Tablas Principales" permiso="0"></vista>
+        <vista nombre="tablasPrincipales.php" descripcion="Tablas Principales" permiso="0">
+            <accion nombre="crear_tipo_relacion" descripcion="Crear un tipo de relación" permiso="0"></accion>
+            <accion nombre="renombrar_tipo_relacion" descripcion="Renombrar un tipo de relación" permiso="0"></accion>
+            <accion nombre="modificar_tipo_relacion" descripcion="Cambiar la forma de un tipo de relación" permiso="0"></accion>
+            <accion nombre="baja_tipo_relacion" descripcion="Dar de baja un tipo de relación" permiso="0"></accion>
+            <accion nombre="reactivar_tipo_relacion" descripcion="Reactivar un tipo de relación" permiso="0"></accion>
+            <accion nombre="borrar_tipo_relacion" descripcion="Borrar un tipo de relación" permiso="0"></accion>
+        </vista>
     </modulo>

@@ -17,8 +17,11 @@ include_once $URLCom . '/modulos/mod_relaciones/funciones.php';
 // preparan los datos; el HTML está en template/view_lista.php.
 
 $avisos = array();
-$filas = array();
+$filasDeLaPagina = array();
 $nombresDeTipos = array();
+$CantidadRegistros = 0;
+$hayRelaciones = false;
+$instalado = false;
 
 $CRelaciones = new Relaciones();
 $estructura = $CRelaciones->estadoEstructura();
@@ -34,49 +37,47 @@ if (isset($estructura['error'])) {
 } else {
     $CTipos = new RelacionesTipos();
     $tipos = $CTipos->listarTipos(false);
-    $vigentes = $CRelaciones->vigentes();
     if (isset($tipos['error'])) {
         $avisos[] = $tipos['error'];
-    } elseif (isset($vigentes['error'])) {
-        $avisos[] = $vigentes['error'];
     } else {
+        $instalado = true;
         foreach ($tipos['datos'] as $tipo) {
             $nombresDeTipos[] = $tipo['nombre'];
         }
         if (count($nombresDeTipos) === 0) {
             $avisos[] = array('tipo' => 'info', 'mensaje' => 'Todavía no hay ningún tipo de relación. Se crean en Sistema, Tablas principales.');
         }
-        $filas = filasDelListado($vigentes['datos']);
     }
 }
-$hayRelaciones = count($filas) > 0;
 
 // Los parámetros se dejan en valores que el listado ofrece antes de que los lea el plugin.
 $parametros = parametrosDelListado($_GET, $nombresDeTipos);
+$NPaginado = new PluginClasePaginacion(__FILE__);
+$filasPorPagina = $NPaginado->GetLimite();
+
+if ($instalado) {
+    // Solo se leen las filas de la página. Si la página pedida ya no existe, llega la última que hay.
+    $listado = $CRelaciones->listado($parametros['buscar'], $parametros['filtro'], $parametros['orden'], $parametros['pagina'], $filasPorPagina);
+    if (isset($listado['error'])) {
+        $avisos[] = $listado['error'];
+    } else {
+        $filasDeLaPagina = $listado['datos']['filas'];
+        $CantidadRegistros = $listado['datos']['total'];
+        $parametros['pagina'] = $listado['datos']['pagina'];
+        $hayRelaciones = $CantidadRegistros > 0 || $parametros['buscar'] !== '' || $parametros['filtro'] !== '';
+    }
+}
+
 $_GET = array('pagina' => (string) $parametros['pagina'], 'buscar' => $parametros['buscar'], 'filtro' => $parametros['filtro']);
 if ($parametros['orden'] !== '') {
     $_GET['orden'] = $parametros['orden'];
 }
-
-$filas = filtrarFilasDelListado($filas, $parametros['buscar'], $parametros['filtro']);
-$filas = ordenarFilasDelListado($filas, $parametros['orden']);
-$CantidadRegistros = count($filas);
-
-// Una página que ya no existe pasa a ser la última que hay.
 $NPaginado = new PluginClasePaginacion(__FILE__);
-$filasPorPagina = $NPaginado->GetLimite();
-$ultimaPagina = ultimaPaginaDelListado($CantidadRegistros, $filasPorPagina);
-if ($parametros['pagina'] > $ultimaPagina) {
-    $parametros['pagina'] = $ultimaPagina;
-    $_GET['pagina'] = (string) $ultimaPagina;
-    $NPaginado = new PluginClasePaginacion(__FILE__);
-}
 // El plugin tiene que conocer el orden pedido para conservarlo en los enlaces de sus páginas.
 if ($parametros['orden'] !== '') {
     $NPaginado->SetOrderByConsulta($parametros['orden']);
 }
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
-$filasDeLaPagina = paginaDeFilasDelListado($filas, $parametros['pagina'], $filasPorPagina);
 
 if (count($avisos) === 0 && !$hayRelaciones) {
     $avisos[] = array('tipo' => 'info', 'mensaje' => 'No hay ninguna relación entre productos.');

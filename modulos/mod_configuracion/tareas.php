@@ -5,6 +5,7 @@ include_once $URLCom . '/modulos/mod_configuracion/clases/ClaseIva.php';
 include_once $URLCom . '/modulos/mod_configuracion/clases/ClaseFormasPago.php';
 include_once $URLCom . '/modulos/mod_configuracion/clases/ClaseVencimiento.php';
 include_once $URLCom . '/modulos/mod_configuracion/funciones.php';
+include_once $URLCom . '/modulos/mod_configuracion/funcionesTiposRelacion.php';
 switch ($pulsado) {
 	case 'abrirModalModificar':
 		$html = abrirModal($_POST['id'], $_POST['dedonde'], $BDTpv);
@@ -50,6 +51,27 @@ switch ($pulsado) {
 				break;
 		}
 		$respuesta = $modificar;
+		break;
+	case 'abrirModalTipoRelacion':
+		$respuesta = modalTipoRelacion($_POST['id'], $ClasePermisos);
+		break;
+	case 'crearTipoRelacion':
+		$respuesta = tareaTipoRelacion('crear', $_POST, $ClasePermisos);
+		break;
+	case 'renombrarTipoRelacion':
+		$respuesta = tareaTipoRelacion('renombrar', $_POST, $ClasePermisos);
+		break;
+	case 'modificarTipoRelacion':
+		$respuesta = tareaTipoRelacion('modificar', $_POST, $ClasePermisos);
+		break;
+	case 'bajaTipoRelacion':
+		$respuesta = tareaTipoRelacion('baja', $_POST, $ClasePermisos);
+		break;
+	case 'reactivarTipoRelacion':
+		$respuesta = tareaTipoRelacion('reactivar', $_POST, $ClasePermisos);
+		break;
+	case 'borrarTipoRelacion':
+		$respuesta = tareaTipoRelacion('borrar', $_POST, $ClasePermisos);
 		break;
 }
 
