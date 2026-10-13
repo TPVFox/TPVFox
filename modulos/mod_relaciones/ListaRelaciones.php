@@ -52,6 +52,10 @@ if (isset($estructura['error'])) {
 
 // Los parámetros se dejan en valores que el listado ofrece antes de que los lea el plugin.
 $parametros = parametrosDelListado($_GET, $nombresDeTipos);
+$_GET = array('pagina' => (string) $parametros['pagina'], 'buscar' => $parametros['buscar'], 'filtro' => $parametros['filtro']);
+if ($parametros['orden'] !== '') {
+    $_GET['orden'] = $parametros['orden'];
+}
 $NPaginado = new PluginClasePaginacion(__FILE__);
 $filasPorPagina = $NPaginado->GetLimite();
 
@@ -68,10 +72,8 @@ if ($instalado) {
     }
 }
 
-$_GET = array('pagina' => (string) $parametros['pagina'], 'buscar' => $parametros['buscar'], 'filtro' => $parametros['filtro']);
-if ($parametros['orden'] !== '') {
-    $_GET['orden'] = $parametros['orden'];
-}
+// La página puede haber cambiado: el plugin se vuelve a crear con la que se muestra.
+$_GET['pagina'] = (string) $parametros['pagina'];
 $NPaginado = new PluginClasePaginacion(__FILE__);
 // El plugin tiene que conocer el orden pedido para conservarlo en los enlaces de sus páginas.
 if ($parametros['orden'] !== '') {
