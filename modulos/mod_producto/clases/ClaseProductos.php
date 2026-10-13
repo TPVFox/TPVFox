@@ -1142,6 +1142,11 @@ class ClaseProductos extends ClaseTablaArticulos
             'select count(idArticulo) as cant from articulosTiendas where idArticulo=' . $id . ' and idTienda=' . $idTienda,
             'articulosTiendas. Tienda:' . $idTienda,
         ];
+        // Las relaciones entre productos solo se comprueban si su tabla está instalada.
+        $tablaRelaciones = parent::Consulta("show tables like 'relacionesLineas'");
+        if (isset($tablaRelaciones['NItems']) && $tablaRelaciones['NItems'] > 0) {
+            $sql[9] = ['select count(id) as cant from relacionesLineas where idArticulo=' . $id, 'Relaciones entre productos relacionesLineas',];
+        }
         $bandera = false;
         foreach ($sql as $consulta) {
             $items = parent::Consulta($consulta[0]);
