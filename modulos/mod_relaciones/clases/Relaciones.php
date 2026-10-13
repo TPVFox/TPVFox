@@ -477,6 +477,103 @@ class Relaciones extends RelacionesModelo
         return $respuesta;
     }
 
+    public function vigentes($idArticulo = 0)
+    {
+        // @ Objetivo
+        // Las relaciones que rigen ahora, cada una con su tipo y sus líneas. Es la única
+        // lectura de «qué rige»: de ella parten el listado y la comprobación de repetidas.
+        // @ Parametros
+        //      $idArticulo -> (int) opcional: solo las relaciones en las que ese producto
+        //                     entra o sale. Sin él, todas.
+        // @ Devolvemos
+        //      ['datos'] con una relación por elemento y sus líneas en 'lineas', o ['error'].
+        $condicion = "r.estado = 'Activo'";
+        $valores = array();
+        // No se convierte a número: un valor que no sea un id no debe leerse como «todas».
+        if ($idArticulo != 0) {
+            $condicion .= " AND r.id IN (SELECT idRelacion FROM relacionesLineas"
+                . " WHERE idArticulo = ? AND estado = 'Activo')";
+            $valores[] = $idArticulo;
+        }
+        $respuesta = $this->versionesConLineas($condicion, $valores);
+
+        return $respuesta;
+    }
+
+    public function estadoEnFecha($numRelacion, $fecha)
+    {
+        // @ Objetivo
+        // Qué versión de una relación regía en una fecha. Un borrador no cuenta.
+        // @ Parametros
+        //      $numRelacion -> (int) número de la relación.
+        //      $fecha -> (string) 'AAAA-MM-DD' o 'AAAA-MM-DD HH:MM:SS'. Con solo el día se
+        //                responde lo que regía al terminar ese día.
+        // @ Devolvemos
+        //      ['datos'] con 'situacion' ('regia', 'noExistia' o 'deBaja') y 'version', que es
+        //      la versión con sus líneas o null. O ['error'].
+        $situacion = 'noExistia';
+        $version = null;
+        if (strlen($fecha) === 10) {
+            $fecha .= ' 23:59:59';
+        }
+
+        // Entre dos versiones con la misma fecha, el id mayor es la que se activó después.
+        $sql = "SELECT id, estado FROM relaciones"
+            . " WHERE numRelacion = ? AND estado <> 'Borrador' AND fechaCreacion <= ?"
+            . " ORDER BY fechaCreacion DESC, id DESC LIMIT 1";
+        $respuesta = $this->consultaPreparada($sql, array($numRelacion, $fecha));
+
+        if (!isset($respuesta['error']) && count($respuesta['datos']) === 1) {
+            if ($respuesta['datos'][0]['estado'] === 'Baja') {
+                $situacion = 'deBaja';
+            } else {
+                $respuesta = $this->versionesConLineas('r.id = ?', array($respuesta['datos'][0]['id']));
+                if (!isset($respuesta['error']) && count($respuesta['datos']) === 1) {
+                    $situacion = 'regia';
+                    $version = $respuesta['datos'][0];
+                }
+            }
+        }
+        if (!isset($respuesta['error'])) {
+            $respuesta = array('datos' => array('situacion' => $situacion, 'version' => $version));
+        }
+
+        return $respuesta;
+    }
+
+    public function comprobarVersiones()
+    {
+        // @ Objetivo
+        // Buscar relaciones en un estado que las operaciones del módulo no dejan nunca: con
+        // más de una versión rigiendo, con más de un borrador, o sin versión que rija, sin
+        // borrador y sin baja. Si todo está bien no devuelve ninguna.
+        // @ Devolvemos
+        //      ['datos'] con una fila por relación afectada ('numRelacion' y 'motivo'), o ['error'].
+        $sql = "SELECT numRelacion, SUM(estado = 'Activo') AS activas,"
+            . " SUM(estado = 'Borrador') AS borradores, SUM(estado = 'Baja') AS bajas"
+            . " FROM relaciones GROUP BY numRelacion"
+            . " HAVING activas > 1 OR borradores > 1 OR (activas = 0 AND borradores = 0 AND bajas = 0)"
+            . " ORDER BY numRelacion";
+        $respuesta = $this->consultaPreparada($sql);
+
+        if (!isset($respuesta['error'])) {
+            $afectadas = array();
+            foreach ($respuesta['datos'] as $fila) {
+                if ($fila['activas'] > 1) {
+                    $motivo = 'Tiene más de una versión rigiendo.';
+                } elseif ($fila['borradores'] > 1) {
+                    $motivo = 'Tiene más de un borrador.';
+                } else {
+                    $motivo = 'No tiene ninguna versión que rija, ni borrador, ni baja.';
+                }
+                $afectadas[] = array('numRelacion' => $fila['numRelacion'], 'motivo' => $motivo);
+            }
+            $respuesta = array('datos' => $afectadas);
+        }
+
+        return $respuesta;
+    }
+
     public function tipoDeCambio($datosQueRigen, $lineasQueRigen, $datosNuevos, $lineasNuevas)
     {
         // @ Objetivo
@@ -555,6 +652,62 @@ class Relaciones extends RelacionesModelo
         return $lineas;
     }
 
+    private function versionesConLineas($condicion, $valores)
+    {
+        // @ Objetivo
+        // Leer versiones con su tipo y sus líneas activas, y el nombre que cada producto tiene
+        // ahora en el catálogo. Las filas de la consulta se agrupan por versión.
+        // @ Parametros
+        //      $condicion -> (string) el WHERE, escrito por quien llama y nunca con datos recibidos.
+        //      $valores -> (array) los valores de los ? de esa condición.
+        // @ Devolvemos
+        //      ['datos'] con una versión por elemento y sus líneas en 'lineas', o ['error'].
+        $sql = "SELECT r.id, r.numRelacion, r.idTipo, t.nombre AS tipo, t.forma, r.nombre, r.descripcion,"
+            . " r.diasViabilidad, r.version, r.fechaCreacion,"
+            . " l.idArticulo, a.articulo_name AS articulo, l.sentido, l.cantidad, l.unidad"
+            . " FROM relaciones r"
+            . " JOIN relacionesTipos t ON t.id = r.idTipo"
+            . " JOIN relacionesLineas l ON l.idRelacion = r.id AND l.estado = 'Activo'"
+            . " JOIN articulos a ON a.idArticulo = l.idArticulo"
+            . " WHERE " . $condicion
+            . " ORDER BY r.numRelacion, r.id, l.id";
+        $respuesta = $this->consultaPreparada($sql, $valores);
+
+        if (!isset($respuesta['error'])) {
+            $versiones = array();
+            $posicion = array();
+            foreach ($respuesta['datos'] as $fila) {
+                if (!isset($posicion[$fila['id']])) {
+                    $posicion[$fila['id']] = count($versiones);
+                    $versiones[] = array(
+                        'id' => $fila['id'],
+                        'numRelacion' => $fila['numRelacion'],
+                        'idTipo' => $fila['idTipo'],
+                        'tipo' => $fila['tipo'],
+                        'forma' => $fila['forma'],
+                        'nombre' => $fila['nombre'],
+                        'descripcion' => $fila['descripcion'],
+                        'diasViabilidad' => $fila['diasViabilidad'],
+                        'version' => $fila['version'],
+                        'fechaCreacion' => $fila['fechaCreacion'],
+                        'lineas' => array(),
+                    );
+                }
+                $versiones[$posicion[$fila['id']]]['lineas'][] = array(
+                    'idArticulo' => $fila['idArticulo'],
+                    'articulo' => $fila['articulo'],
+                    'sentido' => $fila['sentido'],
+                    'cantidad' => $fila['cantidad'],
+                    'unidad' => $fila['unidad'],
+                    'estado' => 'Activo',
+                );
+            }
+            $respuesta = array('datos' => $versiones);
+        }
+
+        return $respuesta;
+    }
+
     private function motivoPorCatalogo($borrador, $lineasBorrador, $lineasActiva)
     {
         // @ Objetivo
@@ -584,21 +737,16 @@ class Relaciones extends RelacionesModelo
         }
 
         if ($motivo === '') {
-            $sql = "SELECT r.id, l.idArticulo, l.sentido, l.estado FROM relaciones r"
-                . " JOIN relacionesLineas l ON l.idRelacion = r.id"
-                . " WHERE r.estado = 'Activo' AND r.idTipo = ? AND r.numRelacion <> ?";
-            $otras = $this->consultaPreparada($sql, array($borrador['idTipo'], $borrador['numRelacion']));
-            if (isset($otras['error'])) {
+            $vigentes = $this->vigentes();
+            if (isset($vigentes['error'])) {
                 $motivo = 'No se pudo comprobar si la relación ya existe.';
             } else {
-                $lineasPorRelacion = array();
-                foreach ($otras['datos'] as $linea) {
-                    $lineasPorRelacion[$linea['id']][] = $linea;
-                }
                 $paresDelBorrador = $this->paresDe($lineasBorrador);
-                foreach ($lineasPorRelacion as $lineasDeOtra) {
-                    if ($this->paresDe($lineasDeOtra) === $paresDelBorrador) {
-                        $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos.';
+                foreach ($vigentes['datos'] as $otra) {
+                    if ($otra['idTipo'] == $borrador['idTipo'] && $otra['numRelacion'] != $borrador['numRelacion']) {
+                        if ($this->paresDe($otra['lineas']) === $paresDelBorrador) {
+                            $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos.';
+                        }
                     }
                 }
             }
