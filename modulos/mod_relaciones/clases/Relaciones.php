@@ -350,6 +350,133 @@ class Relaciones extends RelacionesModelo
         return $respuesta;
     }
 
+    public function alta($idTipo, $datos, $lineas, $idUsuario)
+    {
+        // @ Objetivo
+        // Dar de alta una relación y ponerla a regir en una sola operación: es crear su
+        // borrador y activarlo. Si la activación se rechaza, no queda ni el borrador.
+        // @ Parametros
+        //      Los de crearBorrador().
+        // @ Devolvemos
+        //      ['datos'] con id, numRelacion, version y tipoCambio, o ['error'].
+        $this->iniciarEscritura();
+        $respuesta = $this->crearBorrador($idTipo, $datos, $lineas, $idUsuario);
+        if (!isset($respuesta['error'])) {
+            $respuesta = $this->activarBorrador($respuesta['datos']['id'], $idUsuario);
+        }
+
+        return $this->terminarEscritura($respuesta);
+    }
+
+    public function modificar($numRelacion, $datos, $lineas, $idUsuario, $origenAjuste = null)
+    {
+        // @ Objetivo
+        // Modificar una relación que rige en una sola operación: es crear el borrador del
+        // cambio, editarlo y activarlo. Si la relación ya tiene un borrador pendiente se
+        // rechaza, y si la activación se rechaza no queda ningún borrador.
+        // @ Parametros
+        //      $numRelacion -> (int) número de la relación.
+        //      $datos, $lineas -> como en editarBorrador().
+        //      $idUsuario -> (int) usuario de sesión.
+        //      $origenAjuste -> (string) de dónde sale un ajuste de cantidades.
+        // @ Devolvemos
+        //      ['datos'] con id, numRelacion, version y tipoCambio, o ['error'].
+        $this->iniciarEscritura();
+        $respuesta = $this->crearBorradorDeCambio($numRelacion, $idUsuario);
+        if (!isset($respuesta['error'])) {
+            $idBorrador = $respuesta['datos']['id'];
+            $respuesta = $this->editarBorrador($idBorrador, $datos, $lineas);
+        }
+        if (!isset($respuesta['error'])) {
+            $respuesta = $this->activarBorrador($idBorrador, $idUsuario, $origenAjuste);
+        }
+
+        return $this->terminarEscritura($respuesta);
+    }
+
+    public function darDeBaja($numRelacion, $idUsuario)
+    {
+        // @ Objetivo
+        // Dar de baja una relación que rige. No borra nada: añade una versión sin líneas que
+        // la cierra, y la que regía pasa a sustituida. Si tenía un borrador, se descarta.
+        // @ Parametros
+        //      $numRelacion -> (int) número de la relación.
+        //      $idUsuario -> (int) usuario de sesión: queda como autor de la baja.
+        // @ Devolvemos
+        //      ['datos'] con id, numRelacion, version y tipoCambio, o ['error'].
+        $motivo = '';
+        $activa = null;
+        $idBorrador = 0;
+        if ($idUsuario <= 0) {
+            $motivo = 'Hace falta un usuario identificado para dar de baja una relación.';
+        } else {
+            $sql = "SELECT id, idTipo, nombre, descripcion, diasViabilidad, version, estado FROM relaciones"
+                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador')";
+            $versiones = $this->consultaPreparada($sql, array($numRelacion));
+            if (isset($versiones['error'])) {
+                $motivo = 'No se pudo leer la relación.';
+            } else {
+                foreach ($versiones['datos'] as $version) {
+                    if ($version['estado'] === 'Activo') {
+                        $activa = $version;
+                    } else {
+                        $idBorrador = $version['id'];
+                    }
+                }
+                if ($activa === null) {
+                    $motivo = 'La relación no está vigente.';
+                }
+            }
+        }
+
+        if ($motivo !== '') {
+            $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
+        } else {
+            $this->iniciarEscritura();
+            $respuesta = array('datos' => array());
+
+            if ($idBorrador > 0) {
+                $respuesta = $this->descartarBorrador($idBorrador);
+            }
+            if (!isset($respuesta['error'])) {
+                $sql = "UPDATE relaciones SET estado = 'Sustituido' WHERE id = ? AND estado = 'Activo'";
+                $respuesta = $this->consultaPreparada($sql, array($activa['id']));
+                if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente.'));
+                }
+            }
+            if (!isset($respuesta['error'])) {
+                $partes = explode('.', $activa['version']);
+                $version = $partes[0] . '.' . ($partes[1] + 1);
+                $sql = "INSERT INTO relaciones (numRelacion, idTipo, nombre, descripcion, diasViabilidad,"
+                    . " version, tipoCambio, idUsuario, fechaCreacion, estado)"
+                    . " VALUES (?, ?, ?, ?, ?, ?, 'baja', ?, ?, 'Baja')";
+                $valores = array(
+                    $numRelacion,
+                    $activa['idTipo'],
+                    $activa['nombre'],
+                    $activa['descripcion'],
+                    $activa['diasViabilidad'],
+                    $version,
+                    $idUsuario,
+                    date('Y-m-d H:i:s'),
+                );
+                $respuesta = $this->consultaPreparada($sql, $valores);
+            }
+            if (!isset($respuesta['error'])) {
+                $respuesta = array('datos' => array(
+                    'id' => (int) $respuesta['datos']['idInsertado'],
+                    'numRelacion' => (int) $numRelacion,
+                    'version' => $version,
+                    'tipoCambio' => 'baja',
+                ));
+            }
+            $respuesta = $this->terminarEscritura($respuesta);
+        }
+
+        return $respuesta;
+    }
+
     public function tipoDeCambio($datosQueRigen, $lineasQueRigen, $datosNuevos, $lineasNuevas)
     {
         // @ Objetivo
