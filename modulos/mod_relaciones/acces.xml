@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulo nombre="mod_relaciones" descripcion="Productos relacionados" permiso="0">
+    <vista nombre="ListaRelaciones.php" descripcion="Listado de productos relacionados" permiso="0">
+        <accion nombre="ver" descripcion="Ver el listado de productos relacionados" permiso="0"></accion>
+    </vista>
+</modulo>
