@@ -8,6 +8,8 @@
 
 <head>
     <?php include_once $URLCom . '/head.php'; ?>
+    <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_relaciones/funciones.js?v=<?php echo filemtime($URLCom . '/modulos/mod_relaciones/funciones.js'); ?>"></script>
 </head>
 
 <body>
@@ -28,6 +30,12 @@
                 <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Añadir</button>
                 <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Ver</button>
                 <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Modificar</button>
+                <?php
+                if ($puedeCambiarEstado) {
+                    // Hoy el único estado al que se puede cambiar una relación es la baja.
+                    echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "','" . 'Baja' . "'" . ')">Cambiar estado</button>';
+                }
+                ?>
             </div>
             <div class="col-md-9">
                 <p>
@@ -64,7 +72,7 @@
                             ?>
                                 <tr>
                                     <td>
-                                        <input class="Check" type="checkbox" value="<?php echo (int) $fila['numRelacion']; ?>" disabled>
+                                        <input class="Check" type="checkbox" value="<?php echo (int) $fila['numRelacion']; ?>" data-nombre="<?php echo htmlspecialchars($fila['relacion']); ?>">
                                     </td>
                                     <td><span title="Editar: disponible con la pantalla de relación" class="glyphicon glyphicon-pencil text-muted"></span></td>
                                     <td><span title="Ver: disponible con la pantalla de relación" class="glyphicon glyphicon-eye-open text-muted"></span></td>

@@ -65,19 +65,21 @@ class Relaciones extends RelacionesModelo
         //      $idUsuario -> (int) usuario de sesión.
         // @ Devolvemos
         //      ['datos'] con el id del borrador y su numRelacion, o ['error'].
-        $motivo = '';
-        $activa = null;
         if ($idUsuario <= 0) {
-            $motivo = 'Hace falta un usuario identificado para guardar una relación.';
+            $respuesta = array('error' => $this->montarAdvertencia('warning', 'Hace falta un usuario identificado para guardar una relación.'));
         } else {
+            // Las versiones se leen bloqueadas, dentro de la escritura: una baja de la misma
+            // relación que llegue a la vez espera a que esta termine, y después ve el borrador.
+            $this->iniciarEscritura();
+            $activa = null;
+            $tieneBorrador = false;
             $sql = "SELECT id, idTipo, nombre, descripcion, diasViabilidad, estado FROM relaciones"
-                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador')";
-            $versiones = $this->consultaPreparada($sql, array($numRelacion));
-            if (isset($versiones['error'])) {
-                $motivo = 'No se pudo leer la relación.';
+                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador') FOR UPDATE";
+            $respuesta = $this->consultaPreparada($sql, array($numRelacion));
+            if (isset($respuesta['error'])) {
+                $respuesta = array('error' => $this->montarAdvertencia('warning', 'No se pudo leer la relación.'));
             } else {
-                $tieneBorrador = false;
-                foreach ($versiones['datos'] as $version) {
+                foreach ($respuesta['datos'] as $version) {
                     if ($version['estado'] === 'Activo') {
                         $activa = $version;
                     } else {
@@ -85,18 +87,15 @@ class Relaciones extends RelacionesModelo
                     }
                 }
                 if ($activa === null) {
-                    $motivo = 'La relación no está vigente.';
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente.'));
                 } elseif ($tieneBorrador) {
-                    $motivo = 'La relación ya tiene un borrador.';
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación ya tiene un borrador.'));
                 }
             }
-        }
 
-        if ($motivo !== '') {
-            $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
-        } else {
-            $this->iniciarEscritura();
-            $respuesta = $this->insertarBorrador($numRelacion, $activa['idTipo'], $activa, $idUsuario);
+            if (!isset($respuesta['error'])) {
+                $respuesta = $this->insertarBorrador($numRelacion, $activa['idTipo'], $activa, $idUsuario);
+            }
             if (!isset($respuesta['error'])) {
                 $idBorrador = $respuesta['datos']['idInsertado'];
                 $sql = "INSERT INTO relacionesLineas (idRelacion, idArticulo, sentido, cantidad, unidad, estado)"
@@ -397,79 +396,49 @@ class Relaciones extends RelacionesModelo
     public function darDeBaja($numRelacion, $idUsuario)
     {
         // @ Objetivo
-        // Dar de baja una relación que rige. No borra nada: añade una versión sin líneas que
-        // la cierra, y la que regía pasa a sustituida. Si tenía un borrador, se descarta.
+        // Dar de baja una relación que rige: su versión pasa de Activo a Baja. No se crea
+        // ninguna versión ni cambia nada más, y la baja no deja autor ni momento. Si la
+        // relación tiene un borrador pendiente se rechaza: la baja no descarta lo que alguien
+        // está preparando.
         // @ Parametros
         //      $numRelacion -> (int) número de la relación.
-        //      $idUsuario -> (int) usuario de sesión: queda como autor de la baja.
+        //      $idUsuario -> (int) usuario de sesión: hace falta uno identificado, aunque no se guarda.
         // @ Devolvemos
-        //      ['datos'] con id, numRelacion, version y tipoCambio, o ['error'].
-        $motivo = '';
-        $activa = null;
-        $idBorrador = 0;
+        //      ['datos'] con el id de la versión y su numRelacion, o ['error'].
         if ($idUsuario <= 0) {
-            $motivo = 'Hace falta un usuario identificado para dar de baja una relación.';
+            $respuesta = array('error' => $this->montarAdvertencia('warning', 'Hace falta un usuario identificado para dar de baja una relación.'));
         } else {
-            $sql = "SELECT id, idTipo, nombre, descripcion, diasViabilidad, version, estado FROM relaciones"
-                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador')";
-            $versiones = $this->consultaPreparada($sql, array($numRelacion));
-            if (isset($versiones['error'])) {
-                $motivo = 'No se pudo leer la relación.';
-            } else {
-                foreach ($versiones['datos'] as $version) {
+            // Las versiones se leen bloqueadas, dentro de la escritura: un borrador de la misma
+            // relación que se cree a la vez espera a que la baja termine, y después ya no rige.
+            $this->iniciarEscritura();
+            $activa = null;
+            $tieneBorrador = false;
+            $sql = "SELECT id, estado FROM relaciones WHERE numRelacion = ? FOR UPDATE";
+            $respuesta = $this->consultaPreparada($sql, array($numRelacion));
+            if (!isset($respuesta['error'])) {
+                foreach ($respuesta['datos'] as $version) {
                     if ($version['estado'] === 'Activo') {
                         $activa = $version;
-                    } else {
-                        $idBorrador = $version['id'];
+                    } elseif ($version['estado'] === 'Borrador') {
+                        $tieneBorrador = true;
                     }
                 }
                 if ($activa === null) {
-                    $motivo = 'La relación no está vigente.';
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente.'));
+                } elseif ($tieneBorrador) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación tiene un borrador pendiente: descártalo para darla de baja.'));
                 }
             }
-        }
 
-        if ($motivo !== '') {
-            $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
-        } else {
-            $this->iniciarEscritura();
-            $respuesta = array('datos' => array());
-
-            if ($idBorrador > 0) {
-                $respuesta = $this->descartarBorrador($idBorrador);
-            }
             if (!isset($respuesta['error'])) {
-                $sql = "UPDATE relaciones SET estado = 'Sustituido' WHERE id = ? AND estado = 'Activo'";
+                $sql = "UPDATE relaciones SET estado = 'Baja' WHERE id = ? AND estado = 'Activo'";
                 $respuesta = $this->consultaPreparada($sql, array($activa['id']));
                 if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
                     $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente.'));
                 }
             }
             if (!isset($respuesta['error'])) {
-                $partes = explode('.', $activa['version']);
-                $version = $partes[0] . '.' . ($partes[1] + 1);
-                $sql = "INSERT INTO relaciones (numRelacion, idTipo, nombre, descripcion, diasViabilidad,"
-                    . " version, tipoCambio, idUsuario, fechaCreacion, estado)"
-                    . " VALUES (?, ?, ?, ?, ?, ?, 'baja', ?, ?, 'Baja')";
-                $valores = array(
-                    $numRelacion,
-                    $activa['idTipo'],
-                    $activa['nombre'],
-                    $activa['descripcion'],
-                    $activa['diasViabilidad'],
-                    $version,
-                    $idUsuario,
-                    date('Y-m-d H:i:s'),
-                );
-                $respuesta = $this->consultaPreparada($sql, $valores);
-            }
-            if (!isset($respuesta['error'])) {
-                $respuesta = array('datos' => array(
-                    'id' => (int) $respuesta['datos']['idInsertado'],
-                    'numRelacion' => (int) $numRelacion,
-                    'version' => $version,
-                    'tipoCambio' => 'baja',
-                ));
+                $respuesta = array('datos' => array('id' => (int) $activa['id'], 'numRelacion' => (int) $numRelacion));
             }
             $respuesta = $this->terminarEscritura($respuesta);
         }
@@ -618,8 +587,9 @@ class Relaciones extends RelacionesModelo
         //      $fecha -> (string) 'AAAA-MM-DD' o 'AAAA-MM-DD HH:MM:SS'. Con solo el día se
         //                responde lo que regía al terminar ese día.
         // @ Devolvemos
-        //      ['datos'] con 'situacion' ('regia', 'noExistia' o 'deBaja') y 'version', que es
-        //      la versión con sus líneas o null. O ['error'].
+        //      ['datos'] con 'situacion' ('regia' o 'noExistia') y 'version', que es la versión
+        //      con sus líneas y su estado actual, o null. O ['error']. La baja no deja fecha: de
+        //      una relación de baja se devuelve la última versión anterior a la fecha, en Baja.
         $situacion = 'noExistia';
         $version = null;
         if (strlen($fecha) === 10) {
@@ -633,14 +603,12 @@ class Relaciones extends RelacionesModelo
         $respuesta = $this->consultaPreparada($sql, array($numRelacion, $fecha));
 
         if (!isset($respuesta['error']) && count($respuesta['datos']) === 1) {
-            if ($respuesta['datos'][0]['estado'] === 'Baja') {
-                $situacion = 'deBaja';
-            } else {
-                $respuesta = $this->versionesConLineas('r.id = ?', array($respuesta['datos'][0]['id']));
-                if (!isset($respuesta['error']) && count($respuesta['datos']) === 1) {
-                    $situacion = 'regia';
-                    $version = $respuesta['datos'][0];
-                }
+            $estado = $respuesta['datos'][0]['estado'];
+            $respuesta = $this->versionesConLineas('r.id = ?', array($respuesta['datos'][0]['id']));
+            if (!isset($respuesta['error']) && count($respuesta['datos']) === 1) {
+                $situacion = 'regia';
+                $version = $respuesta['datos'][0];
+                $version['estado'] = $estado;
             }
         }
         if (!isset($respuesta['error'])) {
@@ -654,14 +622,16 @@ class Relaciones extends RelacionesModelo
     {
         // @ Objetivo
         // Buscar relaciones en un estado que las operaciones del módulo no dejan nunca: con
-        // más de una versión rigiendo, con más de un borrador, o sin versión que rija, sin
-        // borrador y sin baja. Si todo está bien no devuelve ninguna.
+        // más de una versión entre la que rige y la de baja, con más de un borrador, de baja y
+        // con un borrador, o sin versión que rija, sin borrador y sin baja. Si todo está bien
+        // no devuelve ninguna.
         // @ Devolvemos
         //      ['datos'] con una fila por relación afectada ('numRelacion' y 'motivo'), o ['error'].
         $sql = "SELECT numRelacion, SUM(estado = 'Activo') AS activas,"
             . " SUM(estado = 'Borrador') AS borradores, SUM(estado = 'Baja') AS bajas"
             . " FROM relaciones GROUP BY numRelacion"
-            . " HAVING activas > 1 OR borradores > 1 OR (activas = 0 AND borradores = 0 AND bajas = 0)"
+            . " HAVING activas + bajas > 1 OR borradores > 1 OR (bajas > 0 AND borradores > 0)"
+            . " OR (activas = 0 AND borradores = 0 AND bajas = 0)"
             . " ORDER BY numRelacion";
         $respuesta = $this->consultaPreparada($sql);
 
@@ -670,8 +640,12 @@ class Relaciones extends RelacionesModelo
             foreach ($respuesta['datos'] as $fila) {
                 if ($fila['activas'] > 1) {
                     $motivo = 'Tiene más de una versión rigiendo.';
+                } elseif ($fila['activas'] + $fila['bajas'] > 1) {
+                    $motivo = 'Tiene más de una versión entre la que rige y la de baja.';
                 } elseif ($fila['borradores'] > 1) {
                     $motivo = 'Tiene más de un borrador.';
+                } elseif ($fila['bajas'] > 0 && $fila['borradores'] > 0) {
+                    $motivo = 'Está de baja y tiene un borrador.';
                 } else {
                     $motivo = 'No tiene ninguna versión que rija, ni borrador, ni baja.';
                 }

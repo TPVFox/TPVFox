@@ -22,6 +22,8 @@ $nombresDeTipos = array();
 $CantidadRegistros = 0;
 $hayRelaciones = false;
 $instalado = false;
+// Cambiar el estado de las relaciones marcadas solo se ofrece a quien tiene su permiso.
+$puedeCambiarEstado = $ClasePermisos->getAccion('CambiarEstado') == 1;
 
 $CRelaciones = new Relaciones();
 $estructura = $CRelaciones->estadoEstructura();
