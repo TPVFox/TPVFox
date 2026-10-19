@@ -15,6 +15,9 @@
 <body>
     <?php
     include_once $URLCom . '/modulos/mod_menu/menu.php';
+    if ($avisoDeLaPantalla !== null) {
+        echo '<div class="alert alert-' . $avisoDeLaPantalla['tipo'] . '">' . htmlspecialchars($avisoDeLaPantalla['mensaje']) . '</div>';
+    }
     foreach ($avisos as $aviso) {
         echo '<div class="alert alert-' . htmlspecialchars($aviso['tipo']) . '">' . htmlspecialchars($aviso['mensaje']) . '</div>';
     }
@@ -26,16 +29,46 @@
             </div>
             <div class="col-sm-3">
                 <h4> Opciones generales</h4>
-                <?php // Las acciones todavía no tienen pantalla: ocupan su sitio, desactivadas. ?>
-                <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Añadir</button>
-                <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Ver</button>
-                <button class="btn btn-default" disabled title="Disponible con la pantalla de relación">Modificar</button>
                 <?php
+                if ($puedeCrear) {
+                    echo '<a class="btn btn-default" href="./relacion.php">Añadir</a>';
+                }
+                echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'Ver' . "'" . ')">Ver</button>';
+                if ($puedeModificar) {
+                    echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'Modificar' . "'" . ')">Modificar</button>';
+                }
                 if ($puedeCambiarEstado) {
                     // Hoy el único estado al que se puede cambiar una relación es la baja.
                     echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "','" . 'Baja' . "'" . ')">Cambiar estado</button>';
                 }
                 ?>
+                <?php if ($puedeCrear || $puedeModificar) { ?>
+                    <h4>Relaciones abiertas</h4>
+                    <table class="table table-striped" id="relacionesAbiertas">
+                        <thead>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Relación</th>
+                                <th>Quién</th>
+                                <th>Cuándo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            foreach ($relacionesAbiertas as $abierta) {
+                                $url = 'relacion.php?tActual=' . (int) $abierta['id'];
+                                $td = '<td style="cursor:pointer" onclick="redireccionA(' . "'" . $url . "'" . ')">';
+                                $numero = $abierta['numRelacion'] === null ? 'nueva' : (int) $abierta['numRelacion'];
+                                $nombre = $abierta['nombre'] !== null && $abierta['nombre'] !== '' ? $abierta['nombre'] : $abierta['tipo'];
+                                echo '<tr>' . $td . $numero . '</td>'
+                                    . $td . htmlspecialchars((string) $nombre) . '</td>'
+                                    . $td . htmlspecialchars((string) $abierta['usuario']) . '</td>'
+                                    . $td . htmlspecialchars(substr($abierta['fechaModificacion'], 0, 16)) . '</td></tr>';
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                <?php } ?>
             </div>
             <div class="col-md-9">
                 <p>
@@ -74,8 +107,12 @@
                                     <td>
                                         <input class="Check" type="checkbox" value="<?php echo (int) $fila['numRelacion']; ?>" data-nombre="<?php echo htmlspecialchars($fila['relacion']); ?>">
                                     </td>
-                                    <td><span title="Editar: disponible con la pantalla de relación" class="glyphicon glyphicon-pencil text-muted"></span></td>
-                                    <td><span title="Ver: disponible con la pantalla de relación" class="glyphicon glyphicon-eye-open text-muted"></span></td>
+                                    <td>
+                                        <?php if ($puedeModificar) { ?>
+                                            <a title="Modificar" class="glyphicon glyphicon-pencil" href="./relacion.php?id=<?php echo (int) $fila['numRelacion']; ?>&amp;accion=editar"></a>
+                                        <?php } ?>
+                                    </td>
+                                    <td><a title="Ver" class="glyphicon glyphicon-eye-open" href="./relacion.php?id=<?php echo (int) $fila['numRelacion']; ?>&amp;accion=ver"></a></td>
                                     <td><?php echo (int) $fila['numRelacion']; ?></td>
                                     <td><?php echo htmlspecialchars($fila['relacion']); ?></td>
                                     <td><?php echo htmlspecialchars($fila['tipo']); ?></td>

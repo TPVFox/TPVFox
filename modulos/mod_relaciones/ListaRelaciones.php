@@ -10,6 +10,7 @@ if ($ClasePermisos->getAccion('ver') != 1) {
 
 include_once $URLCom . '/plugins/paginacion/ClasePaginacion.php';
 include_once $URLCom . '/modulos/mod_relaciones/clases/Relaciones.php';
+include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesTemporales.php';
 include_once $URLCom . '/modulos/mod_relaciones/funciones.php';
 
 // @ Objetivo
@@ -17,13 +18,28 @@ include_once $URLCom . '/modulos/mod_relaciones/funciones.php';
 // preparan los datos; el HTML está en template/view_lista.php.
 
 $avisos = array();
+// Lo que acaba de hacerse en la pantalla de relación, para decirlo al volver. Solo se aceptan
+// números: se lee antes de que se limpien los parámetros del listado.
+$avisoDeLaPantalla = null;
+if (isset($_GET['activada']) && is_string($_GET['activada']) && ctype_digit($_GET['activada'])) {
+    $version = '';
+    if (isset($_GET['version']) && is_string($_GET['version']) && preg_match('/^[0-9]+\.[0-9]+$/', $_GET['version']) === 1) {
+        $version = ', en la versión ' . $_GET['version'];
+    }
+    $avisoDeLaPantalla = array('tipo' => 'success', 'mensaje' => 'La relación ' . (int) $_GET['activada'] . ' ya rige con lo que se preparó' . $version . '.');
+} elseif (isset($_GET['cancelada'])) {
+    $avisoDeLaPantalla = array('tipo' => 'info', 'mensaje' => 'Se canceló lo que se preparaba: lo que rige no ha cambiado.');
+}
 $filasDeLaPagina = array();
 $nombresDeTipos = array();
 $CantidadRegistros = 0;
 $hayRelaciones = false;
 $instalado = false;
-// Cambiar el estado de las relaciones marcadas solo se ofrece a quien tiene su permiso.
+// Cada opción solo se ofrece a quien tiene su permiso. Ver solo necesita el de entrar aquí.
 $puedeCambiarEstado = $ClasePermisos->getAccion('CambiarEstado') == 1;
+$puedeCrear = $ClasePermisos->getAccion('Crear') == 1;
+$puedeModificar = $ClasePermisos->getAccion('Modificar') == 1;
+$relacionesAbiertas = array();
 
 $CRelaciones = new Relaciones();
 $estructura = $CRelaciones->estadoEstructura();
@@ -49,6 +65,17 @@ if (isset($estructura['error'])) {
         if (count($nombresDeTipos) === 0) {
             $avisos[] = array('tipo' => 'info', 'mensaje' => 'Todavía no hay ningún tipo de relación. Se crean en Sistema, Tablas principales.');
         }
+    }
+}
+
+// Lo que se está preparando, para retomarlo, como los albaranes abiertos de compras.
+if ($instalado && ($puedeCrear || $puedeModificar)) {
+    $CTemporales = new RelacionesTemporales();
+    $abiertas = $CTemporales->listarAbiertos();
+    if (isset($abiertas['error'])) {
+        $avisos[] = $abiertas['error'];
+    } else {
+        $relacionesAbiertas = $abiertas['datos'];
     }
 }
 

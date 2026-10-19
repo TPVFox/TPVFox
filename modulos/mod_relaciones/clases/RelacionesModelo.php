@@ -19,6 +19,10 @@ class RelacionesModelo extends TFModelo
             'tipoCambio', 'origenAjuste', 'idUsuario', 'fechaCreacion', 'estado',
         ),
         'relacionesLineas' => array('id', 'idRelacion', 'idArticulo', 'sentido', 'cantidad', 'unidad', 'estado'),
+        'relacionesTemporales' => array(
+            'id', 'numRelacion', 'idRelacion', 'idTipo', 'nombre', 'descripcion', 'diasViabilidad',
+            'origenAjuste', 'lineas', 'idUsuario', 'fechaInicio', 'fechaModificacion',
+        ),
     );
 
     // Son estáticas porque la transacción es de la conexión, y la conexión es una sola
@@ -131,14 +135,14 @@ class RelacionesModelo extends TFModelo
         // Decir en qué estado están las tablas del módulo en esta instalación.
         // @ Devolvemos
         //      ['datos'] con uno de estos valores:
-        //          'ausente'      no existe ninguna de las tres tablas.
-        //          'incompleta'   existe alguna, pero no las tres.
-        //          'otraVersion'  existen las tres, con columnas distintas de las esperadas.
-        //          'instalada'    existen las tres con las columnas esperadas.
+        //          'ausente'      no existe ninguna de las tablas del módulo.
+        //          'incompleta'   existe alguna, pero no todas.
+        //          'otraVersion'  existen todas, alguna con columnas distintas de las esperadas.
+        //          'instalada'    existen todas con las columnas esperadas.
         //      ['error'] y ['consulta'] si no se pudo leer la base.
         $sql = "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS"
             . " WHERE TABLE_SCHEMA = DATABASE()"
-            . " AND TABLE_NAME IN ('relacionesTipos', 'relaciones', 'relacionesLineas')";
+            . " AND TABLE_NAME IN ('relacionesTipos', 'relaciones', 'relacionesLineas', 'relacionesTemporales')";
         $respuesta = $this->consultaPreparada($sql);
 
         if (!isset($respuesta['error'])) {
@@ -150,7 +154,7 @@ class RelacionesModelo extends TFModelo
             $tablasQueExisten = count($columnasEnLaBase);
             if ($tablasQueExisten === 0) {
                 $estado = 'ausente';
-            } elseif ($tablasQueExisten < 3) {
+            } elseif ($tablasQueExisten < count(self::ESTRUCTURA)) {
                 $estado = 'incompleta';
             } else {
                 $estado = 'instalada';

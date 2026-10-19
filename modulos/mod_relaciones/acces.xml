@@ -3,5 +3,8 @@
     <vista nombre="ListaRelaciones.php" descripcion="Listado de productos relacionados" permiso="0">
         <accion nombre="ver" descripcion="Ver el listado de productos relacionados" permiso="0"></accion>
         <accion nombre="CambiarEstado" descripcion="Cambiar el estado de las relaciones" permiso="0"></accion>
+        <accion nombre="Crear" descripcion="Preparar una relación nueva" permiso="0"></accion>
+        <accion nombre="Modificar" descripcion="Preparar un cambio de una relación que rige" permiso="0"></accion>
+        <accion nombre="Activar" descripcion="Poner a regir lo preparado" permiso="0"></accion>
     </vista>
 </modulo>

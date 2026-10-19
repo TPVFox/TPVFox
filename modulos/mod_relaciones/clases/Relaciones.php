@@ -22,12 +22,12 @@ class Relaciones extends RelacionesModelo
         //      ['datos'] con el id del borrador y su numRelacion, o ['error'].
         $motivo = '';
         if ($idUsuario <= 0) {
-            $motivo = 'Hace falta un usuario identificado para guardar una relación.';
+            $motivo = 'Hace falta un usuario identificado para guardar una relación: vuelve a entrar en TPVFox con el tuyo.';
         } else {
             $tipos = new RelacionesTipos();
             $tipo = $tipos->leerTipo($idTipo);
             if (isset($tipo['error']) || $tipo['datos'] === null) {
-                $motivo = 'El tipo de relación no existe.';
+                $motivo = 'El tipo de relación no existe: elige uno de la lista.';
             } else {
                 $motivo = $this->motivoPorProductos($lineas);
             }
@@ -66,7 +66,7 @@ class Relaciones extends RelacionesModelo
         // @ Devolvemos
         //      ['datos'] con el id del borrador y su numRelacion, o ['error'].
         if ($idUsuario <= 0) {
-            $respuesta = array('error' => $this->montarAdvertencia('warning', 'Hace falta un usuario identificado para guardar una relación.'));
+            $respuesta = array('error' => $this->montarAdvertencia('warning', 'Hace falta un usuario identificado para guardar una relación: vuelve a entrar en TPVFox con el tuyo.'));
         } else {
             // Las versiones se leen bloqueadas, dentro de la escritura: una baja de la misma
             // relación que llegue a la vez espera a que esta termine, y después ve el borrador.
@@ -77,7 +77,7 @@ class Relaciones extends RelacionesModelo
                 . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador') FOR UPDATE";
             $respuesta = $this->consultaPreparada($sql, array($numRelacion));
             if (isset($respuesta['error'])) {
-                $respuesta = array('error' => $this->montarAdvertencia('warning', 'No se pudo leer la relación.'));
+                $respuesta = array('error' => $this->montarAdvertencia('danger', 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.'));
             } else {
                 foreach ($respuesta['datos'] as $version) {
                     if ($version['estado'] === 'Activo') {
@@ -87,9 +87,9 @@ class Relaciones extends RelacionesModelo
                     }
                 }
                 if ($activa === null) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente.'));
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: está de baja o se sustituyó, y ya no se puede cambiar.'));
                 } elseif ($tieneBorrador) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación ya tiene un borrador.'));
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación ya tiene un borrador pendiente: descártalo antes de preparar otro cambio.'));
                 }
             }
 
@@ -239,10 +239,12 @@ class Relaciones extends RelacionesModelo
         $lineasActiva = array();
         $tipoCambio = '';
         $version = '';
+        // Lo que el usuario puede corregir es un aviso; que no se pueda leer la base, un fallo.
+        $gravedad = 'warning';
 
         // El borrador y la versión que rige, con sus líneas
         if ($idUsuario <= 0) {
-            $motivo = 'Hace falta un usuario identificado para activar una relación.';
+            $motivo = 'Hace falta un usuario identificado para activar una relación: vuelve a entrar en TPVFox con el tuyo.';
         } else {
             $sql = "SELECT id, numRelacion, idTipo, nombre, descripcion, diasViabilidad FROM relaciones"
                 . " WHERE id = ? AND estado = 'Borrador'";
@@ -259,12 +261,14 @@ class Relaciones extends RelacionesModelo
             $leido = $this->consultaPreparada($sql, array($borrador['numRelacion']));
             $lineasBorrador = $this->lineasDe($borrador['id']);
             if (isset($leido['error']) || $lineasBorrador === null) {
-                $motivo = 'No se pudo leer la relación.';
+                $motivo = 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.';
+                $gravedad = 'danger';
             } elseif (count($leido['datos']) > 0) {
                 $activa = $leido['datos'][0];
                 $lineasActiva = $this->lineasDe($activa['id']);
                 if ($lineasActiva === null) {
-                    $motivo = 'No se pudo leer la relación.';
+                    $motivo = 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.';
+                    $gravedad = 'danger';
                 }
             }
         }
@@ -289,14 +293,14 @@ class Relaciones extends RelacionesModelo
                 $tipoCambio = $this->tipoDeCambio($activa, $lineasActiva, $borrador, $lineasBorrador);
                 $partes = explode('.', $activa['version']);
                 if ($tipoCambio === '') {
-                    $motivo = 'El borrador no cambia nada respecto a la versión que rige.';
+                    $motivo = 'Lo preparado no cambia nada respecto a la versión que rige: cambia algo o cancélalo.';
                 } elseif ($tipoCambio === 'composicion') {
                     $version = ($partes[0] + 1) . '.0';
                 } else {
                     $version = $partes[0] . '.' . ($partes[1] + 1);
                 }
                 if ($tipoCambio === 'proporciones' && trim((string) $origenAjuste) === '') {
-                    $motivo = 'Un ajuste de cantidades tiene que decir de qué origen sale.';
+                    $motivo = 'Es un ajuste de cantidades y falta su origen: escribe en «Origen del ajuste» de dónde salen las nuevas, por ejemplo la pesada del día.';
                 }
             }
         }
@@ -307,7 +311,7 @@ class Relaciones extends RelacionesModelo
         }
 
         if ($motivo !== '') {
-            $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
+            $respuesta = array('error' => $this->montarAdvertencia($gravedad, $motivo));
         } else {
             $this->iniciarEscritura();
             $respuesta = array('datos' => array());
@@ -316,7 +320,7 @@ class Relaciones extends RelacionesModelo
                 $sql = "UPDATE relaciones SET estado = 'Sustituido' WHERE id = ? AND estado = 'Activo'";
                 $respuesta = $this->consultaPreparada($sql, array($activa['id']));
                 if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente.'));
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente: vuelve a abrir la relación para ver la que rige.'));
                 }
             }
             if (!isset($respuesta['error'])) {
@@ -398,8 +402,8 @@ class Relaciones extends RelacionesModelo
         // @ Objetivo
         // Dar de baja una relación que rige: su versión pasa de Activo a Baja. No se crea
         // ninguna versión ni cambia nada más, y la baja no deja autor ni momento. Si la
-        // relación tiene un borrador pendiente se rechaza: la baja no descarta lo que alguien
-        // está preparando.
+        // relación tiene un borrador pendiente, o un cambio en preparación en la pantalla de
+        // relación, se rechaza: la baja no descarta lo que alguien está preparando.
         // @ Parametros
         //      $numRelacion -> (int) número de la relación.
         //      $idUsuario -> (int) usuario de sesión: hace falta uno identificado, aunque no se guarda.
@@ -427,6 +431,16 @@ class Relaciones extends RelacionesModelo
                     $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente.'));
                 } elseif ($tieneBorrador) {
                     $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación tiene un borrador pendiente: descártalo para darla de baja.'));
+                } else {
+                    // El cambio en preparación se lee después del bloqueo y sin leer nada antes:
+                    // si alguien guardó el primero mientras tanto, ya está confirmado y se ve.
+                    $sql = 'SELECT COUNT(*) AS temporales FROM relacionesTemporales WHERE numRelacion = ?';
+                    $temporales = $this->consultaPreparada($sql, array($numRelacion));
+                    if (isset($temporales['error'])) {
+                        $respuesta = $temporales;
+                    } elseif ($temporales['datos'][0]['temporales'] > 0) {
+                        $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación tiene un cambio en preparación: cancélalo para darla de baja.'));
+                    }
                 }
             }
 
@@ -434,7 +448,7 @@ class Relaciones extends RelacionesModelo
                 $sql = "UPDATE relaciones SET estado = 'Baja' WHERE id = ? AND estado = 'Activo'";
                 $respuesta = $this->consultaPreparada($sql, array($activa['id']));
                 if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente.'));
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La versión que regía ya no es la vigente: vuelve a abrir la relación para ver la que rige.'));
                 }
             }
             if (!isset($respuesta['error'])) {
@@ -465,6 +479,27 @@ class Relaciones extends RelacionesModelo
             $valores[] = $idArticulo;
         }
         $respuesta = $this->versionesConLineas($condicion, $valores);
+
+        return $respuesta;
+    }
+
+    public function vigente($numRelacion)
+    {
+        // @ Objetivo
+        // La versión que rige de una relación, con su tipo y sus líneas. Sale de la misma
+        // lectura que las vigentes de todas.
+        // @ Parametros
+        //      $numRelacion -> (int) número de la relación.
+        // @ Devolvemos
+        //      ['datos'] con la versión, o null si no rige ninguna; o ['error'].
+        $respuesta = $this->versionesConLineas("r.estado = 'Activo' AND r.numRelacion = ?", array($numRelacion));
+        if (!isset($respuesta['error'])) {
+            $version = null;
+            if (count($respuesta['datos']) > 0) {
+                $version = $respuesta['datos'][0];
+            }
+            $respuesta = array('datos' => $version);
+        }
 
         return $respuesta;
     }
@@ -623,16 +658,18 @@ class Relaciones extends RelacionesModelo
         // @ Objetivo
         // Buscar relaciones en un estado que las operaciones del módulo no dejan nunca: con
         // más de una versión entre la que rige y la de baja, con más de un borrador, de baja y
-        // con un borrador, o sin versión que rija, sin borrador y sin baja. Si todo está bien
-        // no devuelve ninguna.
+        // con un borrador o con un cambio en preparación, o sin versión que rija, sin borrador
+        // y sin baja. Si todo está bien no devuelve ninguna.
         // @ Devolvemos
         //      ['datos'] con una fila por relación afectada ('numRelacion' y 'motivo'), o ['error'].
-        $sql = "SELECT numRelacion, SUM(estado = 'Activo') AS activas,"
-            . " SUM(estado = 'Borrador') AS borradores, SUM(estado = 'Baja') AS bajas"
-            . " FROM relaciones GROUP BY numRelacion"
+        $sql = "SELECT r.numRelacion, SUM(r.estado = 'Activo') AS activas,"
+            . " SUM(r.estado = 'Borrador') AS borradores, SUM(r.estado = 'Baja') AS bajas,"
+            . " (SELECT COUNT(*) FROM relacionesTemporales t WHERE t.numRelacion = r.numRelacion) AS temporales"
+            . " FROM relaciones r GROUP BY r.numRelacion"
             . " HAVING activas + bajas > 1 OR borradores > 1 OR (bajas > 0 AND borradores > 0)"
+            . " OR (bajas > 0 AND temporales > 0)"
             . " OR (activas = 0 AND borradores = 0 AND bajas = 0)"
-            . " ORDER BY numRelacion";
+            . " ORDER BY r.numRelacion";
         $respuesta = $this->consultaPreparada($sql);
 
         if (!isset($respuesta['error'])) {
@@ -646,6 +683,8 @@ class Relaciones extends RelacionesModelo
                     $motivo = 'Tiene más de un borrador.';
                 } elseif ($fila['bajas'] > 0 && $fila['borradores'] > 0) {
                     $motivo = 'Está de baja y tiene un borrador.';
+                } elseif ($fila['bajas'] > 0 && $fila['temporales'] > 0) {
+                    $motivo = 'Está de baja y tiene un cambio en preparación.';
                 } else {
                     $motivo = 'No tiene ninguna versión que rija, ni borrador, ni baja.';
                 }
@@ -700,6 +739,156 @@ class Relaciones extends RelacionesModelo
         }
 
         return $cambio;
+    }
+
+    public function diferencias($lineasQueRigen, $lineasNuevas)
+    {
+        // @ Objetivo
+        // Marcar, línea a línea, lo que difiere de la versión que rige. Compara igual que
+        // tipoDeCambio(): por producto y sentido, y la cantidad con la misma tolerancia. Así lo
+        // que la pantalla marca es lo que constará en el historial.
+        // @ Parametros
+        //      $lineasQueRigen -> (array) las de la versión que rige; vacío si no rige ninguna.
+        //      $lineasNuevas -> (array) las que se preparan.
+        // @ Devolvemos
+        //      (array) las líneas nuevas, cada una con 'marca': 'nueva' si su producto con su
+        //      sentido no estaba; 'cambiada' si cambia su cantidad o su unidad, con
+        //      'cantidadQueRige' y 'unidadQueRige'; o '' si no cambia. Detrás, las que rigen y ya
+        //      no están, con la marca 'quitada'. Sin versión que rija no se marca nada.
+        $queRigen = array();
+        foreach ($lineasQueRigen as $linea) {
+            if ($linea['estado'] === 'Activo') {
+                $queRigen[$linea['idArticulo'] . '|' . $linea['sentido']] = $linea;
+            }
+        }
+
+        $marcadas = array();
+        $siguen = array();
+        foreach ($lineasNuevas as $linea) {
+            if ($linea['estado'] === 'Activo') {
+                $par = $linea['idArticulo'] . '|' . $linea['sentido'];
+                $linea['marca'] = '';
+                if (count($queRigen) > 0) {
+                    if (!isset($queRigen[$par])) {
+                        $linea['marca'] = 'nueva';
+                    } else {
+                        $siguen[] = $par;
+                        $anterior = $queRigen[$par];
+                        $otraCantidad = abs((float) $anterior['cantidad'] - (float) $linea['cantidad']) > 0.0000001;
+                        $otraUnidad = (string) $anterior['unidad'] !== (string) $linea['unidad'];
+                        if ($otraCantidad || $otraUnidad) {
+                            $linea['marca'] = 'cambiada';
+                            $linea['cantidadQueRige'] = $anterior['cantidad'];
+                            $linea['unidadQueRige'] = $anterior['unidad'];
+                        }
+                    }
+                }
+                $marcadas[] = $linea;
+            }
+        }
+        foreach ($queRigen as $par => $linea) {
+            if (!in_array($par, $siguen)) {
+                $linea['marca'] = 'quitada';
+                $marcadas[] = $linea;
+            }
+        }
+
+        return $marcadas;
+    }
+
+    public function buscarArticulos($caja, $texto)
+    {
+        // @ Objetivo
+        // Buscar artículos para añadirlos a una relación, como en el albarán: primero el valor
+        // idéntico en el campo de la caja y, si no hay ninguno, por palabras. No se ofrecen los
+        // artículos de baja, que la admisión rechazaría. La referencia es la de la tienda
+        // principal, como en la balanza.
+        // @ Parametros
+        //      $caja -> (string) la caja en que se escribió: idArticulo, Referencia, Codbarras
+        //               o Descripcion.
+        //      $texto -> (string) lo escrito.
+        // @ Devolvemos
+        //      ['datos'] con hasta 30 artículos: idArticulo, articulo_name, crefTienda, codBarras
+        //      y estado; o ['error'] si la caja no es una de las cuatro o falla la consulta.
+        $campos = array(
+            'idArticulo' => 'a.idArticulo',
+            'Referencia' => 'at.crefTienda',
+            'Codbarras' => 'ac.codBarras',
+            'Descripcion' => 'a.articulo_name',
+        );
+        $texto = trim((string) $texto);
+        if (!is_string($caja) || !isset($campos[$caja])) {
+            return array('error' => $this->montarAdvertencia('warning', 'No se puede buscar por ese dato: usa la caja del id, la referencia, el código de barras o el nombre.'));
+        }
+        if ($texto === '') {
+            return array('datos' => array());
+        }
+
+        // El campo sale de la lista de arriba, nunca de lo recibido; lo escrito va aparte.
+        $campo = $campos[$caja];
+        $consulta = "SELECT a.idArticulo, a.articulo_name, MIN(at.crefTienda) AS crefTienda,"
+            . " MIN(ac.codBarras) AS codBarras, a.estado"
+            . " FROM articulos a"
+            . " LEFT JOIN articulosTiendas at ON at.idArticulo = a.idArticulo"
+            . " AND at.idTienda = (SELECT idTienda FROM tiendas WHERE tipoTienda = 'principal' LIMIT 1)"
+            . " LEFT JOIN articulosCodigoBarras ac ON ac.idArticulo = a.idArticulo"
+            . " WHERE a.estado <> 'Baja' AND %s"
+            . " GROUP BY a.idArticulo, a.articulo_name, a.estado"
+            . " ORDER BY a.articulo_name LIMIT 30";
+
+        $respuesta = $this->consultaPreparada(sprintf($consulta, $campo . ' = ?'), array($texto));
+        if (!isset($respuesta['error']) && count($respuesta['datos']) === 0) {
+            // Cada palabra tiene que estar; un % o un _ escrito se busca tal cual, no como comodín.
+            $condiciones = array();
+            $valores = array();
+            foreach (explode(' ', $texto) as $palabra) {
+                if ($palabra !== '') {
+                    $condiciones[] = $campo . ' LIKE ?';
+                    $valores[] = '%' . addcslashes($palabra, '%_\\') . '%';
+                }
+            }
+            $respuesta = $this->consultaPreparada(sprintf($consulta, implode(' AND ', $condiciones)), $valores);
+        }
+
+        return $respuesta;
+    }
+
+    public function datosDeArticulos($idArticulos)
+    {
+        // @ Objetivo
+        // Lo que se enseña de cada artículo de unas líneas: nombre, referencia de la tienda
+        // principal, código de barras y estado en el catálogo. Se lee al presentar: las líneas
+        // solo guardan el identificador.
+        // @ Parametros
+        //      $idArticulos -> (array) los identificadores.
+        // @ Devolvemos
+        //      ['datos'] con los artículos que existen, cada uno por su identificador; o ['error'].
+        $ids = array();
+        foreach ($idArticulos as $idArticulo) {
+            $ids[] = (int) $idArticulo;
+        }
+        if (count($ids) === 0) {
+            return array('datos' => array());
+        }
+
+        $sql = "SELECT a.idArticulo, a.articulo_name, MIN(at.crefTienda) AS crefTienda,"
+            . " MIN(ac.codBarras) AS codBarras, a.estado"
+            . " FROM articulos a"
+            . " LEFT JOIN articulosTiendas at ON at.idArticulo = a.idArticulo"
+            . " AND at.idTienda = (SELECT idTienda FROM tiendas WHERE tipoTienda = 'principal' LIMIT 1)"
+            . " LEFT JOIN articulosCodigoBarras ac ON ac.idArticulo = a.idArticulo"
+            . " WHERE a.idArticulo IN (" . implode(', ', array_fill(0, count($ids), '?')) . ")"
+            . " GROUP BY a.idArticulo, a.articulo_name, a.estado";
+        $respuesta = $this->consultaPreparada($sql, $ids);
+        if (!isset($respuesta['error'])) {
+            $articulos = array();
+            foreach ($respuesta['datos'] as $articulo) {
+                $articulos[$articulo['idArticulo']] = $articulo;
+            }
+            $respuesta = array('datos' => $articulos);
+        }
+
+        return $respuesta;
     }
 
     private function paresDe($lineas)
@@ -809,12 +998,12 @@ class Relaciones extends RelacionesModelo
         }
         foreach ($lineasBorrador as $linea) {
             if ($motivo === '' && $linea['estado'] === 'Activo' && !in_array($linea['idArticulo'], $articulosQueYaEstaban)) {
-                $sql = 'SELECT estado FROM articulos WHERE idArticulo = ?';
+                $sql = 'SELECT estado, articulo_name FROM articulos WHERE idArticulo = ?';
                 $articulo = $this->consultaPreparada($sql, array($linea['idArticulo']));
                 if (isset($articulo['error']) || count($articulo['datos']) === 0) {
-                    $motivo = 'Uno de los productos no existe en el catálogo.';
+                    $motivo = 'El artículo ' . $linea['idArticulo'] . ' no existe en el catálogo: quítalo de la relación.';
                 } elseif ($articulo['datos'][0]['estado'] === 'Baja') {
-                    $motivo = 'Uno de los productos que se incorporan está de baja en el catálogo.';
+                    $motivo = 'El artículo «' . $articulo['datos'][0]['articulo_name'] . '» está de baja en el catálogo: quítalo de la relación.';
                 }
             }
         }
@@ -822,13 +1011,13 @@ class Relaciones extends RelacionesModelo
         if ($motivo === '') {
             $vigentes = $this->vigentes();
             if (isset($vigentes['error'])) {
-                $motivo = 'No se pudo comprobar si la relación ya existe.';
+                $motivo = 'No se pudo comprobar si la relación ya existe: vuelve a intentarlo y, si se repite, avisa al administrador.';
             } else {
                 $paresDelBorrador = $this->paresDe($lineasBorrador);
                 foreach ($vigentes['datos'] as $otra) {
                     if ($otra['idTipo'] == $borrador['idTipo'] && $otra['numRelacion'] != $borrador['numRelacion']) {
                         if ($this->paresDe($otra['lineas']) === $paresDelBorrador) {
-                            $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos.';
+                            $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos, la ' . $otra['numRelacion'] . ': modifica esa en lugar de crear otra.';
                         }
                     }
                 }
@@ -898,13 +1087,13 @@ class Relaciones extends RelacionesModelo
         foreach ($lineas as $linea) {
             if ($motivo === '') {
                 if (in_array($linea['idArticulo'], $articulosVistos)) {
-                    $motivo = 'Hay un producto repetido en la relación.';
+                    $motivo = 'El artículo ' . $linea['idArticulo'] . ' está repetido en la relación: quita una de sus líneas.';
                 } else {
                     $articulosVistos[] = $linea['idArticulo'];
                     $sql = 'SELECT COUNT(*) AS cuantos FROM articulos WHERE idArticulo = ?';
                     $existe = $this->consultaPreparada($sql, array($linea['idArticulo']));
                     if (isset($existe['error']) || $existe['datos'][0]['cuantos'] == 0) {
-                        $motivo = 'Uno de los productos no existe en el catálogo.';
+                        $motivo = 'El artículo ' . $linea['idArticulo'] . ' no existe en el catálogo: quítalo de la relación.';
                     }
                 }
             }

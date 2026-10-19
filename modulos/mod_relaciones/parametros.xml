@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Las cajas de búsqueda de la pantalla de relación y lo que hace cada tecla en ellas, como en el albarán.
+     Intro busca; las flechas pasan de una caja a otra. El campo en que se busca lo decide el servidor por la caja. -->
+<parametros>
+	<cajas_input data-obj="id_input">
+		<caja_input>
+			<nombre id_input="idArticulo">cajaidArticulo</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="39">saltar_Referencia</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Referencia">cajaReferencia</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="37">saltar_idArticulo</action>
+				<action tecla="39">saltar_Codbarras</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Codbarras">cajaCodBarras</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="37">saltar_Referencia</action>
+				<action tecla="39">saltar_Descripcion</action>
+			</teclas>
+		</caja_input>
+		<caja_input>
+			<nombre id_input="Descripcion">cajaDescripcion</nombre>
+			<teclas>
+				<action tecla="13">buscarProductos</action>
+				<action tecla="37">saltar_Codbarras</action>
+			</teclas>
+		</caja_input>
+	</cajas_input>
+</parametros>
