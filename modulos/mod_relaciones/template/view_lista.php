@@ -38,8 +38,8 @@
                     echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'Modificar' . "'" . ')">Modificar</button>';
                 }
                 if ($puedeCambiarEstado) {
-                    // Hoy el único estado al que se puede cambiar una relación es la baja.
-                    echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "','" . 'Baja' . "'" . ')">Cambiar estado</button>';
+                    // El estado al que lleva depende de lo marcado: las vigentes pasan a Baja y las de baja a Activo.
+                    echo '<button class="btn btn-default" onclick="metodoClick(' . "'" . 'cambiarEstado' . "'" . ')">Cambiar estado</button>';
                 }
                 ?>
                 <?php if ($puedeCrear || $puedeModificar) { ?>
@@ -95,6 +95,7 @@
                                 <th>RELACIÓN</th>
                                 <th>TIPO</th>
                                 <th>VERSIÓN</th>
+                                <th>ESTADO <?php echo $htmlOrdenarEstado; ?></th>
                                 <th>FECHA <?php echo $htmlOrdenarFecha; ?></th>
                                 <th>PRODUCTOS</th>
                             </tr>
@@ -105,10 +106,10 @@
                             ?>
                                 <tr>
                                     <td>
-                                        <input class="Check" type="checkbox" value="<?php echo (int) $fila['numRelacion']; ?>" data-nombre="<?php echo htmlspecialchars($fila['relacion']); ?>">
+                                        <input class="Check" type="checkbox" value="<?php echo (int) $fila['numRelacion']; ?>" data-nombre="<?php echo htmlspecialchars($fila['relacion']); ?>" data-estado="<?php echo htmlspecialchars($fila['estado']); ?>">
                                     </td>
                                     <td>
-                                        <?php if ($puedeModificar) { ?>
+                                        <?php if ($puedeModificar && $fila['estado'] === 'Activo') { ?>
                                             <a title="Modificar" class="glyphicon glyphicon-pencil" href="./relacion.php?id=<?php echo (int) $fila['numRelacion']; ?>&amp;accion=editar"></a>
                                         <?php } ?>
                                     </td>
@@ -117,6 +118,7 @@
                                     <td><?php echo htmlspecialchars($fila['relacion']); ?></td>
                                     <td><?php echo htmlspecialchars($fila['tipo']); ?></td>
                                     <td><?php echo htmlspecialchars($fila['version']); ?></td>
+                                    <td><?php echo htmlspecialchars($fila['estado']); ?></td>
                                     <td><?php echo htmlspecialchars(substr($fila['fecha'], 0, 10)); ?></td>
                                     <td><?php echo (int) $fila['numProductos']; ?></td>
                                 </tr>

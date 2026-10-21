@@ -73,8 +73,9 @@ class Relaciones extends RelacionesModelo
             $this->iniciarEscritura();
             $activa = null;
             $tieneBorrador = false;
+            $deBaja = false;
             $sql = "SELECT id, idTipo, nombre, descripcion, diasViabilidad, estado FROM relaciones"
-                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador') FOR UPDATE";
+                . " WHERE numRelacion = ? AND estado IN ('Activo', 'Borrador', 'Baja') FOR UPDATE";
             $respuesta = $this->consultaPreparada($sql, array($numRelacion));
             if (isset($respuesta['error'])) {
                 $respuesta = array('error' => $this->montarAdvertencia('danger', 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.'));
@@ -82,12 +83,16 @@ class Relaciones extends RelacionesModelo
                 foreach ($respuesta['datos'] as $version) {
                     if ($version['estado'] === 'Activo') {
                         $activa = $version;
+                    } elseif ($version['estado'] === 'Baja') {
+                        $deBaja = true;
                     } else {
                         $tieneBorrador = true;
                     }
                 }
-                if ($activa === null) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: está de baja o se sustituyó, y ya no se puede cambiar.'));
+                if ($deBaja) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: está de baja, reactívala desde el listado para poder cambiarla.'));
+                } elseif ($activa === null) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: se sustituyó o no existe, y ya no se puede cambiar.'));
                 } elseif ($tieneBorrador) {
                     $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación ya tiene un borrador pendiente: descártalo antes de preparar otro cambio.'));
                 }
@@ -269,6 +274,16 @@ class Relaciones extends RelacionesModelo
                 if ($lineasActiva === null) {
                     $motivo = 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.';
                     $gravedad = 'danger';
+                }
+            }            if ($motivo === '' && $activa === null) {
+                // Un borrador de una relación que está de baja no rige: antes hay que reactivarla.
+                $sql = "SELECT COUNT(*) AS deBaja FROM relaciones WHERE numRelacion = ? AND estado = 'Baja'";
+                $deBaja = $this->consultaPreparada($sql, array($borrador['numRelacion']));
+                if (isset($deBaja['error'])) {
+                    $motivo = 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.';
+                    $gravedad = 'danger';
+                } elseif ($deBaja['datos'][0]['deBaja'] > 0) {
+                    $motivo = 'La relación no está vigente: está de baja, reactívala desde el listado para poder cambiarla.';
                 }
             }
         }
@@ -460,6 +475,80 @@ class Relaciones extends RelacionesModelo
         return $respuesta;
     }
 
+    public function reactivar($numRelacion, $idUsuario)
+    {
+        // @ Objetivo
+        // Reactivar una relación de baja: su versión pasa de Baja a Activo, la inversa de dar
+        // de baja. No se crea ninguna versión ni cambia nada más. Se rechaza si algún producto
+        // de sus líneas está de baja en el catálogo, o si ya hay otra relación vigente del
+        // mismo tipo con los mismos productos, que pudo darse de alta mientras estaba de baja.
+        // @ Parametros
+        //      $numRelacion -> (int) número de la relación.
+        //      $idUsuario -> (int) usuario de sesión: hace falta uno identificado, aunque no se guarda.
+        // @ Devolvemos
+        //      ['datos'] con el id de la versión y su numRelacion, o ['error'].
+        if ($idUsuario <= 0) {
+            $respuesta = array('error' => $this->montarAdvertencia('warning', 'Hace falta un usuario identificado para reactivar una relación.'));
+        } else {
+            // Las versiones se leen bloqueadas, dentro de la escritura: una baja o un cambio de la
+            // misma relación que llegue a la vez espera a que esta termine.
+            $this->iniciarEscritura();
+            $deBaja = null;
+            $sql = "SELECT id, idTipo, estado FROM relaciones WHERE numRelacion = ? FOR UPDATE";
+            $respuesta = $this->consultaPreparada($sql, array($numRelacion));
+            if (!isset($respuesta['error'])) {
+                foreach ($respuesta['datos'] as $version) {
+                    if ($version['estado'] === 'Baja') {
+                        $deBaja = $version;
+                    }
+                }
+                if ($deBaja === null) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está de baja.'));
+                }
+            }
+
+            if (!isset($respuesta['error'])) {
+                $lineas = $this->lineasDe($deBaja['id']);
+                if ($lineas === null) {
+                    $respuesta = array('error' => $this->montarAdvertencia('danger', 'No se pudo leer la relación: vuelve a intentarlo y, si se repite, avisa al administrador.'));
+                } else {
+                    $motivo = '';
+                    foreach ($lineas as $linea) {
+                        if ($motivo === '' && $linea['estado'] === 'Activo') {
+                            $sql = 'SELECT estado, articulo_name FROM articulos WHERE idArticulo = ?';
+                            $articulo = $this->consultaPreparada($sql, array($linea['idArticulo']));
+                            if (isset($articulo['error']) || count($articulo['datos']) === 0) {
+                                $motivo = 'El artículo ' . $linea['idArticulo'] . ' no existe en el catálogo: no se puede reactivar la relación.';
+                            } elseif ($articulo['datos'][0]['estado'] === 'Baja') {
+                                $motivo = 'El artículo «' . $articulo['datos'][0]['articulo_name'] . '» está de baja en el catálogo: no se puede reactivar la relación.';
+                            }
+                        }
+                    }
+                    if ($motivo === '') {
+                        $motivo = $this->motivoPorRepetida(array('idTipo' => $deBaja['idTipo'], 'numRelacion' => $numRelacion), $lineas, 'descártala o dala de baja antes de reactivar esta');
+                    }
+                    if ($motivo !== '') {
+                        $respuesta = array('error' => $this->montarAdvertencia('warning', $motivo));
+                    }
+                }
+            }
+
+            if (!isset($respuesta['error'])) {
+                $sql = "UPDATE relaciones SET estado = 'Activo' WHERE id = ? AND estado = 'Baja'";
+                $respuesta = $this->consultaPreparada($sql, array($deBaja['id']));
+                if (!isset($respuesta['error']) && $respuesta['datos']['afectadas'] !== 1) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación ya no está de baja: vuelve a abrir el listado para ver cómo está.'));
+                }
+            }
+            if (!isset($respuesta['error'])) {
+                $respuesta = array('datos' => array('id' => (int) $deBaja['id'], 'numRelacion' => (int) $numRelacion));
+            }
+            $respuesta = $this->terminarEscritura($respuesta);
+        }
+
+        return $respuesta;
+    }
+
     public function vigentes($idArticulo = 0)
     {
         // @ Objetivo
@@ -507,20 +596,22 @@ class Relaciones extends RelacionesModelo
     public function listado($buscar, $nombreTipo, $orden, $pagina, $filasPorPagina)
     {
         // @ Objetivo
-        // Una página del listado de relaciones que rigen: solo se leen las filas de esa
-        // página. Rige lo mismo que en vigentes(): la versión en estado Activo y sus líneas activas.
+        // Una página del listado de relaciones, las que rigen y las dadas de baja: solo se
+        // leen las filas de esa página. De cada una sale su versión en estado Activo o Baja,
+        // con sus líneas activas. Un borrador o una versión sustituida no cuentan.
         // @ Parametros
         //      $buscar -> (string) palabras; cada una tiene que estar en el nombre de la relación
         //                 o en el de alguno de sus productos. '' no busca.
         //      $nombreTipo -> (string) nombre del tipo de relación. '' no filtra.
-        //      $orden -> (string) 'numRelacion:ASC', 'numRelacion:DESC', 'fecha:ASC' o 'fecha:DESC'.
+        //      $orden -> (string) 'numRelacion:ASC', 'numRelacion:DESC', 'fecha:ASC', 'fecha:DESC',
+        //                'estado:ASC' o 'estado:DESC'.
         //                Cualquier otro valor ordena por número de relación.
         //      $pagina -> (int) página pedida. Si ya no existe se devuelve la última que hay.
         //      $filasPorPagina -> (int)
         // @ Devolvemos
         //      ['datos'] con 'total' (relaciones que casan), 'pagina' (la devuelta) y 'filas',
-        //      cada una con numRelacion, relacion, tipo, version, fecha y numProductos. O ['error'].
-        $condicion = "r.estado = 'Activo'";
+        //      cada una con numRelacion, relacion, tipo, version, estado, fecha y numProductos. O ['error'].
+        $condicion = "r.estado IN ('Activo', 'Baja')";
         $valores = array();
         if ($nombreTipo !== '') {
             $condicion .= ' AND t.nombre = ?';
@@ -542,6 +633,8 @@ class Relaciones extends RelacionesModelo
             'numRelacion:DESC' => 'r.numRelacion DESC',
             'fecha:ASC' => 'r.fechaCreacion ASC, r.numRelacion ASC',
             'fecha:DESC' => 'r.fechaCreacion DESC, r.numRelacion DESC',
+            'estado:ASC' => 'r.estado ASC, r.numRelacion ASC',
+            'estado:DESC' => 'r.estado DESC, r.numRelacion ASC',
         );
         $ordenarPor = $ordenes['numRelacion:ASC'];
         if (isset($ordenes[$orden])) {
@@ -563,7 +656,7 @@ class Relaciones extends RelacionesModelo
                 $pagina = 1;
             }
 
-            $sql = 'SELECT r.id, r.numRelacion, r.nombre, t.nombre AS tipo, t.forma, r.version, r.fechaCreacion AS fecha'
+            $sql = 'SELECT r.id, r.numRelacion, r.nombre, t.nombre AS tipo, t.forma, r.version, r.estado, r.fechaCreacion AS fecha'
                 . $desdeDonde
                 . ' ORDER BY ' . $ordenarPor
                 . ' LIMIT ' . $filasPorPagina . ' OFFSET ' . (($pagina - 1) * $filasPorPagina);
@@ -579,6 +672,7 @@ class Relaciones extends RelacionesModelo
                     'relacion' => (string) $fila['nombre'],
                     'tipo' => $fila['tipo'],
                     'version' => $fila['version'],
+                    'estado' => $fila['estado'],
                     'fecha' => $fila['fecha'],
                     'numProductos' => 0,
                     // Si la relación no tiene nombre, se llama como el producto que está solo en su lado.
@@ -1009,16 +1103,33 @@ class Relaciones extends RelacionesModelo
         }
 
         if ($motivo === '') {
-            $vigentes = $this->vigentes();
-            if (isset($vigentes['error'])) {
-                $motivo = 'No se pudo comprobar si la relación ya existe: vuelve a intentarlo y, si se repite, avisa al administrador.';
-            } else {
-                $paresDelBorrador = $this->paresDe($lineasBorrador);
-                foreach ($vigentes['datos'] as $otra) {
-                    if ($otra['idTipo'] == $borrador['idTipo'] && $otra['numRelacion'] != $borrador['numRelacion']) {
-                        if ($this->paresDe($otra['lineas']) === $paresDelBorrador) {
-                            $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos, la ' . $otra['numRelacion'] . ': modifica esa en lugar de crear otra.';
-                        }
+            $motivo = $this->motivoPorRepetida($borrador, $lineasBorrador, 'modifica esa en lugar de crear otra');
+        }
+
+        return $motivo;
+    }
+
+    private function motivoPorRepetida($relacion, $lineas, $quehacer)
+    {
+        // @ Objetivo
+        // Comprobar que no haya ya otra relación vigente del mismo tipo con los mismos
+        // productos y sentidos.
+        // @ Parametros
+        //      $relacion -> (array) idTipo y numRelacion de la que se comprueba.
+        //      $lineas -> (array) sus líneas.
+        //      $quehacer -> (string) lo que se aconseja hacer, al final del motivo.
+        // @ Devolvemos
+        //      (string) el motivo del rechazo, o '' si no hay otra igual.
+        $motivo = '';
+        $vigentes = $this->vigentes();
+        if (isset($vigentes['error'])) {
+            $motivo = 'No se pudo comprobar si la relación ya existe: vuelve a intentarlo y, si se repite, avisa al administrador.';
+        } else {
+            $paresDeLaRelacion = $this->paresDe($lineas);
+            foreach ($vigentes['datos'] as $otra) {
+                if ($otra['idTipo'] == $relacion['idTipo'] && $otra['numRelacion'] != $relacion['numRelacion']) {
+                    if ($this->paresDe($otra['lineas']) === $paresDeLaRelacion) {
+                        $motivo = 'Ya existe una relación vigente de ese tipo con los mismos productos, la ' . $otra['numRelacion'] . ': ' . $quehacer . '.';
                     }
                 }
             }

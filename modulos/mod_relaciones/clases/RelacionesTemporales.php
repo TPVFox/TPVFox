@@ -195,14 +195,19 @@ class RelacionesTemporales extends RelacionesModelo
             $sql = 'SELECT id, idTipo, estado FROM relaciones WHERE numRelacion = ? FOR UPDATE';
             $respuesta = $this->consultaPreparada($sql, array($numRelacion));
             if (!isset($respuesta['error'])) {
+                $deBaja = false;
                 foreach ($respuesta['datos'] as $version) {
                     if ($version['estado'] === 'Activo') {
                         $idRelacion = (int) $version['id'];
                         $idTipo = (int) $version['idTipo'];
+                    } elseif ($version['estado'] === 'Baja') {
+                        $deBaja = true;
                     }
                 }
-                if ($idRelacion === null) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: está de baja o se sustituyó, y ya no se puede cambiar.'));
+                if ($deBaja) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: está de baja, reactívala desde el listado para poder cambiarla.'));
+                } elseif ($idRelacion === null) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La relación no está vigente: se sustituyó o no existe, y ya no se puede cambiar.'));
                 }
             }
             if (!isset($respuesta['error'])) {

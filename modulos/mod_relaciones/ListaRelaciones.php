@@ -14,7 +14,7 @@ include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesTemporales.php'
 include_once $URLCom . '/modulos/mod_relaciones/funciones.php';
 
 // @ Objetivo
-// Listado de productos relacionados: una fila por relación que rige. Aquí se
+// Listado de productos relacionados: una fila por relación, vigente o de baja. Aquí se
 // preparan los datos; el HTML está en template/view_lista.php.
 
 $avisos = array();
@@ -121,5 +121,6 @@ $htmlBuscar = $NPaginado->htmlBuscar();
 $htmlFiltrar = $NPaginado->htmlFiltrar($nombresDeTipos, 'Filtrar por tipo');
 $htmlOrdenarNumero = $NPaginado->htmlOrdenar('numRelacion');
 $htmlOrdenarFecha = $NPaginado->htmlOrdenar('fecha');
+$htmlOrdenarEstado = $NPaginado->htmlOrdenar('estado');
 
 include $URLCom . '/modulos/mod_relaciones/template/view_lista.php';

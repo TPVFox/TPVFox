@@ -79,9 +79,6 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (isset($version['error'])) {
                     $respuesta['avisos'][] = $version['error'];
                     $version = null;
-                } elseif ($cualVersion === 'vigente' && $version['datos']['estado'] !== 'Activo') {
-                    $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'La relación está de baja: no tiene una versión vigente que aplicar.');
-                    $version = null;
                 } else {
                     $version = $version['datos'];
                     $respuesta['datos']['version'] = $version;
@@ -826,11 +823,18 @@ class RelacionesAplicacion extends RelacionesModelo
     {
         // @ Objetivo
         // La versión de la relación que regía en la fecha del albarán, si se puede aplicar.
+        // Una relación que hoy está de baja no se aplica, con la versión que fuera.
         // @ Devolvemos
         //      ['datos'] con la versión y sus líneas; o ['error'].
         $CRelaciones = new Relaciones();
         $CTipos = new RelacionesTipos();
-        $estado = $CRelaciones->estadoEnFecha($numRelacion, $fecha);
+        $hoy = $CRelaciones->estadoEnFecha($numRelacion, date('Y-m-d'));
+        $estado = $hoy;
+        if (!isset($hoy['error']) && $hoy['datos']['situacion'] === 'regia' && $hoy['datos']['version']['estado'] === 'Baja') {
+            $estado = array('error' => $this->montarAdvertencia('warning', 'La relación está de baja: reactívala desde el listado de relaciones para poder aplicarla.'));
+        } elseif (!isset($hoy['error'])) {
+            $estado = $CRelaciones->estadoEnFecha($numRelacion, $fecha);
+        }
         $respuesta = $estado;
         if (!isset($estado['error'])) {
             if ($estado['datos']['situacion'] !== 'regia') {

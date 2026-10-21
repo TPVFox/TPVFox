@@ -110,8 +110,21 @@ if ($instalado && $numRelacion > 0) {
         $avisos[] = $leida['error'];
         $editable = false;
     } elseif ($leida['datos'] === null) {
-        $avisos[] = array('tipo' => 'warning', 'mensaje' => 'La relación ' . $numRelacion . ' no está vigente: está de baja o no existe. Vuelve al listado para elegir otra.');
         $editable = false;
+        // Una relación de baja se ve con la última versión que tuvo; no se puede preparar nada sobre ella.
+        $ultima = $CRelaciones->estadoEnFecha($numRelacion, date('Y-m-d'));
+        if (isset($ultima['error'])) {
+            $avisos[] = $ultima['error'];
+        } elseif ($ultima['datos']['situacion'] === 'regia' && $ultima['datos']['version']['estado'] === 'Baja') {
+            if ($accion === 'ver') {
+                $vigente = $ultima['datos']['version'];
+                $avisos[] = array('tipo' => 'warning', 'mensaje' => 'La relación ' . $numRelacion . ' está de baja: esta es la última versión que tuvo. Se reactiva desde el listado.');
+            } else {
+                $avisos[] = array('tipo' => 'warning', 'mensaje' => 'La relación ' . $numRelacion . ' está de baja: reactívala desde el listado para poder cambiarla.');
+            }
+        } else {
+            $avisos[] = array('tipo' => 'warning', 'mensaje' => 'La relación ' . $numRelacion . ' no está vigente: se sustituyó o no existe. Vuelve al listado para elegir otra.');
+        }
     } else {
         $vigente = $leida['datos'];
     }

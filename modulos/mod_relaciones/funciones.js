@@ -4,12 +4,11 @@
 // que responde. El límite de cada forma se aplica también aquí, con la misma tabla de formas que
 // la admisión, para no dejar añadir lo que no cabe.
 
-function metodoClick(pulsado, estado) {
+function metodoClick(pulsado) {
   // @ Objetivo
   // Saber qué opción general se pulsó y actuar sobre las filas marcadas.
   // @ Parametros
   //   pulsado -> (string) la opción pulsada.
-  //   estado -> (string) el estado al que lleva «Cambiar estado».
   console.log("Pulsado en el listado de relaciones: " + pulsado);
   switch (pulsado) {
     case "cambiarEstado":
@@ -18,7 +17,19 @@ function metodoClick(pulsado, estado) {
         alert("No tienes items seleccionados");
         return;
       }
-      cambiarEstadoRelaciones(checkID, estado);
+      // Lleva las marcadas al estado contrario al que tienen: las vigentes a Baja y las de baja a Activo.
+      var deBaja = 0;
+      for (var i = 0; i < checkID.length; i++) {
+        if (checkID[i].getAttribute("data-estado") === "Baja") {
+          deBaja++;
+        }
+      }
+      if (deBaja > 0 && deBaja < checkID.length) {
+        console.log("Marcadas relaciones vigentes y de baja a la vez");
+        alert("Has marcado relaciones vigentes y de baja a la vez: marca de una sola clase para cambiar su estado.");
+        return;
+      }
+      cambiarEstadoRelaciones(checkID, deBaja > 0 ? "Activo" : "Baja");
       break;
     case "Ver":
     case "Modificar":

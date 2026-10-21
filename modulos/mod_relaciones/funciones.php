@@ -37,7 +37,7 @@ function parametrosDelListado($recibidos, $nombresDeTipos)
         }
     }
     if (isset($recibidos['orden']) && is_string($recibidos['orden'])) {
-        if (in_array($recibidos['orden'], array('numRelacion:ASC', 'numRelacion:DESC', 'fecha:ASC', 'fecha:DESC'), true)) {
+        if (in_array($recibidos['orden'], array('numRelacion:ASC', 'numRelacion:DESC', 'fecha:ASC', 'fecha:DESC', 'estado:ASC', 'estado:DESC'), true)) {
             $parametros['orden'] = $recibidos['orden'];
         }
     }
@@ -63,8 +63,8 @@ function permisoRelacion($ClasePermisos, $accion, $vista)
 function cambiarEstadoRelaciones($numRelaciones, $estado, $CRelaciones, $ClasePermisos, $Usuario)
 {
     // @ Objetivo
-    // Cambiar el estado de las relaciones marcadas en el listado. Hoy solo se admite darlas
-    // de baja. Cada relación se cambia por separado: la que no se puede devuelve su aviso y no
+    // Cambiar el estado de las relaciones marcadas en el listado: darlas de baja (Baja) o
+    // reactivar las que están de baja (Activo). Cada relación se cambia por separado: la que no se puede devuelve su aviso y no
     // impide las demás.
     // @ Parametros
     //      $numRelaciones -> (array) los números marcados, tal como llegan.
@@ -78,8 +78,8 @@ function cambiarEstadoRelaciones($numRelaciones, $estado, $CRelaciones, $ClasePe
     $respuesta = array();
     if (!permisoRelacion($ClasePermisos, 'CambiarEstado', 'ListaRelaciones.php')) {
         $respuesta['error'] = array('tipo' => 'warning', 'mensaje' => 'No tienes permiso para esta operación.');
-    } elseif ($estado !== 'Baja') {
-        $respuesta['error'] = array('tipo' => 'warning', 'mensaje' => 'Ese estado no se admite: las relaciones solo se pueden dar de baja.');
+    } elseif ($estado !== 'Baja' && $estado !== 'Activo') {
+        $respuesta['error'] = array('tipo' => 'warning', 'mensaje' => 'Ese estado no se admite: las relaciones solo se pueden dar de baja o reactivar.');
     } elseif (!is_array($numRelaciones) || count($numRelaciones) === 0) {
         $respuesta['error'] = array('tipo' => 'warning', 'mensaje' => 'No tienes items seleccionados.');
     } else {
@@ -87,9 +87,13 @@ function cambiarEstadoRelaciones($numRelaciones, $estado, $CRelaciones, $ClasePe
         $respuesta['avisos'] = array();
         foreach ($numRelaciones as $recibido) {
             $numRelacion = (int) $recibido;
-            $baja = $CRelaciones->darDeBaja($numRelacion, $Usuario['id']);
-            if (isset($baja['error'])) {
-                $respuesta['avisos'][] = array('tipo' => 'warning', 'mensaje' => 'Relación ' . $numRelacion . ': ' . $baja['error']['mensaje']);
+            if ($estado === 'Activo') {
+                $cambio = $CRelaciones->reactivar($numRelacion, $Usuario['id']);
+            } else {
+                $cambio = $CRelaciones->darDeBaja($numRelacion, $Usuario['id']);
+            }
+            if (isset($cambio['error'])) {
+                $respuesta['avisos'][] = array('tipo' => 'warning', 'mensaje' => 'Relación ' . $numRelacion . ': ' . $cambio['error']['mensaje']);
             } else {
                 $respuesta['datos']['cambiadas'][] = $numRelacion;
             }
