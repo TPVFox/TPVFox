@@ -14,4 +14,8 @@
         <accion nombre="admitir" descripcion="Admitir el fichero de intercambio del vigente" permiso="0"></accion>
         <accion nombre="exportar" descripcion="Descargar el informe final" permiso="0"></accion>
     </vista>
+    <vista nombre="AplicarRelacion.php" descripcion="Aplicar una relación a un periodo" permiso="0">
+        <accion nombre="ver" descripcion="Calcular la aplicación de una relación" permiso="0"></accion>
+        <accion nombre="Preparar" descripcion="Preparar el albarán de compras de la aplicación" permiso="0"></accion>
+    </vista>
 </modulo>

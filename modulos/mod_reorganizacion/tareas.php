@@ -396,4 +396,19 @@ switch ($pulsado) {
         // El fichero include emite cabeceras HTTP + CSV y llama a exit().
         include_once 'tareas/exportarInformeComprobacionStock.php';
         break;
+
+    // Aplicar una relación a un periodo, ofrecer sus periodos y preparar su albarán de compras.
+    // Devuelven la respuesta además de escribirla, como validarDatosFormulario.
+    case 'calcularAplicacion':
+        include 'tareas/calcularAplicacion.php';
+        echo json_encode($respuesta);
+        return $respuesta;
+    case 'prepararAlbaranAplicacion':
+        include 'tareas/prepararAlbaranAplicacion.php';
+        echo json_encode($respuesta);
+        return $respuesta;
+    case 'periodosAplicacion':
+        include 'tareas/periodosAplicacion.php';
+        echo json_encode($respuesta);
+        return $respuesta;
 }

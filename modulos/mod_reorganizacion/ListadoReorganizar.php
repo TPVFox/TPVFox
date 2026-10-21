@@ -108,6 +108,15 @@
                                 <td></td>
                             </tr>
                         <?php } ?>
+                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vista' => 'AplicarRelacion.php')) == 1) { ?>
+                            <!-- Aplicar una relación a un periodo -->
+                            <tr>
+                                <td><a class="btn" href="AplicarRelacion.php">
+                                        <span class="glyphicon glyphicon-scissors"> </span>Aplicar relación</a></td>
+                                <td>Aplicar una relación a lo que entró en un periodo y preparar su albarán de compras</td>
+                                <td></td>
+                            </tr>
+                        <?php } ?>
 
                         <?php if (count($CReorganizar->SetPlugin('ClaseVirtuemart')->TiendaWeb) > 0) {;
                             // Solo mostramos si hay web conectada a tienda principal.
