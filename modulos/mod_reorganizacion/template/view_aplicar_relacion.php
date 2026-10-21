@@ -114,6 +114,7 @@
 
             <div id="avisosAplicacion"></div>
             <div id="datosAplicacion"></div>
+            <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
             <table id="escandalloAplicacion" class="table table-bordered table-hover">
                 <thead>
                     <tr>

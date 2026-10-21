@@ -179,12 +179,93 @@ class RelacionesAplicacion extends RelacionesModelo
                         $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'Otro IVA que el de «' . $entrada['articulo'] . '» en: '
                             . implode(', ', $conOtroIva) . '. El albarán queda a 0,00 € sin IVA, pero su IVA no se compensa: revísalo antes de guardarlo.');
                     }
+                    $respuesta['datos']['numeroDelAlbaran'] = $this->numeroDelAlbaran($version['tipo']);
+                    $respuesta['datos']['destinos'] = array();
+                    if ($peticion['tipoPeriodo'] === 'mes') {
+                        $destinos = $this->albaranesParaReunir((int) $peticion['idProveedor'], $periodo['fecha'], $respuesta['datos']['numeroDelAlbaran']);
+                        if (isset($destinos['error'])) {
+                            $respuesta['avisos'][] = $destinos['error'];
+                        } else {
+                            $respuesta['datos']['destinos'] = $destinos['datos'];
+                        }
+                    }
                     $respuesta['ok'] = true;
                 }
             }
         }
 
         return $respuesta;
+    }
+
+    public function numeroDelAlbaran($nombreDelTipo)
+    {
+        // @ Objetivo
+        // El número con que se prepara el albarán: el nombre del tipo de relación, cortado a los
+        // 20 caracteres de la columna del número, que no admite más.
+        // @ Devolvemos
+        //      (string) el número.
+        return mb_substr($nombreDelTipo, 0, 20);
+    }
+
+    public function albaranesParaReunir($idProveedor, $fecha, $numero)
+    {
+        // @ Objetivo
+        // Los albaranes de compras con los que se pueden reunir las líneas de un despiece: los
+        // del mismo proveedor, de la misma fecha y con el mismo número, sean temporales abiertos o
+        // guardados. Un guardado con un temporal abierto sale por su temporal; no salen los
+        // facturados ni los que llevan pedidos adjuntos.
+        // @ Parametros
+        //      $idProveedor -> (int) proveedor elegido.
+        //      $fecha -> (string) AAAA-MM-DD, la fecha del albarán.
+        //      $numero -> (string) el número del albarán (numeroDelAlbaran).
+        // @ Devolvemos
+        //      ['datos'] con una lista de destino ('temporal:<id>' o 'albaran:<id>'), numero, fecha,
+        //      proveedor y productos (los nombres de sus líneas); o ['error'].
+        $destinos = array();
+        $sql = "SELECT t.id, t.Fecha, t.Su_numero, t.Productos, p.nombrecomercial FROM albproltemporales t"
+            . " JOIN proveedores p ON p.idProveedor = t.idProveedor"
+            . " LEFT JOIN albprot a ON a.id = t.Numalbpro"
+            . " WHERE t.idProveedor = ? AND DATE(t.Fecha) = ? AND t.Su_numero = ?"
+            . " AND (t.Numalbpro IS NULL OR t.Numalbpro = 0 OR a.estado = 'Guardado' OR a.estado = 'Sin Guardar')"
+            . " ORDER BY t.id";
+        $temporales = $this->consultaPreparada($sql, array($idProveedor, $fecha, $numero));
+        if (isset($temporales['error'])) {
+            return $temporales;
+        }
+        foreach ($temporales['datos'] as $temporal) {
+            $nombres = array();
+            $lineas = json_decode($temporal['Productos'], true);
+            if (is_array($lineas)) {
+                foreach ($lineas as $linea) {
+                    if (isset($linea['estado']) && strtolower($linea['estado']) === 'activo') {
+                        $nombres[] = $linea['cdetalle'];
+                    }
+                }
+            }
+            $destinos[] = array('destino' => 'temporal:' . $temporal['id'], 'numero' => $temporal['Su_numero'], 'fecha' => $temporal['Fecha'],
+                'proveedor' => $temporal['nombrecomercial'], 'productos' => array_values(array_unique($nombres)));
+        }
+
+        $sql = "SELECT a.id, a.Fecha, a.Su_numero, p.nombrecomercial FROM albprot a"
+            . " JOIN proveedores p ON p.idProveedor = a.idProveedor"
+            . " WHERE a.idProveedor = ? AND DATE(a.Fecha) = ? AND a.Su_numero = ? AND a.estado = 'Guardado'"
+            . " AND NOT EXISTS (SELECT 1 FROM albproltemporales t WHERE t.Numalbpro = a.id)"
+            . " AND NOT EXISTS (SELECT 1 FROM pedproAlb pa WHERE pa.idAlbaran = a.id)"
+            . " ORDER BY a.id";
+        $guardados = $this->consultaPreparada($sql, array($idProveedor, $fecha, $numero));
+        if (isset($guardados['error'])) {
+            return $guardados;
+        }
+        foreach ($guardados['datos'] as $guardado) {
+            $lineas = $this->consultaPreparada("SELECT cdetalle FROM albprolinea WHERE idalbpro = ? AND estadoLinea = 'Activo' ORDER BY nfila", array($guardado['id']));
+            if (isset($lineas['error'])) {
+                return $lineas;
+            }
+            $destinos[] = array('destino' => 'albaran:' . $guardado['id'], 'numero' => $guardado['Su_numero'], 'fecha' => $guardado['Fecha'],
+                'proveedor' => $guardado['nombrecomercial'], 'productos' => array_values(array_unique(array_column($lineas['datos'], 'cdetalle'))));
+        }
+
+        return array('datos' => $destinos);
     }
 
     public function esAplicable($forma, $llevaCantidad, $lineas)

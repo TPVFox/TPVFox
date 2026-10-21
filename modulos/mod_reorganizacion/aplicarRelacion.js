@@ -40,6 +40,7 @@ function peticionDeAplicacion(pulsado) {
     precios: JSON.stringify(preciosEscritosAplicacion),
     ajustePeso: $("#ajustePesoAplicacion").val(),
     ajusteValor: ajusteDeValorAplicacion(),
+    destino: $("#destinoAplicacion").val(),
   };
 }
 
@@ -159,6 +160,7 @@ function cambiarDatoAplicacion(campo) {
 function limpiarResultadoAplicacion() {
   $("#avisosAplicacion").empty();
   $("#datosAplicacion").empty();
+  $("#zonaDestinoAplicacion").empty();
   $("#escandalloAplicacion tbody").empty();
   $("#btnPrepararAplicacion").prop("disabled", true);
 }
@@ -173,6 +175,7 @@ function calcularAplicacion() {
     pintarDatosAplicacion(obj.datos);
     if (obj.ok) {
       pintarEscandalloAplicacion(obj.datos.escandallo);
+      pintarDestinosAplicacion(obj.datos.destinos);
       $("#btnPrepararAplicacion").prop("disabled", false);
     }
   });
@@ -246,6 +249,24 @@ function pintarDatosAplicacion(datos) {
   $.each(lineas, function (indice, texto) {
     $("<p>").text(texto).appendTo("#datosAplicacion");
   });
+}
+
+function pintarDestinosAplicacion(destinos) {
+  // En un mes, con albaranes del mismo proveedor, mes y tipo, se puede elegir a dónde se prepara:
+  // un albarán nuevo, por defecto, o uno de ellos. Los nombres, como texto.
+  $("#zonaDestinoAplicacion").empty();
+  if (!destinos || destinos.length === 0) {
+    return;
+  }
+  $("<label>").attr("for", "destinoAplicacion").text("Preparar en").appendTo("#zonaDestinoAplicacion");
+  var lista = $("<select>").attr("id", "destinoAplicacion").addClass("form-control").appendTo("#zonaDestinoAplicacion");
+  $("<option>").val("nuevo").text("Albarán nuevo").appendTo(lista);
+  $.each(destinos, function (indice, destino) {
+    var estado = destino.destino.indexOf("albaran:") === 0 ? "ya guardado" : "abierto";
+    var texto = "Albarán " + estado + " de " + destino.proveedor + ", " + fechaLegibleAplicacion(destino.fecha.substring(0, 10)) + ": " + destino.productos.join(", ");
+    $("<option>").val(destino.destino).text(texto).appendTo(lista);
+  });
+  console.log("Aplicar relación: albaranes con los que reunir", destinos);
 }
 
 function pintarEscandalloAplicacion(escandallo) {
