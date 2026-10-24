@@ -23,7 +23,7 @@ class ClaseCompras
         // Realizamos la consulta a traves de la capa DB parametrizada.
         $db = $this->db;
         $smt = (new DB($db))->pquery($sql, $params);
-        // TODO: revisar - pquery() devuelve get_result(): un mysqli_result en los
+        // Nota: pquery() devuelve get_result(): un mysqli_result en los
         // SELECT y false en los INSERT/UPDATE/DELETE correctos. Distinguimos el
         // exito de escritura (false + errno 0) del fallo real (errno != 0) para
         // conservar el contrato previo (query() devolvia true en escrituras).

@@ -843,7 +843,7 @@ function ObtenerRefWebProductos($BDTpv, $productos, $idWeb)
     }
     $where = '(' . implode(',', $wheres) . ')';
 
-    // TODO: revisar - la lista IN (...) se construye con ids casteados a int (no ligables con ?);
+    // Nota: la lista IN (...) se construye con ids casteados a int (no ligables con ?);
     // el resto de valores (idTienda) va parametrizado.
     $consulta = 'SELECT idArticulo,idVirtuemart FROM articulosTiendas WHERE `idTienda` = ? AND idArticulo IN ' . $where;
     $res = (new DB($BDTpv))->pquery($consulta, array($idWeb));
@@ -937,7 +937,7 @@ function baseIva($BDTpv, $idticketst)
     //Agrupamos por iva, para obtener sumIva, sumBase
     //se le pasa idtickets, e iva, para recoger sum(importeIva) y suma(totalbase)
     //seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
-    // TODO: revisar - $idticketst puede venir como lista de ids separados por comas (no ligable
+    // Nota: $idticketst puede venir como lista de ids separados por comas (no ligable
     // con ?); se sanea a enteros con intval antes de construir el IN (...).
     $idsLimpios = implode(',', array_map('intval', explode(',', (string) $idticketst)));
     $sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '

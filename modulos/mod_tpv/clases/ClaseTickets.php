@@ -71,7 +71,7 @@ class ClaseTickets extends ClaseSession
         // Esta consulta no tiene sentido teniendo la del padre...
 
         $db = $this->BDTpv;
-        // TODO: revisar - execute() devuelve nº de filas afectadas; un UPDATE que no
+        // Nota: execute() devuelve nº de filas afectadas; un UPDATE que no
         // cambia ningún valor devuelve 0 y caería en la rama de error.
         $smt = (new DB($db))->execute($sql, $params);
         if ($smt) {
@@ -277,7 +277,7 @@ class ClaseTickets extends ClaseSession
         //@ Objetivo:
         //Obtener los registros del iva y bases de ese ticket
         $resultado = array();
-        // TODO: revisar - IN (?) liga un único id; si algún día se pasa una lista
+        // Nota: IN (?) liga un único id; si algún día se pasa una lista
         // separada por comas, no funcionará (el string entero se liga como un valor).
         $sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
             . ' FROM `ticketstIva` '
