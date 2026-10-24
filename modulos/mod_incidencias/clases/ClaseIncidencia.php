@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../../../clases/DB.php';
+
 class ClaseIncidencia
 {
 	public $num_incidencia  = 0; // El num_incidencia que vamos.
@@ -12,17 +14,12 @@ class ClaseIncidencia
 		$respuesta = $this->consulta($sql);
 		$this->num_incidencia = $respuesta->fetch_object()->num_reg;
 	}
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
+		try {
+			return (new DB($this->db))->pquery($sql, $params);
+		} catch (\Throwable $e) {
+			return array('consulta' => $sql, 'error' => $e->getMessage());
 		}
 	}
 
@@ -61,8 +58,8 @@ class ClaseIncidencia
 		//Mostrar los datos de un id de incidencia
 		//Muestra los errores de sql
 		$db = $this->db;
-		$sql = 'select * from modulo_incidencia where id=' . $idIncidencia;
-		$smt = $this->consulta($sql);
+		$sql = 'select * from modulo_incidencia where id=?';
+		$smt = $this->consulta($sql, array($idIncidencia));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -80,8 +77,8 @@ class ClaseIncidencia
 		// Mostrar todos los registro de una misma incidencia, ya que un num_inciencia pruede tener varios registros
 		$db = $this->db;
 		$sql = 'select a.* ,  b.username from modulo_incidencia as a inner JOIN
-		usuarios as b on a.id_usuario=b.id where num_incidencia=' . $numeroIncidencia;
-		$smt = $this->consulta($sql);
+		usuarios as b on a.id_usuario=b.id where num_incidencia=?';
+		$smt = $this->consulta($sql, array($numeroIncidencia));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
@@ -121,17 +118,16 @@ class ClaseIncidencia
 			$num = $this->num_incidencia + 1;
 			$this->num_incidencia = $num;
 		}
-		$sql = 'INSERT INTO modulo_incidencia (num_incidencia,fecha_creacion, id_usuario, dedonde, mensaje, datos, estado) VALUES (' . $num . ',NOW(), ' . $usuario . ', ' . "'" . $dedonde . "'" . ', ' . "'" . $mensaje . "'" . ', ' . "'" . $datos . "'" . ', ' . "'" . $estado . "'" . ')';
-		$res = $db->query($sql);
-		if ($res) {
+		$sql = 'INSERT INTO modulo_incidencia (num_incidencia, fecha_creacion, id_usuario, dedonde, mensaje, datos, estado)'
+			. ' VALUES (?, NOW(), ?, ?, ?, ?, ?)';
+		try {
+			(new DB($db))->execute($sql, array($num, $usuario, $dedonde, $mensaje, $datos, $estado));
 			$respuesta['id'] = $db->insert_id;
-			// Hubo resultados
-		} else {
-			// Quiere decir que hubo error en la consulta.
+		} catch (\Throwable $e) {
 			$respuesta['error'] = array(
 				'tipo' => 'danger',
-				'mensaje' => 'Error al insertar en tabla Articulos ' . json_encode($db->connect_errno),
-				'dato' => $sqlArticulo
+				'mensaje' => 'Error al insertar la incidencia: ' . $e->getMessage(),
+				'dato' => $sql
 			);
 		}
 		$respuesta['sql'] = $sql;
@@ -167,7 +163,7 @@ class ClaseIncidencia
 		}
 		if ($usuDeft >= 0) {
 			$sql = 'select * from usuarios';
-			$smt = $db->query($sql);
+			$smt = $this->consulta($sql);
 			$usuariosSelect = array();
 			while ($result = $smt->fetch_assoc()) {
 				array_push($usuariosSelect, $result);
@@ -239,9 +235,9 @@ class ClaseIncidencia
 		//dedonde: el módulo del documento ej: compras, ventas ...
 		//vista: vista del documento ej albaran, pedidos , facturas
 		$db = $this->db;
-		$sql = 'SELECT * FROM `modulo_incidencia` WHERE `dedonde`="' . $dedonde . '" and datos like ' . "'" . '%"vista":"' . $vista . '","idReal":"' . $idReal . '"%' . "'";
-		//~ error_log($sql);
-		$smt = $this->consulta($sql);
+		$sql = 'SELECT * FROM `modulo_incidencia` WHERE `dedonde`=? and datos like ?';
+		$like = '%"vista":"' . $vista . '","idReal":"' . $idReal . '"%';
+		$smt = $this->consulta($sql, array($dedonde, $like));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $sql;
@@ -257,8 +253,8 @@ class ClaseIncidencia
 	}
 	public function incidenciasSinResolverUsuario($idUsuario)
 	{
-		$sql = 'SELECT * from modulo_incidencia where id_usuario=' . $idUsuario . ' and estado="No resuelto"';
-		$smt = $this->consulta($sql);
+		$sql = 'SELECT * from modulo_incidencia where id_usuario=? and estado="No resuelto"';
+		$smt = $this->consulta($sql, array($idUsuario));
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];
