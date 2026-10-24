@@ -23,23 +23,34 @@ function BuscarProductos($idcaja, $campoAbuscar, $busqueda, $BDTpv, $idCliente)
 	$busqueda = trim($busqueda);
 	$palabras = explode(' ', $busqueda); // array de varias palabras, si las hay..
 	$resultado['palabras'] = $palabras;
-	$likes = array();
-	$whereIdentico = array();
+	// El campo de búsqueda es un identificador (columna): se restringe a la
+	// lista de columnas permitidas para evitar SQLi.
+	$columnasPermitidas = array('a.idArticulo', 'at.crefTienda', 'ac.codBarras', 'a.articulo_name');
+	if (!in_array($campoAbuscar, $columnasPermitidas, true)) {
+		$resultado['Estado'] = 'CampoNoValido';
+		return $resultado;
+	}
+	$condLike = array();
+	$paramsLike = array();
+	$condIdentico = array();
+	$paramsIdentico = array();
 	foreach ($palabras as $palabra) {
-		$likes[] =  $campoAbuscar . ' LIKE "%' . $palabra . '%" ';
-		$whereIdentico[] = $campoAbuscar . ' = "' . $palabra . '"';
+		$condLike[] = $campoAbuscar . ' LIKE ?';
+		$paramsLike[] = '%' . $palabra . '%';
+		$condIdentico[] = $campoAbuscar . ' = ?';
+		$paramsIdentico[] = $palabra;
 	}
 	//si vuelta es distinto de 1 es que entra por 2da vez busca %likes%
 	$busquedas = array();
 	if ($palabra !== '') {
 		if ($idcaja == "cajaBusqueda") {
-			$busquedas[] = implode(' and ', $likes);
+			$busquedas[] = array('where' => implode(' and ', $condLike), 'params' => $paramsLike);
 		} else {
-			$busquedas[] = implode(' and ', $whereIdentico);
-
-			$busquedas[] = implode(' and ', $likes);
+			$busquedas[] = array('where' => implode(' and ', $condIdentico), 'params' => $paramsIdentico);
+			$busquedas[] = array('where' => implode(' and ', $condLike), 'params' => $paramsLike);
 		}
 	}
+	$dbl = new DB($BDTpv);
 	$i = 0;
 	foreach ($busquedas as $buscar) {
 		$sql = 'SELECT a.`idArticulo`, a.`articulo_name`, a.estado, a.tipo, a.beneficio,
@@ -47,9 +58,9 @@ function BuscarProductos($idcaja, $campoAbuscar, $busqueda, $BDTpv, $idCliente)
 			 FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac ON a.idArticulo = ac.idArticulo
 			 LEFT JOIN `articulosPrecios` AS ap ON a.idArticulo = ap.idArticulo AND ap.idTienda = 1
 			 LEFT JOIN `articulosTiendas` AS at ON a.idArticulo = at.idArticulo AND at.idTienda = 1
-			 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes=' . $idCliente . ' WHERE ' . $buscar . ' GROUP BY a.idArticulo LIMIT 0, 30 ';
+			 LEFT JOIN `articulosClientes` AS acli ON a.idArticulo = acli.idArticulo AND acli.idClientes=? WHERE ' . $buscar['where'] . ' GROUP BY a.idArticulo LIMIT 0, 30 ';
 		$resultado['sql'] = $sql;
-		$res = $BDTpv->query($sql);
+		$res = $dbl->pquery($sql, array_merge(array($idCliente), $buscar['params']));
 		$resultado['Nitems'] = 0;
 		if (isset($res->num_rows)) {;
 			$resultado['Nitems'] = $res->num_rows;
