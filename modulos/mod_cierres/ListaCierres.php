@@ -21,24 +21,26 @@
 	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro = $NPaginado->GetFiltroWhere();
+	$filtroParams = array();
 
 
 	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])) {
 		$fecha1 = $_GET['fecha1'];
 		$fecha2 = $_GET['fecha2'];
 		// Montamos link para mostrar para poder ver resumen
-		$linkResumen = '<a href="ResumenFechas.php?fecha1=' . $fecha1 . '&fecha2=' . $fecha2 . '">Ver Resumen</a>';
-		// SI recibe por get las fechas añade el filtro a la consulta
-		$filtro = ' FechaCierre between "' . $fecha1 . '" AND "' . $fecha2 . '"';
+		$linkResumen = '<a href="ResumenFechas.php?fecha1=' . urlencode($fecha1) . '&fecha2=' . urlencode($fecha2) . '">Ver Resumen</a>';
+		// SI recibe por get las fechas añade el filtro a la consulta (fechas ligadas como parámetros)
+		$filtro = ' FechaCierre between ? AND ?';
+		$filtroParams = array($fecha1, $fecha2);
 	}
-	$CantidadRegistros = count($CCierres->obtenerCierres($filtro));
+	$CantidadRegistros = count($CCierres->obtenerCierres($filtro, '', $filtroParams));
 
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
 	$limite = $NPaginado->GetLimitConsulta(); // Me hace falta limite para obtener cierre.
 	// -- Fin de paginado -- //
 
-	$cierres = $CCierres->obtenerCierres($filtro, $limite);
+	$cierres = $CCierres->obtenerCierres($filtro, $limite, $filtroParams);
 
 	?>
 	<script>
