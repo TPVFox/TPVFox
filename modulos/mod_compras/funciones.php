@@ -85,22 +85,36 @@ function BuscarProductos($id_input, $campoAbuscar, $idcaja, $busqueda, $BDTpv, $
     $palabras = explode(' ', $busqueda); // array de varias palabras, si las hay..
     $resultado['palabras'] = $palabras;
     $resultado['datos'] = array();
+    // El campo de búsqueda es un identificador (columna): no se puede
+    // parametrizar, así que se restringe a la lista blanca de columnas
+    // (los valores válidos de parametros.xml). $campoAbuscar viene de $_POST.
+    $columnasPermitidas = array('a.idArticulo', 'at.crefTienda', 'p.crefProveedor', 'ac.codBarras', 'a.articulo_name');
+    if (!in_array($campoAbuscar, $columnasPermitidas, true)) {
+        $resultado['error'] = 'CampoNoValido';
+        return $resultado;
+    }
+
     $likes = array();
+    $paramsLike = array();
     $whereIdentico = array();
+    $paramsIdentico = array();
     foreach ($palabras as $palabra) {
-        $likes[] =  $campoAbuscar . ' LIKE "%' . $palabra . '%" ';
-        $whereIdentico[] = $campoAbuscar . ' = "' . $palabra . '"';
+        // El campo ya está en la lista blanca; la palabra va como parámetro.
+        $likes[] =  $campoAbuscar . ' LIKE ? ';
+        $paramsLike[] = '%' . $palabra . '%';
+        $whereIdentico[] = $campoAbuscar . ' = ?';
+        $paramsIdentico[] = $palabra;
     }
     //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%
     $busquedas = array();
     if ($palabra !== '') {
         if ($idcaja == "cajaBusqueda") {
-            $busquedas[] = implode(' and ', $likes);
+            $busquedas[] = array('where' => implode(' and ', $likes), 'params' => $paramsLike);
         } else {
             if ($idcaja !== "Descripcion") {
-                $busquedas[] = implode(' and ', $whereIdentico);
+                $busquedas[] = array('where' => implode(' and ', $whereIdentico), 'params' => $paramsIdentico);
             }
-            $busquedas[] = implode(' and ', $likes);
+            $busquedas[] = array('where' => implode(' and ', $likes), 'params' => $paramsLike);
         }
     }
 
@@ -112,11 +126,10 @@ function BuscarProductos($id_input, $campoAbuscar, $idcaja, $busqueda, $BDTpv, $
             . '  LEFT JOIN `articulosTiendas` '
             . ' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 left join articulosProveedores
             as p on a.idArticulo=p.`idArticulo` and p.idProveedor= ? WHERE '
-            // TODO: revisar - $buscar es un fragmento WHERE ya ensamblado (LIKE/=) con
-            // valores de usuario; parametrizar sus valores requiere refactor de $likes/$whereIdentico.
-            . $buscar . ' group by  a.idArticulo LIMIT 0 , 30 ';
+            . $buscar['where'] . ' group by  a.idArticulo LIMIT 0 , 30 ';
         $resultado['sql'][] = $sql;
-        $res = (new DB($BDTpv))->pquery($sql, array($idProveedor));
+        // idProveedor es el primer ? (del JOIN); los valores del WHERE van después.
+        $res = (new DB($BDTpv))->pquery($sql, array_merge(array($idProveedor), $buscar['params']));
         if ($i === 0) {
             // Es la primera busqueda ( es decir puede ser la identico, no volvemos a buscar. )
             if (isset($res->num_rows) && $res->num_rows > 0) {
