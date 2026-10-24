@@ -517,8 +517,8 @@ class AlbaranesCompras extends ClaseCompras
     {
         //@Objetivo:
         //Sumamos los importes iva y el total de la base de un número de albarán
-        $from_where = 'from albproIva where  Numalbpro  =' . $numAlbaran;
-        $albaran = parent::sumarIvaBases($from_where);
+        $from_where = 'from albproIva where  Numalbpro  = ?';
+        $albaran = parent::sumarIvaBases($from_where, array($numAlbaran));
         return $albaran;
     }
 
