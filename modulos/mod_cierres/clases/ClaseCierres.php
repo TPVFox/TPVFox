@@ -8,6 +8,7 @@
 
 
 include_once $URLCom . '/clases/ClaseConexion.php';
+require_once __DIR__ . '/../../../clases/DB.php';
 
 class ClaseCierres extends ClaseConexion
 {
@@ -35,7 +36,8 @@ class ClaseCierres extends ClaseConexion
         $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
             . " LEFT JOIN usuarios AS u ON c.idUsuario=u.id " . $filtro . $limite;
 
-        $Resql = $BDTpv->query($consulta);
+        // TODO: revisar - $filtro y $limite son fragmentos SQL crudos (WHERE/LIMIT) que llegan como argumentos y no son ligables con ? aquí; la parte parametrizable de esta consulta no concatena valores.
+        $Resql = (new DB($BDTpv))->pquery($consulta);
         if ($Resql) {
             while ($datos = $Resql->fetch_assoc()) {
                 $resultado[] = $datos;
@@ -65,15 +67,19 @@ class ClaseCierres extends ClaseConexion
         if ($this->UltimoIdCierre() === "$idCierre") {
             // -------        CREAMOS LOS SQL QUE VAMOS EJECTUAR      --------  //
             // -- Obtenemos los tickets de los usuarios de ese cierre -- //
-            $sql = 'SELECT * FROM `cierres_usuarios_tickets` WHERE idCierre = ' . $idCierre;
-            $resultado = $BDTpv->query($sql);
+            $capa = new DB($BDTpv);
+            $sql = 'SELECT * FROM `cierres_usuarios_tickets` WHERE idCierre = ?';
+            $resultado = $capa->pquery($sql, array($idCierre));
+            $sentencias = array(); // pares [sql, params] a ejecutar de forma parametrizada
             while ($datos = $resultado->fetch_assoc()) {
                 // Ahora debemos montar las consultas para cambiar estado de tickets de cada usuario
-                $respuesta['sql'][] = 'UPDATE `ticketst` SET `estado`="Cobrado"'
-                    . '  WHERE `idTienda`=' . $datos['idTienda']
-                    . ' and `idUsuario`=' . $datos['idUsuario']
-                    . ' and (Numticket>=' . $datos['Num_ticket_inicial']
-                    . ' and Numticket <=' . $datos['Num_ticket_final'] . ')';
+                $sqlUpdate = 'UPDATE `ticketst` SET `estado`="Cobrado"'
+                    . '  WHERE `idTienda`=?'
+                    . ' and `idUsuario`=?'
+                    . ' and (Numticket>=?'
+                    . ' and Numticket <=?)';
+                $sentencias[] = array($sqlUpdate, array($datos['idTienda'], $datos['idUsuario'], $datos['Num_ticket_inicial'], $datos['Num_ticket_final']));
+                $respuesta['sql'][] = $sqlUpdate;
             }
             // -- Eliminamos el registros
             $tablas = array(
@@ -83,19 +89,20 @@ class ClaseCierres extends ClaseConexion
                 'cierres'
             );
             foreach ($tablas as $tabla) {
-                $sql = 'DELETE FROM ' . $tabla . ' WHERE idCierre=' . $idCierre;
+                // $tabla es un identificador de una lista blanca fija (nombres de tabla), no un valor
+                $sql = 'DELETE FROM ' . $tabla . ' WHERE idCierre = ?';
+                $sentencias[] = array($sql, array($idCierre));
                 $respuesta['sql'][] = $sql;
             }
 
             // Ahora volvemos obtener el ultimo registro y le sumamos uno para poner autoincremento.
             // pero solo modificamos el auto_increment de la tabla cierres.
             $sql = 'ALTER TABLE cierres AUTO_INCREMENT =1'; // Ya coje el ultimo que tenga...
+            $sentencias[] = array($sql, array());
             $respuesta['sql'][] = $sql;
             // Ahora ejecutamos la consultas.
-            foreach ($respuesta['sql'] as $sql) {
-                if ($BDTpv->query($sql)) {
-                    $respuesta['resultado'] = $BDTpv->affected_rows;
-                }
+            foreach ($sentencias as $sentencia) {
+                $respuesta['resultado'] = $capa->execute($sentencia[0], $sentencia[1]);
             }
             // -- Cambiamos AUTO_INCREMENT de las tabla cierre -- //
             $respuesta['estado'] = 'Ok';
@@ -114,7 +121,7 @@ class ClaseCierres extends ClaseConexion
         // id-> (int) Ultimos registro de cierre.
         $BDTpv = $this->BDTpv;
         $consulta = 'SELECT idCierre from cierres order by idCierre desc  limit 1';
-        $resultado = $BDTpv->query($consulta);
+        $resultado = (new DB($BDTpv))->pquery($consulta);
         $id = $resultado->fetch_row();
         return $id[0];
     }
@@ -125,9 +132,9 @@ class ClaseCierres extends ClaseConexion
         // Obtener el ticke inicial y final para un cierre de un usuario
         $BDTpv = $this->BDTpv;
         $resultado = array();
-        $sqlUsuarioTickets = 'SELECT Num_ticket_inicial,Num_ticket_final FROM `cierres_usuarios_tickets` WHERE idCierre = '
-            . $idCierre . ' AND `idUsuario`= ' . $idUsuario . ' AND idTienda = ' . $idTienda;
-        $rangoTickets = $BDTpv->query($sqlUsuarioTickets);
+        $sqlUsuarioTickets = 'SELECT Num_ticket_inicial,Num_ticket_final FROM `cierres_usuarios_tickets` WHERE idCierre = ?'
+            . ' AND `idUsuario`= ? AND idTienda = ?';
+        $rangoTickets = (new DB($BDTpv))->pquery($sqlUsuarioTickets, array($idCierre, $idUsuario, $idTienda));
 
         if ($BDTpv->error !== true) {
             if ($rangoTickets->num_rows === 1) {
@@ -156,15 +163,17 @@ class ClaseCierres extends ClaseConexion
         // Obtenemos rango tickets para un cierre de un usuario
         $rango = $this->obtenerRangoTicketsUsuarioCierre($idUsuario, $idCierre, $idTienda);
         if (!isset($rango['error'])) {
-            $sqlTickets = 'SELECT t.*,c.Nombre,c.razonsocial FROM `ticketst` AS t LEFT JOIN clientes AS c ON c.idClientes = t.idCliente WHERE (t.`Numticket` between ' . $rango['Num_ticket_inicial'] . ' AND ' . $rango['Num_ticket_final'] . ' AND t.`idTienda`=' . $idTienda . ' AND t.`idUsuario`=' . $idUsuario . ')';
+            $sqlTickets = 'SELECT t.*,c.Nombre,c.razonsocial FROM `ticketst` AS t LEFT JOIN clientes AS c ON c.idClientes = t.idCliente WHERE (t.`Numticket` between ? AND ? AND t.`idTienda`=? AND t.`idUsuario`=?)';
+            $paramsTickets = array($rango['Num_ticket_inicial'], $rango['Num_ticket_final'], $idTienda, $idUsuario);
             if ($filtro !== '') {
                 // Ahora comprobamos si nos viene un filtro, si es así debemos quitarle WHERE, ya que nuestra consulta ya tiene WHERE
                 // lo y la sustituimos por AND
                 $filtro =  str_replace('WHERE', 'AND', $filtro);
+                // TODO: revisar - $filtro es un fragmento SQL crudo que llega como argumento; no es ligable con ? aquí.
                 $sqlTickets .= ' ' . $filtro;
             }
             // Obtenemos los ticket para ese usuario y ese cierre.
-            $tickets = $BDTpv->query($sqlTickets);
+            $tickets = (new DB($BDTpv))->pquery($sqlTickets, $paramsTickets);
             if ($BDTpv->error !== true) {
                 //~ error_log($sqlTickets);
                 while ($ticket = $tickets->fetch_assoc()) {
