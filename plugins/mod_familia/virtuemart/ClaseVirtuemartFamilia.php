@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../../../clases/DB.php';
+
 class PluginClaseVirtuemartFamilia extends ClaseConexion
 {
 
@@ -62,7 +64,7 @@ class PluginClaseVirtuemartFamilia extends ClaseConexion
         $resultado = array();
         $sql = "SELECT * FROM `tiendas` WHERE `tipoTienda`='web' and estado='Activo'";
         $resultado['consulta'] = $sql;
-        if ($consulta = $BDTpv->query($sql)) {
+        if ($consulta = (new DB($BDTpv))->pquery($sql)) {
             // Ahora debemos comprobar que cuantos registros obtenemos , si no hay ninguno
             // hay que indicar el error.
             if ($consulta->num_rows > 0) {
