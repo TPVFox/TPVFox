@@ -27,7 +27,9 @@ class PluginClasePaginacion
 	{
 		$this->LinkBase = './' . basename($fichero) . '?';
 		if (isset($_GET['pagina'])) {
-			$this->PagActual = $_GET['pagina'];
+			// La página es un entero: se castea para que el LIMIT/OFFSET generado
+			// por GetLimitConsulta() sea siempre numérico (no inyectable).
+			$this->PagActual = (int) $_GET['pagina'];
 			if ($this->PagActual > 1) {
 				$this->desde = ($this->PagActual - 1) * $this->LimitePagina;
 			}
