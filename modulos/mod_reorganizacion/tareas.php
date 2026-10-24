@@ -24,8 +24,8 @@
 $pulsado = $_POST['pulsado'];
 
 include_once("./../../inicial.php");
-require_once $URLCom . '/clases/auth_guard.php';
-tpvfox_require_auth(); // Cierra el bypass: exige sesion valida en el endpoint AJAX.
+require_once $URLCom . '/clases/exigirSesion.php';
+exigirSesion();
 
 // Crealizamos conexion a la BD Datos
 include_once './clases/ClaseReorganizar.php';

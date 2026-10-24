@@ -100,28 +100,30 @@ class ClaseSession extends ClaseConexion
 		$this->session = $_SESSION;
 	}
 
-	/**
-	 * Verifica la contraseña contra el hash almacenado. Soporta hashes modernos
-	 * (password_hash/bcrypt) y hashes MD5 heredados; si un login válido llega con
-	 * un hash MD5, lo migra a bcrypt de forma transparente.
-	 */
-	private function verificarPassword($pwd, $hash, $id)
+	private function comprobarPassword($pwd, $hash, $id)
 	{
-		if ($hash === '') {
-			return false;
+		// @ Objetivo:
+		// Comprobar la contraseña tecleada contra la guardada. La guardada puede ser
+		// password_hash() o el md5 de antes; si es md5 y coincide, se guarda ya como password_hash().
+		// @ Parametros:
+		// $pwd -> (string) Contraseña tecleada.
+		// $hash -> (string) Contraseña guardada en usuarios.password.
+		// $id -> Identificador del usuario.
+		// @ Devolvemos:
+		// (bool) true si la contraseña es la del usuario.
+		$respuesta = false;
+		if ($hash !== '') {
+			if (password_get_info($hash)['algo']) {
+				$respuesta = password_verify($pwd, $hash);
+			} elseif (hash_equals($hash, md5($pwd))) {
+				$nuevo = password_hash($pwd, PASSWORD_DEFAULT);
+				$up = $this->BDTpv->prepare('UPDATE usuarios SET password=? WHERE id=?');
+				$up->bind_param('si', $nuevo, $id);
+				$up->execute();
+				$respuesta = true;
+			}
 		}
-		if (password_get_info($hash)['algo']) {
-			return password_verify($pwd, $hash);
-		}
-		// Hash MD5 heredado: verificar en tiempo constante y migrar a bcrypt.
-		if (hash_equals($hash, md5($pwd))) {
-			$nuevo = password_hash($pwd, PASSWORD_DEFAULT);
-			$up = $this->BDTpv->prepare('UPDATE usuarios SET password=? WHERE id=?');
-			$up->bind_param('si', $nuevo, $id);
-			$up->execute();
-			return true;
-		}
-		return false;
+		return $respuesta;
 	}
 
 	function comprobarUser($usuario, $pwd)
@@ -150,7 +152,7 @@ class ClaseSession extends ClaseConexion
 		} else {
 			$pwdBD = $res->fetch_assoc();
 			$pwdBD['login'] = $usuario;
-			if ($this->verificarPassword($pwd, $pwdBD['password'] ?? '', (int) ($pwdBD['id'] ?? 0))) {
+			if ($this->comprobarPassword($pwd, $pwdBD['password'], $pwdBD['id'])) {
 				// Quiere decir que usuario y password son correcto.
 				// Comprobamos si tiene registro indice el usuario.
 				$sql = 'SELECT * FROM indices WHERE idUsuario="' . $pwdBD['id'] . '"';
@@ -173,6 +175,9 @@ class ClaseSession extends ClaseConexion
 						$_SESSION['estadoTpv'] = 'Correcto';
 						// Elimino de resultado password ya que no lo necesitamos guardar en session.
 						unset($pwdBD['password']);
+						// La consulta preparada devuelve los números como número: se guardan como texto, como antes.
+						$pwdBD['id'] = (string) $pwdBD['id'];
+						$pwdBD['group_id'] = (string) $pwdBD['group_id'];
 						$_SESSION['usuarioTpv'] = $pwdBD;
 					} else {
 						$_SESSION['estadoTpv'] = 'Error';

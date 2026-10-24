@@ -1,7 +1,7 @@
 <?php
 include_once './../../inicial.php';
-require_once $URLCom . '/clases/auth_guard.php';
-tpvfox_require_auth(); // Cierra el bypass: exige sesion valida en el endpoint AJAX.
+require_once $URLCom . '/clases/exigirSesion.php';
+exigirSesion();
 include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
 include_once $URLCom . '/modulos/mod_balanza/funciones.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';

@@ -1,5 +1,7 @@
 <?php
 include_once './../../inicial.php';
+require_once $URLCom . '/clases/exigirSesion.php';
+exigirSesion();
 include_once $URLCom . '/modulos/mod_productos/clases/ClaseSeleccionProductos.php';
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
 include_once $URLCom . '/modulos/mod_producto/funciones.php';

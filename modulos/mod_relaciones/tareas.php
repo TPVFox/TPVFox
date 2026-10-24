@@ -1,6 +1,8 @@
 <?php
 
 include_once './../../inicial.php';
+require_once $URLCom . '/clases/exigirSesion.php';
+exigirSesion();
 include_once $URLCom . '/modulos/mod_relaciones/clases/Relaciones.php';
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesTemporales.php';
 include_once $URLCom . '/modulos/mod_relaciones/funciones.php';

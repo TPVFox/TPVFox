@@ -3,6 +3,8 @@
 
 //include_once '/var/www/tpv/tpvfox/inicial.php';
 include_once './../../inicial.php';
+require_once $URLCom . '/clases/exigirSesion.php';
+exigirSesion();
 include_once $URLCom . '/modulos/mod_tareas_cron/clases/CTareasCron.php';
 
 $CTareasCron = new CTareasCron();
