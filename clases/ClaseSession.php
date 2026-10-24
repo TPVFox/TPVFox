@@ -152,7 +152,7 @@ class ClaseSession extends ClaseConexion
 		} else {
 			$pwdBD = $res->fetch_assoc();
 			$pwdBD['login'] = $usuario;
-			if ($this->comprobarPassword($pwd, $pwdBD['password'], $pwdBD['id'])) {
+			if ($this->comprobarPassword($pwd, $pwdBD['password'] ?? '', (int) ($pwdBD['id'] ?? 0))) {
 				// Quiere decir que usuario y password son correcto.
 				// Comprobamos si tiene registro indice el usuario.
 				$sql = 'SELECT * FROM indices WHERE idUsuario="' . $pwdBD['id'] . '"';
