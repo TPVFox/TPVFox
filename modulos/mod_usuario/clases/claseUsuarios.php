@@ -51,7 +51,10 @@ class ClaseUsuarios extends modelo
 		//@Parametros:
 		//idsUsuarios: array con los ids de los usuarios a cambiar la contraseña
 		//NuevaContraseña: nueva contraseña a asignar
-		$sql = 'UPDATE `usuarios` SET `password` = MD5("' . $NuevaContraseña . '") WHERE id IN (' . implode(",", $idsUsuarios) . ')';
+		// Hash bcrypt (no MD5) y saneado de ids a enteros para evitar SQLi.
+		$hash = password_hash($NuevaContraseña, PASSWORD_DEFAULT);
+		$ids = implode(',', array_map('intval', (array) $idsUsuarios));
+		$sql = 'UPDATE `usuarios` SET `password` = "' . $hash . '" WHERE id IN (' . $ids . ')';
 		$consulta = $this->consultaDML($sql);
 		if (isset($consulta['error'])) {
 			return $consulta;

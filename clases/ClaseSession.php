@@ -51,6 +51,18 @@ class ClaseSession extends ClaseConexion
 			// Hay que tener en cuenta que la session no tenemos porque iniciar nosotros,
 			// otra api del servidor la puede abrir, por eso no debemos reiniciarla nunca
 			// si no esta abierta.
+			if (session_status() !== PHP_SESSION_ACTIVE) {
+				// Cookie de sesión endurecida: no accesible desde JS (HttpOnly),
+				// no enviada en peticiones cross-site (SameSite), y solo por HTTPS
+				// cuando la petición es segura.
+				$esHttps = (($_SERVER['HTTPS'] ?? '') !== '' && ($_SERVER['HTTPS'] ?? '') !== 'off')
+					|| (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+				session_set_cookie_params([
+					'httponly' => true,
+					'samesite' => 'Lax',
+					'secure' => $esHttps,
+				]);
+			}
 			session_start();
 		}
 		if (!isset($_SESSION['estadoTpv']) || $_SESSION['estadoTpv'] === 'SinActivar') {
@@ -88,14 +100,43 @@ class ClaseSession extends ClaseConexion
 		$this->session = $_SESSION;
 	}
 
+	/**
+	 * Verifica la contraseña contra el hash almacenado. Soporta hashes modernos
+	 * (password_hash/bcrypt) y hashes MD5 heredados; si un login válido llega con
+	 * un hash MD5, lo migra a bcrypt de forma transparente.
+	 */
+	private function verificarPassword($pwd, $hash, $id)
+	{
+		if ($hash === '') {
+			return false;
+		}
+		if (password_get_info($hash)['algo']) {
+			return password_verify($pwd, $hash);
+		}
+		// Hash MD5 heredado: verificar en tiempo constante y migrar a bcrypt.
+		if (hash_equals($hash, md5($pwd))) {
+			$nuevo = password_hash($pwd, PASSWORD_DEFAULT);
+			$up = $this->BDTpv->prepare('UPDATE usuarios SET password=? WHERE id=?');
+			$up->bind_param('si', $nuevo, $id);
+			$up->execute();
+			return true;
+		}
+		return false;
+	}
+
 	function comprobarUser($usuario, $pwd)
 	{
 		// Objetivo
 		// Comprobar que los datos metidos en el formulario acceso son correctos.
 		$BDTpv = $this->BDTpv;
 		$encriptada = md5($pwd); // Encriptamos contraseña puesta en formulario.
-		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username="' . $usuario . '" AND estado="activo"';
-		$res = $BDTpv->query($sql);
+		// Sentencia preparada: el username va como parámetro, no concatenado, de
+		// modo que una inyección (UNION, comillas...) no puede alterar la consulta.
+		$sql = 'SELECT password,nombre,id,group_id FROM usuarios WHERE username=? AND estado="activo"';
+		$stmt = $BDTpv->prepare($sql);
+		$stmt->bind_param('s', $usuario);
+		$stmt->execute();
+		$res = $stmt->get_result();
 		//compruebo error en consulta
 		if (mysqli_error($BDTpv)) {
 			$this->SetComprobaciones(
@@ -109,7 +150,7 @@ class ClaseSession extends ClaseConexion
 		} else {
 			$pwdBD = $res->fetch_assoc();
 			$pwdBD['login'] = $usuario;
-			if ($encriptada === $pwdBD['password']) {
+			if ($this->verificarPassword($pwd, $pwdBD['password'] ?? '', (int) ($pwdBD['id'] ?? 0))) {
 				// Quiere decir que usuario y password son correcto.
 				// Comprobamos si tiene registro indice el usuario.
 				$sql = 'SELECT * FROM indices WHERE idUsuario="' . $pwdBD['id'] . '"';
@@ -127,6 +168,8 @@ class ClaseSession extends ClaseConexion
 					// Ahora comprobamos que tenga registro
 					if ($res->num_rows === 1) {
 						// Existe registro en tabla indice.
+						// Regenerar el id de sesión al autenticar evita la fijación de sesión.
+						if (session_status() === PHP_SESSION_ACTIVE) { session_regenerate_id(true); }
 						$_SESSION['estadoTpv'] = 'Correcto';
 						// Elimino de resultado password ya que no lo necesitamos guardar en session.
 						unset($pwdBD['password']);
