@@ -8,6 +8,8 @@
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 $pulsado = $_POST['pulsado'];
 include_once("./../../inicial.php");
+require_once $URLCom . '/clases/auth_guard.php';
+tpvfox_require_auth(); // Cierra el bypass: exige sesion valida en el endpoint AJAX.
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/modulos/mod_venta/funciones.php';
 include_once $URLCom . '/modulos/mod_incidencias/clases/ClaseIncidencia.php';
