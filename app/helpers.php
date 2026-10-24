@@ -32,3 +32,14 @@ if (!function_exists('entreComillas')) {
         return $comillas . $cadena . $comillas;
     }
 }
+
+if (!function_exists('e')) {
+    /**
+     * Escapa una cadena para insertarla de forma segura en HTML (anti-XSS).
+     * Usar SIEMPRE al imprimir datos de usuario o de la BD: echo e($valor).
+     */
+    function e($valor): string
+    {
+        return htmlspecialchars((string) ($valor ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}

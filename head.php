@@ -1,11 +1,17 @@
 <?php
 include_once 'inicial.php';
+// Cabeceras de seguridad (antes de cualquier salida HTML).
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: same-origin');
+}
 ?>
 <meta name="language" content="es">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>TPVFox-<?php echo $thisTpv->getNombreFichero($_SERVER['REQUEST_URI']) ?></title>
+<title>TPVFox-<?php echo e($thisTpv->getNombreFichero($_SERVER['REQUEST_URI'])) ?></title>
 <link href="<?php echo $HostNombre; ?>/css/img/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />
 <link rel="stylesheet" href="<?php echo $HostNombre; ?>/css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $HostNombre; ?>/css/template.css" type="text/css">
