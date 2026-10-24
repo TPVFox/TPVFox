@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once('./clases/ClaseCompras.php');
 class FacturasCompras extends ClaseCompras
 {
@@ -45,7 +46,7 @@ class FacturasCompras extends ClaseCompras
         //@Objetivo:
         //Mostrar solo los datos principales de todas las facturas
         $db = $this->db;
-        $smt = $db->query('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
+        $smt = (new DB($db))->pquery('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on
 		 a.idProveedor=b.idProveedor ');
         $facturaPrincipal = array();
@@ -60,10 +61,12 @@ class FacturasCompras extends ClaseCompras
         //@Objetivo:
         //Mostrar los datos principales de una factura con un límite de registros
         $db = $this->db;
+        // TODO: revisar - $limite es un fragmento LIMIT concatenado (identificador/clausula),
+        // no ligable con ?; debe validarse a mano en el llamador.
         $sql = 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado, a.idProveedor FROM `facprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor ' . $limite;
-        $smt = $db->query($sql);
+        $smt = (new DB($db))->pquery($sql);
         $pedidosPrincipal = array();
         while ($result = $smt->fetch_assoc()) {
             array_push($pedidosPrincipal, $result);
