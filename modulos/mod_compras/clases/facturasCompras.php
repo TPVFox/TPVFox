@@ -56,7 +56,7 @@ class FacturasCompras extends ClaseCompras
         return $facturaPrincipal;
     }
 
-    public function TodosFacturaLimite($limite)
+    public function TodosFacturaLimite($limite, $params = [])
     {
         //@Objetivo:
         //Mostrar los datos principales de una factura con un límite de registros
@@ -68,7 +68,7 @@ class FacturasCompras extends ClaseCompras
         $sql = 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado, a.idProveedor FROM `facprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor ' . $limite;
-        $smt = (new DB($db))->pquery($sql);
+        $smt = (new DB($db))->pquery($sql, $params);
         $pedidosPrincipal = array();
         while ($result = $smt->fetch_assoc()) {
             array_push($pedidosPrincipal, $result);

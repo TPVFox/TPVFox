@@ -55,8 +55,9 @@ if ($caja) {
             // Buscamos articulos por referencia.
             $campos = array('t.crefTienda');
             $filtro = ' WHERE (' . $Ccontrolador->ConstructorLike($campos, $valor) . ')';
+            $params = $Ccontrolador->GetConstructorParams();
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('t.crefTienda', array('filtro' => $filtro, 'limite' => $limite));
+            $articulos['datos'] = $CArticulo->obtenerProductos('t.crefTienda', array('filtro' => $filtro, 'limite' => $limite, 'params' => $params));
 
             if (count($articulos['datos']) > 0) {
                 foreach ($articulos['datos'] as $key => $a) {
@@ -79,8 +80,9 @@ if ($caja) {
             // Buscamos articulos por referencia.
             $campos = array('a.articulo_name');
             $filtro = ' WHERE (' . $Ccontrolador->ConstructorLike($campos, $valor) . ')';
+            $params = $Ccontrolador->GetConstructorParams();
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('articulo_name', compact("filtro", "limite"));
+            $articulos['datos'] = $CArticulo->obtenerProductos('articulo_name', compact("filtro", "limite", "params"));
             if (count($articulos['datos']) > 0) {
                 foreach ($articulos['datos'] as $key => $a) {
                     $articulo = $CArticulo->GetProducto($a['idArticulo']);
@@ -105,8 +107,9 @@ if ($caja) {
             // Buscamos articulos por referencia.
             $campos = array('aCodBarras.codBarras');
             $filtro = ' WHERE (' . $Ccontrolador->ConstructorLike($campos, $valor) . ')';
+            $params = $Ccontrolador->GetConstructorParams();
             $limite = ' LIMIT 10';
-            $articulos['datos'] = $CArticulo->obtenerProductos('codBarras', compact("filtro", "limite"));
+            $articulos['datos'] = $CArticulo->obtenerProductos('codBarras', compact("filtro", "limite", "params"));
             if (count($articulos['datos']) > 0) {
                 foreach ($articulos['datos'] as $key => $a) {
                     $articulo = $CArticulo->GetProducto($a['idArticulo']);

@@ -93,7 +93,7 @@ class Modulo_etiquetado
 		return $respuesta;
 	}
 
-	public function todasEtiquetasLimite($limite)
+	public function todasEtiquetasLimite($limite, $params = array())
 	{
 		//@OBjetivo:
 		//LIstar todas las etiquetas guardadas
@@ -104,7 +104,7 @@ class Modulo_etiquetado
 		// plugin compartido (pendiente, fuera de este alcance).
 		$sql = 'SELECT a.num_lote, a.id , a.fecha_env, a.fecha_cad, a.estado, b.articulo_name , a.productos from modulo_etiquetado as a
 		inner join articulos as b on a.idArticulo=b.idArticulo  ' . $limite;
-		$smt = $this->consulta($sql);
+		$smt = $this->consulta($sql, $params);
 		if (gettype($smt) === 'array') {
 			$respuesta['error'] = $smt['error'];
 			$respuesta['consulta'] = $smt['consulta'];

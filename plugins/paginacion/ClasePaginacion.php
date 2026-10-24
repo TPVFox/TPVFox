@@ -22,6 +22,9 @@ class PluginClasePaginacion
 	public $campos				= array(); // (array) Campos donde buscar.
 	public $campoFiltro 		= ''; // (string) Campo por el que filtrar.
 	public $valorFiltro 		= ''; // (string) Valor del campo por el que filtrar.
+	public $filtroParams		= array(); // (array) Valores ligados (?) del último GetFiltroWhere().
+	public $filtroWhereParams	= array(); // (array) Valores ligados (?) de la búsqueda textual (filtroWhere).
+	public $constructorParams	= array(); // (array) Valores ligados (?) del último ConstructorLike().
 
 	public function __construct($fichero)
 	{
@@ -103,25 +106,30 @@ class PluginClasePaginacion
 	public function GetFiltroWhere($operador = 'AND')
 	{
 		// @ Objetivo
-		// 	Devolver el filtrowhere que tenemos generado o lo generamos si operarador es distinto de AND
-		//  Solo lo generamos si buscar tiene datos... sino no tiene sentido.
+		// 	Devolver el WHERE (con placeholders ?) para la consulta. Los valores
+		//  ligados quedan en $this->filtroParams; recupéralos con GetFiltroParams()
+		//  INMEDIATAMENTE DESPUÉS de esta llamada y pásalos al pquery/al método.
 		// @ Parametros:
 		// 	  $operador -> (string ) OR o AND , lo utizamos para hacer likes con es operador.
 		$where = [];
+		$params = [];
 
-		// Búsqueda textual
+		// Búsqueda textual: se reconstruye siempre para asegurar que filtroWhere
+		// y sus params coinciden con el operador pedido.
 		if ($this->Busqueda !== '') {
-			if ($operador !== 'AND') {
-				$this->SetFiltroWhere($operador);
-			}
+			$this->SetFiltroWhere($operador);
 			$where[] = '(' . str_replace('WHERE', '', $this->filtroWhere) . ')';
+			$params = array_merge($params, $this->filtroWhereParams);
 		}
 
-		// Filtro por campo definido
+		// Filtro por campo definido (valor ligado con ?)
 		$filtroCampo = $this->GetFiltroEstado();
 		if ($filtroCampo !== '') {
 			$where[] = $filtroCampo;
+			$params[] = $this->valorFiltro;
 		}
+
+		$this->filtroParams = $params;
 
 		if (!empty($where)) {
 			return 'WHERE ' . implode(' AND ', $where) . ' ' . $this->filtroOrd;
@@ -129,13 +137,24 @@ class PluginClasePaginacion
 
 		return $this->filtroOrd;
 	}
+
+	public function GetFiltroParams()
+	{
+		// Valores ligados (?) del último GetFiltroWhere(). Llamar justo después.
+		return $this->filtroParams;
+	}
+
 	public function GetFiltroEstado()
 	{
 		if ($this->campoFiltro === '' || $this->valorFiltro === '') {
 			return '';
 		}
-
-		return $this->campoFiltro . ' = "' . addslashes($this->valorFiltro) . '"';
+		// campoFiltro es un IDENTIFICADOR (nombre de columna, opcional con tabla):
+		// no se puede ligar con ?, se valida; el VALOR va ligado con ?.
+		if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $this->campoFiltro)) {
+			return '';
+		}
+		return $this->campoFiltro . ' = ?';
 	}
 
 	public function GetLimitConsulta()
@@ -406,6 +425,8 @@ class PluginClasePaginacion
 		//~ $controler =$this->controler;
 		$campos = $this->campos;
 		$this->filtroWhere = 'WHERE (' . $this->ConstructorLike($campos, $this->Busqueda, $operador) . ') ';
+		// ConstructorLike deja los valores ligados en $this->constructorParams.
+		$this->filtroWhereParams = $this->constructorParams;
 	}
 	public function SetCampoFiltro($campo)
 	{
@@ -494,26 +515,42 @@ class PluginClasePaginacion
 		$palabras = explode(' ', $string);
 
 		$likesCampo = array();
+		$params = array();
 		$operador = ' ' . $operador . ' ';
 
 		foreach ($campos as $campo) {
+			// $campo es un IDENTIFICADOR (columna, opcional con tabla): no se
+			// puede ligar con ?, se valida para evitar SQLi. Los valores de
+			// búsqueda SÍ van ligados con ?.
+			if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', (string) $campo)) {
+				continue;
+			}
 			$likes = array();
 			foreach ($palabras as $key => $palabra) {
 				if (trim($palabra) !== '') {
-					// Entra si la palabra tiene mas 3 caracteres.
-					// Aplicamos filtro de palabras descartadas
-					$likes[] =  $campo . ' LIKE "%' . $palabra . '%" ';
+					$likes[] =  $campo . ' LIKE ?';
+					$params[] = '%' . $palabra . '%';
 				}
 			}
+			if (empty($likes)) {
+				continue;
+			}
 			// Con el mismo campo es AND.
-			if ($key > 0) {
+			if (count($likes) > 1) {
 				$likesCampo[] = '(' . implode(' AND ', $likes) . ')';
 			} else {
 				$likesCampo[] = $likes[0];
 			}
 		}
 		// Montamos busqueda con el operador indicado o el por defecto
+		$this->constructorParams = $params;
 		$busqueda = implode($operador, $likesCampo);
 		return $busqueda;
+	}
+
+	public function GetConstructorParams()
+	{
+		// Valores ligados (?) del último ConstructorLike(). Para llamadas directas.
+		return $this->constructorParams;
 	}
 }

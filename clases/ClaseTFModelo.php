@@ -19,10 +19,10 @@ class TFModelo extends ModeloP
 
     use DesglosaDatosPorNombreTrait;
 
-    public function consulta($sql)
+    public function consulta($sql, $params = [])
     {
         // Realizamos la consulta.
-        $smt = parent::consulta($sql);
+        $smt = parent::consulta($sql, $params);
         $respuesta = [];
         $respuesta['consulta'] = $this->getSQLConsulta();
         if ($smt) {

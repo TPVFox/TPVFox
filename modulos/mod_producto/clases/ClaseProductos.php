@@ -56,11 +56,17 @@ class ClaseProductos extends ClaseTablaArticulos
         $respuesta = array();
         $filtro = '';
         $limite = '';
+        $params = array();
         if (isset($filtro_limite['filtro'])) {
             $filtro = $filtro_limite['filtro'];
         }
         if (isset($filtro_limite['limite'])) {
             $limite = $filtro_limite['limite'];
+        }
+        if (isset($filtro_limite['params'])) {
+            // Valores ligados (?) del filtro de búsqueda (plugin de paginación o
+            // ControladorComun::ConstructorLike). El $filtro trae los ?.
+            $params = $filtro_limite['params'];
         }
         $consulta = "SELECT a.idArticulo,a.articulo_name FROM `articulos` AS a "
             . "LEFT JOIN `articulosPrecios` AS p "
@@ -110,7 +116,7 @@ class ClaseProductos extends ClaseTablaArticulos
         }
         if ($consulta !== 'KO') {
             // Obtenemos items de los productos.
-            $respuesta = parent::Consulta($consulta);
+            $respuesta = parent::Consulta($consulta, $params);
         } else {
             $respuesta['error'] = 'Error en campo';
             $respuesta['consulta'] = ' No se realizo consulta, ya que el campo: ' . $campo . '<br/> El campo selecionado y puesto en parametros no es correcto. Recuerda borrar la configuracion de modulo de productos en cada usuario para que vaya correcto.';

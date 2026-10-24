@@ -37,9 +37,10 @@ if (isset($_GET['orden']) && $_GET['orden'] != '') {
 $NPaginado->SetCampoFiltro($campoFiltro);
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+$filtroParams = $NPaginado->GetFiltroParams();
 $CantidadRegistros = 0;
 // Obtenemos la cantidad registros
-$listado = $CFac->TodosFacturaLimite($filtro);
+$listado = $CFac->TodosFacturaLimite($filtro, $filtroParams);
 $CantidadRegistros = count($listado['Items']);
 // --- Ahora envio a NPaginado la cantidad registros --- //
 $NPaginado->SetCantidadRegistros($CantidadRegistros);
@@ -50,7 +51,7 @@ $htmlFiltrar = $NPaginado->htmlFiltrar($estadosFacturas, 'Filtrar por estado');
 $htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
 $htmlOrdenarNumFac = $NPaginado->htmlOrdenar('a.Numfacpro');
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$listado = $CFac->TodosFacturaLimite($filtro . $NPaginado->GetLimitConsulta());
+$listado = $CFac->TodosFacturaLimite($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 $ListadoFacturas = $listado['Items'];
 if (isset($listado['error'])) {
     $errores[] = array(

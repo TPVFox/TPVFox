@@ -36,6 +36,7 @@ $campos = array('t.Numticket', 'c.Nombre', 'c.razonsocial', 't.total');
 
 $NPaginado->SetCamposControler($campos);
 $filtro = $NPaginado->GetFiltroWhere('OR');
+$filtroParams = $NPaginado->GetFiltroParams();
 // Definir estado
 $estado_ticket  = 'Cobrado';
 if (isset($_GET['estado'])) {
@@ -69,7 +70,7 @@ if (!isset($fechas)) {
 if (isset($_GET['idCierre'])) {
     $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'], $_GET['idCierre'], $Tienda['idTienda']);
 } else {
-    $Obtenertickets = $Tickets->obtenerTickets($estado_ticket, $fechas, $filtro);
+    $Obtenertickets = $Tickets->obtenerTickets($estado_ticket, $fechas, $filtro, '', $filtroParams);
 }
 
 if (isset($Obtenertickets['datos'])) {
@@ -94,7 +95,7 @@ $NPaginado->SetCantidadRegistros($CantidadRegistros);
 $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
 // Obtenemos clientes con filtro busqueda y la pagina que estamos.
 if (isset($_GET['idCierre'])) {
-    $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'], $_GET['idCierre'], $Tienda['idTienda'], $filtro . $NPaginado->GetLimitConsulta());
+    $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'], $_GET['idCierre'], $Tienda['idTienda'], $filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 } else {
     $Obtenertickets = $Tickets->obtenerTickets('Cobrado', $fechas, $filtro, $NPaginado->GetLimitConsulta());
 }
