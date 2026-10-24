@@ -1,4 +1,6 @@
 <?php
+
+require_once __DIR__ . '/DB.php';
 /*	Clase para trabajar con tablas de familias.
  * Tablas de familias:
  *  familias
@@ -31,10 +33,9 @@ class ClaseTablaFamilias
 		return $resultado;
 	}
 
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
+		$smt = (new DB($this->db))->pquery($sql, $params);
 		return $smt;
 	}
 }

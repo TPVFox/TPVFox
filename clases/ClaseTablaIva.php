@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/DB.php';
+
 class ClaseTablaIva
 {
 	private $id = 0;
@@ -80,8 +82,7 @@ class ClaseTablaIva
 
 	public function todoIvas()
 	{
-		$db = $this->db;
-		$smt = $db->query('SELECT * FROM iva');
+		$smt = (new DB($this->db))->pquery('SELECT * FROM iva');
 		$ivas = array();
 		while ($result = $smt->fetch_assoc()) {
 			$ivas[] = $result;
@@ -90,8 +91,7 @@ class ClaseTablaIva
 	}
 	public function ivasNoPrincipal($ivaPrincipal)
 	{
-		$db = $this->db;
-		$smt = $db->query('SELECT * FROM iva where iva <>' . $ivaPrincipal);
+		$smt = (new DB($this->db))->pquery('SELECT * FROM iva where iva <> ?', array($ivaPrincipal));
 		$ivas = array();
 		while ($result = $smt->fetch_assoc()) {
 			$ivas[] = $result;
@@ -99,10 +99,9 @@ class ClaseTablaIva
 		return $ivas;
 	}
 
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
+		$smt = (new DB($this->db))->pquery($sql, $params);
 		return $smt;
 	}
 }
