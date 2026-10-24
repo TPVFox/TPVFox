@@ -37,13 +37,26 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv)
     $string = str_replace($buscar, $sustituir, trim($busqueda));
     $palabras = explode(' ', $string); //array de varias palabras, si las hay..
 
-    $likes = array();
-    $whereIdentico = array();
+    // El campo de búsqueda es un identificador (columna): no se puede
+    // parametrizar, así que se restringe a la lista de columnas permitidas.
+    $columnasPermitidas = array('ac.codBarras', 'at.crefTienda', 'a.articulo_name');
+    if (!in_array($campoAbuscar, $columnasPermitidas, true)) {
+        $resultado['Estado'] = 'CampoNoValido';
+        return $resultado;
+    }
+
+    $condLike = array();
+    $paramsLike = array();
+    $condIdentico = array();
+    $paramsIdentico = array();
 
     foreach ($palabras as $key => $palabra) {
         if (trim($palabra) !== '') {
-            $likes[] = $campoAbuscar . ' LIKE "%' . $palabra . '%" ';
-            $whereIdentico[] = $campoAbuscar . ' = "' . $palabra . '"';
+            // La palabra va como parámetro; el campo ya está en la lista blanca.
+            $condLike[] = $campoAbuscar . ' LIKE ?';
+            $paramsLike[] = '%' . $palabra . '%';
+            $condIdentico[] = $campoAbuscar . ' = ?';
+            $paramsIdentico[] = $palabra;
         } else {
             unset($palabras[$key]);
         }
@@ -54,19 +67,19 @@ function BuscarProductos($id_input, $campoAbuscar, $busqueda, $BDTpv)
     $busquedas = array();
 
     if (count($palabras) > 0) {
-        $busquedas[] = implode(' and ', $whereIdentico);
-
-        $busquedas[] = implode(' and ', $likes);
+        $busquedas[] = array('where' => implode(' and ', $condIdentico), 'params' => $paramsIdentico);
+        $busquedas[] = array('where' => implode(' and ', $condLike), 'params' => $paramsLike);
     }
+    $dbl = new DB($BDTpv);
     foreach ($busquedas as $key => $buscar) {
         /* Bandera ($key) nos va indicar si busco por identico o por like */
         $sql = 'SELECT a.`idArticulo` , a.`articulo_name` , a.tipo, ac.`codBarras` , ap.pvpCiva, at.crefTienda , a.`iva` '
             . ' FROM `articulos` AS a LEFT JOIN `articulosCodigoBarras` AS ac '
             . ' ON a.idArticulo = ac.idArticulo LEFT JOIN `articulosPrecios` AS ap '
             . ' ON a.idArticulo = ap.idArticulo AND ap.idTienda =1 LEFT JOIN `articulosTiendas` '
-            . ' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE ' . $buscar . ' LIMIT 0 , 30 ';
+            . ' AS at ON a.idArticulo = at.idArticulo AND at.idTienda =1 WHERE ' . $buscar['where'] . ' LIMIT 0 , 30 ';
         $resultado['sql'] = $sql;
-        $res = $BDTpv->query($sql);
+        $res = $dbl->pquery($sql, $buscar['params']);
 
         $resultado['Nitems'] = $res->num_rows;
         // Al ser identicos, es correcto, eso en la primera busqueda
