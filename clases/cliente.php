@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/DB.php';
+
 class Cliente
 {
 	private $idCliente;
@@ -13,28 +15,16 @@ class Cliente
 	private $fax;
 	private $email;
 	private $estado;
+	/** @var DB Capa de acceso a datos segura (parametrizada). */
+	private $dbl;
 
 	public function __construct($conexion)
 	{
 		$this->db = $conexion;
+		$this->dbl = new DB($conexion);
 		// Obtenemos el numero registros.
-		$sql = 'SELECT count(*) as num_reg FROM clientes';
-		$respuesta = $this->consulta($sql);
-		$this->num_rows = $respuesta->fetch_object()->num_reg;
-		// Ahora deberiamos controlar que hay resultado , si no hay debemos generar un error.
-	}
-	public function consulta($sql)
-	{
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
-		}
+		$filas = $this->dbl->select('SELECT count(*) as num_reg FROM clientes');
+		$this->num_rows = $filas[0]['num_reg'] ?? 0;
 	}
 	public function arrrayDatos($datos)
 	{
@@ -52,55 +42,37 @@ class Cliente
 	}
 	public function DatosClientePorId($idCliente)
 	{
-		$db = $this->db;
-		$sql = 'SELECT * from clientes WHERE idClientes=' . $idCliente;
-		$smt = $this->consulta($sql);
-		if (gettype($smt) === 'array') {
-			$respuesta['error'] = $smt['error'];
-			$respuesta['consulta'] = $smt['consulta'];
-			return $respuesta;
-		} else {
-			if ($result = $smt->fetch_assoc()) {
-				$cliente = $result;
-			}
-			return $cliente;
-		}
+		// Capa DB: el id va como parámetro, no concatenado.
+		$filas = $this->dbl->selectWhere('clientes', ['idClientes' => $idCliente]);
+		return $filas[0] ?? null;
 	}
 
 	public function BuscarClientePorNombre($nombre)
 	{
-		// Buscar por Nombre Comercial o razon social.
-		// y por palabras
-		$palabras = explode(' ', $nombre);
-		$likes = array();
-		foreach ($palabras as $key => $palabra) {
-			// Montamos consulta por palabras de varias palabras, en nombre o razon social
-			$likes[] =  'Nombre LIKE "%' . $palabra . '%" ';
+		// Buscar por Nombre Comercial o razon social, por palabras.
+		$palabras = array_values(array_filter(explode(' ', trim($nombre)), function ($p) {
+			return $p !== '';
+		}));
+		if (count($palabras) === 0) {
+			return ['sql' => '', 'datos' => array()];
 		}
-		$sql = 'SELECT * FROM clientes WHERE ';
-		$whereNombre = '';
-		if (count($likes) > 0) {
-			// Si no hay palabras ya no buscamos por nombre
-			$whereNombre = '(' . implode(' and ', $likes) . ')';
-			$sql .= $whereNombre . ' OR ';
-			// Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
-			$sql .= str_replace('Nombre', 'razonsocial', $whereNombre);
+
+		// Cada palabra va como parámetro LIKE (nunca concatenada).
+		$condNombre = array();
+		$condRazon = array();
+		foreach ($palabras as $palabra) {
+			$condNombre[] = 'Nombre LIKE ?';
+			$condRazon[] = 'razonsocial LIKE ?';
 		}
-		//~ error_log($sql);
-		$db = $this->db;
-		$smt = $this->consulta($sql);
-		if (gettype($smt) === 'array') {
-			$respuesta['error'] = $smt['error'];
-			$respuesta['consulta'] = $smt['consulta'];
-			return $respuesta;
-		} else {
-			$clientePrincipal = array();
-			while ($result = $smt->fetch_assoc()) {
-				array_push($clientePrincipal, $result);
-			}
-			$respuesta['sql'] = $sql;
-			$respuesta['datos'] = $clientePrincipal;
-			return $respuesta;
-		}
+		$sql = 'SELECT * FROM clientes WHERE (' . implode(' AND ', $condNombre) . ')'
+			. ' OR (' . implode(' AND ', $condRazon) . ')';
+
+		$like = array_map(function ($p) {
+			return '%' . $p . '%';
+		}, $palabras);
+		$params = array_merge($like, $like); // primero para Nombre, luego para razonsocial
+
+		$datos = $this->dbl->select($sql, $params);
+		return ['sql' => $sql, 'datos' => $datos];
 	}
 }
