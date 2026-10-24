@@ -7,6 +7,7 @@
  * @Descripcion	Funciones en php para modulo TPV
  * */
 include_once './../../inicial.php';
+require_once __DIR__ . '/../../clases/DB.php';
 
 function BuscarProductos($idcaja, $campoAbuscar, $busqueda, $BDTpv, $idCliente)
 {
@@ -598,7 +599,7 @@ function modificarArrayPedidos($pedidos, $BDTpv)
 	$respuesta = array();
 	$i = 1;
 	foreach ($pedidos as $pedido) {
-		$datosPedido = $BDTpv->query('SELECT * FROM pedclit WHERE id= ' . $pedido['idPedido']);
+		$datosPedido = (new DB($BDTpv))->pquery('SELECT * FROM pedclit WHERE id= ?', array($pedido['idPedido']));
 		while ($fila = $datosPedido->fetch_assoc()) {
 			$ped = $fila;
 		}
