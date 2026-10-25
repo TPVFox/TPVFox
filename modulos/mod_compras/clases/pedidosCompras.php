@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once $URLCom . '/modulos/mod_compras/clases/ClaseCompras.php';
 
 class PedidosCompras extends ClaseCompras
@@ -843,8 +844,8 @@ class PedidosCompras extends ClaseCompras
         //$total->El total del pedido
         //$total_ivas->la suma de todos los ivas
         $db = $this->db;
-        $sql = 'UPDATE pedprotemporales set total=' . $total . ' , total_ivas=' . $totalivas . ' where id=' . $res;
-        $smt = $db->query($sql);
+        $sql = 'UPDATE pedprotemporales set total=? , total_ivas=? where id=?';
+        $smt = (new DB($db))->execute($sql, array($total, $totalivas, $res));
         $resultado['sql'] = $sql;
         return $resultado;
     }
@@ -856,8 +857,8 @@ class PedidosCompras extends ClaseCompras
         // $idTemporal-> id del pedido temporal que hemos creado anteriormente
         // $idReal-> id del pedido real que estamos modificando
         $db = $this->db;
-        $sql = 'UPDATE pedprotemporales set idPedpro=' . $idReal . '  where id=' . $idTemporal;
-        $smt = $db->query($sql);
+        $sql = 'UPDATE pedprotemporales set idPedpro=?  where id=?';
+        $smt = (new DB($db))->execute($sql, array($idReal, $idTemporal));
         //~ return $resultado;
     }
     public function getEstadosPedidos()
