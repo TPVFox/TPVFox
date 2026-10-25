@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once $URLCom . '/modulos/mod_venta/clases/ClaseVentas.php';
 
 class FacturasVentas extends ClaseVentas
@@ -262,7 +263,7 @@ class FacturasVentas extends ClaseVentas
 		//@Objetivo:
 		//Buscar el id de una factura real
 		$db = $this->db;
-		$smt = $db->query('SELECT id FROM facclit WHERE Numfaccli= ' . $numFactura);
+		$smt = (new DB($db))->pquery('SELECT id FROM facclit WHERE Numfaccli= ?', array($numFactura));
 		if ($result = $smt->fetch_assoc()) {
 			$factura = $result;
 		}
@@ -310,17 +311,12 @@ class FacturasVentas extends ClaseVentas
 		return $respuesta;
 	}
 
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
-		if ($smt) {
-			return $smt;
-		} else {
-			$respuesta = array();
-			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
-			return $respuesta;
+		try {
+			return (new DB($this->db))->pquery($sql, $params);
+		} catch (\Throwable $e) {
+			return array('consulta' => $sql, 'error' => $e->getMessage());
 		}
 	}
 
@@ -516,8 +512,8 @@ class FacturasVentas extends ClaseVentas
 		//@Objetivo:
 		//Selecciona el importe iva y total base de una factura real
 		$db = $this->db;
-		$smt = $db->query('select sum(importeIva ) as importeIva , sum(totalbase) as
-		  totalbase from faccliIva where  Numfaccli  =' . $numFactura);
+		$smt = (new DB($db))->pquery('select sum(importeIva ) as importeIva , sum(totalbase) as
+		  totalbase from faccliIva where  Numfaccli  =?', array($numFactura));
 		if ($result = $smt->fetch_assoc()) {
 			$factura = $result;
 		}

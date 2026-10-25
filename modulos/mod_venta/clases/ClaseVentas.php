@@ -1,5 +1,6 @@
 <?php
 // Clase base para modulo de compras.
+require_once __DIR__ . '/../../../clases/DB.php';
 include_once $URLCom . '/clases/traits/MontarAdvertenciaTrait.php';
 
 class ClaseVentas
@@ -9,13 +10,16 @@ class ClaseVentas
     public $db; //(Objeto) Es la conexion;
     public $affected_rows; // Numero filas que afecto la consulta, se guarda cuando hacemos una consulta.
     public $insert_id; // id del registro insertado. ( ojo.. como sabe que el campo es id)
-    public function consulta($sql)
+    public function consulta($sql, $params = [])
     {
-        // Realizamos la consulta.
+        // Realizamos la consulta a traves de la capa DB parametrizada.
         $db = $this->db;
-        $smt = $db->query($sql);
+        $smt = (new DB($db))->pquery($sql, $params);
         if ($smt) {
             return $smt;
+        } elseif ($db->error === '') {
+            // INSERT/UPDATE/DELETE con exito: get_result() devuelve false sin error.
+            return true;
         } else {
             $respuesta = array();
             $respuesta['consulta'] = $sql;
