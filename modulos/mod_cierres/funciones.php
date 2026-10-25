@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../clases/DB.php';
+
 function ticketsPorFechaUsuario($fechaInicio, $BDTpv, $fechaFinal)
 {
 	// Objetivo:
@@ -11,10 +13,10 @@ function ticketsPorFechaUsuario($fechaInicio, $BDTpv, $fechaFinal)
 	//Obtenemos los ticket Abiertos
 
 	//muestro datos del ticket donde fecha mayor fecha inicio y menor que nueva fecha (fecha+1)
-	$sql = 'SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN "' . $fechaInicio . '"'
-		. ' AND "' . $fechaFinal . '" and `estado`="Cobrado"';
+	$sql = 'SELECT * FROM `ticketst` WHERE DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN ?'
+		. ' AND ? and `estado`="Cobrado"';
 
-	$resp = $BDTpv->query($sql);
+	$resp = (new DB($BDTpv))->pquery($sql, array($fechaInicio, $fechaFinal));
 
 
 	if ($resp->num_rows > 0) {
@@ -70,8 +72,8 @@ function nombreUsuario($BDTpv, $idUsuario)
 {
 	//$sql='SELECT username,nombre FROM `usuarios` WHERE `id`='.$idUsuario;
 	$sql = ' SELECT u.username, u.nombre, t.Numticket FROM `usuarios` AS u '
-		. 'LEFT JOIN `ticketst` AS t  ON t.idUsuario = u.id WHERE t.idUsuario=' . $idUsuario;
-	$resp = $BDTpv->query($sql);
+		. 'LEFT JOIN `ticketst` AS t  ON t.idUsuario = u.id WHERE t.idUsuario=?';
+	$resp = (new DB($BDTpv))->pquery($sql, array($idUsuario));
 	$resultado = array();
 	if ($resp->num_rows > 0) {
 		while ($fila = $resp->fetch_assoc()) {
@@ -90,7 +92,7 @@ function fechaMaxMinTickets($BDTpv)
 	$respuesta = array();
 	$sql = 'SELECT UNIX_TIMESTAMP(min(`Fecha`)) as fechaMin, UNIX_TIMESTAMP(max(`Fecha`)) as fechaMax '
 		. ' FROM `ticketst` WHERE `estado` = "Cobrado" ';
-	$resp = $BDTpv->query($sql);
+	$resp = (new DB($BDTpv))->pquery($sql);
 	while ($fila = $resp->fetch_assoc()) {
 		$respuesta['fechas'] = $fila;
 	}
@@ -134,10 +136,10 @@ function InsertarProceso1Cierres($BDTpv, $datosCierre)
 	$fFinalSinHora = $datosCierre['FfinalSINhora'];
 	//en mysql formato fecha es 'Y-m-d' y aqui trabajamos con 'd-m-Y'
 	//convierto fecha a string para insertar en cierres, formateo fecha para insertar sql
-	$formateoFechaInicio = ' STR_TO_DATE("' . $FechaInicio . '","' . $fecha_dmYHora . '") ';
-	$formateoFechaFinal = ' STR_TO_DATE("' . $FechaFinal . '","' . $fecha_dmYHora . '")  ';
-	$formateoFechaCierre = ' STR_TO_DATE("' . $fechaCierre . '","' . $fecha_dmY . '") '; //fecha sin hora
-	$formateoFechaCreacion = ' STR_TO_DATE("' . $fechaCreacion . '","' . $fecha_dmYHora . '") '; //fecha sin hora
+	$formateoFechaInicio = ' STR_TO_DATE(?,"' . $fecha_dmYHora . '") ';
+	$formateoFechaFinal = ' STR_TO_DATE(?,"' . $fecha_dmYHora . '")  ';
+	$formateoFechaCierre = ' STR_TO_DATE(?,"' . $fecha_dmY . '") '; //fecha sin hora
+	$formateoFechaCreacion = ' STR_TO_DATE(?,"' . $fecha_dmYHora . '") '; //fecha sin hora
 
 	// Las lineas anteriores su revisamos el código es innecesario.
 	// --------------  Fin bloque que se puede eliminar una vez revisado codigo.   ------------- //
@@ -145,24 +147,29 @@ function InsertarProceso1Cierres($BDTpv, $datosCierre)
 
 
 	$estadoCierre = 'Cerrado';
-	$insertCierre = 'INSERT INTO ' . $tabla . ' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES ("'
-		. $idTienda . '" , "' . $idUsuario . '" ,  ' . $formateoFechaInicio . ' , ' . $formateoFechaFinal . ' , '
-		. ' "' . $total . '" , ' . $formateoFechaCierre . ' , ' . $formateoFechaCreacion . ' )';
+	// $rangoTickets ya viene como '(id,id,...)' con ids numericos (implode de rangoTickets).
+	// IN (...) no es ligable con un unico ?, asi que saneamos cada id a int.
+	// TODO: revisar (lista IN con ids saneados a int; el resto de valores van por ?)
+	$rangoTicketsInts = array_map('intval', $datosCierre['rangoTickets']);
+	$rangoTickets = '(' . implode(',', $rangoTicketsInts) . ')';
+	$insertCierre = 'INSERT INTO ' . $tabla . ' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES (?'
+		. ' , ? ,  ' . $formateoFechaInicio . ' , ' . $formateoFechaFinal . ' , '
+		. ' ? , ' . $formateoFechaCierre . ' , ' . $formateoFechaCreacion . ' )';
 	error_log($insertCierre);
 	//Cambiamos estado de tickets estado  lo pasamao a Cerrado
-	$updateEstado = 'UPDATE ticketst SET `estado`= "' . $estadoCierre . '" WHERE `estado` = "Cobrado"'
-		. ' AND DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN "' . strftime("%Y-%m-%d", $FI_unix) . '"'
-		. ' AND "' . strftime("%Y-%m-%d", $FF_unix) . '" AND id IN ' . $rangoTickets;
+	$updateEstado = 'UPDATE ticketst SET `estado`= ? WHERE `estado` = "Cobrado"'
+		. ' AND DATE_FORMAT(`Fecha`,"%Y-%m-%d") BETWEEN ?'
+		. ' AND ? AND id IN ' . $rangoTickets;
 	//Comprobamos que los tickets estan en estado cobrado
 	$selectEstado = 'SELECT count(*) as num_tickets FROM ticketst WHERE `estado` = "Cobrado"'
 		. 'AND id IN ' . $rangoTickets;
-	$resultado_comprobacion = $BDTpv->query($selectEstado);
+	$resultado_comprobacion = (new DB($BDTpv))->pquery($selectEstado);
 	$row_comprobacion = $resultado_comprobacion->fetch_assoc();
 	//error_log(json_encode($selectEstado));
 	error_log('Entro' . json_encode($row_comprobacion));
 	//Este update creo que le sobra intervalo de fechas , ya que ponemos rangotickets que son los tickets.
 	if ($row_comprobacion['num_tickets'] > 0) {
-		if ($BDTpv->query($insertCierre) === true) {
+		if ((new DB($BDTpv))->execute($insertCierre, array($idTienda, $idUsuario, $FechaInicio, $FechaFinal, $total, $fechaCierre, $fechaCreacion)) > 0) {
 			$idCierre = $BDTpv->insert_id; //crea id en bbddd
 			$resultado['insertarCierre'] = 'Correcto';
 			$resultado['idCierre'] = $idCierre;
@@ -175,9 +182,10 @@ function InsertarProceso1Cierres($BDTpv, $datosCierre)
 	}
 	if (!isset($resultado['error'])) {
 		// Realizamo UPDATE de ticketst
-		if ($BDTpv->query($updateEstado) === true) {
+		$nAfectadosUpdate = (new DB($BDTpv))->execute($updateEstado, array($estadoCierre, strftime("%Y-%m-%d", $FI_unix), strftime("%Y-%m-%d", $FF_unix)));
+		if ($nAfectadosUpdate >= 0) {
 			//actualizacion hecha
-			$resultado['Nafectados_CambioEstado_tickets'] = $BDTpv->affected_rows;
+			$resultado['Nafectados_CambioEstado_tickets'] = $nAfectadosUpdate;
 			$resultado['update_estado'] = 'Correcto';
 		} else {
 			// Quiere decir que hubo error en insertar en cierres
@@ -222,8 +230,8 @@ function insertarCierre_IVAS($BDTpv, $datosCierre, $idCierre)
 
 		//~ //inserto por cada iva, su sumaBase y su sumaIva
 		$sql[$i] = 'INSERT INTO `cierres_ivas`(`idCierre`, `idTienda`, `tipo_iva`, `importe_base`, `importe_iva`) '
-			. ' VALUES (' . $idCierre . ' , ' . $idTienda . ' , "' . $iva[$key] . '" , "' . $sumaBase[$key] . '" , "' . $sumaIva[$key] . '")';
-		if ($BDTpv->query($sql[$i]) === true) {
+			. ' VALUES (?, ?, ?, ?, ?)';
+		if ((new DB($BDTpv))->execute($sql[$i], array($idCierre, $idTienda, $iva[$key], $sumaBase[$key], $sumaIva[$key])) > 0) {
 			$resultado['insertar_ivas_cierre'] = 'Correcto';
 		} else {
 			// Quiere decir que hubo error en insertar en cierresIvas
@@ -261,11 +269,11 @@ function insertarUsuariosCierre($BDTpv, $datosCierre, $idCierre)
 			//x es contador por cada usuario, nombre= nombreFpago
 			$sqlFpagoCierres[$x][$nombre] = 'INSERT INTO `cierres_usuariosFormasPago` '
 				. ' ( `idCierre`, `idTienda`, `idUsuario`, `FormasPago`, `importe`) '
-				. ' VALUES (' . $idCierre . ',' . $idTienda . ',' . $idUsuario . ',"' . $nombre . '","' . $importe . '")';
+				. ' VALUES (?, ?, ?, ?, ?)';
 
 			$resultado['sqlFormaPago'][$x] = $sqlFpagoCierres[$x][$nombre];
 
-			if ($BDTpv->query($sqlFpagoCierres[$x][$nombre]) === true) {
+			if ((new DB($BDTpv))->execute($sqlFpagoCierres[$x][$nombre], array($idCierre, $idTienda, $idUsuario, $nombre, $importe)) > 0) {
 				$resultado['insertar_FpagoCierres'] = 'Correcto';
 			} else {
 				// Quiere decir que hubo error en insertar en cierresIvas
@@ -283,9 +291,9 @@ function insertarUsuariosCierre($BDTpv, $datosCierre, $idCierre)
 		//$resultado['pr']=$sumaImporte[$idUsuario];
 		$sqlUsuariosCierre[$x] = 'INSERT INTO `cierres_usuarios_tickets` '
 			. ' ( `idCierre`, `idUsuario`, `idTienda`, `Importe`, `Num_ticket_inicial`, `Num_ticket_final`) '
-			. ' VALUES (' . $idCierre . ' ,  ' . $idUsuario . ', ' . $idTienda . ' , "' . $sumaImporte[$idUsuario] . '" ,' . $num_ticket_inicial . ',' . $num_ticket_final . ')';
+			. ' VALUES (?, ?, ?, ?, ?, ?)';
 		$resultado['sqlUsuarios'][$x] = $sqlUsuariosCierre[$x];
-		if ($BDTpv->query($sqlUsuariosCierre[$x]) === true) {
+		if ((new DB($BDTpv))->execute($sqlUsuariosCierre[$x], array($idCierre, $idUsuario, $idTienda, $sumaImporte[$idUsuario], $num_ticket_inicial, $num_ticket_final)) > 0) {
 			$resultado['insertarTickets_usuarios'] = 'Correcto';
 		} else {
 			// Quiere decir que hubo error en insertar en cierresIvas
@@ -309,21 +317,21 @@ function obtenerCierreUnico($BDTpv, $idCierre)
 	$sqlUsuarioTickets = 'SELECT usuarioTicket.*, nombreUsu.username '
 		. ' FROM cierres_usuarios_tickets as usuarioTicket '
 		. ' LEFT JOIN usuarios as nombreUsu ON nombreUsu.id = usuarioTicket.idUsuario '
-		. 'WHERE usuarioTicket.idCierre = "' . $idCierre . '"';
+		. 'WHERE usuarioTicket.idCierre = ?';
 
 
 	//consultamos cierres_usuariosFormasPago
 	$consultaFpago = ' SELECT fpago.*, u.username FROM cierres_usuariosFormasPago as fpago '
 		. ' LEFT JOIN usuarios AS u ON fpago.idUsuario = u.id '
-		. ' WHERE fpago.idCierre = "' . $idCierre . '"';
+		. ' WHERE fpago.idCierre = ?';
 
 	//ataco cierres y cierres_ivas
 	$consulta =	' SELECT cierre.*, ivas.* '
 		. ' FROM `cierres` as cierre '
 		. ' INNER JOIN `cierres_ivas` as ivas ON cierre.idCierre = ivas.idCierre '
-		. ' WHERE cierre.idCierre =  "' . $idCierre . '"';
+		. ' WHERE cierre.idCierre =  ?';
 	//montaje de cierres segun el idCierre y los ivas segun idCierre y tipos de ivas
-	$Resql = $BDTpv->query($consulta);
+	$Resql = (new DB($BDTpv))->pquery($consulta, array($idCierre));
 	$i = 0;
 	while ($datos = $Resql->fetch_assoc()) {
 		$resultado['cierres'][$idCierre]['FechaCierre'] = $datos['FechaCierre'];
@@ -342,7 +350,7 @@ function obtenerCierreUnico($BDTpv, $idCierre)
 	}
 
 	//montaje de array fpago, por usuarios
-	$sqlFpago = $BDTpv->query($consultaFpago);
+	$sqlFpago = (new DB($BDTpv))->pquery($consultaFpago, array($idCierre));
 
 	while ($fpago = $sqlFpago->fetch_assoc()) {
 		$idUsuario = $fpago['idUsuario'];
@@ -354,7 +362,7 @@ function obtenerCierreUnico($BDTpv, $idCierre)
 	}
 
 	//montaje de array de usuarios tickets cierres
-	$sqlUsuario = $BDTpv->query($sqlUsuarioTickets);
+	$sqlUsuario = (new DB($BDTpv))->pquery($sqlUsuarioTickets, array($idCierre));
 	$z = 0;
 	while ($usuarios = $sqlUsuario->fetch_assoc()) {
 		$resultado['usuario'][$z]['nombreUsuario'] = $usuarios['username'];
@@ -410,7 +418,7 @@ function obtenerTicketAbiertos($BDTpv, $fechaInicio, $fechaFinal)
 		. ' LEFT JOIN usuarios as u ON u.id=t.idUsuario'
 		. ' WHERE  t.`estadoTicket`="Abierto" GROUP BY `idUsuario` ';
 
-	$respAbiertos = $BDTpv->query($sqlAbiertos);
+	$respAbiertos = (new DB($BDTpv))->pquery($sqlAbiertos);
 	if ($respAbiertos->num_rows > 0) {
 		while ($row = $respAbiertos->fetch_assoc()) {
 			$resultado[] = $row;
@@ -427,11 +435,11 @@ function obtenerRangoTicketsUsuarioCierre($BDTpv, $idUsuario, $idCierre, $idTien
 	// @ Objetivo :
 	// Obtener el ticke inicial y final para un cierre de un usuario
 	$resultado = array();
-	$sqlUsuarioTickets = 'SELECT Num_ticket_inicial,Num_ticket_final FROM `cierres_usuarios_tickets` WHERE idCierre = ' . $idCierre . ' AND `idUsuario`= ' . $idUsuario . ' AND idTienda = ' . $idTienda;
+	$sqlUsuarioTickets = 'SELECT Num_ticket_inicial,Num_ticket_final FROM `cierres_usuarios_tickets` WHERE idCierre = ? AND `idUsuario`= ? AND idTienda = ?';
 
 	//~ error_log($sqlUsuarioTickets);
 
-	$rangoTickets = $BDTpv->query($sqlUsuarioTickets);
+	$rangoTickets = (new DB($BDTpv))->pquery($sqlUsuarioTickets, array($idCierre, $idUsuario, $idTienda));
 
 	if ($BDTpv->error !== true) {
 		if ($rangoTickets->num_rows === 1) {
@@ -456,6 +464,8 @@ function verSelec($BDTpv, $idSelec, $tabla, $idTienda)
 {
 	//ver seleccionado en check listado
 	// Obtener datos de un id de usuario.
+	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: es un
+	// IDENTIFICADOR y no se puede ligar con ?; debe validarse contra lista blanca).
 	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` '
 		. 'FROM ' . $tabla . ' AS t '
 		. 'LEFT JOIN `ticketslinea` AS l ON l.`idticketst` = t.`id` '
@@ -463,9 +473,9 @@ function verSelec($BDTpv, $idSelec, $tabla, $idTienda)
 		. 'ON c.`idClientes` = t.`idCliente` '
 		. 'LEFT JOIN `usuarios` AS u '
 		. 'ON u.`id` = t.`idUsuario` '
-		. 'WHERE `idTienda` =' . $idTienda . ' AND t.`id` = ' . $idSelec;
+		. 'WHERE `idTienda` =? AND t.`id` = ?';
 
-	$resultsql = $BDTpv->query($consulta);
+	$resultsql = (new DB($BDTpv))->pquery($consulta, array($idTienda, $idSelec));
 	if (mysqli_error($BDTpv)) {
 		$fila['error'] = 'Error en la consulta ' . $BDTpv->errno;
 	} else {
@@ -473,7 +483,7 @@ function verSelec($BDTpv, $idSelec, $tabla, $idTienda)
 			$fila['error'] = ' No se a encontrado ticket cobrado';
 		}
 	}
-	if ($resultsql = $BDTpv->query($consulta)) {
+	if ($resultsql = (new DB($BDTpv))->pquery($consulta, array($idTienda, $idSelec))) {
 		while ($datos = $resultsql->fetch_assoc()) {
 			$fila[] = $datos;
 		}
@@ -499,10 +509,13 @@ function baseIva($BDTpv, $idticketst)
 	//seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
 
 
+	// TODO: revisar ($idticketst llega como lista separada por comas para un IN (...);
+	// IN no es ligable con un unico ?, asi que saneamos cada id a int.)
+	$idticketstInts = implode(',', array_map('intval', explode(',', (string) $idticketst)));
 	$sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
 		. ' FROM `ticketstIva` '
-		. ' WHERE `idticketst` IN (' . $idticketst . ') GROUP BY `iva`';
-	$resp = $BDTpv->query($sql);
+		. ' WHERE `idticketst` IN (' . $idticketstInts . ') GROUP BY `iva`';
+	$resp = (new DB($BDTpv))->pquery($sql);
 	$resultado = array();
 	if ($resp->num_rows > 0) {
 		$i = 0;
@@ -531,9 +544,11 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla)
 	$buscar1 = 'Nombre';
 	$buscar2 = 'razonsocial';
 	$buscar3 = 'nif';
-	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE ' . $buscar1 . ' LIKE "%' . $busqueda . '%" OR '
-		. $buscar2 . ' LIKE "%' . $busqueda . '%" OR ' . $buscar3 . ' LIKE "%' . $busqueda . '%"';
-	$res = $BDTpv->query($sql);
+	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: identificador
+	// no ligable con ?; debe validarse contra lista blanca. $buscar1/2/3 son constantes.)
+	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE ' . $buscar1 . ' LIKE ? OR '
+		. $buscar2 . ' LIKE ? OR ' . $buscar3 . ' LIKE ?';
+	$res = (new DB($BDTpv))->pquery($sql, array('%' . $busqueda . '%', '%' . $busqueda . '%', '%' . $busqueda . '%'));
 
 	//compruebo error en consulta
 	if (mysqli_error($BDTpv)) {
@@ -616,8 +631,10 @@ function htmlClientes($busqueda, $dedonde, $clientes = array())
 // Busca los tipos de iva
 function tiposIva($BDTpv, $tabla)
 {
+	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: identificador
+	// no ligable con ?; debe validarse contra lista blanca. No hay valores que ligar.)
 	$sql = 'SELECT iva FROM ' . $tabla;
-	if ($ResConsulta = $BDTpv->query($sql)) {
+	if ($ResConsulta = (new DB($BDTpv))->pquery($sql)) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
 		}
@@ -636,8 +653,10 @@ function sumDatosIva($BDTpv, $iva, $filtro = '')
 	if ($filtro !== '') {
 		$filtro = ' AND ( c.' . $filtro . ')';
 	}
-	$sql = 'SELECT c.FechaCierre,SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas as ci LEFT JOIN cierres as c ON ci.idCierre= c.idCierre where (ci.tipo_iva="' . $iva . '")' . $filtro;
-	$ResConsulta = $BDTpv->query($sql);
+	// TODO: revisar ($filtro es un fragmento SQL crudo recibido por parametro -condicion
+	// sobre c.<columna>-: no es un valor ligable con ?; debe validarse en origen.)
+	$sql = 'SELECT c.FechaCierre,SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas as ci LEFT JOIN cierres as c ON ci.idCierre= c.idCierre where (ci.tipo_iva=?)' . $filtro;
+	$ResConsulta = (new DB($BDTpv))->pquery($sql, array($iva));
 	if ($ResConsulta) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado = $fila;
@@ -653,8 +672,8 @@ function sumDatosIva($BDTpv, $iva, $filtro = '')
 
 function UsuariosCierre($BDTpv, $fecha1, $fecha2)
 {
-	$sql = 'select idUsuario, sum(importe) AS importe from cierres_usuarios_tickets where idUsuario in (select id from usuarios) and idCierre in (select idCierre from cierres where FechaCierre BETWEEN "' . $fecha1 . '" and "' . $fecha2 . '") group by idUsuario ';
-	if ($ResConsulta = $BDTpv->query($sql)) {
+	$sql = 'select idUsuario, sum(importe) AS importe from cierres_usuarios_tickets where idUsuario in (select id from usuarios) and idCierre in (select idCierre from cierres where FechaCierre BETWEEN ? and ?) group by idUsuario ';
+	if ($ResConsulta = (new DB($BDTpv))->pquery($sql, array($fecha1, $fecha2))) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
 		}
@@ -665,8 +684,8 @@ function UsuariosCierre($BDTpv, $fecha1, $fecha2)
 //Según el id del usuario mostrar todos sus datos
 function datosUsuario($BDTpv, $idUsuario)
 {
-	$sql = 'Select nombre from usuarios where id=' . $idUsuario;
-	$ResConsulta = $BDTpv->query($sql);
+	$sql = 'Select nombre from usuarios where id=?';
+	$ResConsulta = (new DB($BDTpv))->pquery($sql, array($idUsuario));
 	$fila = $ResConsulta->fetch_assoc();
 	$resultado = $fila;
 	return $resultado;
@@ -674,8 +693,8 @@ function datosUsuario($BDTpv, $idUsuario)
 //MUestra todos las formasd de pago y el total de veces que se cobro con esa forma de pago en un intervalo de fechas
 function cantMOdPago($BDTpv, $fecha1, $fecha2)
 {
-	$sql = 'select FormasPago, COUNT(FormasPago) as total, sum(importe) as importe from cierres_usuariosFormasPago where idCierre in (select idCierre from cierres where FechaCierre BETWEEN "' . $fecha1 . '" and "' . $fecha2 . '") group by FormasPago';
-	if ($ResConsulta = $BDTpv->query($sql)) {
+	$sql = 'select FormasPago, COUNT(FormasPago) as total, sum(importe) as importe from cierres_usuariosFormasPago where idCierre in (select idCierre from cierres where FechaCierre BETWEEN ? and ?) group by FormasPago';
+	if ($ResConsulta = (new DB($BDTpv))->pquery($sql, array($fecha1, $fecha2))) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
 		}
