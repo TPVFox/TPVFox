@@ -1,12 +1,14 @@
 <?php
+require_once __DIR__ . '/../../clases/DB.php';
 function verSelec($BDTpv, $idSelec, $tabla)
 {
     //ver seleccionado en check listado
     // Obtener datos de un id de usuario.
-    $where = 'idProveedor = ' . $idSelec;
-    $consulta = 'SELECT * FROM ' . $tabla . ' WHERE ' . $where;
+    $where = 'idProveedor = ?';
+    // $tabla es un identificador (nombre de tabla): no se liga con ?, se valida con DB::ident().
+    $consulta = 'SELECT * FROM ' . DB::ident($tabla) . ' WHERE ' . $where;
 
-    $unaOpc = $BDTpv->query($consulta);
+    $unaOpc = (new DB($BDTpv))->pquery($consulta, array($idSelec));
     if (mysqli_error($BDTpv)) {
         $fila['error'] = 'Error en la consulta ' . $BDTpv->errno;
     } else {

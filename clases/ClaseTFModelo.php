@@ -4,6 +4,7 @@
  *  DDL, DML y DCL  https://todopostgresql.com/diferencias-entre-ddl-dml-y-dcl/
  */
 
+require_once __DIR__ . '/DB.php';
 require_once $RutaServidor . $HostNombre . '/modulos/claseModeloP.php';
 include_once $URLCom . '/clases/traits/DesglosaDatosPorNombreTrait.php';
 /**
@@ -35,7 +36,7 @@ class TFModelo extends ModeloP
         return $respuesta;
     }
 
-    protected function consultaDML($sql)
+    protected function consultaDML($sql, $params = [])
     {
         // @ Objetivo:
         // Hacer consultas SQL de tipo DML son las que permiten visualizar y modificar los datos de las tablas (INSERT, UPDATE, DELETE)
@@ -46,19 +47,15 @@ class TFModelo extends ModeloP
         // $ respuesta  = false si hubo error, que podemos recuperar con $this->getFallo.
         //               array() con affected_rows y insert_id
         $db = parent::getDbo();
-        $smt = $db->query($sql);
-
-        // $smt = Puede ser false o true en Delete,Insert,Update....
-        if ($smt === false) {
-            // hubo un error, lo añadimos a errores.
-            $error = $db->error;
-            $this->setFallo($sql, $error);
-            $respuesta = false; // Devolvemos falso.
-
-        } else {
+        try {
+            $afectados = (new DB($db))->execute($sql, $params);
             $respuesta = array();
-            $respuesta['affected_rows'] = $db->affected_rows; // devolvemos cuantos fueron afectados
-            $respuesta['insert_id'] = $db->insert_id;
+            $respuesta['affected_rows'] = $afectados; // devolvemos cuantos fueron afectados
+            $respuesta['insert_id'] = $db->insert_id; // misma conexion: insert_id sigue disponible
+        } catch (\Throwable $e) {
+            // hubo un error, lo añadimos a errores.
+            $this->setFallo($sql, $e->getMessage());
+            $respuesta = false; // Devolvemos falso.
         }
         return $respuesta;
     }
@@ -219,10 +216,12 @@ class TFModelo extends ModeloP
          */
         $Bd = parent::getDbo();
         $fila = array();
-        $consulta = 'SHOW TABLE STATUS WHERE `name`="' . $tabla . '"';
-        $Queryinfo = $Bd->query($consulta);
+        $consulta = 'SHOW TABLE STATUS WHERE `name`=?';
+        // TODO: revisar - $tabla se liga por ? (es un valor); num_rows sustituye a affected_rows
+        // porque la capa DB usa sentencias preparadas y la conexion ya no expone el conteo de filas del SELECT.
+        $Queryinfo = (new DB($Bd))->pquery($consulta, array($tabla));
         // Hay que tener en cuenta que no produce ningún error...
-        $Ntablas = $Bd->affected_rows;
+        $Ntablas = $Queryinfo ? $Queryinfo->num_rows : 0;
         if ($Ntablas == 0) {
             $fila['error'] = 'Error tabla no encontrada - ' . $tabla;
         } else {
@@ -230,9 +229,10 @@ class TFModelo extends ModeloP
         }
         if (!isset($fila['error'])) {
             $campos = array();
-            $sqlShow = 'SHOW COLUMNS FROM ' . $tabla;
+            // TODO: revisar - $tabla es un IDENTIFICADOR (no ligable por ?); se valida con DB::ident().
+            $sqlShow = 'SHOW COLUMNS FROM ' . DB::ident($tabla);
             $fila['consulta_campos'] = $sqlShow;
-            if ($res = $Bd->query($sqlShow)) {
+            if ($res = (new DB($Bd))->pquery($sqlShow)) {
                 while ($dato_campo = $res->fetch_row()) {
                     if ($tipo_campo === 'si') {
                         // Obtenemos nombre campo y tipo de campo.
