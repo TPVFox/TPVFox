@@ -217,7 +217,7 @@ class TFModelo extends ModeloP
         $Bd = parent::getDbo();
         $fila = array();
         $consulta = 'SHOW TABLE STATUS WHERE `name`=?';
-        // TODO: revisar - $tabla se liga por ? (es un valor); num_rows sustituye a affected_rows
+        // Nota: $tabla se liga por ? (es un valor); num_rows sustituye a affected_rows
         // porque la capa DB usa sentencias preparadas y la conexion ya no expone el conteo de filas del SELECT.
         $Queryinfo = (new DB($Bd))->pquery($consulta, array($tabla));
         // Hay que tener en cuenta que no produce ningún error...
@@ -229,7 +229,7 @@ class TFModelo extends ModeloP
         }
         if (!isset($fila['error'])) {
             $campos = array();
-            // TODO: revisar - $tabla es un IDENTIFICADOR (no ligable por ?); se valida con DB::ident().
+            // Nota: $tabla es un IDENTIFICADOR (no ligable por ?); se valida con DB::ident().
             $sqlShow = 'SHOW COLUMNS FROM ' . DB::ident($tabla);
             $fila['consulta_campos'] = $sqlShow;
             if ($res = (new DB($Bd))->pquery($sqlShow)) {

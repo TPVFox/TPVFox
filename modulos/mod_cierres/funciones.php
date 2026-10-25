@@ -149,7 +149,7 @@ function InsertarProceso1Cierres($BDTpv, $datosCierre)
 	$estadoCierre = 'Cerrado';
 	// $rangoTickets ya viene como '(id,id,...)' con ids numericos (implode de rangoTickets).
 	// IN (...) no es ligable con un unico ?, asi que saneamos cada id a int.
-	// TODO: revisar (lista IN con ids saneados a int; el resto de valores van por ?)
+	// Nota: (lista IN con ids saneados a int; el resto de valores van por ?)
 	$rangoTicketsInts = array_map('intval', $datosCierre['rangoTickets']);
 	$rangoTickets = '(' . implode(',', $rangoTicketsInts) . ')';
 	$insertCierre = 'INSERT INTO ' . $tabla . ' (idTienda, idUsuario, FechaInicio, FechaFinal, Total, FechaCierre, FechaCreacion) VALUES (?'
@@ -464,10 +464,10 @@ function verSelec($BDTpv, $idSelec, $tabla, $idTienda)
 {
 	//ver seleccionado en check listado
 	// Obtener datos de un id de usuario.
-	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: es un
-	// IDENTIFICADOR y no se puede ligar con ?; debe validarse contra lista blanca).
+	// $tabla es un IDENTIFICADOR (no ligable con ?): se valida con DB::ident(),
+	// que sólo admite [A-Za-z_][A-Za-z0-9_]* y lo entrecomilla con backticks.
 	$consulta = ' SELECT l.* , t.*, c.`idClientes`, u.`username`, c.`razonsocial`, c.`Nombre` '
-		. 'FROM ' . $tabla . ' AS t '
+		. 'FROM ' . DB::ident($tabla) . ' AS t '
 		. 'LEFT JOIN `ticketslinea` AS l ON l.`idticketst` = t.`id` '
 		. 'LEFT JOIN `clientes` AS c '
 		. 'ON c.`idClientes` = t.`idCliente` '
@@ -509,7 +509,7 @@ function baseIva($BDTpv, $idticketst)
 	//seria idtickets de ticketstIva es la relacion de id de ticketst, porque 2 usuarios pueden tener mismo NumTicket.
 
 
-	// TODO: revisar ($idticketst llega como lista separada por comas para un IN (...);
+	// Nota: ($idticketst llega como lista separada por comas para un IN (...);
 	// IN no es ligable con un unico ?, asi que saneamos cada id a int.)
 	$idticketstInts = implode(',', array_map('intval', explode(',', (string) $idticketst)));
 	$sql = 'SELECT SUM(`importeIva`) AS importeIva, SUM(`totalbase`) AS importeBase, iva '
@@ -544,9 +544,9 @@ function BusquedaClientes($busqueda, $BDTpv, $tabla)
 	$buscar1 = 'Nombre';
 	$buscar2 = 'razonsocial';
 	$buscar3 = 'nif';
-	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: identificador
-	// no ligable con ?; debe validarse contra lista blanca. $buscar1/2/3 son constantes.)
-	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . $tabla . ' WHERE ' . $buscar1 . ' LIKE ? OR '
+	// $tabla es un IDENTIFICADOR: se valida con DB::ident(). $buscar1/2/3 son
+	// constantes (nombres de columna) y los valores van ligados con ?.
+	$sql = 'SELECT idClientes, nombre, razonsocial, nif  FROM ' . DB::ident($tabla) . ' WHERE ' . $buscar1 . ' LIKE ? OR '
 		. $buscar2 . ' LIKE ? OR ' . $buscar3 . ' LIKE ?';
 	$res = (new DB($BDTpv))->pquery($sql, array('%' . $busqueda . '%', '%' . $busqueda . '%', '%' . $busqueda . '%'));
 
@@ -631,9 +631,8 @@ function htmlClientes($busqueda, $dedonde, $clientes = array())
 // Busca los tipos de iva
 function tiposIva($BDTpv, $tabla)
 {
-	// TODO: revisar ($tabla es un nombre de tabla recibido por parametro: identificador
-	// no ligable con ?; debe validarse contra lista blanca. No hay valores que ligar.)
-	$sql = 'SELECT iva FROM ' . $tabla;
+	// $tabla es un IDENTIFICADOR: se valida con DB::ident(). No hay valores que ligar.
+	$sql = 'SELECT iva FROM ' . DB::ident($tabla);
 	if ($ResConsulta = (new DB($BDTpv))->pquery($sql)) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado[] = $fila;
