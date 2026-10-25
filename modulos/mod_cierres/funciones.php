@@ -642,7 +642,7 @@ function tiposIva($BDTpv, $tabla)
 	return $resultado;
 }
 //Suma el importe base y el importe iva de un determinado iva
-function sumDatosIva($BDTpv, $iva, $filtro = '')
+function sumDatosIva($BDTpv, $iva, $filtro = '', $filtroParams = [])
 {
 	// @ Objetivo
 	// Sumar bases de un iva de cierres indicados
@@ -653,10 +653,10 @@ function sumDatosIva($BDTpv, $iva, $filtro = '')
 	if ($filtro !== '') {
 		$filtro = ' AND ( c.' . $filtro . ')';
 	}
-	// TODO: revisar ($filtro es un fragmento SQL crudo recibido por parametro -condicion
-	// sobre c.<columna>-: no es un valor ligable con ?; debe validarse en origen.)
+	// $filtro es una condición sobre c.<columna> con placeholders (?); sus
+	// valores llegan en $filtroParams (el llamante no concatena valores).
 	$sql = 'SELECT c.FechaCierre,SUM(importe_base) AS base , SUM(importe_iva) AS iva from cierres_ivas as ci LEFT JOIN cierres as c ON ci.idCierre= c.idCierre where (ci.tipo_iva=?)' . $filtro;
-	$ResConsulta = (new DB($BDTpv))->pquery($sql, array($iva));
+	$ResConsulta = (new DB($BDTpv))->pquery($sql, array_merge(array($iva), $filtroParams));
 	if ($ResConsulta) {
 		while ($fila = $ResConsulta->fetch_assoc()) {
 			$resultado = $fila;

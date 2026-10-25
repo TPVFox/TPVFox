@@ -23,7 +23,7 @@ class ClaseCierres extends ClaseConexion
     }
 
 
-    public function obtenerCierres($filtro = '', $limite = '')
+    public function obtenerCierres($filtro = '', $limite = '', $params = [])
     {
         // Function para obtener cierres y listarlos
         //tablas usadas: - cierres
@@ -36,8 +36,10 @@ class ClaseCierres extends ClaseConexion
         $consulta = "Select c.*, u.nombre as nombreUsuario FROM cierres AS c "
             . " LEFT JOIN usuarios AS u ON c.idUsuario=u.id " . $filtro . $limite;
 
-        // TODO: revisar - $filtro y $limite son fragmentos SQL crudos (WHERE/LIMIT) que llegan como argumentos y no son ligables con ? aquí; la parte parametrizable de esta consulta no concatena valores.
-        $Resql = (new DB($BDTpv))->pquery($consulta);
+        // $filtro/$limite son fragmentos de cláusula (el llamante NO concatena
+        // valores: usa ? y pasa los valores en $params). $limite viene del
+        // plugin de paginación (enteros calculados en servidor).
+        $Resql = (new DB($BDTpv))->pquery($consulta, $params);
         if ($Resql) {
             while ($datos = $Resql->fetch_assoc()) {
                 $resultado[] = $datos;
