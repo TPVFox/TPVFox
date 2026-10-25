@@ -1,4 +1,6 @@
 <?php
+
+require_once __DIR__ . '/DB.php';
 /* Propiedades en minuscula.
  * Metodos en UpperCamelCase
  * */
@@ -47,14 +49,14 @@ class ClaseTablaArticulos
 			$this->db = $conexion;
 			// Obtenemos el numero registros.
 			$sql = 'SELECT count(*) as num_reg FROM articulos';
-			$respuesta = $this->db->query($sql);
+			$respuesta = (new DB($this->db))->pquery($sql);
 			$this->num_rows = $respuesta->fetch_object()->num_reg;
 			// Obtenemos la tienda principal
 			$this->ObtenerTiendaPrincipal();
 		}
 	}
 
-	public function Consulta($sql)
+	public function Consulta($sql, $params = [])
 	{
 		// @ Objetivo:
 		// Realizar una consulta y devolver numero respuesta... o error..
@@ -65,8 +67,7 @@ class ClaseTablaArticulos
 		// Habría que hacer algo como :
 		// http://php.net/manual/es/mysqli-stmt.bind-param.php
 		$respuesta = array();
-		$db = $this->db;
-		$smt = $db->query($sql);
+		$smt = (new DB($this->db))->pquery($sql, $params);
 		if ($smt) {
 			$respuesta['NItems'] = $smt->num_rows;
 			// Hubo resultados
@@ -559,12 +560,11 @@ class ClaseTablaArticulos
 
 		if ($datos['id'] > 0) {
 			// Solo compruebo que se aun numero y superior a 0;
-			$sql = 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES (' . $datos['id'] . ',"' . $datos['pvpCiva'] . '","' . $datos['pvpSiva'] . '",' . $datos['idTienda'] . ')';
+			$sql = 'INSERT INTO `articulosPrecios`(`idArticulo`, `pvpCiva`, `pvpSiva`, `idTienda`) VALUES (?, ?, ?, ?)';
 			$respuesta = array();
-			$DB = $this->db;
-			$smt = $DB->query($sql);
+			$smt = (new DB($this->db))->execute($sql, array($datos['id'], $datos['pvpCiva'], $datos['pvpSiva'], $datos['idTienda']));
 			if ($smt) {
-				$respuesta['Afectados'] = $DB->affected_rows;
+				$respuesta['Afectados'] = $smt;
 				// Hubo resultados
 			} else {
 				// Quiere decir que hubo error en la consulta.
