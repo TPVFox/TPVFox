@@ -149,14 +149,14 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 						foreach ($clientes as $cliente) {
 							$checkUser = $checkUser + 1;
 							if (trim($cliente['movil']) !== '') {
-								$cliente['movil'] = $cliente['movil'] . '<a href="https://web.whatsapp.com/send?phone=34+' . $cliente['movil'] . '">'
+								$cliente['movil'] = escapar($cliente['movil']) . '<a href="https://web.whatsapp.com/send?phone=34+' . escapar($cliente['movil']) . '">'
 									. '<span class="glyphicon glyphicon-comment"></span>'
 									. '</a>';
 							}
 							// Mostrar email
 
 							if ($cliente['email'] <> '') {
-								$email = '<a href="mailto:' . $cliente['email'] . '"><span class="glyphicon glyphicon-envelope"></span><a>';
+								$email = '<a href="mailto:' . escapar($cliente['email']) . '"><span class="glyphicon glyphicon-envelope"></span><a>';
 							} else {
 								$email = '';
 							}
@@ -183,15 +183,15 @@ $contenido = 'Mes de ' . date_format($fecha, 'F Y') . '<br/><br/> Intervalo de f
 									}
 									?>
 								</td>
-								<td><?php echo e($cliente['idClientes']); ?></td>
-								<td><?php echo e($cliente['Nombre']); ?></td>
-								<td><?php echo e($cliente['razonsocial']); ?></td>
-								<td><?php echo e($cliente['nif']); ?></td>
-								<td><?php echo e($cliente['telefono']); ?></td>
-								<td><?php echo e($cliente['movil']); ?></td>
+								<td><?php echo escapar($cliente['idClientes']); ?></td>
+								<td><?php echo escapar($cliente['Nombre']); ?></td>
+								<td><?php echo escapar($cliente['razonsocial']); ?></td>
+								<td><?php echo escapar($cliente['nif']); ?></td>
+								<td><?php echo escapar($cliente['telefono']); ?></td>
+								<td><?php echo $cliente['movil']; ?></td>
 
-								<td><?php echo e($email); ?></td>
-								<td><?php echo e($cliente['estado']); ?></td>
+								<td><?php echo $email; ?></td>
+								<td><?php echo escapar($cliente['estado']); ?></td>
 								<?php
 								$linkImprimir = '&nbsp;<a style="cursor:pointer" class="glyphicon glyphicon-print" ' . "onclick='imprimirFicha(" . $cliente['idClientes'] . ")'></a>";
 								?>

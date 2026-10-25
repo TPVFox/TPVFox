@@ -419,8 +419,8 @@
                                         </td>
                                         <?php
                                         $htmltd = '<td style="cursor:pointer" onclick="UnProductoClick(' . "'" . $producto['idArticulo'] . "'" . ');">';
-                                        echo $htmltd . e($producto['idArticulo']) . '</td>';
-                                        echo $htmltd . e($producto['articulo_name']) . '<br><SUB>' . e($textoFamilia) . '</SUB></td>';
+                                        echo $htmltd . escapar($producto['idArticulo']) . '</td>';
+                                        echo $htmltd . escapar($producto['articulo_name']) . '<br><SUB>' . escapar($textoFamilia) . '</SUB></td>';
                                         if (MostrarColumnaConfiguracion($configuracion['mostrar_lista'], 'codBarras') === 'Si') {
                                             echo '<td>';
                                             if (count($producto['codBarras'])>0) {

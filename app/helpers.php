@@ -33,13 +33,19 @@ if (!function_exists('entreComillas')) {
     }
 }
 
-if (!function_exists('e')) {
-    /**
-     * Escapa una cadena para insertarla de forma segura en HTML (anti-XSS).
-     * Usar SIEMPRE al imprimir datos de usuario o de la BD: echo e($valor).
-     */
-    function e($valor): string
+if (!function_exists('escapar')) {
+    function escapar($valor)
     {
-        return htmlspecialchars((string) ($valor ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        // @ Objetivo:
+        // Preparar un dato para escribirlo en el HTML como texto: sus marcas y comillas no se interpretan.
+        // @ Parametros:
+        // $valor -> El dato. Si es null se escribe vacío.
+        // @ Devolvemos:
+        // (string) El dato listo para el HTML.
+        $texto = '';
+        if ($valor !== null) {
+            $texto = (string) $valor;
+        }
+        return htmlspecialchars($texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }
