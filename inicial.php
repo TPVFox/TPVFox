@@ -34,6 +34,7 @@ if ($error_conf !== '') {
 
 include_once $URLCom . "/clases/ClaseSession.php";
 include_once $URLCom . "/app/helpers.php";
+require_once $URLCom . "/clases/DB.php"; // capa de acceso a datos segura (disponible en todos los módulos)
 
 // Solo creamos objeto si no existe.
 if (!isset($thisTpv)) {

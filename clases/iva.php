@@ -86,8 +86,7 @@ class iva
 	{
 		//~ try{
 		//~ $db = BD::conectar ();
-		$db = $this->db;
-		$smt = $db->query('SELECT * FROM iva');
+		$smt = (new DB($this->db))->pquery('SELECT * FROM iva');
 		$ivasPrincipal = array();
 		while ($result = $smt->fetch_assoc()) {
 			$iva = $this->arrayDatos($result);
@@ -102,8 +101,7 @@ class iva
 	public function ivasNoPrincipal($ivaPrincipal)
 	{
 		try {
-			$db = $this->db;
-			$smt = $db->query('SELECT * FROM iva where iva <>' . $ivaPrincipal);
+			$smt = (new DB($this->db))->pquery('SELECT * FROM iva where iva <> ?', [$ivaPrincipal]);
 			$ivasPrincipal = array();
 			while ($result = $smt->fetch_assoc()) {
 				$iva = $this->arrayDatos($result);
@@ -115,10 +113,9 @@ class iva
 		}
 	}
 
-	public function consulta($sql)
+	public function consulta($sql, $params = [])
 	{
-		$db = $this->db;
-		$smt = $db->query($sql);
-		return $smt;
+		// Pasa por la capa segura; los llamantes deben usar `?` + $params.
+		return (new DB($this->db))->pquery($sql, $params);
 	}
 }
