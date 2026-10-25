@@ -39,7 +39,7 @@ if ($datos_registro['estado'] === 'Creado') {
     // DESARROLLO te puede interesar cambiar $registro_inicial para no estar tanto tiempo esperando.
     $registro_inicial = 0;
     $registro_final = $datos_registro['Registros_originales'];
-    $instruccion = 'python ' . $URLCom . '/lib/py/leerDbf1.py 2>&1 -f ' . $fichero . ' -i ' . $registro_inicial . ' -e ' . $registro_final;
+    $instruccion = 'python ' . $URLCom . '/lib/py/leerDbf1.py 2>&1 -f ' . escapeshellarg($fichero) . ' -i ' . (int) $registro_inicial . ' -e ' . (int) $registro_final;
     error_log('Registro Inicial de importacion:' . $registro_inicial . "\n\r", 3, $fichero_registro);
 
 

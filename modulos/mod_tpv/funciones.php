@@ -731,7 +731,7 @@ function ComprobarImpresoraTickets($ruta_impresora)
     //   boreano-> true (correcto) , false (no la encuentra)
     $respuesta = false;
     if (preg_match('/^\//', $ruta_impresora)) {
-        if (shell_exec('ls ' . $ruta_impresora)) {
+        if (shell_exec('ls ' . escapeshellarg($ruta_impresora))) {
             $respuesta = true;
         }
     } else {
