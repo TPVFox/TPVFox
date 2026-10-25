@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/DB.php';
+
 class ClasePermisos
 {
     public $permisos = array(); //todos los permisos
@@ -32,9 +34,9 @@ class ClasePermisos
         $BDTpv = $this->BDTpv;
         $this->usuario = $Usuario;
         $this->InicializarPermisosUsuario();
-        $sql = 'SELECT * from permisos where idUsuario=' . $Usuario['id'] . ' ORDER BY modulo , vista, accion asc ';
+        $sql = 'SELECT * from permisos where idUsuario=? ORDER BY modulo , vista, accion asc ';
 
-        $res = $BDTpv->query($sql);
+        $res = (new DB($BDTpv))->pquery($sql, array($Usuario['id']));
         $resultadoPrincipal = array();
         while ($result = $res->fetch_assoc()) {
             array_push($resultadoPrincipal, $result);
@@ -106,31 +108,40 @@ class ClasePermisos
         $respuesta = array();
         $insert = array();
         $BDTpv = $this->BDTpv;
+        $dbl = new DB($BDTpv);
         $usuario = $this->usuario['id'];
-        $sql = 'SELECT id FROM permisos WHERE idUsuario=' . $usuario . ' and modulo="' . $xml['nombre'] . '" and vista IS NULL and accion IS NULL';
-        $res = $BDTpv->query($sql);
+        // $insert acumula pares [sql, params] a ejecutar al final.
+        $sql = 'SELECT id FROM permisos WHERE idUsuario=? and modulo=? and vista IS NULL and accion IS NULL';
+        $res = $dbl->pquery($sql, array($usuario, $xml['nombre']));
         if (!isset($res->num_rows) || $res->num_rows == 0) {
-            $insert[] = 'INSERT INTO permisos (idUsuario, modulo, permiso) VALUES (' . $usuario . ', "' . $xml['nombre'] . '",' . $xml['permiso'] . ')';
+            $insert[] = array(
+                'INSERT INTO permisos (idUsuario, modulo, permiso) VALUES (?, ?, ?)',
+                array($usuario, $xml['nombre'], $xml['permiso']),
+            );
         }
         foreach ($xml->vista as $vista) {
-            $sql2 = 'SELECT id FROM permisos WHERE idUsuario=' . $usuario . ' and modulo="' . $xml['nombre'] . '" and vista ="' . $vista['nombre'] . '" and accion IS NULL';
-            $res = $BDTpv->query($sql2);
+            $sql2 = 'SELECT id FROM permisos WHERE idUsuario=? and modulo=? and vista=? and accion IS NULL';
+            $res = $dbl->pquery($sql2, array($usuario, $xml['nombre'], $vista['nombre']));
             // Si no existe , lo creamos...
             if (!isset($res->num_rows) || $res->num_rows == 0) {
-                $insert[] = 'INSERT INTO permisos(idUsuario, modulo, vista, permiso) VALUES (' . $usuario
-                    . ', "' . $xml['nombre'] . '", "' . $vista['nombre'] . '", ' . $vista['permiso'] . ')';
+                $insert[] = array(
+                    'INSERT INTO permisos (idUsuario, modulo, vista, permiso) VALUES (?, ?, ?, ?)',
+                    array($usuario, $xml['nombre'], $vista['nombre'], $vista['permiso']),
+                );
             }
             foreach ($vista->accion as $accion) {
-                $sql3 = 'SELECT id FROM permisos WHERE idUsuario=' . $usuario . ' and modulo="' . $xml['nombre'] . '"  and vista ="' . $vista['nombre'] . '" and accion ="' . $accion['nombre'] . '"';
+                // (El código original reutiliza aquí $res del SELECT de la vista; se preserva.)
                 if (!isset($res->num_rows) || $res->num_rows == 0) {
-
-                    $insert[] = 'INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES (' . $usuario . ', "' . $xml['nombre'] . '", "' . $vista['nombre'] . '", "' . $accion['nombre'] . '", ' . $accion['permiso'] . ')';
+                    $insert[] = array(
+                        'INSERT INTO permisos (idUsuario, modulo, vista, accion, permiso) VALUES (?, ?, ?, ?, ?)',
+                        array($usuario, $xml['nombre'], $vista['nombre'], $accion['nombre'], $accion['permiso']),
+                    );
                 }
             }
         }
         if (count($insert) > 0) {
             foreach ($insert as $i) {
-                $res = $BDTpv->query($i);
+                $dbl->execute($i[0], $i[1]);
             }
         }
 
@@ -248,18 +259,22 @@ class ClasePermisos
         //Objetivo: Modificar los permisos , modificar los permisos a un usuario, esta tarea sólo la puede
         //hacer el administrador
         $BDTpv = $this->BDTpv;
-        if ($datos['vista'] == "") { //Si vista está vacia tenemos que poner el texto is null
-            $vista = "IS NULL";
+        // vista/accion vacías -> "IS NULL" (sin parámetro); si no, "= ?" (parámetro).
+        $params = array($permiso, $usuario, $datos['modulo']);
+        if ($datos['vista'] == "") {
+            $condVista = 'vista IS NULL';
         } else {
-            $vista = '="' . $datos['vista'] . '"';
+            $condVista = 'vista = ?';
+            $params[] = $datos['vista'];
         }
-        if ($datos['accion'] == "") { //Lo mismo que el if anterior
-            $accion = "IS NULL";
+        if ($datos['accion'] == "") {
+            $condAccion = 'accion IS NULL';
         } else {
-            $accion = '="' . $datos['accion'] . '"';
+            $condAccion = 'accion = ?';
+            $params[] = $datos['accion'];
         }
-        $sql = 'UPDATE `permisos` SET permiso=' . $permiso . ' where idUsuario=' . $usuario . ' and modulo="' . $datos['modulo'] . '" and vista ' . $vista . ' and accion ' . $accion . '';
-        $res = $BDTpv->query($sql);
+        $sql = 'UPDATE `permisos` SET permiso=? where idUsuario=? and modulo=? and ' . $condVista . ' and ' . $condAccion;
+        (new DB($BDTpv))->execute($sql, $params);
         return $sql;
     }
 
@@ -431,14 +446,14 @@ class ClasePermisos
         //  $idUsuario = int -> id del usuario para eliminar permiso(s)
         //  $permiso = id del permiso a eliminar, si es 0 , se elimina todos.
 
-        $and = '';
-        if ($permiso > 0) {
-            $and = ' AND id=' . $permiso;
-        }
         $BDTpv = $this->BDTpv;
-        $sql = 'DELETE FROM permisos WHERE idUsuario=' . $idUsuario . $and;
-        $res = $BDTpv->query($sql);
-        $respuesta = $BDTpv->affected_rows;
+        $sql = 'DELETE FROM permisos WHERE idUsuario=?';
+        $params = array($idUsuario);
+        if ($permiso > 0) {
+            $sql .= ' AND id=?';
+            $params[] = $permiso;
+        }
+        $respuesta = (new DB($BDTpv))->execute($sql, $params);
         return $respuesta;
     }
 
@@ -449,17 +464,17 @@ class ClasePermisos
         // @ Parametros:
         //  $permiso = array {"idUsuario"=>(int),"modulo"=>(string),"vista"=>(string),"accion"=>(string),"permiso"=>(int)}
         $campos = array();
+        $placeholders = array();
         $valores = array();
         foreach ($permiso as $campo => $valor) {
             if ($valor !== '') {
-                $campos[] = $campo;
-                $valores[] = '"' . $valor . '"';
+                $campos[] = DB::ident($campo); // valida el nombre de columna
+                $placeholders[] = '?';
+                $valores[] = $valor;
             }
         }
-        $sql = 'INSERT INTO permisos(' . implode(',', $campos) . ') VALUES (' . implode(',', $valores) . ');';
-        $BDTpv = $this->BDTpv;
-        $res = $BDTpv->query($sql);
-        $respuesta = $BDTpv->affected_rows;
+        $sql = 'INSERT INTO permisos (' . implode(',', $campos) . ') VALUES (' . implode(',', $placeholders) . ')';
+        $respuesta = (new DB($this->BDTpv))->execute($sql, $valores);
         return $respuesta;
     }
 }
