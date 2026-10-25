@@ -227,8 +227,11 @@ class ClaseTickets extends ClaseSession
             $filtro  = ' WHERE ';
         }
 
-        // TODO: revisar - $filtro (entrante) y $limite son fragmentos SQL dinámicos que
-        // se concatenan tal cual; sólo se parametrizan estado y las dos fechas.
+        // estado y fechas van ligados con ?. $filtro y $limite provienen del
+        // plugin de paginación (PluginClasePaginacion): el filtro de búsqueda se
+        // sanea en ConstructorLike (quita comillas/paréntesis) y el LIMIT/OFFSET
+        // es numérico (GetLimitConsulta). Parametrizar del todo el buscador exige
+        // refactorizar ese plugin compartido (pendiente, fuera de este alcance).
         $filtro = $filtro . ' t.estado= ? AND t.fecha >= ? AND t.fecha <= ?';
         $sql = 'SELECT t.*, c.`Nombre`, c.`razonsocial` FROM `ticketst` AS t '
             . 'LEFT JOIN `clientes` AS c '
