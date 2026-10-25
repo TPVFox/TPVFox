@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/DB.php';
+
 class iva
 {
 	private $id = 0;
