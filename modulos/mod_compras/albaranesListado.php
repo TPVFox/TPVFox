@@ -40,9 +40,10 @@ $NPaginado->SetCampoFiltro($campoFiltro);
 
 // --- Ahora contamos registro que hay para es filtro --- //
 $filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+$filtroParams = $NPaginado->GetFiltroParams();
 $CantidadRegistros = 0;
 // Obtenemos la cantidad registros
-$listado = $CAlb->CuentaTodosAlbaranesLimite($filtro);
+$listado = $CAlb->CuentaTodosAlbaranesLimite($filtro, $filtroParams);
 
 //$listado = $CAlb->TodosAlbaranesLimite($filtro);
 $CantidadRegistros = $listado['contador'];  // count($listado['Items']);
@@ -56,7 +57,7 @@ $htmlOrdenarNumAlb = $NPaginado->htmlOrdenar('a.Numalbpro');
 $htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
 // =================================================== //
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
-$listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta());
+$listado = $CAlb->TodosAlbaranesLimite($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 $ListadoAlbaranes = $listado['Items'];
 if (isset($listado['error'])) {
     $errores[] = array(

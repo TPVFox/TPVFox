@@ -27,21 +27,21 @@ class ClaseProveedor extends TFModelo
         'estado'            => ''
     );
 
-    public function obtenerProveedores($filtro = '')
+    public function obtenerProveedores($filtro = '', $params = [])
     {
         // Function para obtener proveedores y listarlos
         //tener en cuenta el  paginado con parametros:  ,$filtro
         $sql = "Select * from proveedores " . $filtro;
-        $proveedores = $this->consulta($sql);
+        $proveedores = $this->consulta($sql, $params);
         if (!isset($proveedores['datos'])) {
             $proveedores['datos'] = array(); // mandamos array vacio.
         };
         return $proveedores['datos'];
     }
 
-    public function contarRegistros($filtro = '')
+    public function contarRegistros($filtro = '', $params = [])
     {
-        $proveedores = $this->obtenerProveedores($filtro);
+        $proveedores = $this->obtenerProveedores($filtro, $params);
         return count($proveedores);
     }
 

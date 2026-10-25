@@ -35,10 +35,11 @@
 	$NPaginado->SetOrderConsulta('a.num_lote');
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro = $NPaginado->GetFiltroWhere('OR'); // mando operador para montar filtro ya que por defecto es AND
+	$filtroParams = $NPaginado->GetFiltroParams();
 
 	$CantidadRegistros = 0;
 	// Obtenemos la cantidad registros
-	$a = $CEtiquetas->todasEtiquetasLimite($filtro);
+	$a = $CEtiquetas->todasEtiquetasLimite($filtro, $filtroParams);
 
 	$CantidadRegistros = count($a);
 
@@ -46,7 +47,7 @@
 	$NPaginado->SetCantidadRegistros($CantidadRegistros);
 	$htmlPG = $NPaginado->htmlPaginado();
 
-	$etiquetasFiltro = $CEtiquetas->todasEtiquetasLimite($filtro . $NPaginado->GetLimitConsulta());
+	$etiquetasFiltro = $CEtiquetas->todasEtiquetasLimite($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 	if (isset($etiquetasFiltro['error'])) {
 		$errores[1] = array(
 			'tipo' => 'Danger!',
