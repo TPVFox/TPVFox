@@ -27,10 +27,12 @@ class DB
     /** SELECT parametrizado. Devuelve un array de filas asociativas. */
     public function select(string $sql, array $params = []): array
     {
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params === [] ? null : array_values($params));
-        $res = $stmt->get_result();
-        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        $res = $this->conn->query($this->montar($sql, $params));
+        $filas = array();
+        if ($res instanceof mysqli_result) {
+            $filas = $res->fetch_all(MYSQLI_ASSOC);
+        }
+        return $filas;
     }
 
     /**
@@ -41,17 +43,46 @@ class DB
      */
     public function pquery(string $sql, array $params = [])
     {
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params === [] ? null : array_values($params));
-        return $stmt->get_result();
+        return $this->conn->query($this->montar($sql, $params));
     }
 
     /** INSERT/UPDATE/DELETE parametrizado. Devuelve el nº de filas afectadas. */
     public function execute(string $sql, array $params = []): int
     {
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params === [] ? null : array_values($params));
-        return $stmt->affected_rows;
+        $this->conn->query($this->montar($sql, $params));
+        return $this->conn->affected_rows;
+    }
+
+    private function montar(string $sql, array $params): string
+    {
+        // @ Objetivo:
+        // Montar la sentencia con cada ? sustituido por su valor escapado con la conexión: el valor
+        // nunca cambia la sentencia, y la consulta devuelve lo mismo que query().
+        // @ Parametros:
+        // $sql -> (string) La sentencia, con un ? por cada valor. Sin valores va tal cual: puede
+        //         ser una sentencia ya montada con un ? dentro de un texto.
+        // $params -> (array) Los valores, en orden. Un entero va sin comillas y null como NULL.
+        // @ Devolvemos:
+        // (string) La sentencia lista para query().
+        $sentencia = $sql;
+        if ($params !== array()) {
+            $trozos = explode('?', $sql);
+            if (count($trozos) - 1 !== count($params)) {
+                throw new InvalidArgumentException('Distinto número de ? y de valores: ' . $sql);
+            }
+            $sentencia = array_shift($trozos);
+            foreach (array_values($params) as $i => $valor) {
+                if ($valor === null) {
+                    $sentencia .= 'NULL';
+                } elseif (is_int($valor)) {
+                    $sentencia .= $valor;
+                } else {
+                    $sentencia .= "'" . $this->conn->real_escape_string((string) $valor) . "'";
+                }
+                $sentencia .= $trozos[$i];
+            }
+        }
+        return $sentencia;
     }
 
     /** INSERT desde un array columna=>valor. Devuelve el insert_id. */

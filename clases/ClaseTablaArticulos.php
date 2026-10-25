@@ -77,7 +77,7 @@ class ClaseTablaArticulos
 		} else {
 			// Quiere decir que hubo error en la consulta.
 			$respuesta['consulta'] = $sql;
-			$respuesta['error'] = $db->error;
+			$respuesta['error'] = $this->db->error;
 		}
 
 		return $respuesta;
