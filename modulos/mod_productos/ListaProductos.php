@@ -87,6 +87,7 @@ $NPaginado = new PluginClasePaginacion(__FILE__);
 $NPaginado->SetCamposControler([$htmlConfiguracion['campo_defecto']]);
 
 $filtro = $NPaginado->GetFiltroWhere();
+$params = $NPaginado->GetFiltroParams(); // Los valores de los ? del filtro de búsqueda.
 $CantidadRegistros = 0;
 
 // Añadir filtro de familia al WHERE si aplica
@@ -105,10 +106,10 @@ if (trim($filtro) !== '') {
     if (!empty($condiciones)) {
         $filtro .= ' AND ' . implode(' AND ', $condiciones);
     }
-    $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro')));
+    $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro', 'params')));
 } elseif (!empty($condiciones)) {
     $filtro = 'WHERE ' . implode(' AND ', $condiciones);
-    $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro')));
+    $CantidadRegistros = count($CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro', 'params')));
 } else {
     $CantidadRegistros = $CTArticulos->GetNumRows();
 }
@@ -130,7 +131,7 @@ if ($CantidadRegistros > 0 || $prod_seleccion['NItems'] > 0) {
         $filtro .= (trim($filtro) !== '') ? " AND (a.idArticulo IN ($ids_sel))" : " WHERE (a.idArticulo IN ($ids_sel))";
     }
     $limite   = $NPaginado->GetLimitConsulta();
-    $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro', 'limite'));
+    $productos = $CTArticulos->obtenerProductos($htmlConfiguracion['campo_defecto'], compact('filtro', 'limite', 'params'));
 }
 
 if (isset($productos['error'])) {

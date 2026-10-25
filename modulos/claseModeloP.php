@@ -103,7 +103,8 @@ class ModeloP
     {
         $db = self::getDbo();
 
-        $respuesta = (new DB($db))->execute($sql, $params);
+        // pquery() devuelve true en una escritura correcta, como query(); execute() devolvería las filas.
+        $respuesta = (new DB($db))->pquery($sql, $params);
 
         ModeloP::setResult($sql, ($respuesta ? 0 : $db->error));
 

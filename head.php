@@ -18,6 +18,7 @@ if (!headers_sent()) {
 
 <script src="<?php echo $HostNombre; ?>/jquery/jquery-2.2.5-pre.min.js"></script>
 <script src="<?php echo $HostNombre; ?>/css/bootstrap.min.js"></script>
+<script src="<?php echo $HostNombre; ?>/lib/js/sesionCaducada.js?v=<?php echo filemtime($URLCom . '/lib/js/sesionCaducada.js'); ?>"></script>
 <?php
 
 if ($_SESSION['estadoTpv'] != "Correcto") {

@@ -71,9 +71,8 @@ class ClaseTickets extends ClaseSession
         // Esta consulta no tiene sentido teniendo la del padre...
 
         $db = $this->BDTpv;
-        // Nota: execute() devuelve nº de filas afectadas; un UPDATE que no
-        // cambia ningún valor devuelve 0 y caería en la rama de error.
-        $smt = (new DB($db))->execute($sql, $params);
+        // pquery() devuelve true en una escritura correcta, como query(), aunque no cambie ninguna fila.
+        $smt = (new DB($db))->pquery($sql, $params);
         if ($smt) {
             return $smt;
         } else {

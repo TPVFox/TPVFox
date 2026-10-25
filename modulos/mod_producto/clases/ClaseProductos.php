@@ -1064,7 +1064,8 @@ class ClaseProductos extends ClaseTablaArticulos
             $sql = 'DELETE FROM `articulosCodigoBarras` WHERE `idArticulo`=?' . $stringCodbarras;
             $DB = parent::GetDb();
             $smt = (new DB($DB))->execute($sql, $params);
-            if ($smt) {
+            // Borrar 0 filas también es correcto: execute() devuelve cuántas borró.
+            if ($smt >= 0) {
                 $respuesta['NEliminados'] = $smt;
                 // Hubo resultados
             } else {
@@ -1108,7 +1109,8 @@ class ClaseProductos extends ClaseTablaArticulos
             $sql = 'DELETE FROM `articulosFamilias` WHERE `idArticulo`=?' . $stringfamilias;
             $DB = parent::GetDb();
             $smt = (new DB($DB))->execute($sql, $params);
-            if ($smt) {
+            // Borrar 0 filas también es correcto: execute() devuelve cuántas borró.
+            if ($smt >= 0) {
                 $respuesta['NEliminados'] = $smt;
                 // Hubo resultados
             } else {

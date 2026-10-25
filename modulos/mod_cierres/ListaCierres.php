@@ -21,7 +21,7 @@
 	$NPaginado->SetCamposControler($campos);
 	// --- Ahora contamos registro que hay para es filtro --- //
 	$filtro = $NPaginado->GetFiltroWhere();
-	$filtroParams = array();
+	$filtroParams = $NPaginado->GetFiltroParams();
 
 
 	if (isset($_GET['fecha1']) & isset($_GET['fecha2'])) {
