@@ -61,7 +61,8 @@ class DB
         // @ Parametros:
         // $sql -> (string) La sentencia, con un ? por cada valor. Sin valores va tal cual: puede
         //         ser una sentencia ya montada con un ? dentro de un texto.
-        // $params -> (array) Los valores, en orden. Un entero va sin comillas y null como NULL.
+        // $params -> (array) Los valores, en orden. Un entero va sin comillas. Un null va entre
+        //         comillas como texto vacío, igual que cuando el valor se pegaba a la sentencia.
         // @ Devolvemos:
         // (string) La sentencia lista para query().
         $sentencia = $sql;
@@ -72,9 +73,7 @@ class DB
             }
             $sentencia = array_shift($trozos);
             foreach (array_values($params) as $i => $valor) {
-                if ($valor === null) {
-                    $sentencia .= 'NULL';
-                } elseif (is_int($valor)) {
+                if (is_int($valor)) {
                     $sentencia .= $valor;
                 } else {
                     $sentencia .= "'" . $this->conn->real_escape_string((string) $valor) . "'";
