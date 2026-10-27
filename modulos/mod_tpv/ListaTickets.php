@@ -97,7 +97,7 @@ $htmlPG = $NPaginado->htmlPaginado(); // Montamos html Paginado
 if (isset($_GET['idCierre'])) {
     $Obtenertickets = $CCierres->obtenerTicketsUsuariosCierre($_GET['idUsuario'], $_GET['idCierre'], $Tienda['idTienda'], $filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
 } else {
-    $Obtenertickets = $Tickets->obtenerTickets('Cobrado', $fechas, $filtro, $NPaginado->GetLimitConsulta());
+    $Obtenertickets = $Tickets->obtenerTickets('Cobrado', $fechas, $filtro, $NPaginado->GetLimitConsulta(), $filtroParams);
 }
 if (isset($Obtenertickets['datos'])) {
     $tickets = $Obtenertickets['datos'];
