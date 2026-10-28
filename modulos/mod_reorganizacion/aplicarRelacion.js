@@ -50,6 +50,7 @@ function peticionDeAplicacion(pulsado) {
     ajustePeso: $("#ajustePesoAplicacion").val(),
     ajusteValor: ajusteDeValorAplicacion(),
     cantidad: $("#cantidadAplicacion").val(),
+    porEntradas: $("#porEntradasAplicacion").is(":checked") ? "1" : "",
     hermanas: JSON.stringify(hermanasParaLaPeticion()),
     destino: $("#destinoAplicacion").val(),
   };
@@ -416,6 +417,7 @@ function cambiarDatoAplicacion(campo) {
 function limpiarResultadoAplicacion() {
   $("#arbolAplicacion .resultadoHermana").empty();
   $("#arbolAplicacion .derivado").remove();
+  $("#entradasAplicacion").empty();
   $("#arbolAplicacion .raiz").text(textoDeLaRaizAplicacion());
   $("#avisosAplicacion").empty();
   $("#datosAplicacion").empty();
@@ -438,6 +440,7 @@ function calcularAplicacion() {
       }
       pintarRecetasDelArbol(obj.datos);
       pintarDestinosAplicacion(obj.datos.destinos);
+      pintarEntradasAplicacion(obj.datos);
       $("#btnPrepararAplicacion").prop("disabled", false);
     }
   });
@@ -450,7 +453,12 @@ function prepararAlbaranAplicacion() {
     var obj = JSON.parse(respuesta);
     console.log("Aplicar relación: respuesta de preparar", obj);
     if (obj.ok) {
-      window.location.href = "../mod_compras/albaran.php?tActual=" + obj.datos.idTemporal;
+      if (obj.datos.idTemporales && obj.datos.idTemporales.length > 1) {
+        // Un albarán por entrada: se ven todos en el listado de albaranes de compras.
+        window.location.href = "../mod_compras/albaranesListado.php";
+      } else {
+        window.location.href = "../mod_compras/albaran.php?tActual=" + obj.datos.idTemporal;
+      }
     } else {
       pintarAvisosAplicacion(obj.avisos);
     }
@@ -526,6 +534,32 @@ function pintarDatosAplicacion(datos) {
   $.each(lineas, function (indice, texto) {
     $("<p>").text(texto).appendTo("#datosAplicacion");
   });
+}
+
+function pintarEntradasAplicacion(datos) {
+  // Por entradas, una línea por albarán de entrada del mes: lo que trajo y lo que entra de él, o que
+  // ya está aplicado así.
+  var zona = $("#entradasAplicacion");
+  zona.empty();
+  if (!datos.entradas) {
+    return;
+  }
+  var unidad = "";
+  $.each(datos.version.lineas, function (indice, linea) {
+    if (linea.sentido === "entrada") {
+      unidad = linea.unidad;
+    }
+  });
+  $.each(datos.entradas, function (indice, entrada) {
+    var texto = "Albarán " + entrada.numero + " del " + fechaLegibleAplicacion(entrada.fecha) + ": trajo " + cantidadLegibleAplicacion(entrada.trajo) + " " + unidad;
+    if (entrada.citada) {
+      texto += " · ya aplicado por entradas, no se reparte";
+    } else {
+      texto += " · entran " + cantidadLegibleAplicacion(entrada.parte) + " " + unidad;
+    }
+    $("<p>").addClass("entrada").text(texto).appendTo(zona);
+  });
+  console.log("Aplicar relación: reparto por entradas", datos.entradas);
 }
 
 function pintarDestinosAplicacion(destinos) {

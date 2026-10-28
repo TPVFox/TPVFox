@@ -27,8 +27,9 @@ if ($ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vi
         'ajusteValor' => '1',
         'cantidad' => '',
         'hermanas' => array(),
+        'porEntradas' => '',
     );
-    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor', 'cantidad') as $campo) {
+    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor', 'cantidad', 'porEntradas') as $campo) {
         if (isset($_POST[$campo])) {
             $peticion[$campo] = (string) $_POST[$campo];
         }

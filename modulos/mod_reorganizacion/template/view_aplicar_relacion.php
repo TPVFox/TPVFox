@@ -2,7 +2,8 @@
 // @ Objetivo
 // El HTML de la pantalla de aplicar una relación: la elección del proveedor, la relación y el
 // periodo —que se rellena con los meses o los días con entradas—, la versión del despiece que se
-// aplica, la cantidad que entra en la receta, el árbol de las recetas que se aplican a la vez y la
+// aplica, la cantidad que entra en la receta, si se prepara un albarán por cada albarán de entrada, el
+// árbol de las recetas que se aplican a la vez y la
 // lista de las hermanas que se pueden añadir, el ajuste del reparto en un
 // deslizador y el proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero;
 // los avisos; y el resultado, que pinta aplicarRelacion.js con lo que devuelve el cálculo.
@@ -85,6 +86,16 @@
             </div>
 
             <div class="row">
+                <div class="col-md-12 form-group">
+                    <label>
+                        <input type="checkbox" id="porEntradasAplicacion" onchange="cambiarDatoAplicacion('un albarán por cada albarán de entrada')">
+                        Un albarán por cada albarán de entrada
+                    </label>
+                    <p class="help-block">Solo al aplicar un mes: lo que se aplica se reparte entre los albaranes de entrada del producto del mes, en proporción a lo que trajo cada uno, y se prepara un albarán por entrada, con su fecha. Una entrada ya aplicada así no se reparte de nuevo.</p>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-4 form-group">
                     <label for="ajustePesoAplicacion">Reparto del coste</label>
                     <input type="range" id="ajustePesoAplicacion" class="form-control" min="0" max="2" step="0.05" value="1" list="marcasAjusteAplicacion" oninput="cambiarAjusteAplicacion()">
@@ -126,6 +137,7 @@
             <div id="arbolAplicacion"></div>
             <div id="avisosAplicacion"></div>
             <div id="datosAplicacion"></div>
+            <div id="entradasAplicacion"></div>
             <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
             <table id="escandalloAplicacion" class="table table-bordered table-hover">
                 <thead>

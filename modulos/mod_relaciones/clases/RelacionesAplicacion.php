@@ -34,7 +34,9 @@ class RelacionesAplicacion extends RelacionesModelo
         //                   ajustePeso, ajusteValor, cantidad (la que entra en la receta, como se
         //                   escribió; vacía, lo disponible menos lo de las hermanas) y hermanas (por
         //                   receta hermana, numRelacion, cantidad, precios, ajustePeso y ajusteValor;
-        //                   false si la lista llegó mal).
+        //                   false si la lista llegó mal), y porEntradas ('1' para repartir el mes
+        //                   entre sus albaranes de entrada). Quien prepara por entradas añade
+        //                   citaDeLaEntrada, que va tras la relación en el detalle de cada línea.
         //      $consultaDeExistencias -> el objeto que lee los movimientos de un producto en un
         //                   periodo (ClaseComprobacionStockConsulta de mod_reorganizacion).
         // @ Devolvemos
@@ -44,8 +46,15 @@ class RelacionesAplicacion extends RelacionesModelo
         $periodo = null;
         $version = null;
         $entrada = null;
+        $porEntradas = isset($peticion['porEntradas']) && $peticion['porEntradas'] === '1';
+        $cita = '';
+        if (isset($peticion['citaDeLaEntrada'])) {
+            $cita = $peticion['citaDeLaEntrada'];
+        }
 
-        if (!ctype_digit((string) $peticion['idProveedor']) || !ctype_digit((string) $peticion['numRelacion'])
+        if ($porEntradas && $peticion['tipoPeriodo'] !== 'mes') {
+            $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'Un albarán por cada albarán de entrada solo se prepara al aplicar un mes: elige un mes o quita la opción.');
+        } elseif (!ctype_digit((string) $peticion['idProveedor']) || !ctype_digit((string) $peticion['numRelacion'])
             || ($peticion['idProveedorTraspaso'] !== '' && !ctype_digit((string) $peticion['idProveedorTraspaso']))) {
             $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'Falta elegir el proveedor o la relación: elígelos en la lista y vuelve a calcular.');
         } else {
@@ -231,7 +240,7 @@ class RelacionesAplicacion extends RelacionesModelo
                     $lineas = array();
                     foreach ($recetas as $receta) {
                         if ($receta['escandallo'] !== null) {
-                            $etiqueta = ' · REL ' . $receta['version']['numRelacion'] . ' v' . $receta['version']['version'];
+                            $etiqueta = ' · REL ' . $receta['version']['numRelacion'] . ' v' . $receta['version']['version'] . $cita;
                             foreach ($this->lineasDelAlbaran($receta['escandallo'], $articulos['datos'], self::DOCUMENTO_PROVEEDOR, $etiqueta) as $linea) {
                                 $linea['nfila'] = count($lineas) + 1;
                                 $lineas[] = $linea;
@@ -266,7 +275,7 @@ class RelacionesAplicacion extends RelacionesModelo
                     }
                     $respuesta['datos']['numeroDelAlbaran'] = $this->numeroDelAlbaran($version['tipo']);
                     $respuesta['datos']['destinos'] = array();
-                    if ($peticion['tipoPeriodo'] === 'mes') {
+                    if ($peticion['tipoPeriodo'] === 'mes' && !$porEntradas && $cita === '') {
                         $destinos = $this->albaranesParaReunir((int) $peticion['idProveedor'], $periodo['fecha'], $respuesta['datos']['numeroDelAlbaran']);
                         if (isset($destinos['error'])) {
                             $respuesta['avisos'][] = $destinos['error'];
@@ -275,6 +284,26 @@ class RelacionesAplicacion extends RelacionesModelo
                         }
                     }
                     $respuesta['ok'] = true;
+                    if ($porEntradas) {
+                        // Lo que entra del producto de partida, repartido entre las entradas que no
+                        // están citadas, en proporción a lo que trajo cada una.
+                        $delProducto = 0.0;
+                        foreach ($recetas as $receta) {
+                            if ($receta['deDerivado'] === null) {
+                                $delProducto += $receta['cantidad'];
+                            }
+                        }
+                        $reparto = $this->entradasConSuParte((int) $entrada['idArticulo'], $periodo, $traspaso, $delProducto, $entrada['unidad']);
+                        if (isset($reparto['error'])) {
+                            $respuesta['avisos'][] = $reparto['error'];
+                            $respuesta['ok'] = false;
+                        } else {
+                            $respuesta['datos']['entradas'] = $reparto['datos'];
+                            foreach ($reparto['avisos'] as $aviso) {
+                                $respuesta['avisos'][] = $aviso;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -952,6 +981,130 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return array('datos' => $cantidades);
+    }
+
+    public function repartoEntreEntradas($cantidad, $traidas, $unidad)
+    {
+        // @ Objetivo
+        // Lo que le toca a cada entrada de una cantidad del mes: en proporción a lo que trajo, a tres
+        // decimales o, en unidades, hacia abajo; la última lleva lo que falta para sumar la cantidad.
+        // No consulta la base.
+        // @ Devolvemos
+        //      (array) la parte de cada entrada, en el orden en que llegan.
+        $total = array_sum($traidas);
+        $partes = array();
+        $repartido = 0.0;
+        foreach ($traidas as $posicion => $trajo) {
+            if ($posicion === count($traidas) - 1) {
+                $parte = round($cantidad - $repartido, 3);
+            } elseif ($total <= 0) {
+                $parte = 0.0;
+            } elseif ($unidad === 'ud') {
+                $parte = floor($cantidad * $trajo / $total + 0.000001);
+            } else {
+                $parte = round($cantidad * $trajo / $total, 3);
+            }
+            $partes[] = (float) $parte;
+            $repartido += $parte;
+        }
+
+        return $partes;
+    }
+
+    public function entradasDelPeriodo($idArticulo, $desde, $hasta, $idProveedorTraspaso)
+    {
+        // @ Objetivo
+        // Los albaranes de entrada de un producto en el periodo: los de proveedor con alguna línea
+        // activa suya en positivo, en los estados que cuentan para lo disponible —también uno que
+        // compras ha reabierto, con su temporal—, sin los del proveedor de traspaso del primer y el
+        // último día.
+        // @ Devolvemos
+        //      ['datos'] con, por albarán, numero, fecha y lo que trajo, por fecha; o ['error'].
+        $sql = 'SELECT c.Numalbpro AS numero, DATE(c.Fecha) AS fecha, SUM(l.nunidades) AS trajo FROM albprolinea l'
+            . ' JOIN albprot c ON c.id = l.idalbpro'
+            . " WHERE l.idArticulo = ? AND l.estadoLinea = 'Activo' AND l.nunidades > 0"
+            . " AND (c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')"
+            . " OR (c.estado = 'Sin Guardar' AND EXISTS (SELECT 1 FROM albproltemporales t WHERE t.Numalbpro = c.id)))"
+            . ' AND DATE(c.Fecha) BETWEEN ? AND ? AND NOT (c.idProveedor = ? AND DATE(c.Fecha) IN (?, ?))'
+            . ' GROUP BY c.id, c.Numalbpro, c.Fecha ORDER BY c.Fecha, c.id';
+        $leidas = $this->consultaPreparada($sql, array((int) $idArticulo, $desde, $hasta, (int) $idProveedorTraspaso, $desde, $hasta));
+        if (isset($leidas['error'])) {
+            return $leidas;
+        }
+        $entradas = array();
+        foreach ($leidas['datos'] as $fila) {
+            $entradas[] = array('numero' => (int) $fila['numero'], 'fecha' => $fila['fecha'], 'trajo' => round((float) $fila['trajo'], 3));
+        }
+
+        return array('datos' => $entradas);
+    }
+
+    public function albaranesPorEntradas($peticion, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Las líneas de un albarán por cada entrada del mes que no está citada: lo que entra en cada
+        // receta del mes se reparte entre ellas con repartoEntreEntradas(), y cada entrada se calcula
+        // como un mes con esas cantidades, con su cita en el detalle de cada línea. Se calculan todas
+        // antes de devolver nada: si una no se puede, no se devuelve ninguna.
+        // @ Devolvemos
+        //      la respuesta de calcular() del mes, con ['datos']['porEntrada']: por entrada, numero,
+        //      fecha y lineas.
+        $mes = $this->calcular($peticion, $consultaDeExistencias);
+        if ($mes['ok'] !== true) {
+            return $mes;
+        }
+        $restantes = array();
+        foreach ($mes['datos']['entradas'] as $entrada) {
+            if (!$entrada['citada']) {
+                $restantes[] = $entrada;
+            }
+        }
+        $traidas = array_column($restantes, 'trajo');
+        // Las partes de cada receta: la elegida y cada añadida, por su número.
+        $partes = array();
+        $vacias = array();
+        foreach ($mes['datos']['recetas'] as $receta) {
+            $partes[$receta['numRelacion']] = $this->repartoEntreEntradas($receta['cantidad'], $traidas, $receta['unidad']);
+        }
+        $anadidas = array();
+        if (is_array($peticion['hermanas'])) {
+            $anadidas = $peticion['hermanas'];
+        }
+        foreach ($mes['datos']['recetas'] as $receta) {
+            foreach ($anadidas as $anadida) {
+                // Una receta de un derivado que iba vacía sigue vacía: toma lo que genera cada entrada.
+                if ((string) $anadida['numRelacion'] === (string) $receta['numRelacion'] && $receta['deDerivado'] !== null
+                    && (!isset($anadida['cantidad']) || trim((string) $anadida['cantidad']) === '')) {
+                    $vacias[$receta['numRelacion']] = true;
+                }
+            }
+        }
+        $porEntrada = array();
+        foreach ($restantes as $posicion => $entrada) {
+            $suya = $peticion;
+            $suya['porEntradas'] = '';
+            $suya['citaDeLaEntrada'] = ' · ENT ' . $entrada['numero'];
+            $suya['cantidad'] = (string) $partes[$mes['datos']['recetas'][0]['numRelacion']][$posicion];
+            $suya['hermanas'] = array();
+            foreach ($anadidas as $anadida) {
+                $numero = $anadida['numRelacion'];
+                $anadida['cantidad'] = '';
+                if (!isset($vacias[$numero]) && isset($partes[$numero]) && $partes[$numero][$posicion] > 0) {
+                    $anadida['cantidad'] = (string) $partes[$numero][$posicion];
+                }
+                $suya['hermanas'][] = $anadida;
+            }
+            $calculo = $this->calcular($suya, $consultaDeExistencias);
+            if ($calculo['ok'] !== true) {
+                $avisos = array($this->montarAdvertencia('warning', 'No se puede preparar el albarán de la entrada ' . $entrada['numero'] . ' del '
+                    . $this->fechaLegible($entrada['fecha']) . ': no se prepara ninguno.'));
+                return array('ok' => false, 'datos' => $mes['datos'], 'avisos' => array_merge($avisos, $calculo['avisos']));
+            }
+            $porEntrada[] = array('numero' => $entrada['numero'], 'fecha' => $entrada['fecha'], 'lineas' => $calculo['datos']['lineas']);
+        }
+        $mes['datos']['porEntrada'] = $porEntrada;
+
+        return $mes;
     }
 
     public function precioEscrito($texto)
@@ -1973,6 +2126,89 @@ class RelacionesAplicacion extends RelacionesModelo
             'costeDelEscandallo' => round($costeDelEscandallo, 4), 'costeDePartida' => $costeDePartida)), 'avisos' => $calculo['avisos']);
     }
 
+    private function entradasConSuParte($idArticulo, $periodo, $traspaso, $cantidad, $unidad)
+    {
+        // @ Objetivo
+        // Las entradas del mes con lo que trajo cada una, si está citada por un albarán preparado por
+        // entradas, y la parte de la cantidad que le toca a cada una que no lo está.
+        // @ Devolvemos
+        //      ['datos'] con numero, fecha, trajo, citada y parte, y ['avisos']; o ['error'].
+        $entradas = $this->entradasDelPeriodo($idArticulo, $periodo['desde'], $periodo['hasta'], $traspaso);
+        if (isset($entradas['error'])) {
+            return $entradas;
+        }
+        $citadas = $this->entradasCitadas($idArticulo, $periodo['desde'], $periodo['hasta']);
+        if (isset($citadas['error'])) {
+            return $citadas;
+        }
+        $traidas = array();
+        $yaCitadas = array();
+        foreach ($entradas['datos'] as $posicion => $una) {
+            $entradas['datos'][$posicion]['citada'] = isset($citadas['datos'][$una['numero']]);
+            $entradas['datos'][$posicion]['parte'] = 0.0;
+            if ($entradas['datos'][$posicion]['citada']) {
+                $yaCitadas[] = $una['numero'];
+            } else {
+                $traidas[$posicion] = $una['trajo'];
+            }
+        }
+        if (count($traidas) === 0) {
+            return array('error' => $this->montarAdvertencia('danger', 'No hay albaranes de entrada que repartir en el mes: ninguno o todos ya aplicados por entradas. '
+                . 'Quita la opción para aplicar el mes en un albarán.'));
+        }
+        $partes = $this->repartoEntreEntradas($cantidad, array_values($traidas), $unidad);
+        foreach (array_keys($traidas) as $orden => $posicion) {
+            $entradas['datos'][$posicion]['parte'] = $partes[$orden];
+        }
+        $avisos = array();
+        if (count($yaCitadas) > 0) {
+            $avisos[] = $this->montarAdvertencia('warning', 'Las entradas ' . implode(', ', $yaCitadas)
+                . ' ya están aplicadas por entradas: no se reparten de nuevo, y lo que se aplica se reparte entre las demás.');
+        }
+
+        return array('datos' => $entradas['datos'], 'avisos' => $avisos);
+    }
+
+    private function entradasCitadas($idArticulo, $desde, $hasta)
+    {
+        // @ Objetivo
+        // Las entradas que cita alguna línea del producto, en un albarán de proveedor que cuenta para lo
+        // disponible o en un temporal, del periodo: su detalle termina en « · ENT <número>».
+        // @ Devolvemos
+        //      ['datos'] con los números citados como claves; o ['error'].
+        $citadas = array();
+        $sql = 'SELECT l.cdetalle FROM albprolinea l JOIN albprot c ON c.id = l.idalbpro'
+            . " WHERE l.idArticulo = ? AND l.estadoLinea = 'Activo' AND l.cdetalle LIKE ?"
+            . " AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado', 'Sin Guardar') AND DATE(c.Fecha) BETWEEN ? AND ?";
+        $lineas = $this->consultaPreparada($sql, array((int) $idArticulo, '% · ENT %', $desde, $hasta));
+        if (isset($lineas['error'])) {
+            return $lineas;
+        }
+        $detalles = array_column($lineas['datos'], 'cdetalle');
+        $temporales = $this->consultaPreparada('SELECT Productos FROM albproltemporales WHERE DATE(Fecha) BETWEEN ? AND ?', array($desde, $hasta));
+        if (isset($temporales['error'])) {
+            return $temporales;
+        }
+        foreach ($temporales['datos'] as $temporal) {
+            $productos = json_decode((string) $temporal['Productos'], true);
+            if (is_array($productos)) {
+                foreach ($productos as $producto) {
+                    if (isset($producto['idArticulo']) && (int) $producto['idArticulo'] === (int) $idArticulo
+                        && (!isset($producto['estado']) || strtolower($producto['estado']) === 'activo') && isset($producto['cdetalle'])) {
+                        $detalles[] = (string) $producto['cdetalle'];
+                    }
+                }
+            }
+        }
+        foreach ($detalles as $detalle) {
+            if (preg_match('/ · ENT (\d+)$/u', $detalle, $partes)) {
+                $citadas[(int) $partes[1]] = true;
+            }
+        }
+
+        return array('datos' => $citadas);
+    }
+
     private function nombreDeLaReceta($version)
     {
         // @ Objetivo
@@ -2002,7 +2238,8 @@ class RelacionesAplicacion extends RelacionesModelo
         // @ Devolvemos
         //      ['datos'] con derivado (bool) y rendimiento; o ['error'].
         $respuesta = array('datos' => array('derivado' => false, 'rendimiento' => 1.0));
-        if (preg_match('/ · REL (\d+) v(\d+\.\d+)$/u', $detalle, $partes)) {
+        // Tras la versión puede ir la entrada de la que sale la línea (« · ENT <número>»).
+        if (preg_match('/ · REL (\d+) v(\d+\.\d+)( · ENT \d+)?$/u', $detalle, $partes)) {
             $sql = 'SELECT l.idArticulo, l.sentido, l.cantidad FROM relaciones r JOIN relacionesLineas l ON l.idRelacion = r.id'
                 . " WHERE r.numRelacion = ? AND r.version = ? AND l.estado = 'Activo'";
             $leido = $this->consultaPreparada($sql, array((int) $partes[1], $partes[2]));
