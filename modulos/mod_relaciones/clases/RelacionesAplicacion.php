@@ -777,46 +777,73 @@ class RelacionesAplicacion extends RelacionesModelo
         // Avisar si el periodo puede estar ya registrado: los albaranes y los temporales de
         // compras de proveedores «Especial» con alguno de los productos de entrada, desde el
         // primer día del periodo. Del proveedor elegido y dentro del periodo, rojo; los demás,
-        // amarillo. Sin ninguno, verde.
+        // amarillo. Sin ninguno, verde. Un albarán o temporal que solo lleva el producto como
+        // derivado de otra aplicación —una pieza que salió de otra relación— no pone el rojo.
         // @ Devolvemos
         //      ['datos'] con color y documentos —albarán o temporal, número, proveedor, fecha y
-        //      color—; o ['error'].
+        //      color, y 'derivado' en los que solo lo llevan así—; o ['error'].
         $ids = array();
         foreach ($idArticulos as $idArticulo) {
             $ids[] = (int) $idArticulo;
         }
         $documentos = array();
-        $sql = 'SELECT c.id, c.Numalbpro, DATE(c.Fecha) AS fecha, c.idProveedor, p.nombrecomercial FROM albprot c'
+        $sql = 'SELECT c.id, c.Numalbpro, DATE(c.Fecha) AS fecha, c.idProveedor, p.nombrecomercial, l.idArticulo, l.cdetalle FROM albprot c'
             . ' JOIN proveedores p ON p.idProveedor = c.idProveedor'
-            . " WHERE p.estado = 'Especial' AND DATE(c.Fecha) >= ?"
-            . " AND c.id IN (SELECT l.idalbpro FROM albprolinea l WHERE l.estadoLinea = 'Activo' AND l.idArticulo IN ("
-            . implode(', ', array_fill(0, count($ids), '?')) . '))'
+            . ' JOIN albprolinea l ON l.idalbpro = c.id'
+            . " WHERE p.estado = 'Especial' AND DATE(c.Fecha) >= ? AND l.estadoLinea = 'Activo' AND l.idArticulo IN ("
+            . implode(', ', array_fill(0, count($ids), '?')) . ')'
             . ' ORDER BY c.Fecha, c.id';
         $respuesta = $this->consultaPreparada($sql, array_merge(array($desde), $ids));
         if (!isset($respuesta['error'])) {
+            // Las líneas llegan una por fila: se juntan por albarán, que es derivado solo si todas
+            // sus líneas del producto lo son.
+            $albaranes = array();
             foreach ($respuesta['datos'] as $fila) {
-                $documentos[] = $this->documentoDelAviso('albarán', (int) $fila['Numalbpro'], $fila, $idProveedor, $hasta);
+                if (!isset($albaranes[$fila['id']])) {
+                    $albaranes[$fila['id']] = array('fila' => $fila, 'derivado' => true);
+                }
+                $derivado = $this->lineaDeDerivado((int) $fila['idArticulo'], (string) $fila['cdetalle']);
+                if (isset($derivado['error'])) {
+                    $respuesta = $derivado;
+                    break;
+                }
+                if (!$derivado['datos']) {
+                    $albaranes[$fila['id']]['derivado'] = false;
+                }
             }
-            $sql = 'SELECT t.id, DATE(t.Fecha) AS fecha, t.idProveedor, p.nombrecomercial, t.Productos FROM albproltemporales t'
-                . ' JOIN proveedores p ON p.idProveedor = t.idProveedor'
-                . " WHERE p.estado = 'Especial' AND DATE(t.Fecha) >= ?"
-                . ' ORDER BY t.Fecha, t.id';
-            $respuesta = $this->consultaPreparada($sql, array($desde));
+            if (!isset($respuesta['error'])) {
+                foreach ($albaranes as $albaran) {
+                    $documentos[] = $this->documentoDelAviso('albarán', (int) $albaran['fila']['Numalbpro'], $albaran['fila'], $idProveedor, $hasta, $albaran['derivado']);
+                }
+                $sql = 'SELECT t.id, DATE(t.Fecha) AS fecha, t.idProveedor, p.nombrecomercial, t.Productos FROM albproltemporales t'
+                    . ' JOIN proveedores p ON p.idProveedor = t.idProveedor'
+                    . " WHERE p.estado = 'Especial' AND DATE(t.Fecha) >= ?"
+                    . ' ORDER BY t.Fecha, t.id';
+                $respuesta = $this->consultaPreparada($sql, array($desde));
+            }
         }
         if (!isset($respuesta['error'])) {
             foreach ($respuesta['datos'] as $fila) {
                 $productos = json_decode((string) $fila['Productos'], true);
                 $loLleva = false;
+                $derivado = true;
                 if (is_array($productos)) {
                     foreach ($productos as $producto) {
                         if (isset($producto['idArticulo']) && in_array((int) $producto['idArticulo'], $ids, true)
                             && (!isset($producto['estado']) || strtolower($producto['estado']) === 'activo')) {
                             $loLleva = true;
+                            $deLaLinea = $this->lineaDeDerivado((int) $producto['idArticulo'], (string) ($producto['cdetalle'] ?? ''));
+                            if (isset($deLaLinea['error'])) {
+                                return $deLaLinea;
+                            }
+                            if (!$deLaLinea['datos']) {
+                                $derivado = false;
+                            }
                         }
                     }
                 }
                 if ($loLleva) {
-                    $documentos[] = $this->documentoDelAviso('temporal', (int) $fila['id'], $fila, $idProveedor, $hasta);
+                    $documentos[] = $this->documentoDelAviso('temporal', (int) $fila['id'], $fila, $idProveedor, $hasta, $derivado);
                 }
             }
             $color = 'verde';
@@ -945,8 +972,12 @@ class RelacionesAplicacion extends RelacionesModelo
         // El aviso de proceso duplicado, con el color de su gravedad y lo que hay que mirar.
         $partes = array();
         foreach ($aviso['documentos'] as $documento) {
-            $partes[] = $documento['documento'] . ' ' . $documento['numero'] . ' de ' . $documento['proveedor']
+            $parte = $documento['documento'] . ' ' . $documento['numero'] . ' de ' . $documento['proveedor']
                 . ', del ' . $this->fechaLegible($documento['fecha']);
+            if (isset($documento['derivado'])) {
+                $parte .= ', que lo lleva como derivado de otra aplicación';
+            }
+            $partes[] = $parte;
         }
         if ($aviso['color'] === 'rojo') {
             $advertencia = $this->montarAdvertencia('danger', 'El periodo de «' . $producto . '» ya puede estar registrado con este proveedor: '
@@ -962,17 +993,46 @@ class RelacionesAplicacion extends RelacionesModelo
         return $advertencia;
     }
 
-    private function documentoDelAviso($documento, $numero, $fila, $idProveedor, $hasta)
+    private function documentoDelAviso($documento, $numero, $fila, $idProveedor, $hasta, $derivado = false)
     {
         // @ Objetivo
-        // Un albarán o un temporal del aviso, con su color: rojo si es del proveedor elegido y
-        // cae en el periodo.
+        // Un albarán o un temporal del aviso, con su color: rojo si es del proveedor elegido, cae
+        // en el periodo y lleva el producto aplicado; si solo lo lleva como derivado, amarillo.
         $color = 'amarillo';
-        if ((int) $fila['idProveedor'] === (int) $idProveedor && $fila['fecha'] <= $hasta) {
+        if ((int) $fila['idProveedor'] === (int) $idProveedor && $fila['fecha'] <= $hasta && !$derivado) {
             $color = 'rojo';
         }
+        $respuesta = array('documento' => $documento, 'numero' => $numero, 'proveedor' => $fila['nombrecomercial'], 'fecha' => $fila['fecha'], 'color' => $color);
+        // Solo los derivados llevan la marca: los demás documentos quedan como estaban.
+        if ($derivado) {
+            $respuesta['derivado'] = true;
+        }
 
-        return array('documento' => $documento, 'numero' => $numero, 'proveedor' => $fila['nombrecomercial'], 'fecha' => $fila['fecha'], 'color' => $color);
+        return $respuesta;
+    }
+
+    private function lineaDeDerivado($idArticulo, $detalle)
+    {
+        // @ Objetivo
+        // Saber si una línea lleva el producto como derivado de otra aplicación. El detalle de las
+        // líneas que deja la aplicación termina en « · REL <número> v<versión>»: el producto es
+        // derivado si sale en esa versión de la relación. Una línea sin esa etiqueta, o con una
+        // relación que no lo lleva como salida, cuenta como aplicada: ante la duda, se bloquea.
+        // @ Devolvemos
+        //      ['datos'] true si es derivado, false si no; o ['error'].
+        $respuesta = array('datos' => false);
+        if (preg_match('/ · REL (\d+) v(\d+\.\d+)$/u', $detalle, $partes)) {
+            $sql = 'SELECT l.sentido FROM relaciones r JOIN relacionesLineas l ON l.idRelacion = r.id'
+                . " WHERE r.numRelacion = ? AND r.version = ? AND l.idArticulo = ? AND l.estado = 'Activo'";
+            $leido = $this->consultaPreparada($sql, array((int) $partes[1], $partes[2], (int) $idArticulo));
+            if (isset($leido['error'])) {
+                $respuesta = $leido;
+            } elseif (isset($leido['datos'][0]) && $leido['datos'][0]['sentido'] === 'salida') {
+                $respuesta['datos'] = true;
+            }
+        }
+
+        return $respuesta;
     }
 
     private function lineaDeCompras($idArticulo, $unidades, $coste, $articulos, $fila, $etiqueta = '')
