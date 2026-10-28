@@ -10,9 +10,9 @@
 // Los precios de mercado escritos en la tabla, por artículo, hasta que se cambie de relación.
 var preciosEscritosAplicacion = {};
 
-// El árbol de las recetas que se aplican a la vez: la relación de la que sale, las hermanas que
-// ofrece el servidor, las añadidas —con lo escrito en su rama— y los precios escritos en el
-// escandallo de cada una, por relación y artículo.
+// El árbol de las recetas que se aplican a la vez: la relación de la que sale, las recetas que
+// ofrece el servidor —hermanas y de los derivados—, las añadidas —con lo escrito en su rama— y los
+// precios escritos en el escandallo de cada una, por relación y artículo.
 var relacionDelArbol = "";
 var hermanasOfrecidas = [];
 var hermanasDelArbol = [];
@@ -107,15 +107,31 @@ function cargarHermanasAplicacion() {
   });
 }
 
+function seVeEnLaListaAplicacion(receta) {
+  // Las hermanas y las que parten de un producto de la elegida se ven siempre; las de un derivado,
+  // cuando su producto sale de una receta añadida.
+  if (receta.origen !== "derivado") {
+    return true;
+  }
+  var colgada = false;
+  $.each(hermanasDelArbol, function (indice, anadida) {
+    if ($.inArray(receta.idEntrada, anadida.salidas) !== -1) {
+      colgada = true;
+    }
+  });
+  return colgada;
+}
+
 function pintarHermanasAplicacion() {
-  // La lista de las recetas que se pueden añadir; la que ya está en el árbol queda inactiva.
+  // La lista de las recetas que se pueden añadir ya; la que está en el árbol queda inactiva.
   var lista = $("#hermanasAplicacion");
   lista.empty();
-  if (hermanasOfrecidas.length === 0) {
+  var visibles = $.grep(hermanasOfrecidas, seVeEnLaListaAplicacion);
+  if (visibles.length === 0) {
     return;
   }
   $("<h4>").text("Recetas que se pueden añadir").appendTo(lista);
-  $.each(hermanasOfrecidas, function (indice, hermana) {
+  $.each(visibles, function (indice, hermana) {
     var anadida = buscarHermanaAplicacion(hermana.numRelacion) !== null;
     var fila = $("<div>").addClass("hermana").attr("data-num", hermana.numRelacion).appendTo(lista);
     $("<span>").text(hermana.nombre + " (" + hermana.entrada + ")" + (anadida ? " — añadida " : " ")).appendTo(fila);
@@ -140,7 +156,8 @@ function buscarHermanaAplicacion(numRelacion) {
 function anadirHermanaAplicacion(hermana) {
   console.log("Aplicar relación: añade la hermana " + hermana.numRelacion);
   if (buscarHermanaAplicacion(hermana.numRelacion) === null) {
-    hermanasDelArbol.push({ numRelacion: hermana.numRelacion, nombre: hermana.nombre, cantidad: "", ajustePeso: "1" });
+    hermanasDelArbol.push({ numRelacion: hermana.numRelacion, nombre: hermana.nombre, entrada: hermana.entrada, idEntrada: hermana.idEntrada,
+      salidas: hermana.salidas, origen: hermana.origen, cantidad: "", ajustePeso: "1" });
   }
   limpiarResultadoAplicacion();
   pintarArbolAplicacion();
@@ -148,25 +165,54 @@ function anadirHermanaAplicacion(hermana) {
 }
 
 function quitarHermanaAplicacion(numRelacion) {
-  console.log("Aplicar relación: quita la hermana " + numRelacion);
+  // Con la rama se van las que colgaban de sus derivados, y las que colgaban de estas.
+  console.log("Aplicar relación: quita la receta " + numRelacion);
   hermanasDelArbol = $.grep(hermanasDelArbol, function (hermana) {
     return String(hermana.numRelacion) !== String(numRelacion);
   });
   delete preciosDeHermanas[numRelacion];
+  var quedan = hermanasDelArbol.length + 1;
+  while (hermanasDelArbol.length < quedan) {
+    quedan = hermanasDelArbol.length;
+    hermanasDelArbol = $.grep(hermanasDelArbol, seVeEnLaListaAplicacion);
+  }
   limpiarResultadoAplicacion();
   pintarArbolAplicacion();
   pintarHermanasAplicacion();
 }
 
 function textoDeLaRaizAplicacion() {
-  var entrada = hermanasOfrecidas.length > 0 ? hermanasOfrecidas[0].entrada : "";
+  var entrada = $("#numRelacionAplicacion option:selected").text();
+  $.each(hermanasOfrecidas, function (indice, receta) {
+    if (receta.origen === "hermana") {
+      entrada = receta.entrada;
+    }
+  });
   return "Producto de partida: " + entrada;
+}
+
+function profundidadEnElArbolAplicacion(receta) {
+  // Cuántos niveles cuelga una rama: una hermana, uno; una receta de un producto de la elegida,
+  // dos; la de un derivado, uno más que la receta de la que sale su producto.
+  if (receta.origen === "hermana") {
+    return 1;
+  }
+  if (receta.origen === "elegida") {
+    return 2;
+  }
+  var profundidad = 2;
+  $.each(hermanasDelArbol, function (indice, anadida) {
+    if (anadida !== receta && $.inArray(receta.idEntrada, anadida.salidas) !== -1) {
+      profundidad = profundidadEnElArbolAplicacion(anadida) + 1;
+    }
+  });
+  return profundidad;
 }
 
 function pintarArbolAplicacion() {
   // El árbol de lo que se aplica: el producto de partida, la receta elegida —con la cantidad y el
-  // ajuste de arriba— y una rama por hermana añadida, con su cantidad, su ajuste y «Quitar». Con
-  // una sola receta no se pinta.
+  // ajuste de arriba— y una rama por receta añadida, colgada a su nivel, con su cantidad, su ajuste y
+  // «Quitar». Con una sola receta no se pinta.
   var arbol = $("#arbolAplicacion");
   arbol.empty();
   if (hermanasDelArbol.length === 0) {
@@ -175,9 +221,16 @@ function pintarArbolAplicacion() {
   $("<div>").addClass("raiz").text(textoDeLaRaizAplicacion()).appendTo(arbol);
   $("<div>").addClass("principal").text("└ " + $("#numRelacionAplicacion option:selected").text() + ": la cantidad y el ajuste de arriba; vacía, toma lo que sobra").appendTo(arbol);
   $.each(hermanasDelArbol, function (indice, hermana) {
-    var rama = $("<div>").addClass("rama well well-sm").attr("data-num", hermana.numRelacion).appendTo(arbol);
-    $("<strong>").text("└ " + hermana.nombre + " ").appendTo(rama);
-    var cantidad = $("<input>").attr("type", "text").addClass("cantidadHermana").attr("placeholder", "No entra").val(hermana.cantidad)
+    var rama = $("<div>").addClass("rama well well-sm").attr("data-num", hermana.numRelacion)
+      .css("margin-left", (profundidadEnElArbolAplicacion(hermana) * 20) + "px").appendTo(arbol);
+    var titulo = "└ " + hermana.nombre + " ";
+    var vacia = "No entra";
+    if (hermana.origen !== "hermana") {
+      titulo = "└ " + hermana.nombre + " (de " + hermana.entrada + ") ";
+      vacia = "Lo generado";
+    }
+    $("<strong>").text(titulo).appendTo(rama);
+    var cantidad = $("<input>").attr("type", "text").addClass("cantidadHermana").attr("placeholder", vacia).val(hermana.cantidad)
       .on("change", function () {
         hermana.cantidad = $(this).val();
         cambiarDatoAplicacion("la cantidad de " + hermana.nombre);
@@ -214,7 +267,8 @@ function hermanasParaLaPeticion() {
 }
 
 function pintarRecetasDelArbol(datos) {
-  // Lo que entra en cada rama, con su escandallo, y en la raíz lo disponible y lo que queda sin aplicar.
+  // Lo que entra en cada rama, con su escandallo —en la de un derivado, también su coste de partida—,
+  // en la raíz lo disponible y lo que queda sin aplicar, y lo de cada derivado.
   if (!datos.recetas || hermanasDelArbol.length === 0) {
     return;
   }
@@ -226,13 +280,19 @@ function pintarRecetasDelArbol(datos) {
   });
   var aplicado = 0;
   $.each(datos.recetas, function (indice, receta) {
-    aplicado += receta.cantidad;
+    if (receta.deDerivado === null) {
+      aplicado += receta.cantidad;
+    }
     if (indice === 0) {
       return;
     }
     var resultado = $('#arbolAplicacion .rama[data-num="' + receta.numRelacion + '"] .resultadoHermana');
     resultado.empty();
-    $("<p>").text("Entran " + cantidadLegibleAplicacion(receta.cantidad) + " " + unidad).appendTo(resultado);
+    var entran = "Entran " + cantidadLegibleAplicacion(receta.cantidad) + " " + receta.unidad;
+    if (receta.deDerivado !== null) {
+      entran += " de " + receta.entrada + ", a " + numeroLegibleAplicacion(receta.costeDePartida, 4) + " € por " + receta.unidad;
+    }
+    $("<p>").text(entran).appendTo(resultado);
     if (receta.escandallo) {
       var tabla = $("<table>").addClass("table table-bordered table-condensed").appendTo(resultado);
       var cabecera = $("<tr>").appendTo($("<thead>").appendTo(tabla));
@@ -249,6 +309,16 @@ function pintarRecetasDelArbol(datos) {
   });
   $("#arbolAplicacion .raiz").text(textoDeLaRaizAplicacion() + " · Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad
     + " · Sin aplicar: " + cantidadLegibleAplicacion(datos.disponible - aplicado) + " " + unidad);
+  // Lo de cada derivado del que parte alguna receta: lo generado, lo del periodo y su coste.
+  $.each(datos.derivados || [], function (indice, derivado) {
+    $("<div>").addClass("derivado").text(derivado.articulo + ": genera " + cantidadLegibleAplicacion(derivado.generado) + " " + derivado.unidad
+      + " · del periodo " + cantidadLegibleAplicacion(derivado.delPeriodo) + " " + derivado.unidad
+      + " · disponible " + cantidadLegibleAplicacion(derivado.disponible) + " " + derivado.unidad
+      + " · entran " + cantidadLegibleAplicacion(derivado.aplicado) + " " + derivado.unidad
+      + " · sin aplicar " + cantidadLegibleAplicacion(derivado.disponible - derivado.aplicado) + " " + derivado.unidad
+      + " · coste de partida " + numeroLegibleAplicacion(derivado.costeDePartida, 4) + " €")
+      .insertAfter("#arbolAplicacion .raiz");
+  });
 }
 
 function cambiarPeriodoAplicacion() {
@@ -345,6 +415,7 @@ function cambiarDatoAplicacion(campo) {
 
 function limpiarResultadoAplicacion() {
   $("#arbolAplicacion .resultadoHermana").empty();
+  $("#arbolAplicacion .derivado").remove();
   $("#arbolAplicacion .raiz").text(textoDeLaRaizAplicacion());
   $("#avisosAplicacion").empty();
   $("#datosAplicacion").empty();

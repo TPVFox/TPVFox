@@ -102,13 +102,18 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         $hermanas = array();
+        $arbol = array('raiz' => array(), 'derivados' => array());
         if ($version !== null) {
             $leidas = $this->hermanasDeLaPeticion($peticion, $version, $entrada, $fechaDeLaVersion);
+            if (!isset($leidas['error'])) {
+                $hermanas = $leidas['datos'];
+                $leidas = $this->colocarRecetas($version, $entrada, $hermanas);
+            }
             if (isset($leidas['error'])) {
                 $respuesta['avisos'][] = $leidas['error'];
                 $version = null;
             } else {
-                $hermanas = $leidas['datos'];
+                $arbol = $leidas['datos'];
             }
         }
 
@@ -161,7 +166,11 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (isset($peticion['cantidad'])) {
                     $escrita = $peticion['cantidad'];
                 }
-                $elegida = $this->cantidadAplicada($escrita, $disponible, $entrada, $periodo, $hermanas);
+                $deLaRaiz = array();
+                foreach ($arbol['raiz'] as $indice) {
+                    $deLaRaiz[] = $hermanas[$indice];
+                }
+                $elegida = $this->cantidadAplicada($escrita, $disponible, $entrada, $periodo, $deLaRaiz);
                 if (isset($elegida['error'])) {
                     $respuesta['avisos'][] = $elegida['error'];
                 } else {
@@ -172,18 +181,36 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         if ($cantidad !== null) {
-            // La elegida primero y las hermanas detrás, en el orden en que llegan.
+            // De arriba abajo: primero las recetas del producto de partida —la elegida y sus hermanas,
+            // en el orden en que llegan—, y después las de cada derivado, cuando ya están calculadas
+            // todas las que lo generan.
             $precios = array();
             if (is_array($peticion['precios'])) {
                 $precios = $peticion['precios'];
             }
             $recetas = array(array('numRelacion' => (int) $version['numRelacion'], 'nombre' => $this->nombreDeLaReceta($version), 'version' => $version,
+                'idEntrada' => (int) $entrada['idArticulo'], 'entrada' => $entrada['articulo'], 'unidad' => $entrada['unidad'], 'deDerivado' => null,
                 'cantidad' => $cantidad, 'precios' => $precios, 'ajustePeso' => $peticion['ajustePeso'], 'ajusteValor' => $peticion['ajusteValor']));
-            foreach ($hermanas as $posicion => $hermana) {
+            foreach ($arbol['raiz'] as $posicion => $indice) {
+                $hermana = $hermanas[$indice];
                 $hermana['cantidad'] = $elegida['datos']['hermanas'][$posicion];
+                $hermana['deDerivado'] = null;
                 $recetas[] = $hermana;
             }
             $calculadas = $this->recetasCalculadas($recetas, $costeDePartida['coste']);
+            $derivados = array();
+            foreach ($arbol['derivados'] as $grupo) {
+                if (!isset($calculadas['error'])) {
+                    $delDerivado = $this->recetasDelDerivado($grupo, $hermanas, $calculadas['datos'], $periodo, $traspaso, $consultaDeExistencias);
+                    if (isset($delDerivado['error'])) {
+                        $calculadas = $delDerivado;
+                    } else {
+                        $derivados[] = $delDerivado['datos']['derivado'];
+                        $calculadas['datos'] = array_merge($calculadas['datos'], $delDerivado['datos']['recetas']);
+                        $calculadas['avisos'] = array_merge($calculadas['avisos'], $delDerivado['avisos']);
+                    }
+                }
+            }
             if (isset($calculadas['error'])) {
                 $respuesta['avisos'][] = $calculadas['error'];
             } else {
@@ -228,8 +255,11 @@ class RelacionesAplicacion extends RelacionesModelo
                     $respuesta['datos']['recetas'] = array();
                     foreach ($recetas as $receta) {
                         $respuesta['datos']['recetas'][] = array('numRelacion' => $receta['numRelacion'], 'nombre' => $receta['nombre'], 'version' => $receta['version']['version'],
-                            'cantidad' => $receta['cantidad'], 'escandallo' => $receta['escandallo'], 'minimo' => $desajuste['datos']['minimos'][$receta['numRelacion']]);
+                            'idEntrada' => $receta['idEntrada'], 'entrada' => $receta['entrada'], 'unidad' => $receta['unidad'], 'deDerivado' => $receta['deDerivado'],
+                            'cantidad' => $receta['cantidad'], 'costeDePartida' => $receta['costeDePartida'], 'escandallo' => $receta['escandallo'],
+                            'minimo' => $desajuste['datos']['minimos'][$receta['numRelacion']]);
                     }
+                    $respuesta['datos']['derivados'] = $derivados;
                     $avisoDeDesajuste = $this->advertenciaDeDesajuste($desajuste['datos'], $entrada, $recetas);
                     if ($avisoDeDesajuste !== null) {
                         $respuesta['avisos'][] = $avisoDeDesajuste;
@@ -639,6 +669,21 @@ class RelacionesAplicacion extends RelacionesModelo
         foreach ($recetas as $receta) {
             $numero = $receta['numRelacion'];
             $numeros[] = $numero;
+            // Lo que se despieza de un derivado del árbol sale de él: resta de lo que genera, y no
+            // cuenta para el mínimo de su receta.
+            if (isset($receta['deDerivado']) && $receta['deDerivado'] !== null) {
+                $id = (int) $receta['deDerivado'];
+                if (!isset($piezas[$id])) {
+                    $movimientos = $this->movimientosDeLaPieza($id, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias);
+                    $piezas[$id] = array('idArticulo' => $id, 'articulo' => $receta['entrada'], 'unidad' => $receta['unidad'], 'saldoInicial' => $movimientos['saldoInicial'],
+                        'entradas' => $movimientos['entradas'], 'salidas' => $movimientos['salidas'], 'generaPorReceta' => array(), 'porUnidadPorReceta' => array());
+                }
+                $piezas[$id]['generaPorReceta'][$numero] = 0.0;
+                if ($receta['escandallo'] !== null) {
+                    $piezas[$id]['generaPorReceta'][$numero] = -$receta['escandallo']['despiezado'];
+                }
+                $piezas[$id]['porUnidadPorReceta'][$numero] = 0.0;
+            }
             $entra = 0.0;
             foreach ($receta['version']['lineas'] as $linea) {
                 if ($linea['sentido'] === 'entrada' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
@@ -788,11 +833,14 @@ class RelacionesAplicacion extends RelacionesModelo
     public function hermanas($numRelacion)
     {
         // @ Objetivo
-        // Las recetas hermanas de una relación: las demás que rigen y se pueden aplicar, de su mismo
-        // tipo y con el mismo producto de entrada. Se aplican a la vez que ella, cada una con su
-        // cantidad.
+        // Las recetas que se pueden aplicar a la vez que una relación: sus hermanas —las demás del
+        // mismo tipo con el mismo producto de entrada— y las del mismo tipo que parten de un producto
+        // que sale de ella o de otra receta de la lista, a cualquier nivel. Los productos se recorren
+        // en anchura y uno ya visto no se vuelve a recorrer, así que un ciclo no repite la lectura.
         // @ Devolvemos
-        //      ['datos'] con numRelacion, nombre y el producto que entra; o ['error'].
+        //      ['datos'] con numRelacion, nombre, el producto que entra (entrada e idEntrada), los que
+        //      salen (salidas) y su origen: 'hermana', 'elegida' si parte de un producto de la elegida,
+        //      o 'derivado'; o ['error'].
         $aplicables = $this->relacionesAplicables();
         if (isset($aplicables['error'])) {
             return $aplicables;
@@ -806,18 +854,104 @@ class RelacionesAplicacion extends RelacionesModelo
         if ($elegida === null) {
             return array('error' => $this->montarAdvertencia('warning', 'La relación elegida no se puede aplicar: elige una de la lista.'));
         }
-        $respuesta = array('datos' => array());
+        $porEntrada = array();
         foreach ($aplicables['datos'] as $relacion) {
-            if ($relacion['numRelacion'] !== $elegida['numRelacion'] && $relacion['idTipo'] === $elegida['idTipo'] && $relacion['idEntrada'] === $elegida['idEntrada']) {
-                $nombre = $relacion['entrada'];
-                if ($relacion['nombre'] !== null && $relacion['nombre'] !== '') {
-                    $nombre = $relacion['nombre'];
+            if ($relacion['numRelacion'] !== $elegida['numRelacion'] && $relacion['idTipo'] === $elegida['idTipo']) {
+                $porEntrada[$relacion['idEntrada']][] = $relacion;
+            }
+        }
+        $respuesta = array('datos' => array());
+        $cola = array();
+        foreach ($elegida['idSalidas'] as $idSalida) {
+            $cola[] = array($idSalida, 'elegida');
+        }
+        if (isset($porEntrada[$elegida['idEntrada']])) {
+            foreach ($porEntrada[$elegida['idEntrada']] as $relacion) {
+                $respuesta['datos'][] = $this->recetaDeLaLista($relacion, 'hermana');
+                foreach ($relacion['idSalidas'] as $idSalida) {
+                    $cola[] = array($idSalida, 'derivado');
                 }
-                $respuesta['datos'][] = array('numRelacion' => $relacion['numRelacion'], 'nombre' => $nombre, 'entrada' => $relacion['entrada']);
+            }
+        }
+        $vistos = array($elegida['idEntrada'] => true);
+        $posicion = 0;
+        while ($posicion < count($cola)) {
+            $idProducto = $cola[$posicion][0];
+            $origen = $cola[$posicion][1];
+            $posicion++;
+            if (!isset($vistos[$idProducto])) {
+                $vistos[$idProducto] = true;
+                if (isset($porEntrada[$idProducto])) {
+                    foreach ($porEntrada[$idProducto] as $relacion) {
+                        $respuesta['datos'][] = $this->recetaDeLaLista($relacion, $origen);
+                        foreach ($relacion['idSalidas'] as $idSalida) {
+                            $cola[] = array($idSalida, 'derivado');
+                        }
+                    }
+                }
             }
         }
 
         return $respuesta;
+    }
+
+    public function costeDelDerivado($generado, $costeGenerado, $cantidad, $costeProveedor)
+    {
+        // @ Objetivo
+        // El coste de partida de un derivado que entra en sus recetas: el que le dio el escandallo
+        // mientras no entra más de lo generado; con más, la media ponderada entre lo generado, a ese
+        // coste, y lo de más, al coste de proveedor de su ficha. No consulta la base.
+        // @ Devolvemos
+        //      (float) el coste por unidad, a cuatro decimales; null si hace falta el de proveedor y
+        //      no se tiene.
+        if ($cantidad <= $generado + 0.0000001) {
+            return round($costeGenerado, 4);
+        }
+        if ($costeProveedor === null) {
+            return null;
+        }
+
+        return round(($generado * $costeGenerado + ($cantidad - $generado) * $costeProveedor) / $cantidad, 4);
+    }
+
+    public function repartoDelDerivado($escritas, $generado, $disponible, $derivado)
+    {
+        // @ Objetivo
+        // Lo que entra en cada receta de un derivado: lo escrito; la primera vacía toma lo generado
+        // menos lo escrito en las demás, y las otras vacías no entran. La suma no pasa de lo
+        // disponible: lo generado más lo del periodo. No consulta la base.
+        // @ Parametros
+        //      $escritas -> la cantidad escrita de cada receta, o null.
+        //      $generado, $disponible -> del derivado.
+        //      $derivado -> su nombre (articulo) y su unidad.
+        // @ Devolvemos
+        //      ['datos'] con la cantidad de cada receta; o ['error'].
+        $suma = 0.0;
+        foreach ($escritas as $escrita) {
+            if ($escrita !== null) {
+                $suma += $escrita;
+            }
+        }
+        $cantidades = array();
+        $primeraVacia = true;
+        foreach ($escritas as $escrita) {
+            if ($escrita !== null) {
+                $cantidades[] = (float) $escrita;
+            } elseif ($primeraVacia) {
+                $cantidades[] = max(0.0, round($generado - $suma, 3));
+                $primeraVacia = false;
+            } else {
+                $cantidades[] = 0.0;
+            }
+        }
+        $total = array_sum($cantidades);
+        if ($total > $disponible + 0.0000001) {
+            return array('error' => $this->montarAdvertencia('warning', 'Lo que entra en las recetas de «' . $derivado['articulo'] . '» (' . $this->numeroLegible($total) . ' '
+                . $derivado['unidad'] . ') pasa de lo disponible (' . $this->numeroLegible($disponible) . ' ' . $derivado['unidad']
+                . ': lo que genera el árbol más lo del periodo): baja la cantidad de alguna, o déjala vacía para que tome lo generado.'));
+        }
+
+        return array('datos' => $cantidades);
     }
 
     public function precioEscrito($texto)
@@ -1105,8 +1239,9 @@ class RelacionesAplicacion extends RelacionesModelo
         // @ Objetivo
         // Las relaciones que rigen y se pueden aplicar, para elegirlas en la pantalla.
         // @ Devolvemos
-        //      ['datos'] con numRelacion, nombre, tipo y el producto que entra, y los id del tipo y
-        //      del producto, con los que se buscan las hermanas; o ['error'].
+        //      ['datos'] con numRelacion, nombre, tipo y el producto que entra, y los id del tipo, del
+        //      producto que entra y de los que salen, con los que se buscan las recetas que se pueden
+        //      aplicar a la vez; o ['error'].
         $CRelaciones = new Relaciones();
         $CTipos = new RelacionesTipos();
         $vigentes = $CRelaciones->vigentes();
@@ -1126,14 +1261,17 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (isset($llevaCantidad[$idTipo]) && $this->esAplicable($relacion['forma'], $llevaCantidad[$idTipo], $relacion['lineas'])['aplicable']) {
                     $entra = '';
                     $idEntra = 0;
+                    $idSalidas = array();
                     foreach ($relacion['lineas'] as $linea) {
                         if ($linea['sentido'] === 'entrada') {
                             $entra = $linea['articulo'];
                             $idEntra = (int) $linea['idArticulo'];
+                        } else {
+                            $idSalidas[] = (int) $linea['idArticulo'];
                         }
                     }
                     $respuesta['datos'][] = array('numRelacion' => (int) $relacion['numRelacion'], 'nombre' => $relacion['nombre'], 'tipo' => $relacion['tipo'], 'entrada' => $entra,
-                        'idTipo' => $idTipo, 'idEntrada' => $idEntra);
+                        'idTipo' => $idTipo, 'idEntrada' => $idEntra, 'idSalidas' => $idSalidas);
                 }
             }
         }
@@ -1441,8 +1579,13 @@ class RelacionesAplicacion extends RelacionesModelo
             $cantidad = 0.0;
             $minimos = array();
             foreach ($recetas as $receta) {
-                $cantidad += $receta['cantidad'];
-                $minimos[] = $this->numeroLegible($desajuste['minimos'][$receta['numRelacion']]) . ' ' . $entrada['unidad'] . ' en «' . $receta['nombre'] . '»';
+                $unidad = $entrada['unidad'];
+                if (isset($receta['deDerivado']) && $receta['deDerivado'] !== null) {
+                    $unidad = $receta['unidad'];
+                } else {
+                    $cantidad += $receta['cantidad'];
+                }
+                $minimos[] = $this->numeroLegible($desajuste['minimos'][$receta['numRelacion']]) . ' ' . $unidad . ' en «' . $receta['nombre'] . '»';
             }
             $minimo = $this->numeroLegible($desajuste['minimo']) . ' ' . $entrada['unidad'];
             if (count($recetas) > 1) {
@@ -1503,18 +1646,20 @@ class RelacionesAplicacion extends RelacionesModelo
     private function hermanasDeLaPeticion($peticion, $version, $entrada, $fechaDeLaVersion)
     {
         // @ Objetivo
-        // Las recetas hermanas que llegan en la petición, cada una con la versión que se aplica, si de
-        // verdad lo son: se vuelven a buscar las de la elegida, y no se admite una que no está entre
-        // ellas, repetida o la propia elegida, ni una cuya unidad no es la de la elegida.
+        // Las recetas añadidas que llegan en la petición, cada una con la versión que se aplica, si de
+        // verdad se pueden añadir: se vuelven a buscar las de la elegida (hermanas()), y no se admite
+        // una que no está entre ellas, repetida o la propia elegida. Dónde cuelga cada una lo decide
+        // colocarRecetas().
         // @ Devolvemos
-        //      ['datos'] con, por hermana, numRelacion, nombre, version, la cantidad como se escribió
-        //      (escrita), precios, ajustePeso y ajusteValor; o ['error'].
+        //      ['datos'] con, por receta, numRelacion, nombre, version, el producto que entra (idEntrada,
+        //      entrada y unidad), la cantidad como se escribió (escrita), precios, ajustePeso y
+        //      ajusteValor; o ['error'].
         $pedidas = array();
         if (isset($peticion['hermanas'])) {
             $pedidas = $peticion['hermanas'];
         }
         $noVale = array('error' => $this->montarAdvertencia('warning', 'Alguna receta añadida no es hermana de «' . $this->nombreDeLaReceta($version)
-            . '», está repetida o no es válida: quítala del árbol y vuelve a calcular.'));
+            . '» ni parte de uno de sus derivados, está repetida o no es válida: quítala del árbol y vuelve a calcular.'));
         if (!is_array($pedidas)) {
             return $noVale;
         }
@@ -1545,13 +1690,15 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (isset($suVersion['error'])) {
                     return $suVersion;
                 }
+                $leida = array('numRelacion' => (int) $numero, 'nombre' => $nombres[(int) $numero], 'version' => $suVersion['datos'],
+                    'idEntrada' => 0, 'entrada' => '', 'unidad' => '', 'escrita' => '', 'precios' => array(), 'ajustePeso' => '1', 'ajusteValor' => '1');
                 foreach ($suVersion['datos']['lineas'] as $linea) {
-                    if ($linea['sentido'] === 'entrada' && $linea['unidad'] !== $entrada['unidad']) {
-                        return $noVale;
+                    if ($linea['sentido'] === 'entrada') {
+                        $leida['idEntrada'] = (int) $linea['idArticulo'];
+                        $leida['entrada'] = $linea['articulo'];
+                        $leida['unidad'] = $linea['unidad'];
                     }
                 }
-                $leida = array('numRelacion' => (int) $numero, 'nombre' => $nombres[(int) $numero], 'version' => $suVersion['datos'],
-                    'escrita' => '', 'precios' => array(), 'ajustePeso' => '1', 'ajusteValor' => '1');
                 foreach (array('cantidad' => 'escrita', 'ajustePeso' => 'ajustePeso', 'ajusteValor' => 'ajusteValor') as $campo => $clave) {
                     if (isset($pedida[$campo]) && !is_array($pedida[$campo])) {
                         $leida[$clave] = (string) $pedida[$campo];
@@ -1577,6 +1724,7 @@ class RelacionesAplicacion extends RelacionesModelo
         $avisos = array();
         foreach ($recetas as $posicion => $receta) {
             $recetas[$posicion]['escandallo'] = null;
+            $recetas[$posicion]['costeDePartida'] = round((float) $costeDePartida, 4);
             if ($receta['cantidad'] > 0) {
                 $salidas = array();
                 foreach ($receta['version']['lineas'] as $linea) {
@@ -1590,14 +1738,14 @@ class RelacionesAplicacion extends RelacionesModelo
                 }
                 $escandallo = $this->escandallo($receta['version'], $receta['cantidad'], $costeDePartida, $receta['precios'], $medias['datos'], $receta['ajustePeso'], $receta['ajusteValor']);
                 if (isset($escandallo['error'])) {
-                    if ($posicion > 0) {
+                    if ($posicion > 0 || $receta['deDerivado'] !== null) {
                         $escandallo['error']['mensaje'] = '«' . $receta['nombre'] . '»: ' . $escandallo['error']['mensaje'];
                     }
                     return $escandallo;
                 }
                 $recetas[$posicion]['escandallo'] = $escandallo['datos'];
                 foreach ($escandallo['avisos'] as $aviso) {
-                    if ($posicion > 0) {
+                    if ($posicion > 0 || $receta['deDerivado'] !== null) {
                         $aviso['mensaje'] = '«' . $receta['nombre'] . '»: ' . $aviso['mensaje'];
                     }
                     $avisos[] = $aviso;
@@ -1606,6 +1754,223 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return array('datos' => $recetas, 'avisos' => $avisos);
+    }
+
+    private function recetaDeLaLista($relacion, $origen)
+    {
+        // @ Objetivo
+        // Una receta de la lista de las que se pueden añadir, con lo que necesita la pantalla.
+        $nombre = $relacion['entrada'];
+        if ($relacion['nombre'] !== null && $relacion['nombre'] !== '') {
+            $nombre = $relacion['nombre'];
+        }
+
+        return array('numRelacion' => $relacion['numRelacion'], 'nombre' => $nombre, 'entrada' => $relacion['entrada'],
+            'idEntrada' => $relacion['idEntrada'], 'salidas' => $relacion['idSalidas'], 'origen' => $origen);
+    }
+
+    private function colocarRecetas($version, $entrada, $anadidas)
+    {
+        // @ Objetivo
+        // Dónde cuelga cada receta añadida y en qué orden se calcula. Un producto está en el árbol si
+        // es el de partida o sale de la elegida o de una receta ya colocada; una receta se coloca si su
+        // producto de entrada está en el árbol con su misma unidad. La que no se puede colocar, o un
+        // producto que vuelve a ser origen de sí mismo, rechazan la petición. Cada derivado va
+        // después de todas las recetas que lo generan.
+        // @ Devolvemos
+        //      ['datos'] con raiz —las posiciones de las recetas del producto de partida— y derivados
+        //      —por derivado, en el orden del cálculo, idArticulo y las posiciones de sus recetas—; o
+        //      ['error'].
+        $idRaiz = (int) $entrada['idArticulo'];
+        $enElArbol = array();
+        $aristas = array();
+        foreach ($version['lineas'] as $linea) {
+            $enElArbol[(int) $linea['idArticulo']] = $linea['unidad'];
+            if ($linea['sentido'] === 'salida') {
+                $aristas[$idRaiz][] = (int) $linea['idArticulo'];
+            }
+        }
+        $colocadas = array();
+        $hayCambio = true;
+        while ($hayCambio) {
+            $hayCambio = false;
+            foreach ($anadidas as $posicion => $anadida) {
+                if (!isset($colocadas[$posicion]) && isset($enElArbol[$anadida['idEntrada']]) && $enElArbol[$anadida['idEntrada']] === $anadida['unidad']) {
+                    $colocadas[$posicion] = true;
+                    $hayCambio = true;
+                    foreach ($anadida['version']['lineas'] as $linea) {
+                        if ($linea['sentido'] === 'salida') {
+                            $aristas[$anadida['idEntrada']][] = (int) $linea['idArticulo'];
+                            if (!isset($enElArbol[(int) $linea['idArticulo']])) {
+                                $enElArbol[(int) $linea['idArticulo']] = $linea['unidad'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        foreach ($anadidas as $posicion => $anadida) {
+            if (!isset($colocadas[$posicion])) {
+                return array('error' => $this->montarAdvertencia('warning', '«' . $anadida['nombre'] . '» no parte de ningún producto del árbol, o lo hace en otra unidad: '
+                    . 'añade antes la receta de la que sale su producto, o quítala, y vuelve a calcular.'));
+            }
+        }
+        $estado = array();
+        if ($this->hayCiclo($aristas, $idRaiz, $estado)) {
+            return array('error' => $this->montarAdvertencia('warning', 'Las recetas añadidas forman un ciclo: un producto vuelve a salir de lo que se hace con él. '
+                . 'Quita la receta que lo cierra y vuelve a calcular.'));
+        }
+
+        $raiz = array();
+        $pendientes = array();
+        foreach ($anadidas as $posicion => $anadida) {
+            if ($anadida['idEntrada'] === $idRaiz) {
+                $raiz[] = $posicion;
+            } else {
+                $pendientes[$anadida['idEntrada']][] = $posicion;
+            }
+        }
+        // Las recetas que generan cada producto: la elegida, con la marca -1, y las añadidas.
+        $generan = array();
+        foreach ($version['lineas'] as $linea) {
+            if ($linea['sentido'] === 'salida') {
+                $generan[(int) $linea['idArticulo']][] = -1;
+            }
+        }
+        foreach ($anadidas as $posicion => $anadida) {
+            foreach ($anadida['version']['lineas'] as $linea) {
+                if ($linea['sentido'] === 'salida') {
+                    $generan[(int) $linea['idArticulo']][] = $posicion;
+                }
+            }
+        }
+        $calculadas = array(-1 => true);
+        foreach ($raiz as $posicion) {
+            $calculadas[$posicion] = true;
+        }
+        $derivados = array();
+        $hayCambio = true;
+        while (count($pendientes) > 0 && $hayCambio) {
+            $hayCambio = false;
+            foreach ($pendientes as $idDerivado => $posiciones) {
+                $listo = true;
+                foreach ($generan[$idDerivado] as $generadora) {
+                    if (!isset($calculadas[$generadora])) {
+                        $listo = false;
+                    }
+                }
+                if ($listo) {
+                    $derivados[] = array('idArticulo' => $idDerivado, 'posiciones' => $posiciones);
+                    foreach ($posiciones as $posicion) {
+                        $calculadas[$posicion] = true;
+                    }
+                    unset($pendientes[$idDerivado]);
+                    $hayCambio = true;
+                }
+            }
+        }
+
+        return array('datos' => array('raiz' => $raiz, 'derivados' => $derivados));
+    }
+
+    private function hayCiclo($aristas, $producto, &$estado)
+    {
+        // @ Objetivo
+        // Si desde un producto se vuelve a él por las recetas del árbol. $estado marca cada producto
+        // como en camino (1) o ya recorrido (2).
+        $estado[$producto] = 1;
+        if (isset($aristas[$producto])) {
+            foreach ($aristas[$producto] as $siguiente) {
+                if (isset($estado[$siguiente]) && $estado[$siguiente] === 1) {
+                    return true;
+                }
+                if (!isset($estado[$siguiente]) && $this->hayCiclo($aristas, $siguiente, $estado)) {
+                    return true;
+                }
+            }
+        }
+        $estado[$producto] = 2;
+
+        return false;
+    }
+
+    private function recetasDelDerivado($grupo, $anadidas, $calculadas, $periodo, $traspaso, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Las recetas de un derivado, calculadas: lo generado de él en las recetas ya calculadas, a
+        // la media de sus costes; lo disponible, lo generado más lo del periodo; el reparto entre sus
+        // recetas y su coste de partida.
+        // @ Devolvemos
+        //      ['datos'] con recetas —las del derivado, calculadas— y derivado —idArticulo, articulo,
+        //      unidad, generado, delPeriodo, disponible, aplicado, costeDelEscandallo y
+        //      costeDePartida—, y ['avisos']; o ['error'].
+        $idDerivado = $grupo['idArticulo'];
+        $primera = $anadidas[$grupo['posiciones'][0]];
+        $derivado = array('articulo' => $primera['entrada'], 'unidad' => $primera['unidad']);
+        $generado = 0.0;
+        $valor = 0.0;
+        foreach ($calculadas as $receta) {
+            if ($receta['escandallo'] !== null) {
+                foreach ($receta['escandallo']['piezas'] as $pieza) {
+                    if ($pieza['idArticulo'] === $idDerivado) {
+                        $generado += $pieza['cantidad'];
+                        $valor += $pieza['cantidad'] * $pieza['costeUnidad'];
+                        $derivado['articulo'] = $pieza['articulo'];
+                    }
+                }
+            }
+        }
+        $generado = round($generado, 3);
+        $lectura = $this->loDisponible($idDerivado, $periodo['desde'], $periodo['hasta'], $traspaso, $consultaDeExistencias);
+        if (isset($lectura['error'])) {
+            return $lectura;
+        }
+        $delPeriodo = 0.0;
+        if ($lectura['datos']['existencias'] > 0 && $lectura['datos']['disponible'] > 0) {
+            $delPeriodo = $lectura['datos']['disponible'];
+        }
+        $disponible = round($generado + $delPeriodo, 3);
+        $escritas = array();
+        foreach ($grupo['posiciones'] as $posicion) {
+            $escrita = $this->cantidadEscrita($anadidas[$posicion]['escrita'], $derivado['unidad']);
+            if (isset($escrita['error'])) {
+                return $escrita;
+            }
+            $escritas[] = $escrita['datos'];
+        }
+        $reparto = $this->repartoDelDerivado($escritas, $generado, $disponible, $derivado);
+        if (isset($reparto['error'])) {
+            return $reparto;
+        }
+        $aplicado = round(array_sum($reparto['datos']), 3);
+        $costeDelEscandallo = 0.0;
+        if ($generado > 0) {
+            $costeDelEscandallo = $valor / $generado;
+        }
+        $costeProveedor = null;
+        if ($aplicado > $generado + 0.0000001) {
+            $coste = $this->costeDePartida($idDerivado);
+            if (isset($coste['error'])) {
+                return $coste;
+            }
+            $costeProveedor = $coste['datos']['coste'];
+        }
+        $costeDePartida = $this->costeDelDerivado($generado, $costeDelEscandallo, $aplicado, $costeProveedor);
+        $recetas = array();
+        foreach ($grupo['posiciones'] as $orden => $posicion) {
+            $receta = $anadidas[$posicion];
+            $receta['cantidad'] = $reparto['datos'][$orden];
+            $receta['deDerivado'] = $idDerivado;
+            $recetas[] = $receta;
+        }
+        $calculo = $this->recetasCalculadas($recetas, (float) $costeDePartida);
+        if (isset($calculo['error'])) {
+            return $calculo;
+        }
+
+        return array('datos' => array('recetas' => $calculo['datos'], 'derivado' => array('idArticulo' => $idDerivado, 'articulo' => $derivado['articulo'],
+            'unidad' => $derivado['unidad'], 'generado' => $generado, 'delPeriodo' => round($delPeriodo, 3), 'disponible' => $disponible, 'aplicado' => $aplicado,
+            'costeDelEscandallo' => round($costeDelEscandallo, 4), 'costeDePartida' => $costeDePartida)), 'avisos' => $calculo['avisos']);
     }
 
     private function nombreDeLaReceta($version)

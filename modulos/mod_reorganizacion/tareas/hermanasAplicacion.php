@@ -1,8 +1,9 @@
 <?php
 
 // @ Objetivo
-// Las recetas hermanas de una relación —las del mismo tipo con el mismo producto de partida—, para
-// que la pantalla de aplicar relación las ofrezca en su lista. No escribe nada. Exige el permiso
+// Las recetas que se pueden aplicar a la vez que una relación —sus hermanas, del mismo tipo y con el
+// mismo producto de partida, y las del mismo tipo que parten de sus derivados—, para que la pantalla
+// de aplicar relación las ofrezca en su lista. No escribe nada. Exige el permiso
 // «ver» de esa pantalla.
 
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesAplicacion.php';
