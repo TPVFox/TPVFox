@@ -26,6 +26,7 @@ if ($ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vi
         'ajustePeso' => '1',
         'ajusteValor' => '1',
         'cantidad' => '',
+        'hermanas' => array(),
     );
     foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor', 'cantidad') as $campo) {
         if (isset($_POST[$campo])) {
@@ -36,6 +37,13 @@ if ($ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vi
         $precios = json_decode($_POST['precios'], true);
         if (is_array($precios)) {
             $peticion['precios'] = $precios;
+        }
+    }
+    // Las recetas hermanas: una lista que no se puede leer no se ignora, se rechaza al calcular.
+    if (isset($_POST['hermanas']) && $_POST['hermanas'] !== '') {
+        $peticion['hermanas'] = json_decode($_POST['hermanas'], true);
+        if (!is_array($peticion['hermanas'])) {
+            $peticion['hermanas'] = false;
         }
     }
 

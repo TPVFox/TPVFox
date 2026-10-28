@@ -10,6 +10,14 @@
 // Los precios de mercado escritos en la tabla, por artículo, hasta que se cambie de relación.
 var preciosEscritosAplicacion = {};
 
+// El árbol de las recetas que se aplican a la vez: la relación de la que sale, las hermanas que
+// ofrece el servidor, las añadidas —con lo escrito en su rama— y los precios escritos en el
+// escandallo de cada una, por relación y artículo.
+var relacionDelArbol = "";
+var hermanasOfrecidas = [];
+var hermanasDelArbol = [];
+var preciosDeHermanas = {};
+
 // Cuenta las peticiones de periodos: si llega tarde la respuesta de una anterior, se ignora.
 var peticionesDePeriodosAplicacion = 0;
 
@@ -42,6 +50,7 @@ function peticionDeAplicacion(pulsado) {
     ajustePeso: $("#ajustePesoAplicacion").val(),
     ajusteValor: ajusteDeValorAplicacion(),
     cantidad: $("#cantidadAplicacion").val(),
+    hermanas: JSON.stringify(hermanasParaLaPeticion()),
     destino: $("#destinoAplicacion").val(),
   };
 }
@@ -60,11 +69,186 @@ function cambiarTipoPeriodoAplicacion() {
 }
 
 function cambiarRelacionAplicacion() {
-  // Los precios escritos son de las piezas de una relación: con otra, se olvidan.
-  console.log("Aplicar relación: otra relación, " + $("#numRelacionAplicacion").val());
+  // Los precios escritos son de las piezas de una relación: con otra, se olvidan. El árbol y su
+  // lista son de la relación elegida: si es otra, se vacían y se vuelven a pedir las hermanas.
+  var numRelacion = $("#numRelacionAplicacion").val();
+  console.log("Aplicar relación: otra relación, " + numRelacion);
   preciosEscritosAplicacion = {};
+  if (numRelacion !== relacionDelArbol) {
+    relacionDelArbol = numRelacion;
+    hermanasDelArbol = [];
+    preciosDeHermanas = {};
+    pintarArbolAplicacion();
+    cargarHermanasAplicacion();
+  }
   limpiarResultadoAplicacion();
   cargarPeriodosAplicacion();
+}
+
+function cargarHermanasAplicacion() {
+  // Pide las recetas hermanas de la relación elegida para la lista de abajo.
+  var pedida = relacionDelArbol;
+  hermanasOfrecidas = [];
+  pintarHermanasAplicacion();
+  if (pedida === "") {
+    return;
+  }
+  ajaxAplicarRelacion({ pulsado: "hermanasAplicacion", numRelacion: pedida }, function (respuesta) {
+    var obj = JSON.parse(respuesta);
+    console.log("Aplicar relación: hermanas", obj);
+    if (pedida !== relacionDelArbol) {
+      return;
+    }
+    if (obj.ok) {
+      hermanasOfrecidas = obj.datos;
+    }
+    pintarHermanasAplicacion();
+    pintarArbolAplicacion();
+  });
+}
+
+function pintarHermanasAplicacion() {
+  // La lista de las recetas que se pueden añadir; la que ya está en el árbol queda inactiva.
+  var lista = $("#hermanasAplicacion");
+  lista.empty();
+  if (hermanasOfrecidas.length === 0) {
+    return;
+  }
+  $("<h4>").text("Recetas que se pueden añadir").appendTo(lista);
+  $.each(hermanasOfrecidas, function (indice, hermana) {
+    var anadida = buscarHermanaAplicacion(hermana.numRelacion) !== null;
+    var fila = $("<div>").addClass("hermana").attr("data-num", hermana.numRelacion).appendTo(lista);
+    $("<span>").text(hermana.nombre + " (" + hermana.entrada + ")" + (anadida ? " — añadida " : " ")).appendTo(fila);
+    $("<button>").attr("type", "button").addClass("btn btn-default btn-xs").text("Añadir").prop("disabled", anadida)
+      .on("click", function () {
+        anadirHermanaAplicacion(hermana);
+      })
+      .appendTo(fila);
+  });
+}
+
+function buscarHermanaAplicacion(numRelacion) {
+  var encontrada = null;
+  $.each(hermanasDelArbol, function (indice, hermana) {
+    if (String(hermana.numRelacion) === String(numRelacion)) {
+      encontrada = hermana;
+    }
+  });
+  return encontrada;
+}
+
+function anadirHermanaAplicacion(hermana) {
+  console.log("Aplicar relación: añade la hermana " + hermana.numRelacion);
+  if (buscarHermanaAplicacion(hermana.numRelacion) === null) {
+    hermanasDelArbol.push({ numRelacion: hermana.numRelacion, nombre: hermana.nombre, cantidad: "", ajustePeso: "1" });
+  }
+  limpiarResultadoAplicacion();
+  pintarArbolAplicacion();
+  pintarHermanasAplicacion();
+}
+
+function quitarHermanaAplicacion(numRelacion) {
+  console.log("Aplicar relación: quita la hermana " + numRelacion);
+  hermanasDelArbol = $.grep(hermanasDelArbol, function (hermana) {
+    return String(hermana.numRelacion) !== String(numRelacion);
+  });
+  delete preciosDeHermanas[numRelacion];
+  limpiarResultadoAplicacion();
+  pintarArbolAplicacion();
+  pintarHermanasAplicacion();
+}
+
+function textoDeLaRaizAplicacion() {
+  var entrada = hermanasOfrecidas.length > 0 ? hermanasOfrecidas[0].entrada : "";
+  return "Producto de partida: " + entrada;
+}
+
+function pintarArbolAplicacion() {
+  // El árbol de lo que se aplica: el producto de partida, la receta elegida —con la cantidad y el
+  // ajuste de arriba— y una rama por hermana añadida, con su cantidad, su ajuste y «Quitar». Con
+  // una sola receta no se pinta.
+  var arbol = $("#arbolAplicacion");
+  arbol.empty();
+  if (hermanasDelArbol.length === 0) {
+    return;
+  }
+  $("<div>").addClass("raiz").text(textoDeLaRaizAplicacion()).appendTo(arbol);
+  $("<div>").addClass("principal").text("└ " + $("#numRelacionAplicacion option:selected").text() + ": la cantidad y el ajuste de arriba; vacía, toma lo que sobra").appendTo(arbol);
+  $.each(hermanasDelArbol, function (indice, hermana) {
+    var rama = $("<div>").addClass("rama well well-sm").attr("data-num", hermana.numRelacion).appendTo(arbol);
+    $("<strong>").text("└ " + hermana.nombre + " ").appendTo(rama);
+    var cantidad = $("<input>").attr("type", "text").addClass("cantidadHermana").attr("placeholder", "No entra").val(hermana.cantidad)
+      .on("change", function () {
+        hermana.cantidad = $(this).val();
+        cambiarDatoAplicacion("la cantidad de " + hermana.nombre);
+      });
+    $("<label>").text(" Cantidad ").append(cantidad).appendTo(rama);
+    var ajuste = $("<input>").attr({ type: "range", min: 0, max: 2, step: 0.05 }).addClass("ajusteHermana").val(hermana.ajustePeso)
+      .on("input", function () {
+        hermana.ajustePeso = $(this).val();
+        cambiarDatoAplicacion("el ajuste de " + hermana.nombre);
+      });
+    $("<label>").text(" Peso y valor ").append(ajuste).appendTo(rama);
+    $("<button>").attr("type", "button").addClass("btn btn-default btn-xs").text("Quitar")
+      .on("click", function () {
+        quitarHermanaAplicacion(hermana.numRelacion);
+      })
+      .appendTo(rama);
+    $("<div>").addClass("resultadoHermana").appendTo(rama);
+  });
+}
+
+function hermanasParaLaPeticion() {
+  // Lo que se pide de cada hermana: su relación, lo escrito en su rama y sus precios escritos.
+  var lista = [];
+  $.each(hermanasDelArbol, function (indice, hermana) {
+    lista.push({
+      numRelacion: hermana.numRelacion,
+      cantidad: hermana.cantidad,
+      precios: preciosDeHermanas[hermana.numRelacion] || {},
+      ajustePeso: hermana.ajustePeso,
+      ajusteValor: String(Math.round((2 - parseFloat(hermana.ajustePeso)) * 100) / 100),
+    });
+  });
+  return lista;
+}
+
+function pintarRecetasDelArbol(datos) {
+  // Lo que entra en cada rama, con su escandallo, y en la raíz lo disponible y lo que queda sin aplicar.
+  if (!datos.recetas || hermanasDelArbol.length === 0) {
+    return;
+  }
+  var unidad = "";
+  $.each(datos.version.lineas, function (indice, linea) {
+    if (linea.sentido === "entrada") {
+      unidad = linea.unidad;
+    }
+  });
+  var aplicado = 0;
+  $.each(datos.recetas, function (indice, receta) {
+    aplicado += receta.cantidad;
+    if (indice === 0) {
+      return;
+    }
+    var resultado = $('#arbolAplicacion .rama[data-num="' + receta.numRelacion + '"] .resultadoHermana');
+    resultado.empty();
+    $("<p>").text("Entran " + cantidadLegibleAplicacion(receta.cantidad) + " " + unidad).appendTo(resultado);
+    if (receta.escandallo) {
+      var tabla = $("<table>").addClass("table table-bordered table-condensed").appendTo(resultado);
+      var cabecera = $("<tr>").appendTo($("<thead>").appendTo(tabla));
+      $.each(["Pieza", "Cantidad", "Unidad", "Precio de mercado", "De dónde sale el precio", "Coste por unidad", "Coste"], function (posicion, titulo) {
+        $("<th>").text(titulo).appendTo(cabecera);
+      });
+      pintarPiezasAplicacion($("<tbody>").appendTo(tabla), receta.escandallo.piezas, function (idArticulo, precio) {
+        if (!preciosDeHermanas[receta.numRelacion]) {
+          preciosDeHermanas[receta.numRelacion] = {};
+        }
+        preciosDeHermanas[receta.numRelacion][idArticulo] = precio;
+      });
+    }
+  });
+  $("#arbolAplicacion .raiz").text(textoDeLaRaizAplicacion() + " · Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad
+    + " · Sin aplicar: " + cantidadLegibleAplicacion(datos.disponible - aplicado) + " " + unidad);
 }
 
 function cambiarPeriodoAplicacion() {
@@ -160,6 +344,8 @@ function cambiarDatoAplicacion(campo) {
 }
 
 function limpiarResultadoAplicacion() {
+  $("#arbolAplicacion .resultadoHermana").empty();
+  $("#arbolAplicacion .raiz").text(textoDeLaRaizAplicacion());
   $("#avisosAplicacion").empty();
   $("#datosAplicacion").empty();
   $("#zonaDestinoAplicacion").empty();
@@ -176,7 +362,10 @@ function calcularAplicacion() {
     pintarAvisosAplicacion(obj.avisos);
     pintarDatosAplicacion(obj.datos);
     if (obj.ok) {
-      pintarEscandalloAplicacion(obj.datos.escandallo);
+      if (obj.datos.escandallo) {
+        pintarEscandalloAplicacion(obj.datos.escandallo);
+      }
+      pintarRecetasDelArbol(obj.datos);
       pintarDestinosAplicacion(obj.datos.destinos);
       $("#btnPrepararAplicacion").prop("disabled", false);
     }
@@ -287,10 +476,17 @@ function pintarDestinosAplicacion(destinos) {
 }
 
 function pintarEscandalloAplicacion(escandallo) {
-  // Una fila por pieza. El precio de mercado se puede escribir: vale en el siguiente cálculo.
+  // El escandallo de la receta elegida, en la tabla de la pantalla.
   var cuerpo = $("#escandalloAplicacion tbody");
   cuerpo.empty();
-  $.each(escandallo.piezas, function (indice, pieza) {
+  pintarPiezasAplicacion(cuerpo, escandallo.piezas, function (idArticulo, precio) {
+    preciosEscritosAplicacion[idArticulo] = precio;
+  });
+}
+
+function pintarPiezasAplicacion(cuerpo, piezas, alEscribirPrecio) {
+  // Una fila por pieza. El precio de mercado se puede escribir: vale en el siguiente cálculo.
+  $.each(piezas, function (indice, pieza) {
     var origen = "media de sus proveedores";
     if (pieza.origenPrecio === "escrito") {
       origen = "escrito";
@@ -300,7 +496,7 @@ function pintarEscandalloAplicacion(escandallo) {
     var precio = $("<input>").attr("type", "text").addClass("precio form-control").attr("data-id", pieza.idArticulo)
       .val(numeroLegibleAplicacion(pieza.precio, 4))
       .on("change", function () {
-        preciosEscritosAplicacion[pieza.idArticulo] = $(this).val();
+        alEscribirPrecio(pieza.idArticulo, $(this).val());
         console.log("Aplicar relación: precio escrito de " + pieza.idArticulo + " = " + $(this).val());
       });
     $("<tr>").addClass("pieza")

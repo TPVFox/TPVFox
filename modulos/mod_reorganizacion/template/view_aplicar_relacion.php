@@ -2,7 +2,8 @@
 // @ Objetivo
 // El HTML de la pantalla de aplicar una relación: la elección del proveedor, la relación y el
 // periodo —que se rellena con los meses o los días con entradas—, la versión del despiece que se
-// aplica, la cantidad que entra en la receta, el ajuste del reparto en un
+// aplica, la cantidad que entra en la receta, el árbol de las recetas que se aplican a la vez y la
+// lista de las hermanas que se pueden añadir, el ajuste del reparto en un
 // deslizador y el proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero;
 // los avisos; y el resultado, que pinta aplicarRelacion.js con lo que devuelve el cálculo.
 // @ Parametros (de AplicarRelacion.php)
@@ -122,6 +123,7 @@
                 </div>
             </div>
 
+            <div id="arbolAplicacion"></div>
             <div id="avisosAplicacion"></div>
             <div id="datosAplicacion"></div>
             <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
@@ -139,6 +141,7 @@
                 </thead>
                 <tbody></tbody>
             </table>
+            <div id="hermanasAplicacion"></div>
         </div>
     </div>
 </div>

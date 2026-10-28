@@ -399,8 +399,8 @@ switch ($pulsado) {
         include_once 'tareas/exportarInformeComprobacionStock.php';
         break;
 
-    // Aplicar una relación a un periodo, ofrecer sus periodos y preparar su albarán de compras.
-    // Devuelven la respuesta además de escribirla, como validarDatosFormulario.
+    // Aplicar una relación a un periodo, ofrecer sus periodos y sus recetas hermanas, y preparar su
+    // albarán de compras. Devuelven la respuesta además de escribirla, como validarDatosFormulario.
     case 'calcularAplicacion':
         include 'tareas/calcularAplicacion.php';
         echo json_encode($respuesta);
@@ -411,6 +411,10 @@ switch ($pulsado) {
         return $respuesta;
     case 'periodosAplicacion':
         include 'tareas/periodosAplicacion.php';
+        echo json_encode($respuesta);
+        return $respuesta;
+    case 'hermanasAplicacion':
+        include 'tareas/hermanasAplicacion.php';
         echo json_encode($respuesta);
         return $respuesta;
 }

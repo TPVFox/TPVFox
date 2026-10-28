@@ -31,8 +31,10 @@ class RelacionesAplicacion extends RelacionesModelo
         //      $peticion -> (array) idProveedor, numRelacion, tipoPeriodo, periodo, version
         //                   ('periodo', la que regía en la fecha del albarán, o 'vigente'),
         //                   idProveedorTraspaso, precios (por idArticulo, como se escribieron),
-        //                   ajustePeso, ajusteValor y cantidad (la que entra en la receta, como se
-        //                   escribió; vacía, todo lo disponible).
+        //                   ajustePeso, ajusteValor, cantidad (la que entra en la receta, como se
+        //                   escribió; vacía, lo disponible menos lo de las hermanas) y hermanas (por
+        //                   receta hermana, numRelacion, cantidad, precios, ajustePeso y ajusteValor;
+        //                   false si la lista llegó mal).
         //      $consultaDeExistencias -> el objeto que lee los movimientos de un producto en un
         //                   periodo (ClaseComprobacionStockConsulta de mod_reorganizacion).
         // @ Devolvemos
@@ -99,6 +101,17 @@ class RelacionesAplicacion extends RelacionesModelo
             }
         }
 
+        $hermanas = array();
+        if ($version !== null) {
+            $leidas = $this->hermanasDeLaPeticion($peticion, $version, $entrada, $fechaDeLaVersion);
+            if (isset($leidas['error'])) {
+                $respuesta['avisos'][] = $leidas['error'];
+                $version = null;
+            } else {
+                $hermanas = $leidas['datos'];
+            }
+        }
+
         $disponible = null;
         if ($version !== null) {
             $traspaso = 0;
@@ -148,45 +161,60 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (isset($peticion['cantidad'])) {
                     $escrita = $peticion['cantidad'];
                 }
-                $elegida = $this->cantidadAplicada($escrita, $disponible, $entrada, $periodo);
+                $elegida = $this->cantidadAplicada($escrita, $disponible, $entrada, $periodo, $hermanas);
                 if (isset($elegida['error'])) {
                     $respuesta['avisos'][] = $elegida['error'];
                 } else {
-                    $cantidad = $elegida['datos'];
+                    $cantidad = $elegida['datos']['principal'];
                     $respuesta['datos']['cantidad'] = $cantidad;
                 }
             }
         }
 
         if ($cantidad !== null) {
-            $salidas = array();
-            foreach ($version['lineas'] as $linea) {
-                if ($linea['sentido'] === 'salida') {
-                    $salidas[] = (int) $linea['idArticulo'];
-                }
-            }
-            $medias = $this->preciosDeMercado($salidas);
+            // La elegida primero y las hermanas detrás, en el orden en que llegan.
             $precios = array();
             if (is_array($peticion['precios'])) {
                 $precios = $peticion['precios'];
             }
-            $escandallo = $medias;
-            if (!isset($medias['error'])) {
-                $escandallo = $this->escandallo($version, $cantidad, $costeDePartida['coste'], $precios, $medias['datos'], $peticion['ajustePeso'], $peticion['ajusteValor']);
+            $recetas = array(array('numRelacion' => (int) $version['numRelacion'], 'nombre' => $this->nombreDeLaReceta($version), 'version' => $version,
+                'cantidad' => $cantidad, 'precios' => $precios, 'ajustePeso' => $peticion['ajustePeso'], 'ajusteValor' => $peticion['ajusteValor']));
+            foreach ($hermanas as $posicion => $hermana) {
+                $hermana['cantidad'] = $elegida['datos']['hermanas'][$posicion];
+                $recetas[] = $hermana;
             }
-            if (isset($escandallo['error'])) {
-                $respuesta['avisos'][] = $escandallo['error'];
+            $calculadas = $this->recetasCalculadas($recetas, $costeDePartida['coste']);
+            if (isset($calculadas['error'])) {
+                $respuesta['avisos'][] = $calculadas['error'];
             } else {
-                $articulos = $this->datosDeLineas(array_merge(array((int) $entrada['idArticulo']), $salidas));
+                $recetas = $calculadas['datos'];
+                $idArticulos = array((int) $entrada['idArticulo']);
+                foreach ($recetas as $receta) {
+                    foreach ($receta['version']['lineas'] as $linea) {
+                        if ($linea['sentido'] === 'salida') {
+                            $idArticulos[] = (int) $linea['idArticulo'];
+                        }
+                    }
+                }
+                $articulos = $this->datosDeLineas(array_values(array_unique($idArticulos)));
                 if (isset($articulos['error'])) {
                     $respuesta['avisos'][] = $articulos['error'];
                 } else {
-                    $etiqueta = ' · REL ' . $version['numRelacion'] . ' v' . $version['version'];
-                    $lineas = $this->lineasDelAlbaran($escandallo['datos'], $articulos['datos'], self::DOCUMENTO_PROVEEDOR, $etiqueta);
-                    $respuesta['datos']['escandallo'] = $escandallo['datos'];
+                    // Las líneas de cada receta van juntas, numeradas seguidas.
+                    $lineas = array();
+                    foreach ($recetas as $receta) {
+                        if ($receta['escandallo'] !== null) {
+                            $etiqueta = ' · REL ' . $receta['version']['numRelacion'] . ' v' . $receta['version']['version'];
+                            foreach ($this->lineasDelAlbaran($receta['escandallo'], $articulos['datos'], self::DOCUMENTO_PROVEEDOR, $etiqueta) as $linea) {
+                                $linea['nfila'] = count($lineas) + 1;
+                                $lineas[] = $linea;
+                            }
+                        }
+                    }
+                    $respuesta['datos']['escandallo'] = $recetas[0]['escandallo'];
                     $respuesta['datos']['lineas'] = $lineas;
                     $respuesta['datos']['proveedor'] = $proveedor['datos'];
-                    foreach ($escandallo['avisos'] as $avisoDelEscandallo) {
+                    foreach ($calculadas['avisos'] as $avisoDelEscandallo) {
                         $respuesta['avisos'][] = $avisoDelEscandallo;
                     }
                     $conOtroIva = $this->ivaDistinto($lineas);
@@ -194,9 +222,15 @@ class RelacionesAplicacion extends RelacionesModelo
                         $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'Otro IVA que el de «' . $entrada['articulo'] . '» en: '
                             . implode(', ', $conOtroIva) . '. El albarán queda a 0,00 € sin IVA, pero su IVA no se compensa: revísalo antes de guardarlo.');
                     }
-                    $desajuste = $this->desajusteDeLasPiezas($version, $escandallo['datos'], $periodo['desde'], $periodo['hasta'], $traspaso, $consultaDeExistencias);
+                    $desajuste = $this->desajusteDeLasRecetas($recetas, $periodo['desde'], $periodo['hasta'], $traspaso, $consultaDeExistencias);
+                    $desajuste['datos']['minimo'] = $desajuste['datos']['minimos'][$recetas[0]['numRelacion']];
                     $respuesta['datos']['desajuste'] = $desajuste['datos'];
-                    $avisoDeDesajuste = $this->advertenciaDeDesajuste($desajuste['datos'], $entrada, $cantidad);
+                    $respuesta['datos']['recetas'] = array();
+                    foreach ($recetas as $receta) {
+                        $respuesta['datos']['recetas'][] = array('numRelacion' => $receta['numRelacion'], 'nombre' => $receta['nombre'], 'version' => $receta['version']['version'],
+                            'cantidad' => $receta['cantidad'], 'escandallo' => $receta['escandallo'], 'minimo' => $desajuste['datos']['minimos'][$receta['numRelacion']]);
+                    }
+                    $avisoDeDesajuste = $this->advertenciaDeDesajuste($desajuste['datos'], $entrada, $recetas);
                     if ($avisoDeDesajuste !== null) {
                         $respuesta['avisos'][] = $avisoDeDesajuste;
                     }
@@ -573,103 +607,217 @@ class RelacionesAplicacion extends RelacionesModelo
     public function desajusteDeLasPiezas($version, $escandallo, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias)
     {
         // @ Objetivo
-        // Lo que quedaría de cada pieza de la versión al final del periodo con lo que le da el
-        // escandallo: su saldo al empezar el periodo, más sus líneas de proveedor del periodo, menos
-        // sus tickets y sus albaranes de cliente del periodo. El saldo inicial son sus movimientos
-        // desde el 1 de enero hasta la víspera, sin proveedor de traspaso; si el periodo empieza el
-        // 1 de enero con proveedor de traspaso, más la apertura, que el periodo deja fuera.
+        // Lo que quedaría de cada pieza de una sola receta al final del periodo, con el mínimo de cada
+        // pieza: desajusteDeLasRecetas() con una receta.
+        // @ Devolvemos
+        //      ['datos'] con lo que devuelve desajuste().
+        $respuesta = $this->desajusteDeLasRecetas(array(array('numRelacion' => 0, 'version' => $version, 'escandallo' => $escandallo)), $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias);
+        foreach ($respuesta['datos']['piezas'] as $posicion => $pieza) {
+            $respuesta['datos']['piezas'][$posicion]['minimo'] = $pieza['minimos'][0];
+        }
+        $respuesta['datos']['minimo'] = $respuesta['datos']['minimos'][0];
+
+        return $respuesta;
+    }
+
+    public function desajusteDeLasRecetas($recetas, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Lo que quedaría al final del periodo de cada pieza de las recetas de una operación, con lo
+        // que le dan todas: su saldo al empezar el periodo, más sus líneas de proveedor del periodo,
+        // menos sus tickets y sus albaranes de cliente del periodo, más lo que genera cada receta.
         // @ Parametros
-        //      $version -> la versión aplicada, con sus líneas.
-        //      $escandallo -> el de escandallo(), con lo que sale de cada pieza.
+        //      $recetas -> por receta: numRelacion, version, con sus líneas, y escandallo, el de
+        //                  escandallo(), o null si no entra.
         //      $desde, $hasta -> 'AAAA-MM-DD', el primer y el último día del periodo.
         //      $idProveedorTraspaso -> (int) el proveedor de traspaso elegido, o 0.
         //      $consultaDeExistencias -> ClaseComprobacionStockConsulta de mod_reorganizacion.
         // @ Devolvemos
-        //      ['datos'] con lo que devuelve desajuste().
-        $traspaso = (int) $idProveedorTraspaso;
-        $entra = 0.0;
-        foreach ($version['lineas'] as $linea) {
-            if ($linea['sentido'] === 'entrada' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
-                $entra = (float) $linea['cantidad'];
-            }
-        }
-        $genera = array();
-        foreach ($escandallo['piezas'] as $pieza) {
-            $genera[(int) $pieza['idArticulo']] = (float) $pieza['cantidad'];
-        }
-        $inicio = substr($desde, 0, 4) . '-01-01';
-        $vispera = date('Y-m-d', strtotime($desde . ' -1 day'));
+        //      ['datos'] con lo que devuelve desajusteDeLaOperacion().
         $piezas = array();
-        foreach ($version['lineas'] as $linea) {
-            if ($linea['sentido'] === 'salida' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
-                $id = (int) $linea['idArticulo'];
-                $saldoInicial = 0.0;
-                if ($desde > $inicio) {
-                    $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $inicio, $vispera, 0))
-                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($id, $inicio, $vispera))
-                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($id, $inicio, $vispera));
-                } elseif ($traspaso > 0) {
-                    // La apertura del ejercicio: lo que el periodo deja fuera de su primer día.
-                    $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $desde, 0))
-                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $desde, $traspaso));
+        $numeros = array();
+        foreach ($recetas as $receta) {
+            $numero = $receta['numRelacion'];
+            $numeros[] = $numero;
+            $entra = 0.0;
+            foreach ($receta['version']['lineas'] as $linea) {
+                if ($linea['sentido'] === 'entrada' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
+                    $entra = (float) $linea['cantidad'];
                 }
-                $porUnidad = 0.0;
-                if ($entra > 0) {
-                    $porUnidad = (float) $linea['cantidad'] / $entra;
+            }
+            $genera = array();
+            if ($receta['escandallo'] !== null) {
+                foreach ($receta['escandallo']['piezas'] as $pieza) {
+                    $genera[(int) $pieza['idArticulo']] = (float) $pieza['cantidad'];
                 }
-                $loQueGenera = 0.0;
-                if (isset($genera[$id])) {
-                    $loQueGenera = $genera[$id];
+            }
+            foreach ($receta['version']['lineas'] as $linea) {
+                if ($linea['sentido'] === 'salida' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
+                    $id = (int) $linea['idArticulo'];
+                    if (!isset($piezas[$id])) {
+                        $movimientos = $this->movimientosDeLaPieza($id, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias);
+                        $piezas[$id] = array(
+                            'idArticulo' => $id,
+                            'articulo' => $linea['articulo'],
+                            'unidad' => $linea['unidad'],
+                            'saldoInicial' => $movimientos['saldoInicial'],
+                            'entradas' => $movimientos['entradas'],
+                            'salidas' => $movimientos['salidas'],
+                            'generaPorReceta' => array(),
+                            'porUnidadPorReceta' => array(),
+                        );
+                    }
+                    $piezas[$id]['generaPorReceta'][$numero] = 0.0;
+                    if (isset($genera[$id])) {
+                        $piezas[$id]['generaPorReceta'][$numero] = $genera[$id];
+                    }
+                    $piezas[$id]['porUnidadPorReceta'][$numero] = 0.0;
+                    if ($entra > 0) {
+                        $piezas[$id]['porUnidadPorReceta'][$numero] = (float) $linea['cantidad'] / $entra;
+                    }
                 }
-                $piezas[] = array(
-                    'idArticulo' => $id,
-                    'articulo' => $linea['articulo'],
-                    'unidad' => $linea['unidad'],
-                    'porUnidad' => $porUnidad,
-                    'saldoInicial' => round($saldoInicial, 3),
-                    'entradas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $hasta, $traspaso)), 3),
-                    'salidas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($id, $desde, $hasta))
-                        + $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($id, $desde, $hasta)), 3),
-                    'genera' => $loQueGenera,
-                );
             }
         }
 
-        return array('datos' => $this->desajuste($piezas));
+        return array('datos' => $this->desajusteDeLaOperacion(array_values($piezas), $numeros));
     }
 
     public function desajuste($piezas)
     {
         // @ Objetivo
-        // Lo que queda de cada pieza al final del periodo —su saldo inicial, más lo que entró, menos
-        // lo que salió, más lo que genera la aplicación— y el mínimo que tendría que entrar en la
-        // receta para que no quede en negativo: lo que le falta sin lo que genera, entre lo que da
-        // por unidad de la entrada, hacia arriba al gramo, o a la unidad si va por unidades. El de la
-        // receta es el mayor. No consulta la base.
+        // Lo que queda de cada pieza de una sola receta al final del periodo y su mínimo:
+        // desajusteDeLaOperacion() con una receta. No consulta la base.
         // @ Parametros
         //      $piezas -> por pieza: idArticulo, articulo, unidad, porUnidad, saldoInicial, entradas,
         //                 salidas y genera.
         // @ Devolvemos
         //      (array) piezas, cada una con queda y minimo, y minimo, el de la receta.
-        $minimo = 0.0;
         foreach ($piezas as $posicion => $pieza) {
-            $falta = $pieza['salidas'] - $pieza['saldoInicial'] - $pieza['entradas'];
-            $suyo = 0.0;
-            if ($falta > 0 && $pieza['porUnidad'] > 0) {
-                if ($pieza['unidad'] === 'ud') {
-                    $suyo = ceil($falta / $pieza['porUnidad'] - 0.000001);
-                } else {
-                    $suyo = ceil($falta / $pieza['porUnidad'] * 1000 - 0.000001) / 1000;
+            $piezas[$posicion]['generaPorReceta'] = array(0 => $pieza['genera']);
+            $piezas[$posicion]['porUnidadPorReceta'] = array(0 => $pieza['porUnidad']);
+        }
+        $desajuste = $this->desajusteDeLaOperacion($piezas, array(0));
+        foreach ($desajuste['piezas'] as $posicion => $pieza) {
+            $desajuste['piezas'][$posicion]['minimo'] = $pieza['minimos'][0];
+        }
+
+        return array('piezas' => $desajuste['piezas'], 'minimo' => $desajuste['minimos'][0]);
+    }
+
+    public function desajusteDeLaOperacion($piezas, $recetas)
+    {
+        // @ Objetivo
+        // Lo que queda de cada pieza al final del periodo —su saldo inicial, más lo que entró, menos
+        // lo que salió, más lo que generan todas las recetas— y el mínimo de cada receta para que
+        // ninguna quede en negativo, con las demás como están: el mayor, entre sus piezas, de lo que
+        // les falta sin lo que da esa receta, entre lo que da por unidad de la entrada, hacia arriba
+        // al gramo, o a la unidad si va por unidades. No consulta la base.
+        // @ Parametros
+        //      $piezas -> por pieza: idArticulo, articulo, unidad, saldoInicial, entradas, salidas y,
+        //                 por receta, lo que genera (generaPorReceta) y lo que da por unidad
+        //                 (porUnidadPorReceta).
+        //      $recetas -> los números de las recetas de la operación.
+        // @ Devolvemos
+        //      (array) piezas, cada una con genera, queda y su mínimo por receta, y minimos, el de
+        //      cada receta.
+        $minimos = array();
+        foreach ($recetas as $numero) {
+            $minimos[$numero] = 0.0;
+        }
+        foreach ($piezas as $posicion => $pieza) {
+            $genera = array_sum($pieza['generaPorReceta']);
+            $piezas[$posicion]['genera'] = round($genera, 3);
+            $piezas[$posicion]['queda'] = round($pieza['saldoInicial'] + $pieza['entradas'] - $pieza['salidas'] + $genera, 3);
+            $piezas[$posicion]['minimos'] = array();
+            foreach ($pieza['porUnidadPorReceta'] as $numero => $porUnidad) {
+                $deLasDemas = $genera - $pieza['generaPorReceta'][$numero];
+                $suyo = $this->minimoRedondeado($pieza['salidas'] - $pieza['saldoInicial'] - $pieza['entradas'] - $deLasDemas, $porUnidad, $pieza['unidad']);
+                $piezas[$posicion]['minimos'][$numero] = $suyo;
+                if ($suyo > $minimos[$numero]) {
+                    $minimos[$numero] = $suyo;
                 }
-            }
-            $piezas[$posicion]['queda'] = round($pieza['saldoInicial'] + $pieza['entradas'] - $pieza['salidas'] + $pieza['genera'], 3);
-            $piezas[$posicion]['minimo'] = (float) $suyo;
-            if ($suyo > $minimo) {
-                $minimo = (float) $suyo;
             }
         }
 
-        return array('piezas' => $piezas, 'minimo' => $minimo);
+        return array('piezas' => $piezas, 'minimos' => $minimos);
+    }
+
+    public function repartoDeLaCantidad($principal, $hermanas, $disponible, $entrada)
+    {
+        // @ Objetivo
+        // Lo que entra en cada receta: en las hermanas, lo escrito, y vacía, nada; en la elegida, lo
+        // escrito, y vacía, lo disponible menos lo de las hermanas. La suma no pasa de lo disponible.
+        // No consulta la base.
+        // @ Parametros
+        //      $principal -> la cantidad escrita de la elegida, o null.
+        //      $hermanas -> la de cada hermana, o null.
+        //      $disponible -> lo disponible del producto de partida.
+        //      $entrada -> la línea de entrada de la elegida, con su artículo y su unidad.
+        // @ Devolvemos
+        //      ['datos'] con principal y hermanas; o ['error'].
+        $suma = 0.0;
+        $cantidades = array();
+        foreach ($hermanas as $cantidad) {
+            $valor = 0.0;
+            if ($cantidad !== null) {
+                $valor = (float) $cantidad;
+            }
+            $cantidades[] = $valor;
+            $suma += $valor;
+        }
+        $total = $suma;
+        if ($principal !== null) {
+            $total += $principal;
+        }
+        if ($total > $disponible + 0.0000001) {
+            $mensaje = 'La cantidad (' . $this->numeroLegible($total) . ' ' . $entrada['unidad'] . ') pasa de lo disponible (' . $this->numeroLegible($disponible) . ' '
+                . $entrada['unidad'] . '): escribe una menor, o deja el campo vacío para aplicar todo lo disponible.';
+            if (count($hermanas) > 0) {
+                $mensaje = 'Lo que entra en las recetas (' . $this->numeroLegible($total) . ' ' . $entrada['unidad'] . ') pasa de lo disponible ('
+                    . $this->numeroLegible($disponible) . ' ' . $entrada['unidad'] . '): baja la cantidad de alguna, o deja vacía la de la elegida para que tome lo que sobra.';
+            }
+            return array('error' => $this->montarAdvertencia('warning', $mensaje));
+        }
+        if ($principal === null) {
+            $principal = round($disponible - $suma, 3);
+        }
+
+        return array('datos' => array('principal' => (float) $principal, 'hermanas' => $cantidades));
+    }
+
+    public function hermanas($numRelacion)
+    {
+        // @ Objetivo
+        // Las recetas hermanas de una relación: las demás que rigen y se pueden aplicar, de su mismo
+        // tipo y con el mismo producto de entrada. Se aplican a la vez que ella, cada una con su
+        // cantidad.
+        // @ Devolvemos
+        //      ['datos'] con numRelacion, nombre y el producto que entra; o ['error'].
+        $aplicables = $this->relacionesAplicables();
+        if (isset($aplicables['error'])) {
+            return $aplicables;
+        }
+        $elegida = null;
+        foreach ($aplicables['datos'] as $relacion) {
+            if ((string) $relacion['numRelacion'] === (string) $numRelacion) {
+                $elegida = $relacion;
+            }
+        }
+        if ($elegida === null) {
+            return array('error' => $this->montarAdvertencia('warning', 'La relación elegida no se puede aplicar: elige una de la lista.'));
+        }
+        $respuesta = array('datos' => array());
+        foreach ($aplicables['datos'] as $relacion) {
+            if ($relacion['numRelacion'] !== $elegida['numRelacion'] && $relacion['idTipo'] === $elegida['idTipo'] && $relacion['idEntrada'] === $elegida['idEntrada']) {
+                $nombre = $relacion['entrada'];
+                if ($relacion['nombre'] !== null && $relacion['nombre'] !== '') {
+                    $nombre = $relacion['nombre'];
+                }
+                $respuesta['datos'][] = array('numRelacion' => $relacion['numRelacion'], 'nombre' => $nombre, 'entrada' => $relacion['entrada']);
+            }
+        }
+
+        return $respuesta;
     }
 
     public function precioEscrito($texto)
@@ -957,7 +1105,8 @@ class RelacionesAplicacion extends RelacionesModelo
         // @ Objetivo
         // Las relaciones que rigen y se pueden aplicar, para elegirlas en la pantalla.
         // @ Devolvemos
-        //      ['datos'] con numRelacion, nombre, tipo y el producto que entra; o ['error'].
+        //      ['datos'] con numRelacion, nombre, tipo y el producto que entra, y los id del tipo y
+        //      del producto, con los que se buscan las hermanas; o ['error'].
         $CRelaciones = new Relaciones();
         $CTipos = new RelacionesTipos();
         $vigentes = $CRelaciones->vigentes();
@@ -976,12 +1125,15 @@ class RelacionesAplicacion extends RelacionesModelo
                 $idTipo = (int) $relacion['idTipo'];
                 if (isset($llevaCantidad[$idTipo]) && $this->esAplicable($relacion['forma'], $llevaCantidad[$idTipo], $relacion['lineas'])['aplicable']) {
                     $entra = '';
+                    $idEntra = 0;
                     foreach ($relacion['lineas'] as $linea) {
                         if ($linea['sentido'] === 'entrada') {
                             $entra = $linea['articulo'];
+                            $idEntra = (int) $linea['idArticulo'];
                         }
                     }
-                    $respuesta['datos'][] = array('numRelacion' => (int) $relacion['numRelacion'], 'nombre' => $relacion['nombre'], 'tipo' => $relacion['tipo'], 'entrada' => $entra);
+                    $respuesta['datos'][] = array('numRelacion' => (int) $relacion['numRelacion'], 'nombre' => $relacion['nombre'], 'tipo' => $relacion['tipo'], 'entrada' => $entra,
+                        'idTipo' => $idTipo, 'idEntrada' => $idEntra);
                 }
             }
         }
@@ -1271,10 +1423,10 @@ class RelacionesAplicacion extends RelacionesModelo
         return $advertencia;
     }
 
-    private function advertenciaDeDesajuste($desajuste, $entrada, $cantidad)
+    private function advertenciaDeDesajuste($desajuste, $entrada, $recetas)
     {
         // @ Objetivo
-        // El aviso de las piezas que quedarían en negativo al final del periodo, con el mínimo de la
+        // El aviso de las piezas que quedarían en negativo al final del periodo, con el mínimo de cada
         // receta. No impide preparar.
         // @ Devolvemos
         //      el aviso, o null si ninguna queda en negativo.
@@ -1286,9 +1438,19 @@ class RelacionesAplicacion extends RelacionesModelo
         }
         $aviso = null;
         if (count($partes) > 0) {
+            $cantidad = 0.0;
+            $minimos = array();
+            foreach ($recetas as $receta) {
+                $cantidad += $receta['cantidad'];
+                $minimos[] = $this->numeroLegible($desajuste['minimos'][$receta['numRelacion']]) . ' ' . $entrada['unidad'] . ' en «' . $receta['nombre'] . '»';
+            }
+            $minimo = $this->numeroLegible($desajuste['minimo']) . ' ' . $entrada['unidad'];
+            if (count($recetas) > 1) {
+                $minimo = implode(' o ', $minimos) . ', cada una con las demás como están';
+            }
             $aviso = $this->montarAdvertencia('warning', 'Con ' . $this->numeroLegible($cantidad) . ' ' . $entrada['unidad'] . ' de «' . $entrada['articulo']
                 . '» quedan en negativo al final del periodo: ' . implode('; ', $partes) . '. Para que ninguna quede en negativo tendrían que entrar al menos '
-                . $this->numeroLegible($desajuste['minimo']) . ' ' . $entrada['unidad'] . '. No impide preparar: puede faltar una entrada sin registrar, '
+                . $minimo . '. No impide preparar: puede faltar una entrada sin registrar, '
                 . 'haber producto de un periodo anterior o no responder el reparto a lo que se hizo.');
         }
 
@@ -1309,31 +1471,159 @@ class RelacionesAplicacion extends RelacionesModelo
         return $respuesta;
     }
 
-    private function cantidadAplicada($escrita, $disponible, $entrada, $periodo)
+    private function cantidadAplicada($escrita, $disponible, $entrada, $periodo, $hermanas)
     {
         // @ Objetivo
-        // La cantidad que entra en la receta: la escrita, si cabe en lo disponible; sin escribir,
-        // todo lo disponible. Sin nada disponible no se aplica nada.
+        // Lo que entra en la receta elegida y en cada hermana: lo escrito, con su suma dentro de lo
+        // disponible; la elegida sin escribir toma lo que sobra. Sin nada disponible no se aplica
+        // nada.
         // @ Devolvemos
-        //      ['datos'] con la cantidad; o ['error'], que dice por qué no.
+        //      ['datos'] con principal y hermanas; o ['error'], que dice por qué no.
         if ($disponible <= 0) {
-            $respuesta = array('error' => $this->montarAdvertencia('danger', 'No queda nada disponible de «' . $entrada['articulo'] . '» del '
+            return array('error' => $this->montarAdvertencia('danger', 'No queda nada disponible de «' . $entrada['articulo'] . '» del '
                 . $this->fechaLegible($periodo['desde']) . ' al ' . $this->fechaLegible($periodo['hasta'])
                 . ': lo que entró ya está aplicado, en albaranes guardados o en temporales sin guardar. Revísalos en compras o elige otro periodo.'));
-        } else {
-            $respuesta = $this->cantidadEscrita($escrita, $entrada['unidad']);
-            if (!isset($respuesta['error'])) {
-                if ($respuesta['datos'] === null) {
-                    $respuesta['datos'] = $disponible;
-                } elseif ($respuesta['datos'] > $disponible) {
-                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La cantidad (' . $this->numeroLegible($respuesta['datos']) . ' ' . $entrada['unidad']
-                        . ') pasa de lo disponible (' . $this->numeroLegible($disponible) . ' ' . $entrada['unidad']
-                        . '): escribe una menor, o deja el campo vacío para aplicar todo lo disponible.'));
+        }
+        $principal = $this->cantidadEscrita($escrita, $entrada['unidad']);
+        if (isset($principal['error'])) {
+            return $principal;
+        }
+        $deLasHermanas = array();
+        foreach ($hermanas as $hermana) {
+            $suya = $this->cantidadEscrita($hermana['escrita'], $entrada['unidad']);
+            if (isset($suya['error'])) {
+                return $suya;
+            }
+            $deLasHermanas[] = $suya['datos'];
+        }
+
+        return $this->repartoDeLaCantidad($principal['datos'], $deLasHermanas, $disponible, $entrada);
+    }
+
+    private function hermanasDeLaPeticion($peticion, $version, $entrada, $fechaDeLaVersion)
+    {
+        // @ Objetivo
+        // Las recetas hermanas que llegan en la petición, cada una con la versión que se aplica, si de
+        // verdad lo son: se vuelven a buscar las de la elegida, y no se admite una que no está entre
+        // ellas, repetida o la propia elegida, ni una cuya unidad no es la de la elegida.
+        // @ Devolvemos
+        //      ['datos'] con, por hermana, numRelacion, nombre, version, la cantidad como se escribió
+        //      (escrita), precios, ajustePeso y ajusteValor; o ['error'].
+        $pedidas = array();
+        if (isset($peticion['hermanas'])) {
+            $pedidas = $peticion['hermanas'];
+        }
+        $noVale = array('error' => $this->montarAdvertencia('warning', 'Alguna receta añadida no es hermana de «' . $this->nombreDeLaReceta($version)
+            . '», está repetida o no es válida: quítala del árbol y vuelve a calcular.'));
+        if (!is_array($pedidas)) {
+            return $noVale;
+        }
+        $respuesta = array('datos' => array());
+        if (count($pedidas) > 0) {
+            $validas = $this->hermanas($version['numRelacion']);
+            if (isset($validas['error'])) {
+                return $validas;
+            }
+            $nombres = array();
+            foreach ($validas['datos'] as $hermana) {
+                $nombres[$hermana['numRelacion']] = $hermana['nombre'];
+            }
+            foreach ($pedidas as $pedida) {
+                $numero = '';
+                if (is_array($pedida) && isset($pedida['numRelacion'])) {
+                    $numero = (string) $pedida['numRelacion'];
                 }
+                if (!ctype_digit($numero) || !isset($nombres[(int) $numero])) {
+                    return $noVale;
+                }
+                foreach ($respuesta['datos'] as $yaLeida) {
+                    if ($yaLeida['numRelacion'] === (int) $numero) {
+                        return $noVale;
+                    }
+                }
+                $suVersion = $this->versionAplicable((int) $numero, $fechaDeLaVersion);
+                if (isset($suVersion['error'])) {
+                    return $suVersion;
+                }
+                foreach ($suVersion['datos']['lineas'] as $linea) {
+                    if ($linea['sentido'] === 'entrada' && $linea['unidad'] !== $entrada['unidad']) {
+                        return $noVale;
+                    }
+                }
+                $leida = array('numRelacion' => (int) $numero, 'nombre' => $nombres[(int) $numero], 'version' => $suVersion['datos'],
+                    'escrita' => '', 'precios' => array(), 'ajustePeso' => '1', 'ajusteValor' => '1');
+                foreach (array('cantidad' => 'escrita', 'ajustePeso' => 'ajustePeso', 'ajusteValor' => 'ajusteValor') as $campo => $clave) {
+                    if (isset($pedida[$campo]) && !is_array($pedida[$campo])) {
+                        $leida[$clave] = (string) $pedida[$campo];
+                    }
+                }
+                if (isset($pedida['precios']) && is_array($pedida['precios'])) {
+                    $leida['precios'] = $pedida['precios'];
+                }
+                $respuesta['datos'][] = $leida;
             }
         }
 
         return $respuesta;
+    }
+
+    private function recetasCalculadas($recetas, $costeDePartida)
+    {
+        // @ Objetivo
+        // El escandallo de cada receta que entra, con sus precios escritos y su ajuste; la que no
+        // entra queda con el escandallo vacío.
+        // @ Devolvemos
+        //      ['datos'] con las recetas y su escandallo, y ['avisos'] de los escandallos; o ['error'].
+        $avisos = array();
+        foreach ($recetas as $posicion => $receta) {
+            $recetas[$posicion]['escandallo'] = null;
+            if ($receta['cantidad'] > 0) {
+                $salidas = array();
+                foreach ($receta['version']['lineas'] as $linea) {
+                    if ($linea['sentido'] === 'salida') {
+                        $salidas[] = (int) $linea['idArticulo'];
+                    }
+                }
+                $medias = $this->preciosDeMercado($salidas);
+                if (isset($medias['error'])) {
+                    return $medias;
+                }
+                $escandallo = $this->escandallo($receta['version'], $receta['cantidad'], $costeDePartida, $receta['precios'], $medias['datos'], $receta['ajustePeso'], $receta['ajusteValor']);
+                if (isset($escandallo['error'])) {
+                    if ($posicion > 0) {
+                        $escandallo['error']['mensaje'] = '«' . $receta['nombre'] . '»: ' . $escandallo['error']['mensaje'];
+                    }
+                    return $escandallo;
+                }
+                $recetas[$posicion]['escandallo'] = $escandallo['datos'];
+                foreach ($escandallo['avisos'] as $aviso) {
+                    if ($posicion > 0) {
+                        $aviso['mensaje'] = '«' . $receta['nombre'] . '»: ' . $aviso['mensaje'];
+                    }
+                    $avisos[] = $aviso;
+                }
+            }
+        }
+
+        return array('datos' => $recetas, 'avisos' => $avisos);
+    }
+
+    private function nombreDeLaReceta($version)
+    {
+        // @ Objetivo
+        // El nombre con que se enseña una receta: el de la relación o, sin él, el del producto que
+        // entra.
+        $nombre = '';
+        foreach ($version['lineas'] as $linea) {
+            if ($linea['sentido'] === 'entrada') {
+                $nombre = $linea['articulo'];
+            }
+        }
+        if (isset($version['nombre']) && $version['nombre'] !== null && $version['nombre'] !== '') {
+            $nombre = $version['nombre'];
+        }
+
+        return $nombre;
     }
 
     private function lecturaDeLaLinea($idArticulo, $detalle)
@@ -1418,6 +1708,54 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return (string) $unidad;
+    }
+
+    private function movimientosDeLaPieza($idArticulo, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Lo que tenía una pieza al empezar el periodo y lo que entró y salió de ella en él. El saldo
+        // inicial son sus movimientos desde el 1 de enero hasta la víspera, sin proveedor de traspaso;
+        // si el periodo empieza el 1 de enero con proveedor de traspaso, la apertura, que el periodo
+        // deja fuera.
+        // @ Devolvemos
+        //      (array) saldoInicial, entradas y salidas.
+        $traspaso = (int) $idProveedorTraspaso;
+        $inicio = substr($desde, 0, 4) . '-01-01';
+        $vispera = date('Y-m-d', strtotime($desde . ' -1 day'));
+        $saldoInicial = 0.0;
+        if ($desde > $inicio) {
+            $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($idArticulo, $inicio, $vispera, 0))
+                - $this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($idArticulo, $inicio, $vispera))
+                - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($idArticulo, $inicio, $vispera));
+        } elseif ($traspaso > 0) {
+            // La apertura del ejercicio: lo que el periodo deja fuera de su primer día.
+            $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($idArticulo, $desde, $desde, 0))
+                - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($idArticulo, $desde, $desde, $traspaso));
+        }
+
+        return array(
+            'saldoInicial' => round($saldoInicial, 3),
+            'entradas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($idArticulo, $desde, $hasta, $traspaso)), 3),
+            'salidas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($idArticulo, $desde, $hasta))
+                + $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($idArticulo, $desde, $hasta)), 3),
+        );
+    }
+
+    private function minimoRedondeado($falta, $porUnidad, $unidad)
+    {
+        // @ Objetivo
+        // Lo que tendría que entrar en una receta para cubrir lo que le falta a una pieza: hacia
+        // arriba, al gramo, o a la unidad si va por unidades; 0 si no le falta nada.
+        $minimo = 0.0;
+        if ($falta > 0 && $porUnidad > 0) {
+            if ($unidad === 'ud') {
+                $minimo = ceil($falta / $porUnidad - 0.000001);
+            } else {
+                $minimo = ceil($falta / $porUnidad * 1000 - 0.000001) / 1000;
+            }
+        }
+
+        return (float) $minimo;
     }
 
     private function sumaDeUnidades($lineas)
