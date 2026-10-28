@@ -6,8 +6,8 @@ include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesTipos.php';
 include_once $URLCom . '/clases/Proveedores.php';
 
 // @ Objetivo
-// Aplicar una relación a lo que entró de su producto en un periodo, para preparar el albarán
-// que lo registra. Cada línea lleva el signo que le dan su sentido y el documento: en un
+// Aplicar una relación a lo que queda de su producto en un periodo, o a la parte que se elija,
+// para preparar el albarán que lo registra. Cada línea lleva el signo que le dan su sentido y el documento: en un
 // albarán de proveedor, las entradas restan y las salidas suman; en uno de cliente, al revés.
 // La forma pone su regla de cantidades y de coste; hoy se aplica la de uno a varios, el
 // escandallo de un despiece. No escribe en ninguna tabla: lo calculado lo usa quien prepara
@@ -23,13 +23,15 @@ class RelacionesAplicacion extends RelacionesModelo
     {
         // @ Objetivo
         // Todo lo que se enseña antes de preparar el albarán: el periodo, la versión que regía,
-        // lo que hay que despiezar según los movimientos, el coste de partida, el aviso de
-        // proceso duplicado, el escandallo y las líneas del albarán.
+        // lo disponible según los movimientos y las aplicaciones anteriores, el coste de partida,
+        // el aviso de proceso duplicado, la cantidad que entra en la receta, el escandallo y las
+        // líneas del albarán.
         // @ Parametros
         //      $peticion -> (array) idProveedor, numRelacion, tipoPeriodo, periodo, version
         //                   ('periodo', la que regía en la fecha del albarán, o 'vigente'),
         //                   idProveedorTraspaso, precios (por idArticulo, como se escribieron),
-        //                   ajustePeso y ajusteValor.
+        //                   ajustePeso, ajusteValor y cantidad (la que entra en la receta, como se
+        //                   escribió; vacía, todo lo disponible).
         //      $consultaDeExistencias -> el objeto que lee los movimientos de un producto en un
         //                   periodo (ClaseComprobacionStockConsulta de mod_reorganizacion).
         // @ Devolvemos
@@ -96,30 +98,33 @@ class RelacionesAplicacion extends RelacionesModelo
             }
         }
 
-        $cantidad = null;
+        $disponible = null;
         if ($version !== null) {
             $traspaso = 0;
             if ($peticion['idProveedorTraspaso'] !== '') {
                 $traspaso = (int) $peticion['idProveedorTraspaso'];
             }
-            $movimientos = $this->cantidadADespiezar(
-                $consultaDeExistencias->lineasDeAlbaranDeProveedor($entrada['idArticulo'], $periodo['desde'], $periodo['hasta'], $traspaso),
-                $consultaDeExistencias->lineasDeTicket($entrada['idArticulo'], $periodo['desde'], $periodo['hasta']),
-                $consultaDeExistencias->lineasDeAlbaranDeCliente($entrada['idArticulo'], $periodo['desde'], $periodo['hasta'])
-            );
-            $respuesta['datos']['cantidadADespiezar'] = $movimientos['cantidad'];
-            $respuesta['datos']['primeraEntrada'] = $movimientos['primeraEntrada'];
-            if ($movimientos['cantidad'] <= 0) {
-                $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'No hay nada que despiezar de «' . $entrada['articulo'] . '» del '
-                    . $this->fechaLegible($periodo['desde']) . ' al ' . $this->fechaLegible($periodo['hasta'])
-                    . ': no entró nada o se vendió todo entero. Elige otro periodo.');
+            $lectura = $this->loDisponible($entrada['idArticulo'], $periodo['desde'], $periodo['hasta'], $traspaso, $consultaDeExistencias);
+            if (isset($lectura['error'])) {
+                $respuesta['avisos'][] = $lectura['error'];
             } else {
-                $cantidad = $movimientos['cantidad'];
+                $respuesta['datos']['cantidadADespiezar'] = $lectura['datos']['existencias'];
+                $respuesta['datos']['primeraEntrada'] = $lectura['datos']['primeraEntrada'];
+                $respuesta['datos']['mermaAnterior'] = $lectura['datos']['mermaAnterior'];
+                $respuesta['datos']['enTemporales'] = $lectura['datos']['enTemporales'];
+                $respuesta['datos']['disponible'] = $lectura['datos']['disponible'];
+                if ($lectura['datos']['existencias'] <= 0) {
+                    $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'No hay nada que despiezar de «' . $entrada['articulo'] . '» del '
+                        . $this->fechaLegible($periodo['desde']) . ' al ' . $this->fechaLegible($periodo['hasta'])
+                        . ': no entró nada o se vendió todo entero. Elige otro periodo.');
+                } else {
+                    $disponible = $lectura['datos']['disponible'];
+                }
             }
         }
 
         $costeDePartida = null;
-        if ($cantidad !== null) {
+        if ($disponible !== null) {
             $coste = $this->costeDePartida($entrada['idArticulo']);
             if (isset($coste['error'])) {
                 $respuesta['avisos'][] = $coste['error'];
@@ -129,7 +134,8 @@ class RelacionesAplicacion extends RelacionesModelo
             }
         }
 
-        $sinDuplicado = false;
+        // El aviso va antes que la cantidad: sin nada disponible, dice qué documentos lo consumieron.
+        $cantidad = null;
         if ($costeDePartida !== null) {
             $aviso = $this->avisoDeDuplicado(array($entrada['idArticulo']), (int) $peticion['idProveedor'], $periodo['desde'], $periodo['hasta']);
             if (isset($aviso['error'])) {
@@ -137,13 +143,21 @@ class RelacionesAplicacion extends RelacionesModelo
             } else {
                 $respuesta['datos']['aviso'] = $aviso['datos'];
                 $respuesta['avisos'][] = $this->advertenciaDeDuplicado($aviso['datos'], $entrada['articulo'], $periodo['desde']);
-                if ($aviso['datos']['color'] !== 'rojo') {
-                    $sinDuplicado = true;
+                $escrita = '';
+                if (isset($peticion['cantidad'])) {
+                    $escrita = $peticion['cantidad'];
+                }
+                $elegida = $this->cantidadAplicada($escrita, $disponible, $entrada, $periodo);
+                if (isset($elegida['error'])) {
+                    $respuesta['avisos'][] = $elegida['error'];
+                } else {
+                    $cantidad = $elegida['datos'];
+                    $respuesta['datos']['cantidad'] = $cantidad;
                 }
             }
         }
 
-        if ($sinDuplicado) {
+        if ($cantidad !== null) {
             $salidas = array();
             foreach ($version['lineas'] as $linea) {
                 if ($linea['sentido'] === 'salida') {
@@ -421,6 +435,134 @@ class RelacionesAplicacion extends RelacionesModelo
         return array('cantidad' => round($cantidad, 3), 'primeraEntrada' => $primera);
     }
 
+    public function loDisponible($idArticulo, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Lo que queda del producto en el periodo para aplicarlo: los movimientos desde la primera
+        // entrada, con las entradas de un albarán guardado que compras ha reabierto —mientras se
+        // edita, la comprobación de existencias no lo cuenta—; menos la merma que dejó en las
+        // existencias cada aplicación guardada; y menos lo que sacan los temporales sin guardar de
+        // proveedores «Especial» y el de un albarán reabierto. Lo guardado y los temporales cuentan
+        // con los mismos días y el mismo proveedor de traspaso que los movimientos: así, guardar o
+        // reabrir un albarán no cambia lo disponible.
+        // @ Parametros
+        //      $idArticulo -> el producto de entrada de la relación.
+        //      $desde, $hasta -> 'AAAA-MM-DD', el primer y el último día del periodo.
+        //      $idProveedorTraspaso -> (int) el proveedor de traspaso elegido, o 0.
+        //      $consultaDeExistencias -> ClaseComprobacionStockConsulta de mod_reorganizacion.
+        // @ Devolvemos
+        //      ['datos'] con existencias, primeraEntrada, mermaAnterior, enTemporales y
+        //      disponible; o ['error'].
+        $idArticulo = (int) $idArticulo;
+        $traspaso = (int) $idProveedorTraspaso;
+        $sql = 'SELECT DATE(c.Fecha) AS fecha, l.nunidades FROM albprolinea l'
+            . ' JOIN albprot c ON c.id = l.idalbpro'
+            . " WHERE l.idArticulo = ? AND l.estadoLinea = 'Activo' AND l.nunidades > 0 AND c.estado = 'Sin Guardar'"
+            . ' AND DATE(c.Fecha) BETWEEN ? AND ? AND NOT (c.idProveedor = ? AND DATE(c.Fecha) IN (?, ?))'
+            . ' AND EXISTS (SELECT 1 FROM albproltemporales t WHERE t.Numalbpro = c.id)';
+        $reabiertas = $this->consultaPreparada($sql, array($idArticulo, $desde, $hasta, $traspaso, $desde, $hasta));
+        if (isset($reabiertas['error'])) {
+            return $reabiertas;
+        }
+        $deProveedor = $consultaDeExistencias->lineasDeAlbaranDeProveedor($idArticulo, $desde, $hasta, $traspaso);
+        foreach ($reabiertas['datos'] as $linea) {
+            $deProveedor[] = array('fecha' => $linea['fecha'], 'nunidades' => (float) $linea['nunidades']);
+        }
+        $movimientos = $this->cantidadADespiezar(
+            $deProveedor,
+            $consultaDeExistencias->lineasDeTicket($idArticulo, $desde, $hasta),
+            $consultaDeExistencias->lineasDeAlbaranDeCliente($idArticulo, $desde, $hasta)
+        );
+
+        $merma = 0.0;
+        $enTemporales = 0.0;
+        if ($movimientos['primeraEntrada'] !== null) {
+            $primera = $movimientos['primeraEntrada'];
+            $sql = 'SELECT l.nunidades, l.cdetalle FROM albprolinea l'
+                . ' JOIN albprot c ON c.id = l.idalbpro'
+                . ' JOIN proveedores p ON p.idProveedor = c.idProveedor'
+                . " WHERE p.estado = 'Especial' AND l.idArticulo = ? AND l.estadoLinea = 'Activo' AND l.nunidades < 0"
+                . " AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')"
+                . ' AND DATE(c.Fecha) BETWEEN ? AND ? AND NOT (c.idProveedor = ? AND DATE(c.Fecha) IN (?, ?))';
+            $guardadas = $this->consultaPreparada($sql, array($idArticulo, $primera, $hasta, $traspaso, $desde, $hasta));
+            if (isset($guardadas['error'])) {
+                return $guardadas;
+            }
+            foreach ($guardadas['datos'] as $linea) {
+                $lectura = $this->lecturaDeLaLinea($idArticulo, (string) $linea['cdetalle']);
+                if (isset($lectura['error'])) {
+                    return $lectura;
+                }
+                // Los movimientos ya restan lo despiezado: lo que falta es la merma.
+                $despiezado = -(float) $linea['nunidades'];
+                $merma += $despiezado / $lectura['datos']['rendimiento'] - $despiezado;
+            }
+
+            $sql = 'SELECT t.Productos FROM albproltemporales t'
+                . ' JOIN proveedores p ON p.idProveedor = t.idProveedor'
+                . ' LEFT JOIN albprot a ON a.id = t.Numalbpro'
+                . " WHERE (p.estado = 'Especial' OR a.estado = 'Sin Guardar')"
+                . ' AND DATE(t.Fecha) BETWEEN ? AND ? AND NOT (t.idProveedor = ? AND DATE(t.Fecha) IN (?, ?))';
+            $temporales = $this->consultaPreparada($sql, array($primera, $hasta, $traspaso, $desde, $hasta));
+            if (isset($temporales['error'])) {
+                return $temporales;
+            }
+            foreach ($temporales['datos'] as $temporal) {
+                $productos = json_decode((string) $temporal['Productos'], true);
+                if (is_array($productos)) {
+                    foreach ($productos as $producto) {
+                        // Solo saca lo que va en negativo: una entrada no cuenta hasta que se guarda.
+                        if (isset($producto['idArticulo']) && isset($producto['nunidades']) && (int) $producto['idArticulo'] === $idArticulo
+                            && (!isset($producto['estado']) || strtolower($producto['estado']) === 'activo') && (float) $producto['nunidades'] < 0) {
+                            $lectura = $this->lecturaDeLaLinea($idArticulo, (string) ($producto['cdetalle'] ?? ''));
+                            if (isset($lectura['error'])) {
+                                return $lectura;
+                            }
+                            $enTemporales += -(float) $producto['nunidades'] / $lectura['datos']['rendimiento'];
+                        }
+                    }
+                }
+            }
+        }
+        $merma = round($merma, 3);
+        $enTemporales = round($enTemporales, 3);
+
+        return array('datos' => array(
+            'existencias' => $movimientos['cantidad'],
+            'primeraEntrada' => $movimientos['primeraEntrada'],
+            'mermaAnterior' => $merma,
+            'enTemporales' => $enTemporales,
+            'disponible' => round($movimientos['cantidad'] - $merma - $enTemporales, 3),
+        ));
+    }
+
+    public function rendimiento($lineas)
+    {
+        // @ Objetivo
+        // Lo que sale de cada unidad que entra en una versión: la suma de las cantidades de sus
+        // salidas entre la de su entrada, con las líneas activas. Sin entrada o sin salidas es 1, y
+        // la línea saca su cantidad.
+        // @ Devolvemos
+        //      (float) el rendimiento.
+        $entra = 0.0;
+        $sale = 0.0;
+        foreach ($lineas as $linea) {
+            if (!isset($linea['estado']) || $linea['estado'] === 'Activo') {
+                if ($linea['sentido'] === 'entrada') {
+                    $entra += (float) $linea['cantidad'];
+                } elseif ($linea['sentido'] === 'salida') {
+                    $sale += (float) $linea['cantidad'];
+                }
+            }
+        }
+        $rendimiento = 1.0;
+        if ($entra > 0 && $sale > 0) {
+            $rendimiento = $sale / $entra;
+        }
+
+        return $rendimiento;
+    }
+
     public function precioEscrito($texto)
     {
         // @ Objetivo
@@ -435,6 +577,33 @@ class RelacionesAplicacion extends RelacionesModelo
             } else {
                 $respuesta = array('error' => $this->montarAdvertencia('warning', 'El precio de mercado «' . $texto
                     . '» no es un número: escríbelo con cifras, 0 o mayor, con coma decimal.'));
+            }
+        }
+
+        return $respuesta;
+    }
+
+    public function cantidadEscrita($texto, $unidad)
+    {
+        // @ Objetivo
+        // Leer la cantidad que entra en la receta, escrita a mano con coma o con punto decimal: un
+        // número mayor que 0 con hasta tres decimales, o entero si el despiece va por unidades.
+        // @ Devolvemos
+        //      ['datos'] con la cantidad, o null si no se escribió; o ['error'].
+        $limpio = str_replace(',', '.', trim((string) $texto));
+        $respuesta = array('datos' => null);
+        if ($limpio !== '') {
+            $patron = '/^[0-9]+(\.[0-9]{1,3})?$/';
+            $como = 'con hasta tres decimales';
+            if ($unidad === 'ud') {
+                $patron = '/^[0-9]+$/';
+                $como = 'sin decimales, porque el despiece va por unidades';
+            }
+            if (preg_match($patron, $limpio) === 1 && (float) $limpio > 0) {
+                $respuesta = array('datos' => (float) $limpio);
+            } else {
+                $respuesta = array('error' => $this->montarAdvertencia('warning', 'La cantidad «' . $texto
+                    . '» no vale: escríbela con cifras, mayor que 0 y ' . $como . '.'));
             }
         }
 
@@ -774,11 +943,16 @@ class RelacionesAplicacion extends RelacionesModelo
     public function avisoDeDuplicado($idArticulos, $idProveedor, $desde, $hasta)
     {
         // @ Objetivo
-        // Avisar si el periodo puede estar ya registrado: los albaranes y los temporales de
-        // compras de proveedores «Especial» con alguno de los productos de entrada, desde el
-        // primer día del periodo. Del proveedor elegido y dentro del periodo, rojo; los demás,
-        // amarillo. Sin ninguno, verde. Un albarán o temporal que solo lleva el producto como
-        // derivado de otra aplicación —una pieza que salió de otra relación— no pone el rojo.
+        // Avisar de los albaranes y los temporales de compras de proveedores «Especial» con alguno
+        // de los productos de entrada, desde el primer día del periodo, y de si lo llevan aplicado
+        // o como derivado de otra aplicación —una pieza que salió de otra relación—. Todos salen
+        // en amarillo, y sin ninguno, verde. El aviso no impide aplicar: lo que se aplica no pasa
+        // de lo disponible.
+        // @ Parametros
+        //      $idArticulos -> los productos de entrada.
+        //      $idProveedor, $hasta -> el proveedor elegido y el último día del periodo; no cambian
+        //                   el aviso.
+        //      $desde -> el primer día del periodo.
         // @ Devolvemos
         //      ['datos'] con color y documentos —albarán o temporal, número, proveedor, fecha y
         //      color, y 'derivado' en los que solo lo llevan así—; o ['error'].
@@ -802,18 +976,18 @@ class RelacionesAplicacion extends RelacionesModelo
                 if (!isset($albaranes[$fila['id']])) {
                     $albaranes[$fila['id']] = array('fila' => $fila, 'derivado' => true);
                 }
-                $derivado = $this->lineaDeDerivado((int) $fila['idArticulo'], (string) $fila['cdetalle']);
-                if (isset($derivado['error'])) {
-                    $respuesta = $derivado;
+                $lectura = $this->lecturaDeLaLinea((int) $fila['idArticulo'], (string) $fila['cdetalle']);
+                if (isset($lectura['error'])) {
+                    $respuesta = $lectura;
                     break;
                 }
-                if (!$derivado['datos']) {
+                if (!$lectura['datos']['derivado']) {
                     $albaranes[$fila['id']]['derivado'] = false;
                 }
             }
             if (!isset($respuesta['error'])) {
                 foreach ($albaranes as $albaran) {
-                    $documentos[] = $this->documentoDelAviso('albarán', (int) $albaran['fila']['Numalbpro'], $albaran['fila'], $idProveedor, $hasta, $albaran['derivado']);
+                    $documentos[] = $this->documentoDelAviso('albarán', (int) $albaran['fila']['Numalbpro'], $albaran['fila'], $albaran['derivado']);
                 }
                 $sql = 'SELECT t.id, DATE(t.Fecha) AS fecha, t.idProveedor, p.nombrecomercial, t.Productos FROM albproltemporales t'
                     . ' JOIN proveedores p ON p.idProveedor = t.idProveedor'
@@ -832,27 +1006,23 @@ class RelacionesAplicacion extends RelacionesModelo
                         if (isset($producto['idArticulo']) && in_array((int) $producto['idArticulo'], $ids, true)
                             && (!isset($producto['estado']) || strtolower($producto['estado']) === 'activo')) {
                             $loLleva = true;
-                            $deLaLinea = $this->lineaDeDerivado((int) $producto['idArticulo'], (string) ($producto['cdetalle'] ?? ''));
-                            if (isset($deLaLinea['error'])) {
-                                return $deLaLinea;
+                            $lectura = $this->lecturaDeLaLinea((int) $producto['idArticulo'], (string) ($producto['cdetalle'] ?? ''));
+                            if (isset($lectura['error'])) {
+                                return $lectura;
                             }
-                            if (!$deLaLinea['datos']) {
+                            if (!$lectura['datos']['derivado']) {
                                 $derivado = false;
                             }
                         }
                     }
                 }
                 if ($loLleva) {
-                    $documentos[] = $this->documentoDelAviso('temporal', (int) $fila['id'], $fila, $idProveedor, $hasta, $derivado);
+                    $documentos[] = $this->documentoDelAviso('temporal', (int) $fila['id'], $fila, $derivado);
                 }
             }
             $color = 'verde';
-            foreach ($documentos as $documento) {
-                if ($documento['color'] === 'rojo') {
-                    $color = 'rojo';
-                } elseif ($color === 'verde') {
-                    $color = 'amarillo';
-                }
+            if (count($documentos) > 0) {
+                $color = 'amarillo';
             }
             $respuesta = array('datos' => array('color' => $color, 'documentos' => $documentos));
         }
@@ -969,22 +1139,21 @@ class RelacionesAplicacion extends RelacionesModelo
     private function advertenciaDeDuplicado($aviso, $producto, $desde)
     {
         // @ Objetivo
-        // El aviso de proceso duplicado, con el color de su gravedad y lo que hay que mirar.
+        // El aviso de proceso duplicado: cada albarán o temporal, con cómo lleva el producto.
         $partes = array();
         foreach ($aviso['documentos'] as $documento) {
             $parte = $documento['documento'] . ' ' . $documento['numero'] . ' de ' . $documento['proveedor']
                 . ', del ' . $this->fechaLegible($documento['fecha']);
             if (isset($documento['derivado'])) {
                 $parte .= ', que lo lleva como derivado de otra aplicación';
+            } else {
+                $parte .= ', que lo lleva aplicado';
             }
             $partes[] = $parte;
         }
-        if ($aviso['color'] === 'rojo') {
-            $advertencia = $this->montarAdvertencia('danger', 'El periodo de «' . $producto . '» ya puede estar registrado con este proveedor: '
-                . implode('; ', $partes) . '. Consúltalo en compras antes de volver a aplicarlo.');
-        } elseif ($aviso['color'] === 'amarillo') {
+        if ($aviso['color'] === 'amarillo') {
             $advertencia = $this->montarAdvertencia('warning', 'Hay albaranes de proveedores especiales con «' . $producto . '» en el periodo o después: '
-                . implode('; ', $partes) . '. Compruébalos antes de preparar.');
+                . implode('; ', $partes) . '. Lo disponible ya descuenta lo que sacan los del periodo: compruébalos antes de preparar.');
         } else {
             $advertencia = $this->montarAdvertencia('success', 'Ningún albarán de un proveedor especial lleva «' . $producto . '» desde el '
                 . $this->fechaLegible($desde) . ': se puede preparar.');
@@ -993,16 +1162,12 @@ class RelacionesAplicacion extends RelacionesModelo
         return $advertencia;
     }
 
-    private function documentoDelAviso($documento, $numero, $fila, $idProveedor, $hasta, $derivado = false)
+    private function documentoDelAviso($documento, $numero, $fila, $derivado)
     {
         // @ Objetivo
-        // Un albarán o un temporal del aviso, con su color: rojo si es del proveedor elegido, cae
-        // en el periodo y lleva el producto aplicado; si solo lo lleva como derivado, amarillo.
-        $color = 'amarillo';
-        if ((int) $fila['idProveedor'] === (int) $idProveedor && $fila['fecha'] <= $hasta && !$derivado) {
-            $color = 'rojo';
-        }
-        $respuesta = array('documento' => $documento, 'numero' => $numero, 'proveedor' => $fila['nombrecomercial'], 'fecha' => $fila['fecha'], 'color' => $color);
+        // Un albarán o un temporal del aviso, en amarillo, con la marca de los que solo llevan el
+        // producto como derivado.
+        $respuesta = array('documento' => $documento, 'numero' => $numero, 'proveedor' => $fila['nombrecomercial'], 'fecha' => $fila['fecha'], 'color' => 'amarillo');
         // Solo los derivados llevan la marca: los demás documentos quedan como estaban.
         if ($derivado) {
             $respuesta['derivado'] = true;
@@ -1011,24 +1176,62 @@ class RelacionesAplicacion extends RelacionesModelo
         return $respuesta;
     }
 
-    private function lineaDeDerivado($idArticulo, $detalle)
+    private function cantidadAplicada($escrita, $disponible, $entrada, $periodo)
     {
         // @ Objetivo
-        // Saber si una línea lleva el producto como derivado de otra aplicación. El detalle de las
-        // líneas que deja la aplicación termina en « · REL <número> v<versión>»: el producto es
-        // derivado si sale en esa versión de la relación. Una línea sin esa etiqueta, o con una
-        // relación que no lo lleva como salida, cuenta como aplicada: ante la duda, se bloquea.
+        // La cantidad que entra en la receta: la escrita, si cabe en lo disponible; sin escribir,
+        // todo lo disponible. Sin nada disponible no se aplica nada.
         // @ Devolvemos
-        //      ['datos'] true si es derivado, false si no; o ['error'].
-        $respuesta = array('datos' => false);
+        //      ['datos'] con la cantidad; o ['error'], que dice por qué no.
+        if ($disponible <= 0) {
+            $respuesta = array('error' => $this->montarAdvertencia('danger', 'No queda nada disponible de «' . $entrada['articulo'] . '» del '
+                . $this->fechaLegible($periodo['desde']) . ' al ' . $this->fechaLegible($periodo['hasta'])
+                . ': lo que entró ya está aplicado, en albaranes guardados o en temporales sin guardar. Revísalos en compras o elige otro periodo.'));
+        } else {
+            $respuesta = $this->cantidadEscrita($escrita, $entrada['unidad']);
+            if (!isset($respuesta['error'])) {
+                if ($respuesta['datos'] === null) {
+                    $respuesta['datos'] = $disponible;
+                } elseif ($respuesta['datos'] > $disponible) {
+                    $respuesta = array('error' => $this->montarAdvertencia('warning', 'La cantidad (' . $this->numeroLegible($respuesta['datos']) . ' ' . $entrada['unidad']
+                        . ') pasa de lo disponible (' . $this->numeroLegible($disponible) . ' ' . $entrada['unidad']
+                        . '): escribe una menor, o deja el campo vacío para aplicar todo lo disponible.'));
+                }
+            }
+        }
+
+        return $respuesta;
+    }
+
+    private function lecturaDeLaLinea($idArticulo, $detalle)
+    {
+        // @ Objetivo
+        // Leer en el detalle de una línea la aplicación que la dejó. El de las líneas que deja la
+        // aplicación termina en « · REL <número> v<versión>»: si el producto sale en esa versión de
+        // la relación, es un derivado; si entra, se aplicó con ella y sacó lo despiezado entre el
+        // rendimiento de esa versión. Una línea sin esa etiqueta, o con una relación que no lleva el
+        // producto, cuenta como aplicada y saca su cantidad.
+        // @ Devolvemos
+        //      ['datos'] con derivado (bool) y rendimiento; o ['error'].
+        $respuesta = array('datos' => array('derivado' => false, 'rendimiento' => 1.0));
         if (preg_match('/ · REL (\d+) v(\d+\.\d+)$/u', $detalle, $partes)) {
-            $sql = 'SELECT l.sentido FROM relaciones r JOIN relacionesLineas l ON l.idRelacion = r.id'
-                . " WHERE r.numRelacion = ? AND r.version = ? AND l.idArticulo = ? AND l.estado = 'Activo'";
-            $leido = $this->consultaPreparada($sql, array((int) $partes[1], $partes[2], (int) $idArticulo));
+            $sql = 'SELECT l.idArticulo, l.sentido, l.cantidad FROM relaciones r JOIN relacionesLineas l ON l.idRelacion = r.id'
+                . " WHERE r.numRelacion = ? AND r.version = ? AND l.estado = 'Activo'";
+            $leido = $this->consultaPreparada($sql, array((int) $partes[1], $partes[2]));
             if (isset($leido['error'])) {
                 $respuesta = $leido;
-            } elseif (isset($leido['datos'][0]) && $leido['datos'][0]['sentido'] === 'salida') {
-                $respuesta['datos'] = true;
+            } else {
+                $sentido = '';
+                foreach ($leido['datos'] as $linea) {
+                    if ((int) $linea['idArticulo'] === (int) $idArticulo) {
+                        $sentido = $linea['sentido'];
+                    }
+                }
+                if ($sentido === 'salida') {
+                    $respuesta['datos']['derivado'] = true;
+                } elseif ($sentido === 'entrada') {
+                    $respuesta['datos']['rendimiento'] = $this->rendimiento($leido['datos']);
+                }
             }
         }
 

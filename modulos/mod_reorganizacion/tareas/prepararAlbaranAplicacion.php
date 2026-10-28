@@ -2,8 +2,9 @@
 
 // @ Objetivo
 // Preparar el albarán de la aplicación de una relación: vuelve a calcularla aquí, con lo que se
-// eligió —los costes no se reciben de la pantalla—, y deja un albarán temporal de compras con
-// sus líneas, que el usuario revisa y guarda en la pantalla de albaranes. Preparar no mueve
+// eligió —los costes no se reciben de la pantalla, y la cantidad se vuelve a contrastar con lo
+// disponible—, y deja un albarán temporal de compras con sus líneas, que el usuario revisa y
+// guarda en la pantalla de albaranes. Preparar no mueve
 // existencias ni costes. Exige el permiso «Preparar» de la pantalla de aplicar relación.
 
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesAplicacion.php';
@@ -28,8 +29,9 @@ if ($ClasePermisos->getAccion('Preparar', array('modulo' => 'mod_reorganizacion'
         'precios' => array(),
         'ajustePeso' => '1',
         'ajusteValor' => '1',
+        'cantidad' => '',
     );
-    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor') as $campo) {
+    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor', 'cantidad') as $campo) {
         if (isset($_POST[$campo])) {
             $peticion[$campo] = (string) $_POST[$campo];
         }

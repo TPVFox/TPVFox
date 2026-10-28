@@ -2,7 +2,7 @@
 // @ Objetivo
 // El HTML de la pantalla de aplicar una relación: la elección del proveedor, la relación y el
 // periodo —que se rellena con los meses o los días con entradas—, la versión del despiece que se
-// aplica, el ajuste del reparto en un
+// aplica, la cantidad que entra en la receta, el ajuste del reparto en un
 // deslizador y el proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero;
 // los avisos; y el resultado, que pinta aplicarRelacion.js con lo que devuelve el cálculo.
 // @ Parametros (de AplicarRelacion.php)
@@ -70,6 +70,16 @@
                 </div>
                 <div class="col-md-8">
                     <p class="help-block" style="margin-top: 25px;">Con la primera se usan las proporciones del despiece en la fecha del albarán. Elige la vigente para aplicar un despiece nuevo a datos anteriores a su alta, o para quedarte con su versión final después de varios cambios. La pantalla dice qué versión se ha usado.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label for="cantidadAplicacion">Cantidad que entra en la receta</label>
+                    <input type="text" id="cantidadAplicacion" class="form-control" placeholder="Todo lo disponible" onchange="cambiarDatoAplicacion('la cantidad')">
+                </div>
+                <div class="col-md-8">
+                    <p class="help-block" style="margin-top: 25px;">En la unidad del despiece: con hasta tres decimales, o sin decimales si va por unidades. Vacía, se aplica todo lo disponible. Lo que no entra queda en las existencias del producto, para otra receta.</p>
                 </div>
             </div>
 

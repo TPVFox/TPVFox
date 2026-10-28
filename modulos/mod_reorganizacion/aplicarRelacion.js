@@ -1,6 +1,7 @@
 /*
  * Aplicar una relación a un periodo: ofrece los meses o los días con entradas del producto,
- * pide el cálculo al servidor, pinta los avisos, los datos y el escandallo, y prepara el albarán
+ * pide el cálculo al servidor con la cantidad que entra en la receta, pinta los avisos, los datos
+ * —lo disponible y lo que se aplica— y el escandallo, y prepara el albarán
  * de compras, que se abre en su pantalla para revisarlo y guardarlo. El cálculo y el aviso de
  * proceso duplicado los hace siempre el servidor, también al preparar: aquí solo se recoge lo
  * elegido y se pinta lo que llega.
@@ -40,6 +41,7 @@ function peticionDeAplicacion(pulsado) {
     precios: JSON.stringify(preciosEscritosAplicacion),
     ajustePeso: $("#ajustePesoAplicacion").val(),
     ajusteValor: ajusteDeValorAplicacion(),
+    cantidad: $("#cantidadAplicacion").val(),
     destino: $("#destinoAplicacion").val(),
   };
 }
@@ -209,7 +211,8 @@ function pintarAvisosAplicacion(avisos) {
 }
 
 function pintarDatosAplicacion(datos) {
-  // Lo que se calculó hasta donde se pudo: fecha, versión, lo que hay que despiezar y el coste.
+  // Lo que se calculó hasta donde se pudo: fecha, versión, los movimientos, lo disponible, lo que
+  // entra en la receta y el coste.
   var lineas = [];
   var unidad = "";
   if (datos.version) {
@@ -234,7 +237,18 @@ function pintarDatosAplicacion(datos) {
     if (datos.primeraEntrada) {
       desde = ", desde la primera entrada del " + fechaLegibleAplicacion(datos.primeraEntrada);
     }
-    lineas.push("A despiezar: " + cantidadLegibleAplicacion(datos.cantidadADespiezar) + " " + unidad + desde);
+    lineas.push("Movimientos del periodo: " + cantidadLegibleAplicacion(datos.cantidadADespiezar) + " " + unidad + desde);
+  }
+  if (datos.disponible !== undefined) {
+    var descontado = "";
+    if (datos.mermaAnterior > 0 || datos.enTemporales > 0) {
+      descontado = ", descontados " + cantidadLegibleAplicacion(datos.mermaAnterior) + " " + unidad + " de merma de aplicaciones guardadas y "
+        + cantidadLegibleAplicacion(datos.enTemporales) + " " + unidad + " que sacan los temporales sin guardar";
+    }
+    lineas.push("Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad + descontado);
+  }
+  if (datos.cantidad !== undefined) {
+    lineas.push("Entra en la receta: " + cantidadLegibleAplicacion(datos.cantidad) + " " + unidad + ". Lo que no entra queda en las existencias del producto.");
   }
   if (datos.escandallo) {
     lineas.push("Despiezado: " + cantidadLegibleAplicacion(datos.escandallo.despiezado) + " " + unidad

@@ -2,8 +2,8 @@
 
 // @ Objetivo
 // Calcular la aplicación de una relación a un periodo para enseñarla en la pantalla: la versión
-// que regía, lo que hay que despiezar, el coste de partida, el aviso de proceso duplicado y el
-// escandallo. No escribe nada. Exige el permiso «ver» de la pantalla de aplicar relación.
+// que regía, lo disponible, el coste de partida, el aviso de proceso duplicado, la cantidad que
+// entra en la receta y el escandallo. No escribe nada. Exige el permiso «ver» de la pantalla de aplicar relación.
 
 include_once $URLCom . '/modulos/mod_relaciones/clases/RelacionesAplicacion.php';
 include_once $URLCom . '/modulos/mod_reorganizacion/clases/ClaseComprobacionStockConsulta.php';
@@ -25,8 +25,9 @@ if ($ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vi
         'precios' => array(),
         'ajustePeso' => '1',
         'ajusteValor' => '1',
+        'cantidad' => '',
     );
-    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor') as $campo) {
+    foreach (array('idProveedor', 'numRelacion', 'tipoPeriodo', 'periodo', 'version', 'idProveedorTraspaso', 'ajustePeso', 'ajusteValor', 'cantidad') as $campo) {
         if (isset($_POST[$campo])) {
             $peticion[$campo] = (string) $_POST[$campo];
         }
