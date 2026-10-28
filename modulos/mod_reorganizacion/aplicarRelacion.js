@@ -212,7 +212,7 @@ function pintarAvisosAplicacion(avisos) {
 
 function pintarDatosAplicacion(datos) {
   // Lo que se calculó hasta donde se pudo: fecha, versión, los movimientos, lo disponible, lo que
-  // entra en la receta y el coste.
+  // entra en la receta, el mínimo para cubrir las salidas de sus piezas y el coste.
   var lineas = [];
   var unidad = "";
   if (datos.version) {
@@ -249,6 +249,9 @@ function pintarDatosAplicacion(datos) {
   }
   if (datos.cantidad !== undefined) {
     lineas.push("Entra en la receta: " + cantidadLegibleAplicacion(datos.cantidad) + " " + unidad + ". Lo que no entra queda en las existencias del producto.");
+  }
+  if (datos.desajuste && datos.desajuste.minimo > 0) {
+    lineas.push("Mínimo para cubrir las salidas de sus piezas: " + cantidadLegibleAplicacion(datos.desajuste.minimo) + " " + unidad);
   }
   if (datos.escandallo) {
     lineas.push("Despiezado: " + cantidadLegibleAplicacion(datos.escandallo.despiezado) + " " + unidad

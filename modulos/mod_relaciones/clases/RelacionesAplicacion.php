@@ -7,8 +7,9 @@ include_once $URLCom . '/clases/Proveedores.php';
 
 // @ Objetivo
 // Aplicar una relación a lo que queda de su producto en un periodo, o a la parte que se elija,
-// para preparar el albarán que lo registra. Cada línea lleva el signo que le dan su sentido y el documento: en un
-// albarán de proveedor, las entradas restan y las salidas suman; en uno de cliente, al revés.
+// para preparar el albarán que lo registra. Cada línea lleva el signo que le dan su sentido y el
+// documento: en un albarán de proveedor, las entradas restan y las salidas suman; en uno de
+// cliente, al revés.
 // La forma pone su regla de cantidades y de coste; hoy se aplica la de uno a varios, el
 // escandallo de un despiece. No escribe en ninguna tabla: lo calculado lo usa quien prepara
 // el albarán.
@@ -24,8 +25,8 @@ class RelacionesAplicacion extends RelacionesModelo
         // @ Objetivo
         // Todo lo que se enseña antes de preparar el albarán: el periodo, la versión que regía,
         // lo disponible según los movimientos y las aplicaciones anteriores, el coste de partida,
-        // el aviso de proceso duplicado, la cantidad que entra en la receta, el escandallo y las
-        // líneas del albarán.
+        // el aviso de proceso duplicado, la cantidad que entra en la receta, el escandallo, lo que
+        // quedaría de cada pieza al final del periodo y las líneas del albarán.
         // @ Parametros
         //      $peticion -> (array) idProveedor, numRelacion, tipoPeriodo, periodo, version
         //                   ('periodo', la que regía en la fecha del albarán, o 'vigente'),
@@ -192,6 +193,12 @@ class RelacionesAplicacion extends RelacionesModelo
                     if (count($conOtroIva) > 0) {
                         $respuesta['avisos'][] = $this->montarAdvertencia('warning', 'Otro IVA que el de «' . $entrada['articulo'] . '» en: '
                             . implode(', ', $conOtroIva) . '. El albarán queda a 0,00 € sin IVA, pero su IVA no se compensa: revísalo antes de guardarlo.');
+                    }
+                    $desajuste = $this->desajusteDeLasPiezas($version, $escandallo['datos'], $periodo['desde'], $periodo['hasta'], $traspaso, $consultaDeExistencias);
+                    $respuesta['datos']['desajuste'] = $desajuste['datos'];
+                    $avisoDeDesajuste = $this->advertenciaDeDesajuste($desajuste['datos'], $entrada, $cantidad);
+                    if ($avisoDeDesajuste !== null) {
+                        $respuesta['avisos'][] = $avisoDeDesajuste;
                     }
                     $respuesta['datos']['numeroDelAlbaran'] = $this->numeroDelAlbaran($version['tipo']);
                     $respuesta['datos']['destinos'] = array();
@@ -561,6 +568,108 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return $rendimiento;
+    }
+
+    public function desajusteDeLasPiezas($version, $escandallo, $desde, $hasta, $idProveedorTraspaso, $consultaDeExistencias)
+    {
+        // @ Objetivo
+        // Lo que quedaría de cada pieza de la versión al final del periodo con lo que le da el
+        // escandallo: su saldo al empezar el periodo, más sus líneas de proveedor del periodo, menos
+        // sus tickets y sus albaranes de cliente del periodo. El saldo inicial son sus movimientos
+        // desde el 1 de enero hasta la víspera, sin proveedor de traspaso; si el periodo empieza el
+        // 1 de enero con proveedor de traspaso, más la apertura, que el periodo deja fuera.
+        // @ Parametros
+        //      $version -> la versión aplicada, con sus líneas.
+        //      $escandallo -> el de escandallo(), con lo que sale de cada pieza.
+        //      $desde, $hasta -> 'AAAA-MM-DD', el primer y el último día del periodo.
+        //      $idProveedorTraspaso -> (int) el proveedor de traspaso elegido, o 0.
+        //      $consultaDeExistencias -> ClaseComprobacionStockConsulta de mod_reorganizacion.
+        // @ Devolvemos
+        //      ['datos'] con lo que devuelve desajuste().
+        $traspaso = (int) $idProveedorTraspaso;
+        $entra = 0.0;
+        foreach ($version['lineas'] as $linea) {
+            if ($linea['sentido'] === 'entrada' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
+                $entra = (float) $linea['cantidad'];
+            }
+        }
+        $genera = array();
+        foreach ($escandallo['piezas'] as $pieza) {
+            $genera[(int) $pieza['idArticulo']] = (float) $pieza['cantidad'];
+        }
+        $inicio = substr($desde, 0, 4) . '-01-01';
+        $vispera = date('Y-m-d', strtotime($desde . ' -1 day'));
+        $piezas = array();
+        foreach ($version['lineas'] as $linea) {
+            if ($linea['sentido'] === 'salida' && (!isset($linea['estado']) || $linea['estado'] === 'Activo')) {
+                $id = (int) $linea['idArticulo'];
+                $saldoInicial = 0.0;
+                if ($desde > $inicio) {
+                    $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $inicio, $vispera, 0))
+                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($id, $inicio, $vispera))
+                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($id, $inicio, $vispera));
+                } elseif ($traspaso > 0) {
+                    // La apertura del ejercicio: lo que el periodo deja fuera de su primer día.
+                    $saldoInicial = $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $desde, 0))
+                        - $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $desde, $traspaso));
+                }
+                $porUnidad = 0.0;
+                if ($entra > 0) {
+                    $porUnidad = (float) $linea['cantidad'] / $entra;
+                }
+                $loQueGenera = 0.0;
+                if (isset($genera[$id])) {
+                    $loQueGenera = $genera[$id];
+                }
+                $piezas[] = array(
+                    'idArticulo' => $id,
+                    'articulo' => $linea['articulo'],
+                    'unidad' => $linea['unidad'],
+                    'porUnidad' => $porUnidad,
+                    'saldoInicial' => round($saldoInicial, 3),
+                    'entradas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeProveedor($id, $desde, $hasta, $traspaso)), 3),
+                    'salidas' => round($this->sumaDeUnidades($consultaDeExistencias->lineasDeTicket($id, $desde, $hasta))
+                        + $this->sumaDeUnidades($consultaDeExistencias->lineasDeAlbaranDeCliente($id, $desde, $hasta)), 3),
+                    'genera' => $loQueGenera,
+                );
+            }
+        }
+
+        return array('datos' => $this->desajuste($piezas));
+    }
+
+    public function desajuste($piezas)
+    {
+        // @ Objetivo
+        // Lo que queda de cada pieza al final del periodo —su saldo inicial, más lo que entró, menos
+        // lo que salió, más lo que genera la aplicación— y el mínimo que tendría que entrar en la
+        // receta para que no quede en negativo: lo que le falta sin lo que genera, entre lo que da
+        // por unidad de la entrada, hacia arriba al gramo, o a la unidad si va por unidades. El de la
+        // receta es el mayor. No consulta la base.
+        // @ Parametros
+        //      $piezas -> por pieza: idArticulo, articulo, unidad, porUnidad, saldoInicial, entradas,
+        //                 salidas y genera.
+        // @ Devolvemos
+        //      (array) piezas, cada una con queda y minimo, y minimo, el de la receta.
+        $minimo = 0.0;
+        foreach ($piezas as $posicion => $pieza) {
+            $falta = $pieza['salidas'] - $pieza['saldoInicial'] - $pieza['entradas'];
+            $suyo = 0.0;
+            if ($falta > 0 && $pieza['porUnidad'] > 0) {
+                if ($pieza['unidad'] === 'ud') {
+                    $suyo = ceil($falta / $pieza['porUnidad'] - 0.000001);
+                } else {
+                    $suyo = ceil($falta / $pieza['porUnidad'] * 1000 - 0.000001) / 1000;
+                }
+            }
+            $piezas[$posicion]['queda'] = round($pieza['saldoInicial'] + $pieza['entradas'] - $pieza['salidas'] + $pieza['genera'], 3);
+            $piezas[$posicion]['minimo'] = (float) $suyo;
+            if ($suyo > $minimo) {
+                $minimo = (float) $suyo;
+            }
+        }
+
+        return array('piezas' => $piezas, 'minimo' => $minimo);
     }
 
     public function precioEscrito($texto)
@@ -1162,6 +1271,30 @@ class RelacionesAplicacion extends RelacionesModelo
         return $advertencia;
     }
 
+    private function advertenciaDeDesajuste($desajuste, $entrada, $cantidad)
+    {
+        // @ Objetivo
+        // El aviso de las piezas que quedarían en negativo al final del periodo, con el mínimo de la
+        // receta. No impide preparar.
+        // @ Devolvemos
+        //      el aviso, o null si ninguna queda en negativo.
+        $partes = array();
+        foreach ($desajuste['piezas'] as $pieza) {
+            if ($pieza['queda'] < 0) {
+                $partes[] = '«' . $pieza['articulo'] . '», ' . $this->numeroLegible($pieza['queda']) . ' ' . $pieza['unidad'];
+            }
+        }
+        $aviso = null;
+        if (count($partes) > 0) {
+            $aviso = $this->montarAdvertencia('warning', 'Con ' . $this->numeroLegible($cantidad) . ' ' . $entrada['unidad'] . ' de «' . $entrada['articulo']
+                . '» quedan en negativo al final del periodo: ' . implode('; ', $partes) . '. Para que ninguna quede en negativo tendrían que entrar al menos '
+                . $this->numeroLegible($desajuste['minimo']) . ' ' . $entrada['unidad'] . '. No impide preparar: puede faltar una entrada sin registrar, '
+                . 'haber producto de un periodo anterior o no responder el reparto a lo que se hizo.');
+        }
+
+        return $aviso;
+    }
+
     private function documentoDelAviso($documento, $numero, $fila, $derivado)
     {
         // @ Objetivo
@@ -1285,6 +1418,18 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return (string) $unidad;
+    }
+
+    private function sumaDeUnidades($lineas)
+    {
+        // @ Objetivo
+        // La suma con signo de las unidades de unas líneas de la comprobación de existencias.
+        $suma = 0.0;
+        foreach ($lineas as $linea) {
+            $suma += (float) $linea['nunidades'];
+        }
+
+        return $suma;
     }
 
     private function fechaLegible($fecha)
