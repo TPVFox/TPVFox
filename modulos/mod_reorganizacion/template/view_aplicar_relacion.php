@@ -118,8 +118,8 @@
             <div id="entradasAplicacion"></div>
             <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
             <div id="escandalloPrincipalAplicacion">
-                <h4 id="tituloEscandalloAplicacion"></h4>
-                <div id="datosAplicacion"></div>
+                <h4 id="tituloEscandalloAplicacion" style="font-weight: bold;"></h4>
+                <div id="datosAplicacion" style="padding-left: 20px;"></div>
                 <div id="ajusteAplicacion" class="form-group" style="display: none;">
                     <h5>Peso y valor</h5>
                     <div>

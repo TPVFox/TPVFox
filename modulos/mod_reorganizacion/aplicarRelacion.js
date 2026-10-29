@@ -444,10 +444,11 @@ function pintarEscandallosDeLasRecetas(datos) {
       return;
     }
     var suyo = $("<div>").addClass("escandalloReceta").attr("data-num", receta.numRelacion).appendTo(zona);
-    $("<h4>").text("Escandallo de " + receta.nombre).appendTo(suyo);
-    $("<h5>").text("Datos de la operación").appendTo(suyo);
+    $("<h4>").css("font-weight", "bold").text("Escandallo de " + receta.nombre).appendTo(suyo);
+    var suyos = $("<div>").css("padding-left", "20px").appendTo(suyo);
+    $("<h5>").text("Datos de la operación").appendTo(suyos);
     $.each(datosDeLaRecetaAplicacion(receta, datos), function (indice, linea) {
-      $("<p>").text(linea).appendTo(suyo);
+      $("<p>").css("margin", "0").text(linea).appendTo(suyos);
     });
     if (receta.escandallo.piezas.length > 1) {
       var ajuste = $("<div>").addClass("form-group").appendTo(suyo);
@@ -765,7 +766,7 @@ function pintarDatosAplicacion(datos) {
     $("<h5>").text("Datos de la operación").appendTo("#datosAplicacion");
   }
   $.each(lineas, function (indice, texto) {
-    $("<p>").text(texto).appendTo("#datosAplicacion");
+    $("<p>").css("margin", "0").text(texto).appendTo("#datosAplicacion");
   });
 }
 
