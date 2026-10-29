@@ -2,11 +2,11 @@
 // @ Objetivo
 // El HTML de la pantalla de aplicar una relación: la elección del proveedor, la relación y el
 // periodo —que se rellena con los meses o los días con entradas—, la versión del despiece que se
-// aplica, si se prepara un albarán por cada albarán de entrada, el árbol de las recetas que se aplican
-// a la vez y la lista de las hermanas que se pueden añadir, el ajuste del reparto en un deslizador y el
-// proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero; los avisos; y el
-// resultado, que pinta aplicarRelacion.js con lo que devuelve el cálculo. La cantidad que entra en cada
-// receta no está aquí: se escribe en el resultado, cuando el cálculo ya ha dicho lo disponible.
+// aplica, si se prepara un albarán por cada albarán de entrada, el ajuste del reparto en un deslizador y
+// el proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero. Debajo, cada zona con
+// su función, que pinta aplicarRelacion.js: los avisos; el reparto entre las recetas, donde se escribe
+// la cantidad de cada una cuando el cálculo ya ha dicho lo disponible; la lista de las recetas que se
+// pueden añadir; los datos de la operación; y los escandallos, uno por receta.
 // @ Parametros (de AplicarRelacion.php)
 //      $avisos, $especiales, $relacionesAplicables, $proveedores y $puedePreparar.
 ?>
@@ -124,11 +124,13 @@
                 </div>
             </div>
 
-            <div id="arbolAplicacion"></div>
             <div id="avisosAplicacion"></div>
+            <div id="arbolAplicacion"></div>
+            <div id="hermanasAplicacion"></div>
             <div id="datosAplicacion"></div>
             <div id="entradasAplicacion"></div>
             <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
+            <h4 id="tituloEscandalloAplicacion"></h4>
             <table id="escandalloAplicacion" class="table table-bordered table-hover">
                 <thead>
                     <tr>
@@ -143,7 +145,7 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <div id="hermanasAplicacion"></div>
+            <div id="escandallosDeLasRecetas"></div>
         </div>
     </div>
 </div>

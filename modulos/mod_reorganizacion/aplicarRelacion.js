@@ -1,8 +1,8 @@
 /*
- * Aplicar una relación a un periodo: ofrece los meses o los días con entradas del producto,
- * pide el cálculo al servidor, pinta los avisos, los datos —lo disponible y lo que se aplica, con el
- * campo de la cantidad que entra en la receta, que se cambia y se vuelve a calcular— y el escandallo,
- * y prepara el albarán
+ * Aplicar una relación a un periodo: ofrece los meses o los días con entradas del producto, pinta
+ * el reparto entre las recetas —donde, al calcular, se escribe la cantidad de cada una y se vuelve a
+ * calcular—, pide el cálculo al servidor, pinta los avisos, los datos y los escandallos, cada cosa en
+ * su zona, y prepara el albarán
  * de compras, que se abre en su pantalla para revisarlo y guardarlo. El cálculo y el aviso de
  * proceso duplicado los hace siempre el servidor, también al preparar: aquí solo se recoge lo
  * elegido y se pinta lo que llega.
@@ -194,35 +194,48 @@ function quitarHermanaAplicacion(numRelacion) {
   pintarHermanasAplicacion();
 }
 
-function sangriaDelArbolAplicacion(nivel) {
-  return { "margin-left": (nivel * 24) + "px", "border-left": "2px solid #ddd", "padding-left": "6px" };
-}
-
 function pintarArbolAplicacion() {
-  // El árbol de lo que se aplica, de arriba abajo, alternando productos y recetas: el producto de
-  // partida, sus recetas —la elegida y las hermanas añadidas— y, bajo cada receta, los productos que
-  // salen de ella, cada uno con las recetas añadidas que parten de él. Cada fila lleva su nivel. Las
-  // recetas de un producto que sale por dos caminos cuelgan del primero. Sin recetas añadidas no se pinta.
+  // El reparto entre las recetas, en una tabla como la de familias: una fila por producto y por
+  // receta, de arriba abajo y sangrada por su nivel. El producto de partida, sus recetas —la elegida y
+  // las hermanas añadidas— y, bajo cada receta, los productos que salen de ella, cada uno con las
+  // recetas añadidas que parten de él. Las recetas de un producto que sale por dos caminos cuelgan del
+  // primero. Aquí solo se reparte: los escandallos van en su zona.
   var arbol = $("#arbolAplicacion");
   arbol.empty();
-  if (hermanasDelArbol.length === 0 || recetaElegidaAplicacion === null) {
+  if (recetaElegidaAplicacion === null) {
     return;
   }
-  pintarProductoDelArbolAplicacion(arbol, recetaElegidaAplicacion.idEntrada, recetaElegidaAplicacion.entrada, 0, {});
+  $("<h4>").text("Reparto entre las recetas").appendTo(arbol);
+  var tabla = $("<table>").addClass("table table-bordered table-hover table-striped").appendTo(arbol);
+  var cabecera = $("<tr>").appendTo($("<thead>").appendTo(tabla));
+  $.each(["Producto o receta", "Cantidad", "Peso y valor", ""], function (indice, titulo) {
+    $("<th>").text(titulo).appendTo(cabecera);
+  });
+  var cuerpo = $("<tbody>").appendTo(tabla);
+  pintarProductoDelArbolAplicacion(cuerpo, recetaElegidaAplicacion.idEntrada, recetaElegidaAplicacion.entrada, 0, {});
   actualizarCantidadesPreviasAplicacion();
 }
 
-function pintarProductoDelArbolAplicacion(arbol, idArticulo, nombre, nivel, conRecetas) {
+function filaDelArbolAplicacion(cuerpo, nivel) {
+  // Una fila con sus cuatro celdas; la primera, sangrada por su nivel.
+  var fila = $("<tr>").attr("data-nivel", nivel).appendTo(cuerpo);
+  $("<td>").css("padding-left", (8 + nivel * 24) + "px").appendTo(fila);
+  $("<td>").appendTo(fila);
+  $("<td>").appendTo(fila);
+  $("<td>").appendTo(fila);
+  return fila;
+}
+
+function pintarProductoDelArbolAplicacion(cuerpo, idArticulo, nombre, nivel, conRecetas) {
   // Una fila de producto y, debajo, las recetas que parten de él, si no se han pintado ya en otro sitio.
-  var fila = $("<div>").addClass("producto").attr({ "data-id": idArticulo, "data-nivel": nivel }).css(sangriaDelArbolAplicacion(nivel)).appendTo(arbol);
+  var fila = filaDelArbolAplicacion(cuerpo, nivel).addClass("producto").attr("data-id", idArticulo);
+  var celdas = fila.children("td");
   if (nivel === 0) {
     fila.addClass("raiz");
-    $("<span>").text("Producto de partida: ").appendTo(fila);
-  } else {
-    $("<span>").addClass("glyphicon glyphicon-stop").css({ "font-size": "8px", "margin-right": "4px", color: "#999" }).appendTo(fila);
+    celdas.eq(0).append(document.createTextNode("Producto de partida: "));
   }
-  $("<span>").addClass("nombre").text(nombre).appendTo(fila);
-  $("<span>").addClass("resumen").appendTo(fila);
+  $("<span>").addClass("nombre").text(nombre).appendTo(celdas.eq(0));
+  $("<span>").addClass("resumen").appendTo(celdas.eq(1));
   var recetas = $.grep(hermanasDelArbol, function (receta) {
     return String(receta.idEntrada) === String(idArticulo);
   });
@@ -233,47 +246,72 @@ function pintarProductoDelArbolAplicacion(arbol, idArticulo, nombre, nivel, conR
     return;
   }
   if (conRecetas[idArticulo]) {
-    $("<span>").text(" · sus recetas van más arriba, donde sale primero").appendTo(fila);
+    celdas.eq(3).text("Sus recetas van más arriba, donde sale primero");
     return;
   }
   conRecetas[idArticulo] = true;
+  if (nivel > 0) {
+    celdas.eq(3).append(document.createTextNode(recetas.length + (recetas.length === 1 ? " receta " : " recetas ")));
+    $("<button>").attr("type", "button").addClass("btn btn-primary btn-sm btnPlegar")
+      .html('<span class="glyphicon glyphicon-minus"></span> compactar')
+      .on("click", function () {
+        plegarProductoAplicacion(fila, $(this));
+      })
+      .appendTo(celdas.eq(3));
+  }
   $.each(recetas, function (indice, receta) {
-    pintarRecetaDelArbolAplicacion(arbol, receta, nivel + 1, conRecetas);
+    pintarRecetaDelArbolAplicacion(cuerpo, receta, nivel + 1, conRecetas);
   });
 }
 
-function pintarRecetaDelArbolAplicacion(arbol, receta, nivel, conRecetas) {
-  // Una fila de receta —la elegida, con el ajuste de arriba; una añadida, con su ajuste y «Quitar»— y,
-  // debajo, los productos que salen de ella.
-  var fila = $("<div>").attr("data-nivel", nivel).css(sangriaDelArbolAplicacion(nivel)).appendTo(arbol);
-  $("<span>").addClass("glyphicon glyphicon-share-alt").css({ "margin-right": "4px", color: "#999" }).appendTo(fila);
-  $("<strong>").addClass("nombre").text(receta.nombre).appendTo(fila);
+function pintarRecetaDelArbolAplicacion(cuerpo, receta, nivel, conRecetas) {
+  // Una fila de receta —la elegida, con el ajuste de «Reparto del coste»; una añadida, con su ajuste y
+  // «Quitar»— y, debajo, los productos que salen de ella. La cantidad se escribe al calcular.
+  var fila = filaDelArbolAplicacion(cuerpo, nivel);
+  var celdas = fila.children("td");
+  $("<span>").addClass("glyphicon glyphicon-share-alt").css("margin-right", "4px").appendTo(celdas.eq(0));
+  $("<strong>").addClass("nombre").text(receta.nombre).appendTo(celdas.eq(0));
+  $("<span>").addClass("cantidadPrevia").appendTo(celdas.eq(1));
   if (receta === recetaElegidaAplicacion) {
     fila.addClass("principal");
-    $("<span>").text(" · el ajuste de arriba y el escandallo de abajo").appendTo(fila);
-    $("<span>").addClass("cantidadPrevia").appendTo(fila);
-    $("<span>").addClass("resumen").appendTo(fila);
+    $("<span>").addClass("resultadoPrincipal").appendTo(celdas.eq(1));
+    celdas.eq(2).text("El de «Reparto del coste»");
   } else {
-    fila.addClass("rama well well-sm").attr("data-num", receta.numRelacion).css({ "margin-bottom": "4px", padding: "4px 8px" });
-    $("<span>").addClass("cantidadPrevia").appendTo(fila);
-    var ajuste = $("<input>").attr({ type: "range", min: 0, max: 2, step: 0.05 }).addClass("ajusteHermana").val(receta.ajustePeso)
-      .css({ display: "inline-block", width: "150px", "vertical-align": "middle" })
+    fila.addClass("rama").attr("data-num", receta.numRelacion);
+    $("<span>").addClass("resultadoHermana").appendTo(celdas.eq(1));
+    $("<input>").attr({ type: "range", min: 0, max: 2, step: 0.05 }).addClass("ajusteHermana").val(receta.ajustePeso)
       .on("input", function () {
         receta.ajustePeso = $(this).val();
         console.log("Aplicar relación: cambia el ajuste de " + receta.nombre);
         limpiarResultadoAplicacion();
-      });
-    $("<label>").text(" · peso y valor ").css({ "font-weight": "normal", margin: "0 8px 0 0" }).append(ajuste).appendTo(fila);
-    $("<button>").attr("type", "button").addClass("btn btn-default btn-xs").text("Quitar")
+      })
+      .appendTo(celdas.eq(2));
+    $("<button>").attr("type", "button").addClass("btn btn-primary btn-sm")
+      .html('<span class="glyphicon glyphicon-trash"></span> Quitar')
       .on("click", function () {
         quitarHermanaAplicacion(receta.numRelacion);
       })
-      .appendTo(fila);
-    $("<div>").addClass("resultadoHermana").appendTo(fila);
+      .appendTo(celdas.eq(3));
   }
   $.each(receta.piezas, function (indice, pieza) {
-    pintarProductoDelArbolAplicacion(arbol, pieza.idArticulo, pieza.articulo, nivel + 1, conRecetas);
+    pintarProductoDelArbolAplicacion(cuerpo, pieza.idArticulo, pieza.articulo, nivel + 1, conRecetas);
   });
+}
+
+function plegarProductoAplicacion(fila, boton) {
+  // Compactar oculta lo que cuelga del producto; expandir lo vuelve a enseñar todo.
+  var nivel = parseInt(fila.attr("data-nivel"), 10);
+  var compactar = !fila.hasClass("compactada");
+  console.log("Aplicar relación: " + (compactar ? "compacta " : "expande ") + fila.find(".nombre").text());
+  fila.toggleClass("compactada", compactar);
+  boton.html(compactar ? '<span class="glyphicon glyphicon-plus"></span> expandir' : '<span class="glyphicon glyphicon-minus"></span> compactar');
+  var siguiente = fila.next();
+  while (siguiente.length > 0 && parseInt(siguiente.attr("data-nivel"), 10) > nivel) {
+    siguiente.toggle(!compactar);
+    siguiente.removeClass("compactada");
+    siguiente.find(".btnPlegar").html('<span class="glyphicon glyphicon-minus"></span> compactar');
+    siguiente = siguiente.next();
+  }
 }
 
 function tomaLoGeneradoAplicacion(hermana) {
@@ -292,16 +330,21 @@ function tomaLoGeneradoAplicacion(hermana) {
 
 function actualizarCantidadesPreviasAplicacion() {
   // Antes de calcular, cada receta dice la cantidad escrita o lo que toma vacía.
-  $("#arbolAplicacion .principal .cantidadPrevia").text(cantidadEscritaAplicacion === ""
-    ? " · toma lo que sobra" : " · cantidad escrita: " + cantidadEscritaAplicacion);
+  var texto = "Todo lo disponible";
+  if (cantidadEscritaAplicacion !== "") {
+    texto = "Escrita: " + cantidadEscritaAplicacion;
+  } else if ($.grep(hermanasDelArbol, function (hermana) { return hermana.origen === "hermana"; }).length > 0) {
+    texto = "Lo que sobra";
+  }
+  $("#arbolAplicacion .principal .cantidadPrevia").text(texto);
   $.each(hermanasDelArbol, function (indice, hermana) {
-    var texto = " · cantidad escrita: " + hermana.cantidad;
+    var suyo = "Escrita: " + hermana.cantidad;
     if (tomaLoGeneradoAplicacion(hermana)) {
-      texto = " · toma lo generado";
+      suyo = "Lo generado";
     } else if (hermana.cantidad === "") {
-      texto = " · no entra hasta que le escribas una cantidad, al calcular";
+      suyo = "No entra hasta que le escribas una cantidad, al calcular";
     }
-    $('#arbolAplicacion .rama[data-num="' + hermana.numRelacion + '"] .cantidadPrevia').text(texto);
+    $('#arbolAplicacion .rama[data-num="' + hermana.numRelacion + '"] .cantidadPrevia').text(suyo);
   });
 }
 
@@ -337,10 +380,10 @@ function hermanasParaLaPeticion() {
 }
 
 function pintarRecetasDelArbol(datos) {
-  // En cada rama, lo que entra, en el campo de su cantidad —en la de un derivado, también su coste de
-  // partida—, y su escandallo; en la raíz, lo disponible y lo que queda sin aplicar, y en el producto
-  // de cada derivado, lo suyo. Si el cálculo no llegó a las recetas, cada campo lleva lo escrito.
-  if (hermanasDelArbol.length === 0 || !(datos.disponible > 0)) {
+  // En el reparto, el campo de la cantidad de cada receta, con lo que entra —si el cálculo no llegó a
+  // las recetas, con lo escrito—; en la raíz, lo disponible y lo que queda sin aplicar, y en el producto
+  // de cada derivado, lo suyo. Sin nada disponible no hay nada que repartir.
+  if (recetaElegidaAplicacion === null || !(datos.disponible > 0)) {
     return;
   }
   var unidad = unidadDeLaEntradaAplicacion(datos);
@@ -352,58 +395,79 @@ function pintarRecetasDelArbol(datos) {
       aplicado += receta.cantidad;
     }
   });
+  $("#arbolAplicacion .cantidadPrevia").empty();
+  var valor = cantidadEscritaAplicacion;
+  if (datos.cantidad !== undefined) {
+    valor = cantidadLegibleAplicacion(datos.cantidad);
+  }
+  var campo = $("<input>").attr({ type: "text", id: "cantidadAplicacion" }).val(valor)
+    .on("input", function () {
+      cantidadEscritaAplicacion = $(this).val();
+      cambiarCantidadAplicacion("la receta elegida");
+    });
+  $("#arbolAplicacion .principal .resultadoPrincipal").empty().text("Entran ").append(campo).append(document.createTextNode(" " + unidad));
   $.each(hermanasDelArbol, function (indice, hermana) {
     var receta = calculadas[hermana.numRelacion] || null;
-    var resultado = $('#arbolAplicacion .rama[data-num="' + hermana.numRelacion + '"] .resultadoHermana');
-    resultado.empty();
-    $('#arbolAplicacion .rama[data-num="' + hermana.numRelacion + '"] .cantidadPrevia').empty();
-    var valor = hermana.cantidad;
+    var suyo = hermana.cantidad;
     if (receta !== null) {
-      valor = receta.cantidad > 0 ? cantidadLegibleAplicacion(receta.cantidad) : "";
+      suyo = receta.cantidad > 0 ? cantidadLegibleAplicacion(receta.cantidad) : "";
     }
-    var campo = $("<input>").attr("type", "text").addClass("cantidadHermana").val(valor)
+    var campoDeLaRama = $("<input>").attr("type", "text").addClass("cantidadHermana").val(suyo)
       .attr("placeholder", tomaLoGeneradoAplicacion(hermana) ? "Lo generado" : "No entra")
       .on("input", function () {
         hermana.cantidad = $(this).val();
         cambiarCantidadAplicacion(hermana.nombre);
       });
-    var linea = $("<p>").text("Entran ").append(campo).append(document.createTextNode(" " + (receta !== null ? receta.unidad : unidad))).appendTo(resultado);
-    if (receta === null) {
-      return;
-    }
-    if (receta.deDerivado !== null) {
-      linea.append(document.createTextNode(" de " + receta.entrada + ", a " + numeroLegibleAplicacion(receta.costeDePartida, 4) + " € por " + receta.unidad));
-    }
-    if (receta.escandallo) {
-      var tabla = $("<table>").addClass("table table-bordered table-condensed").appendTo(resultado);
-      var cabecera = $("<tr>").appendTo($("<thead>").appendTo(tabla));
-      $.each(["Pieza", "Cantidad", "Unidad", "Precio de mercado", "De dónde sale el precio", "Coste por unidad", "Coste"], function (posicion, titulo) {
-        $("<th>").text(titulo).appendTo(cabecera);
-      });
-      pintarPiezasAplicacion($("<tbody>").appendTo(tabla), receta.escandallo.piezas, function (idArticulo, precio) {
-        if (!preciosDeHermanas[receta.numRelacion]) {
-          preciosDeHermanas[receta.numRelacion] = {};
-        }
-        preciosDeHermanas[receta.numRelacion][idArticulo] = precio;
-      });
-    }
+    $('#arbolAplicacion .rama[data-num="' + hermana.numRelacion + '"] .resultadoHermana').empty().text("Entran ").append(campoDeLaRama)
+      .append(document.createTextNode(" " + (receta !== null ? receta.unidad : unidad)));
   });
   if (!datos.recetas) {
     return;
   }
-  $("#arbolAplicacion .principal .cantidadPrevia").empty();
-  $("#arbolAplicacion .principal .resumen").text(" · entran " + cantidadLegibleAplicacion(datos.cantidad) + " " + unidad);
-  $("#arbolAplicacion .raiz .resumen").text(" · Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad
+  $("#arbolAplicacion .raiz .resumen").text("Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad
     + " · Sin aplicar: " + cantidadLegibleAplicacion(datos.disponible - aplicado) + " " + unidad);
   // Lo de cada derivado del que parte alguna receta, en su producto: el primero, del que cuelgan.
   $.each(datos.derivados || [], function (indice, derivado) {
-    $("<span>").addClass("derivado").text(" · genera " + cantidadLegibleAplicacion(derivado.generado) + " " + derivado.unidad
+    $("<span>").addClass("derivado").text("Genera " + cantidadLegibleAplicacion(derivado.generado) + " " + derivado.unidad
       + " · del periodo " + cantidadLegibleAplicacion(derivado.delPeriodo) + " " + derivado.unidad
       + " · disponible " + cantidadLegibleAplicacion(derivado.disponible) + " " + derivado.unidad
-      + " · entran " + cantidadLegibleAplicacion(derivado.aplicado) + " " + derivado.unidad
       + " · sin aplicar " + cantidadLegibleAplicacion(derivado.disponible - derivado.aplicado) + " " + derivado.unidad
       + " · coste de partida " + numeroLegibleAplicacion(derivado.costeDePartida, 4) + " €")
-      .appendTo($('#arbolAplicacion .producto[data-id="' + derivado.idArticulo + '"]').first());
+      .appendTo($('#arbolAplicacion .producto[data-id="' + derivado.idArticulo + '"]').first().find(".resumen"));
+  });
+}
+
+function pintarEscandallosDeLasRecetas(datos) {
+  // En la zona de los escandallos, después del de la elegida, el de cada receta que entra, en el orden
+  // del reparto, con su título, lo que entra y, en la de un derivado, su coste de partida.
+  var zona = $("#escandallosDeLasRecetas");
+  zona.empty();
+  var calculadas = {};
+  $.each(datos.recetas || [], function (indice, receta) {
+    calculadas[receta.numRelacion] = receta;
+  });
+  $("#arbolAplicacion .rama").each(function () {
+    var receta = calculadas[$(this).attr("data-num")];
+    if (!receta || !receta.escandallo) {
+      return;
+    }
+    var suyo = $("<div>").addClass("escandalloReceta").attr("data-num", receta.numRelacion).appendTo(zona);
+    var titulo = "Escandallo de " + receta.nombre + ": entran " + cantidadLegibleAplicacion(receta.cantidad) + " " + receta.unidad + " de " + receta.entrada;
+    if (receta.deDerivado !== null) {
+      titulo += ", a " + numeroLegibleAplicacion(receta.costeDePartida, 4) + " € por " + receta.unidad;
+    }
+    $("<h4>").text(titulo).appendTo(suyo);
+    var tabla = $("<table>").addClass("table table-bordered table-hover").appendTo(suyo);
+    var cabecera = $("<tr>").appendTo($("<thead>").appendTo(tabla));
+    $.each(["Pieza", "Cantidad", "Unidad", "Precio de mercado", "De dónde sale el precio", "Coste por unidad", "Coste"], function (posicion, texto) {
+      $("<th>").text(texto).appendTo(cabecera);
+    });
+    pintarPiezasAplicacion($("<tbody>").appendTo(tabla), receta.escandallo.piezas, function (idArticulo, precio) {
+      if (!preciosDeHermanas[receta.numRelacion]) {
+        preciosDeHermanas[receta.numRelacion] = {};
+      }
+      preciosDeHermanas[receta.numRelacion][idArticulo] = precio;
+    });
   });
 }
 
@@ -516,14 +580,16 @@ function cambiarDatoAplicacion(campo) {
 
 function limpiarResultadoAplicacion() {
   $("#arbolAplicacion .resultadoHermana").empty();
+  $("#arbolAplicacion .resultadoPrincipal").empty();
   $("#arbolAplicacion .resumen").empty();
-  $("#arbolAplicacion .derivado").remove();
   actualizarCantidadesPreviasAplicacion();
   $("#entradasAplicacion").empty();
   $("#avisosAplicacion").empty();
   $("#datosAplicacion").empty();
   $("#zonaDestinoAplicacion").empty();
+  $("#tituloEscandalloAplicacion").empty();
   $("#escandalloAplicacion tbody").empty();
+  $("#escandallosDeLasRecetas").empty();
   $("#btnPrepararAplicacion").prop("disabled", true);
 }
 
@@ -538,8 +604,9 @@ function calcularAplicacion() {
     pintarRecetasDelArbol(obj.datos);
     if (obj.ok) {
       if (obj.datos.escandallo) {
-        pintarEscandalloAplicacion(obj.datos.escandallo);
+        pintarEscandalloAplicacion(obj.datos);
       }
+      pintarEscandallosDeLasRecetas(obj.datos);
       pintarDestinosAplicacion(obj.datos.destinos);
       pintarEntradasAplicacion(obj.datos);
       $("#btnPrepararAplicacion").prop("disabled", false);
@@ -581,8 +648,8 @@ function pintarAvisosAplicacion(avisos) {
 
 function pintarDatosAplicacion(datos) {
   // Lo que se calculó hasta donde se pudo: fecha, versión, los movimientos, lo disponible, lo que
-  // entra en la receta —en su campo, que se cambia y se vuelve a calcular—, el mínimo para cubrir las
-  // salidas de sus piezas y el coste. Si el cálculo no llegó a la cantidad, el campo lleva lo escrito.
+  // entra en la receta, el mínimo para cubrir las salidas de sus piezas y el coste. Solo informa: la
+  // cantidad se cambia en el reparto.
   var lineas = [];
   var unidad = unidadDeLaEntradaAplicacion(datos);
   if (datos.periodo) {
@@ -610,9 +677,8 @@ function pintarDatosAplicacion(datos) {
     }
     lineas.push("Disponible: " + cantidadLegibleAplicacion(datos.disponible) + " " + unidad + descontado);
   }
-  var conCampo = lineas.length;
-  if (datos.disponible > 0) {
-    lineas.push(" " + unidad + ". Lo que no entra queda en las existencias del producto. Cámbiala y pulsa «Calcular».");
+  if (datos.cantidad !== undefined) {
+    lineas.push("Entra en la receta: " + cantidadLegibleAplicacion(datos.cantidad) + " " + unidad + ". Lo que no entra queda en las existencias del producto.");
   }
   if (datos.desajuste && datos.desajuste.minimo > 0) {
     lineas.push("Mínimo para cubrir las salidas de sus piezas: " + cantidadLegibleAplicacion(datos.desajuste.minimo) + " " + unidad);
@@ -627,20 +693,11 @@ function pintarDatosAplicacion(datos) {
       + ". Si ha cambiado, actualízalo en la ficha del producto antes de preparar.");
   }
   $("#datosAplicacion").empty();
+  if (lineas.length > 0) {
+    $("<h4>").text("Datos de la operación").appendTo("#datosAplicacion");
+  }
   $.each(lineas, function (indice, texto) {
-    var parrafo = $("<p>").text(texto).appendTo("#datosAplicacion");
-    if (indice === conCampo && datos.disponible > 0) {
-      var valor = cantidadEscritaAplicacion;
-      if (datos.cantidad !== undefined) {
-        valor = cantidadLegibleAplicacion(datos.cantidad);
-      }
-      var campo = $("<input>").attr({ type: "text", id: "cantidadAplicacion" }).val(valor)
-        .on("input", function () {
-          cantidadEscritaAplicacion = $(this).val();
-          cambiarCantidadAplicacion("la receta elegida");
-        });
-      parrafo.prepend(campo).prepend(document.createTextNode("Entra en la receta: "));
-    }
+    $("<p>").text(texto).appendTo("#datosAplicacion");
   });
 }
 
@@ -688,11 +745,12 @@ function pintarDestinosAplicacion(destinos) {
   console.log("Aplicar relación: albaranes con los que reunir", destinos);
 }
 
-function pintarEscandalloAplicacion(escandallo) {
-  // El escandallo de la receta elegida, en la tabla de la pantalla.
+function pintarEscandalloAplicacion(datos) {
+  // El escandallo de la receta elegida, el primero de su zona, con su título.
+  $("#tituloEscandalloAplicacion").text("Escandallo de " + (recetaElegidaAplicacion !== null ? recetaElegidaAplicacion.nombre : "la receta"));
   var cuerpo = $("#escandalloAplicacion tbody");
   cuerpo.empty();
-  pintarPiezasAplicacion(cuerpo, escandallo.piezas, function (idArticulo, precio) {
+  pintarPiezasAplicacion(cuerpo, datos.escandallo.piezas, function (idArticulo, precio) {
     preciosEscritosAplicacion[idArticulo] = precio;
   });
 }
