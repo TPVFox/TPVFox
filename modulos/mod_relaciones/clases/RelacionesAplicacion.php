@@ -222,6 +222,9 @@ class RelacionesAplicacion extends RelacionesModelo
             }
             if (isset($calculadas['error'])) {
                 $respuesta['avisos'][] = $calculadas['error'];
+                if (isset($calculadas['sinPrecio'])) {
+                    $respuesta['datos']['sinPrecio'] = $calculadas['sinPrecio'];
+                }
             } else {
                 $recetas = $calculadas['datos'];
                 $idArticulos = array((int) $entrada['idArticulo']);
@@ -1206,6 +1209,7 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         $piezas = array();
+        $faltan = array();
         if (!isset($respuesta['error'])) {
             foreach ($salidas as $salida) {
                 $sale = $cantidad * (float) $salida['cantidad'] / (float) $entrada['cantidad'];
@@ -1228,10 +1232,16 @@ class RelacionesAplicacion extends RelacionesModelo
                 } elseif ($ajusteValor == 0) {
                     // Todo por peso: el precio de mercado no se usa y no hace falta escribirlo.
                     $piezas[] = array('idArticulo' => $idArticulo, 'articulo' => $salida['articulo'], 'cantidad' => (float) $sale, 'unidad' => $salida['unidad'], 'precio' => 0.0, 'origenPrecio' => 'sinUso');
-                } elseif (!isset($respuesta['error'])) {
-                    $respuesta['error'] = $this->montarAdvertencia('warning', 'Falta el precio de mercado de «' . $salida['articulo']
-                        . '»: no tiene proveedores con coste. Escríbelo en su línea y vuelve a calcular.');
+                } else {
+                    // Sin precio: la pieza sigue en el escandallo, con el precio vacío, para escribirlo.
+                    $piezas[] = array('idArticulo' => $idArticulo, 'articulo' => $salida['articulo'], 'cantidad' => (float) $sale, 'unidad' => $salida['unidad'], 'precio' => null, 'origenPrecio' => 'falta');
+                    $faltan[] = '«' . $salida['articulo'] . '»';
                 }
+            }
+            if (!isset($respuesta['error']) && count($faltan) > 0) {
+                $respuesta['error'] = $this->montarAdvertencia('warning', 'Falta el precio de mercado de ' . implode(', ', $faltan)
+                    . ': no tiene proveedores con coste. Escríbelo en su línea y vuelve a calcular.');
+                $respuesta['piezasSinPrecio'] = $piezas;
             }
         }
 
@@ -1464,8 +1474,9 @@ class RelacionesAplicacion extends RelacionesModelo
     {
         // @ Objetivo
         // El precio de mercado de cada pieza: la media del coste de sus proveedores, sin contar
-        // los «Especial» —el del despiece deja allí sus filas al guardar— ni las filas
-        // inactivas.
+        // los «Especial» —el del despiece deja allí sus filas al guardar— ni las filas marcadas
+        // «inactivo». Las demás cuentan, sea cual sea su estado: la ficha del producto escribe
+        // «Tarifa» y compras «activo».
         // @ Devolvemos
         //      ['datos'] con la media por idArticulo, o null si no tiene; o ['error'].
         $ids = array();
@@ -1477,7 +1488,7 @@ class RelacionesAplicacion extends RelacionesModelo
             $sql = 'SELECT ap.idArticulo, AVG(ap.coste) AS media FROM articulosProveedores ap'
                 . ' JOIN proveedores p ON p.idProveedor = ap.idProveedor'
                 . ' WHERE ap.idArticulo IN (' . implode(', ', array_fill(0, count($ids), '?')) . ')'
-                . " AND LOWER(ap.estado) = 'activo' AND p.estado <> 'Especial'"
+                . " AND LOWER(ap.estado) <> 'inactivo' AND p.estado <> 'Especial'"
                 . ' GROUP BY ap.idArticulo';
             $respuesta = $this->consultaPreparada($sql, $ids);
             if (!isset($respuesta['error'])) {
@@ -1874,10 +1885,14 @@ class RelacionesAplicacion extends RelacionesModelo
     {
         // @ Objetivo
         // El escandallo de cada receta que entra, con sus precios escritos y su ajuste; la que no
-        // entra queda con el escandallo vacío.
+        // entra queda con el escandallo vacío. Si a alguna le falta un precio de mercado, se
+        // calculan antes todas, para devolver a la vez las piezas de cada una con el que falta.
         // @ Devolvemos
-        //      ['datos'] con las recetas y su escandallo, y ['avisos'] de los escandallos; o ['error'].
+        //      ['datos'] con las recetas y su escandallo, y ['avisos'] de los escandallos; o ['error'],
+        //      con ['sinPrecio'] —por receta, su nombre y sus piezas— si faltan precios.
         $avisos = array();
+        $sinPrecio = array();
+        $error = null;
         foreach ($recetas as $posicion => $receta) {
             $recetas[$posicion]['escandallo'] = null;
             $recetas[$posicion]['costeDePartida'] = round((float) $costeDePartida, 4);
@@ -1897,7 +1912,16 @@ class RelacionesAplicacion extends RelacionesModelo
                     if ($posicion > 0 || $receta['deDerivado'] !== null) {
                         $escandallo['error']['mensaje'] = '«' . $receta['nombre'] . '»: ' . $escandallo['error']['mensaje'];
                     }
-                    return $escandallo;
+                    if (!isset($escandallo['piezasSinPrecio'])) {
+                        return $escandallo;
+                    }
+                    if ($error === null) {
+                        $error = $escandallo['error'];
+                    } else {
+                        $error['mensaje'] .= ' ' . $escandallo['error']['mensaje'];
+                    }
+                    $sinPrecio[$receta['numRelacion']] = array('nombre' => $receta['nombre'], 'piezas' => $escandallo['piezasSinPrecio']);
+                    continue;
                 }
                 $recetas[$posicion]['escandallo'] = $escandallo['datos'];
                 foreach ($escandallo['avisos'] as $aviso) {
@@ -1907,6 +1931,10 @@ class RelacionesAplicacion extends RelacionesModelo
                     $avisos[] = $aviso;
                 }
             }
+        }
+
+        if ($error !== null) {
+            return array('error' => $error, 'sinPrecio' => $sinPrecio);
         }
 
         return array('datos' => $recetas, 'avisos' => $avisos);

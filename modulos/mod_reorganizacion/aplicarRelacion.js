@@ -430,12 +430,16 @@ function pintarRecetasDelArbol(datos) {
 function pintarEscandallosDeLasRecetas(datos) {
   // En la zona de los escandallos, después del de la elegida, el de cada receta que entra, en el orden
   // del reparto: su título, sus datos de la operación, su ajuste si tiene dos piezas o más, y sus
-  // piezas con sus precios escritos.
+  // piezas con sus precios escritos. Una receta a la que le falta un precio de mercado sale igual,
+  // con sus piezas y el precio que falta vacío, para escribirlo.
   var zona = $("#escandallosDeLasRecetas");
   zona.empty();
   var calculadas = {};
   $.each(datos.recetas || [], function (indice, receta) {
     calculadas[receta.numRelacion] = receta;
+  });
+  $.each(datos.sinPrecio || {}, function (numRelacion, receta) {
+    calculadas[numRelacion] = { numRelacion: numRelacion, nombre: receta.nombre, escandallo: { piezas: receta.piezas }, sinPrecio: true };
   });
   $("#arbolAplicacion .rama").each(function () {
     var receta = calculadas[$(this).attr("data-num")];
@@ -447,7 +451,11 @@ function pintarEscandallosDeLasRecetas(datos) {
     $("<h4>").css("font-weight", "bold").text("Escandallo de " + receta.nombre).appendTo(suyo);
     var suyos = $("<div>").css("padding-left", "20px").appendTo(suyo);
     $("<h5>").text("Datos de la operación").appendTo(suyos);
-    $.each(datosDeLaRecetaAplicacion(receta, datos), function (indice, linea) {
+    var lineas = ["Falta el precio de mercado de alguna de sus piezas: escríbelo en su línea y pulsa «Calcular»."];
+    if (!receta.sinPrecio) {
+      lineas = datosDeLaRecetaAplicacion(receta, datos);
+    }
+    $.each(lineas, function (indice, linea) {
       $("<p>").css("margin", "0").text(linea).appendTo(suyos);
     });
     if (receta.escandallo.piezas.length > 1) {
@@ -656,6 +664,7 @@ function limpiarResultadoAplicacion() {
   $("#ajusteAplicacion").hide();
   $("#avisoDelAjusteAplicacion").empty();
   $("#escandalloAplicacion tbody").empty();
+  $("#escandalloAplicacion").hide();
   $("#escandallosDeLasRecetas").empty();
   $("#btnPrepararAplicacion").prop("disabled", true);
 }
@@ -677,8 +686,22 @@ function calcularAplicacion() {
       pintarDestinosAplicacion(obj.datos.destinos);
       pintarEntradasAplicacion(obj.datos);
       $("#btnPrepararAplicacion").prop("disabled", false);
+    } else if (obj.datos.sinPrecio) {
+      pintarEscandallosSinPrecioAplicacion(obj.datos);
     }
   });
+}
+
+function pintarEscandallosSinPrecioAplicacion(datos) {
+  // Con un precio de mercado que falta, los escandallos de las recetas que lo tienen, con sus piezas y
+  // el precio vacío para escribirlo; «Preparar» sigue cerrado.
+  console.log("Aplicar relación: faltan precios de mercado", datos.sinPrecio);
+  var deLaElegida = recetaElegidaAplicacion !== null ? datos.sinPrecio[recetaElegidaAplicacion.numRelacion] : undefined;
+  if (deLaElegida) {
+    $("#tituloEscandalloAplicacion").text("Escandallo de " + deLaElegida.nombre);
+    pintarEscandalloAplicacion({ escandallo: { piezas: deLaElegida.piezas } });
+  }
+  pintarEscandallosDeLasRecetas(datos);
 }
 
 function prepararAlbaranAplicacion() {
@@ -817,6 +840,7 @@ function pintarDestinosAplicacion(destinos) {
 function pintarEscandalloAplicacion(datos) {
   // Las piezas de la receta elegida, el primer escandallo de su zona, y su ajuste si tiene dos piezas
   // o más, con la pieza que cuesta más que su precio.
+  $("#escandalloAplicacion").show();
   $("#ajusteAplicacion").toggle(datos.escandallo.piezas.length > 1);
   $("#avisoDelAjusteAplicacion").text(avisoDelAjusteAplicacion(datos.escandallo.piezas));
   var cuerpo = $("#escandalloAplicacion tbody");
@@ -827,16 +851,21 @@ function pintarEscandalloAplicacion(datos) {
 }
 
 function pintarPiezasAplicacion(cuerpo, piezas, alEscribirPrecio) {
-  // Una fila por pieza. El precio de mercado se puede escribir: vale en el siguiente cálculo.
+  // Una fila por pieza. El precio de mercado se puede escribir: vale en el siguiente cálculo. El que
+  // falta sale vacío y marcado, y sin coste, que no se ha calculado.
   $.each(piezas, function (indice, pieza) {
     var origen = "media de sus proveedores";
     if (pieza.origenPrecio === "escrito") {
       origen = "escrito";
     } else if (pieza.origenPrecio === "sinUso") {
       origen = "no se usa con este ajuste";
+    } else if (pieza.origenPrecio === "falta") {
+      origen = "falta: escríbelo";
     }
+    var falta = pieza.precio === null;
+    var sinCoste = pieza.costeUnidad === undefined || pieza.costeUnidad === null;
     var precio = $("<input>").attr("type", "text").addClass("precio form-control").attr("data-id", pieza.idArticulo)
-      .val(numeroLegibleAplicacion(pieza.precio, 4))
+      .val(falta ? "" : numeroLegibleAplicacion(pieza.precio, 4))
       .on("change", function () {
         alEscribirPrecio(pieza.idArticulo, $(this).val());
         console.log("Aplicar relación: precio escrito de " + pieza.idArticulo + " = " + $(this).val());
@@ -845,10 +874,10 @@ function pintarPiezasAplicacion(cuerpo, piezas, alEscribirPrecio) {
       .append($("<td>").text(pieza.articulo))
       .append($("<td>").text(cantidadLegibleAplicacion(pieza.cantidad)))
       .append($("<td>").text(pieza.unidad))
-      .append($("<td>").append(precio))
+      .append($("<td>").toggleClass("precioQueFalta has-error", falta).append(precio))
       .append($("<td>").text(origen))
-      .append($("<td>").text(numeroLegibleAplicacion(pieza.costeUnidad, 4)))
-      .append($("<td>").text(numeroLegibleAplicacion(pieza.coste, 2)))
+      .append($("<td>").text(sinCoste ? "—" : numeroLegibleAplicacion(pieza.costeUnidad, 4)))
+      .append($("<td>").text(sinCoste ? "—" : numeroLegibleAplicacion(pieza.coste, 2)))
       .append(celdaDelMargenAplicacion(pieza))
       .appendTo(cuerpo);
   });
@@ -858,7 +887,7 @@ function celdaDelMargenAplicacion(pieza) {
   // Lo que queda por unidad entre el precio de mercado y el coste, en rojo si es negativo; sin precio
   // que se use, no hay margen que dar.
   var celda = $("<td>").addClass("margen");
-  if (pieza.origenPrecio === "sinUso" || !(pieza.precio > 0)) {
+  if (pieza.origenPrecio === "sinUso" || !(pieza.precio > 0) || pieza.costeUnidad === undefined || pieza.costeUnidad === null) {
     return celda.text("—");
   }
   var margen = pieza.precio - pieza.costeUnidad;

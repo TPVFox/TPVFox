@@ -138,7 +138,7 @@
                     </p>
                     <p id="avisoDelAjusteAplicacion" class="text-danger"></p>
                 </div>
-                <table id="escandalloAplicacion" class="table table-bordered table-hover">
+                <table id="escandalloAplicacion" class="table table-bordered table-hover" style="display: none;">
                     <thead>
                         <tr>
                             <th>Pieza</th>
