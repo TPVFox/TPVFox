@@ -868,8 +868,9 @@ class RelacionesAplicacion extends RelacionesModelo
         // en anchura y uno ya visto no se vuelve a recorrer, así que un ciclo no repite la lectura.
         // @ Devolvemos
         //      ['datos'] con numRelacion, nombre, el producto que entra (entrada e idEntrada), los que
-        //      salen (salidas) y su origen: 'hermana', 'elegida' si parte de un producto de la elegida,
-        //      o 'derivado'; o ['error'].
+        //      salen (salidas, y con su nombre en piezas) y su origen: 'hermana', 'elegida' si parte de
+        //      un producto de la elegida, o 'derivado'; ['elegida'], lo mismo de la elegida, con la que
+        //      la pantalla empieza el árbol; o ['error'].
         $aplicables = $this->relacionesAplicables();
         if (isset($aplicables['error'])) {
             return $aplicables;
@@ -889,7 +890,7 @@ class RelacionesAplicacion extends RelacionesModelo
                 $porEntrada[$relacion['idEntrada']][] = $relacion;
             }
         }
-        $respuesta = array('datos' => array());
+        $respuesta = array('datos' => array(), 'elegida' => $this->recetaDeLaLista($elegida, 'principal'));
         $cola = array();
         foreach ($elegida['idSalidas'] as $idSalida) {
             $cola[] = array($idSalida, 'elegida');
@@ -1394,7 +1395,7 @@ class RelacionesAplicacion extends RelacionesModelo
         // @ Devolvemos
         //      ['datos'] con numRelacion, nombre, tipo y el producto que entra, y los id del tipo, del
         //      producto que entra y de los que salen, con los que se buscan las recetas que se pueden
-        //      aplicar a la vez; o ['error'].
+        //      aplicar a la vez, y los que salen con su nombre (piezas); o ['error'].
         $CRelaciones = new Relaciones();
         $CTipos = new RelacionesTipos();
         $vigentes = $CRelaciones->vigentes();
@@ -1415,16 +1416,18 @@ class RelacionesAplicacion extends RelacionesModelo
                     $entra = '';
                     $idEntra = 0;
                     $idSalidas = array();
+                    $piezas = array();
                     foreach ($relacion['lineas'] as $linea) {
                         if ($linea['sentido'] === 'entrada') {
                             $entra = $linea['articulo'];
                             $idEntra = (int) $linea['idArticulo'];
                         } else {
                             $idSalidas[] = (int) $linea['idArticulo'];
+                            $piezas[] = array('idArticulo' => (int) $linea['idArticulo'], 'articulo' => $linea['articulo']);
                         }
                     }
                     $respuesta['datos'][] = array('numRelacion' => (int) $relacion['numRelacion'], 'nombre' => $relacion['nombre'], 'tipo' => $relacion['tipo'], 'entrada' => $entra,
-                        'idTipo' => $idTipo, 'idEntrada' => $idEntra, 'idSalidas' => $idSalidas);
+                        'idTipo' => $idTipo, 'idEntrada' => $idEntra, 'idSalidas' => $idSalidas, 'piezas' => $piezas);
                 }
             }
         }
@@ -1919,7 +1922,7 @@ class RelacionesAplicacion extends RelacionesModelo
         }
 
         return array('numRelacion' => $relacion['numRelacion'], 'nombre' => $nombre, 'entrada' => $relacion['entrada'],
-            'idEntrada' => $relacion['idEntrada'], 'salidas' => $relacion['idSalidas'], 'origen' => $origen);
+            'idEntrada' => $relacion['idEntrada'], 'salidas' => $relacion['idSalidas'], 'piezas' => $relacion['piezas'], 'origen' => $origen);
     }
 
     private function colocarRecetas($version, $entrada, $anadidas)
