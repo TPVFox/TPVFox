@@ -2,11 +2,12 @@
 // @ Objetivo
 // El HTML de la pantalla de aplicar una relación: la elección del proveedor, la relación y el
 // periodo —que se rellena con los meses o los días con entradas—, la versión del despiece que se
-// aplica, si se prepara un albarán por cada albarán de entrada, el ajuste del reparto en un deslizador y
-// el proveedor de traspaso, que solo se ve con un periodo de diciembre o de enero. Debajo, cada zona con
-// su función, que pinta aplicarRelacion.js: los avisos; el reparto entre las recetas, donde se escribe
-// la cantidad de cada una cuando el cálculo ya ha dicho lo disponible; la lista de las recetas que se
-// pueden añadir; los datos de la operación; y los escandallos, uno por receta.
+// aplica, si se prepara un albarán por cada albarán de entrada y el proveedor de traspaso, que solo se
+// ve con un periodo de diciembre o de enero. Debajo, cada zona con su función, que pinta
+// aplicarRelacion.js: los avisos; el reparto entre las recetas, donde se escribe la cantidad de cada
+// una cuando el cálculo ya ha dicho lo disponible; la lista de las recetas que se pueden añadir; y los
+// escandallos, uno por receta, cada uno con sus datos de la operación, su ajuste de peso y valor si
+// tiene dos piezas o más, y sus piezas con el margen de cada una. El de la elegida está aquí.
 // @ Parametros (de AplicarRelacion.php)
 //      $avisos, $especiales, $relacionesAplicables, $proveedores y $puedePreparar.
 ?>
@@ -86,19 +87,6 @@
             </div>
 
             <div class="row">
-                <div class="col-md-4 form-group">
-                    <label for="ajustePesoAplicacion">Reparto del coste</label>
-                    <input type="range" id="ajustePesoAplicacion" class="form-control" min="0" max="2" step="0.05" value="1" list="marcasAjusteAplicacion" oninput="cambiarAjusteAplicacion()">
-                    <datalist id="marcasAjusteAplicacion">
-                        <option value="0"></option>
-                        <option value="1"></option>
-                        <option value="2"></option>
-                    </datalist>
-                    <p class="help-block">
-                        Peso: <strong id="ajustePesoTexto">1,00</strong> · Valor de mercado: <strong id="ajusteValorTexto">1,00</strong>.
-                        Del 0 al 2: a la izquierda, todo el coste se reparte según el precio de mercado de las piezas; a la derecha, según sus kilos, igual por kg para todas. En el centro, la mitad por cada uno.
-                    </p>
-                </div>
                 <div id="bloqueTraspasoAplicacion" class="col-md-5 form-group" style="display: none;">
                     <label for="idProveedorTraspasoAplicacion">Proveedor del cierre y la apertura del ejercicio</label>
                     <select id="idProveedorTraspasoAplicacion" class="form-control" onchange="cambiarDatoAplicacion('el proveedor de traspaso')">
@@ -127,24 +115,45 @@
             <div id="avisosAplicacion"></div>
             <div id="arbolAplicacion"></div>
             <div id="hermanasAplicacion"></div>
-            <div id="datosAplicacion"></div>
             <div id="entradasAplicacion"></div>
             <div id="zonaDestinoAplicacion" class="form-group col-md-12"></div>
-            <h4 id="tituloEscandalloAplicacion"></h4>
-            <table id="escandalloAplicacion" class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Pieza</th>
-                        <th>Cantidad</th>
-                        <th>Unidad</th>
-                        <th>Precio de mercado</th>
-                        <th>De dónde sale el precio</th>
-                        <th>Coste por unidad</th>
-                        <th>Coste</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div id="escandalloPrincipalAplicacion">
+                <h4 id="tituloEscandalloAplicacion"></h4>
+                <div id="datosAplicacion"></div>
+                <div id="ajusteAplicacion" class="form-group" style="display: none;">
+                    <h5>Peso y valor</h5>
+                    <div>
+                        Por valor de mercado
+                        <input type="range" id="ajustePesoAplicacion" min="0" max="2" step="0.05" value="1" list="marcasAjusteAplicacion" oninput="cambiarAjusteAplicacion()" style="display: inline-block; width: 250px; vertical-align: middle;">
+                        Por kilos
+                    </div>
+                    <datalist id="marcasAjusteAplicacion">
+                        <option value="0"></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                    </datalist>
+                    <p class="help-block">
+                        Peso: <strong id="ajustePesoTexto">1,00</strong> · Valor de mercado: <strong id="ajusteValorTexto">1,00</strong>.
+                        Reparte el coste de la receta entre sus piezas: por kilos, el mismo coste por kg para todas; por valor de mercado, en proporción a lo que vale cada una, que es lo que conviene si sale un subproducto de poco valor. En el centro, la mitad por cada uno. Cámbialo y pulsa «Calcular».
+                    </p>
+                    <p id="avisoDelAjusteAplicacion" class="text-danger"></p>
+                </div>
+                <table id="escandalloAplicacion" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Pieza</th>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Precio de mercado</th>
+                            <th>De dónde sale el precio</th>
+                            <th>Coste por unidad</th>
+                            <th>Coste</th>
+                            <th>Margen por unidad</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
             <div id="escandallosDeLasRecetas"></div>
         </div>
     </div>
