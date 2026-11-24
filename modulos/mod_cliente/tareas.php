@@ -47,6 +47,9 @@ switch ($pulsado) {
         include_once $URLCom . '/modulos/mod_cliente/tareas/imprimirFichaCliente.php';
         $respuesta = $resultado;
         break;
+    case 'exportarFacturasCsv':
+        include_once $URLCom . '/modulos/mod_cliente/tareas/exportarFacturasCsv.php';
+        break;
     case 'generarResumenTicketsClientes':
         include_once $URLCom . '/modulos/mod_cliente/tareas/ResumenMensualVentaClientes.php';
         $respuesta = $resultado;

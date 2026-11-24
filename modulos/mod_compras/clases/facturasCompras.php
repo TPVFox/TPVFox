@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../../clases/DB.php';
-include_once('./clases/ClaseCompras.php');
+include_once $URLCom . '/modulos/mod_compras/clases/ClaseCompras.php';
 class FacturasCompras extends ClaseCompras
 {
     public $errores = array(); // (array) con los errores de comprobaciones.
@@ -66,7 +66,7 @@ class FacturasCompras extends ClaseCompras
         // numérico. Parametrizar del todo el buscador exige refactorizar ese
         // plugin compartido (pendiente, fuera de este alcance).
         $sql = 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
-		a.total, a.estado, a.idProveedor FROM `facprot` as a LEFT JOIN proveedores as b on
+		a.total, a.estado, a.idProveedor, a.Su_num_factura FROM `facprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor ' . $limite;
         $smt = (new DB($db))->pquery($sql, $params);
         $pedidosPrincipal = array();

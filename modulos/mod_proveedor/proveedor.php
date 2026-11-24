@@ -102,7 +102,7 @@ if ($id == 0) {
 
 <body>
 	<script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js?v=<?php echo filemtime(__DIR__ . '/funciones.js'); ?>"></script>
 	<script type="text/javascript">
 		<?php echo 'var configuracion=' . json_encode($configuracion) . ';'; ?>
 	</script>
@@ -130,6 +130,7 @@ if ($id == 0) {
 		<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<a class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde; ?>' , configuracion , 0, <?php echo $id; ?>);">Añadir Incidencia </a>
+			<a class="btn btn-default<?php if (!$existeResumenAnual) { echo ' disabled'; } ?>" onclick="descargarFacturasCsv(<?php echo $id; ?>);">Descargar facturas</a>
 			<?php
 			if ($input_disabled == '') {
 			?>

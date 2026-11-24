@@ -73,6 +73,10 @@ switch ($pulsado) {
 		$respuesta = $resultado;
 		break;
 
+	case 'exportarFacturasCsv':
+		include_once $URLCom . '/modulos/mod_proveedor/Tareas/exportarFacturasCsv.php';
+		break;
+
 	case 'eliminarRefProveedorArticulo':
 		$mod_vista_proveedor = array('modulo' => 'mod_proveedor', 'vista' => 'ListaProveedores.php');
 		if (!isset($ClasePermisos) || $ClasePermisos->getAccion('modificar', $mod_vista_proveedor) != 1) {

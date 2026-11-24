@@ -510,3 +510,28 @@ function abrirModalInforme(
 function cerrarModalInforme() {
   cerrarPopUp();
 }
+
+function descargarFacturasCsv(id) {
+  // @ Objetivo:
+  // Descargar en CSV todas las facturas del cliente: envía a tareas.php un formulario oculto, porque
+  // una descarga no puede llegar por la petición de siempre.
+  // @ Parametros:
+  // id -> (int) Número del cliente.
+  console.log("Descargamos en CSV las facturas del cliente " + id);
+  var form = document.createElement("form");
+  form.method = "POST";
+  form.action = "tareas.php";
+  var orden = document.createElement("input");
+  orden.type = "hidden";
+  orden.name = "pulsado";
+  orden.value = "exportarFacturasCsv";
+  form.appendChild(orden);
+  var numero = document.createElement("input");
+  numero.type = "hidden";
+  numero.name = "idClientes";
+  numero.value = id;
+  form.appendChild(numero);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}

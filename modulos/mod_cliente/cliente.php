@@ -52,6 +52,7 @@ if (!isset($ClienteUnico['descuento_ticket'])) {
 }
 
 $existeResumenAnual = false;
+$existenFacturas = false;
 foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
     if (isset($adjunto['error'])) {
         $errores[] = array(
@@ -65,6 +66,9 @@ foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
             if (count($adjunto['datos']) > 0) {
                 $existeResumenAnual = true;
             }
+        }
+        if ($key === 'facturas' && count($adjunto['datos']) > 0) {
+            $existenFacturas = true;
         }
     }
 }
@@ -132,7 +136,7 @@ foreach ($estados_cliente as $i => $estado_cliente) {
 
 <head>
     <?php include_once $URLCom . '/head.php'; ?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_cliente/funciones.js?v=<?php echo filemtime(__DIR__ . '/funciones.js'); ?>"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_incidencias/funciones.js"></script>
     <script>
         <?php echo 'var configuracion=' . json_encode($conf_javascript_json) . ';'; ?>
@@ -173,6 +177,13 @@ foreach ($estados_cliente as $i => $estado_cliente) {
             if ($Get_accion !== 'Nuevo') {
                 echo '<div class="col-md-2">';
                 echo  '<a  class="btn btn-warning" onclick="abrirModalIndicencia(' . "'" . $dedonde . "'" . ' , configuracion , 0,' . $id . ');">Añadir Incidencia </a>';
+                echo '</div>';
+                $claseDescargar = '';
+                if (!$existenFacturas) {
+                    $claseDescargar = ' disabled';
+                }
+                echo '<div class="col-md-2">';
+                echo '<a class="btn btn-default' . $claseDescargar . '" onclick="descargarFacturasCsv(' . $id . ');">Descargar facturas</a>';
                 echo '</div>';
             }
             ?>

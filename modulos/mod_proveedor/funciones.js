@@ -259,3 +259,28 @@ function obtenerEstadoProductoWeb(ids_productos, id_tiendaWeb) {
     },
   });
 }
+
+function descargarFacturasCsv(id) {
+  // @ Objetivo:
+  // Descargar en CSV todas las facturas del proveedor: envía a tareas.php un formulario oculto, porque
+  // una descarga no puede llegar por la petición de siempre.
+  // @ Parametros:
+  // id -> (int) Número del proveedor.
+  console.log("Descargamos en CSV las facturas del proveedor " + id);
+  var form = document.createElement("form");
+  form.method = "POST";
+  form.action = "tareas.php";
+  var orden = document.createElement("input");
+  orden.type = "hidden";
+  orden.name = "pulsado";
+  orden.value = "exportarFacturasCsv";
+  form.appendChild(orden);
+  var numero = document.createElement("input");
+  numero.type = "hidden";
+  numero.name = "idProveedor";
+  numero.value = id;
+  form.appendChild(numero);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
