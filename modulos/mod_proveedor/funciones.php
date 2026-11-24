@@ -32,7 +32,7 @@ function htmlTablaGeneral($datos, $HostNombre, $tipoDoc)
         switch ($tipoDoc) {
             case 'facturas':
                 $url = $HostNombre . '/modulos/mod_compras/factura.php?id=';
-                $resumen = "";
+                $resumen = '<input type="text" class="btn btn-info" onclick="descargarFacturasCsv(' . $datos[0]['idProveedor'] . ')" value="Descargar CSV" name="DescargarFacturas" >';
                 break;
             case 'albaranes':
                 $url = $HostNombre . '/modulos/mod_compras/albaran.php?id=';

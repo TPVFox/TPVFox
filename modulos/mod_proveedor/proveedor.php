@@ -130,7 +130,6 @@ if ($id == 0) {
 		<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<a class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde; ?>' , configuracion , 0, <?php echo $id; ?>);">Añadir Incidencia </a>
-			<a class="btn btn-default<?php if (!$existeResumenAnual) { echo ' disabled'; } ?>" onclick="descargarFacturasCsv(<?php echo $id; ?>);">Descargar facturas</a>
 			<?php
 			if ($input_disabled == '') {
 			?>

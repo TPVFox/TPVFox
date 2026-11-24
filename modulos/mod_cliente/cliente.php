@@ -52,7 +52,6 @@ if (!isset($ClienteUnico['descuento_ticket'])) {
 }
 
 $existeResumenAnual = false;
-$existenFacturas = false;
 foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
     if (isset($adjunto['error'])) {
         $errores[] = array(
@@ -66,9 +65,6 @@ foreach ($ClienteUnico['adjuntos'] as $key => $adjunto) {
             if (count($adjunto['datos']) > 0) {
                 $existeResumenAnual = true;
             }
-        }
-        if ($key === 'facturas' && count($adjunto['datos']) > 0) {
-            $existenFacturas = true;
         }
     }
 }
@@ -177,13 +173,6 @@ foreach ($estados_cliente as $i => $estado_cliente) {
             if ($Get_accion !== 'Nuevo') {
                 echo '<div class="col-md-2">';
                 echo  '<a  class="btn btn-warning" onclick="abrirModalIndicencia(' . "'" . $dedonde . "'" . ' , configuracion , 0,' . $id . ');">Añadir Incidencia </a>';
-                echo '</div>';
-                $claseDescargar = '';
-                if (!$existenFacturas) {
-                    $claseDescargar = ' disabled';
-                }
-                echo '<div class="col-md-2">';
-                echo '<a class="btn btn-default' . $claseDescargar . '" onclick="descargarFacturasCsv(' . $id . ');">Descargar facturas</a>';
                 echo '</div>';
             }
             ?>

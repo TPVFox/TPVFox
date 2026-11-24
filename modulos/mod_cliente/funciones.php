@@ -132,6 +132,7 @@ function htmlTablaGeneral($datos, $HostNombre, $dedonde)
 
 			case 'facturas':
 				$url = $HostNombre . '/modulos/mod_venta/factura.php?id=';
+				$resumen = '<input type="text" class="btn btn-info" onclick="descargarFacturasCsv(' . $datos[0]['idCliente'] . ')" value="Descargar CSV" name="DescargarFacturas" >';
 				break;
 
 			case 'albaranes':
