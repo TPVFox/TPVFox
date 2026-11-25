@@ -403,19 +403,30 @@ class ClaseComunicacionBalanza
             error_log("ERROR: No se puede verificar si baltty está en ejecución porque no está instalado. [" . date('Y-m-d H:i:s') . "]");
             return false;
         }
-        $cmd = "pgrep -f " . escapeshellarg($rutaBaltty);
-        exec($cmd, $output);
-        $found = false;
-        foreach ($output as $p) {
-            $p = trim($p);
-            if (!empty($p) && ctype_digit($p)) {
-                exec("kill " . escapeshellarg($p));
-                $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
-                error_log("INFO: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
-                $found = true;
-            }
+        return $this->pararDriverLanzado($rutaBaltty);
+    }
+    // Método para parar el driver que se lanzó: el proceso guardado en baltty.pid, si su orden sigue siendo la
+    // del driver. No se para ningún otro proceso.
+    protected function pararDriverLanzado($rutaBaltty): bool
+    {
+        $filePid = $this->rutaBalanza . '/baltty.pid';
+        if (!is_file($filePid)) {
+            return false;
         }
-        return $found;
+        $p = trim((string) file_get_contents($filePid));
+        unlink($filePid);
+        if ($p === '' || !ctype_digit($p)) {
+            return false;
+        }
+        $output = [];
+        exec('ps -o args= -p ' . escapeshellarg($p), $output);
+        if (strpos(implode(' ', $output), $rutaBaltty) === false) {
+            return false;
+        }
+        exec('kill ' . escapeshellarg($p));
+        $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
+        error_log("INFO: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
+        return true;
     }
     // Método para ejecutar baltty desde el directorio de la balanza
     // Baltty es un comando sencillo que se ejecuta desde un directorio específico.
@@ -462,8 +473,15 @@ class ClaseComunicacionBalanza
             touch($logFile);
         }
         // Ejecutamos baltty en modo log
-        $cmd = escapeshellcmd($rutaBaltty) . ' log > /dev/null 2>&1 &';
-        exec($cmd);
+        $cmd = escapeshellarg($rutaBaltty) . ' log > /dev/null 2>&1 & echo $!';
+        $output = [];
+        exec($cmd, $output);
+        // Guardamos el proceso lanzado, para parar solo ese
+        $pid = trim($output[0] ?? '');
+        if (ctype_digit($pid)) {
+            $this->pidBalanza = $pid;
+            file_put_contents($this->rutaBalanza . '/baltty.pid', $pid);
+        }
         // Esperamos un segundo para que baltty inicie y genere el log
         sleep(1);
         // Verificamos el estado de la balanza
@@ -592,17 +610,8 @@ class ClaseComunicacionBalanza
         } else {
             $this->alertas[] = "La balanza no se ha ejecutado correctamente.";
             error_log("ERROR: La balanza no se ha ejecutado correctamente. [" . date('Y-m-d H:i:s') . "]");
-            $output = [];
-            exec('pgrep -f ' . escapeshellarg($rutaDriver), $output); // Obtenemos el PID del proceso baltty
-            $pid = array_map('trim', $output); // Limpiamos los espacios en blanco de los PIDs
-            foreach ($pid as $p) {
-                if (!empty($p) && ctype_digit($p)) {
-                    exec('kill ' . escapeshellarg($p)); // Terminamos el proceso baltty
-                    $this->alertas[] = "Proceso baltty con PID {$p} terminado.";
-                    error_log("ERROR: Proceso baltty con PID {$p} terminado forzosamente. [" . date('Y-m-d H:i:s') . "]");
-                }
-            }
-            if (empty($pid)) {
+            // Terminamos el proceso baltty que se lanzó
+            if (!$this->pararDriverLanzado($rutaDriver)) {
                 error_log("ERROR: No se encontraron procesos baltty para terminar. [" . date('Y-m-d H:i:s') . "]");
             }
         }
@@ -616,15 +625,29 @@ class ClaseComunicacionBalanza
                 $this->comprobarCrearDirectorio($this->rutaBalanza);
                 $fileBalctrol = $this->rutaBalanza . '/balctrol';
                 $this->comprobarCrearArchivo($fileBalctrol);
-                // Escribimo los nuevos datos en el archivo balctrol
-                $this->crearFicheroConfiguracionDibal($fileBalctrol, $datos);
+                // Escribimos los nuevos datos en el archivo balctrol, si son válidos
+                $errores = $this->comprobarConfiguracionDibal($datos);
+                if (count($errores) === 0) {
+                    $this->crearFicheroConfiguracionDibal($fileBalctrol, $datos);
+                } else {
+                    $this->alertas[] = 'No se escribe la configuración del driver: ' . implode(' ', $errores);
+                }
                 $fileTx = $this->rutaBalanza . '/filetx';
                 $this->comprobarCrearArchivo($fileTx);
                 $this->comprobarCrearDirectorio($this->rutaLogs);
                 $logFile = $this->rutaLogs . '/BalttyEstadoBalanzas.log';
                 $this->comprobarCrearArchivo($logFile);
-                return ['mensaje' => 'No hay cambios para actualizar'];
+                // Respondemos lo que se hizo
+                $respuesta = ['mensaje' => implode("\n", $this->alertas)];
+                if (count($errores) > 0 || !is_dir($this->rutaLogs)) {
+                    $respuesta['error'] = true;
+                }
+                return $respuesta;
                 break;
+            default:
+                $mensaje = 'El modo ' . $formato . ' no crea la carpeta de la balanza.';
+                $this->alertas[] = $mensaje;
+                return ['error' => true, 'mensaje' => $mensaje];
         }
     }
     // metodo privado pra comrpobar si existen directorio y si no existe crearlo. Devolver un aviso
@@ -654,6 +677,53 @@ class ClaseComunicacionBalanza
         } else {
             $this->alertas[] = "El archivo ya existe: {$archivo}";
         }
+    }
+
+    // Método para comprobar los datos de la configuración del driver antes de escribirlos: las IP, el grupo y
+    // la dirección de uno o dos dígitos, y las series de su lista. Devuelve lo que no vale.
+    private function comprobarConfiguracionDibal(array $config): array
+    {
+        $errores = [];
+        $ips = ['ipPc' => 'la IP del PC', 'ipBalanza' => 'la IP de la balanza'];
+        foreach ($ips as $campo => $nombre) {
+            if (filter_var($config[$campo] ?? '', FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                $errores[] = 'Falta ' . $nombre . ' o no es una IP.';
+            }
+        }
+        $numeros = ['grupoBalanza' => 'el grupo', 'direccionBalanza' => 'la dirección'];
+        foreach ($numeros as $campo => $nombre) {
+            if (preg_match('/^[0-9]{1,2}$/', (string) ($config[$campo] ?? '')) !== 1) {
+                $errores[] = 'Falta ' . $nombre . ' o no es un número de uno o dos dígitos.';
+            }
+        }
+        if (!in_array((string) ($config['serieTipo'] ?? ''), ['0', '1', '2'], true)) {
+            $errores[] = 'Falta la serie A, L o L tickets.';
+        }
+        if (!in_array((string) ($config['serieH'] ?? ''), ['0', '1'], true)) {
+            $errores[] = 'Falta si es serie H.';
+        }
+        return $errores;
+    }
+
+    // Método para leer del fichero de configuración del driver la IP del PC y las series, que solo se guardan ahí
+    public function leerConfiguracionDibal(): array
+    {
+        $config = ['ipPc' => '', 'serieTipo' => '', 'serieH' => ''];
+        $fileBalctrol = $this->rutaBalanza . '/balctrol';
+        if (!is_file($fileBalctrol)) {
+            return $config;
+        }
+        $contenido = (string) file_get_contents($fileBalctrol);
+        if (preg_match('/^DI = (\S+)/m', $contenido, $valor)) {
+            $config['ipPc'] = $valor[1];
+        }
+        if (preg_match('/^BL = \S+ (\S+)/m', $contenido, $valor)) {
+            $config['serieTipo'] = $valor[1];
+        }
+        if (preg_match('/^BH = \S+ (\S+)/m', $contenido, $valor)) {
+            $config['serieH'] = $valor[1];
+        }
+        return $config;
     }
 
     private function crearFicheroConfiguracionDibal(string $rutaArchivo, array $config): bool

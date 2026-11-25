@@ -6,6 +6,7 @@
     include_once './../../inicial.php';
     include_once $URLCom . '/head.php';
     include_once $URLCom . '/modulos/mod_balanza/clases/ClaseBalanza.php';
+    include_once $URLCom . '/modulos/mod_balanza/clases/ClaseComunicacionBalanza.php';
     include_once $URLCom . '/modulos/mod_balanza/funciones.php';
     include_once($URLCom . '/controllers/parametros.php');
     include_once $URLCom . '/controllers/Controladores.php';
@@ -27,6 +28,8 @@
     $direccionBalanza = '';
     $soloPLUS = 0;
     $balanza = [];
+    // La IP del PC y las series se guardan en el fichero de configuración del driver
+    $configDriver = ['ipPc' => '', 'serieTipo' => '', 'serieH' => ''];
     // Para ver o para editar; sin decirlo, para editar, como siempre
     $soloVer = (isset($_GET['accion']) && $_GET['accion'] === 'ver');
     $input_disabled = '';
@@ -54,6 +57,9 @@
             $grupoBalanza = $balanza['Grupo'] ?? '';
             $direccionBalanza = $balanza['Dirección'] ?? '';
             $soloPLUS = !empty($balanza['soloPLUS']) ? $balanza['soloPLUS'] : 0;
+            $CComunicacion = new ClaseComunicacionBalanza();
+            $CComunicacion->setRutaBalanza($RutaServidor . $rutatmp . nombreCarpetaBalanza($nombreBalanza, $id));
+            $configDriver = $CComunicacion->leerConfiguracionDibal();
         }
         // Asignar los PLUs si existen
         $buscarPlus = $CBalanza->pluDeBalanza($id, 'a.plu');
@@ -149,12 +155,11 @@
                             <label for="modoDirectorio">Modo de creación de directorio</label>
                             <select class="form-control" id="modoDirectorio" name="modoDirectorio" onchange="toggleIpPcInput()" <?php echo $input_disabled; ?>>
                                 <option value="Balctrol">Balctrol</option>
-                                <option value="automatico">automatico</option>
                             </select>
                         </div>
                         <div class="form-group col-md-6 ipPcGroup">
                             <label for="ipPc">IP del PC</label>
-                            <input type="text" class="form-control ipPcGroup" id="ipPc" name="ipPc" placeholder="Ej: 192.168.1.100" <?php echo $input_disabled; ?>>
+                            <input type="text" class="form-control ipPcGroup" id="ipPc" name="ipPc" placeholder="Ej: 192.168.1.100" value="<?php echo escapar($configDriver['ipPc']); ?>" <?php echo $input_disabled; ?>>
                         </div>
                     </div>
                     <div class="row">
@@ -162,17 +167,17 @@
                             <label for="serieH">Serie H</label>
                             <select class="form-control" id="serieH" name="serieH" <?php echo $input_disabled; ?>>
                                 <option value="">Seleccione...</option>
-                                <option value="1" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'si') ? 'selected' : ''; ?>>Sí</option>
-                                <option value="0" <?php echo (isset($balanza['serieH']) && $balanza['serieH'] == 'no') ? 'selected' : ''; ?>>No</option>
+                                <option value="1" <?php echo ($configDriver['serieH'] === '1') ? 'selected' : ''; ?>>Sí</option>
+                                <option value="0" <?php echo ($configDriver['serieH'] === '0') ? 'selected' : ''; ?>>No</option>
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="serieTipo">Serie A, L o L tickets</label>
                             <select class="form-control" id="serieTipo" name="serieTipo" <?php echo $input_disabled; ?>>
                                 <option value="">Seleccione...</option>
-                                <option value="0" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'A') ? 'selected' : ''; ?>>A</option>
-                                <option value="1" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'L') ? 'selected' : ''; ?>>L</option>
-                                <option value="2" <?php echo (isset($balanza['serieTipo']) && $balanza['serieTipo'] == 'L tickets') ? 'selected' : ''; ?>>L tickets</option>
+                                <option value="0" <?php echo ($configDriver['serieTipo'] === '0') ? 'selected' : ''; ?>>A</option>
+                                <option value="1" <?php echo ($configDriver['serieTipo'] === '1') ? 'selected' : ''; ?>>L</option>
+                                <option value="2" <?php echo ($configDriver['serieTipo'] === '2') ? 'selected' : ''; ?>>L tickets</option>
                             </select>
                         </div>
                     </div>

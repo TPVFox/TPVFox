@@ -365,6 +365,10 @@ function CrearDirectorioBalanza(idBalanza) {
       console.log("Repuesta de crear directorio balanza");
       var resultado = $.parseJSON(response);
       console.log(resultado);
+      // Se dice lo que se hizo, o el error, antes de volver al listado
+      if (resultado.balanzaCom && resultado.balanzaCom.mensaje) {
+        alert(resultado.balanzaCom.mensaje);
+      }
       window.location = "ListaBalanzas.php";
     },
   });

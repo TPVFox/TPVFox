@@ -249,12 +249,21 @@ function htmlAddPLU($seccion, $idBalanza)
 function camposBuscar($campo, $busqueda)
 {
     //@ Objetivo:
-    // devolver el string con el campo y busqueda preparado para el sql
+    // devolver la condición del campo y la busqueda preparada para el sql, con sus valores aparte
+    //@ Devolvemos:
+    // array('where' => condición con un ? por valor, 'params' => los valores)
+    $resultado = array('where' => '0 = 1', 'params' => array());
+    // Solo los campos del buscador
+    $campos = array('a.idArticulo', 'a.articulo_name', 'b.crefTienda', 'c.codBarras');
+    if (!in_array($campo, $campos, true)) {
+        return $resultado;
+    }
     if ($campo == 'a.idArticulo') {
-        $busqueda = 'a.idArticulo=' . $busqueda;
+        $resultado['where'] = 'a.idArticulo = ?';
+        $resultado['params'][] = intval($busqueda);
     } else {
 
-        // Limpio busqueda para evitar rotura en la consulta.
+        // Separo las palabras de la busqueda.
         $buscar = array(',', ';', '(', ')', '"', "'");
         $sustituir = array(' , ', ' ; ', ' ( ', ' ) ', ' ', ' ');
         $string = str_replace($buscar, $sustituir, trim($busqueda));
@@ -262,19 +271,26 @@ function camposBuscar($campo, $busqueda)
 
         $likes = array();
 
-        foreach ($palabras as $key => $palabra) {
+        foreach ($palabras as $palabra) {
             if (trim($palabra) !== '') {
-                $likes[] = $campo . ' LIKE "%' . $palabra . '%" ';
-            } else {
-                unset($palabras[$key]);
+                $likes[] = $campo . ' LIKE ? ';
+                $resultado['params'][] = '%' . $palabra . '%';
             }
         }
-        $resultado['palabras'] = $palabras;
-
-        //si vuelta es distinto de 1 es que entra por 2da vez busca %likes%
-        $busqueda = implode(' and ', $likes);;
+        if (count($likes) > 0) {
+            $resultado['where'] = implode(' and ', $likes);
+        }
     }
-    return $busqueda;
+    return $resultado;
+}
+
+function nombreCarpetaBalanza($nombreBalanza, $idBalanza)
+{
+    //@ Objetivo:
+    // El nombre de la carpeta de una balanza dentro de la temporal: su nombre, solo con letras, números y
+    // guiones, y su número. El mismo al crearla y al enviarle.
+    $nombre = preg_replace('/[^\p{L}\p{N}-]/u', '', (string) $nombreBalanza);
+    return '/' . $nombre . intval($idBalanza);
 }
 
 function modalProductos($busqueda, $productos, $campoAbuscar)
@@ -484,7 +500,7 @@ function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
         $noEnviados = ' No se enviaron: ' . implode(', ', $rechazados) . '.';
     }
     // Definimos la ruta de la balanza
-    $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
+    $ruta_balanza = nombreCarpetaBalanza($balanza['nombreBalanza'], $balanza['idBalanza']);
     $CComunicacionBalanza->setRutaBalanza($ruta_balanza);
 
     $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;

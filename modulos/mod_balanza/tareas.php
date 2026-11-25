@@ -48,7 +48,7 @@ switch ($pulsado) {
         //@Objetivo: buscar producto
         //Devuelve o los datos de un  producto o el html del modal
         $busqueda = camposBuscar($_POST['campo'], $_POST['busqueda']);
-        $result = $CBalanza->buscarArticuloCampo($busqueda);
+        $result = $CBalanza->buscarArticuloCampo($busqueda['where'], $busqueda['params']);
         // Sin resultados la consulta no trae lista: se busca en una vacía y se abre el buscador
         if (!isset($result['datos'])) {
             $result['datos'] = array();
@@ -180,9 +180,7 @@ switch ($pulsado) {
             'serieTipo' => $_POST['serieTipo'],
             'modoDirectorio' => $_POST['modoDirectorio']
         );
-        $nombreSinEspacios = str_replace(' ', '', $datos['nombreBalanza']);
-        $rutaBalanza = $RutaServidor . $rutatmp . '/' . $nombreSinEspacios . $datos['idBalanza'];
-        error_log("Ruta de la balanza: " . $rutaBalanza);
+        $rutaBalanza = $RutaServidor . $rutatmp . nombreCarpetaBalanza($datos['nombreBalanza'], $datos['idBalanza']);
         $CBalanzaComunicacion->setRutaBalanza($rutaBalanza);
         $crearDirectorio = $CBalanzaComunicacion->crearDirectorioBalanza($datos);
         $respuesta['balanzaCom'] = $crearDirectorio;
@@ -296,7 +294,6 @@ switch ($pulsado) {
         if (isset($respuesta['guardarConfig']['error'])) {
             $respuesta['mensaje'] = 'Error al guardar la configuración avanzada: ' . $respuesta['guardarConfig']['error'];
         } else {
-            error_log("Configuración avanzada guardada correctamente.");
             $respuesta['mensaje'] = 'Configuración avanzada guardada correctamente.';
         }
         break;

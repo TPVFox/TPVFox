@@ -25,16 +25,17 @@ class ClaseBalanza  extends Modelo
         // Ahora se esperan los nuevos campos en $datos
         $sql = 'INSERT INTO `modulo_balanza`
             (`nombreBalanza`, `modelo`, `conSeccion`, `Grupo`, `Dirección`, `IP`, `soloPLUS`)
-            VALUES (
-                "' . $datos['nombreBalanza'] . '",
-                "' . $datos['modeloBalanza'] . '",
-                "' . $datos['secciones'] . '",
-                ' . intval($datos['Grupo']) . ',
-                ' . intval($datos['Direccion']) . ',
-                "' . $datos['IP'] . '",
-                ' . (isset($datos['soloPLUS']) ? intval($datos['soloPLUS']) : 1) . '
-            )';
-        $consulta = $this->consultaDML($sql);
+            VALUES (?, ?, ?, ?, ?, ?, ?)';
+        $params = array(
+            $datos['nombreBalanza'],
+            $datos['modeloBalanza'],
+            $datos['secciones'],
+            intval($datos['Grupo']),
+            intval($datos['Direccion']),
+            $datos['IP'],
+            (isset($datos['soloPLUS']) ? intval($datos['soloPLUS']) : 1)
+        );
+        $consulta = $this->consultaDML($sql, $params);
         if (isset($consulta['error'])) {
             return $consulta;
         }
@@ -107,21 +108,25 @@ class ClaseBalanza  extends Modelo
 
     public function datosBalanza($idBalanza)
     {
-        $sql = 'SELECT * from modulo_balanza where idBalanza=' . $idBalanza;
-        $resultado = $this->consulta($sql);
+        $sql = 'SELECT * from modulo_balanza where idBalanza = ?';
+        $resultado = $this->consulta($sql, array(intval($idBalanza)));
         return $resultado;
     }
 
     public function pluDeBalanza($idBalanza, $filtro)
     {
+        // Las teclas se ordenan por la tecla o por la sección
+        if ($filtro !== 'a.seccion') {
+            $filtro = 'a.plu';
+        }
         $sql = 'Select a.*, t.crefTienda,b.articulo_name ,b.tipo, p.pvpCiva,pro.nombrecomercial from modulo_balanza_plus as a
          inner join articulos as b on a.idArticulo=b.idArticulo  INNER JOIN articulosTiendas as t
-         on t.idArticulo=b.idArticulo and t.idTienda =' . $this->idTienda . ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo
+         on t.idArticulo=b.idArticulo and t.idTienda =' . intval($this->idTienda) . ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo
          left join proveedores as pro on pro.idProveedor=b.idProveedor
-         where a.idBalanza=' . $idBalanza . '
+         where a.idBalanza = ?
          order by ' . $filtro . ' asc, a.plu asc';
 
-        $plus = $this->consulta($sql);
+        $plus = $this->consulta($sql, array(intval($idBalanza)));
 
         // Controlar si no hay plus para la balanza
         if (empty($plus['datos'])) {
@@ -145,21 +150,21 @@ class ClaseBalanza  extends Modelo
         return $resultado;
     }
 
-    public function buscarArticuloCampo($busqueda)
+    public function buscarArticuloCampo($busqueda, $params = array())
     {
         $sql = 'SELECT a.idArticulo, a.articulo_name, b.crefTienda, c.codBarras,p.pvpCiva
                 from articulos as a LEFT JOIN articulosTiendas as b on a.idArticulo=b.idArticulo LEFT JOIN
                 articulosCodigoBarras as c on a.idArticulo=c.idArticulo LEFT join tiendas as d on
                 b.idTienda=d.idTienda  left join articulosPrecios as p on p.idArticulo=a.idArticulo
                 where d.tipoTienda="principal" and ' . $busqueda;
-        $resultado = $this->consulta($sql);
+        $resultado = $this->consulta($sql, $params);
         return $resultado;
     }
 
     public function buscarPluEnBalanza($plu, $idBalanza)
     {
-        $sql = 'select * from modulo_balanza_plus where idBalanza=' . $idBalanza . ' and plu="' . $plu . '"';
-        $resultado = $this->consulta($sql);
+        $sql = 'select * from modulo_balanza_plus where idBalanza = ? and plu = ?';
+        $resultado = $this->consulta($sql, array(intval($idBalanza), $plu));
         return $resultado;
     }
 
@@ -167,8 +172,8 @@ class ClaseBalanza  extends Modelo
     {
         $seccion = intval($seccion);
         $sql = 'INSERT INTO `modulo_balanza_plus`(`idBalanza`, `plu`, `seccion`, `idArticulo`)
-         VALUES (' . $idBalanza . ', "' . $plu . '", "' . $seccion . '", ' . $idArticulo . ')';
-        $consulta = $this->consultaDML($sql);
+         VALUES (?, ?, ?, ?)';
+        $consulta = $this->consultaDML($sql, array(intval($idBalanza), $plu, $seccion, intval($idArticulo)));
         if (isset($consulta['error'])) {
             return $consulta;
         }
@@ -183,9 +188,9 @@ class ClaseBalanza  extends Modelo
             return ['error' => 'La tecla ' . $plu . ' ya la tiene el producto con id: ' . $ocupada['datos'][0]['idArticulo']];
         }
         $sql = 'UPDATE `modulo_balanza_plus`
-                SET `plu` = "' . $plu . '", `seccion` = "' . $seccion . '"
-                WHERE `idArticulo` = ' . $idArticulo . ' AND `idBalanza` = ' . $idBalanza;
-        $consulta = $this->consultaDML($sql);
+                SET `plu` = ?, `seccion` = ?
+                WHERE `idArticulo` = ? AND `idBalanza` = ?';
+        $consulta = $this->consultaDML($sql, array($plu, $seccion, intval($idArticulo), intval($idBalanza)));
         // La sentencia responde «0» si fue bien
         if ($consulta['error'] !== '0') {
             return $consulta;
@@ -206,11 +211,13 @@ class ClaseBalanza  extends Modelo
     public function eliminarplu($idBalanza, $plu, $idArticulo)
     {
         // Con el producto se quita la tecla de ese producto: con secciones, el mismo número puede ser de otro
-        $sql = 'DELETE FROM `modulo_balanza_plus` WHERE idBalanza=' . intval($idBalanza) . ' and plu="' . $plu . '"';
+        $sql = 'DELETE FROM `modulo_balanza_plus` WHERE idBalanza = ? and plu = ?';
+        $params = array(intval($idBalanza), $plu);
         if (intval($idArticulo) > 0) {
-            $sql .= ' and idArticulo=' . intval($idArticulo);
+            $sql .= ' and idArticulo = ?';
+            $params[] = intval($idArticulo);
         }
-        $consulta = $this->consultaDML($sql);
+        $consulta = $this->consultaDML($sql, $params);
         if (isset($consulta['error'])) {
             return $consulta;
         }
@@ -232,12 +239,14 @@ class ClaseBalanza  extends Modelo
         ];
 
         $set = [];
+        $params = [];
         foreach ($campos as $key => $columna) {
             $nuevoValor = isset($datos[$key]) ? $datos[$key] : null;
             $valorActual = isset($actual[$columna]) ? $actual[$columna] : null;
 
             if ($nuevoValor !== null && $nuevoValor !== $valorActual) {
-                $set[] = "`$columna` = \"" . $this->escapeString($nuevoValor) . "\"";
+                $set[] = "`$columna` = ?";
+                $params[] = $nuevoValor;
             }
         }
 
@@ -246,7 +255,7 @@ class ClaseBalanza  extends Modelo
         }
 
         $sql = 'UPDATE `modulo_balanza` SET ' . implode(', ', $set) . ' WHERE `idBalanza` = ' . intval($idBalanza);
-        $consulta = $this->consultaDML($sql);
+        $consulta = $this->consultaDML($sql, $params);
         if (isset($consulta['error'])) {
             return $consulta;
         }
@@ -276,10 +285,10 @@ class ClaseBalanza  extends Modelo
                 LEFT JOIN proveedores pro ON pro.idProveedor = a.idProveedor
                 WHERE a.tipo = 'peso'
                 AND a.idArticulo NOT IN (
-                    SELECT idArticulo FROM modulo_balanza_plus WHERE idBalanza = $idBalanza
+                    SELECT idArticulo FROM modulo_balanza_plus WHERE idBalanza = ?
                 )
                 GROUP BY a.idArticulo";
-        $res = $this->consulta($sql);
+        $res = $this->consulta($sql, array(intval($idBalanza)));
         return $res['datos'] ?? [];
     }
 
@@ -341,38 +350,28 @@ class ClaseBalanza  extends Modelo
         ];
 
         $set = [];
+        $params = [];
         foreach ($map as $key => $columna) {
             if (isset($datos[$key])) {
+                $set[] = "`$columna` = ?";
                 if (in_array($columna, ['Grupo', 'Dirección', 'soloPLUS'])) {
-                    $set[] = "`$columna` = " . intval($datos[$key]);
+                    $params[] = intval($datos[$key]);
                 } else {
-                    $set[] = "`$columna` = '" . $this->escapeString($datos[$key]) . "'";
+                    $params[] = $datos[$key];
                 }
             }
         }
-
-        // Log para depuración
-        error_log('guardarConfigAvanzada - idBalanza: ' . $idBalanza . ' - datos: ' . json_encode($datos));
-        error_log('guardarConfigAvanzada - SQL SET: ' . implode(', ', $set));
 
         if (empty($set)) {
             return ['mensaje' => 'No hay cambios para actualizar'];
         }
 
         $sql = 'UPDATE `modulo_balanza` SET ' . implode(', ', $set) . ' WHERE `idBalanza` = ' . intval($idBalanza);
-        error_log('guardarConfigAvanzada - SQL: ' . $sql);
-
-        $consulta = $this->consultaDML($sql);
+        $consulta = $this->consultaDML($sql, $params);
         // La sentencia responde «0» si fue bien
         if ($consulta['error'] !== '0') {
             return $consulta;
         }
         return ['success' => true];
-    }
-
-    // Función auxiliar para escapar cadenas (puedes adaptarla según tu framework/conexión)
-    private function escapeString($str)
-    {
-        return addslashes($str);
     }
 }
