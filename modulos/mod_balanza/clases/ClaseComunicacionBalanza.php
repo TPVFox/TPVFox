@@ -105,7 +105,7 @@ class ClaseComunicacionBalanza
             if (is_float($data['precio'])) {
                 $data['precio'] = round($data['precio'], 2);
             }
-            $this->dataH2['precio'] = intval($data['precio'] * 100);
+            $this->dataH2['precio'] = intval(round($data['precio'] * 100));
             // Asignamos el PLU si esta presente
             if (isset($data['PLU'])) {
                 $this->dataH2['PLU'] = $data['PLU'];
@@ -117,7 +117,7 @@ class ClaseComunicacionBalanza
                 if (is_float($data['precioOferta'])) {
                     $data['precioOferta'] = round($data['precioOferta'], 2);
                 }
-                $this->dataH2['precioOferta'] = intval($data['precioOferta'] * 100);
+                $this->dataH2['precioOferta'] = intval(round($data['precioOferta'] * 100));
             } else {
                 $this->dataH2['precioOferta'] = 0; // Si no se proporciona, lo dejamos en 0
             }
@@ -126,7 +126,7 @@ class ClaseComunicacionBalanza
                 if (is_float($data['precioCoste'])) {
                     $data['precioCoste'] = round($data['precioCoste'], 2);
                 }
-                $this->dataH2['precioCoste'] = intval($data['precioCoste'] * 100);
+                $this->dataH2['precioCoste'] = intval(round($data['precioCoste'] * 100));
             } else {
                 $this->dataH2['precioCoste'] = 0; // Si no se proporciona, lo dejamos en 0
             }
@@ -184,11 +184,13 @@ class ClaseComunicacionBalanza
             if (isset($data['codigoSmiley'])) {
                 $this->dataH3['codigoSmiley'] = str_pad($data['codigoSmiley'], 2, '0', STR_PAD_LEFT);
             } else {
-                $this->dataH3['codisgoSmiley'] = '00'; // Si no se proporciona, lo dejamos en 00
+                $this->dataH3['codigoSmiley'] = '00'; // Si no se proporciona, lo dejamos en 00
             }
             // Asignamos el código EAN13 si esta presente
             if (isset($data['codigoEAN13'])) {
                 $this->dataH3['codigoEAN13'] = str_pad($data['codigoEAN13'], 13, ' ', STR_PAD_RIGHT);
+            } else {
+                $this->dataH3['codigoEAN13'] = ''; // Si no se proporciona, lo dejamos vacío
             }
             // Asignamos la oferta si esta presente
             if (isset($data['oferta'])) {
@@ -231,6 +233,10 @@ class ClaseComunicacionBalanza
         if (empty($this->dataH2['codigo']) || empty($this->dataH2['nombre']) || empty($this->dataH2['precio'])) {
             throw new InvalidArgumentException('Datos incompletos para el registro H2.');
         }
+        // Un código que no cabe en sus seis dígitos no se recorta: llegaría como el de otro producto
+        if (strlen((string) $this->dataH2['codigo']) > 6) {
+            throw new InvalidArgumentException('El código ' . $this->dataH2['codigo'] . ' no cabe en los seis dígitos de la balanza.');
+        }
         // Construimos la etiqueta H2
         $H2 = $this->formatearCampo($this->grupo, 2, 'grupo');
         $H2 .= $this->modoComunicacion . "2"; // Clave de registro
@@ -271,8 +277,12 @@ class ClaseComunicacionBalanza
     public function traducirH3(): string
     {
         // Validamos que los datos necesarios esten presentes
-        if (empty($this->dataH3['codigo']) || empty($this->dataH3['tipoProducto']) || empty($this->dataH3['iva'])) {
+        // El IVA cero es un IVA: se exige que esté puesto, no que sea distinto de cero
+        if (empty($this->dataH3['codigo']) || empty($this->dataH3['tipoProducto']) || !isset($this->dataH3['iva'])) {
             throw new InvalidArgumentException('Datos incompletos para el registro H3.');
+        }
+        if (strlen((string) $this->dataH3['codigo']) > 6) {
+            throw new InvalidArgumentException('El código ' . $this->dataH3['codigo'] . ' no cabe en los seis dígitos de la balanza.');
         }
         // Construimos la etiqueta H3
         $H3 = $this->formatearCampo($this->grupo, 2, 'grupo');
@@ -318,8 +328,7 @@ class ClaseComunicacionBalanza
                 $H3 .= '03'; // IVA 2100
                 break;
             default:
-                $H3 .= '03'; // Valor por defecto si no coincide con los anteriores
-                break;
+                throw new InvalidArgumentException('El IVA del ' . ($iva / 100) . ' % no tiene código en la balanza.');
         }
         $H3 .= $this->formatearCampo($this->dataH3['formatoCodigoBarras'], 2, 'formatoCodigoBarras');
         $H3 .= str_repeat("0", 5); // 5 dígitos que no se usan o no hay información

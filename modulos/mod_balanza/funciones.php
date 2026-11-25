@@ -447,7 +447,10 @@ function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
     );
 
     $CComunicacionBalanza = new ClaseComunicacionBalanza();
+    $CComunicacionBalanza->setGrupo($balanza['Grupo']);
+    $CComunicacionBalanza->setDireccion($balanza['Dirección']);
     $salidaBalanza = array();
+    $rechazados = array();
 
     foreach ($plusBalanza as $plu) {
 
@@ -476,11 +479,22 @@ function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
             $CComunicacionBalanza->setModoComunicacion('L');
         }
 
-        $CComunicacionBalanza->setH2Data($datosH2);
-        $CComunicacionBalanza->setH3Data($datosH3);
-
-        $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH2();
-        $salidaBalanza[] = (string)$CComunicacionBalanza->traducirH3();
+        // Lo que la balanza no admite se salta y se dice; el resto se envía
+        try {
+            $CComunicacionBalanza->setH2Data($datosH2);
+            $CComunicacionBalanza->setH3Data($datosH3);
+            $registroH2 = (string)$CComunicacionBalanza->traducirH2();
+            $registroH3 = (string)$CComunicacionBalanza->traducirH3();
+            $salidaBalanza[] = $registroH2;
+            $salidaBalanza[] = $registroH3;
+        } catch (InvalidArgumentException $e) {
+            $rechazados[] = $producto['articulo_name'] . ' (' . $e->getMessage() . ')';
+        }
+    }
+    $noEnviados = '';
+    if (count($rechazados) > 0) {
+        $respuesta['error'] = true;
+        $noEnviados = ' No se enviaron: ' . implode(', ', $rechazados) . '.';
     }
     // Definimos la ruta de la balanza
     $ruta_balanza = '/' . str_replace(' ', '', $balanza['nombreBalanza']) . $balanza['idBalanza'];
@@ -488,22 +502,22 @@ function volcadoCompletoBalanza($balanza, $plusBalanza, $CProducto)
 
     $directorioBalanza = $RutaServidor . $rutatmp . $ruta_balanza;
 
-    $salida = $salidaBalanza[$balanza['idBalanza']];
+    $salida = implode('', $salidaBalanza);
     $resultado = @file_put_contents($directorioBalanza . "/filetx", $salida);
 
     if ($resultado === false) {
         $respuesta['error'] = true;
-        $respuesta['mensaje'] = "Error grave de Comunicación: No se pudo escribir el archivo para la balanza ID " . $balanza['idBalanza'];
+        $respuesta['mensaje'] = "Error grave de Comunicación: No se pudo escribir el archivo para la balanza ID " . $balanza['idBalanza'] . $noEnviados;
         return $respuesta;
     } else {
         $CComunicacionBalanza->setRutaBalanza($directorioBalanza);
         $ejecucion = $CComunicacionBalanza->ejecutarDriverBalanza();
         if ($ejecucion === false) {
             $respuesta['error'] = true;
-            $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al ejecutar el driver para la balanza ID " . $balanza['idBalanza'];
+            $respuesta['mensaje'] = "Error grave de Comunicación: Fallo al ejecutar el driver para la balanza ID " . $balanza['idBalanza'] . $noEnviados;
             return $respuesta;
         } else {
-            $respuesta['mensaje'] = "Volcado completo de la balanza ID " . $balanza['idBalanza'] . " realizado con éxito.";
+            $respuesta['mensaje'] = "Volcado completo de la balanza ID " . $balanza['idBalanza'] . " realizado con éxito." . $noEnviados;
         }
     }
 

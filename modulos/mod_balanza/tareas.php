@@ -279,14 +279,16 @@ switch ($pulsado) {
         }
         break;
     case 'volcadoCompleto':
-        // tomar datos del id de la balanza para configurarla y los datos de PLUs para hacer el vocado sin hacer otra consulta
+        // Con los datos de la balanza y sus teclas, como el recálculo pero con todos sus productos
         $respuesta = array(
             'mensaje' => '',
             'error' => false,
             'volcado' => null
         );
         $idBalanza = intval($_POST['idBalanza']);
-        $plusBalanza = isset($_POST['plusBalanza']) ? json_decode($_POST['plusBalanza'], true) : [];
+        // Las teclas, con su precio y su referencia, de la base: no las que tenía la página al abrirse
+        $buscarPlus = $CBalanza->pluDeBalanza($idBalanza, 'a.plu');
+        $plusBalanza = $buscarPlus['datos'] ?? [];
         // añadimos ClaseComunicacionBalanza para hacer el volcado
         $CBalanzaComunicacion = new ClaseComunicacionBalanza($BDTpv);
         $datosBalanza = $CBalanza->datosBalanza($idBalanza);
