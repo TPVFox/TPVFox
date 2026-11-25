@@ -109,8 +109,6 @@
                             <th>PRECIO</th>
                             <th>BALANZA <?php echo $htmlOrdenarBalanza; ?></th>
                             <th>MODELO</th>
-                            <th>SECCIONES</th>
-                            <th>SOLO PLUS</th>
                             <th>EN LA BALANZA <?php echo $htmlOrdenarRelacion; ?></th>
                             <th>TECLA <?php echo $htmlOrdenarTecla; ?></th>
                             <th>SECCIÓN <?php echo $htmlOrdenarSeccion; ?></th>
@@ -119,14 +117,6 @@
                     <tbody>
                         <?php
                         foreach ($productosEnBalanzas as $linea) {
-                            $conSeccion = 'No';
-                            if (strtolower((string) $linea['conSeccion']) === 'si') {
-                                $conSeccion = 'Sí';
-                            }
-                            $soloPlus = 'No';
-                            if ((int) $linea['soloPLUS'] === 1) {
-                                $soloPlus = 'Sí';
-                            }
                             $precio = '';
                             if ($linea['pvpCiva'] !== null) {
                                 $precio = number_format((float) $linea['pvpCiva'], 2, '.', '');
@@ -140,8 +130,6 @@
                                 . '<td>' . $precio . '</td>'
                                 . '<td>' . escapar($linea['nombreBalanza']) . '</td>'
                                 . '<td>' . escapar($linea['modelo']) . '</td>'
-                                . '<td>' . $conSeccion . '</td>'
-                                . '<td>' . $soloPlus . '</td>'
                                 . '<td>' . $linea['relacion'] . '</td>'
                                 . '<td>' . $linea['plu'] . '</td>'
                                 . '<td>' . $linea['seccion'] . '</td>'
