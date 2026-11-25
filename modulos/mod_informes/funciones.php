@@ -264,6 +264,30 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
     ];
 }
 
+function htmlScriptsInformes($URLCom, $HostNombre)
+{
+    // @ Objetivo:
+    // Lo que una página del módulo escribe para cargar su JavaScript, de modo que el navegador pida de
+    // nuevo cada fichero que cambia: un mapa con cada fichero que se importa y su fecha, y detrás el
+    // fichero de entrada con la suya.
+    // @ Parametros:
+    // $URLCom -> (string) Ruta de TPVFox en el servidor.
+    // $HostNombre -> (string) Dirección de TPVFox para el navegador.
+    // @ Devolvemos:
+    // (string) El html del mapa y de la etiqueta del fichero de entrada.
+    $ficheros = glob($URLCom . '/modulos/mod_informes/informes/*/*.js');
+    $ficheros[] = $URLCom . '/lib/js/tpvfox.js';
+    $mapa = array();
+    foreach ($ficheros as $fichero) {
+        $direccion = $HostNombre . substr($fichero, strlen($URLCom));
+        $mapa[$direccion] = $direccion . '?v=' . filemtime($fichero);
+    }
+    $entrada = '/modulos/mod_informes/funciones.js';
+    $html = '<script type="importmap">' . json_encode(array('imports' => $mapa), JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+    $html .= '    <script src="' . $HostNombre . $entrada . '?v=' . filemtime($URLCom . $entrada) . '" type="module"></script>';
+    return $html;
+}
+
 function getHtmlTitulo($cabecera)
 {
     $html = '<h1>' . htmlspecialchars($cabecera['titulo_informe'], ENT_QUOTES) . '</h1>';

@@ -1228,7 +1228,7 @@ $datosInforme = $DatosInforme['datos'];
         </div>
     </div>
 
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_informes/funciones.js" type="module"></script>
+    <?php echo htmlScriptsInformes($URLCom, $HostNombre); ?>
 
 </body>
 
