@@ -7,5 +7,6 @@
     </vista>
     <vista nombre="POSStock.php" descripcion="POSStock - Revisión de stock" permiso="0">
         <accion nombre="ejecutar" descripcion="Ver informe POSStock" permiso="0"></accion>
+        <accion nombre="Configurar" descripcion="Configurar POSStock" permiso="0"></accion>
     </vista>
 </modulo>

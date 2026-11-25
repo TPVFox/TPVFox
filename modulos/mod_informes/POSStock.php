@@ -61,6 +61,7 @@ foreach ($tiposParaChks as $ti) {
             <div class="col-xs-12">
                 <h3 class="page-header">
                     POSStock — Revisión de stock
+                    <?php if ($ClasePermisos->getAccion('Configurar') == 1) { ?>
                     <small>
                         <button type="button" class="btn btn-default btn-xs"
                             onclick="abrirModalConfigPosstock()"
@@ -68,6 +69,7 @@ foreach ($tiposParaChks as $ti) {
                             <i class="glyphicon glyphicon-cog"></i> Configuración
                         </button>
                     </small>
+                    <?php } ?>
                 </h3>
             </div>
         </div>

@@ -18,10 +18,14 @@ switch ($pulsado) {
         $respuesta['html'] = $html;
         break;
     case 'abrirModalConfigPosstock':
-        include_once $URLCom . '/modulos/mod_informes/tareas/abrirModalConfigPosstock.php';
-        break;
     case 'guardarConfigPosstock':
-        include_once $URLCom . '/modulos/mod_informes/tareas/guardarConfigPosstock.php';
+        // La configuración de POSStock, solo con su permiso
+        $vistaPosstock = array('modulo' => 'mod_informes', 'vista' => 'POSStock.php');
+        if (!isset($ClasePermisos) || $ClasePermisos->getAccion('Configurar', $vistaPosstock) != 1) {
+            $respuesta = array('error' => 'No tiene permiso para configurar POSStock.');
+            break;
+        }
+        include_once $URLCom . '/modulos/mod_informes/tareas/' . $pulsado . '.php';
         break;
     case 'calcularPeriodoPosstock':
         $tipo   = $_POST['tipo']   ?? '';
