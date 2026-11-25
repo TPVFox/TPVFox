@@ -107,6 +107,8 @@ if ($ProductosPrincipales['NItems'] > 0) {
         }
     }
 }
+// Los productos con movimientos en el ejercicio: los que no tienen salen en amarillo
+$conMovimientos = $CProveedor->productosConMovimientos(array_column($productos, 'idArticulo'));
 // Convertimos estado array con indice
 // y montamos html check
 
@@ -276,6 +278,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                 }
                 echo '<br/><br/><a onclick="imprimirSeleccion(' . $idProveedor . ')">Imprimir selección</a>';
                 echo '</div>';
+                echo '<p><span class="label label-warning">&nbsp;</span> En amarillo, sin movimientos en el ejercicio</p>';
                 echo '<div><h4>Filtrar por estado:</h4>';
                 foreach ($estados_index as $estado) {
                     echo $estado['html_check'];
@@ -339,7 +342,10 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                             $link_mayor = '<a class="glyphicon glyphicon-list" target="_blank" href="./../../mod_producto/DetalleMayor.php?idArticulo='
                                 . $producto['idArticulo'] . '"></a>';
 
-                            if ($producto['stocks']['stockOn'] < $producto['stocks']['stockMin']) {
+                            if (!in_array((int) $producto['idArticulo'], $conMovimientos, true)) {
+                                // Sin movimientos en el ejercicio: manda sobre el bajo mínimo
+                                $lineaRoja = 'warning';
+                            } elseif ($producto['stocks']['stockOn'] < $producto['stocks']['stockMin']) {
                                 $lineaRoja = 'danger';
                             } else {
                                 $lineaRoja = $producto['es_principal'] ? '' : 'active';

@@ -81,6 +81,25 @@ class ClaseProveedor extends TFModelo
         return $documentos;
     }
 
+    public function productosConMovimientos($idsArticulos)
+    {
+        // @ Objetivo:
+        // De unos productos, los que tienen algún movimiento en el ejercicio —esta base—: una línea de un
+        // ticket activa, de un albarán de venta o de un albarán de compra, como los cuenta el mayor.
+        // @ Devolvemos:
+        // (array) los números de los productos con movimientos.
+        $ids = array_values(array_unique(array_map('intval', $idsArticulos)));
+        if (count($ids) === 0) {
+            return array();
+        }
+        $marcas = implode(', ', array_fill(0, count($ids), '?'));
+        $sql = 'SELECT idArticulo FROM ticketslinea WHERE estadoLinea = \'Activo\' AND idArticulo IN (' . $marcas . ')'
+            . ' UNION SELECT idArticulo FROM albclilinea WHERE idArticulo IN (' . $marcas . ')'
+            . ' UNION SELECT idArticulo FROM albprolinea WHERE idArticulo IN (' . $marcas . ')';
+        $respuesta = $this->consulta($sql, array_merge($ids, $ids, $ids));
+        return array_map('intval', array_column($respuesta['datos'] ?? array(), 'idArticulo'));
+    }
+
     public function relacionesConProductos($idProveedor)
     {
         // @ Objetivo:
