@@ -575,8 +575,7 @@ class ClasePosstock
             // Si el producto va en el de dos proveedores, queda el más reciente (las filas vienen por fecha).
             $ultimoPedido = [];
             if (!empty($proveedores_incluir)) {
-                $filasPedido = $this->repo->queryUltimoPedidoProveedores($idsProvC6bCsv);
-                if (isset($filasPedido['error'])) return $filasPedido;
+                $filasPedido = $this->repo->queryUltimoPedidoProveedores(array_map('intval', $proveedores_incluir));
                 foreach ($filasPedido as $filaPedido) {
                     $ultimoPedido[(int)$filaPedido['idArticulo']] = $filaPedido;
                 }

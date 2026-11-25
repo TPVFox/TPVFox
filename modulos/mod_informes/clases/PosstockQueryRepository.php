@@ -10,6 +10,8 @@
  * Todos los métodos son públicos para permitir inyección y tests de integración
  * directos sobre la BD de test.
  */
+require_once __DIR__ . '/../../../clases/DB.php';
+
 class PosstockQueryRepository
 {
     // Estados de un albarán de proveedor que cuentan como entrada, en todas las consultas
@@ -51,16 +53,20 @@ class PosstockQueryRepository
     /**
      * C6b — Las líneas del último pedido guardado de cada proveedor: el de fecha más reciente
      * (a igual fecha, el de mayor id). Un pedido sin guardar no cuenta.
+     * Va por la capa de datos, con los proveedores como parámetros.
      *
-     * @return array  Filas raw (idArticulo, fecha, unidades) o ['error' => ...]
+     * @param array $idsProveedores  Los proveedores elegidos
+     * @return array  Filas raw (idArticulo, fecha, unidades)
      */
-    public function queryUltimoPedidoProveedores(string $idsProveedoresCsv): array
+    public function queryUltimoPedidoProveedores(array $idsProveedores): array
     {
-        $sentencia = $this->db->query("
+        if (empty($idsProveedores)) return [];
+        $marcas = implode(',', array_fill(0, count($idsProveedores), '?'));
+        $sql = "
             SELECT l.idArticulo, DATE(p.Fecha) AS fecha, SUM(l.nunidades) AS unidades
             FROM pedprot p
             INNER JOIN pedprolinea l ON l.idpedpro = p.id
-            WHERE p.idProveedor IN ($idsProveedoresCsv)
+            WHERE p.idProveedor IN ($marcas)
               AND l.estadoLinea = 'Activo'
               AND p.id = (
                     SELECT u.id
@@ -72,11 +78,8 @@ class PosstockQueryRepository
               )
             GROUP BY l.idArticulo, p.id, DATE(p.Fecha)
             ORDER BY fecha ASC
-        ");
-        if (!$sentencia) return ['error' => $this->db->error];
-        $filas = [];
-        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
-        return $filas;
+        ";
+        return (new DB($this->db))->select($sql, array_values($idsProveedores));
     }
 
     /** Construye las cláusulas WHERE de familia (incluir/excluir) para el alias dado. */
