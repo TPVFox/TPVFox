@@ -5,6 +5,7 @@
 
 require_once $RutaServidor . $HostNombre . '/clases/claseimprimir.php';
 require_once __DIR__ . '/helpers/parsearParamsPosstock.php';
+require_once __DIR__ . '/helpers/exportarPosstock.php';
 
 $params = parsearParamsPosstock($respuesta);
 if ($params === null) return;
@@ -74,7 +75,7 @@ foreach ($filas as $f) {
 
     $detalle        = '';
     $detalle_es_html = false;
-    if ($f['tipo'] === 'Stock Negativo') {
+    if ($f['tipo'] === 'Inventario en negativo') {
         $detalle = 'Stock: ' . (isset($f['stock_actual'])
             ? number_format((float)$f['stock_actual'], 2, ',', '')
             : '—');
@@ -87,11 +88,11 @@ foreach ($filas as $f) {
             : '—');
     } elseif ($f['tipo'] === 'Entrada con stock alto') {
         $detalle = 'Previo: ' . number_format((float)$f['stock_previo'], 2, ',', '')
-                 . ' · Entra: ' . number_format((float)$f['ncant'], 2, ',', '')
+                 . ' · Entra: ' . number_format((float)($f['nunidades'] ?? 0), 2, ',', '')
                  . ' · ' . ($f['fecha'] ?? '—');
-    } elseif ($f['tipo'] === 'Riesgo de caducidad teórica') {
+    } elseif ($f['tipo'] === 'Caducidad teórica') {
         $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
-                 . ' · ' . ($f['semanas_desde_ultima_venta'] ?? '—') . ' sem.';
+                 . ' · ' . ($f['semanas_en_almacen'] ?? '—') . ' sem. en almacén';
     } elseif ($f['tipo'] === 'Venta Cero (Posible Rotura Física)') {
         $estado  = $f['fecha_fin_rotura'] ? 'Recup. ' . $f['fecha_fin_rotura'] : 'En curso';
         $detalle = 'Ult.venta: ' . ($f['ultima_venta'] ?? '—')
@@ -110,7 +111,7 @@ foreach ($filas as $f) {
         $stock   = isset($f['stock_actual'])    ? (float)$f['stock_actual']    : 0.0;
         $rop     = isset($f['rop'])             ? (float)$f['rop']             : 0.0;
         $ss      = isset($f['stock_seguridad']) ? (float)$f['stock_seguridad'] : 0.0;
-        $pedir   = max(0, (int)ceil($rop - $stock));
+        $pedir   = aPedirPosstock($f); // como la tabla
         // $detalle se construye como HTML directo (no pasa por htmlspecialchars)
         $detalle = 'Stock: '    . number_format($stock, 2, ',', '')
             . ' &middot; ROP: ' . number_format($rop,   2, ',', '')
@@ -120,6 +121,14 @@ foreach ($filas as $f) {
             . ' &middot; <b>Pedir: ' . $pedir . '</b>'
             . ' &middot; '      . htmlspecialchars((string)($f['modelo_usado'] ?? ''));
         $detalle_es_html = true;
+    } elseif (in_array($f['tipo'], ['Merma acumulada', 'Entrada no registrada', 'Posible error de pesaje'], true)) {
+        $detalle = 'Desfase: ' . number_format((float)($f['offset_estimado'] ?? 0), 2, ',', '')
+                 . ' · Recepciones: ' . ($f['n_recepciones'] ?? '—')
+                 . (isset($f['confianza']) ? ' · Confianza: ' . $f['confianza'] : '');
+    } elseif ($f['tipo'] === 'Merma backstaging') {
+        $detalle = 'Merma: ' . number_format((float)($f['merma_total_kg'] ?? 0), 2, ',', '') . ' kg'
+                 . ' · ' . number_format((float)($f['pct_merma'] ?? 0), 2, ',', '') . ' %'
+                 . ' · Declarada: ' . number_format((float)($f['merma_declarada_kg'] ?? 0), 2, ',', '') . ' kg';
     }
 
     $sev       = $f['severidad'] ?? 'BAJA';

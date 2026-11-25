@@ -4,6 +4,7 @@
 // Llama a exit() para evitar que tareas.php emita el json_encode final.
 
 require_once __DIR__ . '/helpers/parsearParamsPosstock.php';
+require_once __DIR__ . '/helpers/exportarPosstock.php';
 
 $params = parsearParamsPosstock($respuesta);
 if ($params === null) {
@@ -51,72 +52,11 @@ fputcsv($out, ['Stock base',          $fi_stock . ' - ' . $ff_stock], ';');
 fputcsv($out, ['Generado',            date('Y-m-d H:i:s')], ';');
 fputcsv($out, [], ';'); // línea vacía separadora
 
-// Cabecera de columnas
-fputcsv($out, [
-    'Articulo',
-    'Nombre',
-    'Tipo incidencia',
-    'Severidad',
-    'Detalle',
-    'Posible causa',
-], ';');
+// Cabecera de columnas: las seis de siempre y detrás una por cada dato
+fputcsv($out, columnasCsvPosstock(), ';');
 
 foreach ($filas as $f) {
-    $detalle = '';
-    if ($f['tipo'] === 'Stock Negativo') {
-        $detalle = 'Stock actual: ' . (isset($f['stock_actual'])
-            ? number_format((float)$f['stock_actual'], 2, '.', '')
-            : '-');
-    } elseif ($f['tipo'] === 'Desajuste Puntual de Stock') {
-        $detalle = 'Stock final: ' . (isset($f['stock_actual'])
-            ? number_format((float)$f['stock_actual'], 2, '.', '')
-            : '-')
-            . ' | Min. intra-periodo: ' . (isset($f['min_balance'])
-            ? number_format((float)$f['min_balance'], 2, '.', '')
-            : '-');
-    } elseif ($f['tipo'] === 'Entrada con stock alto') {
-        $detalle = 'Stock previo: ' . number_format((float)$f['stock_previo'], 2, '.', '')
-            . ' | Entrada: '   . number_format((float)$f['ncant'], 2, '.', '')
-            . ' | Fecha: '     . ($f['fecha'] ?? '-');
-    } elseif ($f['tipo'] === 'Riesgo de caducidad teórica') {
-        $detalle = 'Ult. venta: '   . ($f['ultima_venta'] ?? '-')
-            . ' | '            . ($f['semanas_desde_ultima_venta'] ?? '-') . ' sem.';
-    } elseif ($f['tipo'] === 'Venta Cero (Posible Rotura Física)') {
-        $estado  = $f['fecha_fin_rotura'] ? 'Recuperada ' . $f['fecha_fin_rotura'] : 'En curso';
-        $detalle = 'Ult. venta: ' . ($f['ultima_venta'] ?? '-')
-            . ' | Rotura desde: ' . ($f['fecha_inicio_rotura'] ?? '-')
-            . ' | ' . $estado
-            . ' | ' . ($f['dias_rotura'] ?? '-') . ' d';
-    } elseif ($f['tipo'] === 'Entrada sin rotación previa') {
-        $detalle = $f['ultima_salida']
-            ? 'Ult. salida: ' . $f['ultima_salida'] . ' | ' . ($f['semanas_desde_ultima_salida'] ?? '-') . ' sem.'
-            : 'Sin salidas registradas';
-    } elseif ($f['tipo'] === 'Stock Inactivo en Periodo') {
-        $detalle = 'Stock en periodo: ' . (isset($f['stock_actual'])
-            ? number_format((float)$f['stock_actual'], 2, '.', '')
-            : '-');
-    } elseif (in_array($f['tipo'], ['Agotamiento Estimado', 'Punto de Pedido'], true)) {
-        $stock   = isset($f['stock_actual'])    ? (float)$f['stock_actual']    : 0.0;
-        $rop     = isset($f['rop'])             ? (float)$f['rop']             : 0.0;
-        $ss      = isset($f['stock_seguridad']) ? (float)$f['stock_seguridad'] : 0.0;
-        $pedir   = max(0, (int)ceil($rop - $stock));
-        $detalle = 'Stock: '        . number_format($stock, 2, '.', '')
-            . ' | ROP: '           . number_format($rop,   2, '.', '')
-            . ' | SS: '            . number_format($ss,    2, '.', '')
-            . ' | Dias aut.: '     . number_format((float)($f['dias_autonomia'] ?? 0), 1, '.', '')
-            . ' | LT: '            . ($f['lead_time_dias'] ?? '-') . ' d'
-            . ' | A pedir: '       . $pedir
-            . ' | Modelo: '        . ($f['modelo_usado'] ?? '-');
-    }
-
-    fputcsv($out, [
-        $f['idArticulo'],
-        $f['nombre'] ?? '',
-        $f['tipo'],
-        $f['severidad'],
-        $detalle,
-        $f['posible_causa'] ?? '',
-    ], ';');
+    fputcsv($out, filaCsvPosstock($f), ';');
 }
 
 fclose($out);
