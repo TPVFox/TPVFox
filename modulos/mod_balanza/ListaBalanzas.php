@@ -16,7 +16,12 @@
     $NPaginado = new PluginClasePaginacion(__FILE__);
     $NPaginado->SetCamposControler(array('articulo_name'));
     $NPaginado->SetCampoFiltro('nombreBalanza');
-    $NPaginado->SetOrderConsulta('articulo_name, nombreBalanza');
+    // Por la columna que se pida; si no, por producto y, dentro, por balanza
+    if (isset($_GET['orden']) && $_GET['orden'] != '') {
+        $NPaginado->SetOrderByConsulta($_GET['orden']);
+    } else {
+        $NPaginado->SetOrderConsulta('articulo_name, nombreBalanza');
+    }
     $filtro = $NPaginado->GetFiltroWhere('OR');
     $filtroParams = $NPaginado->GetFiltroParams();
     $cantidadProductos = $CBalanza->contarProductosEnBalanzas($filtro, $filtroParams);
@@ -27,6 +32,12 @@
     $htmlFiltrar = $NPaginado->htmlFiltrar($nombresBalanzas, 'Filtrar por balanza');
     $productosEnBalanzas = $CBalanza->productosEnBalanzas($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
     $productosEnBalanzas = $productosEnBalanzas['datos'];
+    $htmlOrdenarProducto = $NPaginado->htmlOrdenar('articulo_name');
+    $htmlOrdenarReferencia = $NPaginado->htmlOrdenar('crefTienda');
+    $htmlOrdenarBalanza = $NPaginado->htmlOrdenar('nombreBalanza');
+    $htmlOrdenarRelacion = $NPaginado->htmlOrdenar('relacion');
+    $htmlOrdenarTecla = $NPaginado->htmlOrdenar('plu');
+    $htmlOrdenarSeccion = $NPaginado->htmlOrdenar('seccion');
     ?>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_balanza/funciones.js?v=<?php echo filemtime(__DIR__ . '/funciones.js'); ?>"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/tpvfoxSinExport.js"></script>
@@ -92,17 +103,17 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>PRODUCTO</th>
-                            <th>REFERENCIA</th>
+                            <th>PRODUCTO <?php echo $htmlOrdenarProducto; ?></th>
+                            <th>REFERENCIA <?php echo $htmlOrdenarReferencia; ?></th>
                             <th>TIPO</th>
                             <th>PRECIO</th>
-                            <th>BALANZA</th>
+                            <th>BALANZA <?php echo $htmlOrdenarBalanza; ?></th>
                             <th>MODELO</th>
                             <th>SECCIONES</th>
                             <th>SOLO PLUS</th>
-                            <th>EN LA BALANZA</th>
-                            <th>TECLA</th>
-                            <th>SECCIÓN</th>
+                            <th>EN LA BALANZA <?php echo $htmlOrdenarRelacion; ?></th>
+                            <th>TECLA <?php echo $htmlOrdenarTecla; ?></th>
+                            <th>SECCIÓN <?php echo $htmlOrdenarSeccion; ?></th>
                         </tr>
                     </thead>
                     <tbody>
