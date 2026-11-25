@@ -279,6 +279,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                 echo '<br/><br/><a onclick="imprimirSeleccion(' . $idProveedor . ')">Imprimir selección</a>';
                 echo '</div>';
                 echo '<p><span class="label label-warning">&nbsp;</span> En amarillo, sin movimientos en el ejercicio</p>';
+                echo '<p><span class="label label-danger">&nbsp;</span> En rojo, bajo el stock mínimo</p>';
                 echo '<div><h4>Filtrar por estado:</h4>';
                 foreach ($estados_index as $estado) {
                     echo $estado['html_check'];
