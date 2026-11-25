@@ -46,11 +46,9 @@ function guardarConfigPosstock() {
         success: function (response) {
             var resultado = JSON.parse(response);
             if (resultado.error) {
-                var htmlError =
-                    '<div class="alert alert-danger alert-sm">' +
-                    resultado.error +
-                    "</div>";
-                $("#formConfigPosstock").prepend(htmlError);
+                // El error, como texto
+                var aviso = $('<div class="alert alert-danger alert-sm"></div>').text(resultado.error);
+                $("#formConfigPosstock").prepend(aviso);
                 return;
             }
             if (resultado.c3b_dias_post !== undefined)
@@ -89,8 +87,8 @@ function guardarConfigPosstock() {
 
 /** Muestra/oculta la descripción del modelo estadístico en el modal de config. */
 function modalToggleModeloEstadistico() {
-    var v = document.getElementById("modelo_estadistico");
-    var bDesc = document.getElementById("modeloEstadisticoDesc");
+    var v = document.getElementById("modalModeloEstadistico");
+    var bDesc = document.getElementById("modalModeloDesc");
     if (!v || !bDesc) return;
     if (window._modeloDescPosstock && window._modeloDescPosstock[v.value]) {
         bDesc.textContent = window._modeloDescPosstock[v.value];

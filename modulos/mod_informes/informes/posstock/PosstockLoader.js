@@ -22,11 +22,21 @@ import { _posstockEnriquecerC1aConC7b } from "./PosstockEnriquecedor.js";
 
 // ── Helper de error visual ────────────────────────────────────────────────────
 
-/** Muestra un mensaje de error en el área de resultados. */
+/** Escribe un texto como texto dentro del HTML: sus marcas no se interpretan. */
+function _posstockEscaparHtml(valor) {
+    return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+/** Muestra un mensaje de error en el área de resultados, como texto. */
 function _posstockMostrarError(msg) {
     $("#posstockSpinner").hide();
     $("#posstockTablaWrap")
-        .html('<div class="alert alert-danger" role="alert">' + msg + "</div>")
+        .html('<div class="alert alert-danger" role="alert">' + _posstockEscaparHtml(msg) + "</div>")
         .show();
 }
 
@@ -228,7 +238,7 @@ function _posstockRenderLote(filas, periodo, offset) {
  * Devuelve el valor de casos_incluir para enviar al backend.
  * Lee los checkboxes renderizados por PHP en #posstockFilaCasos.
  */
-function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
+function _posstockGetCasosIncluir(tipoIncidenciaAnual, paraExportar) {
     if (tipoIncidenciaAnual) return tipoIncidenciaAnual;
     const seleccionados = [];
     document
@@ -239,7 +249,9 @@ function _posstockGetCasosIncluir(tipoIncidenciaAnual) {
     if (seleccionados.length === 0) return "";
     // C7b-003: si caso1 está seleccionado, incluir siempre caso7b para poder
     // enriquecer las filas C1a con el badge, aunque el usuario no haya marcado caso7b.
+    // Para exportar, solo los casos marcados: lo mismo que enseña la tabla.
     if (
+        !paraExportar &&
         seleccionados.indexOf("caso1") !== -1 &&
         seleccionados.indexOf("caso7b") === -1
     ) {
@@ -261,6 +273,7 @@ window.cargarDatosPosstock = cargarDatosPosstock;
 window.posstockRecargarPorCasos = posstockRecargarPorCasos;
 
 export {
+    _posstockEscaparHtml,
     _posstockMostrarError,
     cargarDatosPosstock,
     _posstockCargaLote,

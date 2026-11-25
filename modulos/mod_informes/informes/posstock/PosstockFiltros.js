@@ -9,7 +9,7 @@
  *   - _htmlFilaFamilia / _htmlFilaProveedor: generadores HTML puros (testables)
  */
 
-import { _posstockMostrarError } from "./PosstockLoader.js";
+import { _posstockMostrarError, _posstockEscaparHtml } from "./PosstockLoader.js";
 
 function _posstockCerrarModal() {
     if (typeof window.cerrarModal === "function") {
@@ -151,10 +151,10 @@ function _htmlFilaFamilia(id, nombre) {
         '<tr data-id="' +
         id +
         '" data-nombre="' +
-        nombre.replace(/"/g, "&quot;") +
+        _posstockEscaparHtml(nombre) +
         '">' +
         "<td>" +
-        nombre +
+        _posstockEscaparHtml(nombre) +
         "</td>" +
         '<td><button type="button" class="btn btn-xs btn-danger" onclick="posstockEliminarFamilia(this)">' +
         '<i class="glyphicon glyphicon-remove"></i></button></td></tr>'
@@ -286,10 +286,10 @@ function _htmlFilaProveedor(id, nombre) {
         '<tr data-id="' +
         id +
         '" data-nombre="' +
-        nombre.replace(/"/g, "&quot;") +
+        _posstockEscaparHtml(nombre) +
         '">' +
         "<td>" +
-        nombre +
+        _posstockEscaparHtml(nombre) +
         "</td>" +
         '<td><button type="button" class="btn btn-xs btn-danger" onclick="posstockEliminarProveedor(this)">' +
         '<i class="glyphicon glyphicon-remove"></i></button></td></tr>'

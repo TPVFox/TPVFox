@@ -39,6 +39,7 @@ function exportarPOSStockCSV() {
         fecha_fin_stock: periodo.fecha_fin_stock,
         casos_incluir: _posstockGetCasosIncluir(
             window.posstockTipoIncidenciaActivo || "",
+            true,
         ),
         tipo_periodo: window.posstockTipoActivo || "",
         min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,
@@ -97,6 +98,7 @@ function imprimirPOSStockPDF() {
             fecha_fin_stock: periodo.fecha_fin_stock,
             casos_incluir: _posstockGetCasosIncluir(
                 window.posstockTipoIncidenciaActivo || "",
+                true,
             ),
             tipo_periodo: window.posstockTipoActivo || "",
             min_ventas_c5: (periodo && periodo.min_ventas_c5) || 3,

@@ -15,6 +15,7 @@
  * Comparador de ordenación para el array de incidencias acumulado entre lotes.
  * El backend ya genera orden_clave para evitar duplicar la lógica de prioridad.
  */
+import { _posstockEscaparHtml } from "./PosstockLoader.js";
 function _posstockSortComparator(a, b) {
     if (a && b && a.orden_clave && b.orden_clave) {
         if (a.orden_clave < b.orden_clave) return -1;
@@ -141,7 +142,7 @@ function _posstockReordenarTabla() {
                 '<i class="glyphicon glyphicon-' +
                 icono +
                 '" style="margin-right:5px;color:#5a7ab5;"></i>' +
-                label +
+                _posstockEscaparHtml(label) +
                 ' &nbsp;<span class="label label-default">' +
                 nGrupo +
                 " artículo" +
