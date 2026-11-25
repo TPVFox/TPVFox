@@ -12,6 +12,9 @@
  */
 class PosstockQueryRepository
 {
+    // Estados de un albarán de proveedor que cuentan como entrada, en todas las consultas
+    private const ESTADOS_ENTRADA = "'Guardado','Facturado','Exportado','Importado'";
+
     public function __construct(private mysqli $db) {}
 
     // SQL HELPERS — Construcción de cláusulas WHERE
@@ -91,7 +94,7 @@ class PosstockQueryRepository
                 INNER JOIN albprot      c ON c.id         = l.idalbpro
                 INNER JOIN articulos    a ON a.idArticulo  = l.idArticulo
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-                  AND c.estado       IN ('Guardado', 'Facturado')
+                  AND c.estado       IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea  = 'Activo'
                   $where_familia
                   $where_ids
@@ -165,7 +168,7 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-                  AND c.estado      IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+                  AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo  IN ($ids_str)
 
@@ -219,7 +222,7 @@ class PosstockQueryRepository
     public function queryArticulosFisicos(string $where_familia): array
     {
         $sentencia = $this->db->query(
-            "SELECT idArticulo FROM articulos a $where_familia"
+            "SELECT idArticulo FROM articulos a WHERE 1=1 $where_familia"
         );
         if (!$sentencia) return ['error' => $this->db->error];
         $filas = [];
@@ -283,7 +286,7 @@ class PosstockQueryRepository
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-              AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+              AND c.estado IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
         ";
@@ -339,7 +342,7 @@ class PosstockQueryRepository
                     SELECT l.idArticulo,  l.nunidades AS nunidades_signo
                     FROM albprolinea l INNER JOIN albprot c ON c.id = l.idalbpro
                     WHERE DATE(c.Fecha) > '$fechaFinEsc'
-                      AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                      AND c.estado IN (" . self::ESTADOS_ENTRADA . ")
                       AND l.estadoLinea = 'Activo'
                       AND l.idArticulo IN ($ids_str)
                     UNION ALL
@@ -604,7 +607,7 @@ class PosstockQueryRepository
             SELECT idProveedor, DATE(Fecha) AS fecha_albaran
             FROM albprot
             WHERE DATE(Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-              AND estado       IN ('Guardado','Facturado','Exportado','Importado')
+              AND estado       IN (" . self::ESTADOS_ENTRADA . ")
               AND idProveedor  IN ($ids_prov)
             GROUP BY idProveedor, DATE(Fecha)
             ORDER BY idProveedor, DATE(Fecha)
@@ -634,7 +637,7 @@ class PosstockQueryRepository
                     FROM albprolinea l
                     INNER JOIN albprot h ON h.id = l.idalbpro
                     WHERE l.idArticulo IN ($ids_str)
-                      AND h.estado IN ('Guardado','Facturado','Exportado','Importado')
+                      AND h.estado IN (" . self::ESTADOS_ENTRADA . ")
                       AND l.estadoLinea = 'Activo'
                 ) ult
                 INNER JOIN albprot cab ON cab.id = ult.idalbpro
@@ -717,7 +720,7 @@ class PosstockQueryRepository
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids)
               AND c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
-              AND c.estado      IN ('Guardado','Facturado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo
         ");
@@ -816,7 +819,7 @@ class PosstockQueryRepository
             INNER JOIN albprot        c ON c.id          = l.idalbpro
             INNER JOIN tmp_timing_c1b t ON t.idArticulo  = l.idArticulo
             WHERE c.Fecha >= t.fi_timing AND c.Fecha < t.ff_timing
-              AND c.estado      IN ('Guardado','Facturado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
         ");
 
@@ -853,7 +856,7 @@ class PosstockQueryRepository
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fi_stock' AND '$fechaFinEsc'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
             GROUP BY l.idArticulo, c.idProveedor
             ORDER BY l.idArticulo, n_albaranes DESC, cantidad_total DESC, ultima_fecha DESC
@@ -905,7 +908,7 @@ class PosstockQueryRepository
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
               AND l.nunidades       > 0
             GROUP BY l.idArticulo
@@ -923,7 +926,8 @@ class PosstockQueryRepository
 
     /**
      * C1 — Delta total y mínimo de la suma acumulada por artículo.
-     * Solo devuelve artículos donde MIN(cum_sum) < 0 OR SUM(day_delta) < 0.
+     * Devuelve todos los artículos con movimientos: si quedan en negativo lo decide el detector
+     * con el stock base sumado, porque un artículo puede empezar el periodo ya en negativo.
      *
      * @return array  Filas raw (idArticulo, delta_total, min_running, fecha_minimo, ...) o ['error' => ...]
      */
@@ -957,7 +961,7 @@ class PosstockQueryRepository
                                 INNER JOIN albprot    c ON c.id        = l.idalbpro
                                 INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
                                 WHERE c.Fecha >= '$fechaInicioEsc 00:00:00' AND c.Fecha < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
-                                  AND c.estado      IN ('Guardado','Facturado')
+                                  AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
                                   AND l.estadoLinea = 'Activo'
                                   $wf $wi
                                 UNION ALL
@@ -985,7 +989,6 @@ class PosstockQueryRepository
                 ) AS with_min
             ) AS windowed
             GROUP BY idArticulo
-            HAVING MIN(cum_sum) < 0 OR SUM(day_delta) < 0
         ";
         $sentencia = $this->db->query($sql);
         if (!$sentencia) return ['error' => $this->db->error];
@@ -1017,7 +1020,7 @@ class PosstockQueryRepository
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
                 WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
                   AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
-                  AND c.estado      IN ('Guardado','Facturado')
+                  AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea = 'Activo'
                   AND l.nunidades       > 0
                   $wf $wi
@@ -1038,7 +1041,7 @@ class PosstockQueryRepository
                         INNER JOIN articulos  a ON a.idArticulo = l.idArticulo
                         WHERE c.Fecha >= '$fechaInicioEsc 00:00:00'
                           AND c.Fecha <  DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
-                          AND c.estado      IN ('Guardado','Facturado')
+                          AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
                           AND l.estadoLinea = 'Activo'
                           $wf $wi
                         UNION ALL
@@ -1130,7 +1133,7 @@ class PosstockQueryRepository
             INNER JOIN albprot c ON c.id = l.idalbpro
             WHERE l.idArticulo IN ($ids_str)
               AND DATE(c.Fecha) BETWEEN '$fi_ext' AND '$fechaInicioEsc'
-              AND c.estado      IN ('Guardado','Facturado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
               AND l.nunidades       > 0
             GROUP BY l.idArticulo, DATE(c.Fecha)
@@ -1230,7 +1233,7 @@ class PosstockQueryRepository
                 INNER JOIN albprot   c ON c.id        = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
                 WHERE c.Fecha >= '$fi_periodo_ts' AND c.Fecha < $ff_m_next
-                  AND c.estado      IN ('Guardado','Facturado')
+                  AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea = 'Activo'
                   $wf $wi
                 GROUP BY l.idArticulo
@@ -1300,7 +1303,7 @@ class PosstockQueryRepository
             INNER JOIN albprot c  ON c.id = l.idalbpro
             INNER JOIN articulos a ON a.idArticulo = l.idArticulo
             WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-              AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea = 'Activo'
               AND l.nunidades > 0
               $wf $wi
@@ -1357,7 +1360,7 @@ class PosstockQueryRepository
                 FROM albprolinea l
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                  AND c.estado IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea = 'Activo'
                   AND l.idArticulo IN ($ids_str)
                 UNION ALL
@@ -1471,7 +1474,7 @@ class PosstockQueryRepository
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE c.Fecha >= '$fechaInicioEsc'
               AND c.Fecha  < DATE_ADD('$ff_post', INTERVAL 1 DAY)
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    > 0
               AND p.estado      != 'Especial'
@@ -1508,7 +1511,7 @@ class PosstockQueryRepository
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE c.Fecha >= '$fechaInicioEsc'
               AND c.Fecha  < DATE_ADD('$ff_post', INTERVAL 1 DAY)
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea  = 'Activo'
               AND l.nunidades    < 0
               AND p.estado      != 'Especial'
@@ -1591,7 +1594,7 @@ class PosstockQueryRepository
             INNER JOIN proveedores p ON p.idProveedor = c.idProveedor
             WHERE c.Fecha >= '$fechaInicioEsc'
               AND c.Fecha  < DATE_ADD('$fechaFinEsc', INTERVAL 1 DAY)
-              AND c.estado      IN ('Guardado','Facturado','Exportado','Importado')
+              AND c.estado      IN (" . self::ESTADOS_ENTRADA . ")
               AND l.estadoLinea  = 'Activo'
               AND p.estado       = 'Especial'
               AND c.id IN (
@@ -1719,7 +1722,7 @@ class PosstockQueryRepository
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 INNER JOIN articulos a ON a.idArticulo = l.idArticulo
                 WHERE DATE(c.Fecha) BETWEEN '$fechaInicioEsc' AND '$fechaFinEsc'
-                  AND c.estado IN ('Guardado','Facturado','Exportado','Importado')
+                  AND c.estado IN (" . self::ESTADOS_ENTRADA . ")
                   AND l.estadoLinea = 'Activo'
                   $where_fam $where_prov
                 UNION

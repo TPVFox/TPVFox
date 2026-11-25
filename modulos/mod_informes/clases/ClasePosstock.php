@@ -292,6 +292,16 @@ class ClasePosstock
      */
     public function getIncidencias(array $params): array
     {
+        // La conexión lanza una excepción cuando falla una consulta: se devuelve como error
+        try {
+            return $this->calcularIncidencias($params);
+        } catch (mysqli_sql_exception $error) {
+            return ['error' => $error->getMessage()];
+        }
+    }
+
+    private function calcularIncidencias(array $params): array
+    {
         $paramsDto = PosstockParamsDTO::fromArray($params);
 
         $fi_mov      = $paramsDto->fecha_inicio_movimientos;
@@ -652,7 +662,7 @@ class ClasePosstock
             foreach ($incidencias as &$incidencia) {
                 if (
                     isset($ids_con_c1a[$incidencia['idArticulo']]) &&
-                    in_array($incidencia['tipo'], ['Rotura de Stock', 'Agotamiento Estimado', 'Punto de Pedido'], true)
+                    in_array($incidencia['tipo'], ['Venta Cero (Posible Rotura Física)', 'Agotamiento Estimado', 'Punto de Pedido'], true)
                 ) {
                     $incidencia['stock_no_fiable'] = true;
                 }
@@ -835,6 +845,16 @@ class ClasePosstock
     }
 
     public function getIncidenciasBatch(array $params, int $inicial, int $pagina): array
+    {
+        // La conexión lanza una excepción cuando falla una consulta: se devuelve como error
+        try {
+            return $this->calcularIncidenciasBatch($params, $inicial, $pagina);
+        } catch (mysqli_sql_exception $error) {
+            return ['error' => $error->getMessage()];
+        }
+    }
+
+    private function calcularIncidenciasBatch(array $params, int $inicial, int $pagina): array
     {
         $paramsDto = PosstockParamsDTO::fromArray($params);
 
