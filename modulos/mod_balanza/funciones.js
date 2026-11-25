@@ -222,12 +222,14 @@ function addPlu(idBalanza) {
     });
   }
 }
-function eliminarPlu(plu, idBalanza) {
+function eliminarPlu(plu, idBalanza, idArticulo) {
   //@Objetivo_eliminar plu
+  // Se manda el producto: con secciones, el mismo número de tecla puede ser de otro
   var parametros = {
     pulsado: "eliminarPlu",
     plu: plu,
     idBalanza: idBalanza,
+    idArticulo: idArticulo,
   };
   $.ajax({
     data: parametros,
@@ -659,8 +661,13 @@ function addArticuloPeso(idArticulo, idBalanza) {
       },
       success: function (response) {
         console.log("addArticuloPeso: respuesta recibida", response);
-        mostrarDatosBalanza(idBalanza);
-        mostrarArticulosPeso(idBalanza);
+        var resultado = $.parseJSON(response);
+        if (resultado["error"]) {
+          alert(resultado["error"]);
+        } else {
+          mostrarDatosBalanza(idBalanza);
+          mostrarArticulosPeso(idBalanza);
+        }
       },
       error: function (xhr, status, error) {
         console.error(

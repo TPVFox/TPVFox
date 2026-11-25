@@ -49,6 +49,10 @@ switch ($pulsado) {
         //Devuelve o los datos de un  producto o el html del modal
         $busqueda = camposBuscar($_POST['campo'], $_POST['busqueda']);
         $result = $CBalanza->buscarArticuloCampo($busqueda);
+        // Sin resultados la consulta no trae lista: se busca en una vacía y se abre el buscador
+        if (!isset($result['datos'])) {
+            $result['datos'] = array();
+        }
         if (count($result['datos']) == 1) {
             $datos = array(
                 'idArticulo' => $result['datos'][0]['idArticulo'],
@@ -76,9 +80,6 @@ switch ($pulsado) {
         //@Objetivo: añadir plu
         $idBalanza = $_POST['idBalanza'];
         $plu = $_POST['plu'];
-        $crefTienda = $_POST['cref'];
-        $articulo_name = $_POST['articulo_name'];
-        $pvpCiva = $_POST['pvpCiva'];
         if (isset($_POST['seccion'])) {
             $seccion = $_POST['seccion'];
         } else {
@@ -89,7 +90,9 @@ switch ($pulsado) {
         $buscarPlu = $CBalanza->buscarPluEnBalanza($plu, $idBalanza);
         $datosBalanza = $CBalanza->datosBalanza($idBalanza);
         $samePlu = [];
-        foreach ($buscarPlu['datos'] as $pluData) {
+        // Una tecla libre no trae filas: se recorre una lista vacía
+        $plusEncontrados = $buscarPlu['datos'] ?? array();
+        foreach ($plusEncontrados as $pluData) {
             if ($datosBalanza['datos'][0]['conSeccion'] == "si") {
                 if ($pluData['plu'] == $plu && $pluData['seccion'] == $seccion) {
                     $samePlu[] = $pluData;
@@ -106,23 +109,29 @@ switch ($pulsado) {
             $respuesta['buscarPlu'] = json_encode($buscarPlu);
         } else {
             $addPlu = $CBalanza->addPlu($plu, $idBalanza, $seccion, $idArticulo);
-            $datos = array(
-                'plu' => $plu,
-                'seccion' => $seccion,
-                'idArticulo' => $idArticulo,
-                'articulo_name' => $articulo_name,
-                'crefTienda' => $crefTienda,
-                'pvpCiva' => $pvpCiva
-            );
-            $html = htmlLineaPlu($datos, $idBalanza);
-            $respuesta['html'] = $html;
+            // La línea, con los datos del producto en la base, como la pinta la ficha
+            $plusBalanza = $CBalanza->pluDeBalanza($idBalanza, 'a.plu');
+            $respuesta['html'] = '';
+            foreach ($plusBalanza['datos'] as $pluBalanza) {
+                if ($pluBalanza['idArticulo'] == $idArticulo && $pluBalanza['plu'] == $plu) {
+                    $respuesta['html'] = htmlLineaPlu($pluBalanza, $idBalanza);
+                }
+            }
         }
         break;
     case 'eliminarPlu':
         //@Objetivo: eliminar plu
         $plu = $_POST['plu'];
         $idBalanza = $_POST['idBalanza'];
-        $eliminar = $CBalanza->eliminarplu($idBalanza, $plu);
+        $idArticulo = isset($_POST['idArticulo']) ? intval($_POST['idArticulo']) : 0;
+        // Con secciones, el número de tecla no basta: hace falta el producto
+        $datosBalanza = $CBalanza->datosBalanza($idBalanza);
+        if ($idArticulo === 0 && $datosBalanza['datos'][0]['conSeccion'] == "si") {
+            $respuesta['success'] = false;
+            $respuesta['mensaje'] = 'No se quita la tecla: falta el producto.';
+            break;
+        }
+        $eliminar = $CBalanza->eliminarplu($idBalanza, $plu, $idArticulo);
 
         if (isset($eliminar['error']) && $eliminar['error'] !== "0") {
             $respuesta['success'] = false;
@@ -247,6 +256,12 @@ switch ($pulsado) {
     case 'eliminarBalanza':
         // Eliminar balanza
         $idBalanza = intval($_POST['idBalanza']);
+        // Con teclas no se elimina: las dejaría sin balanza
+        if ($CBalanza->tienePlusAsociados($idBalanza)) {
+            $respuesta['eliminar'] = array('error' => 'La balanza tiene teclas.');
+            $respuesta['mensaje'] = 'La balanza tiene PLUs asociados, no se puede eliminar.';
+            break;
+        }
         $respuesta['eliminar'] = $CBalanza->eliminarBalanza($idBalanza);
         if (isset($respuesta['eliminar']['error'])) {
             $respuesta['mensaje'] = 'Error al eliminar la balanza: ' . $respuesta['eliminar']['error'];

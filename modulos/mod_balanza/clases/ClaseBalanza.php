@@ -61,7 +61,7 @@ class ClaseBalanza  extends Modelo
          on t.idArticulo=b.idArticulo and t.idTienda =' . $this->idTienda . ' inner join articulosPrecios as p on p.idArticulo=a.idArticulo
          left join proveedores as pro on pro.idProveedor=b.idProveedor
          where a.idBalanza=' . $idBalanza . '
-         order by ' . $filtro . ' asc';
+         order by ' . $filtro . ' asc, a.plu asc';
 
         $plus = $this->consulta($sql);
 
@@ -119,6 +119,11 @@ class ClaseBalanza  extends Modelo
     public function updatePlu($idArticulo, $idBalanza, $plu, $seccion)
     {
         $seccion = intval($seccion);
+        // La tecla tiene que estar libre en su sección, como al añadirla
+        $ocupada = $this->consulta('SELECT idArticulo FROM modulo_balanza_plus WHERE idBalanza = ? AND plu = ? AND seccion = ? AND idArticulo <> ?', array($idBalanza, $plu, $seccion, $idArticulo));
+        if (!empty($ocupada['datos'])) {
+            return ['error' => 'La tecla ' . $plu . ' ya la tiene el producto con id: ' . $ocupada['datos'][0]['idArticulo']];
+        }
         $sql = 'UPDATE `modulo_balanza_plus`
                 SET `plu` = "' . $plu . '", `seccion` = "' . $seccion . '"
                 WHERE `idArticulo` = ' . $idArticulo . ' AND `idBalanza` = ' . $idBalanza;
@@ -139,9 +144,13 @@ class ClaseBalanza  extends Modelo
         return null;
     }
 
-    public function eliminarplu($idBalanza, $plu)
+    public function eliminarplu($idBalanza, $plu, $idArticulo)
     {
-        $sql = 'DELETE FROM `modulo_balanza_plus` WHERE idBalanza=' . $idBalanza . ' and plu="' . $plu . '"';
+        // Con el producto se quita la tecla de ese producto: con secciones, el mismo número puede ser de otro
+        $sql = 'DELETE FROM `modulo_balanza_plus` WHERE idBalanza=' . intval($idBalanza) . ' and plu="' . $plu . '"';
+        if (intval($idArticulo) > 0) {
+            $sql .= ' and idArticulo=' . intval($idArticulo);
+        }
         $consulta = $this->consultaDML($sql);
         if (isset($consulta['error'])) {
             return $consulta;

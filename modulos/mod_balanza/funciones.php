@@ -124,7 +124,7 @@ function htmlLineaPluEditable($plu, $idBalanza)
         . '<td style="white-space:nowrap;">'
         . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" style="margin-right:8px;cursor:pointer;" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
         . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;margin-right:8px;cursor:pointer;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
-        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['plu'] . '\', ' . $idBalanza . ')"></a>'
+        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['plu'] . '\', ' . $idBalanza . ', ' . $plu['idArticulo'] . ')"></a>'
         . '</td>'
         . '</tr>';
     return $nuevaFila;
@@ -206,7 +206,7 @@ function htmlLineaPlu($plu, $idBalanza)
         . '<td>' . $plu['nombrecomercial'] . '</td>'
         . '<td>' . $imagen . '</td>'
         . '<td><a id="eliminar_' . $plu['plu']
-        . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(' . "'" . $plu['plu'] . "'" . ', ' . $idBalanza . ')"></a>'
+        . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(' . "'" . $plu['plu'] . "'" . ', ' . $idBalanza . ', ' . $plu['idArticulo'] . ')"></a>'
         . '</td>' . '</tr>';
 
     return $nuevaFila;
@@ -405,9 +405,9 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect)
             <td>' . number_format($plu['pvpCiva'], 2) . '</td>
             <td>' . $imagen . '</td>
         </tr>';
-        // Comprobamos que va correlatio plu, pero esto es valido plu, pero para seccion ???
         $sigIndice = $indice + 1;
-        if (isset($datosplu[$sigIndice])) {
+        // Solo dentro de la misma sección: con el orden por sección, la siguiente puede ser de otra
+        if (isset($datosplu[$sigIndice]) && $datosplu[$sigIndice]['seccion'] == $datosplu[$indice]['seccion']) {
             // Si hay plu no utilizados mostramos advertencia.
             $resta = $datosplu[$sigIndice]['plu'] - $datosplu[$indice]['plu'];
             if ($resta > 1) {
