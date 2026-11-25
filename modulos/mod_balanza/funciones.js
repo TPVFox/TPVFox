@@ -76,7 +76,12 @@ function AgregarBalanza() {
         console.log("Repuesta de add balanzas");
         var resultado = $.parseJSON(response);
         console.log(resultado);
-        window.location = "ListaBalanzas.php";
+        // Con error, se avisa y se queda en la ficha con sus datos
+        if (resultado["balanza"] && resultado["balanza"]["error"] && resultado["balanza"]["error"] !== "0") {
+          alert("No se dio de alta la balanza: " + resultado["balanza"]["error"]);
+        } else {
+          window.location = "ListaBalanzas.php";
+        }
       },
     });
   } else {
@@ -806,6 +811,8 @@ function guardarConfigAvanzada(idBalanza) {
       },
       success: function (response) {
         var resultado = $.parseJSON(response);
+        console.log("Respuesta de guardar la configuración avanzada", resultado);
+        alert(resultado["mensaje"]);
       },
       error: function () {
         alert("Error de comunicación con el servidor");

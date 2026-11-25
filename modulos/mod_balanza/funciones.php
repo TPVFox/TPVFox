@@ -1,52 +1,39 @@
 <?php
 include_once $RutaServidor . $HostNombre . '/modulos/claseModelo.php';
-function htmlPanelDesplegable($num_desplegable, $titulo, $body, $idBalanza)
+function htmlPanelDesplegable($num_desplegable, $titulo, $body, $abierto = false)
 {
-    // @ Objetivo: Montar html de desplegable con mejor visualización (Bootstrap 3/4 compatible)
+    // @ Objetivo:
+    // Montar html de desplegable, como el de las demás fichas.
+    // @ Parametros:
+    //      $num_desplegable -> (int) que indica el numero deplegable para un correcto funcionamiento.
+    //      $titulo-> (string) El titulo que se muestra en desplegable
+    //      $body-> (String) lo que contiene el desplegable.
+    //      $abierto-> (bool) si se pinta desplegado.
     $collapse = 'collapse' . $num_desplegable;
-    // Mejorado: estructura más limpia, accesibilidad y flexibilidad
-    $html = '<div class="panel panel-default" style="margin-bottom:20px;">'
-        . '<div class="panel-heading" style="background:#f5f5f5;">'
-        . '<h4 class="panel-title" style="font-size:16px;">'
-        . '<a data-toggle="collapse" href="#' . $collapse . '" aria-expanded="true" aria-controls="' . $collapse . '" style="display:block;text-decoration:none;">'
-        . '<span class="glyphicon glyphicon-menu-down" style="margin-right:8px;"></span>'
-        . htmlspecialchars($titulo)
-        . '</a>'
-        . '</h4>'
-        . '</div>'
-        . '<div id="' . $collapse . '" class="panel-collapse collapse in">'
-        . '<div class="panel-body" style="background:#fff;">'
-        . '<div class="row" style="margin-bottom:10px;">'
-        . '  <div class="col-xs-12 col-sm-6" style="padding-bottom:5px;">'
-        . ($idBalanza != 0
-            ? '    <button id="agregar" type="button" class="btn btn-success btn-xs" onclick="mostrarTablaPluAdd(' . $idBalanza . ')">'
-            . '      <span class="glyphicon glyphicon-plus"></span> Añadir'
-            . '    </button>'
-            . '    <button id="mostrarTablaPlus" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaPlus()">'
-            . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar PLUs'
-            . '    </button>'
-            . '    <button id="agregarArtPeso" type="button" class="btn btn-info btn-xs" onclick="mostrarTablaArtPesoAdd(' . $idBalanza . ')">'
-            . '      <span class="glyphicon glyphicon-plus"></span> Añadir Artículo Peso'
-            . '    </button>'
-            . '    <button id="mostrarTablaArtPeso" type="button" class="btn btn-default btn-xs" style="display:none;" onclick="toggleTablaArtPeso()">'
-            . '      <span class="glyphicon glyphicon-eye-open"></span> Mostrar/Ocultar Artículos Peso'
-            . '    </button>'
-            : ''
-        )
-        . '  </div>'
-        . '</div>'
-        . '<div id="addPlu"></div>'
-        . '<div id="addArticuloPeso"></div>'
-        . $body
-        . '</div>'
-        . '</div>'
+    $claseAbierto = '';
+    if ($abierto) {
+        $claseAbierto = ' in';
+    }
+    $html = '<div class="panel panel-default">'
+        .       '<div class="panel-heading">'
+        .           '<h2 class="panel-title">'
+        .           '<a data-toggle="collapse" href="#' . $collapse . '">'
+        .           $titulo . '</a>'
+        .           '</h2>'
+        .       '</div>'
+        .       '<div id="' . $collapse . '" class="panel-collapse collapse' . $claseAbierto . '">'
+        .           '<div class="panel-body">'
+        .               $body
+        .           '</div>'
+        .       '</div>'
         . '</div>';
     return $html;
 }
 
-function htmlTablaPlus($plus, $id)
+function htmlTablaPlus($plus, $id, $soloVer = false)
 {
     // Mejorar visualización tabla PLUs
+    // Para ver, sin los botones de modificar, guardar y quitar
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($id);
     $html = '<div class="table-responsive">'
@@ -55,12 +42,12 @@ function htmlTablaPlus($plus, $id)
         . '<tr>'
         . '<th>Plus</th>'
         . '<th>'
-        . '<a id="btnModificarTodos" class="btn btn-primary btn-xs" onclick="toggleEditarTodos()">'
-        . 'Modificar <span class="glyphicon glyphicon-pencil"></span>'
-        . '</a>'
-        . '<a id="btnGuardarTodos" class="btn btn-success btn-xs" style="display:none;" onclick="guardarTodos(' . $id . ')">'
-        . 'Guardar <span class="glyphicon glyphicon-floppy-disk"></span>'
-        . '</a>'
+        . ($soloVer ? '' : '<a id="btnModificarTodos" class="btn btn-primary btn-xs" onclick="toggleEditarTodos()">'
+            . 'Modificar <span class="glyphicon glyphicon-pencil"></span>'
+            . '</a>'
+            . '<a id="btnGuardarTodos" class="btn btn-success btn-xs" style="display:none;" onclick="guardarTodos(' . $id . ')">'
+            . 'Guardar <span class="glyphicon glyphicon-floppy-disk"></span>'
+            . '</a>')
         . '</th>'
         . '</tr>'
         . '<tr style="background:#f5f5f5;">'
@@ -96,7 +83,7 @@ function htmlTablaPlus($plus, $id)
         . '<tbody>';
     if (count($plus) > 0) {
         foreach ($plus as $item => $valor) {
-            $html .= htmlLineaPluEditable($valor, $id);
+            $html .= htmlLineaPluEditable($valor, $id, $soloVer);
         }
     }
     $html .= '</tbody></table></div>';
@@ -104,7 +91,7 @@ function htmlTablaPlus($plus, $id)
 }
 
 // Nueva función para permitir edición de PLU y Tecla
-function htmlLineaPluEditable($plu, $idBalanza)
+function htmlLineaPluEditable($plu, $idBalanza, $soloVer = false)
 {
     $CBalanza = new ClaseBalanza();
     $Secciones = $CBalanza->usaSecciones($idBalanza);
@@ -122,9 +109,9 @@ function htmlLineaPluEditable($plu, $idBalanza)
         . '<td>' . htmlspecialchars($plu['nombrecomercial']) . '</td>'
         . '<td style="text-align:center;">' . $imagen . '</td>'
         . '<td style="white-space:nowrap;">'
-        . '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" style="margin-right:8px;cursor:pointer;" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
+        . ($soloVer ? '' : '<a id="modificar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-pencil" title="Modificar" style="margin-right:8px;cursor:pointer;" onclick="modificarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
         . '<a id="guardar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-floppy-disk" title="Guardar" style="display:none;margin-right:8px;cursor:pointer;" onclick="guardarPlu(' . $plu['idArticulo'] . ', ' . $idBalanza . ')"></a>'
-        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['plu'] . '\', ' . $idBalanza . ', ' . $plu['idArticulo'] . ')"></a>'
+        . '<a id="eliminar_' . $plu['idArticulo'] . '" class="glyphicon glyphicon-trash" style="color:#d9534f;cursor:pointer;" onclick="eliminarPlu(\'' . $plu['plu'] . '\', ' . $idBalanza . ', ' . $plu['idArticulo'] . ')"></a>')
         . '</td>'
         . '</tr>';
     return $nuevaFila;

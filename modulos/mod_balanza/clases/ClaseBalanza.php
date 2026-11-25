@@ -186,7 +186,8 @@ class ClaseBalanza  extends Modelo
                 SET `plu` = "' . $plu . '", `seccion` = "' . $seccion . '"
                 WHERE `idArticulo` = ' . $idArticulo . ' AND `idBalanza` = ' . $idBalanza;
         $consulta = $this->consultaDML($sql);
-        if (isset($consulta['error'])) {
+        // La sentencia responde «0» si fue bien
+        if ($consulta['error'] !== '0') {
             return $consulta;
         }
         return ['success' => true];
@@ -298,7 +299,8 @@ class ClaseBalanza  extends Modelo
         // Eliminar la balanza
         $sql = 'DELETE FROM `modulo_balanza` WHERE idBalanza = ' . intval($idBalanza);
         $consulta = $this->consultaDML($sql);
-        if (isset($consulta['error'])) {
+        // La sentencia responde «0» si fue bien
+        if ($consulta['error'] !== '0') {
             return $consulta;
         }
         return ['success' => true];
@@ -361,7 +363,8 @@ class ClaseBalanza  extends Modelo
         error_log('guardarConfigAvanzada - SQL: ' . $sql);
 
         $consulta = $this->consultaDML($sql);
-        if (isset($consulta['error'])) {
+        // La sentencia responde «0» si fue bien
+        if ($consulta['error'] !== '0') {
             return $consulta;
         }
         return ['success' => true];
