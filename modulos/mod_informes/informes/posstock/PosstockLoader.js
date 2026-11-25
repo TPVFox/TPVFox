@@ -217,10 +217,10 @@ function _posstockRenderLote(filas, periodo, offset) {
                 $("#posstockSpinner").hide();
                 _posstockResetAgruparProv();
                 if (filas.length > 0) {
-                    $("#posstockBtnExportar, #posstockBtnImprimir, #posstockBtnConteo").show();
+                    $("#posstockBtnExportar, #posstockBtnColumnasCsv, #posstockBtnImprimir, #posstockBtnConteo").show();
                     _posstockIniciarFiltroBadges();
                 } else {
-                    $("#posstockBtnExportar, #posstockBtnImprimir, #posstockBtnConteo").hide();
+                    $("#posstockBtnExportar, #posstockBtnColumnasCsv, #posstockBtnImprimir, #posstockBtnConteo").hide();
                 }
             }
         },

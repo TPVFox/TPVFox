@@ -33,6 +33,12 @@ if (!empty($params['articulos_filtrados'])) {
     $filas   = array_values(array_filter($filas, fn($f) => isset($ids_set[(int)$f['idArticulo']])));
 }
 
+// Los grupos de columnas marcados en la página; si no llegan, todos
+$gruposColumnas = null;
+if (isset($_POST['columnas_csv'])) {
+    $gruposColumnas = array_filter(explode(',', (string) $_POST['columnas_csv']));
+}
+
 // ── Cabeceras HTTP ────────────────────────────────────────────────────────────
 $nombre_fichero = 'posstock_' . date('Ymd') . '.csv';
 header('Content-Type: text/csv; charset=utf-8');
@@ -52,11 +58,11 @@ fputcsv($out, ['Stock base',          $fi_stock . ' - ' . $ff_stock], ';');
 fputcsv($out, ['Generado',            date('Y-m-d H:i:s')], ';');
 fputcsv($out, [], ';'); // línea vacía separadora
 
-// Cabecera de columnas: las seis de siempre y detrás una por cada dato
-fputcsv($out, columnasCsvPosstock(), ';');
+// Cabecera de columnas: las seis de siempre y detrás una por cada dato de los grupos elegidos
+fputcsv($out, columnasCsvPosstock($gruposColumnas), ';');
 
 foreach ($filas as $f) {
-    fputcsv($out, filaCsvPosstock($f), ';');
+    fputcsv($out, filaCsvPosstock($f, $gruposColumnas), ';');
 }
 
 fclose($out);

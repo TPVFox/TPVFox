@@ -2,6 +2,7 @@
 include_once './../../inicial.php';
 include_once $URLCom . '/controllers/parametros.php';
 include_once $URLCom . '/modulos/mod_informes/funciones.php';
+include_once $URLCom . '/modulos/mod_informes/tareas/helpers/exportarPosstock.php';
 include_once $URLCom . '/modulos/mod_informes/tareas/vistas/vistaOpcionesPeriodo.php';
 
 // ── Sesión y permisos ─────────────────────────────────────────────────
@@ -137,6 +138,23 @@ foreach ($tiposParaChks as $ti) {
                             onclick="exportarPOSStockCSV()">
                             <i class="glyphicon glyphicon-download-alt"></i> CSV
                         </button>
+                        <button id="posstockBtnColumnasCsv" type="button"
+                            class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                            style="display:none;" title="Columnas del CSV">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="posstockColumnasCsv" onclick="event.stopPropagation();">
+                            <li class="dropdown-header">Columnas del CSV</li>
+                            <?php foreach (gruposCsvPosstock() as $claveGrupo => $grupoCsv) { ?>
+                                <li>
+                                    <label style="font-weight:normal; padding:3px 15px; display:block;">
+                                        <input type="checkbox" class="posstockColumnaCsv"
+                                            value="<?php echo $claveGrupo; ?>" checked>
+                                        <?php echo htmlspecialchars($grupoCsv['nombre']); ?>
+                                    </label>
+                                </li>
+                            <?php } ?>
+                        </ul>
                         <button id="posstockBtnImprimir" type="button"
                             class="btn btn-default btn-sm" style="display:none;"
                             onclick="imprimirPOSStockPDF()">

@@ -3,47 +3,75 @@
 // resumen— y detrás una columna fija por cada dato, vacía cuando la incidencia no lo tiene, para poder
 // filtrar y ordenar en la hoja de cálculo.
 
-function columnasCsvPosstock()
+function columnasCsvPosstock($grupos = null)
 {
+    // @ Parametros: $grupos -> (array|null) los grupos de columnas elegidos; null, todos
     // @ Devolvemos: (array) los nombres de las columnas, en su orden
     return array_merge(
         array('Articulo', 'Nombre', 'Tipo incidencia', 'Severidad', 'Detalle', 'Posible causa'),
-        array_keys(camposCsvPosstock())
+        array_keys(camposCsvPosstock($grupos))
     );
 }
 
-function camposCsvPosstock()
+function gruposCsvPosstock()
 {
-    // @ Objetivo: cada columna fija, con el campo del motor del que sale y cómo se escribe
+    // @ Objetivo: los grupos de columnas de datos del CSV, con su nombre para la página. Cada columna, con el
+    // campo del motor del que sale y cómo se escribe
     // ('2' -> dos decimales, '1' -> un decimal, 'texto' -> tal cual, 'pedir' -> lo que hay que pedir)
     return array(
-        'Stock' => array('stock_actual', '2'),
-        'Mín. en el periodo' => array('min_balance', '2'),
-        'Stock previo' => array('stock_previo', '2'),
-        'Entrada' => array('nunidades', '2'),
-        'Fecha de entrada' => array('fecha', 'texto'),
-        'Última venta' => array('ultima_venta', 'texto'),
-        'Semanas en almacén' => array('semanas_en_almacen', 'texto'),
-        'Rotura desde' => array('fecha_inicio_rotura', 'texto'),
-        'Rotura hasta' => array('fecha_fin_rotura', 'texto'),
-        'Días de rotura' => array('dias_rotura', 'texto'),
-        'Última salida' => array('ultima_salida', 'texto'),
-        'Semanas desde la última salida' => array('semanas_desde_ultima_salida', 'texto'),
-        'ROP' => array('rop', '2'),
-        'Stock de seguridad' => array('stock_seguridad', '2'),
-        'Días de autonomía' => array('dias_autonomia', '1'),
-        'Plazo de entrega (días)' => array('lead_time_dias', 'texto'),
-        'A pedir' => array('rop', 'pedir'),
-        'Modelo' => array('modelo_usado', 'texto'),
-        'Desfase estimado' => array('offset_estimado', '2'),
-        'Confianza' => array('confianza', 'texto'),
-        'Recepciones' => array('n_recepciones', 'texto'),
-        'Merma total (kg)' => array('merma_total_kg', '2'),
-        '% de merma' => array('pct_merma', '2'),
-        'Merma declarada (kg)' => array('merma_declarada_kg', '2'),
-        'Fecha del último pedido' => array('ultimo_pedido_fecha', 'texto'),
-        'Unidades en el último pedido' => array('ultimo_pedido_unidades', '2'),
+        'stock' => array('nombre' => 'Stock', 'columnas' => array(
+            'Stock' => array('stock_actual', '2'),
+            'Mín. en el periodo' => array('min_balance', '2'),
+        )),
+        'entradas' => array('nombre' => 'Entradas', 'columnas' => array(
+            'Stock previo' => array('stock_previo', '2'),
+            'Entrada' => array('nunidades', '2'),
+            'Fecha de entrada' => array('fecha', 'texto'),
+        )),
+        'ventas' => array('nombre' => 'Ventas y roturas', 'columnas' => array(
+            'Última venta' => array('ultima_venta', 'texto'),
+            'Semanas en almacén' => array('semanas_en_almacen', 'texto'),
+            'Rotura desde' => array('fecha_inicio_rotura', 'texto'),
+            'Rotura hasta' => array('fecha_fin_rotura', 'texto'),
+            'Días de rotura' => array('dias_rotura', 'texto'),
+            'Última salida' => array('ultima_salida', 'texto'),
+            'Semanas desde la última salida' => array('semanas_desde_ultima_salida', 'texto'),
+        )),
+        'pedido' => array('nombre' => 'Punto de pedido', 'columnas' => array(
+            'ROP' => array('rop', '2'),
+            'Stock de seguridad' => array('stock_seguridad', '2'),
+            'Días de autonomía' => array('dias_autonomia', '1'),
+            'Plazo de entrega (días)' => array('lead_time_dias', 'texto'),
+            'A pedir' => array('rop', 'pedir'),
+            'Modelo' => array('modelo_usado', 'texto'),
+        )),
+        'mermas' => array('nombre' => 'Mermas', 'columnas' => array(
+            'Desfase estimado' => array('offset_estimado', '2'),
+            'Confianza' => array('confianza', 'texto'),
+            'Recepciones' => array('n_recepciones', 'texto'),
+            'Merma total (kg)' => array('merma_total_kg', '2'),
+            '% de merma' => array('pct_merma', '2'),
+            'Merma declarada (kg)' => array('merma_declarada_kg', '2'),
+        )),
+        'ultimo_pedido' => array('nombre' => 'Último pedido', 'columnas' => array(
+            'Fecha del último pedido' => array('ultimo_pedido_fecha', 'texto'),
+            'Unidades en el último pedido' => array('ultimo_pedido_unidades', '2'),
+        )),
     );
+}
+
+function camposCsvPosstock($grupos = null)
+{
+    // @ Objetivo: las columnas fijas del CSV, las de los grupos elegidos y en el orden de siempre
+    // @ Parametros: $grupos -> (array|null) las claves de los grupos elegidos; null, todos. Una clave que no
+    // es de un grupo se ignora
+    $campos = array();
+    foreach (gruposCsvPosstock() as $clave => $grupo) {
+        if ($grupos === null || in_array($clave, $grupos, true)) {
+            $campos = array_merge($campos, $grupo['columnas']);
+        }
+    }
+    return $campos;
 }
 
 function aPedirPosstock($f)
@@ -105,9 +133,9 @@ function detalleCsvPosstock($f)
     return $detalle;
 }
 
-function filaCsvPosstock($f)
+function filaCsvPosstock($f, $grupos = null)
 {
-    // @ Objetivo: la fila del CSV de una incidencia, con tantas columnas como la cabecera
+    // @ Objetivo: la fila del CSV de una incidencia, con tantas columnas como la cabecera de esos grupos
     $fila = array(
         $f['idArticulo'] ?? '',
         $f['nombre'] ?? '',
@@ -121,7 +149,7 @@ function filaCsvPosstock($f)
     if (!isset($f['stock_actual']) && isset($f['stock_final'])) {
         $f['stock_actual'] = $f['stock_final'];
     }
-    foreach (camposCsvPosstock() as $columna => $campo) {
+    foreach (camposCsvPosstock($grupos) as $columna => $campo) {
         list($nombre, $forma) = $campo;
         if ($forma === 'pedir') {
             $fila[] = $esPedido ? (string) aPedirPosstock($f) : '';

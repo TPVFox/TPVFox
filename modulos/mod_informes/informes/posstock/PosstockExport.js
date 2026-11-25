@@ -64,6 +64,17 @@ function exportarPOSStockCSV() {
         articulos_filtrados: _posstockGetArticulosFiltrados(),
     };
 
+    // Los grupos de columnas marcados en el desplegable del botón; sin casillas, el CSV entero
+    var casillas = document.querySelectorAll(".posstockColumnaCsv");
+    if (casillas.length) {
+        var grupos = [];
+        casillas.forEach(function (casilla) {
+            if (casilla.checked) grupos.push(casilla.value);
+        });
+        params.columnas_csv = grupos.join(",");
+        console.log("POSStock CSV, grupos de columnas: " + params.columnas_csv);
+    }
+
     var form = document.createElement("form");
     form.method = "POST";
     form.action = "tareas.php";
