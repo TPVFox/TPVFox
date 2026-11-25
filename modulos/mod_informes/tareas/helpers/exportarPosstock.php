@@ -41,6 +41,8 @@ function camposCsvPosstock()
         'Merma total (kg)' => array('merma_total_kg', '2'),
         '% de merma' => array('pct_merma', '2'),
         'Merma declarada (kg)' => array('merma_declarada_kg', '2'),
+        'Fecha del último pedido' => array('ultimo_pedido_fecha', 'texto'),
+        'Unidades en el último pedido' => array('ultimo_pedido_unidades', '2'),
     );
 }
 
@@ -90,6 +92,9 @@ function detalleCsvPosstock($f)
         $detalle = 'Stock: ' . $numero('stock_actual') . ' | ROP: ' . $numero('rop') . ' | SS: ' . $numero('stock_seguridad')
             . ' | Dias aut.: ' . $numero('dias_autonomia', 1) . ' | LT: ' . ($f['lead_time_dias'] ?? '-') . ' d'
             . ' | A pedir: ' . aPedirPosstock($f) . ' | Modelo: ' . ($f['modelo_usado'] ?? '-');
+        if (!empty($f['ultimo_pedido_fecha'])) {
+            $detalle .= ' | Ya pedido el ' . $f['ultimo_pedido_fecha'] . ': ' . $numero('ultimo_pedido_unidades');
+        }
     } elseif ($tipo === 'Merma acumulada' || $tipo === 'Entrada no registrada' || $tipo === 'Posible error de pesaje') {
         $detalle = 'Desfase estimado: ' . $numero('offset_estimado') . ' | Recepciones: ' . ($f['n_recepciones'] ?? '-')
             . (isset($f['confianza']) ? ' | Confianza: ' . $f['confianza'] : '');

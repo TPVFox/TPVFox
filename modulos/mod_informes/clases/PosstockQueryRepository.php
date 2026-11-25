@@ -48,6 +48,37 @@ class PosstockQueryRepository
         return implode(',', $expanded);
     }
 
+    /**
+     * C6b — Las líneas del último pedido guardado de cada proveedor: el de fecha más reciente
+     * (a igual fecha, el de mayor id). Un pedido sin guardar no cuenta.
+     *
+     * @return array  Filas raw (idArticulo, fecha, unidades) o ['error' => ...]
+     */
+    public function queryUltimoPedidoProveedores(string $idsProveedoresCsv): array
+    {
+        $sentencia = $this->db->query("
+            SELECT l.idArticulo, DATE(p.Fecha) AS fecha, SUM(l.nunidades) AS unidades
+            FROM pedprot p
+            INNER JOIN pedprolinea l ON l.idpedpro = p.id
+            WHERE p.idProveedor IN ($idsProveedoresCsv)
+              AND l.estadoLinea = 'Activo'
+              AND p.id = (
+                    SELECT u.id
+                    FROM pedprot u
+                    WHERE u.idProveedor = p.idProveedor
+                      AND u.estado IN ('Guardado','Facturado')
+                    ORDER BY u.Fecha DESC, u.id DESC
+                    LIMIT 1
+              )
+            GROUP BY l.idArticulo, p.id, DATE(p.Fecha)
+            ORDER BY fecha ASC
+        ");
+        if (!$sentencia) return ['error' => $this->db->error];
+        $filas = [];
+        while ($fila = $sentencia->fetch_assoc()) $filas[] = $fila;
+        return $filas;
+    }
+
     /** Construye las cláusulas WHERE de familia (incluir/excluir) para el alias dado. */
     public function familiaWhere(array $incluir, array $excluir, string $alias = 'l'): string
     {

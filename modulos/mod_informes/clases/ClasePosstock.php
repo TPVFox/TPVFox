@@ -571,9 +571,24 @@ class ClasePosstock
             // Marcar si el proveedor seleccionado es el proveedor principal del artículo
             // según articulos.idProveedor (no el estado en articulosProveedores).
             $proveedoresSet = array_flip(array_map('strval', $proveedores_incluir ?: []));
+            // Lo que ya va en el último pedido de cada proveedor elegido: es un aviso, no entra en el cálculo.
+            // Si el producto va en el de dos proveedores, queda el más reciente (las filas vienen por fecha).
+            $ultimoPedido = [];
+            if (!empty($proveedores_incluir)) {
+                $filasPedido = $this->repo->queryUltimoPedidoProveedores($idsProvC6bCsv);
+                if (isset($filasPedido['error'])) return $filasPedido;
+                foreach ($filasPedido as $filaPedido) {
+                    $ultimoPedido[(int)$filaPedido['idArticulo']] = $filaPedido;
+                }
+            }
             foreach ($c6b as &$incidenciaC6b) {
                 $idProvArticulo = (string)($incidenciaC6b['articulo_idProveedor'] ?? '');
                 $incidenciaC6b['proveedor_es_principal'] = isset($proveedoresSet[$idProvArticulo]);
+                $idArticuloC6b = (int)$incidenciaC6b['idArticulo'];
+                if (isset($ultimoPedido[$idArticuloC6b])) {
+                    $incidenciaC6b['ultimo_pedido_fecha']    = $ultimoPedido[$idArticuloC6b]['fecha'];
+                    $incidenciaC6b['ultimo_pedido_unidades'] = (float)$ultimoPedido[$idArticuloC6b]['unidades'];
+                }
             }
             unset($incidenciaC6b);
             $incidencias = array_merge($incidencias, $c6b);

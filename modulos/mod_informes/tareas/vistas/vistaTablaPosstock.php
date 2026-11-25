@@ -1435,8 +1435,17 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 . ($recNegativo ? ' <em class="text-muted">(pedido calc. desde 0)</em>' : '') . '</span>'
                 : ' | Stock: <strong>' . number_format($stockC6, 2, '.', '') . ' ' . $unidad . '</strong>';
 
+            // El producto va en el último pedido del proveedor: se avisa, sin cambiar lo que hay que pedir
+            $badgeC6Pedido = '';
+            if (!empty($f['ultimo_pedido_fecha'])) {
+                $unidadesPedidas = (float)($f['ultimo_pedido_unidades'] ?? 0);
+                $badgeC6Pedido = ' <span class="label label-info" title="El producto va en el último pedido de este proveedor. No se sabe si ya llegó: no se resta de lo que hay que pedir.">Ya pedido el '
+                    . date('d/m/Y', strtotime($f['ultimo_pedido_fecha'])) . ': '
+                    . ($esPeso ? number_format($unidadesPedidas, 2, '.', '') : (int)round($unidadesPedidas)) . ' ' . $unidad . '</span>';
+            }
+
             // L1: badges de diagnóstico (acción principal + alertas)
-            $detalle = $badgeStockNoFiable . $badgeC6Q . $badgeC6Rec;
+            $detalle = $badgeStockNoFiable . $badgeC6Q . $badgeC6Pedido . $badgeC6Rec;
             if ($mostrarTecnico) {
                 $detalle .= ' ' . $badgeC6Modelo . $badgeC6Fuente . $badgeC6LT;
                 $detalle .= ' <small class="text-muted">· ' . htmlspecialchars($c6m['comp']) . '</small>';

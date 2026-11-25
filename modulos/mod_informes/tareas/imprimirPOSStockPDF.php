@@ -120,6 +120,10 @@ foreach ($filas as $f) {
             . ' &middot; LT: '  . (int)($f['lead_time_dias'] ?? 0) . ' d'
             . ' &middot; <b>Pedir: ' . $pedir . '</b>'
             . ' &middot; '      . htmlspecialchars((string)($f['modelo_usado'] ?? ''));
+        if (!empty($f['ultimo_pedido_fecha'])) {
+            $detalle .= ' &middot; Ya pedido el ' . date('d/m/Y', strtotime($f['ultimo_pedido_fecha']))
+                . ': ' . number_format((float)($f['ultimo_pedido_unidades'] ?? 0), 2, ',', '');
+        }
         $detalle_es_html = true;
     } elseif (in_array($f['tipo'], ['Merma acumulada', 'Entrada no registrada', 'Posible error de pesaje'], true)) {
         $detalle = 'Desfase: ' . number_format((float)($f['offset_estimado'] ?? 0), 2, ',', '')
