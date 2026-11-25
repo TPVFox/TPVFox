@@ -77,6 +77,9 @@ switch ($pulsado) {
 	case 'exportarFacturasCsv':
 		include_once $URLCom . '/modulos/mod_proveedor/Tareas/exportarFacturasCsv.php';
 		break;
+	case 'exportarProductosCsv':
+		include_once $URLCom . '/modulos/mod_proveedor/Tareas/exportarProductosCsv.php';
+		break;
 
 	case 'eliminarRefProveedorArticulo':
 		$mod_vista_proveedor = array('modulo' => 'mod_proveedor', 'vista' => 'ListaProveedores.php');

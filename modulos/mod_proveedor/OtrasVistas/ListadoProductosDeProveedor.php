@@ -67,20 +67,9 @@ if ($ProductosPrincipales['NItems'] == 0 && $id) {
     exit;
 }
 if ($ProductosPrincipales['NItems'] > 0) {
-    foreach ($ProductosPrincipales['Items'] as $key => $item) {
-        // Obtenemos datos producto, para añadir nombre Codbarras.
-        $productos[$key] = $CTArticulos->GetProducto($item['idArticulo']);
-        $productos[$key]['es_principal'] = (int)$item['es_principal'];
-        //Costes proveedor.
-        foreach ($productos[$key]['proveedores_costes'] as $pc) {
-            if ($pc['idProveedor'] == $id) {
-                $productos[$key]['costeProveedor'] = $pc['coste'];
-                $productos[$key]['Ref_proveedor'] = $pc['crefProveedor'];
-                $productos[$key]['fecha_actualizacion_proveedor'] = $pc['fechaActualizacion'];
-            }
-        }
-        // Eliminamos atributo array
-        unset($productos[$key]['proveedores_costes']);
+    // Los productos, con el coste y la referencia de este proveedor: los mismos que descarga el CSV
+    $productos = productosDelProveedor($CTArticulos, $ProductosPrincipales['Items'], $idProveedor);
+    foreach ($productos as $key => $producto) {
         $estado = $productos[$key]['estado'];
         // Contamos articulos que tienes el mismo estado.
         if (isset($estados[$estado])) {
@@ -277,6 +266,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                     echo '<strong>Asociados (secundario):</strong> ' . $total_secundarios . '<br/>';
                 }
                 echo '<br/><br/><a onclick="imprimirSeleccion(' . $idProveedor . ')">Imprimir selección</a>';
+                echo '<br/><a onclick="descargarProductosCsv(' . $idProveedor . ')">Descargar CSV</a>';
                 echo '</div>';
                 echo '<p><span class="label label-warning">&nbsp;</span> En amarillo, sin movimientos en el ejercicio</p>';
                 echo '<p><span class="label label-danger">&nbsp;</span> En rojo, bajo el stock mínimo</p>';

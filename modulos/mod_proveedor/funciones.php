@@ -339,3 +339,30 @@ function proveedorDelCierreDeStock($URLCom)
     }
     return intval($cierre->ajustes_globales->proveedor['id']);
 }
+
+function productosDelProveedor($CTArticulos, $items, $idProveedor)
+{
+    // @ Objetivo:
+    // Componer los productos de un proveedor como los enseña su listado: los datos de cada producto, si el
+    // proveedor es su principal, y el coste, la referencia y la fecha de ese proveedor. Lo usan el listado
+    // y su descarga en CSV.
+    // @ Parametros:
+    // $items -> (array) los de ClaseProductos::GetProductosProveedor(), con idArticulo y es_principal.
+    $productos = array();
+    foreach ($items as $key => $item) {
+        // Obtenemos datos producto, para añadir nombre Codbarras.
+        $productos[$key] = $CTArticulos->GetProducto($item['idArticulo']);
+        $productos[$key]['es_principal'] = (int)$item['es_principal'];
+        //Costes proveedor.
+        foreach ($productos[$key]['proveedores_costes'] as $pc) {
+            if ($pc['idProveedor'] == $idProveedor) {
+                $productos[$key]['costeProveedor'] = $pc['coste'];
+                $productos[$key]['Ref_proveedor'] = $pc['crefProveedor'];
+                $productos[$key]['fecha_actualizacion_proveedor'] = $pc['fechaActualizacion'];
+            }
+        }
+        // Eliminamos atributo array
+        unset($productos[$key]['proveedores_costes']);
+    }
+    return $productos;
+}

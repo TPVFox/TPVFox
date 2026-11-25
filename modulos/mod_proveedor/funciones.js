@@ -330,3 +330,28 @@ function limpiarProveedor(idProveedor) {
     },
   });
 }
+
+function descargarProductosCsv(id) {
+  // @ Objetivo:
+  // Descargar en CSV todos los productos del proveedor: envía a tareas.php un formulario oculto, como la
+  // descarga de las facturas.
+  // @ Parametros:
+  // id -> (int) Número del proveedor.
+  console.log("Descargamos en CSV los productos del proveedor " + id);
+  var form = document.createElement("form");
+  form.method = "POST";
+  form.action = "../tareas.php";
+  var orden = document.createElement("input");
+  orden.type = "hidden";
+  orden.name = "pulsado";
+  orden.value = "exportarProductosCsv";
+  form.appendChild(orden);
+  var numero = document.createElement("input");
+  numero.type = "hidden";
+  numero.name = "idProveedor";
+  numero.value = id;
+  form.appendChild(numero);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
