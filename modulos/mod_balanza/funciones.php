@@ -187,10 +187,10 @@ function htmlLineaPlu($plu, $idBalanza)
 
         . '<td>' . $plu['seccion'] . '</td>'
         . '<td>' . $plu['idArticulo'] . '</td>'
-        . '<td>' . $plu['crefTienda'] . '</td>'
-        . '<td>' . $plu['articulo_name'] . '</td>'
+        . '<td>' . escapar($plu['crefTienda']) . '</td>'
+        . '<td>' . escapar($plu['articulo_name']) . '</td>'
         . '<td>' . number_format($plu['pvpCiva'], 2) . '</td>'
-        . '<td>' . $plu['nombrecomercial'] . '</td>'
+        . '<td>' . escapar($plu['nombrecomercial']) . '</td>'
         . '<td>' . $imagen . '</td>'
         . '<td><a id="eliminar_' . $plu['plu']
         . '" class="glyphicon glyphicon-trash" onclick="eliminarPlu(' . "'" . $plu['plu'] . "'" . ', ' . $idBalanza . ', ' . $plu['idArticulo'] . ')"></a>'
@@ -347,8 +347,8 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect)
     $resultado = array();
     $html = "";
     $htmlBalanza = "";
-    $htmlBalanza .= '<p><b>Nombre de balanza: </b>' . $datosBalanza['nombreBalanza'] . '</p>
-    <p><b>Modelo de Balanza: </b>' . $datosBalanza['modelo'] . '</p>
+    $htmlBalanza .= '<p><b>Nombre de balanza: </b>' . escapar($datosBalanza['nombreBalanza']) . '</p>
+    <p><b>Modelo de Balanza: </b>' . escapar($datosBalanza['modelo']) . '</p>
     <p><label>Filtrar por: </label><select id="filtroBalanza" >';
     if ($opcionSelect == 'a.plu') {
         $htmlBalanza .= '<option value="a.plu" onclick="mostrarDatosBalanza(' . $datosBalanza['idBalanza'] . ')">PLU</option>
@@ -403,8 +403,8 @@ function htmlDatosListadoPrincipal($datosBalanza, $datosplu, $opcionSelect)
             <td>' . $plu['plu'] . '</td>
             <td>' . $plu['seccion'] . '</td>
             <td>' . $plu['idArticulo'] . '</td>
-            <td>' . $plu['articulo_name'] . '</td>
-            <td>' . $plu['crefTienda'] . '</td>
+            <td>' . escapar($plu['articulo_name']) . '</td>
+            <td>' . escapar($plu['crefTienda']) . '</td>
             <td>' . number_format($plu['pvpCiva'], 2) . '</td>
             <td>' . $imagen . '</td>
         </tr>';
