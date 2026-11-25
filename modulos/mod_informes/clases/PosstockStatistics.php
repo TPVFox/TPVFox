@@ -131,7 +131,7 @@ class PosstockStatistics
 
         $gaps = [];
         for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            $gap = self::diasEntre($ts[$i - 1], $ts[$i]);
             if ($gap > 0) $gaps[] = (float)$gap;
         }
         if (count($gaps) < 2) return [];
@@ -168,7 +168,7 @@ class PosstockStatistics
 
         $incidencias = [];
         for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            $gap = self::diasEntre($ts[$i - 1], $ts[$i]);
             if ($gap > $umbral_gap) {
                 $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
                 $fin               = $fechas[$i];
@@ -194,7 +194,7 @@ class PosstockStatistics
 
         // Rotura en curso: desde última venta hasta ff_mov.
         // Usar tiempo actual si el período aún no ha finalizado.
-        $dias_final = (int)((min($ff_ts, time()) - $ts[$n - 1]) / 86400);
+        $dias_final = self::diasEntre($ts[$n - 1], min($ff_ts, time()));
         if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
@@ -308,7 +308,7 @@ class PosstockStatistics
         $avg_gap_real = $n > 1 ? $periodo_dias / $n : 1.0;
         $incidencias  = [];
         for ($i = 1; $i < $n; $i++) {
-            $gap = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            $gap = self::diasEntre($ts[$i - 1], $ts[$i]);
             if ($gap > $umbral_gap) {
                 $inicio            = date('Y-m-d', $ts[$i - 1] + $umbral_ceil * 86400);
                 $fin               = $fechas[$i];
@@ -332,7 +332,7 @@ class PosstockStatistics
             }
         }
         // Usar tiempo actual si el período aún no ha finalizado.
-        $dias_final = (int)((min($ff_ts, time()) - $ts[$n - 1]) / 86400);
+        $dias_final = self::diasEntre($ts[$n - 1], min($ff_ts, time()));
         if ($dias_final > $umbral_gap) {
             $inicio_ko    = date('Y-m-d', $ts[$n - 1] + $umbral_ceil * 86400);
             $hoy_ts       = time();
@@ -395,7 +395,7 @@ class PosstockStatistics
         // Gaps entre ventas consecutivas
         $gaps = [];
         for ($i = 1; $i < $n; $i++) {
-            $g = (int)(($ts[$i] - $ts[$i - 1]) / 86400);
+            $g = self::diasEntre($ts[$i - 1], $ts[$i]);
             if ($g > 0) $gaps[] = (float)$g;
         }
 
@@ -659,6 +659,18 @@ class PosstockStatistics
     }
 
     /**
+     * Días naturales entre dos momentos, contados por sus fechas: un cambio de hora por medio
+     * no quita ni añade un día.
+     */
+    private static function diasEntre(int $desde_ts, int $hasta_ts): int
+    {
+        $desde = new DateTime(date('Y-m-d', $desde_ts));
+        $hasta = new DateTime(date('Y-m-d', $hasta_ts));
+        $dias  = (int)$desde->diff($hasta)->days;
+        return $hasta < $desde ? -$dias : $dias;
+    }
+
+    /**
      * Similitud de Jaccard sobre bolsa de palabras (insensible a mayúsculas).
      * Devuelve 0.0–1.0; 1.0 = mismas palabras exactas.
      */
@@ -667,6 +679,8 @@ class PosstockStatistics
         $wa = array_filter(preg_split('/\s+/', mb_strtolower($a)));
         $wb = array_filter(preg_split('/\s+/', mb_strtolower($b)));
         if (empty($wa) || empty($wb)) return 0.0;
+        $wa = array_unique($wa);
+        $wb = array_unique($wb);
         $inter = count(array_intersect($wa, $wb));
         $union = count(array_unique(array_merge($wa, $wb)));
         return $union > 0 ? $inter / $union : 0.0;

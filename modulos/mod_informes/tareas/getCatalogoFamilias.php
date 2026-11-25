@@ -77,7 +77,7 @@ if (count($familias) > 0) {
             <button class="btn btn-primary btn-sm btn-block"
                     onclick="event.stopPropagation(); agregarFamiliaInforme('
             . $familia['idFamilia'] . ', \''
-            . addslashes($familia['familiaNombre']) . '\')">
+            . str_replace('"', '&quot;', addslashes($familia['familiaNombre'])) . '\')">
                 <span class="glyphicon glyphicon-plus"></span> Añadir
             </button>
         </td>';

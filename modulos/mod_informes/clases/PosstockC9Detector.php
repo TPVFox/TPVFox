@@ -26,8 +26,9 @@ class PosstockC9Detector
      *
      * Lote 0: desde fi_mov hasta la primera recepción -1 día; E_0 = stock_base.
      * Lotes 1..n-1: intervalos completos entre recepciones consecutivas del periodo.
-     * Último lote (n-1 en periodo): incluido solo si hay primera recepción post-periodo
-     *   que actúe como cierre; su V_t se limita a ff_mov.
+     * Último lote (n-1 en periodo): se incluye siempre. Con una recepción posterior al periodo,
+     *   sus ventas se cuentan hasta el día anterior a ella (ciclo cerrado); sin ella, hasta ff_mov
+     *   (ciclo abierto: su sobrante no cuenta como merma).
      *
      * @param  array  $recs_art      [{fecha, cantidad, es_post_periodo}] para el artículo
      * @param  array  $timeline_art  [{fecha, day_delta}] para el artículo (timeline limpio)

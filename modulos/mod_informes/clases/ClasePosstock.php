@@ -543,7 +543,7 @@ class ClasePosstock
                 $filasC6b = $this->repo->queryIdsArticulosByProveedoresTodos($idsProvC6bCsv);
                 $ids_c6b  = isset($filasC6b['error']) ? $ids_proveedor_filter : array_column($filasC6b, 'idArticulo');
             } else {
-                $ids_c6b = $ids_proveedor_filter;  // sin filtro de proveedor: comportamiento normal
+                $ids_c6b = $ids_filter;  // sin filtro de proveedor: los productos pedidos, o todos si no se piden
             }
             $c6b = $this->c6->detectar(
                 $ff_hoy,
@@ -710,16 +710,8 @@ class ClasePosstock
         });
 
         // Añadir orden_clave lexicográfica para que el frontend reordene entre lotes
-        // sin duplicar la lógica de negocio de la ordenación.
-        $orden_tipo_media_clave = [
-            'Entrada con stock alto'             => '0',
-            'Venta Cero (Posible Rotura Física)' => '1',
-            'Agotamiento Estimado'               => '2',  // C6a
-            'Punto de Pedido'                    => '2',  // C6b
-            'Riesgo de caducidad teórica'        => '3',
-            'Entrada no registrada'              => '4',  // C7b
-            'Merma acumulada'                    => '4',  // C7a
-        ];
+        // sin duplicar la lógica de negocio de la ordenación: los tipos de las medias
+        // llevan en la clave el mismo orden que en la ordenación ($orden_tipo_media).
 
         // C5: pre-calcular la fecha de inicio de rotura más reciente por artículo
         // para ordenar los grupos de producto de más reciente a más antiguo.
@@ -752,7 +744,7 @@ class ClasePosstock
                 $sub       = ($incidencia['severidad'] === 'MEDIA') ? '2' : '0';
                 $incidencia['orden_clave'] = $sev_idx . $sub . $c6b_shift . $dias_pad . sprintf('%08d', $incidencia['idArticulo']);
             } elseif ($incidencia['severidad'] === 'MEDIA') {
-                $sub = $orden_tipo_media_clave[$incidencia['tipo']] ?? '9';
+                $sub = $orden_tipo_media[$incidencia['tipo']] ?? 9;
                 $incidencia['orden_clave'] = $sev_idx . $sub . sprintf('%08d', $incidencia['idArticulo']);
             } elseif ($incidencia['severidad'] === 'BAJA') {
                 if ($incidencia['tipo'] === 'Entrada sin rotación previa') {

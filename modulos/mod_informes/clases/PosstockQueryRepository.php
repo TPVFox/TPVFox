@@ -20,8 +20,8 @@ class PosstockQueryRepository
     // SQL HELPERS — Construcción de cláusulas WHERE
 
     /**
-     * Expande una lista de idFamilia a todos sus descendientes usando
-     * vw_jerarquias_familias (idN1, idN2 capturan hijos de nivel 1 y 2).
+     * Expande una lista de idFamilia a todos sus descendientes, del nivel que sean:
+     * baja por las familias hijas hasta que no quedan.
      * Devuelve el IN-clause listo para SQL, o '' si la lista está vacía.
      */
     public function expandirFamilias(array $ids): string
@@ -29,17 +29,22 @@ class PosstockQueryRepository
         if (empty($ids)) return '';
         $in = $this->convertirIdsEnterosACsv($ids);
         if ($in === '') return '';
-        $sentencia = $this->db->query("
-            SELECT DISTINCT idFamilia
-            FROM vw_jerarquias_familias
-            WHERE idFamilia IN ($in)
-               OR idN1      IN ($in)
-               OR idN2      IN ($in)
-        ");
-        if (!$sentencia) return $in; // fallback: usar IDs originales
-        $expanded = [];
-        while ($fila = $sentencia->fetch_assoc()) $expanded[] = (int)$fila['idFamilia'];
-        if (empty($expanded)) return $in; // fallback: familia no encontrada en jerarquía
+        $expanded = array_map('intval', explode(',', $in));
+        $nivel    = $expanded;
+        while (!empty($nivel)) {
+            $sentencia = $this->db->query(
+                "SELECT idFamilia FROM familias WHERE familiaPadre IN (" . implode(',', $nivel) . ")"
+            );
+            if (!$sentencia) break; // fallback: lo expandido hasta aquí
+            $nivel = [];
+            while ($fila = $sentencia->fetch_assoc()) {
+                $idFamilia = (int)$fila['idFamilia'];
+                if (!in_array($idFamilia, $expanded, true)) {
+                    $expanded[] = $idFamilia;
+                    $nivel[]    = $idFamilia;
+                }
+            }
+        }
         return implode(',', $expanded);
     }
 

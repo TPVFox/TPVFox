@@ -28,6 +28,16 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
     $anio   = (int)$anio;
     $numero = (int)$numero;
 
+    // Un número fuera de los periodos del tipo no da periodo (la semana se comprueba al final,
+    // porque su total depende del año)
+    $periodos_del_tipo = ['quincena' => 24, 'mes' => 12, 'trimestre' => 4, 'cuatrimestre' => 3, 'semestre' => 2];
+    if (isset($periodos_del_tipo[$tipo]) && ($numero < 1 || $numero > $periodos_del_tipo[$tipo])) {
+        return null;
+    }
+    if ($tipo === 'semana' && $numero < 1) {
+        return null;
+    }
+
     $meses_cortos = [
         '',
         'Ene',
@@ -90,6 +100,7 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
             // Total de semanas del año con este sistema
             $dias_restantes = (int)$fin_sem1->diff($dec31)->days;
             $total_periodos = 1 + (int)ceil($dias_restantes / 7);
+            if ($numero > $total_periodos) return null;
 
             $label_mov = 'Semana ' . $numero . ' ('
                 . $inicio->format('d ') . $meses_cortos[(int)$inicio->format('n')]
@@ -255,7 +266,7 @@ function calcularPeriodoPosstock($tipo, $numero, $anio)
 
 function getHtmlTitulo($cabecera)
 {
-    $html = '<h1>' . $cabecera['titulo_informe'] . '<h1>';
+    $html = '<h1>' . htmlspecialchars($cabecera['titulo_informe'], ENT_QUOTES) . '</h1>';
     return $html;
 }
 function getRangoFechas($cabecera)
