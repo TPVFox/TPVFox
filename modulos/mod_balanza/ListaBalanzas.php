@@ -41,7 +41,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-center">
-                <h2> Balanzas: Editar y Añadir Balanzas </h2>
+                <h2> Productos en balanzas </h2>
             </div>
             <nav class="col-sm-2" id="myScrollspy">
                 <h4> Balanzas</h4>
@@ -80,8 +80,14 @@
             <div class="col-md-10">
                 <p>-Productos en balanzas encontrados: <?php echo $cantidadProductos; ?></p>
                 <?php echo $htmlPG; ?>
-                <?php echo $htmlBuscar; ?>
-                <?php echo $htmlFiltrar; ?>
+                <div class="row">
+                    <div class="col-md-6">
+                        <?php echo $htmlBuscar; ?>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <?php echo $htmlFiltrar; ?>
+                    </div>
+                </div>
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
