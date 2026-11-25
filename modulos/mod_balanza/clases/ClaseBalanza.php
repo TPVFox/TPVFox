@@ -40,6 +40,64 @@ class ClaseBalanza  extends Modelo
         }
     }
 
+    public function productosEnBalanzas($filtro, $params = array())
+    {
+        // @ Objetivo:
+        // Los productos de todas las balanzas, una fila por producto y balanza: con tecla, principal;
+        // y en las que no son «solo PLUs», los productos al peso sin tecla, secundario.
+        // @ Parametros:
+        // $filtro -> (string) El WHERE, el orden y el límite del plugin de paginación, con un ? por valor.
+        // $params -> (array) Los valores de $filtro.
+        // @ Devolvemos:
+        // (array) Las filas en ['datos'], vacío si no hay ninguna.
+        $sql = 'SELECT * FROM (' . $this->consultaProductosEnBalanzas() . ') AS lineas ' . $filtro;
+        $respuesta = $this->consulta($sql, $params);
+        if (!isset($respuesta['datos'])) {
+            $respuesta['datos'] = array();
+        }
+        return $respuesta;
+    }
+
+    public function contarProductosEnBalanzas($filtro, $params = array())
+    {
+        // @ Objetivo:
+        // Contar las filas de productosEnBalanzas() con el mismo filtro, para la paginación.
+        // @ Devolvemos:
+        // (int) Las filas.
+        $sql = 'SELECT COUNT(*) AS total FROM (' . $this->consultaProductosEnBalanzas() . ') AS lineas ' . $filtro;
+        $respuesta = $this->consulta($sql, $params);
+        $total = 0;
+        if (isset($respuesta['datos'][0]['total'])) {
+            $total = (int) $respuesta['datos'][0]['total'];
+        }
+        return $total;
+    }
+
+    private function consultaProductosEnBalanzas()
+    {
+        // @ Objetivo:
+        // La consulta que junta las teclas de todas las balanzas y los productos al peso sin tecla de las
+        // que no son «solo PLUs», de la tienda principal, para paginarlas juntas.
+        $idTienda = intval($this->idTienda);
+        $sql = "SELECT a.idArticulo, a.articulo_name, t.crefTienda, a.tipo, p.pvpCiva, b.idBalanza, b.nombreBalanza,
+                b.modelo, b.conSeccion, b.soloPLUS, 'Principal' AS relacion, k.plu, k.seccion
+                FROM modulo_balanza_plus AS k
+                INNER JOIN modulo_balanza AS b ON b.idBalanza = k.idBalanza
+                INNER JOIN articulos AS a ON a.idArticulo = k.idArticulo
+                INNER JOIN articulosTiendas AS t ON t.idArticulo = a.idArticulo AND t.idTienda = " . $idTienda . "
+                LEFT JOIN articulosPrecios AS p ON p.idArticulo = a.idArticulo AND p.idTienda = " . $idTienda . "
+                UNION ALL
+                SELECT a.idArticulo, a.articulo_name, t.crefTienda, a.tipo, p.pvpCiva, b.idBalanza, b.nombreBalanza,
+                b.modelo, b.conSeccion, b.soloPLUS, 'Secundario' AS relacion, NULL AS plu, NULL AS seccion
+                FROM articulos AS a
+                INNER JOIN articulosTiendas AS t ON t.idArticulo = a.idArticulo AND t.idTienda = " . $idTienda . "
+                INNER JOIN modulo_balanza AS b ON b.soloPLUS = 0
+                LEFT JOIN articulosPrecios AS p ON p.idArticulo = a.idArticulo AND p.idTienda = " . $idTienda . "
+                WHERE a.tipo = 'peso'
+                AND NOT EXISTS (SELECT 1 FROM modulo_balanza_plus AS k WHERE k.idBalanza = b.idBalanza AND k.idArticulo = a.idArticulo)";
+        return $sql;
+    }
+
     public function todasBalanzas()
     {
         $sql = 'SELECT * from modulo_balanza';

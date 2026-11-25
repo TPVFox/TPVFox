@@ -256,6 +256,13 @@ switch ($pulsado) {
     case 'eliminarBalanza':
         // Eliminar balanza
         $idBalanza = intval($_POST['idBalanza']);
+        // Con el mismo permiso con el que el listado ofrece eliminar
+        $mod_vista_balanza = array('modulo' => 'mod_balanza', 'vista' => 'ListaBalanzas.php');
+        if (!isset($ClasePermisos) || $ClasePermisos->getAccion('crear', $mod_vista_balanza) != 1) {
+            $respuesta['eliminar'] = array('error' => 'Sin permiso.');
+            $respuesta['mensaje'] = 'No tienes permiso para eliminar balanzas.';
+            break;
+        }
         // Con teclas no se elimina: las dejaría sin balanza
         if ($CBalanza->tienePlusAsociados($idBalanza)) {
             $respuesta['eliminar'] = array('error' => 'La balanza tiene teclas.');
