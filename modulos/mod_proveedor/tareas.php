@@ -9,6 +9,7 @@ include_once $URLCom . '/modulos/mod_proveedor/funciones.php';
 include_once $URLCom . '/modulos/mod_incidencias/clases/ClaseIncidencia.php';
 include_once($URLCom . "/modulos/mod_proveedor/clases/ClaseProveedor.php");
 include_once $URLCom . '/modulos/mod_producto/clases/ClaseProductos.php';
+include_once $URLCom . '/controllers/parametros.php';
 $NCArticulo = new ClaseProductos($BDTpv);
 $CProveedor = new ClaseProveedor($BDTpv);
 $CIncidencia = new ClaseIncidencia($BDTpv);
@@ -157,6 +158,20 @@ switch ($pulsado) {
 				'estado' => $estado,
 				'idArticulo' => $idProducto
 			);
+		}
+		break;
+
+	case 'comprobarLimpiezaProveedor':
+	case 'limpiarProveedor':
+		// Limpiar un proveedor: solo el administrador, y sin documentos del ejercicio
+		if (!puedeLimpiarProveedor($ClasePermisos ?? null, $Usuario ?? array())) {
+			$respuesta = array('error' => 'Solo el administrador puede limpiar un proveedor.');
+			break;
+		}
+		$idProveedor = isset($_POST['idProveedor']) ? intval($_POST['idProveedor']) : 0;
+		$respuesta = comprobarLimpiezaProveedor($CProveedor, $idProveedor, proveedorDelCierreDeStock($URLCom));
+		if ($pulsado === 'limpiarProveedor' && !isset($respuesta['error'])) {
+			$respuesta = $CProveedor->limpiarProveedor($idProveedor, $BDTpv, $CIncidencia);
 		}
 		break;
 }

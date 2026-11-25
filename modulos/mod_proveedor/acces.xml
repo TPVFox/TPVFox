@@ -4,6 +4,7 @@
         <accion nombre="crear" descripcion="Añadir Proveedor" permiso="0"></accion>
         <accion nombre="modificar" descripcion="Modificar Proveedor" permiso="0"></accion>
         <accion nombre="ver" descripcion="Ver Proveedor" permiso="0"></accion>
+        <accion nombre="Limpiar" descripcion="Limpiar proveedor (solo administrador)" permiso="0"></accion>
     </vista>
     <vista nombre="proveedor.php" descripcion="Proveedor" permiso="0">
     </vista>

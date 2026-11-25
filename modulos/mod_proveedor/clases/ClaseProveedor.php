@@ -55,6 +55,113 @@ class ClaseProveedor extends TFModelo
         return $this->consulta($sql);
     }
 
+    public function documentosDelEjercicio($idProveedor)
+    {
+        // @ Objetivo:
+        // Contar los pedidos, albaranes y facturas del proveedor, también los temporales, en esta base: la
+        // del ejercicio en curso.
+        // @ Devolvemos:
+        // (array) nombre del documento => cantidad, solo los que tiene.
+        $tablas = array(
+            'pedido' => 'pedprot',
+            'pedido temporal' => 'pedprotemporales',
+            'albarán' => 'albprot',
+            'albarán temporal' => 'albproltemporales',
+            'factura' => 'facprot',
+            'factura temporal' => 'facproltemporales'
+        );
+        $documentos = array();
+        foreach ($tablas as $nombre => $tabla) {
+            $respuesta = $this->consulta('SELECT COUNT(*) AS cantidad FROM ' . $tabla . ' WHERE idProveedor = ?', array(intval($idProveedor)));
+            $cantidad = isset($respuesta['datos'][0]['cantidad']) ? intval($respuesta['datos'][0]['cantidad']) : 0;
+            if ($cantidad > 0) {
+                $documentos[$nombre] = $cantidad;
+            }
+        }
+        return $documentos;
+    }
+
+    public function relacionesConProductos($idProveedor)
+    {
+        // @ Objetivo:
+        // Los productos de los que el proveedor es el principal, y sus relaciones con productos —costes y
+        // referencias—, sean o no el principal.
+        // @ Devolvemos:
+        // (array) 'principales' => lista de productos, 'relaciones' => lista de costes y referencias.
+        $principales = $this->consulta('SELECT idArticulo, articulo_name FROM articulos WHERE idProveedor = ?', array(strval(intval($idProveedor))));
+        $relaciones = $this->consulta('SELECT idArticulo, crefProveedor, coste FROM articulosProveedores WHERE idProveedor = ?', array(intval($idProveedor)));
+        return array(
+            'principales' => $principales['datos'] ?? array(),
+            'relaciones' => $relaciones['datos'] ?? array()
+        );
+    }
+
+    public function limpiarProveedor($idProveedor, $conexion, $CIncidencia)
+    {
+        // @ Objetivo:
+        // Dejar el proveedor como un hueco disponible: sin relación con los productos, sin sus datos,
+        // inactivo, «Baja», «Hueco disponible», con una incidencia de lo quitado. Todo o nada: en una
+        // transacción, que vuelve a comprobar que no tiene documentos del ejercicio.
+        // @ Parametros:
+        // $idProveedor -> (int) el proveedor; $conexion -> la conexión de la petición; $CIncidencia -> la
+        // clase de incidencias sobre esa conexión.
+        // @ Devolvemos:
+        // (array) 'mensaje' con lo quitado, o 'error'.
+        $id = intval($idProveedor);
+        $anterior = ModeloP::usarConexion($conexion);
+        $conexion->begin_transaction();
+        try {
+            $documentos = $this->documentosDelEjercicio($id);
+            if (count($documentos) > 0) {
+                throw new Exception(textoDocumentosProveedor($documentos));
+            }
+            $proveedor = $this->consulta('SELECT nombrecomercial, razonsocial, nif FROM proveedores WHERE idProveedor = ?', array($id));
+            $relaciones = $this->relacionesConProductos($id);
+            $escrituras = array(
+                'UPDATE articulos SET idProveedor = NULL WHERE idProveedor = ?' => array(strval($id)),
+                'DELETE FROM articulosProveedores WHERE idProveedor = ?' => array($id),
+                "UPDATE proveedores SET nombrecomercial = 'Baja', razonsocial = 'Hueco disponible', nif = '', direccion = '',"
+                    . " telefono = NULL, fax = NULL, movil = NULL, email = NULL, registro_sanitario = NULL, estado = 'inactivo' WHERE idProveedor = ?" => array($id)
+            );
+            foreach ($escrituras as $sql => $params) {
+                if ($this->consultaDML($sql, $params) === false) {
+                    throw new Exception('No se pudo limpiar el proveedor.');
+                }
+            }
+            // La constancia: quién era y lo que se quitó. Si no cabe en la incidencia, los números de los productos.
+            $datos = array(
+                'idProveedor' => $id,
+                'proveedor' => $proveedor['datos'][0] ?? array(),
+                'principales' => $relaciones['principales'],
+                'relaciones' => $relaciones['relaciones']
+            );
+            $json = json_encode($datos);
+            if (strlen($json) > 10000) {
+                $datos['principales'] = array_column($relaciones['principales'], 'idArticulo');
+                $datos['relaciones'] = array_column($relaciones['relaciones'], 'idArticulo');
+                $json = json_encode($datos);
+            }
+            if (strlen($json) > 10000) {
+                $datos['principales'] = count($relaciones['principales']);
+                $datos['relaciones'] = count($relaciones['relaciones']);
+                $json = json_encode($datos);
+            }
+            $mensaje = 'Limpieza del proveedor ' . $id . ': ' . count($relaciones['principales']) . ' productos como principal y '
+                . count($relaciones['relaciones']) . ' relaciones con productos quitadas.';
+            $incidencia = $CIncidencia->addIncidencia('mod_proveedores', $json, $mensaje, '1', 0);
+            if (isset($incidencia['error'])) {
+                throw new Exception('No se pudo guardar la incidencia de la limpieza.');
+            }
+            $conexion->commit();
+            $respuesta = array('mensaje' => $mensaje);
+        } catch (\Throwable $e) {
+            $conexion->rollback();
+            $respuesta = array('error' => $e->getMessage());
+        }
+        ModeloP::usarConexion($anterior);
+        return $respuesta;
+    }
+
     public function getProveedorCompleto($id)
     {
         // @ Objetivo:

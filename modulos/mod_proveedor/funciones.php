@@ -276,3 +276,66 @@ function mostrarResumenProveedor($proveedor, $resumen, $bgclass)
     $html .= '</div>';
     return $html;
 }
+
+function puedeLimpiarProveedor($ClasePermisos, $Usuario)
+{
+    // @ Objetivo:
+    // Limpiar un proveedor es solo del administrador: el permiso «Limpiar» y, además, el grupo 9, así
+    // concederlo a otro usuario no le sirve.
+    $mod_vista_proveedor = array('modulo' => 'mod_proveedor', 'vista' => 'ListaProveedores.php');
+    return isset($ClasePermisos) && $ClasePermisos->getAccion('Limpiar', $mod_vista_proveedor) == 1
+        && isset($Usuario['group_id']) && $Usuario['group_id'] == 9;
+}
+
+function textoDocumentosProveedor($documentos)
+{
+    // @ Objetivo:
+    // El aviso de los documentos del ejercicio que impiden limpiar un proveedor.
+    $partes = array();
+    foreach ($documentos as $nombre => $cantidad) {
+        $partes[] = $cantidad . ' ' . $nombre;
+    }
+    return 'Tiene documentos en el ejercicio: ' . implode(', ', $partes) . '. No se puede limpiar.';
+}
+
+function comprobarLimpiezaProveedor($CProveedor, $idProveedor, $idCierreStock)
+{
+    // @ Objetivo:
+    // Comprobar si un proveedor se puede limpiar —existe, no es el del cierre de stock y no tiene
+    // documentos del ejercicio— y decir cuántos productos lo tienen como principal y como asociado.
+    // @ Devolvemos:
+    // (array) 'principales' y 'asociados', o 'error'.
+    $proveedor = $CProveedor->consulta('SELECT idProveedor FROM proveedores WHERE idProveedor = ?', array(intval($idProveedor)));
+    if (empty($proveedor['datos'])) {
+        return array('error' => 'El proveedor no existe.');
+    }
+    if (intval($idProveedor) === intval($idCierreStock)) {
+        return array('error' => 'Es el proveedor del cierre de stock anual de la configuración: no se puede limpiar.');
+    }
+    $documentos = $CProveedor->documentosDelEjercicio($idProveedor);
+    if (count($documentos) > 0) {
+        return array('error' => textoDocumentosProveedor($documentos));
+    }
+    $relaciones = $CProveedor->relacionesConProductos($idProveedor);
+    $principales = array_column($relaciones['principales'], 'idArticulo');
+    $asociados = 0;
+    foreach ($relaciones['relaciones'] as $relacion) {
+        if (!in_array($relacion['idArticulo'], $principales)) {
+            $asociados++;
+        }
+    }
+    return array('principales' => count($principales), 'asociados' => $asociados);
+}
+
+function proveedorDelCierreDeStock($URLCom)
+{
+    // @ Objetivo:
+    // El proveedor del cierre de stock anual, como lo lee el cierre: la configuración de mod_reorganizacion,
+    // con la copia de la instalación delante.
+    $parametros = new ClaseParametros($URLCom . '/modulos/mod_reorganizacion/parametros.xml');
+    $cierre = $parametros->getNodeInternBySection('configuracion', 'cierre_stock_anual');
+    if ($cierre === null || !isset($cierre->ajustes_globales->proveedor['id'])) {
+        return 0;
+    }
+    return intval($cierre->ajustes_globales->proveedor['id']);
+}

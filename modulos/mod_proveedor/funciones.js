@@ -283,3 +283,50 @@ function descargarFacturasCsv(id) {
   form.submit();
   document.body.removeChild(form);
 }
+
+function comprobarLimpiezaProveedor(idProveedor) {
+  // @ Objetivo
+  // Limpiar un proveedor: pedir lo que se quitaría, enseñarlo y, si se confirma, pedir la limpieza.
+  $.ajax({
+    data: { pulsado: "comprobarLimpiezaProveedor", idProveedor: idProveedor },
+    url: "tareas.php",
+    type: "post",
+    success: function (response) {
+      var resultado = $.parseJSON(response);
+      console.log(resultado);
+      if (resultado.error) {
+        alert(resultado.error);
+        return;
+      }
+      var texto = "Se va a limpiar el proveedor " + idProveedor + ":\n\n"
+        + "- Deja de ser el proveedor principal de " + resultado.principales + " productos.\n"
+        + "- Se quitan sus costes y referencias, también de " + resultado.asociados + " productos de los que solo es asociado.\n"
+        + "- Sus datos se vacían y queda inactivo, «Baja», «Hueco disponible».\n\n"
+        + "Los productos no se borran. Esto no se puede deshacer desde el programa. ¿Seguir?";
+      if (!confirm(texto)) {
+        return;
+      }
+      limpiarProveedor(idProveedor);
+    },
+  });
+}
+
+function limpiarProveedor(idProveedor) {
+  // @ Objetivo
+  // Pedir la limpieza ya confirmada y decir lo que pasó.
+  $.ajax({
+    data: { pulsado: "limpiarProveedor", idProveedor: idProveedor },
+    url: "tareas.php",
+    type: "post",
+    success: function (response) {
+      var resultado = $.parseJSON(response);
+      console.log(resultado);
+      if (resultado.error) {
+        alert(resultado.error);
+        return;
+      }
+      alert(resultado.mensaje);
+      window.location.href = "proveedor.php?id=" + idProveedor;
+    },
+  });
+}

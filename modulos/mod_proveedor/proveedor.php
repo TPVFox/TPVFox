@@ -130,6 +130,9 @@ if ($id == 0) {
 		<form action="" method="post" name="formProveedor">
 			<a class="text-ritght" href="./ListaProveedores.php">Volver Atrás</a>
 			<a class="btn btn-warning" onclick="abrirModalIndicencia('<?php echo $dedonde; ?>' , configuracion , 0, <?php echo $id; ?>);">Añadir Incidencia </a>
+			<?php if (intval($id) > 0 && puedeLimpiarProveedor($ClasePermisos ?? null, $Usuario ?? array())) { ?>
+				<a class="btn btn-danger" onclick="comprobarLimpiezaProveedor(<?php echo intval($id); ?>);">Limpiar proveedor</a>
+			<?php } ?>
 			<?php
 			if ($input_disabled == '') {
 			?>
