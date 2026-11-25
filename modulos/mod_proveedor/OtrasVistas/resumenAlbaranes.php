@@ -27,12 +27,14 @@ if (isset($_GET['id'])) {
         $titulo = 'Resumen Albaranes';
     }
 } else {
-    $errores[1] = array(
-        'tipo' => 'DANGER!',
-        'dato' => '',
-        'class' => 'alert alert-danger',
-        'mensaje' => 'Error no se ha enviado el id del proveedor'
-    );
+    // Sin el número del proveedor no hay nada que consultar: se avisa y se termina
+    echo '<!DOCTYPE html><html><head>';
+    include_once $URLCom . '/head.php';
+    echo '</head><body>';
+    include_once $URLCom . '/modulos/mod_menu/menu.php';
+    echo '<div class="alert alert-danger"><strong>DANGER! </strong> Error no se ha enviado el id del proveedor</div>';
+    echo '</body></html>';
+    exit;
 }
 if (isset($_POST['porfechas'])) {
     //Cuando se envia por fechas se comprueba que las fechas estan bien escritas y que están las dos

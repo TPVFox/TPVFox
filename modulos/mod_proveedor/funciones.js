@@ -170,10 +170,9 @@ function SeleccionarTodos() {
 }
 
 function imprimirSeleccion(id) {
-  if (
-    $(".table tbody input").is(":checked") &&
-    $(".table tbody input").not([(style = "display:none")])
-  ) {
+  // Solo se imprime lo que se ve: lo que el filtro esconde se desmarca antes
+  $(".table tbody tr:hidden input").prop("checked", false);
+  if ($(".table tbody input").is(":checked")) {
     var idProductos = TfObtenerCheck("chekArticulo");
     var parametros = {
       pulsado: "imprimirListadoProductos",

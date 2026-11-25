@@ -27,9 +27,17 @@ if (isset($_GET['sentidoorden'])) {
 } else {
     $sentidoOrden = 'ASC';
 }
+// El orden, de los campos de las cabeceras; si no, por nombre
+$camposOrden = array('articulo_name', 'crefProveedor', 'fechaActualizacion', 'a.estado');
+if (!in_array($campoOrden, $camposOrden, true)) {
+    $campoOrden = 'articulo_name';
+}
+if ($sentidoOrden !== 'DESC') {
+    $sentidoOrden = 'ASC';
+}
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+if (isset($_GET['id']) && intval($_GET['id']) > 0) {
+    $id = intval($_GET['id']);
     $idProveedor = (int)$id; // ID del proveedor protegido frente a sobreescrituras de bucles internos
     $datosProveedor = $CProveedor->getProveedor($id);
     if (isset($datosProveedor['error'])) {
@@ -43,12 +51,14 @@ if (isset($_GET['id'])) {
         $titulo = 'Listado de Productos como principal Proveedor:';
     }
 } else {
-    $errores[1] = array(
-        'tipo' => 'DANGER!',
-        'dato' => '',
-        'class' => 'alert alert-danger',
-        'mensaje' => 'Error no se ha enviado el id del proveedor'
-    );
+    // Sin el número del proveedor no hay nada que consultar: se avisa y se termina
+    echo '<!DOCTYPE html><html><head>';
+    include_once $URLCom . '/head.php';
+    echo '</head><body>';
+    include_once $URLCom . '/modulos/mod_menu/menu.php';
+    echo '<div class="alert alert-danger"><strong>DANGER! </strong> Error no se ha enviado el id del proveedor</div>';
+    echo '</body></html>';
+    exit;
 }
 $ProductosPrincipales = $id ? $CTArticulos->GetProductosProveedor($id, $campoOrden, $sentidoOrden) : ['NItems' => 0];
 if ($ProductosPrincipales['NItems'] == 0 && $id) {
@@ -106,10 +116,10 @@ $i = 0;
 foreach ($estados as $estado => $cantidad) {
     // Recuerda que la estado en texto pueden ser varias palabras, por eso ponemos index
     $html = '<div class="checkbox">
-                        <label title="' . $estado . '">
+                        <label title="' . escapar($estado) . '">
                         <input type="checkbox" value="1" id="Check' . $i
         . '" onchange="filtroEstado(this,' . $i . ')"checked>'
-        . $estado . '<span class="badge">' . $cantidad . '</span>
+        . escapar($estado) . '<span class="badge">' . $cantidad . '</span>
                     </label>
                     </div>';
     $estados_index[] = array('nombre' => $estado, 'cantidad_productos' => $cantidad, 'html_check' => $html);
@@ -183,10 +193,10 @@ if (count($familiasProductos) > 0) {
             $familia = $familiasProductos[$id];
             $clases_padres = htmlNombreClasesLinea($familiasProductos[$id]['ascendentes'], 'Padre');
             $html_familias .= '
-                    <label title="' . $familia['familiaNombre'] . '">
+                    <label title="' . escapar($familia['familiaNombre']) . '">
                     <input type="checkbox" class="' . $clases_padres . '" value="1" id="Familia_' . $familia['idFamilia']
                 . '" onchange="filtroFamilias(this,' . $familia['idFamilia'] . ')'
-                . '" checked="">' . $familia['familiaNombre'] . ' </label>';
+                . '" checked="">' . escapar($familia['familiaNombre']) . ' </label>';
         }
         $html_familias .= '----------------------------------------' . '<br/>';
         $html_familias .= '</div>';
@@ -210,7 +220,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
     echo $script_ObjVirtuemart
     ?>
     <script src="<?php echo $HostNombre; ?>/lib/js/tpvfoxSinExport.js"></script>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js?v=<?php echo filemtime(__DIR__ . '/../funciones.js'); ?>"></script>
 
 </head>
 
@@ -220,7 +230,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
     if (isset($errores)) {
         foreach ($errores as $error) {
             echo '<div class="' . $error['class'] . '">'
-                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje'] . ' <br>Sentencia: ' . $error['dato']
+                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje']
                 . '</div>';
         }
     }
@@ -249,12 +259,12 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                 echo $Controler->getHtmlLinkVolver() . '<br/>';
                 echo '<div>';
                 echo '<h4>Datos del proveedor</h4>';
-                echo '<strong>Nombre Comercial:</strong>' . $datosProveedor['datos'][0]['nombrecomercial'] . '<br/>';
-                echo '<strong>Razon Social:</strong>' . $datosProveedor['datos'][0]['razonsocial'] . '<br/>';
-                echo '<strong>email:</strong>' . $datosProveedor['datos'][0]['email'] . '<br/>';
-                echo '<strong>Telefono:</strong>' . $datosProveedor['datos'][0]['telefono'] . '<br/>';
-                echo '<strong>fax:</strong>' . $datosProveedor['datos'][0]['fax'] . '<br/>';
-                echo '<strong>movil:</strong>' . $datosProveedor['datos'][0]['movil'] . '<br/>';
+                echo '<strong>Nombre Comercial:</strong>' . escapar($datosProveedor['datos'][0]['nombrecomercial']) . '<br/>';
+                echo '<strong>Razon Social:</strong>' . escapar($datosProveedor['datos'][0]['razonsocial']) . '<br/>';
+                echo '<strong>email:</strong>' . escapar($datosProveedor['datos'][0]['email']) . '<br/>';
+                echo '<strong>Telefono:</strong>' . escapar($datosProveedor['datos'][0]['telefono']) . '<br/>';
+                echo '<strong>fax:</strong>' . escapar($datosProveedor['datos'][0]['fax']) . '<br/>';
+                echo '<strong>movil:</strong>' . escapar($datosProveedor['datos'][0]['movil']) . '<br/>';
                 echo '</div>';
                 echo '<div>';
                 echo '<h4>Otros Datos</h4>';
@@ -299,7 +309,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                             <th>Precio</th>
                             <th>Código de Barras</th>
                             <th>Stock</th>
-                            <?php $icon = obtenerIconoOrden($campoOrden, $sentidoOrden, 'articulo_name'); ?>
+                            <?php $icon = obtenerIconoOrden($campoOrden, $sentidoOrden, 'a.estado'); ?>
                             <th class="ordenar" data-campo="a.estado">Estado
                                 <?php echo $icon; ?>
                             </th>
@@ -329,19 +339,20 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                             $link_mayor = '<a class="glyphicon glyphicon-list" target="_blank" href="./../../mod_producto/DetalleMayor.php?idArticulo='
                                 . $producto['idArticulo'] . '"></a>';
 
-                            if (number_format($producto['stocks']['stockOn'], 0) < $producto['stocks']['stockMin']) {
+                            if ($producto['stocks']['stockOn'] < $producto['stocks']['stockMin']) {
                                 $lineaRoja = 'danger';
                             } else {
                                 $lineaRoja = $producto['es_principal'] ? '' : 'active';
                             }
                             $htmlFamilia = "";
                             $claseFamilias = "";
+                            // El estado de cada producto, tenga o no familias
+                            $idEstado = obtenerIndexEstado($estados_index, $producto['estado']);
                             foreach ($producto['familias'] as $familia) {
-                                $idEstado = obtenerIndexEstado($estados_index, $producto['estado']);
                                 $idFamilia = $familia['idFamilia'];
                                 $claseFamilias = htmlNombreClasesLinea($familiasProductos[$idFamilia]['ascendentes'], ' Familia');
                                 $claseFamilias .= ' Familia_' . $familia['idFamilia'];
-                                $htmlFamilia  .= '<span class="label label-info">' . $familia['familiaNombre'] . '</span>';
+                                $htmlFamilia  .= '<span class="label label-info">' . escapar($familia['familiaNombre']) . '</span>';
                             }
                             $badge_principal = !$producto['es_principal']
                                 ? ' <span class="label label-default" title="Este proveedor no es el proveedor principal de este artículo">Secundario</span>'
@@ -355,15 +366,15 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                                 <td><input type="checkbox" class="chekArticulo" name="chekArticulo" value="' . $producto['idArticulo'] . '">
                                 <td>' . $producto['idArticulo'] . '</td>
                                 <td>' . $link_producto . '</td>
-                                <td>' . $producto['articulo_name'] . $badge_principal . '<br>' . $htmlFamilia . '</td>
+                                <td>' . escapar($producto['articulo_name']) . $badge_principal . '<br>' . $htmlFamilia . '</td>
                                 <td>' . number_format($producto['ultimoCoste'], 2) . '</td>
-                                <td>' . $producto['Ref_proveedor'] . '</td>
+                                <td>' . escapar($producto['Ref_proveedor']) . '</td>
                                 <td>' . number_format($producto['costeProveedor'], 2) . '</td>
-                                <td>' . $producto['fecha_actualizacion_proveedor'] . '</td>
+                                <td>' . escapar($producto['fecha_actualizacion_proveedor']) . '</td>
                                 <td>' . number_format($producto['pvpCiva'], 2) . '€</td>
                                 <td>';
                             foreach ($producto['codBarras'] as $codBarras) {
-                                echo $codBarras . '   ';
+                                echo escapar($codBarras) . '   ';
                             }
                             echo '</td>
                                 <td>';
@@ -374,7 +385,7 @@ if ($CTArticulos->SetPlugin('ClaseVirtuemart') !== false) {
                                 echo '<p>' . number_format($producto['stocks']['stockOn'], 0) . '</p>';
                             }
                             echo '</td>
-                                <td>' . $producto['estado'] . '</td>
+                                <td>' . escapar($producto['estado']) . '</td>
                                 <td>' . $link_mayor . '</td>
                                 <td id="idProducto_estadoWeb_' . $producto['idArticulo'] . '" class="icono_web despublicado">';
 
