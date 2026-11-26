@@ -21,7 +21,7 @@ function htmlProveedores($busqueda, $dedonde, $idcaja, $proveedores = array())
     $resultado['encontrados'] = count($proveedores);
     $resultado['html'] = '<label>Busqueda Proveedor en ' . $dedonde . '</label>'
         . '<input id="cajaBusquedaproveedor" name="valorproveedor" placeholder="Buscar"'
-        . 'size="13" data-obj="cajaBusquedaproveedor" value="' . $busqueda
+        . 'size="13" data-obj="cajaBusquedaproveedor" value="' . htmlspecialchars($busqueda, ENT_QUOTES)
         . '" onkeydown="controlEventos(event)" type="text">';
 
     if (count($proveedores) > 10) {
@@ -31,6 +31,7 @@ function htmlProveedores($busqueda, $dedonde, $idcaja, $proveedores = array())
         . ' <th></th> <th>Nombre</th><th>Razon social</th><th>NIF</th></thead><tbody>';
     if (count($proveedores) > 0) {
         $contador_inactivo = 0;
+        $pintados = 0;
         foreach ($proveedores as $key => $proveedor) {
             $clase_inactiva = '';
             if ($proveedor['estado'] == 'inactivo') {
@@ -48,9 +49,10 @@ function htmlProveedores($busqueda, $dedonde, $idcaja, $proveedores = array())
                 . '<span  class="glyphicon glyphicon-plus-sign agregar"></span></td>'
                 . '<td>' . htmlspecialchars($proveedor['nombrecomercial'], ENT_QUOTES) . '</td>'
                 . '<td>' . htmlentities($proveedor['razonsocial'], ENT_QUOTES) . '</td>'
-                . '<td>' . $proveedor['nif'] . '</td>'
+                . '<td>' . htmlspecialchars($proveedor['nif'], ENT_QUOTES) . '</td>'
                 . '</tr>';
-            if ($key === 10) {
+            $pintados++;
+            if ($pintados === 10) {
                 // Solo mostramos 10 como máximo.
                 break;
             }
@@ -158,14 +160,16 @@ function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda, $dedonde
     // Obtener listado de produtos despues de busqueda.
     $cantidad_productos = count($productos);
     $html = '';
+    // El campo va dentro de una cadena de JavaScript: se escapan la barra, la comilla y los signos de etiqueta
+    $campoParaJs = str_replace(array('\\', "'", '<', '>'), array('\\\\', "\\'", '\\x3C', '\\x3E'), (string) $campoAbuscar);
     // Cambiamos valor parametro campo para que busque correctamente.
     $html = "<script type='text/javascript'>
-            cajaBusquedaproductos.parametros.campo=" . "'" . $campoAbuscar . "';" . "
+            cajaBusquedaproductos.parametros.campo=" . "'" . $campoParaJs . "';" . "
             </script>";
-    $html .= '<label>Busqueda por ' . $id_input . '</label>' .
-        '<input id="cajaBusqueda" name="' . $id_input . '" placeholder="Buscar"
+    $html .= '<label>Busqueda por ' . htmlspecialchars($id_input, ENT_QUOTES) . '</label>' .
+        '<input id="cajaBusqueda" name="' . htmlspecialchars($id_input, ENT_QUOTES) . '" placeholder="Buscar"
             data-obj="cajaBusquedaproductos" size="13" value="'
-        . $busqueda . '" onkeydown="controlEventos(event)" type="text">';
+        . htmlspecialchars($busqueda, ENT_QUOTES) . '" onkeydown="controlEventos(event)" type="text">';
     if ($cantidad_productos > 10) {
         $html .= '<span>10 productos de ' . $cantidad_productos . '</span>';
     }
@@ -243,9 +247,10 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
     $producto['ultimoCoste'] = floatval($producto['ultimoCoste']);
     $codBarra = "";
     $cant = number_format($producto['nunidades'], 3);
-    $importe = $producto['ultimoCoste'] * $producto['nunidades'];
-    $importe = number_format($importe, 2);
-    $importeIva = number_format(($importe) + ($importe * ($producto['iva'] / 100)), 2);
+    // El importe con IVA se calcula sobre el número: el texto lleva separador de miles
+    $importeNumero = $producto['ultimoCoste'] * floatval($producto['nunidades']);
+    $importe = number_format($importeNumero, 2);
+    $importeIva = number_format($importeNumero + ($importeNumero * (floatval($producto['iva']) / 100)), 2);
     $classtr = '';
     $estadoInput = '';
     $funcOnclick = ' eliminarFila(' . $producto['nfila'] . ' , ' . "'" . $dedonde . "'" . ');';
@@ -253,7 +258,7 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
     $html_numeroDoc = ''; // Valor por defecto.
     $coste = number_format($producto['ultimoCoste'], 4);
     $html_coste = $coste;
-    $html_descripcion = '<td class="detalle">' . $producto['cdetalle'] . '</td>';
+    $html_descripcion = '<td class="detalle">' . htmlspecialchars((string) $producto['cdetalle'], ENT_QUOTES) . '</td>';
     // Si hay valor de ccodbar lo ponemos en variable.
     if (isset($producto['ccodbar'])) {
         if ($producto['ccodbar'] > 0) {
@@ -304,7 +309,7 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
         // Al ser un pedido permitimos editar la descripcion
         $html_descripcion = '<td><input id="Descripcion_Fila_'
             . $producto['nfila'] . '" type="text" data-obj="Descripcion_Fila" '
-            . 'name="descripcion[]" value="' . $producto['cdetalle'] . '" size=40  onkeydown="controlEventos(event)" '
+            . 'name="descripcion[]" value="' . htmlspecialchars((string) $producto['cdetalle'], ENT_QUOTES) . '" size=40  onkeydown="controlEventos(event)" '
             . 'onBlur="controlEventos(event)"' . $solo_lectura . '></td>';
     }
     // ================== Montamos td de referencia de filaProveedor ========================
@@ -319,7 +324,7 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
         // Existe -- Ahora compruebo si tiene datos.
         if (strlen($producto['ref_prov']) > 0) {
             $displayRefProv = 'text-align: right'; // Para mostrar btn_ref_prov
-            $ref_prov = 'value="' . $producto['ref_prov'] . '"';
+            $ref_prov = 'value="' . htmlspecialchars((string) $producto['ref_prov'], ENT_QUOTES) . '"';
         }
     }
     if ($solo_lectura === '') {
@@ -341,8 +346,8 @@ function htmlLineaProducto($producto, $dedonde, $solo_lectura = '')
         . '<td class="linea">' . $producto['nfila'] . '</td>'
         . $html_numeroDoc
         . '<td class="idArticulo">' . $producto['idArticulo'] . '</td>'
-        . '<td class="referencia">' . $producto['cref'] . '</td>' . $filaProveedor
-        . '<td class="codbarras">' . $codBarra . '</td>'
+        . '<td class="referencia">' . htmlspecialchars((string) $producto['cref'], ENT_QUOTES) . '</td>' . $filaProveedor
+        . '<td class="codbarras">' . htmlspecialchars((string) $codBarra, ENT_QUOTES) . '</td>'
         . $html_descripcion
         . '<td><input class="unidad" id="Unidad_Fila_' . $producto['nfila']
         . '" type="text" data-obj="Unidad_Fila"  '
@@ -796,7 +801,7 @@ function cancelarPedido($idTemporal, $BDTpv)
             'tipo' => 'Info!',
             'dato' => '',
             'class' => 'alert alert-info',
-            'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+            'mensaje' => 'Sólo se pueden cancelar los pedidos Temporales'
         );
     }
     return $error;
@@ -858,7 +863,7 @@ function cancelarAlbaran($idTemporal, $BDTpv)
             'tipo' => 'Info!',
             'dato' => '',
             'class' => 'alert alert-info',
-            'mensaje' => 'Sólo se pueden cancelar las facturas Temporales'
+            'mensaje' => 'Sólo se pueden cancelar los albaranes Temporales'
         );
     }
     return $error;
@@ -967,6 +972,10 @@ function modalIncidenciasAdjuntas($datos)
 {
     $html = "";
     foreach ($datos as $dato) {
+        // Lo que viene de la incidencia se pinta como texto
+        foreach ($dato as $campo => $valor) {
+            $dato[$campo] = htmlspecialchars((string) $valor, ENT_QUOTES);
+        }
         $html .= <<<EOD
 <div class="col-md-12"><h4>Incidencia:</h4><div class="col-md-6"><label>Fecha:</label>
 <input type="date" name="inci_fecha" id="inci_fecha" value="$dato[fecha_creacion]" readonly=""></div>
