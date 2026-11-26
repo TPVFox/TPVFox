@@ -28,7 +28,7 @@ function controladorAcciones(caja, accion, tecla) {
             ponerFocus(ObtenerFocusDefectoEntradaLinea());
           }
         } else {
-          if ((valor = "")) {
+          if (caja.darValor() === "") {
             alert("NO HAS INTRODUCIDO NINGÚN COSTE");
           } else {
             productos[nfila].CosteAnt = costeAnt;

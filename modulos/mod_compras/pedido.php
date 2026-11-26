@@ -200,7 +200,7 @@ if (isset($_POST['Guardar']) && count($errores) === 0) {
                 $errores,
                 $Cpedido->montarAdvertencia(
                     'warning',
-                    '<strong>Se guardo el id:' . $guardar['id_guardar'] . ' </strong>  <br>'
+                    '<strong>Se guardo el id:' . $guardar['id_guardo'] . ' </strong>  <br>'
                         . 'Ojo que puede generar un duplicado'
                 )
             );

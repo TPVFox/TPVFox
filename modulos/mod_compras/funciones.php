@@ -890,7 +890,7 @@ function htmlImporteFactura($datos, $BDTpv)
     $respuesta['html'] .= '<tr><td>' . $datos['importe'] . '</td>'
         . '<td>' . $datos['fecha'] . '</td>'
         . '<td>' . $datosPago['descripcion'] . '</td>'
-        . '<td>' . $datos['referencia'] . '</td>'
+        . '<td>' . htmlspecialchars((string) $datos['referencia'], ENT_QUOTES) . '</td>'
         . '<td>' . $datos['pendiente'] . '</td></tr>';
     return $respuesta;
 }
@@ -997,7 +997,7 @@ function modalIncidenciasAdjuntas($datos)
 <div class="col-md-6"><label>Usuario:</label>
 <input type="text" name="usuario" id="usuario" value="$dato[id_usuario]" readonly=""></div></div>
 <div class="col-md-12"><div class="col-md-6"><label>Datos:</label>
-<textarea rows="4" cols="20" readonly> $dato[datos]</textarea>'</div>
+<textarea rows="4" cols="20" readonly> $dato[datos]</textarea></div>
 <div class="col-md-6"><label>Mensaje:</label>
 <textarea rows="4" cols="20" readonly> $dato[mensaje]</textarea>
 </div></div>

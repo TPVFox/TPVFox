@@ -213,7 +213,7 @@ function modalImportarAlbaranes(){
         success    :  function (response) {
                 console.log('Respuesta de mostrar modal para cambiar estado albaran ');
                 var resultado = $.parseJSON(response);
-                var titulo = 'Cambiar estado Albaranes ';
+                var titulo = 'Importar albaranes';
                 abrirModal(titulo,resultado.html);
 
         }
@@ -600,8 +600,8 @@ function AntesAgregarFilaProducto(datos,dedonde,fecha_actualizacion,coste_tabla_
     if (datos.ultimoCoste == 0 || datos.ultimoCoste == null ){
         datos.getCoste(coste_tabla_articulo);
         // Si contesta NO, no lo añade al dedonde
-        var nlen = dedonde.length-1; // le quito la ultima letra, para que no ponga (s)
-        var txtDonde = dedonde.substring(0, nlen);
+        // El documento llega en singular (pedido, albaran, factura): se nombra entero
+        var txtDonde = dedonde;
         opcion = confirm("¡OJO!\nEste producto es NUEVO para este proveedor \n Si (cancelas) no lo añade al "+ txtDonde);
     }
     if (opcion === true){
@@ -816,6 +816,8 @@ function cambioEstadoFila(producto,dedonde=""){
         $(line).addClass('tachado');
         $(line + "> .eliminar").html('<a onclick="retornarFila('+producto.nfila+', '+"'"+dedonde+"'"+');"><span class="glyphicon glyphicon-export"></span></a>');
         $("#N" +producto.nfila + "_Unidad").prop("disabled", true);
+        // La caja de unidades de la línea, que es la que existe
+        $("#Unidad_Fila_" + producto.nfila).prop("disabled", true);
 
     } else {
         $(line).removeClass('tachado');
@@ -1002,6 +1004,8 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
     //  num_item -> El numero que indica el producto que modificamos.
     console.log('Entre recalculoImporte:'+cantidad,num_item)
 
+    // Las unidades que tenía la línea, para saber después si se recupera
+    var unidadesAntes = productos[num_item].nunidades;
     productos[num_item].nunidades = cantidad;
     productos[num_item].importe =parseFloat(productos[num_item].ultimoCoste)*cantidad;
     var N_fila = '#N'+productos[num_item].nfila;
@@ -1012,7 +1016,7 @@ function recalculoImporte(cantidad, num_item, dedonde=""){
     $(N_fila+'_ImporteIva').html(importeIva.toFixed(2));
 
     // Comprobamos que cantidad y nunidades para saber si activamos o desactivamos linea
-    if (productos[num_item].nunidades == 0 && cantidad != 0) {
+    if (unidadesAntes == 0 && cantidad != 0) {
         retornarFila(num_item+1, dedonde);
     } else if (cantidad == 0 ) {
         eliminarFila(num_item+1, dedonde);

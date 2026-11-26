@@ -46,12 +46,18 @@ class FacturasCompras extends ClaseCompras
         //@Objetivo:
         //Mostrar solo los datos principales de todas las facturas
         $db = $this->db;
-        $smt = (new DB($db))->pquery('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
+        $facturaPrincipal = array();
+        try {
+            $smt = (new DB($db))->pquery('SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado FROM `facprot` as a LEFT JOIN proveedores as b on
 		 a.idProveedor=b.idProveedor ');
-        $facturaPrincipal = array();
-        while ($result = $smt->fetch_assoc()) {
-            array_push($facturaPrincipal, $result);
+            while ($result = $smt->fetch_assoc()) {
+                array_push($facturaPrincipal, $result);
+            }
+        } catch (\Throwable $e) {
+            // Un fallo de la base se dice, y no rompe la página
+            error_log('mod_compras TodosFactura: ' . $e->getMessage());
+            $facturaPrincipal['error'] = $e->getMessage();
         }
         return $facturaPrincipal;
     }
@@ -68,12 +74,18 @@ class FacturasCompras extends ClaseCompras
         $sql = 'SELECT a.id , a.Numfacpro , a.Fecha , b.nombrecomercial,
 		a.total, a.estado, a.idProveedor, a.Su_num_factura FROM `facprot` as a LEFT JOIN proveedores as b on
 		a.idProveedor=b.idProveedor ' . $limite;
-        $smt = (new DB($db))->pquery($sql, $params);
         $pedidosPrincipal = array();
-        while ($result = $smt->fetch_assoc()) {
-            array_push($pedidosPrincipal, $result);
-        }
         $resultado = array();
+        try {
+            $smt = (new DB($db))->pquery($sql, $params);
+            while ($result = $smt->fetch_assoc()) {
+                array_push($pedidosPrincipal, $result);
+            }
+        } catch (\Throwable $e) {
+            // Un fallo de la base se dice en el listado, y no rompe la página
+            error_log('mod_compras TodosFacturaLimite: ' . $e->getMessage());
+            $resultado['error'] = $e->getMessage();
+        }
         $resultado['Items'] = $pedidosPrincipal;
         $resultado['consulta'] = $sql;
         return $resultado;

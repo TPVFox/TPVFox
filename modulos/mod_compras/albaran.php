@@ -108,11 +108,11 @@ if ($idDocumento > 0) {
             echo '<script>alert("No se permite editar, ya que alguien esta editandolo, ya que hay un temporal");</script>';
         }
     } else {
-        if (count($temporales) > 0) {
-            array_push(
-                $errores,
-                $CAlb->montarAdvertencia('danger', $temporales)
-            );
+        // La comprobación devuelve sus avisos ya montados: se añade cada uno, con su texto
+        foreach ($temporales as $avisoTemporal) {
+            if (is_array($avisoTemporal) && isset($avisoTemporal['mensaje'])) {
+                array_push($errores, $avisoTemporal);
+            }
         }
     }
 }

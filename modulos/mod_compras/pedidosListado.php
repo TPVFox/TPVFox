@@ -22,6 +22,10 @@ if (isset($todoTemporal['error'])) {
     );
 }
 
+if (isset($todoTemporal['error'])) {
+    // Con un error no hay temporales que enseñar
+    $todoTemporal = array();
+}
 $todoTemporal = array_reverse($todoTemporal);
 
 // ===========    Paginacion  ====================== //
@@ -54,7 +58,7 @@ $htmlOrdenarFecha = $NPaginado->htmlOrdenar('a.Fecha');
 $htmlOrdenarNumPed = $NPaginado->htmlOrdenar('a.Numpedpro');
 //GUardamos un array con los datos de los albaranes real pero solo el número de albaranes indicado
 $p = $Cpedido->TodosPedidosLimite($filtro . $NPaginado->GetLimitConsulta(), $filtroParams);
-$pedidosDef = $p['Items'];
+$pedidosDef = isset($p['Items']) ? $p['Items'] : array();
 if (isset($p['error'])) {
     $errores[1] = array(
         'tipo' => 'Danger!',
@@ -88,12 +92,10 @@ if (count($pedidosDef) == 0) {
     include_once $URLCom . '/modulos/mod_menu/menu.php';
     if (isset($errores)) {
         foreach ($errores as $error) {
+            // El aviso, sin la sentencia de la base, y la página sigue
             echo '<div class="' . $error['class'] . '">'
-                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje'] . ' <br> ' . $error['dato']
+                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje']
                 . '</div>';
-            if ($error['tipo'] == 'Danger!') {
-                exit;
-            }
         }
     }
     ?>

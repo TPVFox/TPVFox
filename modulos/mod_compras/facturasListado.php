@@ -87,7 +87,7 @@ if (count($ListadoFacturas) == 0) {
     if (isset($errores)) {
         foreach ($errores as $error) {
             echo '<div class="' . $error['class'] . '">'
-                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje'] . ' <br>Sentencia: ' . $error['dato']
+                . '<strong>' . $error['tipo'] . ' </strong> ' . $error['mensaje']
                 . '</div>';
         }
     }
