@@ -100,6 +100,13 @@ if ($contador_get > 0) {
     );
 }
 
+// Compruebo si accion es editar y tiene permisos, como en el albarán
+if ($accion == 'editar') {
+    if ($ClasePermisos->getAccion("Modificar", array('modulo' => 'mod_compras', 'vista' => 'facturasListado.php')) == 0) {
+        $accion = 'ver';
+    }
+}
+
 // ---------- Posible errores o advertencias mostrar     ------------------- //
 if ($idDocumento > 0) {
     // Comprobamos si existe temporal del idFactura
@@ -484,7 +491,8 @@ if ($idDocumentoTemporal === 0) {
                             . $idDocumento . " ,'mod_compras', '" . $dedonde . "'"
                             . ')" value="Incidencias Adjuntas " name="incidenciasAdj" id="incidenciasAdj">';
                     }
-                    if ($estado != "Contabilizado" || $accion != "ver") {
+                    // Como en el albarán: ni en «ver» ni contabilizada se ofrece guardar
+                    if ($estado != "Contabilizado" && $accion != "ver") {
                         // El btn guardar solo se crea si el estado es "Nuevo","Sin Guardar","Guardado"
                         echo '<input class="btn btn-primary" ' . $estilos['btn_guardar']
                             . ' type="submit" value="Guardar  (Alt+G)" name="Guardar" id="bGuardar" accesskey="G">';

@@ -76,6 +76,13 @@ if ($contador_get > 0) {
     );
 }
 
+// Compruebo si accion es editar y tiene permisos, como en el albarán
+if ($accion == 'editar') {
+    if ($ClasePermisos->getAccion("Modificar", array('modulo' => 'mod_compras', 'vista' => 'pedidosListado.php')) == 0) {
+        $accion = 'ver';
+    }
+}
+
 // ---------- Posible errores o advertencias mostrar     ------------------- //
 if ($idDocumento > 0) {
     // Comprobamos si existe temporal del idPedido

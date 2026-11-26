@@ -294,9 +294,12 @@ class ClaseCompras
         // @ Objetivo:
         // Obtener los datos de un usuario del id que recibe, es necesarios para obtener el nombre de
         // creadores o quienes modificaron.
-        $tabla = 'usuarios';
-        $where = '`id`=' . $id;
-        $datosUsuario = $this->SelectUnResult($tabla, $where);
+        // El identificador, el usuario y el nombre: la contraseña no hace falta para enseñar quién fue
+        $datosUsuario = array();
+        $usuarios = (new DB($this->db))->select('SELECT id, username, nombre FROM usuarios WHERE id = ?', array(intval($id)));
+        if (count($usuarios) > 0) {
+            $datosUsuario = $usuarios[0];
+        }
         return $datosUsuario;
     }
 
