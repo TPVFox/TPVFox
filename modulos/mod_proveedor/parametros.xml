@@ -3,5 +3,6 @@
 	<configuracion>
 		<incidencias descripcion="mostrar_Select" dedonde="proveedor">Si</incidencias>
 		<incidencias descripcion="usuario_Defecto" dedonde="proveedor">1</incidencias>
+		<abc_cantidad corte_a="80" corte_b="95" descripcion="Cortes de las clases A y B del resumen de albaranes, en porcentaje de la cantidad acumulada"></abc_cantidad>
 	</configuracion>
 </parametros>

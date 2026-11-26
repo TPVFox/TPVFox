@@ -321,7 +321,7 @@ class ClaseProveedor extends TFModelo
         $respuesta = array();
         $productos = array();
         $resumenBases = array();
-        $sql = 'SELECT Numalbpro , id FROM albprot WHERE  idProveedor =' . $idProveedor;
+        $sql = 'SELECT Numalbpro , id FROM albprot WHERE  idProveedor =' . intval($idProveedor) . ' and estado <> "Sin Guardar"';
         $and = '';
         if (!$fechaIni == "" & !$fechaFin == "") {
             $and = ' and `Fecha` BETWEEN "' . $fechaIni . '" and  "' . $fechaFin . '"';

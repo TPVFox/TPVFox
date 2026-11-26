@@ -122,12 +122,92 @@ function comprobarFechas($fechaIni, $fechaFin)
         $resultado['error'] = 'Error';
         $resultado['consulta'] = 'Una de las fechas está sin cubrir';
     } else {
-        $fechaIni = date_format(date_create($fechaIni), 'Y-m-d');
-        $fechaFin = date_format(date_create($fechaFin), 'Y-m-d');
-        $resultado['fechaIni'] = $fechaIni;
-        $resultado['fechaFin'] = $fechaFin;
+        $inicio = date_create($fechaIni);
+        $fin = date_create($fechaFin);
+        if ($inicio === false || $fin === false) {
+            // Una fecha que no se entiende se avisa, no se consulta
+            $resultado['error'] = 'Error';
+            $resultado['consulta'] = 'Una de las fechas no está bien escrita';
+        } else {
+            $resultado['fechaIni'] = date_format($inicio, 'Y-m-d');
+            $resultado['fechaFin'] = date_format($fin, 'Y-m-d');
+        }
     }
     return $resultado;
+}
+
+function validarCortesAbc($corteA, $corteB)
+{
+    // @ Objetivo:
+    // Los dos cortes de las clases A, B y C, en porcentaje acumulado. Si no valen, los de partida.
+    // @ Parametros:
+    // $corteA -> (string) Hasta qué porcentaje acumulado es clase A.
+    // $corteB -> (string) Hasta qué porcentaje acumulado es clase B.
+    // @ Devolvemos:
+    // (array) Los dos cortes, como números.
+    $cortes = array(80.0, 95.0);
+    if (is_numeric($corteA) && is_numeric($corteB)) {
+        $a = floatval($corteA);
+        $b = floatval($corteB);
+        if ($a >= 1 && $b <= 100 && $a < $b) {
+            $cortes = array($a, $b);
+        }
+    }
+    return $cortes;
+}
+
+function cortesAbcCantidad($URLCom)
+{
+    // @ Objetivo:
+    // Los cortes de las clases por cantidad del resumen de albaranes, de los parámetros del módulo.
+    // @ Devolvemos:
+    // (array) Los dos cortes; 80 y 95 si el parámetro no está o no vale.
+    include_once $URLCom . '/controllers/parametros.php';
+    $parametros = new ClaseParametros($URLCom . '/modulos/mod_proveedor/parametros.xml');
+    $nodo = $parametros->getNode('configuracion/abc_cantidad');
+    $corteA = '';
+    $corteB = '';
+    if ($nodo !== null && isset($nodo['corte_a']) && isset($nodo['corte_b'])) {
+        $corteA = (string) $nodo['corte_a'];
+        $corteB = (string) $nodo['corte_b'];
+    }
+    return validarCortesAbc($corteA, $corteB);
+}
+
+function ordenarPorCantidad($a, $b)
+{
+    // @ Objetivo: comparar dos productos para ordenarlos por cantidad, de más a menos
+    return $b['totalUnidades'] <=> $a['totalUnidades'];
+}
+
+function clasificarProductosAbc($productos, $corteA, $corteB)
+{
+    // @ Objetivo:
+    // Ordenar los productos comprados por cantidad, de más a menos, y poner a cada uno su clase por la
+    // cantidad acumulada: A hasta el primer corte, B hasta el segundo y C el resto.
+    // @ Parametros:
+    // $productos -> (array) Los productos, cada uno con su totalUnidades.
+    // $corteA, $corteB -> (float) Los cortes, en porcentaje acumulado.
+    // @ Devolvemos:
+    // (array) Los mismos productos, ordenados y con su 'clase'.
+    usort($productos, 'ordenarPorCantidad');
+    $total = 0;
+    foreach ($productos as $producto) {
+        $total += $producto['totalUnidades'];
+    }
+    $acumulado = 0;
+    foreach ($productos as $indice => $producto) {
+        $acumulado += $producto['totalUnidades'];
+        $porcentaje = $total > 0 ? $acumulado * 100 / $total : 100;
+        if ($indice === 0 || $porcentaje <= $corteA) {
+            $productos[$indice]['clase'] = 'A';
+        } elseif ($porcentaje <= $corteB) {
+            $productos[$indice]['clase'] = 'B';
+        } else {
+            $productos[$indice]['clase'] = 'C';
+        }
+    }
+    return $productos;
 }
 
 function obtenerIndexEstado($estados, $nombre_estado)

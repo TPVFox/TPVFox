@@ -13,9 +13,19 @@ $Controler = new ControladorComun;
 // $fechaFinal="";
 $style = 'style="display:none;"';
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $idProveedor = $_GET['id'];
+    $id = intval($_GET['id']);
+    $idProveedor = $id;
     $datosProveedor = $CProveedor->getProveedor($id);
+    if (!isset($datosProveedor['error']) && empty($datosProveedor['datos'])) {
+        // Un número que no es de un proveedor: se avisa y se termina
+        echo '<!DOCTYPE html><html><head>';
+        include_once $URLCom . '/head.php';
+        echo '</head><body>';
+        include_once $URLCom . '/modulos/mod_menu/menu.php';
+        echo '<div class="alert alert-warning">No existe el proveedor ' . $id . '</div>';
+        echo '</body></html>';
+        exit;
+    }
     if (isset($datosProveedor['error'])) {
         $errores[1] = array(
             'tipo' => 'DANGER!',
@@ -60,14 +70,24 @@ if (isset($_GET['fechaIni']) & isset($_GET['fechaFin'])) {
     //MOstramos errores de sql;
     $fechaIni = $_GET['fechaIni'];
     $fechaFin = $_GET['fechaFin'];
+    $fechasBien = true;
     if ($fechaIni <> "" & $fechaFin <> "") {
-        $fechaInicial = date_format(date_create($fechaIni), 'Y-m-d');
-        $fechaFinal = date_format(date_create($fechaFin), 'Y-m-d');
+        // Las fechas de la dirección se comprueban como las del formulario
+        $comprobarFechas = comprobarFechas($fechaIni, $fechaFin);
+        if (isset($comprobarFechas['error'])) {
+            $fechasBien = false;
+            $errores[8] = array('tipo' => 'info', 'mensaje' => $comprobarFechas['consulta']);
+        } else {
+            $fechaIni = $fechaInicial = $comprobarFechas['fechaIni'];
+            $fechaFin = $fechaFinal = $comprobarFechas['fechaFin'];
+        }
     }
-    $style = "";
-    $arrayNums = $CProveedor->albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin);
-    if (isset($arrayNums['error'])) {
-        $errores = $arrayNums['error'];
+    if ($fechasBien) {
+        $style = "";
+        $arrayNums = $CProveedor->albaranesProveedoresFechas($idProveedor, $fechaIni, $fechaFin);
+        if (isset($arrayNums['error'])) {
+            $errores = $arrayNums['error'];
+        }
     }
 }
 // Obtenemos referencias principales de proveedor (solo artículos donde es proveedor principal).
@@ -98,8 +118,15 @@ if (isset($_GET['fechaIni']) && isset($_GET['fechaFin'])) {
             }
             $num_referencias_compradas++;
         }
+        // Por cantidad, de más a menos, cada producto con su clase
+        $cortesAbc = cortesAbcCantidad($URLCom);
+        $productos = clasificarProductosAbc($productos, $cortesAbc[0], $cortesAbc[1]);
     }
 }
+if (!isset($cortesAbc)) {
+    $cortesAbc = cortesAbcCantidad($URLCom);
+}
+$estilosAbc = array('A' => 'label-success', 'B' => 'label-warning', 'C' => 'label-default');
 // ---   Comprobación de fechas   ---- //
 if (!isset($fechaFinal)) {
     $fechaFinal = date('Y-m-d');
@@ -145,7 +172,14 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
             <div class="col-md-3 ">
                 <a class="btn btn-primary" onclick="imprimirResumen('albaran', '<?php echo $id; ?>', '<?php echo $fechaInicial; ?>', '<?php echo $fechaFinal; ?>')">Imprimir resumen</a>
                 <h4><u>DATOS DEL PROVEEDOR</u></h4>
-                <b>ID: </b><?php echo $id; ?></br>
+                <form method="get" class="form-inline">
+                    <?php if (isset($_GET['fechaIni']) && isset($_GET['fechaFin'])) { ?>
+                    <input type="hidden" name="fechaIni" value="<?php echo htmlspecialchars($_GET['fechaIni'], ENT_QUOTES); ?>">
+                    <input type="hidden" name="fechaFin" value="<?php echo htmlspecialchars($_GET['fechaFin'], ENT_QUOTES); ?>">
+                    <?php } ?>
+                    <b>ID: </b><input type="number" name="id" value="<?php echo $id; ?>" min="1" class="form-control input-sm" style="width:90px;" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
+                    <input type="submit" class="btn btn-default btn-sm" value="Ir">
+                </form>
                 <b>Nombre: </b><?php echo $datosProveedor['datos'][0]['nombrecomercial']; ?></br>
                 <b>Razón social: </b><?php echo $datosProveedor['datos'][0]['razonsocial']; ?></br>
                 <b>NIF:</b><?php echo $datosProveedor['datos'][0]['nif']; ?></br>
@@ -211,6 +245,9 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     Leyenda:<br />
                     (P) Producto asignado como principal del proveedor. <br />
                     (CM) Coste medio: Si se compro a distintos precios.<br />
+                    <span class="label label-success">A</span> hasta el <?php echo $cortesAbc[0]; ?> % de la cantidad comprada,
+                    <span class="label label-warning">B</span> hasta el <?php echo $cortesAbc[1]; ?> %,
+                    <span class="label label-default">C</span> el resto. Ordenado por cantidad.<br />
                 </p>
 
             </div>
@@ -218,6 +255,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr>
+                        <th title="Clase por la cantidad acumulada">CL</th>
                         <th>ID</th>
                         <th title="Si este Proveedor es Principal para este producto, marcado *">P</th>
                         <th>PRODUCTO</th>
@@ -236,6 +274,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                             $totalLineas += $producto['total_linea'];
                     ?>
                             <tr>
+                                <td><span class="label <?php echo $estilosAbc[$producto['clase']]; ?>"><?php echo $producto['clase']; ?></span></td>
                                 <td><?php echo $producto['idArticulo']; ?></td>
                                 <td><?php
                                     if ($producto['prov_principal'] == 'OK') {
@@ -334,7 +373,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 <td>' . $bases['estado'] . '</td>
                                 <td>
                                     <a class="glyphicon glyphicon-pencil" target="_blank"
-                                    href="../../mod_compras/albaran.php?id=' . $bases['Numalbpro'] . '&accion=editar">
+                                    href="../../mod_compras/albaran.php?id=' . $bases['idalbpro'] . '&accion=editar">
                                     </a>
                                 </td>
                                 <td>' . $bases['sumabase'] . '</td>
