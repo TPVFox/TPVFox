@@ -180,6 +180,25 @@ function ordenarPorCantidad($a, $b)
     return $b['totalUnidades'] <=> $a['totalUnidades'];
 }
 
+function ordenarProductosResumen($productos, $campo, $sentido)
+{
+    // @ Objetivo:
+    // Ordenar los productos del resumen de albaranes por la cabecera elegida.
+    // @ Parametros:
+    // $productos -> (array) Los productos, ya con su clase.
+    // $campo -> (string) idArticulo, cdetalle o totalUnidades.
+    // $sentido -> (string) ASC o DESC.
+    // @ Devolvemos:
+    // (array) Los mismos productos, en ese orden.
+    if (count($productos) > 1) {
+        $valores = array_column($productos, $campo);
+        $orden = $sentido === 'ASC' ? SORT_ASC : SORT_DESC;
+        $tipo = $campo === 'cdetalle' ? SORT_STRING | SORT_FLAG_CASE : SORT_NUMERIC;
+        array_multisort($valores, $orden, $tipo, $productos);
+    }
+    return $productos;
+}
+
 function clasificarProductosAbc($productos, $corteA, $corteB)
 {
     // @ Objetivo:

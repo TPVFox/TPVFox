@@ -90,6 +90,13 @@ if (isset($_GET['fechaIni']) & isset($_GET['fechaFin'])) {
         }
     }
 }
+// El orden del resumen de productos: una de sus tres cabeceras; si no, por cantidad de más a menos
+$campoOrden = 'totalUnidades';
+$sentidoOrden = 'DESC';
+if (isset($_GET['campoorden']) && in_array($_GET['campoorden'], array('idArticulo', 'cdetalle', 'totalUnidades'), true)) {
+    $campoOrden = $_GET['campoorden'];
+    $sentidoOrden = (isset($_GET['sentidoorden']) && $_GET['sentidoorden'] === 'ASC') ? 'ASC' : 'DESC';
+}
 // Obtenemos referencias principales de proveedor (solo artículos donde es proveedor principal).
 $num_ref_principales_proveedor = $CTArticulos->GetProductosProveedor($id, 'articulo_name', 'ASC', true);
 $num_ref_principales_proveedor = $num_ref_principales_proveedor['NItems'];
@@ -118,9 +125,10 @@ if (isset($_GET['fechaIni']) && isset($_GET['fechaFin'])) {
             }
             $num_referencias_compradas++;
         }
-        // Por cantidad, de más a menos, cada producto con su clase
+        // Por cantidad, de más a menos, cada producto con su clase; después, el orden de la cabecera elegida
         $cortesAbc = cortesAbcCantidad($URLCom);
         $productos = clasificarProductosAbc($productos, $cortesAbc[0], $cortesAbc[1]);
+        $productos = ordenarProductosResumen($productos, $campoOrden, $sentidoOrden);
     }
 }
 if (!isset($cortesAbc)) {
@@ -145,7 +153,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
     <?php
     include_once $URLCom . '/head.php';
     ?>
-    <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_proveedor/funciones.js?v=<?php echo filemtime($URLCom . '/modulos/mod_proveedor/funciones.js'); ?>"></script>
 
 </head>
 
@@ -177,6 +185,8 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     <input type="hidden" name="fechaIni" value="<?php echo htmlspecialchars($_GET['fechaIni'], ENT_QUOTES); ?>">
                     <input type="hidden" name="fechaFin" value="<?php echo htmlspecialchars($_GET['fechaFin'], ENT_QUOTES); ?>">
                     <?php } ?>
+                    <input type="hidden" name="campoorden" value="<?php echo $campoOrden; ?>">
+                    <input type="hidden" name="sentidoorden" value="<?php echo $sentidoOrden; ?>">
                     <b>ID: </b><input type="text" name="id" value="<?php echo $id; ?>" inputmode="numeric" class="form-control input-sm" style="width:90px;" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
                     <input type="submit" class="btn btn-default btn-sm" value="Ir">
                 </form>
@@ -247,7 +257,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     (CM) Coste medio: Si se compro a distintos precios.<br />
                     <span class="label label-success">A</span> hasta el <?php echo $cortesAbc[0]; ?> % de la cantidad comprada,
                     <span class="label label-warning">B</span> hasta el <?php echo $cortesAbc[1]; ?> %,
-                    <span class="label label-default">C</span> el resto. Ordenado por cantidad.<br />
+                    <span class="label label-default">C</span> el resto. Pulsa ID, PRODUCTO o CANTIDAD para ordenar.<br />
                 </p>
 
             </div>
@@ -256,11 +266,11 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                 <thead>
                     <tr>
                         <th title="Clase por la cantidad acumulada">CL</th>
-                        <th>ID</th>
+                        <th class="ordenar" data-campo="idArticulo" style="cursor:pointer;">ID <?php echo obtenerIconoOrden($campoOrden, $sentidoOrden, 'idArticulo'); ?></th>
                         <th title="Si este Proveedor es Principal para este producto, marcado *">P</th>
-                        <th>PRODUCTO</th>
+                        <th class="ordenar" data-campo="cdetalle" style="cursor:pointer;">PRODUCTO <?php echo obtenerIconoOrden($campoOrden, $sentidoOrden, 'cdetalle'); ?></th>
                         <th>NºVECES</th>
-                        <th>CANTIDAD</th>
+                        <th class="ordenar" data-campo="totalUnidades" style="cursor:pointer;">CANTIDAD <?php echo obtenerIconoOrden($campoOrden, $sentidoOrden, 'totalUnidades'); ?></th>
                         <th>COSTE</th>
                         <th title="Si cambio el precio, se calcula coste medio, marcado *">CM</th>
                         <th>IMPORTE</th>
@@ -409,6 +419,10 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
     </div>
 </body>
 <script>
+    // Las cabeceras del resumen de productos ordenan al pulsarlas
+    $(document).ready(function() {
+        catchEvents();
+    });
     document.getElementById('btnModoFactura').addEventListener('click', function() {
         const elementos = document.querySelectorAll('.modo-factura');
         elementos.forEach(el => {
