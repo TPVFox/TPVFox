@@ -177,7 +177,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     <input type="hidden" name="fechaIni" value="<?php echo htmlspecialchars($_GET['fechaIni'], ENT_QUOTES); ?>">
                     <input type="hidden" name="fechaFin" value="<?php echo htmlspecialchars($_GET['fechaFin'], ENT_QUOTES); ?>">
                     <?php } ?>
-                    <b>ID: </b><input type="number" name="id" value="<?php echo $id; ?>" min="1" class="form-control input-sm" style="width:90px;" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
+                    <b>ID: </b><input type="text" name="id" value="<?php echo $id; ?>" inputmode="numeric" class="form-control input-sm" style="width:90px;" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
                     <input type="submit" class="btn btn-default btn-sm" value="Ir">
                 </form>
                 <b>Nombre: </b><?php echo $datosProveedor['datos'][0]['nombrecomercial']; ?></br>
