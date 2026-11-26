@@ -274,7 +274,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                     <form class="formFactura" method="POST" action="factura.php" style="display:inline;">
                                         <input type="hidden" name="action" value="crearDesdeAlbaranes">
                                         <input type="hidden" name="idProveedor" value="<?= htmlspecialchars($albaran['idProveedor'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <input type="hidden" name="albaranes[]" value="<?= htmlspecialchars($albaran['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="albaranes[]" value="<?= htmlspecialchars($albaran['Numalbpro'], ENT_QUOTES, 'UTF-8') ?>">
                                         <a title="Crear factura desde albarán" href="#" class="submit-link">
                                             <span class="glyphicon glyphicon-paste"></span>
                                         </a>
