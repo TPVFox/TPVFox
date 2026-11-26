@@ -324,7 +324,8 @@ class ClaseProveedor extends TFModelo
         $sql = 'SELECT Numalbpro , id FROM albprot WHERE  idProveedor =' . intval($idProveedor) . ' and estado <> "Sin Guardar"';
         $and = '';
         if (!$fechaIni == "" & !$fechaFin == "") {
-            $and = ' and `Fecha` BETWEEN "' . $fechaIni . '" and  "' . $fechaFin . '"';
+            // Hasta el final del último día: la fecha del albarán lleva su hora
+            $and = ' and `Fecha` >= "' . $fechaIni . '" and `Fecha` < DATE_ADD("' . $fechaFin . '", INTERVAL 1 DAY)';
         }
         $sql = $sql . $and;
         $albaranes = $this->consulta($sql);
