@@ -6,14 +6,16 @@ class Proveedores extends TFModelo
 
     public function buscarProveedorId($idProveedor)
     {
-        $sql = 'SELECT * from proveedores where idProveedor=' . $idProveedor;
-        $smt = $this->consulta($sql);
+        $sql = 'SELECT * from proveedores where idProveedor=?';
+        $smt = $this->consulta($sql, array(intval($idProveedor)));
+        $respuesta = array();
         if (isset($smt['error'])) {
             $respuesta['error'] = $smt['error'];
             $respuesta['consulta'] = $smt['consulta'];
-        } else {
+        } elseif (is_array($smt['datos']) && count($smt['datos']) > 0) {
             $respuesta = $smt['datos'][0];
         }
+        // Un proveedor que no existe: un array vacío
         return $respuesta;
     }
     public function buscarProveedorNombre($nombre)
@@ -22,9 +24,12 @@ class Proveedores extends TFModelo
         // y por palabras
         $palabras = explode(' ', $nombre);
         $likes = array();
+        $valores = array();
         foreach ($palabras as $key => $palabra) {
-            // Montamos consulta por palabras de varias palabras, en nombre o razon social
-            $likes[] =  'nombrecomercial LIKE "%' . $palabra . '%" ';
+            // Montamos consulta por palabras de varias palabras, en nombre o razon social.
+            // Cada palabra va como parámetro, no pegada en la sentencia.
+            $likes[] =  'nombrecomercial LIKE ? ';
+            $valores[] = '%' . $palabra . '%';
         }
         $sql = 'SELECT * FROM proveedores WHERE ';
         $whereNombre = '';
@@ -35,8 +40,8 @@ class Proveedores extends TFModelo
             // Ahora hacemos lo mismo, pero con el campo razon social, por esos sutituimos Nombre por razonsocial
             $sql .= str_replace('nombrecomercial', 'razonsocial', $whereNombre);
         }
-        //~ error_log($sql);
-        $smt = $this->consulta($sql);
+        // Las mismas palabras, para el nombre comercial y para la razón social
+        $smt = $this->consulta($sql, array_merge($valores, $valores));
         if (isset($smt['error'])) {
             $respuesta['error'] = $smt['error'];
             $respuesta['consulta'] = $smt['consulta'];
@@ -73,14 +78,16 @@ class Proveedores extends TFModelo
 
     public function buscarProductosProveedor($idProveedor)
     {
-        $sql = 'SELECT * from articulosProveedores where idProveedor=' . $idProveedor;
-        $smt = $this->consulta($sql);
-        if (isset($smt['datos'])) {
-            $productos_provedor = $smt['datos'];
-        } else {
+        $sql = 'SELECT * from articulosProveedores where idProveedor=?';
+        $smt = $this->consulta($sql, array(intval($idProveedor)));
+        $productos_provedor = array();
+        if (isset($smt['error'])) {
             $productos_provedor['error'] = $smt['error'];
             $productos_provedor['consulta'] = $smt['consulta'];
+        } elseif (is_array($smt['datos'])) {
+            $productos_provedor = $smt['datos'];
         }
+        // Un proveedor sin productos: un array vacío
         return $productos_provedor;
     }
 }

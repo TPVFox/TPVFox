@@ -27,6 +27,9 @@ class ClaseProveedor extends TFModelo
         'estado'            => ''
     );
 
+    // Los estados que la ficha deja elegir
+    public $estados = array('Activo', 'inactivo', 'Especial');
+
     public function obtenerProveedores($filtro = '', $params = [])
     {
         // Function para obtener proveedores y listarlos
@@ -51,8 +54,8 @@ class ClaseProveedor extends TFModelo
         //@Objetivo: cargar todos los datos de un proveedor
         //@Parametros:
         //id: id del proveedor
-        $sql = 'SELECT * from proveedores where idProveedor=' . $id;
-        return $this->consulta($sql);
+        $sql = 'SELECT * from proveedores where idProveedor=?';
+        return $this->consulta($sql, array(intval($id)));
     }
 
     public function documentosDelEjercicio($idProveedor)
@@ -194,6 +197,10 @@ class ClaseProveedor extends TFModelo
         if ($id > 0) {
             $ProveedorUnico = $this->getProveedor($id);
             if (!isset($ProveedorUnico['error'])) {
+                if (!is_array($ProveedorUnico['datos'])) {
+                    // Sin filas: se trata como una lista vacía
+                    $ProveedorUnico['datos'] = array();
+                }
                 if (count($ProveedorUnico['datos']) > 1) {
                     // Hay mas de uno por lo que hay error grabe.
                     $mensaje = 'Para este id:' . $id . ' se encontrado ' . count($ProveedorUnico['datos']) . ' registros';
@@ -277,18 +284,25 @@ class ClaseProveedor extends TFModelo
         //@Objetivo: modificar los datos de un proveedor determinado
         //@Paramatros:
         //datos: datos a modificar del provvedor
-        $sql = 'UPDATE proveedores SET nombrecomercial="' . $datos['nombrecomercial'] . '",
-		razonsocial="' . $datos['razonsocial'] . '",nif="' . $datos['nif'] . '",direccion="' . $datos['direccion'] . '",
-		telefono="' . $datos['telefono'] . '",registro_sanitario="' . $datos['registro_sanitario'] . '",movil="' . $datos['movil'] . '",
-		email="' . $datos['email'] . '",estado="' . $datos['estado'] . '" WHERE idProveedor=' . $datos['idProveedor'];
-        $consulta = $this->consultaDML($sql);
-        if (isset($consulta['error'])) {
-            $respuesta['error'] = $consulta;
-        } else {
-            // Fue bien , devolvemos la cantidad de filas modificadas.
-            $respuesta = ModeloP::$db->affected_rows;
-            // OJ0:
-            // Aunque no de error, si hacer un update y tiene lo mismos datos que tenía, la respuesta es 0
+        // @Devolvemos: (int) 1 si el proveedor existe y quedó con esos datos, 0 si no existe;
+        // o un array con ['error'] si la sentencia falló.
+        $respuesta = 0;
+        $existe = $this->getProveedor($datos['idProveedor']);
+        if (is_array($existe['datos']) && count($existe['datos']) === 1) {
+            $sql = 'UPDATE proveedores SET nombrecomercial=?, razonsocial=?, nif=?, direccion=?, telefono=?,
+            registro_sanitario=?, fax=?, movil=?, email=?, estado=? WHERE idProveedor=?';
+            $valores = array(
+                $datos['nombrecomercial'], $datos['razonsocial'], $datos['nif'], $datos['direccion'], $datos['telefono'],
+                $datos['registro_sanitario'], $datos['fax'], $datos['movil'], $datos['email'], $datos['estado'],
+                intval($datos['idProveedor'])
+            );
+            $consulta = $this->consultaDML($sql, $valores);
+            if ($consulta === false) {
+                $respuesta = array('error' => $this->montarAdvertencia('danger', 'Error al modificar el proveedor: ' . $this->getFallo()['descripcion']));
+            } else {
+                // Con los mismos datos que tenía no cambia ninguna fila, y no es un error
+                $respuesta = 1;
+            }
         }
         return $respuesta;
     }
@@ -298,17 +312,19 @@ class ClaseProveedor extends TFModelo
         //Añadir un proveedor nuevo
         //Parametros:
         //datos del proveedor
+        // @Devolvemos: (int) el número del proveedor creado, o un array con ['error'] si la sentencia falló.
         $sql = 'INSERT INTO `proveedores`( `nombrecomercial`, `razonsocial`,
 		`nif`, `direccion`, `telefono`, `registro_sanitario`, `fax`, `movil`, `email`, `fecha_creado`,
-		`estado`) VALUES ("' . $datos['nombrecomercial'] . '","' . $datos['razonsocial'] . '",
-		"' . $datos['nif'] . '","' . $datos['direccion'] . '","' . $datos['telefono'] . '","' . $datos['registro_sanitario'] . '","' . $datos['fax'] . '",
-		"' . $datos['movil'] . '","' . $datos['email'] . '",NOW() , "' . $datos['estado'] . '" )';
-        $consulta = $this->consultaDML($sql);
-        if (isset($consulta['error'])) {
-            $respuesta['error'] = $consulta;
+		`estado`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)';
+        $valores = array(
+            $datos['nombrecomercial'], $datos['razonsocial'], $datos['nif'], $datos['direccion'], $datos['telefono'],
+            $datos['registro_sanitario'], $datos['fax'], $datos['movil'], $datos['email'], $datos['estado']
+        );
+        $consulta = $this->consultaDML($sql, $valores);
+        if ($consulta === false) {
+            $respuesta = array('error' => $this->montarAdvertencia('danger', 'Error al crear el proveedor: ' . $this->getFallo()['descripcion']));
         } else {
-            // Fue bien , devolvemos la cantidad de filas modificadas.
-            $respuesta = ModeloP::$db->insert_id;
+            $respuesta = $consulta['insert_id'];
         }
         return $respuesta;
     }
@@ -343,10 +359,10 @@ class ClaseProveedor extends TFModelo
                 $sql = 'SELECT idalbpro, idArticulo, costeSiva ,SUM(nunidades) as totalUnidades FROM `albprolinea` WHERE idalbpro  IN(' . $ids . ') and
                 `estadoLinea` <> "Eliminado" GROUP BY idalbpro,idArticulo,costeSiva';
                 $productos = $this->consulta($sql);
-                if (isset($albaranes['error'])) {
-                    $respuesta['error'][] = $this->montarAdvertencia('danner', 'Error al obtener los albaranes encontrados.<br/>'
-                        . 'Error:' . $albaranes['error'] . '<br/>'
-                        . 'Consulta:' . $albaranes['consulta'], '<br/>');
+                if (isset($productos['error'])) {
+                    $respuesta['error'][] = $this->montarAdvertencia('danger', 'Error al obtener los albaranes encontrados.<br/>'
+                        . 'Error:' . $productos['error'] . '<br/>'
+                        . 'Consulta:' . $productos['consulta'], '<br/>');
                 } else {
                     $respuesta['productos'] = $productos['datos'];
                 }
@@ -357,7 +373,7 @@ class ClaseProveedor extends TFModelo
 
                 $resumenBases = $this->consulta($sql);
                 if (isset($resumenBases['error'])) {
-                    $respuesta['error'][] = $this->montarAdvertencia('danner', 'Error al obtener el resumen de las bases de albaranes encontrados.<br/>'
+                    $respuesta['error'][] = $this->montarAdvertencia('danger', 'Error al obtener el resumen de las bases de albaranes encontrados.<br/>'
                         . 'Error:' . $resumenBases['error'] . '<br/>'
                         . 'Consulta:' . $resumenBases['consulta'], '<br/>');
                 } else {
@@ -367,7 +383,7 @@ class ClaseProveedor extends TFModelo
                 in (' . $ids . ')  GROUP BY iva;';
                 $desglose = $this->consulta($sql);
                 if (isset($desglose['error'])) {
-                    $respuesta['error'][] = $this->montarAdvertencia('danner', 'Error al obtener el desglose ivas de albaranes encontrados.<br/>'
+                    $respuesta['error'][] = $this->montarAdvertencia('danger', 'Error al obtener el desglose ivas de albaranes encontrados.<br/>'
                         . 'Error:' . $desglose['error'] . '<br/>'
                         . 'Consulta:' . $desglose['consulta'], '<br/>');
                 } else {
@@ -472,25 +488,25 @@ class ClaseProveedor extends TFModelo
         if (!isset($comprobar['errores'])) {
             if ($datosPost['idProveedor'] > 0) {
                 // Cuando ya existe se modifica
-                $modificar = $this->modificarDatosProveedor($datosPost);
+                $modificar = $this->modificarDatosProveedor($datosNuevos);
 
-                if (isset($modificar['error'])) {
+                if (is_array($modificar)) {
                     // Hubo error grave.
                     $respuesta['error'] = $modificar['error'];
                 } else {
                     if ($modificar <> 1) {
-                        // Si se modifico mas uno o 0 es un error grave.
-                        $respuesta['error'] = 'Se ha modificado los datos de ' . $modificar . ' proveedores.[ERROR:proveedor 1]';
+                        // El proveedor que se quiere modificar no existe.
+                        $respuesta['error'] = 'No existe el proveedor ' . intval($datosPost['idProveedor']) . '.[ERROR:proveedor 1]';
                     } else {
                         $respuesta['datos'] = $this->getProveedorCompleto($datosPost['idProveedor']);
                         $respuesta['estado'] = 'OK';
                     }
                 }
             } else {
-                $guardar = $this->addProveedorNuevo($datosPost);
-                if (isset($modificar['error'])) {
+                $guardar = $this->addProveedorNuevo($datosNuevos);
+                if (is_array($guardar)) {
                     // Hubo error grave.
-                    $respuesta['error'] = $modificar['error'];
+                    $respuesta['error'] = $guardar['error'];
                 } else {
                     $respuesta['datos'] = $this->getProveedorCompleto($guardar);
                     $respuesta['estado'] = 'OK';
@@ -520,7 +536,9 @@ class ClaseProveedor extends TFModelo
         $comprobaciones = array();
         $generales = array('tabla' => 'proveedores', 'campo_obtener' => 'idProveedor', 'limite' => 15);
         $descarte = array('idProveedor' => $datos['idProveedor']);
-        $comprobar = $this->comprobarExisteValorCampo($generales, $datos, $descarte);
+        // Solo el NIF y el teléfono se miran contra los demás proveedores
+        $repetibles = array('nif' => $datos['nif'], 'telefono' => $datos['telefono']);
+        $comprobar = $this->comprobarExisteValorCampo($generales, $repetibles, $descarte);
         foreach ($comprobar as $campo => $c) {
             if (isset($c['error'])) {
                 // Hubo uno o varios errores en la consulta, es un error grave.
@@ -529,13 +547,14 @@ class ClaseProveedor extends TFModelo
                 // Validamos aquí los campos que tienen valor y encontro registros iguales.
                 if ($datos[$campo] <> '' && count($c['datos']) > 0) {
                     // Validamos campos que no estan vacios y tiene datos.
+                    $quienes = implode(', ', array_column($c['datos'], 'idProveedor'));
                     if ($campo === 'nif') {
                         // Si existe nif otro no permito continuar grabando/modificarlo, se manda error.
-                        $respuesta['errores'][] = $this->montarAdvertencia('danger', $c['datos']);
+                        $respuesta['errores'][] = $this->montarAdvertencia('danger', 'El NIF ' . $datos[$campo] . ' ya lo tiene el proveedor ' . $quienes);
                     }
                     if ($campo === 'telefono') {
                         // Si existe telefono envio un warning
-                        $comprobaciones[] = $this->montarAdvertencia('warning', $c['datos']);
+                        $comprobaciones[] = $this->montarAdvertencia('warning', 'El teléfono ' . $datos[$campo] . ' ya lo tiene el proveedor ' . $quienes);
                     }
                 }
             }
@@ -545,8 +564,37 @@ class ClaseProveedor extends TFModelo
             // Damos error ya que no tiene sentido no cubrir cualquiera de estos campos.
             $respuesta['errores'][] = $this->montarAdvertencia('danger', 'Debe poner nombre comercial o razon social');
         }
+        // El estado, uno de los que deja elegir la ficha
+        if (!in_array($datos['estado'], $this->estados, true)) {
+            $respuesta['errores'][] = $this->montarAdvertencia('danger', 'El estado «' . $datos['estado'] . '» no es un estado de proveedor');
+        }
+        // Cada dato ha de caber en su columna: si no, se dice cuál
+        foreach ($this->longitudesDeLosCampos() as $campo => $longitud) {
+            if (isset($datos[$campo]) && mb_strlen((string) $datos[$campo]) > $longitud) {
+                $respuesta['errores'][] = $this->montarAdvertencia('danger', 'El campo ' . $campo . ' admite ' . $longitud . ' caracteres, y tiene ' . mb_strlen((string) $datos[$campo]));
+            }
+        }
         $respuesta['comprobaciones'] = $comprobaciones;
         return $respuesta;
+    }
+
+    public function longitudesDeLosCampos()
+    {
+        // @ Objetivo:
+        // Los caracteres que admite cada columna de texto de la tabla de proveedores, leídos de la base.
+        // @ Devolvemos:
+        // (array) nombre de la columna => caracteres.
+        $longitudes = array();
+        $columnas = $this->consulta('SHOW COLUMNS FROM proveedores');
+        if (is_array($columnas['datos'])) {
+            foreach ($columnas['datos'] as $columna) {
+                $tipo = $columna['Type'];
+                if (strpos($tipo, 'char(') !== false) {
+                    $longitudes[$columna['Field']] = intval(substr($tipo, strpos($tipo, '(') + 1));
+                }
+            }
+        }
+        return $longitudes;
     }
 
     public function eliminarBtnFichaPost($datos)
@@ -604,14 +652,16 @@ class ClaseProveedor extends TFModelo
         if ($generales['limite'] > 0) {
             $descarte_limite = ' limit 0,' . $generales['limite'];
         }
+        $valores_descarte = array();
         if (count($descarte) > 0) {
             $campo_descarte = key($descarte);
-            $valor_descarte = $descarte[$campo_descarte];
-            $descarte_limite = ' AND ' . $campo_descarte . '<>"' . $valor_descarte . '"' . $descarte_limite;
+            $valores_descarte[] = $descarte[$campo_descarte];
+            $descarte_limite = ' AND ' . DB::ident($campo_descarte) . '<>?' . $descarte_limite;
         }
         foreach ($campos as $nombre_campo => $valor_campo) {
-            $sql = 'SELECT ' . $generales['campo_obtener'] . ' FROM ' . $generales['tabla'] . ' where ' . $nombre_campo . '="' . $valor_campo . '"' . $descarte_limite;
-            $consulta = $this->consulta($sql);
+            // Los valores van como parámetros; los nombres de campo y de tabla, comprobados
+            $sql = 'SELECT ' . DB::ident($generales['campo_obtener']) . ' FROM ' . DB::ident($generales['tabla']) . ' where ' . DB::ident($nombre_campo) . '=?' . $descarte_limite;
+            $consulta = $this->consulta($sql, array_merge(array($valor_campo), $valores_descarte));
 
             if (isset($consulta['error'])) {
                 $respuesta[$nombre_campo]['error'] = $consulta['error'];

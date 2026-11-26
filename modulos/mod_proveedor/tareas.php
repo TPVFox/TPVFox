@@ -3,7 +3,8 @@ include_once './../../inicial.php';
 require_once $URLCom . '/clases/exigirSesion.php';
 exigirSesion();
 
-$pulsado = $_POST['pulsado'];
+// La orden que se pide; sin ella no hay nada que hacer
+$pulsado = isset($_POST['pulsado']) ? $_POST['pulsado'] : '';
 include_once $URLCom . '/configuracion.php';
 include_once $URLCom . '/modulos/mod_proveedor/funciones.php';
 include_once $URLCom . '/modulos/mod_incidencias/clases/ClaseIncidencia.php';
@@ -23,8 +24,12 @@ switch ($pulsado) {
 			$idReal = $_POST['idReal'];
 		}
 
-		$configuracion = $_POST['configuracion'];
-		$numInicidencia = 0;
+		// La configuración de las incidencias llega como una lista; si no llega, vacía
+		$configuracion = array();
+		if (isset($_POST['configuracion']) && is_array($_POST['configuracion'])) {
+			$configuracion = $_POST['configuracion'];
+		}
+		$numIncidencia = 0;
 		$tipo = "mod_proveedor";
 		$datos = array(
 			'vista' => $dedonde,
