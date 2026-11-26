@@ -433,7 +433,7 @@ if ($idDocumentoTemporal === 0) {
                         echo '<div class="col-md-10">
                                                 <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
                             . 'placeholder="Nombre de proveedor (Alt+P)" onkeydown="controlEventos(event)" value="'
-                            . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
+                            . htmlspecialchars((string) $nombreProveedor, ENT_QUOTES) . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
                             . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
                             . ' onclick="buscarProveedor(' . "'" . $dedonde . "'" . ',Proveedor.value)"></a>
                                             </div>';

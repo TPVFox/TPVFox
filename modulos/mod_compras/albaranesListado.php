@@ -146,7 +146,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                     . "'" . $url . "'" . ')" title="Albaran con numero temporal:'
                                     . $temporal['id'] . '">';
                                 $td_temporal = $tdl . $numTemporal . '</td>'
-                                    . $tdl . $temporal['nombrecomercial'] . '</td>'
+                                    . $tdl . htmlspecialchars((string) $temporal['nombrecomercial'], ENT_QUOTES) . '</td>'
                                     . $tdl . number_format($temporal['total'], 2) . '</td>';
                         ?>
                                 <tr>
@@ -213,7 +213,8 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                             $checkUser++;
                             $totaliva = $CAlb->sumarIva($albaran['Numalbpro']);
                             if ($albaran['estado'] <> "Sin Guardar") {
-                                $historico = $CArticulo->historicoCompras($albaran['Numalbpro'], "albaran", "compras");
+                                // El histórico de costes se guarda con el identificador del albarán
+                                $historico = $CArticulo->historicoCompras($albaran['id'], "albaran", "compras");
                                 foreach ($historico as $his) {
                                     if ($his['estado'] == "Pendiente") {
                                         $iconoCostes = ' <a title="Recalcular precios" class="glyphicon glyphicon-th-list" style="color:red" href="../mod_productos/Recalculo_precios.php?id=' . $albaran['id'] . '"></a>';
@@ -245,7 +246,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                                 </td>
                                 <td><?php echo $albaran['Numalbpro']; ?></td>
                                 <td><?php echo date_format($date, 'Y-m-d'); ?></td>
-                                <td><?php echo $albaran['nombrecomercial']; ?></td>
+                                <td><?php echo htmlspecialchars((string) $albaran['nombrecomercial'], ENT_QUOTES); ?></td>
                                 <td><?php echo $totaliva['totalbase']; ?></td>
                                 <td><?php echo $totaliva['importeIva']; ?></td>
                                 <td><?php echo $albaran['total']; ?></td>

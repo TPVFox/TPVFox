@@ -109,7 +109,6 @@ if (isset($productos) && count($errores) === 0) {
             )
         );
     }
-    $respuesta['sqlmodtotal'] = $modTotal['sql'];
     $htmlTotales = htmlTotales($CalculoTotales);
     $respuesta['htmlTabla'] = $htmlTotales['html'];
 }

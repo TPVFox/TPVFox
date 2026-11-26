@@ -154,14 +154,25 @@ function BuscarProductos($id_input, $campoAbuscar, $idcaja, $busqueda, $BDTpv, $
     return $resultado;
 }
 
+function textoParaJs($texto)
+{
+    // @ Objetivo:
+    // Preparar un texto para escribirlo dentro de una cadena de JavaScript entre comillas simples, en la
+    // página: se escapan la barra, la comilla, los signos de etiqueta y los saltos de línea.
+    // @ Devolvemos:
+    // (string) El texto, listo para ir entre las comillas.
+    $buscar = array('\\', "'", '<', '>', "\n", "\r");
+    $poner = array('\\\\', "\\'", '\\x3C', '\\x3E', '\\n', '\\r');
+    return str_replace($buscar, $poner, (string) $texto);
+}
+
 function htmlProductos($productos, $id_input, $campoAbuscar, $busqueda, $dedonde)
 {
     // @ Objetivo
     // Obtener listado de produtos despues de busqueda.
     $cantidad_productos = count($productos);
     $html = '';
-    // El campo va dentro de una cadena de JavaScript: se escapan la barra, la comilla y los signos de etiqueta
-    $campoParaJs = str_replace(array('\\', "'", '<', '>'), array('\\\\', "\\'", '\\x3C', '\\x3E'), (string) $campoAbuscar);
+    $campoParaJs = textoParaJs($campoAbuscar);
     // Cambiamos valor parametro campo para que busque correctamente.
     $html = "<script type='text/javascript'>
             cajaBusquedaproductos.parametros.campo=" . "'" . $campoParaJs . "';" . "

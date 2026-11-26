@@ -131,7 +131,7 @@ if (count($ListadoFacturas) == 0) {
                         ?>
                                 <tr style="cursor:pointer" onclick="redireccionA('<?php echo $url; ?>')" title="Factura con numero temporal: <?php echo $temporal['id']; ?>">
                                     <td><?php echo $numTemporal; ?></td>
-                                    <td><?php echo $temporal['nombrecomercial']; ?></td>
+                                    <td><?php echo htmlspecialchars((string) $temporal['nombrecomercial'], ENT_QUOTES); ?></td>
                                     <td><?php echo number_format($temporal['total'], 2); ?></td>
                                 </tr>
                         <?php
@@ -217,7 +217,7 @@ if (count($ListadoFacturas) == 0) {
                                 </td>
                                 <td><?php echo $factura['Numfacpro']; ?></td>
                                 <td><?php echo date_format($date, 'Y-m-d'); ?></td>
-                                <td><?php echo $factura['nombrecomercial']; ?></td>
+                                <td><?php echo htmlspecialchars((string) $factura['nombrecomercial'], ENT_QUOTES); ?></td>
                                 <td><?php echo $totalBase; ?></td>
                                 <td><?php echo $importeIva; ?></td>
                                 <td><?php echo $factura['total']; ?></td>

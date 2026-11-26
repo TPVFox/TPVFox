@@ -141,7 +141,7 @@ if (count($pedidosDef) == 0) {
                                     . "'" . $url . "'" . ')" title="Pedido con numero temporal:'
                                     . $temporal['id'] . '">';
                                 $td_temporal = $tdl . $numTemporal . '</td>'
-                                    . $tdl . $temporal['nombrecomercial'] . '</td>'
+                                    . $tdl . htmlspecialchars((string) $temporal['nombrecomercial'], ENT_QUOTES) . '</td>'
                                     . $tdl . number_format($temporal['total'], 2) . '</td>';
                         ?>
                                 <tr>
@@ -230,7 +230,7 @@ if (count($pedidosDef) == 0) {
                                 </td>
                                 <td><?php echo $pedido['Numpedpro']; ?></td>
                                 <td><?php echo $pedido['Fecha']; ?></td>
-                                <td><?php echo $pedido['nombrecomercial']; ?></td>
+                                <td><?php echo htmlspecialchars((string) $pedido['nombrecomercial'], ENT_QUOTES); ?></td>
                                 <td><?php echo $totaliva['totalbase']; ?></td>
                                 <td><?php echo $totaliva['importeIva']; ?></td>
                                 <td><?php echo $pedido['total']; ?></td>
@@ -244,8 +244,8 @@ if (count($pedidosDef) == 0) {
                                     if ($ClasePermisos->getAccion("EnviarPedidoEmail") == 1) {
                                         // Hay permiso para poder enviar un pedido por email.
                                         $linkEmail = $pedido['email'] ? ' <a title="Enviar pedido por email" class="glyphicon glyphicon-envelope" ' .
-                                            'title="' . $pedido['email'] . '"' . "onclick='formularioEnvioEmail(" . $pedido['id'] .
-                                            ' , "pedido" , ' . $Tienda['idTienda'] . ',"' . $pedido['email'] . '"' . ")'></a>" : '';
+                                            'title="' . htmlspecialchars((string) $pedido['email'], ENT_QUOTES) . '"' . "onclick='formularioEnvioEmail(" . intval($pedido['id']) .
+                                            ' , "pedido" , ' . intval($Tienda['idTienda']) . ',"' . htmlspecialchars(addslashes((string) $pedido['email']), ENT_QUOTES) . '"' . ")'></a>" : '';
                                     }
                                 } else {
                                     // Color danger cuando es Sin Guardar

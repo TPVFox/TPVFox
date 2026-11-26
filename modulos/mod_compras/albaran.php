@@ -243,8 +243,9 @@ if (count($errores) == 0) {
                             // Informo posible error, ya que el estado pedido no es Guardado , ni Facturado..
                             array_push(
                                 $errores,
+                                // Es un aviso: la página sigue, para poder guardar o cancelar el temporal
                                 $CAlb->montarAdvertencia(
-                                    'danger',
+                                    'warning',
                                     'Posible error, el pedido con id:' . $idPedido . ' tiene estado ' . $e['estado']
                                 )
                             );
@@ -362,7 +363,7 @@ if ($idDocumentoTemporal === 0) {
         cabecera['idProveedor'] = '<?php echo $idProveedor; ?>';
         cabecera['fecha'] = '<?php echo $fecha; ?>';
         cabecera['hora'] = '<?php echo $hora; ?>';
-        cabecera['suNumero'] = '<?php echo $suNumero; ?>';
+        cabecera['suNumero'] = '<?php echo textoParaJs($suNumero); ?>';
         var productos = []; // No hace definir tipo variables, excepto cuando intentamos añadir con push, que ya debe ser un array
         var pedidos = [];
         var salto_linea = 'ReferenciaPro'; // Valor por defecto
@@ -513,7 +514,7 @@ if ($idDocumentoTemporal === 0) {
                         echo '<div class="col-md-10">
                                                 <input type="text" id="Proveedor" name="Proveedor" data-obj= "cajaProveedor" '
                             . 'placeholder="Nombre de proveedor (Alt+P)" onkeydown="controlEventos(event)" value="'
-                            . $nombreProveedor . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
+                            . htmlspecialchars((string) $nombreProveedor, ENT_QUOTES) . '" ' . $estilos['pro_readonly'] . ' size="60" accesskey="P" />'
                             . ' <a id="buscar" ' . $estilos['pro_styleNo'] . ' class="btn glyphicon glyphicon-search buscar"'
                             . ' onclick="buscarProveedor(' . "'" . $dedonde . "'" . ',Proveedor.value)"></a>
                                             </div>';
@@ -523,7 +524,7 @@ if ($idDocumentoTemporal === 0) {
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <label>Su número:</label>
-                            <input type="text" id="suNumero" name="suNumero" value="<?php echo $suNumero; ?>" size="10"
+                            <input type="text" id="suNumero" name="suNumero" value="<?php echo htmlspecialchars((string) $suNumero, ENT_QUOTES); ?>" size="10"
                                 <?php echo $estilos['evento_cambio']; ?> onkeydown="controlEventos(event)"
                                 data-obj="CajaSuNumero" <?php echo $estilos['input_factur']; ?> />
                         </div>
