@@ -163,6 +163,11 @@ switch ($pulsado) {
         break;
 
     case 'enviarEmail':
+        // Enviar un pedido por correo pide su permiso, el mismo con el que el listado ofrece el sobre
+        if ($ClasePermisos->getAccion('EnviarPedidoEmail', array('modulo' => 'mod_compras', 'vista' => 'pedidosListado.php')) != 1) {
+            $respuesta = array('error' => 'No tiene permiso para enviar pedidos por correo.');
+            break;
+        }
         include_once  $URLCom . '/modulos/mod_compras/tareas/enviarEmail.php';
 
         break;
@@ -198,6 +203,11 @@ switch ($pulsado) {
         break;
     
     case 'importarAlbaranCierreAno':
+        // Importar un albarán pide su permiso, el mismo con el que el listado ofrece importar
+        if ($ClasePermisos->getAccion('Importar', array('modulo' => 'mod_compras', 'vista' => 'albaranesListado.php')) != 1) {
+            $respuesta = array('ok' => false, 'message' => 'No tiene permiso para importar albaranes.', 'error' => 'No tiene permiso para importar albaranes.');
+            break;
+        }
         include_once  $URLCom . '/modulos/mod_compras/tareas/importarAlbaranCierreAno.php';
         break;
 
@@ -239,6 +249,11 @@ switch ($pulsado) {
         break;
 
     case 'insertarImporte':
+        // Añadir un importe a una factura es modificarla: pide ese permiso
+        if ($ClasePermisos->getAccion('Modificar', array('modulo' => 'mod_compras', 'vista' => 'facturasListado.php')) != 1) {
+            $respuesta = array('error' => 'No tiene permiso para modificar facturas.');
+            break;
+        }
         include_once  $URLCom . '/modulos/mod_compras/tareas/insertarImporte.php';
         break;
 

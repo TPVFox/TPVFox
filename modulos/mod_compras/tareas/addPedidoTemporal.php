@@ -6,7 +6,12 @@ $respuesta     = array();
 $errores    = array();
 $idPedidoTemporal = $_POST['idTemporal'];
 $idUsuario = $_POST['idUsuario'];
-$idTienda = $_POST['idTienda'];
+// La tienda es la de la sesión; el usuario, el de la sesión cuando el documento es nuevo.
+// Al editar uno que existe, la página envía a quien lo hizo.
+$idTienda = $Tienda['idTienda'];
+if (intval($_POST['idTemporal']) === 0 && intval($_POST['idReal']) === 0) {
+    $idUsuario = $Usuario['id'];
+}
 // Ahora compruebo estado, ya que si esta Guardado, tengo que pasarlo a Sin Guardar.
 if ($_POST['estado'] === 'Guardado') {
     // No cambio los que son estado Nuevo ,ya que esos no estan grabado, por lo que

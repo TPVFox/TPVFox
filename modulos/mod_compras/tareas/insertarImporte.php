@@ -10,6 +10,11 @@ $formaPago = $_POST['forma'];
 $referencia = $_POST['referencia'];
 $total = $_POST['total'];
 $idReal = $_POST['idReal'];
+// El total con el que se compara es el del temporal de la factura, no el que envía la página
+$temporalFactura = (new DB($BDTpv))->select('SELECT total FROM facproltemporales WHERE id = ?', array(intval($idFactura)));
+if (count($temporalFactura) > 0 && $temporalFactura[0]['total'] !== null) {
+    $total = $temporalFactura[0]['total'];
+}
 $arrayPrincipal = array();
 $error = 0;
 $bandera = $importe;
@@ -52,6 +57,11 @@ if ($importesTemporal) {
 		$error = 1;
 	}
 	$respuesta['bandera'] = $bandera;
+}
+// También el primer importe de una factura se compara con su total
+if ($error == 0 && floatval($bandera) > floatval($total)) {
+	$respuesta['mensaje'] = 1;
+	$error = 1;
 }
 if ($error == 0) {
 	$pendiente = $total - $bandera;
