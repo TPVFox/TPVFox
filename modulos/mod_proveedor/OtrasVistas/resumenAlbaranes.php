@@ -187,8 +187,11 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     <?php } ?>
                     <input type="hidden" name="campoorden" value="<?php echo $campoOrden; ?>">
                     <input type="hidden" name="sentidoorden" value="<?php echo $sentidoOrden; ?>">
-                    <b>ID: </b><input type="text" name="id" value="<?php echo $id; ?>" inputmode="numeric" class="form-control input-sm" style="width:90px;" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
-                    <input type="submit" class="btn btn-default btn-sm" value="Ir">
+                    <b>ID: </b>
+                    <span class="input-group input-group-sm" style="width:130px; display:inline-table; vertical-align:middle;">
+                        <input type="text" name="id" value="<?php echo $id; ?>" inputmode="numeric" class="form-control" title="Escribe el número de otro proveedor y pulsa Intro: se conservan las fechas">
+                        <span class="input-group-btn"><input type="submit" class="btn btn-default" value="Ir"></span>
+                    </span>
                 </form>
                 <b>Nombre: </b><?php echo $datosProveedor['datos'][0]['nombrecomercial']; ?></br>
                 <b>Razón social: </b><?php echo $datosProveedor['datos'][0]['razonsocial']; ?></br>
@@ -257,7 +260,7 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                     (CM) Coste medio: Si se compro a distintos precios.<br />
                     <span class="label label-success">A</span> hasta el <?php echo $cortesAbc[0]; ?> % de la cantidad comprada,
                     <span class="label label-warning">B</span> hasta el <?php echo $cortesAbc[1]; ?> %,
-                    <span class="label label-default">C</span> el resto. Pulsa ID, PRODUCTO o CANTIDAD para ordenar.<br />
+                    <span class="label label-default">C</span> el resto.<br />
                 </p>
 
             </div>
