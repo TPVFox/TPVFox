@@ -307,12 +307,14 @@ function htmlTablaResumenAnual($resumenAnual)
         . '<td>' . number_format($resumenAnual['facturas']['q4Iva'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['totalIva'], 2) . '</td>'
         . '</tr>'
+        . '<tr>'
         . '<td>Total</td>'
         . '<td>' . number_format($resumenAnual['facturas']['q1'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['q2'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['q3'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['q4'], 2) . '</td>'
         . '<td>' . number_format($resumenAnual['facturas']['total'], 2) . '</td>'
+        . '</tr>'
         . '</tbody></table>';
     return $html;
 }
@@ -323,7 +325,12 @@ function validarResumenAnualTodosProveedores($resumenAnual, $ano)
     // Validar que el resumen anual tiene datos del año seleccionado.
     // Si no es así crear array con meses y totales a 0.
     $respuesta = array();
-    $resumenAnual = $resumenAnual['resumen_facturas'];
+    // Sin facturas de ningún proveedor no hay filas: es una lista vacía
+    if (isset($resumenAnual['resumen_facturas']) && is_array($resumenAnual['resumen_facturas'])) {
+        $resumenAnual = $resumenAnual['resumen_facturas'];
+    } else {
+        $resumenAnual = array();
+    }
     foreach ($resumenAnual as $key => $resumenProveedor) {
         $idProveedor = $resumenAnual[$key]['idProveedor'];
         $resumen = array('resumen_facturas' => array($idProveedor => $resumenProveedor));
@@ -342,7 +349,7 @@ function mostrarResumenProveedor($proveedor, $resumen, $bgclass)
     $html .= '<h3>Datos del Proveedor</h3>';
     $html .= '<p><strong>ID Proveedor: </strong>' . htmlspecialchars($proveedor['idProveedor'], ENT_QUOTES) . '</p>';
     $html .= '<p><strong>Nombre: </strong>' . htmlspecialchars($proveedor['nombrecomercial'], ENT_QUOTES) . '</p>';
-    $html .= '<p><strong>NIF: </strong>' . htmlspecialchars($proveedor['razonsocial'], ENT_QUOTES) . '</p>';
+    $html .= '<p><strong>NIF: </strong>' . htmlspecialchars($proveedor['nif'], ENT_QUOTES) . '</p>';
     $html .= '<p><strong>Dirección: </strong>' . htmlspecialchars($proveedor['direccion'], ENT_QUOTES) . '</p>';
     $html .= '<p><strong>Teléfono: </strong>' . htmlspecialchars($proveedor['telefono'], ENT_QUOTES) . '</p>';
     $html .= '<p><strong>Email: </strong>' . htmlspecialchars($proveedor['email'], ENT_QUOTES) . '</p>';
