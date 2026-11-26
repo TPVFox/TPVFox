@@ -419,51 +419,17 @@ if ($idDocumentoTemporal === 0) {
             echo '<h3 class="text-center">' . $titulo . '</h3>';
             //Botones avanzar y retroceder generales
             if ($idDocumento > 0 && $accion != "editar") {
-                $primeraF = $CFac->getPrimeraFactura();
-                $ultimaF  = $CFac->getUltimaFactura();
-                $primeraP = $CFac->getPrimeraFactura($idProveedor);
-                $ultimaP = $CFac->getUltimaFactura($idProveedor);
-
+                // Las flechas van por el número de la factura, y enlazan con el identificador de la que hallan
+                $numeroFactura = isset($datosDocumento['Numfacpro']) ? intval($datosDocumento['Numfacpro']) : 0;
                 $botones = '';
-                if ($idDocumento != $primeraF) {
-                    // Botón retroceder (más pequeño): la factura anterior que existe, como la del proveedor
-                    $anteriorF = $CFac->getFacturaAnteriorSiguiente($idDocumento, 0, 'anterior');
-                    if ($anteriorF > 0) {
-                        $botones .= '<a class="nohistory" href="factura.php?id='
-                            . $anteriorF . '&accion=ver" title="Factura Anterior">'
-                            . '<span class="glyphicon glyphicon-step-backward"></span></a> ';
-                    }
-                }
-                $botones .= ' Global ';
-                if ($idDocumento != $ultimaF) {
-                    // Botón avanzar (más pequeño): la factura siguiente que existe
-                    $siguienteF = $CFac->getFacturaAnteriorSiguiente($idDocumento, 0, 'siguiente');
-                    if ($siguienteF > 0) {
-                        $botones .= '<a class="nohistory" href="./factura.php?id='
-                            . $siguienteF . '&accion=ver" title="Factura Siguiente">'
-                            . '<span class="glyphicon glyphicon-step-forward"></span></a>';
-                    }
-                }
-                $botones .= ' |';
-                if ($idDocumento != $primeraP) {
-                    //obtener la anterior factura de ese proveedor
-                    $anteriorP = $CFac->getFacturaAnteriorSiguiente($idDocumento, $idProveedor, 'anterior');
-                    if ($anteriorP !== false) {
-                        $botones .= ' <a class="nohistory" href="factura.php?id='
-                            . $anteriorP . '&accion=ver" title="Factura Anterior de este proveedor">'
-                            . '<span class="glyphicon glyphicon-backward"></span></a> ';
-                    }
-                }
-                $botones .= ' Proveedor ';
-
-                if ($idDocumento != $ultimaP) {
-                    //obtener la siguiente factura de ese proveedor
-                    $siguienteP = $CFac->getFacturaAnteriorSiguiente($idDocumento, $idProveedor, 'siguiente');
-                    if ($siguienteP !== false) {
-                        $botones .= ' <a class="nohistory" href="factura.php?id='
-                            . $siguienteP . '&accion=ver" title="Factura Siguiente de este proveedor">'
-                            . '<span class="glyphicon glyphicon-forward"></span></a> ';
-                    }
+                if ($numeroFactura > 0) {
+                    $botones .= enlaceFlechaFactura($CFac, $numeroFactura, 0, 'anterior', 'Factura Anterior', 'glyphicon-step-backward');
+                    $botones .= ' Global ';
+                    $botones .= enlaceFlechaFactura($CFac, $numeroFactura, 0, 'siguiente', 'Factura Siguiente', 'glyphicon-step-forward');
+                    $botones .= ' |';
+                    $botones .= enlaceFlechaFactura($CFac, $numeroFactura, $idProveedor, 'anterior', 'Factura Anterior de este proveedor', 'glyphicon-backward');
+                    $botones .= ' Proveedor ';
+                    $botones .= enlaceFlechaFactura($CFac, $numeroFactura, $idProveedor, 'siguiente', 'Factura Siguiente de este proveedor', 'glyphicon-forward');
                 }
 
                 // Centrar los botones respecto al título

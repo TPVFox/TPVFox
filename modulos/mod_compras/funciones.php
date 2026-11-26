@@ -154,6 +154,30 @@ function BuscarProductos($id_input, $campoAbuscar, $idcaja, $busqueda, $BDTpv, $
     return $resultado;
 }
 
+function enlaceFlechaFactura($CFac, $numeroFactura, $idProveedor, $tipo, $titulo, $icono)
+{
+    // @ Objetivo:
+    // El enlace de una flecha de la factura: a la anterior o a la siguiente por su número, de todas o de
+    // un proveedor, enlazada con el identificador de la factura hallada.
+    // @ Parametros:
+    // $numeroFactura -> (int) Número de la factura abierta.
+    // $idProveedor -> (int) 0 para todas las facturas, o el proveedor.
+    // $tipo -> (string) 'anterior' o 'siguiente'.
+    // @ Devolvemos:
+    // (string) El html del enlace, o vacío si no hay factura a la que ir.
+    $html = '';
+    $numero = $CFac->getFacturaAnteriorSiguiente($numeroFactura, $idProveedor, $tipo);
+    if (!is_array($numero) && intval($numero) > 0) {
+        $factura = $CFac->buscarFacturaNumero(intval($numero));
+        if (isset($factura['id'])) {
+            $html = ' <a class="nohistory" href="factura.php?id=' . intval($factura['id'])
+                . '&accion=ver" title="' . $titulo . '">'
+                . '<span class="glyphicon ' . $icono . '"></span></a> ';
+        }
+    }
+    return $html;
+}
+
 function textoParaJs($texto)
 {
     // @ Objetivo:
