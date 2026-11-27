@@ -220,8 +220,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
                     . 'Merma acumulada</span> ';
             }
             $badgeC2  = $badgeC7aMerma;
-            $ncant    = (float)($f['ncant'] ?? 0);
-            $ncantA   = isset($f['ncant_anterior']) && $f['ncant_anterior'] !== null ? (float)$f['ncant_anterior'] : null;
+            $ncant    = (float)($f['nunidades'] ?? 0);
+            $ncantA   = isset($f['nunidades_anterior']) && $f['nunidades_anterior'] !== null ? (float)$f['nunidades_anterior'] : null;
             $dias     = isset($f['dias_desde_anterior']) && $f['dias_desde_anterior'] !== null ? (int)$f['dias_desde_anterior'] : null;
             $vtr      = isset($f['ventas_entre_recepciones']) && $f['ventas_entre_recepciones'] !== null ? (float)$f['ventas_entre_recepciones'] : null;
             $cob      = isset($f['cobertura_dias']) && $f['cobertura_dias'] !== null ? (int)$f['cobertura_dias'] : null;
@@ -1392,7 +1392,7 @@ function renderTablaPosstock(array $filas, array $cfg): string
             $c6mCfg = [
                 'Normal'   => ['lbl' => 'N',   'cls' => 'label-success', 'comp' => 'Rotación regular',        'tip' => 'Normal — demanda estable y regular (gran consumo). ROP calculado con varianza empírica de la demanda.',    'qTip' => 'Llevar stock hasta el ROP (demanda predecible).'],
                 'Gamma'    => ['lbl' => 'Γ',   'cls' => 'label-warning', 'comp' => 'Demanda asimétrica',      'tip' => 'Gamma — demanda asimétrica o lead time variable. ROP = cuantil Gamma directo sobre la demanda en L.',     'qTip' => 'Demanda asimétrica: cuantil Gamma ya incluye el SS necesario.'],
-                'BN'       => ['lbl' => 'BN',  'cls' => 'label-info',    'comp' => 'Compras en rachas',       'tip' => 'Binomial Negativa — demanda con sobredispersión (ventas agrupadas en lotes o rachas). SS ampliado.',      'qTip' => 'Demanda en rachas: se añade SS extra sobre el ROP por mayor incertidumbre.'],
+                'BN'       => ['lbl' => 'BN',  'cls' => 'label-info',    'comp' => 'Compras en rachas',       'tip' => 'Binomial Negativa — demanda con sobredispersión (ventas agrupadas en lotes o rachas). SS ampliado.',      'qTip' => 'Demanda en rachas: llevar stock hasta el ROP, que ya lleva el SS ampliado.'],
                 'Binomial' => ['lbl' => 'Bin', 'cls' => 'label-primary', 'comp' => 'Rotación acotada',        'tip' => 'Binomial compuesta — distribución acotada (configurada por el usuario). SS según multiplicador σ.',       'qTip' => 'Binomial: llevar stock hasta el ROP con SS por multiplicador σ.'],
                 'Poisson'  => ['lbl' => 'Poi', 'cls' => 'label-default', 'comp' => 'Artículo esporádico',     'tip' => 'Poisson — demanda baja o poco frecuente. ROP conservador para artículos de baja rotación.',             'qTip' => 'Poisson: llevar stock hasta el ROP (varianza ≈ media).'],
             ];
@@ -1502,8 +1502,8 @@ function renderTablaPosstock(array $filas, array $cfg): string
                 } elseif ($c2CatTL === 'tendencia') {
                     $tipoLabel = 'Pedidos excesivos';
                 } else {
-                    $_ncant   = (float)($f['ncant'] ?? 0);
-                    $_ncantA  = isset($f['ncant_anterior']) && $f['ncant_anterior'] !== null ? (float)$f['ncant_anterior'] : null;
+                    $_ncant   = (float)($f['nunidades'] ?? 0);
+                    $_ncantA  = isset($f['nunidades_anterior']) && $f['nunidades_anterior'] !== null ? (float)$f['nunidades_anterior'] : null;
                     $_dias    = isset($f['dias_desde_anterior']) && $f['dias_desde_anterior'] !== null ? (int)$f['dias_desde_anterior'] : null;
                     $_dupP    = $_dias !== null && $_dias <= 1 && $_ncantA !== null && (max($_ncant, $_ncantA) > 0) && (abs($_ncant - $_ncantA) / max($_ncant, $_ncantA)) < 0.15;
                     $_dupPos  = !$_dupP && $_dias !== null && $_dias <= 3 && $_ncantA !== null && (max($_ncant, $_ncantA) > 0) && (abs($_ncant - $_ncantA) / max($_ncant, $_ncantA)) < 0.15;
@@ -1520,11 +1520,9 @@ function renderTablaPosstock(array $filas, array $cfg): string
             case 'Punto de Pedido':
                 $_ropTL   = (float)($f['rop'] ?? 0);
                 $_stTLRaw = (float)($f['stock_actual'] ?? 0);
-                $_stTL    = (!empty($f['stock_reconstituido']) && $_stTLRaw < 0) ? 0.0 : $_stTLRaw;
-                $_ssTL    = (float)($f['stock_seguridad'] ?? 0);
-                $_qTL     = (int)ceil((($f['modelo_usado'] ?? '') === 'BN')
-                    ? max(0, $_ropTL - $_stTL) + $_ssTL
-                    : max(0, $_ropTL - $_stTL));
+                // La misma cuenta que la insignia «Pedir» de la fila
+                $_stTL    = (!empty($f['stock_reconstituido']) && $_stTLRaw < 0) ? 0.0 : max($_stTLRaw, -$_ropTL);
+                $_qTL     = (int)ceil(max(0, $_ropTL - $_stTL));
                 $tipoLabel = $_qTL > 0 ? 'Reponer ahora' : 'ROP alcanzado';
                 break;
             default:

@@ -76,17 +76,17 @@ function camposCsvPosstock($grupos = null)
 
 function aPedirPosstock($f)
 {
-    // @ Objetivo: lo que hay que pedir en el punto de pedido, como lo enseña la tabla: el ROP menos el stock
-    // —desde cero si el stock es reconstruido y negativo—, más el stock de seguridad con el modelo BN
+    // @ Objetivo: lo que hay que pedir en el punto de pedido, el mismo número de la insignia «Pedir» de la tabla:
+    // el ROP menos el stock. El stock cuenta desde cero si es reconstruido y negativo, y si es negativo sin
+    // reconstruir, no baja del ROP en negativo
     $rop = (float) ($f['rop'] ?? 0);
     $stock = (float) ($f['stock_actual'] ?? 0);
     if (!empty($f['stock_reconstituido']) && $stock < 0) {
         $stock = 0.0;
+    } else {
+        $stock = max($stock, -$rop);
     }
     $pedir = max(0, $rop - $stock);
-    if (($f['modelo_usado'] ?? '') === 'BN') {
-        $pedir += (float) ($f['stock_seguridad'] ?? 0);
-    }
     return (int) ceil($pedir);
 }
 
