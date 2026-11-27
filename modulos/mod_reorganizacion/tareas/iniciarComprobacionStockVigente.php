@@ -5,32 +5,45 @@
 // la única lectura del reloj y la fecha de corte de toda la comprobación— y repartir el
 // catálogo en lotes. El contexto viaja con su resumen: cada lote lo devuelve y se reconoce
 // con él, sin volver a leer el reloj.
-
 //
-// Con un filtro —una familia o un proveedor, nunca los dos—, solo sus productos se reparten
-// en lotes, y el filtro viaja en el contexto con su nombre y su número de productos.
+// Con un filtro —unas familias o unos proveedores, nunca de los dos tipos—, solo sus productos
+// se reparten en lotes, y el filtro viaja en el contexto con sus nombres y su número de productos.
 
 $tamanoDeLote = 500;
 
-$idFamiliaFiltro = isset($_POST['idFamiliaFiltro']) ? (int) $_POST['idFamiliaFiltro'] : 0;
-$idProveedorFiltro = isset($_POST['idProveedorFiltro']) ? (int) $_POST['idProveedorFiltro'] : 0;
-$filtro = null;
-if ($idFamiliaFiltro > 0) {
-    $filtro = array('tipo' => 'familia', 'id' => $idFamiliaFiltro);
+// Los identificadores elegidos, separados por comas, sin repetir y ordenados.
+$idsDeFamilia = array();
+$idsDeProveedor = array();
+if (isset($_POST['idsFamiliaFiltro']) && $_POST['idsFamiliaFiltro'] !== '') {
+    $idsDeFamilia = array_values(array_unique(array_filter(array_map('intval', explode(',', $_POST['idsFamiliaFiltro'])))));
+    sort($idsDeFamilia);
 }
-if ($idProveedorFiltro > 0) {
-    $filtro = array('tipo' => 'proveedor', 'id' => $idProveedorFiltro);
+if (isset($_POST['idsProveedorFiltro']) && $_POST['idsProveedorFiltro'] !== '') {
+    $idsDeProveedor = array_values(array_unique(array_filter(array_map('intval', explode(',', $_POST['idsProveedorFiltro'])))));
+    sort($idsDeProveedor);
+}
+$filtro = null;
+if (!empty($idsDeFamilia)) {
+    $filtro = array('tipo' => 'familia', 'ids' => $idsDeFamilia);
+}
+if (!empty($idsDeProveedor)) {
+    $filtro = array('tipo' => 'proveedor', 'ids' => $idsDeProveedor);
 }
 
 try {
     $consulta = new ClaseComprobacionStockConsulta();
     $motivoDelFiltro = null;
-    if ($idFamiliaFiltro > 0 && $idProveedorFiltro > 0) {
-        $motivoDelFiltro = 'Elija una familia o un proveedor, no los dos.';
+    if (!empty($idsDeFamilia) && !empty($idsDeProveedor)) {
+        $motivoDelFiltro = 'Elija familias o proveedores, no los dos.';
     } elseif ($filtro !== null) {
-        $filtro['nombre'] = $consulta->nombreDelFiltro($filtro['tipo'], $filtro['id']);
-        if ($filtro['nombre'] === null) {
-            $motivoDelFiltro = $filtro['tipo'] === 'familia' ? 'La familia elegida no existe.' : 'El proveedor elegido no existe.';
+        $filtro['nombres'] = array();
+        foreach ($filtro['ids'] as $id) {
+            $nombre = $consulta->nombreDelFiltro($filtro['tipo'], $id);
+            if ($nombre === null) {
+                $motivoDelFiltro = ($filtro['tipo'] === 'familia' ? 'No existe la familia ' : 'No existe el proveedor ') . $id . '.';
+                break;
+            }
+            $filtro['nombres'][] = $nombre;
         }
     }
 

@@ -193,10 +193,10 @@
                             Ejercicio vigente: calcular los productos con existencia negativa</label></div>
                         <div class="checkbox" style="margin-left:20px"><label><input type="checkbox" id="chkComprobacionStockModoEstricto">
                             Modo estricto (trunca a cero el saldo de apertura de cada producto)</label></div>
-                        <!-- El filtro del vigente: una familia, con sus subfamilias, o un proveedor. Las mismas
-                             cajas y búsquedas que el cierre de stock anual. -->
+                        <!-- El filtro del vigente: unas familias, con sus subfamilias, o unos proveedores. Las
+                             mismas cajas y búsquedas que el cierre de stock anual; cada una se añade a la lista. -->
                         <div style="margin-left:20px">
-                            <label class="small">Solo la familia:</label>
+                            <label class="small">Solo las familias:</label>
                             <div class="row" style="margin-bottom:10px">
                                 <div class="col-xs-3" style="padding-right:5px;">
                                     <input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" onkeydown="controlEventos(event)">
@@ -207,11 +207,12 @@
                                         <span class="input-group-btn">
                                             <button type="button" class="btn btn-sm btn-default" title="Buscar" onclick="buscarFamilia('<?php echo $dedonde; ?>','Familia.value')"><i class="glyphicon glyphicon-search"></i></button>
                                             <button type="button" class="btn btn-sm btn-default" title="Catálogo" id="btnCatalogoFamiliasComprobacionStock" onclick="catalogoFamilias()"><i class="glyphicon glyphicon-book"></i></button>
+                                            <button type="button" class="btn btn-sm btn-default" title="Añadir" id="btnAgregarFamiliaComprobacionStock" onclick="agregarFiltroComprobacionStock('familia')"><i class="glyphicon glyphicon-plus"></i></button>
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <label class="small">o solo el proveedor:</label>
+                            <label class="small">o solo los proveedores:</label>
                             <div class="row" style="margin-bottom:10px">
                                 <div class="col-xs-8" style="padding-right:5px;">
                                     <input type="text" class="form-control input-sm" name="Proveedor" id="Proveedor" data-obj="cajaProveedor" placeholder="Nombre..." onkeydown="controlEventos(event)">
@@ -221,10 +222,13 @@
                                         <input type="text" class="form-control" name="id_proveedor" id="id_proveedor" data-obj="cajaIdProveedor" placeholder="ID" onkeydown="controlEventos(event)">
                                         <span class="input-group-btn">
                                             <button type="button" class="btn btn-default" onclick="buscarProveedor('<?php echo $dedonde; ?>','Proveedor.value')"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button type="button" class="btn btn-default" title="Añadir" id="btnAgregarProveedorComprobacionStock" onclick="agregarFiltroComprobacionStock('proveedor')"><i class="glyphicon glyphicon-plus"></i></button>
                                         </span>
                                     </div>
                                 </div>
                             </div>
+                            <ul class="list-inline" id="listaFiltroComprobacionStock"></ul>
+                            <div class="text-danger small" id="avisoFiltroComprobacionStock"></div>
                         </div>
                     <?php } ?>
                     <?php if ($puedeAdmitir) { ?>

@@ -162,9 +162,10 @@ class ClaseComprobacionStockContexto
         // él, no es de esta comprobación.
         if (isset($contexto['filtroDeCatalogo']) && is_array($contexto['filtroDeCatalogo'])) {
             $filtro = $contexto['filtroDeCatalogo'];
-            foreach (array('tipo', 'id', 'nombre', 'productos') as $campo) {
-                $partes[] = isset($filtro[$campo]) ? (string) $filtro[$campo] : '';
-            }
+            $partes[] = isset($filtro['tipo']) ? (string) $filtro['tipo'] : '';
+            $partes[] = isset($filtro['ids']) && is_array($filtro['ids']) ? implode(',', $filtro['ids']) : '';
+            $partes[] = isset($filtro['nombres']) && is_array($filtro['nombres']) ? implode(',', $filtro['nombres']) : '';
+            $partes[] = isset($filtro['productos']) ? (string) $filtro['productos'] : '';
         }
         return hash('sha256', implode('|', $partes));
     }

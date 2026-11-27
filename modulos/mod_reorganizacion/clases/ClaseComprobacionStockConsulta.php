@@ -38,11 +38,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
         // Los identificadores del catálogo de productos físicos, sin condición de
         // estado: el conjunto sobre el que se compone la trayectoria. En la
         // comprobación por lotes, solo los del lote que estén en el catálogo. Con
-        // filtro, solo los de la familia —con sus subfamilias— o los vinculados al
-        // proveedor, sea cual sea el estado del vínculo.
+        // filtro, solo los de las familias —con sus subfamilias— o los vinculados a los
+        // proveedores, sea cual sea el estado del vínculo; cada producto, una vez.
         // @ Parametros
         //      $soloEstos -> array de int, opcional: los productos del lote.
-        //      $filtro -> array ['tipo' => 'familia'|'proveedor', 'id' => int], opcional.
+        //      $filtro -> array ['tipo' => 'familia'|'proveedor', 'ids' => array de int], opcional.
         // @ Devolvemos
         //      array de int, idArticulo.
         $delLote = null;
@@ -52,11 +52,11 @@ class ClaseComprobacionStockConsulta extends TFModelo
         $deLaFamilia = '';
         $delProveedor = null;
         if ($filtro !== null && $filtro['tipo'] === 'familia') {
-            $deLaFamilia = $this->repositorio()->familiaWhere(array((int) $filtro['id']), array(), 'a');
+            $deLaFamilia = $this->repositorio()->familiaWhere(array_map('intval', $filtro['ids']), array(), 'a');
         }
         if ($filtro !== null && $filtro['tipo'] === 'proveedor') {
             $delProveedor = array();
-            foreach ($this->repositorio()->queryIdsArticulosByProveedoresTodos((string) (int) $filtro['id']) as $fila) {
+            foreach ($this->repositorio()->queryIdsArticulosByProveedoresTodos($this->idsCsv($filtro['ids'])) as $fila) {
                 $delProveedor[(int) $fila['idArticulo']] = true;
             }
         }

@@ -115,12 +115,18 @@ $camposContexto = array(
     'Umbral por venta' => $contexto['umbralPorVenta'],
 );
 
-// La comprobación del vigente acotada a una familia o a un proveedor lo dice, con cuántos
-// productos dio el filtro.
+// La comprobación del vigente acotada a unas familias o a unos proveedores lo dice, con
+// cuántos productos dio el filtro.
 if ($rama === 'vigente' && !empty($composicion['filtroDeCatalogo'])) {
     $filtroDeCatalogo = $composicion['filtroDeCatalogo'];
-    $camposContexto['Filtro'] = ($filtroDeCatalogo['tipo'] === 'familia' ? 'Familia ' : 'Proveedor ')
-        . $filtroDeCatalogo['nombre'] . ' (' . (int) $filtroDeCatalogo['productos'] . ' productos)';
+    $varios = count($filtroDeCatalogo['nombres']) > 1;
+    if ($filtroDeCatalogo['tipo'] === 'familia') {
+        $rotuloDelFiltro = $varios ? 'Familias ' : 'Familia ';
+    } else {
+        $rotuloDelFiltro = $varios ? 'Proveedores ' : 'Proveedor ';
+    }
+    $camposContexto['Filtro'] = $rotuloDelFiltro . implode(', ', $filtroDeCatalogo['nombres'])
+        . ' (' . (int) $filtroDeCatalogo['productos'] . ' productos)';
 }
 
 // En el ejercicio anterior lo que se mira no se calculó todo aquí: la mitad llegó

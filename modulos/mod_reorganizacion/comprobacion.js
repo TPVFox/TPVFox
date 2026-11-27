@@ -50,9 +50,82 @@ function enviarFormularioComprobacionStock(campos) {
 // El modal del listado
 // ---------------------------------------------------------------------------
 
+// El filtro del vigente: las familias o los proveedores añadidos con las cajas del cierre de
+// stock anual. Solo de un tipo; dentro del tipo, se suman.
+var filtroComprobacionStock = { familia: [], proveedor: [] };
+
 function abrirModalComprobacionStock() {
   // @ Objetivo: abrir el modal que elige el ejercicio, con el contenido que la página trae preparado
+  filtroComprobacionStock = { familia: [], proveedor: [] };
   abrirModalConTitulo("Comprobar existencias", $("#plantillaModalComprobacionStock").html());
+}
+
+function escaparComprobacionStock(texto) {
+  return String(texto).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function agregarFiltroComprobacionStock(tipo) {
+  // @ Objetivo: añadir al filtro la familia o el proveedor que está en su caja
+  // @ Devolvemos: false si ya hay del otro tipo; true en otro caso
+  var id = tipo === "familia" ? $("#id_familia").val() : $("#id_proveedor").val();
+  var nombre = tipo === "familia" ? $("#Familia").val() : $("#Proveedor").val();
+  var otro = tipo === "familia" ? "proveedor" : "familia";
+  if (!id) {
+    return true;
+  }
+  if (filtroComprobacionStock[otro].length > 0) {
+    $("#avisoFiltroComprobacionStock").text("Elija familias o proveedores, no los dos.");
+    return false;
+  }
+  var repetido = filtroComprobacionStock[tipo].some(function (elegido) {
+    return elegido.id === String(id);
+  });
+  if (!repetido) {
+    filtroComprobacionStock[tipo].push({ id: String(id), nombre: nombre });
+  }
+  console.log("Filtro de la comprobación: " + tipo + " " + id);
+  $("#avisoFiltroComprobacionStock").text("");
+  // Las cajas quedan libres para añadir otro, como al añadir una familia en el cierre
+  if (tipo === "familia") {
+    $("#id_familia").val("");
+    $("#Familia").val("");
+    $("#id_familia").prop("disabled", false);
+    $("#Familia").prop("disabled", false);
+  } else {
+    $("#id_proveedor").val("");
+    $("#Proveedor").val("");
+    $("#id_proveedor").prop("disabled", false);
+    $("#Proveedor").prop("disabled", false);
+  }
+  pintarFiltroComprobacionStock();
+  return true;
+}
+
+function quitarFiltroComprobacionStock(tipo, id) {
+  // @ Objetivo: quitar del filtro una familia o un proveedor
+  filtroComprobacionStock[tipo] = filtroComprobacionStock[tipo].filter(function (elegido) {
+    return elegido.id !== String(id);
+  });
+  pintarFiltroComprobacionStock();
+}
+
+function pintarFiltroComprobacionStock() {
+  // @ Objetivo: enseñar en el modal lo que lleva el filtro
+  var html = "";
+  ["familia", "proveedor"].forEach(function (tipo) {
+    filtroComprobacionStock[tipo].forEach(function (elegido) {
+      html += '<li><span class="label label-info">' + escaparComprobacionStock(elegido.nombre || elegido.id) + "</span> "
+        + '<button type="button" class="btn btn-xs btn-link text-danger" onclick="quitarFiltroComprobacionStock(\'' + tipo + "', '" + escaparComprobacionStock(elegido.id) + "')\">"
+        + '<i class="glyphicon glyphicon-trash"></i></button></li>';
+    });
+  });
+  $("#listaFiltroComprobacionStock").html(html);
+}
+
+function idsDelFiltroComprobacionStock(tipo) {
+  return filtroComprobacionStock[tipo].map(function (elegido) {
+    return elegido.id;
+  }).join(",");
 }
 
 function iniciarComprobacionStockDesdeModal() {
@@ -61,8 +134,11 @@ function iniciarComprobacionStockDesdeModal() {
   if ($("#radioComprobacionAnterior").is(":checked")) {
     admitirComprobacionStockAnterior();
   } else {
-    // El filtro se elige antes de empezar, en las cajas del cierre de stock anual: una familia o un proveedor
-    comprobarExistenciasVigente(modoEstricto, $("#id_familia").val(), $("#id_proveedor").val());
+    // Lo que quede en las cajas sin añadir también cuenta; con familias y proveedores a la vez, no empieza
+    if (!agregarFiltroComprobacionStock("familia") || !agregarFiltroComprobacionStock("proveedor")) {
+      return;
+    }
+    comprobarExistenciasVigente(modoEstricto, idsDelFiltroComprobacionStock("familia"), idsDelFiltroComprobacionStock("proveedor"));
   }
   cerrarPopUpConTitulo("Comprobar existencias");
 }
@@ -102,18 +178,18 @@ function avisoComprobacionStock(mensaje) {
   return '<div class="alert alert-danger">' + mensaje + "</div>";
 }
 
-function comprobarExistenciasVigente(modoEstricto, idFamiliaFiltro, idProveedorFiltro) {
+function comprobarExistenciasVigente(modoEstricto, idsFamiliaFiltro, idsProveedorFiltro) {
   // @ Objetivo: empezar la comprobación del vigente; el servidor fija el contexto, con el filtro si lo hay, y reparte los lotes
   comprobacionStockVigente = { modoEstricto: modoEstricto === "1" ? "1" : "0", lotesRecibidos: [] };
   abrirPanelComprobacionStock("vigente");
   $("#areaComprobacionStock").html("Comprobando…");
-  console.log("Comprobación del vigente: empezar, familia " + (idFamiliaFiltro || "todas") + ", proveedor " + (idProveedorFiltro || "todos"));
+  console.log("Comprobación del vigente: empezar, familias " + (idsFamiliaFiltro || "todas") + ", proveedores " + (idsProveedorFiltro || "todos"));
 
   $.ajax({
     data: {
       pulsado: "iniciarComprobacionStockVigente",
-      idFamiliaFiltro: idFamiliaFiltro || "",
-      idProveedorFiltro: idProveedorFiltro || "",
+      idsFamiliaFiltro: idsFamiliaFiltro || "",
+      idsProveedorFiltro: idsProveedorFiltro || "",
     },
     url: "./tareas.php",
     type: "post",
