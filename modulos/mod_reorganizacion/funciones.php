@@ -14,10 +14,15 @@ function obtenerDatosProductoAlbaranCierre($arrayIdsArticulos, $idFamilia = null
             continue;
         }
         if ($idFamilia !== null) {
-            // Maximo 100 caracters
-            $resultado['cdetalle'] = substr($resultado['cdetalle'], 0, 80);
+            // Maximo 100 caracters: se recorta por letras, para no dejar media letra con tilde
+            $resultado['cdetalle'] = mb_substr($resultado['cdetalle'], 0, 80, 'UTF-8');
             $resultado['cdetalle'] .= ' CIERRE ID: ' . $idFamilia;
         }
+        // El guardado de compras pega el nombre y el código de barras entre comillas en la sentencia de las
+        // líneas: se le pasan escapados para que unas comillas no la rompan después de mover las existencias
+        global $BDTpv;
+        $resultado['cdetalle'] = $BDTpv->real_escape_string((string) $resultado['cdetalle']);
+        $resultado['ccodbar'] = $BDTpv->real_escape_string((string) $resultado['ccodbar']);
         $datosProducto = [
             'idArticulo' => $idArticulo['idArticulo'],
             'ncant' => -$idArticulo['stockOn'],

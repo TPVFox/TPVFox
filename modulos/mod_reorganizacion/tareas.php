@@ -213,6 +213,12 @@ switch ($pulsado) {
         echo json_encode($totalFamilias);
         break;
     case 'cerrarStockAnoActual':
+        // Cerrar el stock pide su permiso, no solo que la pantalla enseñe el botón
+        $vistaCierre = array('modulo' => 'mod_reorganizacion', 'vista' => 'ListadoReorganizar.php');
+        if (!isset($ClasePermisos) || $ClasePermisos->getAccion('cerrar_stock_anual', $vistaCierre) != 1) {
+            echo json_encode(array('error' => 'No tiene permiso para cerrar el stock anual.'));
+            break;
+        }
         // Obtenemos los datos de Ajax via POST
         $inicial = $_POST['inicial'];
         $pagina = $_POST['pagina'];
@@ -227,6 +233,11 @@ switch ($pulsado) {
         $xml = $ClasesParametros->getNodeInternBySection('configuracion', 'cierre_stock_anual');
         $limiteProductosAlbaran = (int)$xml->ajustes_globales->num_productos;
         $serieAlbaranCierre = (string)$xml->ajustes_globales->serie_albaran->cierre;
+        if ($limiteProductosAlbaran < 1) {
+            // El reparto en albaranes divide por este número: sin un entero positivo no se cierra nada
+            echo json_encode(array('error' => 'El número de productos por albarán de la configuración tiene que ser mayor que cero.'));
+            break;
+        }
 
 
         $familiasExcluidas = array();
@@ -247,12 +258,13 @@ switch ($pulsado) {
             // 2. Si el número de productos es menor o igual al limite de productos por albarán, se cierra la familia en un solo albarán.
             // 3. Si el número de productos es mayor al limite de productos por albarán, se cierra la familia en varios albaranes.
             $idNivel = $CReorganizar->obtenerNivelFamilia($familia_id);
+            // También a mano se dejan fuera las familias excluidas de la configuración
             if ($idNivel == 1) {
-                $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id);
+                $idsProductos = $CReorganizar->obtenerProductosPorFamilia($familia_id, array(), $familiasExcluidas);
             } else if ($idNivel == 2) {
-                $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($familia_id);
+                $idsProductos = $CReorganizar->obtenerProductosPorSubfamilia($familia_id, $familiasExcluidas);
             } else {
-                $idsProductos = $CReorganizar->obtenerProductosPorIdFamilia($familia_id);
+                $idsProductos = $CReorganizar->obtenerProductosPorIdFamilia($familia_id, $familiasExcluidas);
             }
             $idsProductosUnicos = normalizarProductos($idsProductos);
             $subfamiliasProcesar = [$familia_id];
@@ -303,7 +315,7 @@ switch ($pulsado) {
             $idsProductosUnicos = normalizarProductos($idsProductos);
             if (count($idsProductosUnicos) > 0) {
                 $productos = obtenerDatosProductoAlbaranCierre($idsProductosUnicos, $familia_id);
-                generarCierreAlbaran($productos, $familia_id, $idProveedor);
+                generarCierreAlbaran($productos, $familia_id, $idProveedor, $serieAlbaranCierre);
             }
 
             // Si es la ultima familia hacemos una revisión final

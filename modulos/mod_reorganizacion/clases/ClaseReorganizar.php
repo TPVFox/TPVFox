@@ -15,6 +15,22 @@ class ClaseReorganizar extends TFModelo
         $plugins = new ClasePlugins('mod_reorganizacion', $this->view);
         $this->plugins = $plugins->GetParametrosPlugins();
     }
+    private function tiendaDelCierre()
+    {
+        // @ Objetivo: la tienda cuyas existencias se cierran, la de la sesión
+        $idTienda = 1;
+        if (isset($_SESSION['tiendaTpv']['idTienda'])) {
+            $idTienda = (int) $_SESSION['tiendaTpv']['idTienda'];
+        }
+        return $idTienda;
+    }
+
+    private function listaDeNumeros($ids)
+    {
+        // @ Objetivo: una lista de números para un IN, con cada valor convertido en entero
+        return implode(',', array_map('intval', $ids));
+    }
+
     public function SetPlugin($nombre_plugin)
     {
         // @ Objetivo
@@ -86,7 +102,7 @@ class ClaseReorganizar extends TFModelo
     {
         $filtroFamilias = '';
         if (count($idsFamiliasCierreStock) > 0) {
-            $filtroFamilias = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $idsFamiliasCierreStock) . ')) ';
+            $filtroFamilias = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($idsFamiliasCierreStock) . ')) ';
         }
         $sql = 'SELECT
                     DISTINCT v.idN1
@@ -94,7 +110,7 @@ class ClaseReorganizar extends TFModelo
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
                 WHERE s.stockOn > 0
-                AND s.idTienda = 1
+                AND s.idTienda = ' . $this->tiendaDelCierre() . '
                 ' . $filtroFamilias . '
                 ORDER BY v.idN1;';
         $resultado = $this->consulta($sql);
@@ -113,7 +129,7 @@ class ClaseReorganizar extends TFModelo
         // Esto es importante para el cierre automatico y agrupar por albaranes adaptadado a num_productos.
         $filtroExcluidas = '';
         if (count($familiasExcluidas) > 0) {
-            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     v.idN2,
@@ -121,10 +137,10 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idN1 = ' . $idFamilia . '
+                WHERE v.idN1 = ' . (int) $idFamilia . '
                 ' . $filtroExcluidas . '
                 AND s.stockOn > 0
-                AND s.idTienda = 1
+                AND s.idTienda = ' . $this->tiendaDelCierre() . '
                 GROUP BY v.idN2
                 ORDER BY total_articulos DESC;';
         $resultado = $this->consulta($sql);
@@ -146,11 +162,11 @@ class ClaseReorganizar extends TFModelo
     {
         $filtroSubfamilias = '';
         if (count($subfamiliasProcesar) > 0) {
-            $filtroSubfamilias = ' AND v.idN2 NOT IN (' . implode(',', $subfamiliasProcesar) . ') ';
+            $filtroSubfamilias = ' AND (v.idN2 IS NULL OR v.idN2 NOT IN (' . $this->listaDeNumeros($subfamiliasProcesar) . ')) ';
         }
         $filtroExcluidas = '';
         if (count($familiasExcluidas) > 0) {
-            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     s.idArticulo,
@@ -158,11 +174,11 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idN1 = ' . $idFamilia . '
+                WHERE v.idN1 = ' . (int) $idFamilia . '
                 ' . $filtroSubfamilias . '
                 ' . $filtroExcluidas . '
                 AND s.stockOn > 0
-                AND s.idTienda = 1;';
+                AND s.idTienda = ' . $this->tiendaDelCierre() . ';';
         $resultado = $this->consulta($sql);
         // Devolver array de ids articulos
         $articulos = array();
@@ -181,7 +197,7 @@ class ClaseReorganizar extends TFModelo
     {
         $filtroExcluidas = '';
         if (count($familiasExcluidas) > 0) {
-            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     s.idArticulo,
@@ -189,10 +205,10 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idFamilia = ' . $idFamilia . '
+                WHERE v.idFamilia = ' . (int) $idFamilia . '
                 ' . $filtroExcluidas . '
                 AND s.stockOn > 0
-                AND s.idTienda = 1;';
+                AND s.idTienda = ' . $this->tiendaDelCierre() . ';';
         $resultado = $this->consulta($sql);
         // Devolver array de ids articulos
         $articulos = array();
@@ -212,7 +228,7 @@ class ClaseReorganizar extends TFModelo
     {
         $filtroExcluidas = '';
         if (count($familiasExcluidas) > 0) {
-            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     s.idArticulo,
@@ -220,7 +236,7 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 WHERE s.stockOn > 0
                 ' . $filtroExcluidas . '
-                AND s.idTienda = 1;';
+                AND s.idTienda = ' . $this->tiendaDelCierre() . ';';
         $resultado = $this->consulta($sql);
         // Devolver array de ids articulos
         $articulos = array();
@@ -239,7 +255,7 @@ class ClaseReorganizar extends TFModelo
     {
         $filtroExcluidas = '';
         if (count($familiasExcluidas) > 0) {
-            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . implode(',', $familiasExcluidas) . ')) ';
+            $filtroExcluidas = ' AND s.idArticulo NOT IN (SELECT idArticulo FROM articulosFamilias WHERE idFamilia IN (' . $this->listaDeNumeros($familiasExcluidas) . ')) ';
         }
         $sql = 'SELECT
                     s.idArticulo,
@@ -247,10 +263,10 @@ class ClaseReorganizar extends TFModelo
                 FROM articulosStocks s
                 JOIN articulosFamilias f ON s.idArticulo = f.idArticulo
                 JOIN vw_jerarquias_familias v ON v.idFamilia = f.idFamilia
-                WHERE v.idN2 = ' . $idSubfamilia . '
+                WHERE v.idN2 = ' . (int) $idSubfamilia . '
                 ' . $filtroExcluidas . '
                 AND s.stockOn > 0
-                AND s.idTienda = 1;';
+                AND s.idTienda = ' . $this->tiendaDelCierre() . ';';
         $resultado = $this->consulta($sql);
         // Devolver array de ids articulos
         $articulos = array();
@@ -267,7 +283,7 @@ class ClaseReorganizar extends TFModelo
 
     public function obtenerNivelFamilia($idFamilia)
     {
-        $sql = 'SELECT nivel FROM vw_jerarquias_familias WHERE idFamilia = ' . $idFamilia;
+        $sql = 'SELECT nivel FROM vw_jerarquias_familias WHERE idFamilia = ' . (int) $idFamilia;
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos'][0])) {
             return $resultado['datos'][0]['nivel'];
@@ -281,7 +297,7 @@ class ClaseReorganizar extends TFModelo
         $sql = 'SELECT acb.codBarras AS ccodbar, a.articulo_name AS cdetalle, a.ultimoCoste AS costSiva, a.iva AS iva
                 FROM articulos a
                     LEFT JOIN articulosCodigoBarras acb ON a.idArticulo = acb.idArticulo
-                WHERE a.idArticulo = ' . $idArticulo;;
+                WHERE a.idArticulo = ' . (int) $idArticulo;;
         $resultado = $this->consulta($sql);
         if (isset($resultado['datos'][0])) {
             return $resultado['datos'][0];
@@ -292,7 +308,7 @@ class ClaseReorganizar extends TFModelo
 
     public function buscarFamiliaId($idFamilia)
     {
-        $sql = 'SELECT * from familias where idFamilia=' . $idFamilia;
+        $sql = 'SELECT * from familias where idFamilia=' . (int) $idFamilia;
         $smt = $this->consulta($sql);
         if (isset($smt['error'])) {
             $respuesta['error'] = $smt['error'];
