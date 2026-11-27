@@ -190,31 +190,39 @@ class ClaseComprobacionStockMinimo
         // lote: no hay recepción que los delimite.
         //
         // Los movimientos se fechan por día, sin hora, de modo que coincidir en el
-        // mismo día es lo corriente y hay que decidirlo: dentro de un día la recepción
-        // va primero, y lo que salió ese día pertenece al lote que la recepción abre.
-        // Es lo coherente con que el lote empiece en la recepción inclusive; dejarlo al
-        // orden en que se leyeron los tres orígenes haría que el resultado dependiera de
-        // en qué orden se concatenan.
+        // mismo día es lo corriente y hay que decidirlo. El día es la unidad del lote:
+        // todas las recepciones de un día abren un solo lote, aunque lleguen en varios
+        // albaranes. Dentro del día van primero las devoluciones a proveedor, que son
+        // salida de lo recibido antes y restan del lote anterior; después las
+        // recepciones; después las ventas, que pertenecen al lote que el día abre.
+        // Dejarlo al orden en que se leyeron los tres orígenes, o a cuántos albaranes
+        // trajo el proveedor, haría depender el resultado de algo que no es un criterio.
         // @ Devolvemos
         //      array de ['balance' => float, 'salidas' => int], en orden cronológico.
+        $ordenDentroDelDia = array('devolucion' => 0, 'recepcion' => 1);
         $ordenados = $movimientos;
-        usort($ordenados, function ($a, $b) {
+        usort($ordenados, function ($a, $b) use ($ordenDentroDelDia) {
             $porFecha = strcmp($a['fecha'], $b['fecha']);
             if ($porFecha !== 0) {
                 return $porFecha;
             }
-            $primeroLaRecepcion = ($a['tipo'] === 'recepcion' ? 0 : 1) - ($b['tipo'] === 'recepcion' ? 0 : 1);
-            return $primeroLaRecepcion;
+            $ordenA = isset($ordenDentroDelDia[$a['tipo']]) ? $ordenDentroDelDia[$a['tipo']] : 2;
+            $ordenB = isset($ordenDentroDelDia[$b['tipo']]) ? $ordenDentroDelDia[$b['tipo']] : 2;
+            return $ordenA - $ordenB;
         });
 
         $lotes = array();
         $loteActual = null;
+        $diaDelLote = null;
         foreach ($ordenados as $movimiento) {
-            if ($movimiento['tipo'] === 'recepcion') {
+            // Solo la primera recepción del día abre lote; las siguientes del mismo día
+            // se suman a él.
+            if ($movimiento['tipo'] === 'recepcion' && $movimiento['fecha'] !== $diaDelLote) {
                 if ($loteActual !== null) {
                     $lotes[] = $loteActual;
                 }
                 $loteActual = array('balance' => 0.0, 'salidas' => 0);
+                $diaDelLote = $movimiento['fecha'];
             }
 
             if ($loteActual === null) {
