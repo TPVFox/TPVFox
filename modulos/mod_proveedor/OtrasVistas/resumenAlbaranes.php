@@ -362,13 +362,18 @@ $mod_vista = array('vista' => 'facturasListado.php', 'modulo' => 'mod_compras');
                         if (isset($arrayNums['resumenBases'])) {
                             foreach ($arrayNums['resumenBases'] as $bases) {
                                 $totalLinea = $bases['sumabase'] + $bases['sumarIva'];
-                                $totalbases = $totalbases + $totalLinea;
+                                // Un albarán «Sin Guardar» lo está editando alguien: sale, pero no suma
+                                if ($bases['estado'] != 'Sin Guardar') {
+                                    $totalbases = $totalbases + $totalLinea;
+                                }
                                 $date = date_create($bases['fecha']);
                                 $checkbox = '';
 
 
                                 if (isset($ClasePermisos) && $ClasePermisos->getAccion("Crear", $mod_vista)) {
-                                    if ($bases['estado'] != 'Facturado') {
+                                    if ($bases['estado'] == 'Sin Guardar') {
+                                        $checkbox = '';
+                                    } elseif ($bases['estado'] != 'Facturado') {
                                         $checkbox = '<input type="checkbox" name="albaranes[]" value="' . $bases['Numalbpro'] . '">';
                                     } else {
                                         $checkbox = '<span class="text-muted glyphicon glyphicon-lock"></span>';

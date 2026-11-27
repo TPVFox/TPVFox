@@ -337,7 +337,9 @@ class ClaseProveedor extends TFModelo
         $respuesta = array();
         $productos = array();
         $resumenBases = array();
-        $sql = 'SELECT Numalbpro , id FROM albprot WHERE  idProveedor =' . intval($idProveedor) . ' and estado <> "Sin Guardar"';
+        // La lista lleva todos los albaranes; los «Sin Guardar» —guardados que alguien está editando— salen
+        // en ella para que no pasen desapercibidos, pero no suman en los productos ni en el desglose.
+        $sql = 'SELECT Numalbpro , id, estado FROM albprot WHERE  idProveedor =' . intval($idProveedor);
         $and = '';
         if (!$fechaIni == "" & !$fechaFin == "") {
             // Hasta el final del último día: la fecha del albarán lleva su hora
@@ -349,14 +351,24 @@ class ClaseProveedor extends TFModelo
             $respuesta = $albaranes;
         } else {
             $ids = 0;
+            $idsQueSuman = 0;
             if (isset($albaranes['datos'])) {
                 $ids = implode(', ', array_column($albaranes['datos'], 'id'));
+                $guardados = array();
+                foreach ($albaranes['datos'] as $albaran) {
+                    if ($albaran['estado'] !== 'Sin Guardar') {
+                        $guardados[] = $albaran['id'];
+                    }
+                }
+                if (count($guardados) > 0) {
+                    $idsQueSuman = implode(', ', $guardados);
+                }
             }
             if ($ids == 0) {
 
                 $respuesta['error'][] = $this->montarAdvertencia('warning', 'No hay albaranes para ese proveedor entre las fechas seleccionadas');
             } else {
-                $sql = 'SELECT idalbpro, idArticulo, costeSiva ,SUM(nunidades) as totalUnidades FROM `albprolinea` WHERE idalbpro  IN(' . $ids . ') and
+                $sql = 'SELECT idalbpro, idArticulo, costeSiva ,SUM(nunidades) as totalUnidades FROM `albprolinea` WHERE idalbpro  IN(' . $idsQueSuman . ') and
                 `estadoLinea` <> "Eliminado" GROUP BY idalbpro,idArticulo,costeSiva';
                 $productos = $this->consulta($sql);
                 if (isset($productos['error'])) {
@@ -380,7 +392,7 @@ class ClaseProveedor extends TFModelo
                     $respuesta['resumenBases'] = $resumenBases['datos'];
                 }
                 $sql = 'SELECT *, sum(importeIva) as sumiva , sum(totalbase) as sumBase from albproIva where idalbpro
-                in (' . $ids . ')  GROUP BY iva;';
+                in (' . $idsQueSuman . ')  GROUP BY iva;';
                 $desglose = $this->consulta($sql);
                 if (isset($desglose['error'])) {
                     $respuesta['error'][] = $this->montarAdvertencia('danger', 'Error al obtener el desglose ivas de albaranes encontrados.<br/>'
