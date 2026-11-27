@@ -193,6 +193,53 @@
                             Ejercicio vigente: calcular los productos con existencia negativa</label></div>
                         <div class="checkbox" style="margin-left:20px"><label><input type="checkbox" id="chkComprobacionStockModoEstricto">
                             Modo estricto (trunca a cero el saldo de apertura de cada producto)</label></div>
+                        <?php
+                        // El filtro del vigente: una familia, con sus subfamilias, o un proveedor.
+                        include_once './clases/ClaseComprobacionStockConsulta.php';
+                        $consultaDelFiltro = new ClaseComprobacionStockConsulta();
+                        $familiasPorPadre = array();
+                        $idsDeFamilia = array();
+                        $familiasDelFiltro = $consultaDelFiltro->familiasDelFiltro();
+                        foreach ($familiasDelFiltro as $familia) {
+                            $idsDeFamilia[$familia['idFamilia']] = true;
+                        }
+                        foreach ($familiasDelFiltro as $familia) {
+                            $padre = isset($idsDeFamilia[$familia['padre']]) ? $familia['padre'] : 0;
+                            $familiasPorPadre[$padre][] = $familia;
+                        }
+                        // Cada subfamilia debajo de su familia, sangrada por su nivel.
+                        $opcionesDeFamilia = '';
+                        $pendientes = array();
+                        if (isset($familiasPorPadre[0])) {
+                            foreach (array_reverse($familiasPorPadre[0]) as $familia) {
+                                $pendientes[] = array($familia, 0);
+                            }
+                        }
+                        while (!empty($pendientes)) {
+                            list($familia, $nivel) = array_pop($pendientes);
+                            $opcionesDeFamilia .= '<option value="' . $familia['idFamilia'] . '">'
+                                . str_repeat('— ', $nivel) . htmlspecialchars($familia['nombre']) . '</option>';
+                            if (isset($familiasPorPadre[$familia['idFamilia']])) {
+                                foreach (array_reverse($familiasPorPadre[$familia['idFamilia']]) as $hija) {
+                                    $pendientes[] = array($hija, $nivel + 1);
+                                }
+                            }
+                        }
+                        $opcionesDeProveedor = '';
+                        foreach ($consultaDelFiltro->proveedoresDelFiltro() as $proveedor) {
+                            $opcionesDeProveedor .= '<option value="' . $proveedor['idProveedor'] . '">' . htmlspecialchars($proveedor['nombre']) . '</option>';
+                        }
+                        ?>
+                        <div class="form-group" style="margin-left:20px">
+                            <label for="selectFamiliaComprobacionStock">Solo la familia</label>
+                            <select class="form-control input-sm" id="selectFamiliaComprobacionStock" onchange="$('#selectProveedorComprobacionStock').val('')">
+                                <option value="">Todas</option><?php echo $opcionesDeFamilia; ?>
+                            </select>
+                            <label for="selectProveedorComprobacionStock">o solo el proveedor</label>
+                            <select class="form-control input-sm" id="selectProveedorComprobacionStock" onchange="$('#selectFamiliaComprobacionStock').val('')">
+                                <option value="">Todos</option><?php echo $opcionesDeProveedor; ?>
+                            </select>
+                        </div>
                     <?php } ?>
                     <?php if ($puedeAdmitir) { ?>
                         <div class="radio"><label><input type="radio" name="ejercicioComprobacion" id="radioComprobacionAnterior" value="anterior" <?php echo $puedeComprobar ? '' : 'checked'; ?>>

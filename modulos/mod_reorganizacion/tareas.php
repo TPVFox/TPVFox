@@ -415,7 +415,7 @@ switch ($pulsado) {
         }
         // Los ficheros de la descarga y de la admisión escriben su propia respuesta y
         // terminan con exit(); los del vigente dejan la suya en $respuesta.
-        include_once 'tareas/' . $pulsado . '.php';
+        include 'tareas/' . $pulsado . '.php';
         echo json_encode($respuesta);
         return $respuesta;
 

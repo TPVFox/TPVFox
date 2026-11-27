@@ -61,7 +61,8 @@ function iniciarComprobacionStockDesdeModal() {
   if ($("#radioComprobacionAnterior").is(":checked")) {
     admitirComprobacionStockAnterior();
   } else {
-    comprobarExistenciasVigente(modoEstricto);
+    // El filtro se elige antes de empezar: una familia o un proveedor
+    comprobarExistenciasVigente(modoEstricto, $("#selectFamiliaComprobacionStock").val(), $("#selectProveedorComprobacionStock").val());
   }
   cerrarPopUpConTitulo("Comprobar existencias");
 }
@@ -101,15 +102,19 @@ function avisoComprobacionStock(mensaje) {
   return '<div class="alert alert-danger">' + mensaje + "</div>";
 }
 
-function comprobarExistenciasVigente(modoEstricto) {
-  // @ Objetivo: empezar la comprobación del vigente; el servidor fija el contexto y reparte los lotes
+function comprobarExistenciasVigente(modoEstricto, idFamiliaFiltro, idProveedorFiltro) {
+  // @ Objetivo: empezar la comprobación del vigente; el servidor fija el contexto, con el filtro si lo hay, y reparte los lotes
   comprobacionStockVigente = { modoEstricto: modoEstricto === "1" ? "1" : "0", lotesRecibidos: [] };
   abrirPanelComprobacionStock("vigente");
   $("#areaComprobacionStock").html("Comprobando…");
-  console.log("Comprobación del vigente: empezar");
+  console.log("Comprobación del vigente: empezar, familia " + (idFamiliaFiltro || "todas") + ", proveedor " + (idProveedorFiltro || "todos"));
 
   $.ajax({
-    data: { pulsado: "iniciarComprobacionStockVigente" },
+    data: {
+      pulsado: "iniciarComprobacionStockVigente",
+      idFamiliaFiltro: idFamiliaFiltro || "",
+      idProveedorFiltro: idProveedorFiltro || "",
+    },
     url: "./tareas.php",
     type: "post",
     success: function (respuesta) {

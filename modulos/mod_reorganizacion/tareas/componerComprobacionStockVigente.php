@@ -24,6 +24,8 @@ if (!is_array($contextoRecibido) || $resumenRecibido === null
         $respuesta = array('ok' => false, 'motivo' => $admitidos['motivo'], 'html' => htmlAlertaComprobacionStock($admitidos['motivo']));
     } else {
         $composicion = $emision->componer($admitidos['filas'], $contextoRecibido, $modoEstricto);
+        // El filtro se nombra en la pantalla; lo que se emite al otro ejercicio no lo lleva.
+        $composicion['filtroDeCatalogo'] = isset($contextoRecibido['filtroDeCatalogo']) ? $contextoRecibido['filtroDeCatalogo'] : null;
         $aviso = $emision->avisoDeVolumen(
             count($composicion['filas']),
             ini_get('upload_max_filesize'),

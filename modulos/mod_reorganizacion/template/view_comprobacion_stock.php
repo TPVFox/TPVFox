@@ -115,6 +115,14 @@ $camposContexto = array(
     'Umbral por venta' => $contexto['umbralPorVenta'],
 );
 
+// La comprobación del vigente acotada a una familia o a un proveedor lo dice, con cuántos
+// productos dio el filtro.
+if ($rama === 'vigente' && !empty($composicion['filtroDeCatalogo'])) {
+    $filtroDeCatalogo = $composicion['filtroDeCatalogo'];
+    $camposContexto['Filtro'] = ($filtroDeCatalogo['tipo'] === 'familia' ? 'Familia ' : 'Proveedor ')
+        . $filtroDeCatalogo['nombre'] . ' (' . (int) $filtroDeCatalogo['productos'] . ' productos)';
+}
+
 // En el ejercicio anterior lo que se mira no se calculó todo aquí: la mitad llegó
 // en un fichero, y de esa mitad hay que decir de dónde vino. El ejercicio y la
 // tienda ya los comprobó la admisión; el momento y el autor no los puede comprobar

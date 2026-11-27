@@ -47,7 +47,10 @@ class ClaseComprobacionStockExtraccion
 
         $consulta = $this->consulta();
 
-        $catalogoIds = $consulta->catalogoFisico($soloEstos);
+        // Con filtro, el lote se recorta contra el catálogo filtrado: lo que se lee lo
+        // decide el filtro con que empezó la comprobación, no los productos que traiga el lote.
+        $filtro = isset($contextoOperacion['filtroDeCatalogo']) ? $contextoOperacion['filtroDeCatalogo'] : null;
+        $catalogoIds = $consulta->catalogoFisico($soloEstos, $filtro);
         $stockBaseCache = $consulta->stockBase($fiStock, $ffStock, $catalogoIds);
         $movimientos = $consulta->movimientosDelPeriodo($fiMov, $ffMov, $soloEstos === null ? null : $catalogoIds);
 

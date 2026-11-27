@@ -32,28 +32,85 @@ class ClaseComprobacionStockConsulta extends TFModelo
 
     // El ejercicio vigente: catálogo, trayectoria e incidencias
 
-    public function catalogoFisico($soloEstos = null)
+    public function catalogoFisico($soloEstos = null, $filtro = null)
     {
         // @ Objetivo
-        // Los identificadores del catálogo completo de productos físicos, sin filtro
-        // de familia: el conjunto sobre el que se compone la trayectoria. En la
-        // comprobación por lotes, solo los del lote que estén en el catálogo.
+        // Los identificadores del catálogo de productos físicos, sin condición de
+        // estado: el conjunto sobre el que se compone la trayectoria. En la
+        // comprobación por lotes, solo los del lote que estén en el catálogo. Con
+        // filtro, solo los de la familia —con sus subfamilias— o los vinculados al
+        // proveedor, sea cual sea el estado del vínculo.
         // @ Parametros
         //      $soloEstos -> array de int, opcional: los productos del lote.
+        //      $filtro -> array ['tipo' => 'familia'|'proveedor', 'id' => int], opcional.
         // @ Devolvemos
         //      array de int, idArticulo.
         $delLote = null;
         if ($soloEstos !== null) {
             $delLote = array_flip(array_map('intval', $soloEstos));
         }
+        $deLaFamilia = '';
+        $delProveedor = null;
+        if ($filtro !== null && $filtro['tipo'] === 'familia') {
+            $deLaFamilia = $this->repositorio()->familiaWhere(array((int) $filtro['id']), array(), 'a');
+        }
+        if ($filtro !== null && $filtro['tipo'] === 'proveedor') {
+            $delProveedor = array();
+            foreach ($this->repositorio()->queryIdsArticulosByProveedoresTodos((string) (int) $filtro['id']) as $fila) {
+                $delProveedor[(int) $fila['idArticulo']] = true;
+            }
+        }
         $ids = array();
-        foreach ($this->repositorio()->queryArticulosFisicos('') as $fila) {
+        foreach ($this->repositorio()->queryArticulosFisicos($deLaFamilia) as $fila) {
             $id = (int) $fila['idArticulo'];
-            if ($delLote === null || isset($delLote[$id])) {
+            if (($delLote === null || isset($delLote[$id])) && ($delProveedor === null || isset($delProveedor[$id]))) {
                 $ids[] = $id;
             }
         }
         return $ids;
+    }
+
+    public function familiasDelFiltro()
+    {
+        // @ Objetivo
+        // Las familias que se pueden elegir como filtro, con su familia padre.
+        // @ Devolvemos
+        //      array de filas ['idFamilia' => int, 'nombre' => string, 'padre' => int].
+        $familias = array();
+        foreach ($this->filasDe("SELECT idFamilia, familiaNombre, familiaPadre FROM familias ORDER BY familiaNombre") as $fila) {
+            $familias[] = array('idFamilia' => (int) $fila['idFamilia'], 'nombre' => $fila['familiaNombre'], 'padre' => (int) $fila['familiaPadre']);
+        }
+        return $familias;
+    }
+
+    public function proveedoresDelFiltro()
+    {
+        // @ Objetivo
+        // Los proveedores que se pueden elegir como filtro.
+        // @ Devolvemos
+        //      array de filas ['idProveedor' => int, 'nombre' => string].
+        $proveedores = array();
+        foreach ($this->filasDe("SELECT idProveedor, razonsocial FROM proveedores ORDER BY razonsocial") as $fila) {
+            $proveedores[] = array('idProveedor' => (int) $fila['idProveedor'], 'nombre' => $fila['razonsocial']);
+        }
+        return $proveedores;
+    }
+
+    public function nombreDelFiltro($tipo, $id)
+    {
+        // @ Objetivo
+        // El nombre de la familia o del proveedor elegido como filtro.
+        // @ Parametros
+        //      $tipo -> string, 'familia' o 'proveedor'.
+        //      $id -> int.
+        // @ Devolvemos
+        //      string, o null si no existe.
+        if ($tipo === 'familia') {
+            $filas = $this->filasDe("SELECT familiaNombre AS nombre FROM familias WHERE idFamilia = " . (int) $id);
+        } else {
+            $filas = $this->filasDe("SELECT razonsocial AS nombre FROM proveedores WHERE idProveedor = " . (int) $id);
+        }
+        return empty($filas) ? null : $filas[0]['nombre'];
     }
 
     public function stockBase($fechaInicio, $fechaFin, $ids)
