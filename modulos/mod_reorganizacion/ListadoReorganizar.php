@@ -166,15 +166,25 @@
                 </table>
             </div>
             <?php if ($puedeComprobar || $puedeAdmitir) { ?>
-                <!-- Resultado de la comprobación de existencias -->
-                <div class="col-md-12">
-                    <?php if ($puedeExportarComprobacion) { ?>
-                        <button id="btnComprobacionStockExportar" type="button" class="btn btn-default" disabled onclick="exportarComprobacionStockVigenteXML()">
-                            <span class="glyphicon glyphicon-download-alt"></span> Descargar fichero de intercambio</button>
-                        <button id="btnComprobacionStockAnteriorExportar" type="button" class="btn btn-default" disabled onclick="exportarInformeComprobacionStockAnterior()">
-                            <span class="glyphicon glyphicon-download-alt"></span> Descargar informe final</button>
-                    <?php } ?>
-                    <div id="areaComprobacionStock"></div>
+                <!-- Resultado de la comprobación de existencias: un panel propio, apartado de las operaciones -->
+                <div class="col-md-12" style="margin-top:30px">
+                    <div id="panelComprobacionStock" class="panel panel-info" style="display:none">
+                        <div class="panel-heading">
+                            <button type="button" class="close" onclick="cerrarPanelComprobacionStock()" title="Cerrar el resultado">&times;</button>
+                            <h3 class="panel-title">Comprobación de existencias — <span id="tituloComprobacionStock"></span></h3>
+                        </div>
+                        <div class="panel-body">
+                            <?php if ($puedeExportarComprobacion) { ?>
+                                <div style="margin-bottom:10px">
+                                    <button id="btnComprobacionStockExportar" type="button" class="btn btn-default" disabled onclick="exportarComprobacionStockVigenteXML()" style="display:none">
+                                        <span class="glyphicon glyphicon-download-alt"></span> Descargar fichero de intercambio</button>
+                                    <button id="btnComprobacionStockAnteriorExportar" type="button" class="btn btn-default" disabled onclick="exportarInformeComprobacionStockAnterior()" style="display:none">
+                                        <span class="glyphicon glyphicon-download-alt"></span> Descargar informe final</button>
+                                </div>
+                            <?php } ?>
+                            <div id="areaComprobacionStock"></div>
+                        </div>
+                    </div>
                 </div>
                 <!-- Contenido del modal: el ejercicio que se comprueba -->
                 <script type="text/template" id="plantillaModalComprobacionStock">

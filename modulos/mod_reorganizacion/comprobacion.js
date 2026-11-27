@@ -67,6 +67,31 @@ function iniciarComprobacionStockDesdeModal() {
 }
 
 // ---------------------------------------------------------------------------
+// El panel del resultado, apartado de las operaciones del listado
+// ---------------------------------------------------------------------------
+
+function abrirPanelComprobacionStock(ejercicio) {
+  // @ Objetivo: enseñar el panel del resultado con el ejercicio que se comprueba y su descarga
+  $("#tituloComprobacionStock").text(ejercicio === "anterior" ? "ejercicio anterior" : "ejercicio vigente");
+  $("#btnComprobacionStockExportar").prop("disabled", true);
+  $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
+  if (ejercicio === "anterior") {
+    $("#btnComprobacionStockExportar").hide();
+    $("#btnComprobacionStockAnteriorExportar").show();
+  } else {
+    $("#btnComprobacionStockAnteriorExportar").hide();
+    $("#btnComprobacionStockExportar").show();
+  }
+  $("#panelComprobacionStock").show();
+}
+
+function cerrarPanelComprobacionStock() {
+  // @ Objetivo: quitar el resultado de la vista
+  $("#areaComprobacionStock").html("");
+  $("#panelComprobacionStock").hide();
+}
+
+// ---------------------------------------------------------------------------
 // Ejercicio vigente: el bucle por lotes
 // ---------------------------------------------------------------------------
 
@@ -79,8 +104,7 @@ function avisoComprobacionStock(mensaje) {
 function comprobarExistenciasVigente(modoEstricto) {
   // @ Objetivo: empezar la comprobación del vigente; el servidor fija el contexto y reparte los lotes
   comprobacionStockVigente = { modoEstricto: modoEstricto === "1" ? "1" : "0", lotesRecibidos: [] };
-  $("#btnComprobacionStockExportar").prop("disabled", true);
-  $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
+  abrirPanelComprobacionStock("vigente");
   $("#areaComprobacionStock").html("Comprobando…");
   console.log("Comprobación del vigente: empezar");
 
@@ -209,9 +233,8 @@ function admitirComprobacionStockAnterior() {
   var formData = new FormData(form);
   formData.append("pulsado", "admitirComprobacionStock");
 
+  abrirPanelComprobacionStock("anterior");
   $("#areaComprobacionStock").html("Comprobando…");
-  $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
-  $("#btnComprobacionStockExportar").prop("disabled", true);
 
   $.ajax({
     url: "tareas.php",
