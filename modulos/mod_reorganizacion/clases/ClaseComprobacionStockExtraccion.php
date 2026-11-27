@@ -17,7 +17,7 @@ class ClaseComprobacionStockExtraccion
 {
     private $consulta = null;
 
-    public function extraer($contextoOperacion, $modoEstricto = false)
+    public function extraer($contextoOperacion, $modoEstricto = false, $soloEstos = null)
     {
         // @ Objetivo
         // Recorrer el catálogo completo, componer su trayectoria de existencias y
@@ -25,6 +25,8 @@ class ClaseComprobacionStockExtraccion
         // @ Parametros
         //      $contextoOperacion -> array, la salida de ClaseComprobacionStockContexto::abrir().
         //      $modoEstricto -> bool, opcional. Trunca a cero el saldo de partida.
+        //      $soloEstos -> array de int, opcional: en la comprobación por lotes, los
+        //          productos del lote. Sin él, el catálogo entero.
         // @ Devolvemos
         //      array de filas: idArticulo, saldoAlCorte, minimoAlcanzado,
         //      saldoDeApertura, marcado, tipoIncidencia (o null) y condicionesConocidas.
@@ -45,9 +47,9 @@ class ClaseComprobacionStockExtraccion
 
         $consulta = $this->consulta();
 
-        $catalogoIds = $consulta->catalogoFisico();
+        $catalogoIds = $consulta->catalogoFisico($soloEstos);
         $stockBaseCache = $consulta->stockBase($fiStock, $ffStock, $catalogoIds);
-        $movimientos = $consulta->movimientosDelPeriodo($fiMov, $ffMov);
+        $movimientos = $consulta->movimientosDelPeriodo($fiMov, $ffMov, $soloEstos === null ? null : $catalogoIds);
 
         $trayectorias = $this->componerTrayectoria($catalogoIds, $stockBaseCache, $movimientos, $modoEstricto);
         $idsNegativos = $this->conTrayectoriaEnNegativo($trayectorias);
@@ -60,9 +62,11 @@ class ClaseComprobacionStockExtraccion
         $familiaExcluidaDe = array_flip(
             $consulta->deFamiliasExcluidas($idsNegativos, $contextoOperacion['familiasExcluidas'])
         );
+        // Lo que dice si el cierre del anterior pasó el producto es su línea de apertura
+        // del proveedor de traspaso, no sus existencias de hoy en este ejercicio.
         $nuncaIncluidoEnCierre = array_flip($this->nuncaIncluidosEnElCierre(
             $idsNegativos,
-            $consulta->conStockPositivoEnElCierre($idsNegativos)
+            $consulta->conLineaDeApertura($idsNegativos, $fiStock, $ffStock, isset($contextoOperacion['proveedorCierre']) ? $contextoOperacion['proveedorCierre'] : 0)
         ));
         $conRegularizacion = array_flip($consulta->conRegularizacionEntre($idsNegativos, $fiEjercicio, $ffMov));
 
@@ -73,7 +77,7 @@ class ClaseComprobacionStockExtraccion
         $consulta->cerrarBloqueDeLectura();
 
         $tipoPorArticulo = $this->mapearIncidencias(
-            $consulta->incidenciasC1($fiMov, $ffMov, $fiStock, $ffStock, $stockBaseCache, $contextoOperacion)
+            $consulta->incidenciasC1($fiMov, $ffMov, $fiStock, $ffStock, $stockBaseCache, $contextoOperacion, $soloEstos === null ? array() : $idsNegativos)
         );
 
         $ventanaDias = (int) $contextoOperacion['ventanaDias'];

@@ -1,17 +1,17 @@
 <?php
 
 // @ Objetivo
-// Descargar el fichero de intercambio del ejercicio vigente. Recalcula desde el
-// contexto de operación: no depende de ningún estado que haya dejado una petición
-// anterior, igual que la propia pantalla.
+// Descargar el fichero de intercambio del ejercicio vigente con la misma composición que se
+// pintó: llegan los lotes con sus resúmenes y el contexto con el suyo, y se emite lo que se
+// calculó, sin volver a leer la base. Lo que llegue cambiado no se emite.
 //
 // El conjunto seleccionado llega en un solo campo con su recuento declarado aparte,
-// y lo primero que se hace es comprobar que llegó entero: no se abre la base ni se
-// compone nada de una petición que no ha llegado completa.
+// y lo primero que se hace es comprobar que llegó entero.
 
 $modoEstricto = isset($_POST['modoEstricto']) && $_POST['modoEstricto'] === '1';
 
 $emision = new ClaseComprobacionStockEmision();
+$contextoClase = new ClaseComprobacionStockContexto();
 $pedido = $emision->conjuntoPedido(
     isset($_POST['filtro']) ? $_POST['filtro'] : null,
     isset($_POST['filtroDeclarado']) ? $_POST['filtroDeclarado'] : null
@@ -22,38 +22,35 @@ if (!$pedido['ok']) {
     exit;
 }
 
-$contextoClase = new ClaseComprobacionStockContexto();
+$contextoRecibido = json_decode(isset($_POST['contexto']) ? $_POST['contexto'] : '', true);
+$resumenRecibido = isset($_POST['resumen']) ? $_POST['resumen'] : null;
+if (!is_array($contextoRecibido) || $resumenRecibido === null
+    || !hash_equals($contextoClase->resumenDeContexto($contextoRecibido), (string) $resumenRecibido)
+) {
+    http_response_code(422);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'El contexto de la comprobación no es el que se estableció al empezar: vuelva a empezar la comprobación';
+    exit;
+}
+$admitidos = $emision->lotesAdmisibles($resumenRecibido, json_decode(isset($_POST['lotes']) ? $_POST['lotes'] : '', true));
+if (!$admitidos['ok']) {
+    http_response_code(422);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo $admitidos['motivo'];
+    exit;
+}
+
 $rutaTemporal = null;
-
-// El camino entero va protegido, y no solo la escritura del fichero: leer la base y
-// componer el resultado también pueden fallar, y ahí el aviso del motor nombra rutas
-// del servidor y la consulta. Además, un fallo a mitad de la lectura dejaría el bloque
-// de solo lectura abierto, que es lo que el cierre garantizado evita.
 try {
-    $apertura = $contextoClase->abrir();
-    if (!$apertura['ok']) {
-        http_response_code(400);
-        echo $apertura['motivo'];
-        exit;
-    }
-
-    $extraccion = new ClaseComprobacionStockExtraccion();
-    $estadoProducto = $extraccion->extraer($apertura, $modoEstricto);
-    $contextoClase->cerrar();
-
     // Si lo pedido es el conjunto entero no hay subconjunto que declarar; lo decide
-    // quien conoce el conjunto de verdad, que es esta ejecución al acabar de componerlo.
-    $filtro = $emision->filtroDeclarable($estadoProducto, $pedido['ids']);
-    $composicion = $emision->componer($estadoProducto, $apertura, $modoEstricto, $filtro);
+    // quien conoce el conjunto de verdad, que es la composición que se pintó.
+    $filtro = $emision->filtroDeclarable($admitidos['filas'], $pedido['ids']);
+    $composicion = $emision->componer($admitidos['filas'], $contextoRecibido, $modoEstricto, $filtro);
 
     $rutaTemporal = $RutaServidor . $rutatmp . '/comprobacion_' . uniqid('', true) . '.xml';
     $emision->emitir($composicion, $rutaTemporal);
 } catch (Throwable $error) {
-    // Sin el mensaje del motor: nombra rutas del servidor y el esquema, y quien pide la
-    // descarga no puede hacer nada con ellos. Pero queda registrado, porque quien
-    // mantiene el sistema sí, y un fallo sin rastro no se puede diagnosticar.
     registrarFalloComprobacionStock('exportarComprobacionStockXML', $error);
-    $contextoClase->cerrar();
     if ($rutaTemporal !== null && file_exists($rutaTemporal)) {
         unlink($rutaTemporal);
     }
@@ -62,6 +59,7 @@ try {
     exit;
 }
 
+$apertura = $contextoRecibido;
 $contenido = file_get_contents($rutaTemporal);
 unlink($rutaTemporal);
 

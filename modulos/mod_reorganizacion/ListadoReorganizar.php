@@ -28,6 +28,7 @@
     ?>
     <script src="<?php echo $HostNombre; ?>/controllers/global.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/funciones.js"></script>
+    <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/comprobacion.js"></script>
     <script src="<?php echo $HostNombre; ?>/lib/js/teclado.js"></script>
     <script src="<?php echo $HostNombre; ?>/modulos/mod_reorganizacion/js/AccionesDirectas.js"></script>
 </head>
@@ -90,22 +91,25 @@
                                 </td>
                             </tr>
                         <?php } ?>
-                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vista' => 'ComprobacionStockVigente.php')) == 1) { ?>
-                            <!-- Comprobación de existencias, ejercicio vigente -->
+                        <?php
+                        $puedeComprobar = isset($ClasePermisos) && $ClasePermisos->getAccion('ComprobarExistencias') == 1;
+                        $puedeAdmitir = isset($ClasePermisos) && $ClasePermisos->getAccion('AdmitirComprobacion') == 1;
+                        $puedeExportarComprobacion = isset($ClasePermisos) && $ClasePermisos->getAccion('ExportarComprobacion') == 1;
+                        if ($puedeComprobar || $puedeAdmitir) { ?>
+                            <!-- Comprobación de existencias en el cambio de año: el modal elige el ejercicio -->
                             <tr>
-                                <td><a class="btn" href="ComprobacionStockVigente.php">
-                                        <span class="glyphicon glyphicon-search"> </span>Comprobar existencias</a></td>
-                                <td>Comprobar productos con existencia negativa en el ejercicio vigente y generar el fichero de intercambio</td>
-                                <td></td>
-                            </tr>
-                        <?php } ?>
-                        <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('admitir', array('modulo' => 'mod_reorganizacion', 'vista' => 'ComprobacionStockAnterior.php')) == 1) { ?>
-                            <!-- Comprobación de existencias, ejercicio anterior -->
-                            <tr>
-                                <td><a class="btn" href="ComprobacionStockAnterior.php">
-                                        <span class="glyphicon glyphicon-import"> </span>Admitir comprobación</a></td>
-                                <td>Admitir el fichero de intercambio del ejercicio vigente y clasificar el resultado en el ejercicio anterior</td>
-                                <td></td>
+                                <td><button id="boton-comprobacion-stock" class="btn" onclick="abrirModalComprobacionStock()">
+                                        <span class="glyphicon glyphicon-search"> </span>Comprobar existencias</button></td>
+                                <td>Comprobar los productos con existencia negativa en el ejercicio vigente, o admitir en el anterior el fichero del vigente</td>
+                                <td>
+                                    <div class="progress" style="margin:0 100px">
+                                        <div id="bar-comprobacion-stock" class="progress-bar progress-bar-info"
+                                            role="progressbar" aria-valuenow="0"
+                                            aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                            0 % completado
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                         <?php } ?>
                         <?php if (isset($ClasePermisos) && $ClasePermisos->getAccion('ver', array('modulo' => 'mod_reorganizacion', 'vista' => 'AplicarRelacion.php')) == 1) { ?>
@@ -161,6 +165,35 @@
                     </tbody>
                 </table>
             </div>
+            <?php if ($puedeComprobar || $puedeAdmitir) { ?>
+                <!-- Resultado de la comprobación de existencias -->
+                <div class="col-md-12">
+                    <?php if ($puedeExportarComprobacion) { ?>
+                        <button id="btnComprobacionStockExportar" type="button" class="btn btn-default" disabled onclick="exportarComprobacionStockVigenteXML()">
+                            <span class="glyphicon glyphicon-download-alt"></span> Descargar fichero de intercambio</button>
+                        <button id="btnComprobacionStockAnteriorExportar" type="button" class="btn btn-default" disabled onclick="exportarInformeComprobacionStockAnterior()">
+                            <span class="glyphicon glyphicon-download-alt"></span> Descargar informe final</button>
+                    <?php } ?>
+                    <div id="areaComprobacionStock"></div>
+                </div>
+                <!-- Contenido del modal: el ejercicio que se comprueba -->
+                <script type="text/template" id="plantillaModalComprobacionStock">
+                    <?php if ($puedeComprobar) { ?>
+                        <div class="radio"><label><input type="radio" name="ejercicioComprobacion" id="radioComprobacionVigente" value="vigente" checked>
+                            Ejercicio vigente: calcular los productos con existencia negativa</label></div>
+                        <div class="checkbox" style="margin-left:20px"><label><input type="checkbox" id="chkComprobacionStockModoEstricto">
+                            Modo estricto (trunca a cero el saldo de apertura de cada producto)</label></div>
+                    <?php } ?>
+                    <?php if ($puedeAdmitir) { ?>
+                        <div class="radio"><label><input type="radio" name="ejercicioComprobacion" id="radioComprobacionAnterior" value="anterior" <?php echo $puedeComprobar ? '' : 'checked'; ?>>
+                            Ejercicio anterior: admitir el fichero de intercambio del vigente</label></div>
+                        <form id="formAdmitirComprobacionStock" enctype="multipart/form-data" style="margin-left:20px">
+                            <input class="form-control" type="file" id="ficheroComprobacionStock" name="ficheroComprobacionStock" accept=".xml">
+                        </form>
+                    <?php } ?>
+                    <button type="button" class="btn btn-primary" id="btnComprobacionStockIniciar" onclick="iniciarComprobacionStockDesdeModal()">Comprobar</button>
+                </script>
+            <?php } ?>
         </div>
 </body>
 

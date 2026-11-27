@@ -1,7 +1,7 @@
 /*
- * Comprobación de existencias en el cambio de año — pantallas del ejercicio vigente
- * y del ejercicio anterior. Las dos pantallas no conviven nunca en el mismo
- * despliegue, pero sí en el mismo repositorio, así que comparten este fichero.
+ * Comprobación de existencias en el cambio de año, desde el listado de la reorganización: un
+ * modal elige el ejercicio. En el vigente, un bucle por lotes con su barra, como el resto de
+ * operaciones del módulo; en el anterior, la admisión del fichero del vigente.
  *
  * Aquí no se compone pantalla: la tabla llega montada desde el servidor y este
  * fichero solo pide, inserta y descarga.
@@ -47,29 +47,135 @@ function enviarFormularioComprobacionStock(campos) {
 }
 
 // ---------------------------------------------------------------------------
-// Ejercicio vigente
+// El modal del listado
 // ---------------------------------------------------------------------------
 
-function cargarComprobacionStockVigente() {
-  var modoEstricto = $("#chkComprobacionStockVigenteModoEstricto").is(":checked") ? "1" : "0";
-  $("#btnComprobacionStockVigenteExportar").prop("disabled", true);
-  $("#areaComprobacionStockVigente").html("Cargando…");
+function abrirModalComprobacionStock() {
+  // @ Objetivo: abrir el modal que elige el ejercicio, con el contenido que la página trae preparado
+  abrirModalConTitulo("Comprobar existencias", $("#plantillaModalComprobacionStock").html());
+}
 
-  ajaxComprobacionStock({ pulsado: "obtenerComprobacionStockVigente", modoEstricto: modoEstricto }, function (respuesta) {
-    var obj = JSON.parse(respuesta);
-    $("#areaComprobacionStockVigente").html(obj.html);
-    if (!obj.ok) {
-      return;
-    }
-    $("#btnComprobacionStockVigenteExportar").prop("disabled", false);
-    $("#chkComprobacionStockVigenteTodos").on("change", function () {
-      $(".chkComprobacionStockVigenteArticulo").prop("checked", $(this).is(":checked"));
-    });
+function iniciarComprobacionStockDesdeModal() {
+  // @ Objetivo: lanzar la comprobación del ejercicio elegido en el modal
+  var modoEstricto = $("#chkComprobacionStockModoEstricto").is(":checked") ? "1" : "0";
+  if ($("#radioComprobacionAnterior").is(":checked")) {
+    admitirComprobacionStockAnterior();
+  } else {
+    comprobarExistenciasVigente(modoEstricto);
+  }
+  cerrarPopUpConTitulo("Comprobar existencias");
+}
+
+// ---------------------------------------------------------------------------
+// Ejercicio vigente: el bucle por lotes
+// ---------------------------------------------------------------------------
+
+var comprobacionStockVigente = null;
+
+function avisoComprobacionStock(mensaje) {
+  return '<div class="alert alert-danger">' + mensaje + "</div>";
+}
+
+function comprobarExistenciasVigente(modoEstricto) {
+  // @ Objetivo: empezar la comprobación del vigente; el servidor fija el contexto y reparte los lotes
+  comprobacionStockVigente = { modoEstricto: modoEstricto === "1" ? "1" : "0", lotesRecibidos: [] };
+  $("#btnComprobacionStockExportar").prop("disabled", true);
+  $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
+  $("#areaComprobacionStock").html("Comprobando…");
+  console.log("Comprobación del vigente: empezar");
+
+  $.ajax({
+    data: { pulsado: "iniciarComprobacionStockVigente" },
+    url: "./tareas.php",
+    type: "post",
+    success: function (respuesta) {
+      var obj = JSON.parse(respuesta);
+      if (!obj.ok) {
+        $("#areaComprobacionStock").html(obj.html);
+        return;
+      }
+      comprobacionStockVigente.contexto = obj.contexto;
+      comprobacionStockVigente.resumen = obj.resumen;
+      comprobacionStockVigente.lotes = obj.lotes;
+      loteComprobacionStockVigente(0);
+    },
+    error: function () {
+      $("#areaComprobacionStock").html(avisoComprobacionStock("La comprobación no terminó: no se pudo empezar."));
+    },
+  });
+}
+
+function loteComprobacionStockVigente(indice) {
+  // @ Objetivo: pedir un lote; al terminar el último, componer
+  var total = comprobacionStockVigente.lotes.length;
+  if (indice >= total) {
+    componerComprobacionStockVigente();
+    return;
+  }
+  BarraProceso(indice, total, "-comprobacion-stock");
+  console.log("Comprobación del vigente: lote " + (indice + 1) + " de " + total);
+
+  $.ajax({
+    data: {
+      pulsado: "loteComprobacionStockVigente",
+      contexto: JSON.stringify(comprobacionStockVigente.contexto),
+      resumen: comprobacionStockVigente.resumen,
+      ids: comprobacionStockVigente.lotes[indice].join(","),
+      modoEstricto: comprobacionStockVigente.modoEstricto,
+    },
+    url: "./tareas.php",
+    type: "post",
+    success: function (respuesta) {
+      var obj = JSON.parse(respuesta);
+      if (!obj.ok) {
+        // Un lote rechazado para el bucle: no se compone nada a medias.
+        $("#areaComprobacionStock").html(obj.html);
+        return;
+      }
+      comprobacionStockVigente.lotesRecibidos.push({ filas: obj.filas, resumen: obj.resumen });
+      loteComprobacionStockVigente(indice + 1);
+    },
+    error: function () {
+      $("#areaComprobacionStock").html(avisoComprobacionStock("La comprobación no terminó: falló el lote " + (indice + 1) + " de " + total + "."));
+    },
+  });
+}
+
+function componerComprobacionStockVigente() {
+  // @ Objetivo: componer los lotes recibidos, pintar el resultado y habilitar la descarga
+  BarraProceso(comprobacionStockVigente.lotes.length, comprobacionStockVigente.lotes.length, "-comprobacion-stock");
+  $.ajax({
+    data: {
+      pulsado: "componerComprobacionStockVigente",
+      contexto: JSON.stringify(comprobacionStockVigente.contexto),
+      resumen: comprobacionStockVigente.resumen,
+      lotes: JSON.stringify(comprobacionStockVigente.lotesRecibidos),
+      modoEstricto: comprobacionStockVigente.modoEstricto,
+    },
+    url: "./tareas.php",
+    type: "post",
+    success: function (respuesta) {
+      var obj = JSON.parse(respuesta);
+      $("#areaComprobacionStock").html(obj.html);
+      if (!obj.ok) {
+        return;
+      }
+      $("#btnComprobacionStockExportar").prop("disabled", false);
+      $("#chkComprobacionStockVigenteTodos").on("change", function () {
+        $(".chkComprobacionStockVigenteArticulo").prop("checked", $(this).is(":checked"));
+      });
+    },
+    error: function () {
+      $("#areaComprobacionStock").html(avisoComprobacionStock("La comprobación no terminó: no se pudo componer el resultado."));
+    },
   });
 }
 
 function exportarComprobacionStockVigenteXML() {
-  var modoEstricto = $("#chkComprobacionStockVigenteModoEstricto").is(":checked") ? "1" : "0";
+  // @ Objetivo: descargar el fichero de intercambio con la misma composición que se pintó
+  if (!comprobacionStockVigente || !comprobacionStockVigente.lotes) {
+    return;
+  }
   var seleccionados = $(".chkComprobacionStockVigenteArticulo:checked")
     .map(function () {
       return $(this).val();
@@ -80,13 +186,12 @@ function exportarComprobacionStockVigenteXML() {
   // envían para que el servidor cuente los que le llegan y compare. Un campo por
   // producto quedaría acotado por cuántos campos admite el motor al leer la
   // petición, y por encima de ese límite descarta el resto sin decirlo.
-  //
-  // Aquí no se decide nada sobre el conjunto: ni si está vacío, ni si es completo.
-  // Eso lo resuelve quien conoce el conjunto de verdad, que es el servidor al
-  // componerlo; lo de aquí es solo lo que hay marcado en pantalla.
   enviarFormularioComprobacionStock({
     pulsado: "exportarComprobacionStockXML",
-    modoEstricto: modoEstricto,
+    modoEstricto: comprobacionStockVigente.modoEstricto,
+    contexto: JSON.stringify(comprobacionStockVigente.contexto),
+    resumen: comprobacionStockVigente.resumen,
+    lotes: JSON.stringify(comprobacionStockVigente.lotesRecibidos),
     filtro: seleccionados.join(","),
     filtroDeclarado: seleccionados.length,
   });
@@ -104,8 +209,9 @@ function admitirComprobacionStockAnterior() {
   var formData = new FormData(form);
   formData.append("pulsado", "admitirComprobacionStock");
 
-  $("#areaComprobacionStockAnterior").html("Comprobando…");
+  $("#areaComprobacionStock").html("Comprobando…");
   $("#btnComprobacionStockAnteriorExportar").prop("disabled", true);
+  $("#btnComprobacionStockExportar").prop("disabled", true);
 
   $.ajax({
     url: "tareas.php",
@@ -120,7 +226,7 @@ function admitirComprobacionStockAnterior() {
       // vuelta, no lo que se muestra. Con ella viene su resumen, que se guarda tal
       // como llega y se devuelve tal cual: aquí no se recalcula nada, porque un
       // resumen que calculara quien lo devuelve no comprobaría nada.
-      $("#areaComprobacionStockAnterior").html(resultado.html);
+      $("#areaComprobacionStock").html(resultado.html);
       if (!resultado.ok) {
         return;
       }
@@ -129,7 +235,7 @@ function admitirComprobacionStockAnterior() {
       $("#btnComprobacionStockAnteriorExportar").prop("disabled", false);
     },
     error: function () {
-      $("#areaComprobacionStockAnterior").text("Error al comunicar con el servidor.");
+      $("#areaComprobacionStock").text("Error al comunicar con el servidor.");
     },
   });
 }

@@ -32,16 +32,26 @@ class ClaseComprobacionStockConsulta extends TFModelo
 
     // El ejercicio vigente: catálogo, trayectoria e incidencias
 
-    public function catalogoFisico()
+    public function catalogoFisico($soloEstos = null)
     {
         // @ Objetivo
         // Los identificadores del catálogo completo de productos físicos, sin filtro
-        // de familia: el conjunto sobre el que se compone la trayectoria.
+        // de familia: el conjunto sobre el que se compone la trayectoria. En la
+        // comprobación por lotes, solo los del lote que estén en el catálogo.
+        // @ Parametros
+        //      $soloEstos -> array de int, opcional: los productos del lote.
         // @ Devolvemos
         //      array de int, idArticulo.
+        $delLote = null;
+        if ($soloEstos !== null) {
+            $delLote = array_flip(array_map('intval', $soloEstos));
+        }
         $ids = array();
         foreach ($this->repositorio()->queryArticulosFisicos('') as $fila) {
-            $ids[] = (int) $fila['idArticulo'];
+            $id = (int) $fila['idArticulo'];
+            if ($delLote === null || isset($delLote[$id])) {
+                $ids[] = $id;
+            }
         }
         return $ids;
     }
@@ -73,7 +83,7 @@ class ClaseComprobacionStockConsulta extends TFModelo
         return $resultado;
     }
 
-    public function movimientosDelPeriodo($fechaInicio, $fechaFin)
+    public function movimientosDelPeriodo($fechaInicio, $fechaFin, $soloEstos = null)
     {
         // @ Objetivo
         // Los movimientos de todo el catálogo entre las dos fechas, sin filtro de
@@ -97,8 +107,18 @@ class ClaseComprobacionStockConsulta extends TFModelo
         // proveedor, que sí son movimiento del ejercicio.
         // @ Parametros
         //      $fechaInicio, $fechaFin -> string 'AAAA-MM-DD'.
+        //      $soloEstos -> array de int, opcional: en la comprobación por lotes, los
+        //          productos del lote. La memoria depende entonces del lote, no del ejercicio.
         // @ Devolvemos
         //      array de filas ['tipo_movimiento', 'idArticulo', 'nunidades', 'fecha'].
+        $delLote = '';
+        if ($soloEstos !== null) {
+            $idsCsv = $this->idsCsv($soloEstos);
+            if ($idsCsv === '') {
+                return array();
+            }
+            $delLote = ' AND l.idArticulo IN (' . $idsCsv . ')';
+        }
         return $this->filasDe("
             SELECT tipo_movimiento, idArticulo, SUM(nunidades) AS nunidades, fecha
             FROM (
@@ -108,7 +128,7 @@ class ClaseComprobacionStockConsulta extends TFModelo
                 INNER JOIN albprot c ON c.id = l.idalbpro
                 WHERE l.estadoLinea = 'Activo'
                   AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'$delLote
 
                 UNION ALL
 
@@ -118,7 +138,7 @@ class ClaseComprobacionStockConsulta extends TFModelo
                 INNER JOIN ticketst c ON c.id = l.idticketst
                 WHERE l.estadoLinea = 'Activo'
                   AND c.estado = 'Cerrado'
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'$delLote
 
                 UNION ALL
 
@@ -128,14 +148,14 @@ class ClaseComprobacionStockConsulta extends TFModelo
                 INNER JOIN albclit c ON c.id = l.idalbcli
                 WHERE l.estadoLinea = 'Activo'
                   AND c.estado IN ('Guardado', 'Procesado')
-                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
+                  AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'$delLote
             ) AS movimientos
             GROUP BY tipo_movimiento, idArticulo, fecha
             ORDER BY idArticulo, fecha
         ");
     }
 
-    public function incidenciasC1($fiMovimientos, $ffMovimientos, $fiStock, $ffStock, $stockBase, $umbrales)
+    public function incidenciasC1($fiMovimientos, $ffMovimientos, $fiStock, $ffStock, $stockBase, $umbrales, $soloEstos = array())
     {
         // @ Objetivo
         // Las incidencias que el detector de existencias negativas emite sobre el
@@ -157,6 +177,9 @@ class ClaseComprobacionStockConsulta extends TFModelo
         //      $stockBase -> array, la salida de stockBase().
         //      $umbrales -> array con umbralFraccionado, umbralMagnitud, umbralPorVenta
         //                   y timingVentanaDias, tal como los da el contexto de operación.
+        //      $soloEstos -> array de int, opcional: en la comprobación por lotes, los
+        //          productos del lote que bajan de cero, que son los únicos que la usan. El
+        //          resultado de cada producto no depende de qué otros se le pidan.
         // @ Devolvemos
         //      array de incidencias del detector, sin tocar.
         return $this->detector()->detectar(
@@ -166,7 +189,7 @@ class ClaseComprobacionStockConsulta extends TFModelo
             $ffStock,
             array(),
             array(),
-            array(),
+            array_map('intval', $soloEstos),
             $stockBase,
             (float) $umbrales['umbralFraccionado'],
             (float) $umbrales['umbralMagnitud'],
@@ -225,6 +248,35 @@ class ClaseComprobacionStockConsulta extends TFModelo
             WHERE idArticulo IN ($idsCsv)
               AND idTienda = 1
               AND stockOn > 0
+        ");
+    }
+
+    public function conLineaDeApertura($ids, $fechaInicio, $fechaFin, $idProveedorCierre)
+    {
+        // @ Objetivo
+        // De los productos indicados, cuáles recibieron línea del proveedor de traspaso
+        // en el borde del ejercicio: los que el cierre del anterior sí pasó. Es lo que el
+        // vigente puede ver del cierre: su apertura, con las dos convenciones de fecha.
+        // @ Parametros
+        //      $ids -> array de int.
+        //      $fechaInicio, $fechaFin -> string 'AAAA-MM-DD', el borde del ejercicio.
+        //      $idProveedorCierre -> int, el proveedor con que se identifica el traspaso.
+        // @ Devolvemos
+        //      array de int, idArticulo de los que tienen línea de apertura.
+        $idsCsv = $this->idsCsv($ids);
+        if ($idsCsv === '') {
+            return array();
+        }
+
+        return $this->idsDe("
+            SELECT DISTINCT l.idArticulo
+            FROM albprolinea l
+            INNER JOIN albprot c ON c.id = l.idalbpro
+            WHERE l.idArticulo IN ($idsCsv)
+              AND l.estadoLinea = 'Activo'
+              AND c.idProveedor = " . (int) $idProveedorCierre . "
+              AND c.estado IN ('Guardado', 'Facturado', 'Exportado', 'Importado')
+              AND DATE(c.Fecha) BETWEEN '$fechaInicio' AND '$fechaFin'
         ");
     }
 

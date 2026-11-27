@@ -116,6 +116,10 @@ class ClaseComprobacionStockContexto
         // la que se cuenta hacia atrás la ventana de consolidación. Leyendo el reloj en
         // dos sitios, una ejecución larga puede cruzar la medianoche y declarar un
         // momento de un día sobre datos de otro.
+        //
+        // La fecha de corte es el día anterior al momento: la comprobación del vigente se
+        // recorre por lotes, cada uno en su petición, y todos tienen que leer el mismo estado.
+        // Lo de hoy todavía se está moviendo; lo de ayer, no.
         $instante = time();
 
         return array(
@@ -123,7 +127,7 @@ class ClaseComprobacionStockContexto
             'ano' => $sesion['ano'],
             'idTienda' => $sesion['idTienda'],
             'momento' => date('c', $instante),
-            'fechaCorte' => date('Y-m-d', $instante),
+            'fechaCorte' => date('Y-m-d', strtotime(date('Y-m-d', $instante) . ' -1 day')),
             'ventanaDias' => $parametros['valores']['ventanaDias'],
             'umbralFraccionado' => $parametros['valores']['umbralFraccionado'],
             'umbralMagnitud' => $parametros['valores']['umbralMagnitud'],
@@ -132,6 +136,67 @@ class ClaseComprobacionStockContexto
             'proveedorCierre' => $parametros['valores']['proveedorCierre'],
             'familiasExcluidas' => $parametros['valores']['familiasExcluidas'],
         );
+    }
+
+    public function resumenDeContexto($contexto)
+    {
+        // @ Objetivo
+        // Resumir en SHA-256 el contexto de operación de una comprobación por lotes, para que
+        // cada lote reconozca que trabaja con el mismo con que empezó la comprobación: la
+        // misma fecha de corte, el mismo momento, los mismos umbrales.
+        // @ Parametros
+        //      $contexto -> array, la salida de abrir().
+        // @ Devolvemos
+        //      string, 64 caracteres hexadecimales.
+        $familias = isset($contexto['familiasExcluidas']) && is_array($contexto['familiasExcluidas'])
+            ? array_map('intval', $contexto['familiasExcluidas'])
+            : array();
+        sort($familias);
+        $partes = array();
+        foreach (array('ano', 'idTienda', 'momento', 'fechaCorte', 'ventanaDias', 'umbralFraccionado',
+            'umbralMagnitud', 'umbralPorVenta', 'timingVentanaDias', 'proveedorCierre') as $campo) {
+            $partes[] = isset($contexto[$campo]) ? (string) $contexto[$campo] : '';
+        }
+        $partes[] = implode(',', $familias);
+        return hash('sha256', implode('|', $partes));
+    }
+
+    public function reanudar($contexto, $resumen)
+    {
+        // @ Objetivo
+        // Retomar, en un lote, el contexto con que empezó la comprobación: se reconoce por su
+        // resumen, tiene que ser del ejercicio y la tienda de la sesión, el esquema sigue
+        // estando, y se abre el bloque de lectura. El reloj no se vuelve a leer.
+        // @ Parametros
+        //      $contexto -> array|null, el contexto tal como vuelve del navegador.
+        //      $resumen -> string|null, el resumen con que salió.
+        // @ Devolvemos
+        //      array, el contexto con 'ok' => true, o ['ok' => false, 'motivo' => ..].
+        if (!is_array($contexto) || !isset($contexto['ano'], $contexto['idTienda'], $contexto['fechaCorte'])
+            || $resumen === null || $resumen === ''
+            || !hash_equals($this->resumenDeContexto($contexto), (string) $resumen)
+        ) {
+            return $this->parada('El contexto de la comprobación no es el que se estableció al empezar: vuelva a empezar la comprobación');
+        }
+
+        $sesion = $this->deLaSesion();
+        if ($sesion === null || (string) $sesion['ano'] !== (string) $contexto['ano']
+            || (string) $sesion['idTienda'] !== (string) $contexto['idTienda']
+        ) {
+            return $this->parada('La comprobación empezó en otro ejercicio o en otra tienda que los de la sesión');
+        }
+
+        $objetoAusente = $this->objetoDelEsquemaAusente();
+        if ($objetoAusente !== null) {
+            return $this->parada('Falta en el esquema: ' . $objetoAusente);
+        }
+
+        if (!$this->consulta()->abrirBloqueDeLectura()) {
+            return $this->parada('El motor no admite el bloque de lectura de solo lectura');
+        }
+
+        $contexto['ok'] = true;
+        return $contexto;
     }
 
     public function cerrar()

@@ -167,6 +167,70 @@ class ClaseComprobacionStockEmision
         return hash('sha256', implode(';', $partes));
     }
 
+    public function resumenDeLote($resumenDeContexto, $filas)
+    {
+        // @ Objetivo
+        // Resumir en SHA-256 las filas de un lote del vigente junto al resumen del contexto
+        // con que se calcularon, para reconocerlas cuando vuelvan del navegador a componerse.
+        // Cubre todos sus campos ya normalizados, como el resumen de la composición.
+        // @ Parametros
+        //      $resumenDeContexto -> string, el del contexto de la comprobación.
+        //      $filas -> array, la salida de ClaseComprobacionStockExtraccion::extraer() del lote.
+        // @ Devolvemos
+        //      string, 64 caracteres hexadecimales.
+        $partes = array((string) $resumenDeContexto);
+        foreach ($filas as $fila) {
+            $partes[] = implode('|', array(
+                $fila['idArticulo'],
+                $this->comoTextoOVacio($fila['saldoAlCorte']),
+                $this->comoTextoOVacio($fila['minimoAlcanzado']),
+                $this->comoTextoOVacio($fila['saldoDeApertura']),
+                $fila['marcado'] ? '1' : '0',
+                (string) $fila['tipoIncidencia'],
+                implode(',', $fila['condicionesConocidas']),
+            ));
+        }
+        return hash('sha256', implode(';', $partes));
+    }
+
+    public function lotesAdmisibles($resumenDeContexto, $lotes)
+    {
+        // @ Objetivo
+        // Reconocer los lotes del vigente que vuelven del navegador para componerse o
+        // descargarse: cada uno con su resumen, y todos del mismo contexto. Lo que llegue
+        // cambiado o sin resumen no se compone.
+        // @ Parametros
+        //      $resumenDeContexto -> string.
+        //      $lotes -> array|null, lista de ['filas' => [...], 'resumen' => ..].
+        // @ Devolvemos
+        //      array ['ok' => true, 'filas' => [...]] o ['ok' => false, 'motivo' => ..].
+        if (!is_array($lotes)) {
+            return array('ok' => false, 'motivo' => 'El resultado no llegó al servidor: vuelva a empezar la comprobación');
+        }
+        $filas = array();
+        foreach ($lotes as $lote) {
+            if (!is_array($lote) || !isset($lote['filas'], $lote['resumen']) || !is_array($lote['filas'])) {
+                return array('ok' => false, 'motivo' => 'El resultado llegó incompleto: vuelva a empezar la comprobación');
+            }
+            foreach ($lote['filas'] as $fila) {
+                if (!is_array($fila) || !isset($fila['idArticulo'], $fila['condicionesConocidas'])
+                    || !array_key_exists('saldoAlCorte', $fila) || !array_key_exists('minimoAlcanzado', $fila)
+                    || !array_key_exists('saldoDeApertura', $fila) || !array_key_exists('marcado', $fila)
+                    || !array_key_exists('tipoIncidencia', $fila) || !is_array($fila['condicionesConocidas'])
+                ) {
+                    return array('ok' => false, 'motivo' => 'El resultado llegó incompleto: vuelva a empezar la comprobación');
+                }
+            }
+            if (!hash_equals($this->resumenDeLote($resumenDeContexto, $lote['filas']), (string) $lote['resumen'])) {
+                return array('ok' => false, 'motivo' => 'El resultado que ha llegado no es el que se calculó: vuelva a empezar la comprobación');
+            }
+            foreach ($lote['filas'] as $fila) {
+                $filas[] = $fila;
+            }
+        }
+        return array('ok' => true, 'filas' => $filas);
+    }
+
     public function composicionAdmisible($composicion, $resumenDeclarado)
     {
         // @ Objetivo

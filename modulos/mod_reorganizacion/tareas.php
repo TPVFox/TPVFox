@@ -390,26 +390,34 @@ switch ($pulsado) {
         return $validacion;
         break;
 
-    // Comprobación de existencias — ejercicio vigente.
-    case 'obtenerComprobacionStockVigente':
-        include_once 'tareas/obtenerComprobacionStockVigente.php';
-        echo json_encode($respuesta);
-        break;
+    // Comprobación de existencias: cada orden pide su acción en la vista del listado, y sin
+    // ella responde por qué. El vigente va por lotes: empezar, cada lote y componer.
+    case 'iniciarComprobacionStockVigente':
+    case 'loteComprobacionStockVigente':
+    case 'componerComprobacionStockVigente':
     case 'exportarComprobacionStockXML':
-        // El fichero include emite cabeceras HTTP + XML y llama a exit(), por lo
-        // que no llega a haber ningún json_encode que ejecutar aquí.
-        include_once 'tareas/exportarComprobacionStockXML.php';
-        break;
-
-    // Comprobación de existencias — ejercicio anterior.
     case 'admitirComprobacionStock':
-        // El fichero include hace su propio json_encode y exit().
-        include_once 'tareas/admitirComprobacionStock.php';
-        break;
     case 'exportarInformeComprobacionStock':
-        // El fichero include emite cabeceras HTTP + CSV y llama a exit().
-        include_once 'tareas/exportarInformeComprobacionStock.php';
-        break;
+        $accionesComprobacion = array(
+            'iniciarComprobacionStockVigente' => 'ComprobarExistencias',
+            'loteComprobacionStockVigente' => 'ComprobarExistencias',
+            'componerComprobacionStockVigente' => 'ComprobarExistencias',
+            'exportarComprobacionStockXML' => 'ExportarComprobacion',
+            'admitirComprobacionStock' => 'AdmitirComprobacion',
+            'exportarInformeComprobacionStock' => 'ExportarComprobacion',
+        );
+        $vistaListado = array('modulo' => 'mod_reorganizacion', 'vista' => 'ListadoReorganizar.php');
+        if (!isset($ClasePermisos) || $ClasePermisos->getAccion($accionesComprobacion[$pulsado], $vistaListado) != 1) {
+            $motivo = 'No tiene permiso para esta acción de la comprobación de existencias.';
+            $respuesta = array('ok' => false, 'motivo' => $motivo, 'html' => htmlAlertaComprobacionStock($motivo));
+            echo json_encode($respuesta);
+            return $respuesta;
+        }
+        // Los ficheros de la descarga y de la admisión escriben su propia respuesta y
+        // terminan con exit(); los del vigente dejan la suya en $respuesta.
+        include_once 'tareas/' . $pulsado . '.php';
+        echo json_encode($respuesta);
+        return $respuesta;
 
     // Aplicar una relación a un periodo, ofrecer sus periodos y sus recetas hermanas, y preparar su
     // albarán de compras. Devuelven la respuesta además de escribirla, como validarDatosFormulario.
