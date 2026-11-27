@@ -61,8 +61,8 @@ function iniciarComprobacionStockDesdeModal() {
   if ($("#radioComprobacionAnterior").is(":checked")) {
     admitirComprobacionStockAnterior();
   } else {
-    // El filtro se elige antes de empezar: una familia o un proveedor
-    comprobarExistenciasVigente(modoEstricto, $("#selectFamiliaComprobacionStock").val(), $("#selectProveedorComprobacionStock").val());
+    // El filtro se elige antes de empezar, en las cajas del cierre de stock anual: una familia o un proveedor
+    comprobarExistenciasVigente(modoEstricto, $("#id_familia").val(), $("#id_proveedor").val());
   }
   cerrarPopUpConTitulo("Comprobar existencias");
 }

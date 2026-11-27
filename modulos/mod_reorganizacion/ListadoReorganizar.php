@@ -193,52 +193,38 @@
                             Ejercicio vigente: calcular los productos con existencia negativa</label></div>
                         <div class="checkbox" style="margin-left:20px"><label><input type="checkbox" id="chkComprobacionStockModoEstricto">
                             Modo estricto (trunca a cero el saldo de apertura de cada producto)</label></div>
-                        <?php
-                        // El filtro del vigente: una familia, con sus subfamilias, o un proveedor.
-                        include_once './clases/ClaseComprobacionStockConsulta.php';
-                        $consultaDelFiltro = new ClaseComprobacionStockConsulta();
-                        $familiasPorPadre = array();
-                        $idsDeFamilia = array();
-                        $familiasDelFiltro = $consultaDelFiltro->familiasDelFiltro();
-                        foreach ($familiasDelFiltro as $familia) {
-                            $idsDeFamilia[$familia['idFamilia']] = true;
-                        }
-                        foreach ($familiasDelFiltro as $familia) {
-                            $padre = isset($idsDeFamilia[$familia['padre']]) ? $familia['padre'] : 0;
-                            $familiasPorPadre[$padre][] = $familia;
-                        }
-                        // Cada subfamilia debajo de su familia, sangrada por su nivel.
-                        $opcionesDeFamilia = '';
-                        $pendientes = array();
-                        if (isset($familiasPorPadre[0])) {
-                            foreach (array_reverse($familiasPorPadre[0]) as $familia) {
-                                $pendientes[] = array($familia, 0);
-                            }
-                        }
-                        while (!empty($pendientes)) {
-                            list($familia, $nivel) = array_pop($pendientes);
-                            $opcionesDeFamilia .= '<option value="' . $familia['idFamilia'] . '">'
-                                . str_repeat('— ', $nivel) . htmlspecialchars($familia['nombre']) . '</option>';
-                            if (isset($familiasPorPadre[$familia['idFamilia']])) {
-                                foreach (array_reverse($familiasPorPadre[$familia['idFamilia']]) as $hija) {
-                                    $pendientes[] = array($hija, $nivel + 1);
-                                }
-                            }
-                        }
-                        $opcionesDeProveedor = '';
-                        foreach ($consultaDelFiltro->proveedoresDelFiltro() as $proveedor) {
-                            $opcionesDeProveedor .= '<option value="' . $proveedor['idProveedor'] . '">' . htmlspecialchars($proveedor['nombre']) . '</option>';
-                        }
-                        ?>
-                        <div class="form-group" style="margin-left:20px">
-                            <label for="selectFamiliaComprobacionStock">Solo la familia</label>
-                            <select class="form-control input-sm" id="selectFamiliaComprobacionStock" onchange="$('#selectProveedorComprobacionStock').val('')">
-                                <option value="">Todas</option><?php echo $opcionesDeFamilia; ?>
-                            </select>
-                            <label for="selectProveedorComprobacionStock">o solo el proveedor</label>
-                            <select class="form-control input-sm" id="selectProveedorComprobacionStock" onchange="$('#selectFamiliaComprobacionStock').val('')">
-                                <option value="">Todos</option><?php echo $opcionesDeProveedor; ?>
-                            </select>
+                        <!-- El filtro del vigente: una familia, con sus subfamilias, o un proveedor. Las mismas
+                             cajas y búsquedas que el cierre de stock anual. -->
+                        <div style="margin-left:20px">
+                            <label class="small">Solo la familia:</label>
+                            <div class="row" style="margin-bottom:10px">
+                                <div class="col-xs-3" style="padding-right:5px;">
+                                    <input type="text" id="id_familia" name="id_familia" data-obj="cajaIdFamilia" class="form-control input-sm" placeholder="ID" onkeydown="controlEventos(event)">
+                                </div>
+                                <div class="col-xs-9">
+                                    <div class="input-group">
+                                        <input type="text" id="Familia" name="Familia" data-obj="cajaFamilia" class="form-control input-sm" placeholder="Nombre Familia..." onkeydown="controlEventos(event)">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-sm btn-default" title="Buscar" onclick="buscarFamilia('<?php echo $dedonde; ?>','Familia.value')"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button type="button" class="btn btn-sm btn-default" title="Catálogo" id="btnCatalogoFamiliasComprobacionStock" onclick="catalogoFamilias()"><i class="glyphicon glyphicon-book"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="small">o solo el proveedor:</label>
+                            <div class="row" style="margin-bottom:10px">
+                                <div class="col-xs-8" style="padding-right:5px;">
+                                    <input type="text" class="form-control input-sm" name="Proveedor" id="Proveedor" data-obj="cajaProveedor" placeholder="Nombre..." onkeydown="controlEventos(event)">
+                                </div>
+                                <div class="col-xs-4" style="padding-left:0;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="id_proveedor" id="id_proveedor" data-obj="cajaIdProveedor" placeholder="ID" onkeydown="controlEventos(event)">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" onclick="buscarProveedor('<?php echo $dedonde; ?>','Proveedor.value')"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     <?php } ?>
                     <?php if ($puedeAdmitir) { ?>

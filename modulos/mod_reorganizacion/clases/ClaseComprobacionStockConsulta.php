@@ -70,32 +70,6 @@ class ClaseComprobacionStockConsulta extends TFModelo
         return $ids;
     }
 
-    public function familiasDelFiltro()
-    {
-        // @ Objetivo
-        // Las familias que se pueden elegir como filtro, con su familia padre.
-        // @ Devolvemos
-        //      array de filas ['idFamilia' => int, 'nombre' => string, 'padre' => int].
-        $familias = array();
-        foreach ($this->filasDe("SELECT idFamilia, familiaNombre, familiaPadre FROM familias ORDER BY familiaNombre") as $fila) {
-            $familias[] = array('idFamilia' => (int) $fila['idFamilia'], 'nombre' => $fila['familiaNombre'], 'padre' => (int) $fila['familiaPadre']);
-        }
-        return $familias;
-    }
-
-    public function proveedoresDelFiltro()
-    {
-        // @ Objetivo
-        // Los proveedores que se pueden elegir como filtro.
-        // @ Devolvemos
-        //      array de filas ['idProveedor' => int, 'nombre' => string].
-        $proveedores = array();
-        foreach ($this->filasDe("SELECT idProveedor, razonsocial FROM proveedores ORDER BY razonsocial") as $fila) {
-            $proveedores[] = array('idProveedor' => (int) $fila['idProveedor'], 'nombre' => $fila['razonsocial']);
-        }
-        return $proveedores;
-    }
-
     public function nombreDelFiltro($tipo, $id)
     {
         // @ Objetivo
